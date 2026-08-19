@@ -3,6 +3,7 @@
 import argparse
 import subprocess
 import shlex
+import sys
 import time
 import re
 import os
@@ -238,18 +239,24 @@ def time_sync_ptp4l(
     # If ptp4l encountered an error, raise a SystemExit exception
     if stderr:
         raise SystemExit(
-            "[Error] Catch error while running ptp4l on {}".format(interface)
+            "[Error] Caught error while running ptp4l on {}".format(interface)
         )
 
     # Check the last 10 seconds of ptp4l output
     lines = stdout.splitlines()
     for line in lines[-10:]:
-        offset = int(line.split()[3])
-        if not -100 < offset < 100:
-            raise SystemExit("[FAIL] Masteroffset is not between -100 to 100")
+        try:
+            offset = int(line.split()[3])
+            if not -100 < offset < 100:
+                raise SystemExit("[FAIL] Master offset is not between -100 to 100")
+        except ValueError:
+            # print the entire line before raising
+            # or we get a cryptic "'as' cannot be converted to int" message
+            print('Failed to parse offset int from line:', line, file=sys.stderr)
+            raise # now we print the actual call trace
 
     # If the master offset is between -100 and 100, print a success message
-    print("[PASS] Masteroffset is between -100 to 100")
+    print("[PASS] Master offset is between -100 to 100")
 
 
 def time_sync_phc2sys(

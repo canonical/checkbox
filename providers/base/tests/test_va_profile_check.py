@@ -15,6 +15,7 @@
 
 from contextlib import redirect_stdout
 from io import StringIO
+from subprocess import STDOUT
 from unittest import TestCase
 from unittest.mock import patch
 
@@ -25,8 +26,10 @@ from va_profile_check import (
     cmd_resource,
     entrypoint_to_direction,
     get_supported_features,
+    main,
     parse_vainfo_output,
     profile_to_feature_id,
+    run_vainfo,
 )
 
 VAINFO_OUTPUT = """\
@@ -64,6 +67,11 @@ class TestParseVainfoOutput(TestCase):
         parsed = parse_vainfo_output(VAINFO_OUTPUT)
         for profile, _ in parsed:
             self.assertTrue(profile.startswith("VAProfile"))
+
+    def test_ignores_line_without_colon(self):
+        output = "VAProfileMPEG4Simple\nVAProfileH264Main:VAEntrypointVLD\n"
+        parsed = parse_vainfo_output(output)
+        self.assertEqual(parsed, [("VAProfileH264Main", "VAEntrypointVLD")])
 
 
 class TestProfileToFeatureId(TestCase):
@@ -110,6 +118,16 @@ class TestEntrypointToDirection(TestCase):
             "VAEntrypointProtectedContent",
         ):
             self.assertIsNone(entrypoint_to_direction(entrypoint))
+
+
+class TestRunVainfo(TestCase):
+    def test_invokes_check_output_with_vainfo(self):
+        with patch("va_profile_check.check_output") as check_output_mock:
+            check_output_mock.return_value = VAINFO_OUTPUT
+            self.assertEqual(run_vainfo(), VAINFO_OUTPUT)
+        check_output_mock.assert_called_once_with(
+            ["vainfo"], universal_newlines=True, stderr=STDOUT
+        )
 
 
 class TestGetSupportedFeatures(TestCase):
@@ -198,6 +216,21 @@ class TestCmdReverse(TestCase):
                 with redirect_stdout(StringIO()):
                     self.assertEqual(cmd_reverse(), 0)
 
+    def test_false_declared_features_are_ignored(self):
+        with patch(
+            "va_profile_check.run_vainfo",
+            return_value=VAINFO_OUTPUT,
+        ):
+            with patch(
+                "va_profile_check.get_manifest",
+                return_value={
+                    NAMESPACE + "::has_h264_main_decoder": False,
+                    NAMESPACE + "::has_h264_main_encoder": True,
+                },
+            ):
+                with redirect_stdout(StringIO()):
+                    self.assertEqual(cmd_reverse(), 0)
+
 
 class TestCmdResource(TestCase):
     def test_output_contains_resource_fields(self):
@@ -214,3 +247,47 @@ class TestCmdResource(TestCase):
         self.assertIn("direction: encoder", content)
         self.assertIn("feature: has_h264_high_encoder", content)
         self.assertIn("entrypoints: VAEntrypointFEI", content)
+
+
+class TestMain(TestCase):
+    def test_resource(self):
+        with patch(
+            "va_profile_check.run_vainfo",
+            return_value=VAINFO_OUTPUT,
+        ):
+            with redirect_stdout(StringIO()):
+                self.assertEqual(main(["resource"]), 0)
+
+    def test_forward_declared(self):
+        with patch(
+            "va_profile_check.get_manifest",
+            return_value={NAMESPACE + "::has_h264_high_decoder": True},
+        ):
+            with redirect_stdout(StringIO()):
+                self.assertEqual(main(["forward", "has_h264_high_decoder"]), 0)
+
+    def test_forward_undeclared(self):
+        with patch(
+            "va_profile_check.get_manifest",
+            return_value={NAMESPACE + "::has_hevc_main_decoder": True},
+        ):
+            with redirect_stdout(StringIO()):
+                self.assertEqual(main(["forward", "has_h264_high_decoder"]), 1)
+
+    def test_reverse(self):
+        with patch(
+            "va_profile_check.run_vainfo",
+            return_value=VAINFO_OUTPUT,
+        ):
+            with patch(
+                "va_profile_check.get_manifest",
+                return_value={
+                    NAMESPACE + "::has_h264_main_decoder": True,
+                },
+            ):
+                with redirect_stdout(StringIO()):
+                    self.assertEqual(main(["reverse"]), 0)
+
+    def test_unknown_command_raises_system_exit(self):
+        with self.assertRaises(SystemExit):
+            main(["bogus"])

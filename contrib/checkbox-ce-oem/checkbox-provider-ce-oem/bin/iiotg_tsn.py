@@ -730,7 +730,7 @@ def parse_string(string: str):
         )
 
     for pair in interface_ip_pairs:
-        words = pair.split(":")
+        words = pair.strip().split(":")
         if len(words) != 2:
             raise SystemExit(
                 "Expected INTERFACE:SERVER_IP, but got '{}'".format(pair)

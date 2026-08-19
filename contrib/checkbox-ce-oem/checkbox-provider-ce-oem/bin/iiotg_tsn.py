@@ -64,7 +64,9 @@ def clear_qdisc_settings_before_and_after(interface: str):
         clear_qdisc_settings(interface)
 
 
-def ptp4l(interface: str, cfg: str, timeout: int = 0) -> subprocess.Popen:
+def ptp4l(
+    interface: str, cfg: str, timeout: int = 0
+) -> "subprocess.Popen[str]":
     """Run ptp4l command to sync physical hardware clock between systems.
 
     Args:
@@ -77,18 +79,12 @@ def ptp4l(interface: str, cfg: str, timeout: int = 0) -> subprocess.Popen:
         subprocess.Popen: A process object representing \
         the running ptp4l command.
     """
-    # Build the ptp4l command with the provided parameters.
-    cmd = "timeout {} ptp4l -i {} -f {} -m".format(
-        timeout,
-        interface,
-        cfg,
-    )
 
     # Run the ptp4l command with the provided parameters.
     # The command is run with stdout and stderr redirected to pipes.
     # Text mode is enabled to allow access to the output as text.
     process = subprocess.Popen(
-        shlex.split(cmd),
+        ["timeout", str(timeout), "ptp4l", "-i", interface, "-f", cfg, "-m"],
         stdout=subprocess.PIPE,  # Redirect stdout to a pipe.
         stderr=subprocess.PIPE,  # Redirect stderr to a pipe.
         text=True,  # Enable text mode, so output can be accessed as text.

@@ -172,7 +172,7 @@ def server_mode(
         for port, cpu in zip(range(5201, 5204), range(1, 4)):
             # Run iperf3 server
             process = subprocess.Popen(
-                ['iperf3', '-s', '-B', ip, '-p', str(port), '-A', str(cpu)]
+                ["iperf3", "-s", "-B", ip, "-p", str(port), "-A", str(cpu)]
             )
             processes.append(process)
 
@@ -192,7 +192,6 @@ def server_mode(
         for process in processes:
             process.terminate()
         print("Terminated all ptp4l and iperf3 process")
-
 
 
 def time_sync_ptp4l(
@@ -248,12 +247,16 @@ def time_sync_ptp4l(
         try:
             offset = int(line.split()[3])
             if not -100 < offset < 100:
-                raise SystemExit("[FAIL] Master offset is not between -100 to 100")
+                raise SystemExit(
+                    "[FAIL] Master offset is not between -100 to 100"
+                )
         except ValueError:
             # print the entire line before raising
             # or we get a cryptic "'as' cannot be converted to int" message
-            print('Failed to parse offset int from line:', line, file=sys.stderr)
-            raise # now we print the actual call trace
+            print(
+                "Failed to parse offset int from line:", line, file=sys.stderr
+            )
+            raise  # now we print the actual call trace
 
     # If the master offset is between -100 and 100, print a success message
     print("[PASS] Master offset is between -100 to 100")

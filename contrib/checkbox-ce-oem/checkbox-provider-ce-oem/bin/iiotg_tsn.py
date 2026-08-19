@@ -1,15 +1,15 @@
 #!/usr/bin/env python3
 
 import argparse
-import subprocess
+import os
+import re
 import shlex
+import subprocess
 import sys
 import time
-import re
-import os
-from threading import Event
-from contextlib import contextmanager
 import typing as t
+from contextlib import contextmanager
+from threading import Event
 
 
 def clear_qdisc_settings(interface: str) -> None:

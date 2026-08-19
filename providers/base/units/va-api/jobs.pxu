@@ -10,3 +10,53 @@ plugin: shell
 flags: simple
 command:
     vainfo && exit 0 || exit 1
+
+id: va-api/vainfo
+_summary: List the VA-API codec profiles and entrypoints advertised by the driver
+_comment:
+    Emits one resource record per (profile, direction) pair, each mapped to
+    the manifest feature that should be declared on the DUT.
+category_id: va-api
+imports: from com.canonical.plainbox import manifest
+requires:
+    package.name == 'vainfo'
+    cpuinfo.platform == 'x86_64'
+    manifest.has_va_api == 'True'
+plugin: resource
+command: va_profile_check.py resource
+
+unit: template
+template-resource: va-api/vainfo
+template-unit: job
+plugin: shell
+category_id: va-api
+imports: from com.canonical.plainbox import manifest
+id: va-api/va-profile-{profile}-{direction}
+template-id: va-api/va-profile-profile-direction
+requires:
+    package.name == 'vainfo'
+    cpuinfo.platform == 'x86_64'
+    manifest.has_va_api == 'True'
+command: va_profile_check.py forward {feature}
+estimated_duration: 0.1
+_summary: Verify that {profile_name} {direction} is declared in the DUT manifest
+_purpose:
+    The VA driver advertises this profile and direction through vainfo. This
+    test checks that the DUT manifest declares the corresponding feature, so
+    that the driver is not exposing capabilities that were not expected on
+    this device.
+
+id: va-api/va-manifest-vs-driver
+_summary: Verify that every manifest-declared VA-API feature is advertised by the driver
+category_id: va-api
+imports: from com.canonical.plainbox import manifest
+requires:
+    package.name == 'vainfo'
+    cpuinfo.platform == 'x86_64'
+    manifest.has_va_api == 'True'
+plugin: shell
+command: va_profile_check.py reverse
+estimated_duration: 0.1
+_purpose:
+    Checks that every VA-API codec feature declared in the DUT manifest is
+    actually advertised by the VA driver through vainfo.

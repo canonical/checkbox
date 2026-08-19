@@ -2,3 +2,407 @@ unit: manifest entry
 id: has_va_api
 _name: Has support for hardware video acceleration (VA API)
 value-type: bool
+
+# One feature set entry per VAProfile (see va.h) and direction. These are
+# declared in the DUT configuration and verified against the profiles and
+# entrypoints advertised by the VA driver (vainfo).
+
+unit: manifest entry
+id: has_mpeg2_simple_decoder
+_name: VAProfileMPEG2Simple decoder
+value-type: bool
+
+unit: manifest entry
+id: has_mpeg2_simple_encoder
+_name: VAProfileMPEG2Simple encoder
+value-type: bool
+
+unit: manifest entry
+id: has_mpeg2_main_decoder
+_name: VAProfileMPEG2Main decoder
+value-type: bool
+
+unit: manifest entry
+id: has_mpeg2_main_encoder
+_name: VAProfileMPEG2Main encoder
+value-type: bool
+
+unit: manifest entry
+id: has_mpeg4_simple_decoder
+_name: VAProfileMPEG4Simple decoder
+value-type: bool
+
+unit: manifest entry
+id: has_mpeg4_simple_encoder
+_name: VAProfileMPEG4Simple encoder
+value-type: bool
+
+unit: manifest entry
+id: has_mpeg4_advanced_simple_decoder
+_name: VAProfileMPEG4AdvancedSimple decoder
+value-type: bool
+
+unit: manifest entry
+id: has_mpeg4_advanced_simple_encoder
+_name: VAProfileMPEG4AdvancedSimple encoder
+value-type: bool
+
+unit: manifest entry
+id: has_mpeg4_main_decoder
+_name: VAProfileMPEG4Main decoder
+value-type: bool
+
+unit: manifest entry
+id: has_mpeg4_main_encoder
+_name: VAProfileMPEG4Main encoder
+value-type: bool
+
+unit: manifest entry
+id: has_h264_baseline_decoder
+_name: VAProfileH264Baseline decoder
+value-type: bool
+
+unit: manifest entry
+id: has_h264_baseline_encoder
+_name: VAProfileH264Baseline encoder
+value-type: bool
+
+unit: manifest entry
+id: has_h264_main_decoder
+_name: VAProfileH264Main decoder
+value-type: bool
+
+unit: manifest entry
+id: has_h264_main_encoder
+_name: VAProfileH264Main encoder
+value-type: bool
+
+unit: manifest entry
+id: has_h264_high_decoder
+_name: VAProfileH264High decoder
+value-type: bool
+
+unit: manifest entry
+id: has_h264_high_encoder
+_name: VAProfileH264High encoder
+value-type: bool
+
+unit: manifest entry
+id: has_vc1_simple_decoder
+_name: VAProfileVC1Simple decoder
+value-type: bool
+
+unit: manifest entry
+id: has_vc1_simple_encoder
+_name: VAProfileVC1Simple encoder
+value-type: bool
+
+unit: manifest entry
+id: has_vc1_main_decoder
+_name: VAProfileVC1Main decoder
+value-type: bool
+
+unit: manifest entry
+id: has_vc1_main_encoder
+_name: VAProfileVC1Main encoder
+value-type: bool
+
+unit: manifest entry
+id: has_vc1_advanced_decoder
+_name: VAProfileVC1Advanced decoder
+value-type: bool
+
+unit: manifest entry
+id: has_vc1_advanced_encoder
+_name: VAProfileVC1Advanced encoder
+value-type: bool
+
+unit: manifest entry
+id: has_h263_baseline_decoder
+_name: VAProfileH263Baseline decoder
+value-type: bool
+
+unit: manifest entry
+id: has_h263_baseline_encoder
+_name: VAProfileH263Baseline encoder
+value-type: bool
+
+unit: manifest entry
+id: has_jpeg_baseline_decoder
+_name: VAProfileJPEGBaseline decoder
+value-type: bool
+
+unit: manifest entry
+id: has_jpeg_baseline_encoder
+_name: VAProfileJPEGBaseline encoder
+value-type: bool
+
+unit: manifest entry
+id: has_h264_constrained_baseline_decoder
+_name: VAProfileH264ConstrainedBaseline decoder
+value-type: bool
+
+unit: manifest entry
+id: has_h264_constrained_baseline_encoder
+_name: VAProfileH264ConstrainedBaseline encoder
+value-type: bool
+
+unit: manifest entry
+id: has_vp8_version0_3_decoder
+_name: VAProfileVP8Version0_3 decoder
+value-type: bool
+
+unit: manifest entry
+id: has_vp8_version0_3_encoder
+_name: VAProfileVP8Version0_3 encoder
+value-type: bool
+
+unit: manifest entry
+id: has_h264_multiview_high_decoder
+_name: VAProfileH264MultiviewHigh decoder
+value-type: bool
+
+unit: manifest entry
+id: has_h264_multiview_high_encoder
+_name: VAProfileH264MultiviewHigh encoder
+value-type: bool
+
+unit: manifest entry
+id: has_h264_stereo_high_decoder
+_name: VAProfileH264StereoHigh decoder
+value-type: bool
+
+unit: manifest entry
+id: has_h264_stereo_high_encoder
+_name: VAProfileH264StereoHigh encoder
+value-type: bool
+
+unit: manifest entry
+id: has_hevc_main_decoder
+_name: VAProfileHEVCMain decoder
+value-type: bool
+
+unit: manifest entry
+id: has_hevc_main_encoder
+_name: VAProfileHEVCMain encoder
+value-type: bool
+
+unit: manifest entry
+id: has_hevc_main10_decoder
+_name: VAProfileHEVCMain10 decoder
+value-type: bool
+
+unit: manifest entry
+id: has_hevc_main10_encoder
+_name: VAProfileHEVCMain10 encoder
+value-type: bool
+
+unit: manifest entry
+id: has_vp9_profile0_decoder
+_name: VAProfileVP9Profile0 decoder
+value-type: bool
+
+unit: manifest entry
+id: has_vp9_profile0_encoder
+_name: VAProfileVP9Profile0 encoder
+value-type: bool
+
+unit: manifest entry
+id: has_vp9_profile1_decoder
+_name: VAProfileVP9Profile1 decoder
+value-type: bool
+
+unit: manifest entry
+id: has_vp9_profile1_encoder
+_name: VAProfileVP9Profile1 encoder
+value-type: bool
+
+unit: manifest entry
+id: has_vp9_profile2_decoder
+_name: VAProfileVP9Profile2 decoder
+value-type: bool
+
+unit: manifest entry
+id: has_vp9_profile2_encoder
+_name: VAProfileVP9Profile2 encoder
+value-type: bool
+
+unit: manifest entry
+id: has_vp9_profile3_decoder
+_name: VAProfileVP9Profile3 decoder
+value-type: bool
+
+unit: manifest entry
+id: has_vp9_profile3_encoder
+_name: VAProfileVP9Profile3 encoder
+value-type: bool
+
+unit: manifest entry
+id: has_hevc_main12_decoder
+_name: VAProfileHEVCMain12 decoder
+value-type: bool
+
+unit: manifest entry
+id: has_hevc_main12_encoder
+_name: VAProfileHEVCMain12 encoder
+value-type: bool
+
+unit: manifest entry
+id: has_hevc_main422_10_decoder
+_name: VAProfileHEVCMain422_10 decoder
+value-type: bool
+
+unit: manifest entry
+id: has_hevc_main422_10_encoder
+_name: VAProfileHEVCMain422_10 encoder
+value-type: bool
+
+unit: manifest entry
+id: has_hevc_main422_12_decoder
+_name: VAProfileHEVCMain422_12 decoder
+value-type: bool
+
+unit: manifest entry
+id: has_hevc_main422_12_encoder
+_name: VAProfileHEVCMain422_12 encoder
+value-type: bool
+
+unit: manifest entry
+id: has_hevc_main444_decoder
+_name: VAProfileHEVCMain444 decoder
+value-type: bool
+
+unit: manifest entry
+id: has_hevc_main444_encoder
+_name: VAProfileHEVCMain444 encoder
+value-type: bool
+
+unit: manifest entry
+id: has_hevc_main444_10_decoder
+_name: VAProfileHEVCMain444_10 decoder
+value-type: bool
+
+unit: manifest entry
+id: has_hevc_main444_10_encoder
+_name: VAProfileHEVCMain444_10 encoder
+value-type: bool
+
+unit: manifest entry
+id: has_hevc_main444_12_decoder
+_name: VAProfileHEVCMain444_12 decoder
+value-type: bool
+
+unit: manifest entry
+id: has_hevc_main444_12_encoder
+_name: VAProfileHEVCMain444_12 encoder
+value-type: bool
+
+unit: manifest entry
+id: has_hevc_scc_main_decoder
+_name: VAProfileHEVCSccMain decoder
+value-type: bool
+
+unit: manifest entry
+id: has_hevc_scc_main_encoder
+_name: VAProfileHEVCSccMain encoder
+value-type: bool
+
+unit: manifest entry
+id: has_hevc_scc_main10_decoder
+_name: VAProfileHEVCSccMain10 decoder
+value-type: bool
+
+unit: manifest entry
+id: has_hevc_scc_main10_encoder
+_name: VAProfileHEVCSccMain10 encoder
+value-type: bool
+
+unit: manifest entry
+id: has_hevc_scc_main444_decoder
+_name: VAProfileHEVCSccMain444 decoder
+value-type: bool
+
+unit: manifest entry
+id: has_hevc_scc_main444_encoder
+_name: VAProfileHEVCSccMain444 encoder
+value-type: bool
+
+unit: manifest entry
+id: has_av1_profile0_decoder
+_name: VAProfileAV1Profile0 decoder
+value-type: bool
+
+unit: manifest entry
+id: has_av1_profile0_encoder
+_name: VAProfileAV1Profile0 encoder
+value-type: bool
+
+unit: manifest entry
+id: has_av1_profile1_decoder
+_name: VAProfileAV1Profile1 decoder
+value-type: bool
+
+unit: manifest entry
+id: has_av1_profile1_encoder
+_name: VAProfileAV1Profile1 encoder
+value-type: bool
+
+unit: manifest entry
+id: has_hevc_scc_main444_10_decoder
+_name: VAProfileHEVCSccMain444_10 decoder
+value-type: bool
+
+unit: manifest entry
+id: has_hevc_scc_main444_10_encoder
+_name: VAProfileHEVCSccMain444_10 encoder
+value-type: bool
+
+unit: manifest entry
+id: has_h264_high10_decoder
+_name: VAProfileH264High10 decoder
+value-type: bool
+
+unit: manifest entry
+id: has_h264_high10_encoder
+_name: VAProfileH264High10 encoder
+value-type: bool
+
+unit: manifest entry
+id: has_vvc_main10_decoder
+_name: VAProfileVVCMain10 decoder
+value-type: bool
+
+unit: manifest entry
+id: has_vvc_main10_encoder
+_name: VAProfileVVCMain10 encoder
+value-type: bool
+
+unit: manifest entry
+id: has_vvc_multilayer_main10_decoder
+_name: VAProfileVVCMultilayerMain10 decoder
+value-type: bool
+
+unit: manifest entry
+id: has_vvc_multilayer_main10_encoder
+_name: VAProfileVVCMultilayerMain10 encoder
+value-type: bool
+
+unit: manifest entry
+id: has_av1_profile2_decoder
+_name: VAProfileAV1Profile2 decoder
+value-type: bool
+
+unit: manifest entry
+id: has_av1_profile2_encoder
+_name: VAProfileAV1Profile2 encoder
+value-type: bool
+
+unit: manifest entry
+id: has_h264_high422_decoder
+_name: VAProfileH264High422 decoder
+value-type: bool
+
+unit: manifest entry
+id: has_h264_high422_encoder
+_name: VAProfileH264High422 encoder
+value-type: bool

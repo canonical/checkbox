@@ -771,7 +771,6 @@ def main():
             "server",
             "ptp4l",
             "phc2sys",
-            "time_based_shaper",
             "credit_based_shaper",
             "traffic_scheduling",
         ],
@@ -860,15 +859,6 @@ def main():
             time_sync_phc2sys(
                 args.interfaces[0],
                 cfg=args.client_config,
-                timeout=args.timeout,
-            )
-    elif args.run == "time_based_shaper":
-        # Time based shaper
-        with clear_qdisc_settings_before_and_after(
-            interface=args.interfaces[0]
-        ):
-            time_based_shaper(
-                interface=args.interfaces[0],
                 timeout=args.timeout,
             )
     elif args.run == "credit_based_shaper":

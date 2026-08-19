@@ -579,19 +579,26 @@ def credit_based_shaper(
     iperf_process = iperf3_client(
         server_ip, get_interface_ip(interface), timeout
     )
-    stdout, stderr = iperf_process.communicate()
+    assert iperf_process.stdout and iperf_process.stderr
 
+    iperf_stdout_lines = deque(maxlen=10)  # type: deque[str]
+    for raw_line in iperf_process.stdout:
+        line = str(raw_line).strip()
+        iperf_stdout_lines.append(line)
+        print(line, flush=True)
+
+    iperf_process.wait()
+    iperf_stderr = str(iperf_process.stderr.read()).strip()
     # Check for errors in the iperf3 output
-    if stderr:
+    if iperf_stderr:
         raise SystemExit(
-            "[ERROR] Found error while running iperf3:\n{}".format(stderr)
+            "[ERROR] Found error while running iperf3:\n{}".format(
+                iperf_stderr
+            )
         )
 
-    # Print the iperf3 output
-    print(stdout)
-
     # Parse the upload speed from the iperf3 output
-    speed_bits = float(stdout.split("\n")[-4].split()[6])
+    speed_bits = float(iperf_stdout_lines[-4].split()[6])
 
     # Check if the upload speed is between 90 and 100 Mbps
     if not 90 < speed_bits < 100:
@@ -746,6 +753,7 @@ def iperf3_client(
     client_ip: str,
     timeout: int = 60,
     port: int = 5201,
+    print_to_console: bool = False,
 ) -> "subprocess.Popen[str]":
     """
     Run iperf3 client to measure the upload speed
@@ -762,8 +770,8 @@ def iperf3_client(
     Raises:
         SystemExit: If an error occurs while running iperf3.
     """
-    # Construct the iperf3 command
-    cmd = "iperf3 -c {} -t {} -B {} -p {} -f m".format(
+    # --forceflush to force iperf3 to write to the pipe after every interval
+    cmd = "iperf3 -c {} -t {} -B {} -p {} -f m --forceflush".format(
         server_ip,
         timeout,
         client_ip,
@@ -773,9 +781,9 @@ def iperf3_client(
     # Run the iperf3 client
     process = subprocess.Popen(
         shlex.split(cmd),
-        stdout=subprocess.PIPE,  # Redirect stdout to a pipe.
-        stderr=subprocess.PIPE,  # Redirect stderr to a pipe.
-        text=True,  # Enable text mode, so output can be accessed as text.
+        stdout=None if print_to_console else subprocess.PIPE,
+        stderr=None if print_to_console else subprocess.PIPE,
+        text=True,
     )
     # Return the process object
     return process

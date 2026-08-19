@@ -68,9 +68,12 @@ def clear_qdisc_settings_before_and_after(interface: str):
 
 
 def ptp4l(
-    interface: str, cfg: str, timeout: int = 0
+    interface: str,
+    cfg: "Path | None" = None,
+    timeout: int = 0,
+    server_mode: bool = False,
 ) -> "subprocess.Popen[str]":
-    """Run ptp4l command to sync physical hardware clock between systems.
+    """Spawn a ptp4l process
 
     Args:
         interface (str): The interface to set the clock on.
@@ -86,14 +89,56 @@ def ptp4l(
     # Run the ptp4l command with the provided parameters.
     # The command is run with stdout and stderr redirected to pipes.
     # Text mode is enabled to allow access to the output as text.
-    process = subprocess.Popen(
-        ["timeout", str(timeout), "ptp4l", "-i", interface, "-f", cfg, "-m"],
-        stdout=subprocess.PIPE,  # Redirect stdout to a pipe.
-        stderr=subprocess.PIPE,  # Redirect stderr to a pipe.
-        text=True,  # Enable text mode, so output can be accessed as text.
-    )
 
-    # Return the process object representing the running ptp4l command.
+    if cfg:
+        process = subprocess.Popen(
+            # caller is responsible for making sure config file is valid
+            # i.e. options are recognized by ptp4l
+            [
+                "timeout",
+                str(timeout),
+                "ptp4l",
+                "-i",
+                interface,
+                "-f",
+                cfg,
+                "-m",
+            ],
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            text=True,
+        )
+    else:
+        # convenience path, you don't have to have a config file to run tests
+        # this should work on most intel platforms even without rt kernel
+        default_cmd = [
+            "timeout",
+            str(timeout),
+            "ptp4l",
+            "-i",
+            interface,
+            "-m",  # print msg to stdout
+            # anycast, allows auto server discovery
+            "--network_transport=L2",
+            "--tx_timestamp_timeout=5",
+            # comes from the default config
+            # both server and client needs to have this
+            # /usr/share/doc/linuxptp/configs/automotive-slave.cfg
+            "--transportSpecific=1",
+        ]
+        if not server_mode:
+            # client only mode
+            default_cmd.append("-s")  
+            # force 'master offset' output to appear in stdout
+            default_cmd.append("--summary_interval=-4")
+        process = subprocess.Popen(
+            default_cmd,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            text=True,
+        )
+
+    # caller decides how to consume stdout and stderr
     return process
 
 
@@ -121,10 +166,10 @@ def phc2sys(interface: str, timeout: int = 60) -> "subprocess.Popen[str]":
             "0",  # and physical hardware clock to 0
             "-c",  # client clock source is CLOCK_REALTIME
             "CLOCK_REALTIME",
-            "-w",  #  wait for ptp4l
-            "-m",  # print the messages
+            "-w",  #  wait for ptp4l to be ready
+            "-m",  # print the messages to stdout
             "--step_threshold=1",
-            "--transportSpecific=1",  # transport specific, 0~255
+            "--transportSpecific=1",  # see ptp4l()
         ],
         stdout=subprocess.PIPE,  # Redirect stdout to a pipe.
         stderr=subprocess.PIPE,  # Redirect stderr to a pipe.
@@ -137,7 +182,7 @@ def phc2sys(interface: str, timeout: int = 60) -> "subprocess.Popen[str]":
 
 def server_mode(
     interfaces: "list[str]",
-    cfg: str = "/usr/share/doc/linuxptp/configs/automotive-master.cfg",
+    cfg: "Path | None" = None,
 ) -> None:
     """Run ptp4l as master in every port.
 
@@ -163,7 +208,7 @@ def server_mode(
         clear_qdisc_settings(interface=interface)
 
         # Run ptp4l as master with the provided interface and configuration
-        process = ptp4l(interface=interface, cfg=cfg)
+        process = ptp4l(interface=interface, cfg=cfg, server_mode=True)
         processes.append(process)
         print("Start running ptp4l on {} as master".format(interface))
 
@@ -198,7 +243,7 @@ def server_mode(
 
 def time_sync_ptp4l(
     interface: str,
-    cfg: str = "/usr/share/doc/linuxptp/configs/automotive-slave.cfg",
+    cfg: "Path | None" = None,
     timeout: int = 60,
 ) -> None:
     """
@@ -272,7 +317,7 @@ def time_sync_ptp4l(
 
 def time_sync_phc2sys(
     interface: str,
-    cfg: str = "/usr/share/doc/linuxptp/configs/automotive-slave.cfg",
+    cfg: "Path | None" = None,
     timeout: int = 60,
 ) -> None:
     """
@@ -536,7 +581,7 @@ def credit_based_shaper(
 def traffic_scheduling(
     interface: str,
     server_ip: str,
-    cfg: str,
+    cfg: "Path | None" = None,
     timeout: int = 25,
 ) -> None:
     """
@@ -742,8 +787,7 @@ def parse_string(string: str):
         if not (Path("/sys/class/net/") / interface).exists():
             raise SystemExit(
                 (
-                    "Parsed interface '{}', "
-                    "but it doesn't exist under /sys/class/net"
+                    "Parsed interface '{}', but it doesn't exist under /sys/class/net"
                 ).format(interface)
             )
         # this will raise ValueError for us if addr invalid
@@ -764,8 +808,7 @@ def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
         prog="TSN Testing Tool",
         description=(
-            "This is a tool to help you test "
-            "TSN (Time Sensitive Networking)"
+            "This is a tool to help you test TSN (Time Sensitive Networking)"
         ),
     )
     subparsers = parser.add_subparsers(dest="command", required=True)
@@ -781,8 +824,7 @@ def parse_args() -> argparse.Namespace:
         nargs="+",
         required=True,
         help=(
-            "TSN ethernet interfaces to serve. "
-            "ptp4l will run on these interfaces"
+            "TSN ethernet interfaces to serve. ptp4l will run on these interfaces"
         ),
     )
     server_parser.add_argument(
@@ -797,8 +839,7 @@ def parse_args() -> argparse.Namespace:
     client_parser = subparsers.add_parser(
         "client",
         help=(
-            "Run a TSN test on the client. "
-            "Specify a subcommand then -h to see usage."
+            "Run a TSN test on the client. Specify a subcommand then -h to see usage."
         ),
     )
     client_subparsers = client_parser.add_subparsers(

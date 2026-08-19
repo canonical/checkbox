@@ -347,11 +347,10 @@ def time_sync_phc2sys(
         if delay != 0:
             raise SystemExit(
                 "[FAIL] path delay is not equal to 0\n"
-                + "path delay should be 0 if using hardware "
-                + "cross timestamping"
+                + "path delay should be 0 if using hardware cross timestamping"
             )
 
-    print("[PASS] Syncing system time to physical hardware clock successfully")
+    print("[PASS] Synced system time to physical hardware clock successfully")
 
 
 def time_based_shaper(interface: str, timeout: int = 10) -> None:

@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 import argparse
+from collections import deque
 import os
 import re
 import shlex
@@ -275,28 +276,40 @@ def time_sync_ptp4l(
         )
     # Run ptp4l as a subprocess and get its output
     process = ptp4l(interface=interface, cfg=cfg, timeout=timeout)
-    stdout, stderr = process.communicate()
+    # discard the ones already printed to stdout
+    last_10_lines = deque(maxlen=10) # type: deque[str]
+
+    # they should be io.TextIO objects
+    assert process.stdout and process.stderr
+    for line in process.stdout:
+        print(str(line).strip(), flush=True)
+        last_10_lines.append(line)
+
+    process.wait()
 
     # Print the output of ptp4l
-    print("Standard Output (stdout):")
-    print(stdout)
-    print("Standard Error (stderr):")
-    print(stderr)
-
-    # If ptp4l encountered an error, raise a SystemExit exception
+    stderr = process.stderr.read().strip()
+    
     if stderr:
+        # a successful & clean run of ptp4l shows no errors
+        # NOTE: if the error mentions deleting files in /var/run
+        # NOTE: that means a previous ptp4l run was force killed / crashed
+        # NOTE: re-run the test and those lines won't appear
+        print("Standard Error (stderr):")
+        print(stderr)
         raise SystemExit(
             "[Error] Caught error while running ptp4l on {}".format(interface)
         )
 
-    # Check the last 10 seconds of ptp4l output
+    # now we check the last 10 lines of ptp4l's output
     # a successful output looks like this:
+    #
     # ptp4l[11408.871]: master offset -5 s2 freq +7652 path delay 12
+    #
     # we want to check the master_offset = -5 value from that line
     # if abs(master_offset) < 100, then the test passes
     # a failed run usually has very large numbers instead of -5
-    lines = stdout.splitlines()
-    for line in lines[-10:]:
+    for line in last_10_lines:
         try:
             master_offset = int(line.split()[3])
             if not -100 < master_offset < 100:
@@ -930,7 +943,6 @@ def parse_args() -> argparse.Namespace:
 
 
 def run_client(args: argparse.Namespace) -> None:
-    """Run the single test item selected by "iiotg_tsn.py client ..."."""
     with clear_qdisc_settings_before_and_after(interface=args.interface):
         if args.test == "ptp4l":
             time_sync_ptp4l(

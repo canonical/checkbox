@@ -15,8 +15,8 @@ def clear_qdisc_settings(interface: str) -> None:
     """Clear the previous qdisc settings.
 
     This function clears the previous qdisc settings by running the tc
-    command with the 'qdisc del' option. 
-    
+    command with the 'qdisc del' option.
+
     Args:
         interface (str): The name of the network interface.
 
@@ -27,11 +27,11 @@ def clear_qdisc_settings(interface: str) -> None:
 
     # Run the tc command with a timeout of 1 second
     subprocess.run(
-        ['tc', 'qdisc', 'del', 'dev', interface, 'root'],
+        ["tc", "qdisc", "del", "dev", interface, "root"],
         stdout=subprocess.PIPE,  # Redirect stdout to a pipe.
         stderr=subprocess.PIPE,  # Redirect stderr to a pipe.
         timeout=1,
-        check=False
+        check=False,
     )
 
 

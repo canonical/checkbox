@@ -13,14 +13,30 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with Checkbox. If not, see <http://www.gnu.org/licenses/>
-"""WWAN module connection test driven by wwan_at_command.json config.
+"""WWAN-as-USB-hotspot connection test driven by a JSON config.
 
-Talks to the modem directly over its AT-command control interface
-(WWAN_CONTROL_IF, e.g. /dev/ttyUSB2) using raw serial I/O. This
-intentionally does not use ModemManager/mmcli at all: the module this
-was written for isn't reliably controllable through ModemManager's own
-connection stack, so everything (module detection, connection setup,
-radio enable, reset/recovery) is done with plain AT commands instead.
+Targets a WWAN module attached as a USB cdc-acm device, used purely to
+bring up a data connection ("USB hotspot" style) rather than a full
+ModemManager-integrated modem. The JSON config for a device has two,
+independently-optional parts:
+
+  {
+    "<MODULE_NAME>": {
+      "setup": ["<shell command>", ...],
+      "connect": {"<step name>": "<AT command>" | {spec}, ...}
+    }
+  }
+
+- "setup": plain shell commands (e.g. modprobe/rfkill/ip) run in order
+  to bring the module up. Execution stops at the first failure.
+- "connect": AT commands sent over the module's serial control
+  interface (WWAN_CONTROL_IF) to make the data connection. Execution
+  stops at the first failing step.
+
+Both parts may be omitted/empty, and the whole config is optional: with
+nothing configured, the script just pings over WWAN_NET_IF. Any
+provided setup or connect command that fails causes the script to exit
+1.
 """
 
 import argparse
@@ -50,7 +66,9 @@ def resolve_config_path(wwan_at_command):
     If `wwan_at_command` is already a full path (absolute, or contains
     a path separator), it is used as-is. Otherwise it's treated as a
     bare filename and looked up inside
-    $PLAINBOX_PROVIDER_DATA/wwan_at_command/.
+    $PLAINBOX_PROVIDER_DATA/wwan_at_command/. A config is entirely
+    optional: when WWAN_AT_COMMAND_JSON isn't set (and --config isn't
+    passed), the script just pings over WWAN_NET_IF.
     """
     if os.path.isabs(wwan_at_command) or os.sep in wwan_at_command:
         return wwan_at_command
@@ -230,76 +248,6 @@ class ModemAtController:
             return None
         return parse_at_response(raw)
 
-    def log_connection_diagnostics(self, iface):
-        """Log modem/network state to help debug a failed IP acquisition."""
-        logging.info("[DIAG] ---- connection diagnostics ----")
-        for cmd in ("AT+CGATT?", "AT+CGACT?", "AT+CGDCONT?", "AT+CGPADDR=1"):
-            resp = self.query(cmd)
-            logging.info("[DIAG] %s -> %s", cmd, resp)
-
-        _, link_stdout, _ = run_cmd(["ip", "-s", "link", "show", "dev", iface])
-        logging.info(
-            "[DIAG] ip -s link show dev %s:\n%s", iface, link_stdout.strip()
-        )
-
-        _, dmesg_stdout, _ = run_cmd(["sh", "-c", "dmesg | tail -n 40"])
-        logging.info("[DIAG] dmesg (tail):\n%s", dmesg_stdout.strip())
-        logging.info("[DIAG] ---------------------------------")
-
-    def detect_module(self, config):
-        """Return (module_name, at_steps) for the first name found in ATI.
-
-        The module name key is matched literally against the modem's
-        ATI (identification) response. Exits with an error if no
-        configured module is detected.
-        """
-        rc, raw = self.send_command("ATI", timeout=5)
-        if rc != 0:
-            logging.error("ATI failed")
-            sys.exit(1)
-        for name, at_steps in config.items():
-            if name in raw:
-                logging.info("Detected module: %s", name)
-                return name, at_steps
-        logging.error(
-            "No configured WWAN module found in ATI output:\n%s",
-            raw.strip(),
-        )
-        sys.exit(1)
-
-    def get_cfun_state(self):
-        """Return the AT+CFUN? functionality mode as an int, or None."""
-        resp = self.query("AT+CFUN?")
-        if not resp:
-            return None
-        m = re.search(r"\+CFUN:\s*(\d+)", resp)
-        return int(m.group(1)) if m else None
-
-    def ensure_radio_enabled(self):
-        """Make sure the radio is enabled (AT+CFUN=1) before testing.
-
-        Returns True if the radio ends up in full-functionality mode
-        (1), False otherwise. Callers should treat False as fatal and
-        stop the test rather than continue.
-        """
-        state = self.get_cfun_state()
-        logging.info("Radio functionality (CFUN) : %s", state)
-        if state == 1:
-            return True
-
-        logging.info("Radio is CFUN=%s, enabling with AT+CFUN=1 ...", state)
-        rc, raw = self.send_command("AT+CFUN=1", timeout=10)
-        if rc != 0:
-            logging.error("Failed to enable radio: %s", raw.strip())
-            return False
-
-        state = self.get_cfun_state()
-        logging.info("Radio functionality after enable: %s", state)
-        if state != 1:
-            logging.error("Radio still not enabled (CFUN=%s)", state)
-            return False
-        return True
-
     def run_at_step(self, name, spec, env, timeout=15):
         """Execute one AT-command step; return True on pass.
 
@@ -365,20 +313,17 @@ class ModemAtController:
             logging.error("[FAIL] %s: rc=%s resp=%s", name, rc, repr(resp))
         return passed
 
-    def run_steps(self, at_steps, env):
-        """Run all AT steps then ping; return list of pass/fail bools.
+    def run_connect_steps(self, connect_steps, env):
+        """Run all "connect" AT steps in order; return True if all pass.
 
-        at_steps is a dict of {step_name: at_command}.
+        connect_steps is a dict of {step_name: at_command_or_spec}.
+        Stops at the first failing step.
         """
-        results = []
-        for name, cmd in at_steps.items():
-            ok = self.run_at_step(name, cmd, env)
-            results.append(ok)
-            if not ok:
+        for name, spec in connect_steps.items():
+            if not self.run_at_step(name, spec, env):
                 logging.error("Aborting: AT command '%s' failed", name)
-                return results
-        results.append(run_ping(env["WWAN_NET_IF"], self))
-        return results
+                return False
+        return True
 
     def send_reset(self):
         """Send AT+CRESET; return True if the modem accepted the command."""
@@ -501,7 +446,35 @@ def deprioritize_default_route(iface, metric=200):
     )
 
 
-def run_ping(iface, modem):
+def log_connection_diagnostics(iface, modem=None):
+    """Log modem/network state to help debug a failed IP acquisition.
+
+    `modem` is optional: when the config had no "connect" AT steps, no
+    serial control interface is opened, so only the OS-level (ip/dmesg)
+    diagnostics are available.
+    """
+    logging.info("[DIAG] ---- connection diagnostics ----")
+    if modem is not None:
+        for cmd in (
+            "AT+CGATT?",
+            "AT+CGACT?",
+            "AT+CGDCONT?",
+            "AT+CGPADDR=1",
+        ):
+            resp = modem.query(cmd)
+            logging.info("[DIAG] %s -> %s", cmd, resp)
+
+    _, link_stdout, _ = run_cmd(["ip", "-s", "link", "show", "dev", iface])
+    logging.info(
+        "[DIAG] ip -s link show dev %s:\n%s", iface, link_stdout.strip()
+    )
+
+    _, dmesg_stdout, _ = run_cmd(["sh", "-c", "dmesg | tail -n 40"])
+    logging.info("[DIAG] dmesg (tail):\n%s", dmesg_stdout.strip())
+    logging.info("[DIAG] ---------------------------------")
+
+
+def run_ping(iface, modem=None):
     """Bring up iface, wait for a DHCP lease, then ping 8.8.8.8.
 
     The DUT's own network manager (NetworkManager, per the boards'
@@ -511,6 +484,9 @@ def run_ping(iface, modem):
     DHCP client or flush the address (which was tearing down NM's
     state without it recovering on its own); it only nudges
     NetworkManager to (re)connect the device and waits for the lease.
+
+    `modem` is optional and only used to enrich diagnostics on failure
+    (see log_connection_diagnostics).
     """
     # 1. Bring the link UP
     logging.info("[NET] Bringing up interface %s ...", iface)
@@ -551,7 +527,7 @@ def run_ping(iface, modem):
         logging.error(
             "[NET] No IP assigned on %s after waiting %ss", iface, setuptime
         )
-        modem.log_connection_diagnostics(iface)
+        log_connection_diagnostics(iface, modem)
         return False
 
     # 3b. Don't let the WWAN default route hijack the system's routing
@@ -649,29 +625,91 @@ def reset_and_recover(device):
 
 
 def load_config(path):
-    """Load and return the JSON module config."""
+    """Load and return the JSON config, or {} if no path/file is given.
+
+    A config is entirely optional: no path, or a path to a file that
+    doesn't exist, both mean "nothing configured" (ping-only mode) so
+    that a device with no setup/connect needs can simply omit
+    WWAN_AT_COMMAND_JSON rather than pointing at an empty JSON file.
+    """
+    if not path or not os.path.isfile(path):
+        return {}
     with open(path) as fh:
         return json.load(fh)
 
 
+def extract_module_block(config):
+    """Return (module_name, block) for the sole top-level entry.
+
+    The config is expected to have exactly one top-level key (the
+    module name, used only for logging) wrapping the "setup" and
+    "connect" parts. An empty config yields (None, {}), which callers
+    treat as "nothing to do but ping".
+    """
+    if not config:
+        return None, {}
+    if len(config) > 1:
+        logging.warning(
+            "Config defines %d modules (%s); only the first is used",
+            len(config),
+            ", ".join(config.keys()),
+        )
+    name = next(iter(config))
+    return name, config[name] or {}
+
+
+def run_setup_commands(setup_cmds):
+    """Run each "setup" shell command in order; return True if all pass.
+
+    Each entry is a full shell command line (may use pipes/redirection
+    etc.), so it's run through the shell -- the same trust level as a
+    job's own `command:` field, since these come from static local
+    test-config JSON files maintained by the test author, not
+    external/runtime input. Stops at the first failing command.
+    """
+    for cmd in setup_cmds:
+        logging.info("[SETUP] %s", cmd)
+        proc = subprocess.run(
+            cmd,
+            shell=True,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+        )
+        stdout = proc.stdout.decode("utf-8", errors="replace")
+        stderr = proc.stderr.decode("utf-8", errors="replace")
+        if stdout.strip():
+            logging.info("[SETUP] stdout:\n%s", stdout.strip())
+        if stderr.strip():
+            logging.info("[SETUP] stderr:\n%s", stderr.strip())
+        if proc.returncode != 0:
+            logging.error(
+                "[FAIL] Setup command failed (rc=%s): %s",
+                proc.returncode,
+                cmd,
+            )
+            return False
+        logging.info("[PASS] %s", cmd)
+    return True
+
+
 def parse_args():
     parser = argparse.ArgumentParser(
-        description="WWAN module connection test via raw AT commands"
+        description="WWAN-as-USB-hotspot connection test"
     )
     parser.add_argument(
         "--config",
         default=DEFAULT_CONFIG,
-        help="Path to the wwan_at_command JSON config (default: taken"
-        " from the WWAN_AT_COMMAND_JSON environment variable; a bare"
-        " filename is resolved against"
-        " $PLAINBOX_PROVIDER_DATA/wwan_at_command/, a full path is"
-        " used as-is)",
+        help="Path to the JSON config (default: taken from the"
+        " WWAN_AT_COMMAND_JSON environment variable; a bare filename"
+        " is resolved against $PLAINBOX_PROVIDER_DATA/wwan_at_command/,"
+        " a full path is used as-is). Optional: with no config (or an"
+        " empty one), the script just pings over WWAN_NET_IF",
     )
     parser.add_argument(
         "--action",
         choices=("connect", "reset-recovery"),
         default="connect",
-        help="'connect' (default) runs the AT-command connection test;"
+        help="'connect' (default) runs the setup/connect/ping test;"
         " 'reset-recovery' issues AT+CRESET and verifies the modem"
         " recovers and re-registers afterwards",
     )
@@ -686,71 +724,54 @@ def main():
     args = parse_args()
 
     control_if = os.environ.get("WWAN_CONTROL_IF", "")
-    if not control_if:
-        logging.error("Environment variable WWAN_CONTROL_IF is not set")
-        sys.exit(1)
 
     if args.action == "reset-recovery":
+        if not control_if:
+            logging.error("Environment variable WWAN_CONTROL_IF is not set")
+            sys.exit(1)
         sys.exit(0 if reset_and_recover(control_if) else 1)
 
-    if not args.config:
-        logging.error(
-            "No config path given: set the WWAN_AT_COMMAND_JSON"
-            " environment variable (a bare filename resolves against"
-            " $PLAINBOX_PROVIDER_DATA/wwan_at_command/) or pass --config"
-        )
-        sys.exit(1)
-
-    apn = os.environ.get("WWAN_APN", "")
     iface = os.environ.get("WWAN_NET_IF", "")
-    if not apn:
-        logging.error("Environment variable WWAN_APN is not set")
-        sys.exit(1)
     if not iface:
         logging.error("Environment variable WWAN_NET_IF is not set")
         sys.exit(1)
 
-    env = {"WWAN_APN": apn, "WWAN_NET_IF": iface}
-
     config = load_config(args.config)
-    modem = ModemAtController(control_if)
-    modem.open()
-    try:
-        module_name, at_steps = modem.detect_module(config)
-        if not modem.ensure_radio_enabled():
-            logging.error(
-                "Aborting: radio on %s could not be confirmed enabled",
-                control_if,
-            )
+    module_name, block = extract_module_block(config)
+    setup_cmds = list(block.get("setup") or [])
+    connect_steps = block.get("connect") or {}
+
+    logging.info("=== WWAN USB-Hotspot Connection Test ===")
+    logging.info("Module      : %s", module_name or "(none configured)")
+    logging.info("Interface   : %s", iface)
+
+    if setup_cmds and not run_setup_commands(setup_cmds):
+        sys.exit(1)
+
+    modem = None
+    if connect_steps:
+        if not control_if:
+            logging.error("Environment variable WWAN_CONTROL_IF is not set")
+            sys.exit(1)
+        apn = os.environ.get("WWAN_APN", "")
+        if not apn:
+            logging.error("Environment variable WWAN_APN is not set")
+            sys.exit(1)
+        env = {"WWAN_APN": apn, "WWAN_NET_IF": iface}
+
+        modem = ModemAtController(control_if)
+        modem.open()
+        if not modem.run_connect_steps(connect_steps, env):
+            modem.close()
             sys.exit(1)
 
-        logging.info("=== WWAN Connection Test ===")
-        logging.info("Module      : %s", module_name)
-        logging.info("Control IF  : %s", control_if)
-        logging.info("Interface   : %s", iface)
-        logging.info("APN         : %s", apn)
-
-        results = modem.run_steps(at_steps, env)
+    try:
+        ping_ok = run_ping(iface, modem)
     finally:
-        modem.close()
+        if modem is not None:
+            modem.close()
 
-    total = len(results)
-    passed_count = sum(1 for r in results if r)
-    failed_count = total - passed_count
-    if failed_count:
-        logging.error(
-            "Summary: %d/%d passed - %d test(s) failed",
-            passed_count,
-            total,
-            failed_count,
-        )
-        sys.exit(1)
-    else:
-        logging.info(
-            "Summary: %d/%d passed - all tests passed",
-            passed_count,
-            total,
-        )
+    sys.exit(0 if ping_ok else 1)
 
 
 if __name__ == "__main__":

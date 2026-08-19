@@ -568,13 +568,14 @@ def traffic_scheduling(
         "sched-entry S 04 5000000 "
         "sched-entry S 08 5000000 "
         "flags 0x2 "
-        "txtime-delay 0".format(interface)
-    )
+        "txtime-delay 0"
+    ).format(interface)
     result = subprocess.run(
         shlex.split(cmd),
         stdout=subprocess.PIPE,
         stderr=subprocess.PIPE,
         timeout=1,
+        check=False
     )
     if result.returncode:
         raise SystemExit(
@@ -585,8 +586,8 @@ def traffic_scheduling(
     time.sleep(5)
 
     print(
-        "Setting which hardware transmit queue "
-        "each iperf3 instance using via net_prio cgroups..."
+        "Setting which hardware transmit queue",
+        "each iperf3 instance using via net_prio cgroups...",
     )
 
     # Create /sys/fs/cgroup/net_prio
@@ -594,7 +595,7 @@ def traffic_scheduling(
 
     # Mount /sys/fs/cgroup/net_prio
     cmd = "mount -t cgroup -onet_prio none /sys/fs/cgroup/net_prio"
-    subprocess.run(shlex.split(cmd), timeout=1)
+    subprocess.run(shlex.split(cmd), timeout=1, check=False)
 
     # Create /sys/fs/cgroup/net_prio/grp{1,2,3} and write interface {1, 2, 3}
     for grp in range(1, 4):
@@ -655,7 +656,7 @@ def traffic_scheduling(
 
 def iperf3_client(
     server_ip: str,
-    client_ip,
+    client_ip: str,
     timeout: int = 60,
     port: int = 5201,
 ) -> "subprocess.Popen[str]":
@@ -693,7 +694,7 @@ def iperf3_client(
     return process
 
 
-def get_interface_ip(interface):
+def get_interface_ip(interface: str):
     cmd = ["ip", "-4", "-o", "addr", "show", "dev", interface]
     result = subprocess.run(
         cmd,
@@ -725,7 +726,7 @@ def parse_string(string: str):
             interface, server_ip = eth.split(":")
             print("interface: {}".format(interface))
             print("server_ip: {}".format(server_ip))
-            print("")
+            print()
     except Exception as err:
         raise SystemExit("[ERROR] {}".format(err))
 
@@ -763,8 +764,10 @@ def main():
         action="store",
         type=str,
         default=None,
-        help="The string need to be parsed, format: "
-        "INTERFACE1:SERVER_IP1,INTERFACE2:SERVER_IP2",
+        help=(
+            "The string need to be parsed, format: "
+            "INTERFACE1:SERVER_IP1,INTERFACE2:SERVER_IP2"
+        ),
     )
     parser.add_argument(
         "--interfaces", "-i", nargs="+", help="TSN ethernet interfaces"
@@ -800,8 +803,10 @@ def main():
     parser.add_argument(
         "--all-interfaces",
         type=str,
-        help="All TSN supported network interfaces, sperated by spaces, "
-        "quoted by double quotes",
+        help=(
+            "All TSN supported network interfaces, separated by spaces, "
+            "quoted by double quotes"
+        ),
     )
     # Parse command line arguments
     args = parser.parse_args()

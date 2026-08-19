@@ -2,6 +2,7 @@
 
 import argparse
 import os
+from pathlib import Path
 import re
 import shlex
 import subprocess
@@ -10,6 +11,7 @@ import time
 import typing as t
 from contextlib import contextmanager
 from threading import Event
+from ipaddress import ip_address
 
 
 def clear_qdisc_settings(interface: str) -> None:
@@ -575,7 +577,7 @@ def traffic_scheduling(
         stdout=subprocess.PIPE,
         stderr=subprocess.PIPE,
         timeout=1,
-        check=False
+        check=False,
     )
     if result.returncode:
         raise SystemExit(
@@ -721,14 +723,31 @@ def get_interface_ip(interface: str):
 
 def parse_string(string: str):
     """It should be this format, INTERFACE1:SERVER_IP1,INTERFACE2:SERVER_IP2"""
-    try:
-        for eth in string.split(","):
-            interface, server_ip = eth.split(":")
-            print("interface: {}".format(interface))
-            print("server_ip: {}".format(server_ip))
-            print()
-    except Exception as err:
-        raise SystemExit("[ERROR] {}".format(err))
+    interface_ip_pairs = string.split(",")
+    if len(interface_ip_pairs) == 0:
+        raise SystemExit(
+            "Found no INTERFACE:SERVER_IP pairs in '{}'".format(string)
+        )
+
+    for pair in interface_ip_pairs:
+        words = pair.split(":")
+        if len(words) != 2:
+            raise SystemExit(
+                "Expected INTERFACE:SERVER_IP, but got '{}'".format(pair)
+            )
+        interface, server_ip = words
+        if not (Path("/sys/class/net/") / interface).exists():
+            raise SystemExit(
+                (
+                    "Parsed interface '{}', "
+                    "but it doesn't exist under /sys/class/net"
+                ).format(interface)
+            )
+        # this will raise ValueError for us if addr invalid
+        ip_address(server_ip)
+
+        print("interface: {}".format(interface))
+        print("server_ip: {}".format(server_ip))
 
 
 def main():
@@ -736,10 +755,10 @@ def main():
     Main function to parse command line arguments and perform the
     specified testing item or server_mode.
     """
-    # Create ArgumentParser object
+
     parser = argparse.ArgumentParser(
         prog="TSN Testing Tool",
-        description="This is a tool to help you perform the TSN testing",
+        description="This is a tool to help you test TSN (Time Sensitive Networking)",
         formatter_class=argparse.ArgumentDefaultsHelpFormatter,
     )
 

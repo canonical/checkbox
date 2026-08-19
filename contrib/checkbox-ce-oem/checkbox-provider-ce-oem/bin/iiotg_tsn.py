@@ -273,7 +273,7 @@ def time_sync_ptp4l(
     if timeout < 30:
         raise SystemExit(
             "[ERROR] timeout should be at least 30 seconds "
-            + "for a successful time sync"
+            + f"for a successful time sync (got {timeout})"
         )
     # Run ptp4l as a subprocess and get its output
     process = ptp4l(interface=interface, cfg=cfg, timeout=timeout)
@@ -358,7 +358,7 @@ def time_sync_phc2sys(
     if timeout < 30:
         raise SystemExit(
             "[ERROR] timeout should be at least 30 seconds "
-            + "for a successful time sync"
+            + f"for a successful time sync (got {timeout})"
         )
 
     ptp4l(interface=interface, cfg=cfg, timeout=timeout, print_to_console=True)
@@ -615,7 +615,7 @@ def traffic_scheduling(
     interface: str,
     server_ip: str,
     cfg: "Path | None" = None,
-    timeout: int = 25,
+    timeout: int = 30,
 ) -> None:
     """
     Schedules traffic by running ptp4l command, setting qdisc,
@@ -627,14 +627,18 @@ def traffic_scheduling(
         server_ip (str): The IP address of the server.
         cfg (str): The configuration file path.
         timeout (int, optional): The time in seconds to wait for
-        each operation. Defaults to 25.
+        each operation. Defaults to 30.
 
     Returns:
         None
     """
 
-    if timeout < 25:
-        raise SystemExit("Timeout must be at least 25 seconds.")
+    if timeout < 30:
+        raise SystemExit(
+            "Traffic scheduling timeout must be at least 30 seconds. "
+            + f"(got {timeout})"
+        )
+
     print("Running ptp4l on {}...".format(interface))
     ptp4l(interface, cfg, timeout, print_to_console=True)
     time.sleep(10)

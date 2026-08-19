@@ -64,6 +64,9 @@ flags: preserve-locale
 id: usb-dwc3/mass-storage-cleanup
 group: peripherals_manual
 _summary: Cleanup mass storage setup after mass storage device test
+imports: from com.canonical.plainbox import manifest
+requires:
+  manifest.has_usb_dwc3_controller == 'True'
 plugin: shell
 after: usb-dwc3/mass-storage
 command:
@@ -76,4 +79,3 @@ command:
 user: root
 category_id: usb-dwc3
 estimated_duration: 1s
-

@@ -750,143 +750,180 @@ def parse_string(string: str):
         print("server_ip: {}".format(server_ip))
 
 
-def main():
+def parse_args() -> argparse.Namespace:
     """
-    Main function to parse command line arguments and perform the
-    specified testing item or server_mode.
+    we have 3 subcommands
+    - server: this should be run on a peer dut
+    - client: the actual TSN tests
+    - validate-string: only used for the resource job,
+        validates TSN_DEVICE_IP_LIST
     """
-
     parser = argparse.ArgumentParser(
         prog="TSN Testing Tool",
-        description="This is a tool to help you test TSN (Time Sensitive Networking)",
+        description=(
+            "This is a tool to help you test "
+            "TSN (Time Sensitive Networking)"
+        ),
+    )
+    subparsers = parser.add_subparsers(dest="command", required=True)
+
+    server_parser = subparsers.add_parser(
+        "server",
+        help="Spawn the TSN test server (ptp4l master and iperf3 servers)",
+        formatter_class=argparse.ArgumentDefaultsHelpFormatter,
+    )
+    server_parser.add_argument(
+        "--interfaces",
+        "-i",
+        nargs="+",
+        required=True,
+        help=(
+            "TSN ethernet interfaces to serve. "
+            "ptp4l will run on these interfaces"
+        ),
+    )
+    server_parser.add_argument(
+        "--master-config",
+        type=str,
+        help=(
+            "Optional ptp4l config file for the server. "
+            "This is directly passed to ptp4l."
+        ),
+    )
+
+    client_parser = subparsers.add_parser(
+        "client",
+        help=(
+            "Run a TSN test on the client. "
+            "Specify a subcommand then -h to see usage."
+        ),
+    )
+    client_subparsers = client_parser.add_subparsers(
+        dest="test", required=True
+    )
+
+    # shared by every client test
+    common_parser = argparse.ArgumentParser(add_help=False)
+    common_parser.add_argument(
+        "--interface",
+        "-i",
+        required=True,
+        help="TSN ethernet interface to test",
+    )
+    common_parser.add_argument(
+        "--timeout",
+        "-t",
+        type=int,
+        default=60,
+        help="Timeout for the current test in seconds",
+    )
+
+    gptp_parser = argparse.ArgumentParser(
+        add_help=False, parents=[common_parser]
+    )
+    gptp_parser.add_argument(
+        "--client-config",
+        type=str,
+        help=(
+            "Config file for client. "
+            "They are passed to the corresponding test commands with -f <file>"
+        ),
+    )
+
+    client_subparsers.add_parser(
+        "ptp4l",
+        parents=[gptp_parser],
+        help="Time sync test with ptp4l",
+        formatter_class=argparse.ArgumentDefaultsHelpFormatter,
+    )
+    client_subparsers.add_parser(
+        "phc2sys",
+        parents=[gptp_parser],
+        help="Time sync test with phc2sys",
         formatter_class=argparse.ArgumentDefaultsHelpFormatter,
     )
 
-    # Add arguments
-    parser.add_argument(
-        "--run",
-        "-r",
-        action="store",
-        choices=[
-            "server",
-            "ptp4l",
-            "phc2sys",
-            "credit_based_shaper",
-            "traffic_scheduling",
-        ],
-        help="Run a testing item or server_mode",
+    credit_based_shaper_parser = client_subparsers.add_parser(
+        "credit-based-shaper",
+        parents=[common_parser],
+        help="Credit-Based Shaper test",
+        formatter_class=argparse.ArgumentDefaultsHelpFormatter,
     )
-    parser.add_argument(
-        "--parse-string",
-        "-p",
-        action="store",
+    credit_based_shaper_parser.add_argument(
+        "--server-ip",
         type=str,
-        default=None,
+        required=True,
+        help="Server IP address",
+    )
+
+    traffic_scheduling_parser = client_subparsers.add_parser(
+        "traffic-scheduling",
+        parents=[gptp_parser],
+        help="Traffic scheduling test",
+        formatter_class=argparse.ArgumentDefaultsHelpFormatter,
+    )
+    traffic_scheduling_parser.add_argument(
+        "--server-ip",
+        type=str,
+        required=True,
+        help="Server IP address",
+    )
+
+    validate_parser = subparsers.add_parser(
+        "validate-string",
+        help="Validate an INTERFACE:SERVER_IP resource string",
+    )
+    validate_parser.add_argument(
+        "string",
+        type=str,
         help=(
-            "The string need to be parsed, format: "
+            "The string to validate, format: "
             "INTERFACE1:SERVER_IP1,INTERFACE2:SERVER_IP2"
         ),
     )
-    parser.add_argument(
-        "--interfaces", "-i", nargs="+", help="TSN ethernet interfaces"
-    )
-    parser.add_argument(
-        "--timeout",
-        "-t",
-        action="store",
-        type=int,
-        default=60,
-        help="Timeout for the testing item",
-    )
-    parser.add_argument(
-        "--master-config",
-        action="store",
-        type=str,
-        default="/usr/share/doc/linuxptp/configs/automotive-master.cfg",
-        help="gPTP config file for master",
-    )
-    parser.add_argument(
-        "--client-config",
-        action="store",
-        type=str,
-        default="/usr/share/doc/linuxptp/configs/automotive-slave.cfg",
-        help="gPTP config file for client",
-    )
-    parser.add_argument(
-        "--server-ip",
-        action="store",
-        type=str,
-        help="Server IP address",
-    )
-    parser.add_argument(
-        "--all-interfaces",
-        type=str,
-        help=(
-            "All TSN supported network interfaces, separated by spaces, "
-            "quoted by double quotes"
-        ),
-    )
-    # Parse command line arguments
-    args = parser.parse_args()
 
-    if args.parse_string is not None:
-        parse_string(args.parse_string)
-        return
-    # Perform the specified testing item or server_mode
-    if args.run == "server":
-        # Run server_mode
-        server_mode(args.interfaces, cfg=args.master_config)
-        return
-    elif len(args.interfaces) != 1:
-        # Exit if interfaces is not a single element
-        raise SystemExit("We only need one interface for testing!")
+    return parser.parse_args()
 
-    if args.run == "ptp4l":
-        # Time sync with ptp4l
-        with clear_qdisc_settings_before_and_after(
-            interface=args.interfaces[0]
-        ):
+
+def run_client(args: argparse.Namespace) -> None:
+    """Run the single test item selected by "iiotg_tsn.py client ..."."""
+    with clear_qdisc_settings_before_and_after(interface=args.interface):
+        if args.test == "ptp4l":
             time_sync_ptp4l(
-                args.interfaces[0],
+                args.interface,
                 cfg=args.client_config,
                 timeout=args.timeout,
             )
-    elif args.run == "phc2sys":
-        # Time sync with phc2sys
-        with clear_qdisc_settings_before_and_after(
-            interface=args.interfaces[0]
-        ):
+        elif args.test == "phc2sys":
             time_sync_phc2sys(
-                args.interfaces[0],
+                args.interface,
                 cfg=args.client_config,
                 timeout=args.timeout,
             )
-    elif args.run == "credit_based_shaper":
-        # Credit based shaper
-        with clear_qdisc_settings_before_and_after(
-            interface=args.interfaces[0]
-        ):
+        elif args.test == "credit-based-shaper":
             credit_based_shaper(
-                interface=args.interfaces[0],
+                interface=args.interface,
                 server_ip=args.server_ip,
                 timeout=args.timeout,
             )
-    elif args.run == "traffic_scheduling":
-        # Traffic scheduling
-        if args.all_interfaces is None:
-            other_interfaces = []
-        else:
-            other_interfaces = args.all_interfaces.split()
-            other_interfaces.remove(args.interfaces[0])
-        with clear_qdisc_settings_before_and_after(
-            interface=args.interfaces[0]
-        ):
+        elif args.test == "traffic-scheduling":
             traffic_scheduling(
-                interface=args.interfaces[0],
+                interface=args.interface,
                 server_ip=args.server_ip,
                 cfg=args.client_config,
                 timeout=args.timeout,
             )
+
+
+def main():
+    args = parse_args()
+
+    if args.command == "server":
+        server_mode(args.interfaces, cfg=args.master_config)
+    elif args.command == "client":
+        run_client(args)
+    elif args.command == "validate-string":
+        parse_string(args.string)
 
 
 if __name__ == "__main__":

@@ -296,7 +296,7 @@ def time_sync_phc2sys(
     """
     if timeout < 30:
         raise SystemExit(
-            "[ERROR] timeout should be at least 30 seconds to let the time synchronized"
+            "[ERROR] timeout should be at least 30 seconds for a successful time sync"
         )
     # Run ptp4l as a subprocess and get its output
     ptp4l(interface=interface, cfg=cfg, timeout=timeout)
@@ -313,7 +313,7 @@ def time_sync_phc2sys(
 
     # If phc2sys encountered an error, raise a SystemExit exception
     if stderr:
-        print(f"[Error] Catch error while running ptp4l on {interface}")
+        print(f"[Error] Caught error while running ptp4l on {interface}")
         raise SystemExit(
             "[Error] Catch error while running ptp4l on {}".format(interface)
         )
@@ -336,10 +336,10 @@ def time_sync_phc2sys(
         if state != "s2":
             raise SystemExit(
                 "[FAIL] state is not equal to s2 "
-                "for the last 10 seconds\n"
-                "s0: unsynced\n"
-                "s1: syncing\n"
-                "s2: synced"
+                + "for the last 10 seconds\n"
+                + "s0: unsynced\n"
+                + "s1: syncing\n"
+                + "s2: synced"
             )
 
         # If the path delay is not equal to 0 for the last 10 seconds,
@@ -347,8 +347,8 @@ def time_sync_phc2sys(
         if delay != 0:
             raise SystemExit(
                 "[FAIL] path delay is not equal to 0\n"
-                "path delay should be 0 if using hardware "
-                "cross timestamping"
+                + "path delay should be 0 if using hardware "
+                + "cross timestamping"
             )
 
     print("[PASS] Syncing system time to physical hardware clock successfully")

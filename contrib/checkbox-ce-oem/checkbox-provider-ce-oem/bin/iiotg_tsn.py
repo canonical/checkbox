@@ -371,18 +371,18 @@ def time_based_shaper(interface: str, timeout: int = 10) -> None:
         "tc qdisc add dev {} handle 8001: parent root mqprio num_tc 4 "
         "map 0 1 2 3 3 3 3 3 3 3 3 3 3 3 3 3 queues 1@0 1@1 1@2 1@3 hw 0"
     ).format(interface)
-    subprocess.run(shlex.split(cmd), timeout=1)
+    subprocess.run(shlex.split(cmd), timeout=1, check=False)
 
     # Replace parent qdisc with etf offload
     cmd = (
         "tc qdisc replace dev {} parent 8001:4 etf offload clockid CLOCK_TAI "
         "delta 500000"
     ).format(interface)
-    subprocess.run(shlex.split(cmd), timeout=1)
+    subprocess.run(shlex.split(cmd), timeout=1, check=False)
 
     # Show the current qdisc settings
     cmd = "tc qdisc show dev {}".format(interface)
-    subprocess.run(shlex.split(cmd), timeout=1)
+    subprocess.run(shlex.split(cmd), timeout=1, check=False)
 
     # Run udp_tai with specified parameters
     cmd = "udp_tai -c 3 -i {} -P 1000000 -p 90 -d 600000".format(interface)
@@ -394,10 +394,8 @@ def time_based_shaper(interface: str, timeout: int = 10) -> None:
     # check that they are within the required time interval
     cmd = (
         "tcpdump -G {} -Q out -ttt -ni {} --time-stamp-precision=nano "
-        "-j adapter_unsynced port 7788 -c {}".format(
-            timeout, interface, timeout * 1000
-        )
-    )
+        "-j adapter_unsynced port 7788 -c {}"
+    ).format(timeout, interface, timeout * 1000)
     process = subprocess.Popen(
         shlex.split(cmd), stdout=subprocess.PIPE, text=True
     )
@@ -434,17 +432,17 @@ def time_based_shaper(interface: str, timeout: int = 10) -> None:
     # raise a SystemExit exception
     if cnt > timeout * 1000 * 0.05:
         raise SystemExit(
-            "[FAIL] There are {}/{} (more than 5%) packets not "
-            "within the required time interval (999500 - 1000500)".format(
-                cnt, timeout * 1000
-            )
+            (
+                "[FAIL] There are {}/{} (more than 5%) packets not "
+                "within the required time interval (999500 - 1000500)"
+            ).format(cnt, timeout * 1000)
         )
 
     print(
-        "[PASS] There are {}/{} packets (less than 5%) within "
-        "the required time interval (999500 - 1000500)".format(
-            cnt, timeout * 1000
-        )
+        "[PASS] There are",
+        "{}/{}".format(cnt, timeout * 1000),
+        "packets (less than 5%) within",
+        "the required time interval (999500 - 1000500)",
     )
 
 

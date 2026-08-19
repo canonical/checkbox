@@ -2,7 +2,6 @@
 
 import argparse
 import os
-from pathlib import Path
 import re
 import shlex
 import subprocess
@@ -10,8 +9,9 @@ import sys
 import time
 import typing as t
 from contextlib import contextmanager
-from threading import Event
 from ipaddress import ip_address
+from pathlib import Path
+from threading import Event
 
 
 def clear_qdisc_settings(interface: str) -> None:

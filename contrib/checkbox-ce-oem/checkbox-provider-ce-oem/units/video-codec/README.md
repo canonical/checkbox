@@ -152,9 +152,8 @@ Decodes a golden sample into `fakesink` and reads the fps statistics from
 value at or above `minimum_fps`. Families whose single decoder element
 serves several codecs set `perf_id_includes_sample` in their
 `PLATFORM_FAMILIES` entry, which appends the golden-sample name to the id
-to keep it unique per codec. Runs as root; `enable_performance_mode`
-switches the platform performance mode through the
-`PERFORMANCE_PYTHON_MODULE_PATH` / `PERFORMANCE_FUNCTION_NAME` hooks.
+to keep it unique per codec. Like every video codec job, it runs as the
+normal user — nothing in the framework needs root.
 
 **Conf section:**
 ```json
@@ -162,8 +161,7 @@ switches the platform performance mode through the
   {
     "decoder_plugin": "omxh264dec",
     "golden_sample_file": "1080p_30fps_h264.mp4",
-    "minimum_fps": 30,
-    "enable_performance_mode": false
+    "minimum_fps": 30
   }
 ]
 ```
@@ -253,8 +251,6 @@ scenario.
 
 - `GST_LAUNCH_BIN`: Override for `gst-launch-1.0` (e.g. a snap alias)
 - `GST_DISCOVERER`: Override for `gst-discoverer-1.0`
-- `PERFORMANCE_PYTHON_MODULE_PATH` / `PERFORMANCE_FUNCTION_NAME`:
-  Platform performance-mode hook used by the decoder performance job
 - `USER_DEFINED_GST_LD_LIBRARY_PATH` / `USER_DEFINED_GST_PLUGIN_PATH`:
   Library/plugin paths appended when the GStreamer binary is not a snap
 
@@ -403,8 +399,7 @@ with the platform family name:
         {
             "decoder_plugin": "yourh264dec",
             "golden_sample_file": "1080p_30fps_h264.mp4",
-            "minimum_fps": 30,
-            "enable_performance_mode": false
+            "minimum_fps": 30
         }
     ],
     "gst_encoder_psnr": [

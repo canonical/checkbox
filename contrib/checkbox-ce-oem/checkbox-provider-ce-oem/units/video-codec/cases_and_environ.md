@@ -31,12 +31,6 @@
     - Affected Test Cases:
         - [ce-oem-video-codec/readiness](#ce-oem-video-codec/readiness)
         - [ce-oem-video-codec/gst_encoder_psnr](#ce-oem-video-codec/gst_encoder_psnr)
-- PERFORMANCE_PYTHON_MODULE_PATH
-    - Affected Test Cases:
-        - [ce-oem-video-codec/gst_video_decoder_performance_fakesink](#ce-oem-video-codec/gst_video_decoder_performance_fakesink)
-- PERFORMANCE_FUNCTION_NAME
-    - Affected Test Cases:
-        - [ce-oem-video-codec/gst_video_decoder_performance_fakesink](#ce-oem-video-codec/gst_video_decoder_performance_fakesink)
 
 ## Detailed test cases contains environ variable
 ### <a id='video_codec_resource'>video_codec_resource</a>
@@ -147,11 +141,11 @@ Test if while the sink is fakesink, the decoder's performance, {{ decoder_plugin
 [source file](jobs.pxu#L73)
 
 - **environ:**
-GST_LAUNCH_BIN, PERFORMANCE_PYTHON_MODULE_PATH, PERFORMANCE_FUNCTION_NAME
+GST_LAUNCH_BIN
 
 - **command:**
 ```
-   gst_video_decoder_performance.py -gp {{golden_sample_file}} -dp {{decoder_plugin}} -mf {{minimum_fps}} -pmt "{{performance_target}}" -p "{{ platform }}"
+   gst_video_decoder_performance.py -gp {{golden_sample_file}} -dp {{decoder_plugin}} -mf {{minimum_fps}} -p "{{ platform }}"
 ```
 [Back to top](#top)
 

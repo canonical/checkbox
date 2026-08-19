@@ -289,13 +289,6 @@ class GstResources:
                         self._args.video_codec_testing_data_path,
                         item["golden_sample_file"],
                     ),
-                    # performance_target is "" means won't enable performance
-                    # mode.
-                    "performance_target": (
-                        self._args.video_codec_conf_file
-                        if item["enable_performance_mode"]
-                        else ""
-                    ),
                 }
             )
 

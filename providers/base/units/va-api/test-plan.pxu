@@ -17,4 +17,7 @@ _name: Hardware video acceleration tests (automated)
 unit: test plan
 include:
     va-api/va-initialize
+    va-api/vainfo
+    va-api/va-profile-.*
+    va-api/va-manifest-vs-driver
 bootstrap_include:

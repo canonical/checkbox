@@ -465,13 +465,13 @@ def credit_based_shaper(
     cmd = (
         "tc qdisc replace dev {} handle 100: parent root mqprio num_tc 4 "
         "map 0 1 2 3 3 3 3 3 3 3 3 3 3 3 3 3 "
-        "queues 1@0 1@1 1@2 1@3 hw 0".format(interface)
-    )
-    subprocess.run(shlex.split(cmd), timeout=1)
+        "queues 1@0 1@1 1@2 1@3 hw 0"
+    ).format(interface)
+    subprocess.run(shlex.split(cmd), timeout=1, check=False)
 
     # Show the current qdisc settings
     cmd = "tc -g class show dev {}".format(interface)
-    subprocess.run(shlex.split(cmd), timeout=1)
+    subprocess.run(shlex.split(cmd), timeout=1, check=False)
 
     # Wait for 5 seconds before replacing the parent qdisc with a credit-based
     # shaper (cbs) and configuring its parameters
@@ -484,13 +484,13 @@ def credit_based_shaper(
     cmd = (
         "tc qdisc replace dev {} parent 100:1 cbs "
         "locredit -1350 hicredit 150 sendslope -900000 "
-        "idleslope 100000 offload 1".format(interface)
-    )
-    subprocess.run(shlex.split(cmd), timeout=1)
+        "idleslope 100000 offload 1"
+    ).format(interface)
+    subprocess.run(shlex.split(cmd), timeout=1, check=False)
 
     # Show the current qdisc settings
     cmd = "tc qdisc show dev {}".format(interface)
-    subprocess.run(shlex.split(cmd), timeout=1)
+    subprocess.run(shlex.split(cmd), timeout=1, check=False)
 
     # Wait for 5 seconds before running iperf3 to measure the upload speed
     time.sleep(5)
@@ -502,7 +502,7 @@ def credit_based_shaper(
     # Check for errors in the iperf3 output
     if stderr:
         raise SystemExit(
-            "[ERROR] Found error while running iperf3:\n {}".format(stderr)
+            "[ERROR] Found error while running iperf3:\n{}".format(stderr)
         )
 
     # Print the iperf3 output
@@ -514,14 +514,18 @@ def credit_based_shaper(
     # Check if the upload speed is between 90 and 100 Mbps
     if not 90 < speed_bits < 100:
         raise SystemExit(
-            "[FAIL] The upload speed is not between 90 and 100 Mbps\n"
-            "The upload speed is {} Mbps".format(speed_bits)
+            (
+                "[FAIL] The upload speed is not between 90 and 100 Mbps\n"
+                "The upload speed is {} Mbps"
+            ).format(speed_bits)
         )
 
     # Print the upload speed and a success message
     print(
-        "[PASS] The upload speed is between 90 and 100 Mbps\n"
-        "The upload speed is {} Mbps".format(speed_bits)
+        "[PASS] The upload speed is between 90 and 100 Mbps\n",
+        "The upload speed is",
+        speed_bits,
+        "Mbps",
     )
 
 
@@ -654,7 +658,7 @@ def iperf3_client(
     client_ip,
     timeout: int = 60,
     port: int = 5201,
-) -> subprocess.Popen:
+) -> "subprocess.Popen[str]":
     """
     Run iperf3 client to measure the upload speed
     from the client to the server.

@@ -22,7 +22,6 @@ import logging
 import os
 import re
 
-from performance_mode_controller import get_performance_ctx_function
 from codec_platforms import codec_factory
 from gst_utils import (
     execute_command,
@@ -73,19 +72,6 @@ def register_arguments():
         help=(
             "The minimum value of FPS that "
             "all average FPS value should not violate"
-        ),
-    )
-
-    parser.add_argument(
-        "-pmt",
-        "--performance_mode_target",
-        default="",
-        type=str,
-        help=(
-            "Once this value be assigned, script will enable performance mode"
-            " by the given value. For instance, if 'genio-1200' be assigned, "
-            "script will find the performance controller and execute the logic"
-            ' of genio-1200 board. (Default: "", will do nothing)'
         ),
     )
 
@@ -246,14 +232,7 @@ def main() -> None:
                 fpsdisplaysink_sync=args.fpsdisplaysink_sync,
             )
 
-        output = ""
-
-        if args.performance_mode_target:
-            performance_mode_ctx = get_performance_ctx_function()
-            with performance_mode_ctx(platform=args.performance_mode_target):
-                output = execute_command(cmd).rstrip(os.linesep)
-        else:
-            output = execute_command(cmd).rstrip(os.linesep)
+        output = execute_command(cmd).rstrip(os.linesep)
 
         is_valid = is_valid_result(output, args.minimum_fps)
         if not is_valid:

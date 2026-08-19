@@ -3,26 +3,22 @@
     {
       "decoder_plugin": "v4l2h264dec",
       "golden_sample_file": "1080p_60fps_h264.mp4",
-      "minimum_fps": 45,
-      "enable_performance_mode": false
+      "minimum_fps": 45
     },
     {
       "decoder_plugin": "v4l2h265dec",
       "golden_sample_file": "1080p_60fps_h265.mp4",
-      "minimum_fps": 45,
-      "enable_performance_mode": false
+      "minimum_fps": 45
     },
     {
       "decoder_plugin": "v4l2vp8dec",
       "golden_sample_file": "1080p_60fps_vp8.webm",
-      "minimum_fps": 45,
-      "enable_performance_mode": false
+      "minimum_fps": 45
     },
     {
       "decoder_plugin": "v4l2vp9dec",
       "golden_sample_file": "1080p_60fps_vp9.webm",
-      "minimum_fps": 45,
-      "enable_performance_mode": false
+      "minimum_fps": 45
     }
   ],
   "gst_encoder_psnr": [

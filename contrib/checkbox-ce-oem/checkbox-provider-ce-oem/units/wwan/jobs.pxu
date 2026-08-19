@@ -1,23 +1,29 @@
 unit: template
 template-resource: com.canonical.certification::wwan_resource
 template-unit: job
-id: ce-oem-wwan/gsm-connection-at-command-{manufacturer}-{model}-{hw_id}-auto
-template-id: ce-oem-wwan/gsm-connection-at-command-auto
-_summary: Verify a GSM broadband modem can create a data connection via AT command
-_template-summary: Verify a GSM broadband modem can create a data connection via AT command
+id: ce-oem-wwan/usb-hotspot-{manufacturer}-{model}-{hw_id}-auto
+template-id: ce-oem-wwan/usb-hotspot-auto
+_summary: Verify a WWAN module (as a USB cdc-acm hotspot device) can create a data connection
+_template-summary: Verify a WWAN module (as a USB cdc-acm hotspot device) can create a data connection
 _purpose:
   Any modems discovered by the resource job that list GSM support
-  will be tested to ensure a data connection can be made.
+  will be tested to ensure a data connection can be made, targeting a
+  WWAN module attached as a USB cdc-acm device used purely to bring up
+  a connection (USB-hotspot style).
   .
-  The AT command sequence for the modem is driven by the
-  WWAN_AT_COMMAND_JSON environment variable, which names a JSON config
-  file (see wwan_connection_at_command.py). A bare filename (e.g.
+  The test is driven by the WWAN_AT_COMMAND_JSON environment variable,
+  which names a JSON config file (see
+  usb_hotspot_connection_at_command.py). A bare filename (e.g.
   SIM7672G-LNGV_wwan_at_command.json) is looked up under
   $PLAINBOX_PROVIDER_DATA/wwan_at_command/; a full path is used as-is.
+  The config has two independently-optional parts: "setup" (shell
+  commands to bring the module up) and "connect" (AT commands sent
+  over WWAN_CONTROL_IF to make the connection). With no config (or
+  both parts empty), the job simply pings over WWAN_NET_IF.
 plugin: shell
 command:
   BEGIN_CONNECTION_TEST_TS=$(date '+%Y-%m-%d %H:%M:%S')
-  wwan_connection_at_command.py
+  usb_hotspot_connection_at_command.py
   RETVAL=$?
   if [ $RETVAL -ne 0 ]; then
     echo "==== Service units logs ===="
@@ -40,10 +46,10 @@ requires:
 unit: template
 template-resource: com.canonical.certification::wwan_resource
 template-unit: job
-id: ce-oem-wwan/gsm-recovery-at-command-{manufacturer}-{model}-{hw_id}-auto
-template-id: ce-oem-wwan/gsm-recovery-at-command-auto
-_summary: Verify a GSM broadband modem recovers its data connection via AT command
-_template-summary: Verify a GSM broadband modem recovers its data connection via AT command
+id: ce-oem-wwan/usb-hotspot-recovery-{manufacturer}-{model}-{hw_id}-auto
+template-id: ce-oem-wwan/usb-hotspot-recovery-auto
+_summary: Verify a WWAN module (as a USB cdc-acm hotspot device) recovers its data connection
+_template-summary: Verify a WWAN module (as a USB cdc-acm hotspot device) recovers its data connection
 _purpose:
   Issues a modem software reset (AT+CRESET) and verifies the modem
   re-enumerates over USB and re-registers on the network afterwards,
@@ -54,7 +60,7 @@ _purpose:
 plugin: shell
 command:
   BEGIN_RESET_TEST_TS=$(date '+%Y-%m-%d %H:%M:%S')
-  wwan_connection_at_command.py --action reset-recovery
+  usb_hotspot_connection_at_command.py --action reset-recovery
   RETVAL=$?
   if [ $RETVAL -ne 0 ]; then
     echo "==== Service units logs ===="
@@ -68,7 +74,7 @@ category_id: com.canonical.certification::wwan
 flags: preserve-locale also-after-suspend preserve-cwd
 imports:
   from com.canonical.plainbox import manifest
-depends: ce-oem-wwan/gsm-connection-at-command-{manufacturer}-{model}-{hw_id}-auto
+depends: ce-oem-wwan/usb-hotspot-{manufacturer}-{model}-{hw_id}-auto
 requires:
   manifest.has_wwan_module == 'True'
   manifest.has_sim_card == 'True'

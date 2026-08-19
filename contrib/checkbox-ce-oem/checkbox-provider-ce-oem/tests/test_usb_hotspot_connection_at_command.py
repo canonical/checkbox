@@ -4,7 +4,7 @@ import os
 import unittest
 from unittest.mock import MagicMock, patch
 
-import wwan_connection_at_command as wcac
+import usb_hotspot_connection_at_command as wcac
 
 
 class FakeSerial:
@@ -41,7 +41,7 @@ def make_modem(lines=()):
 
 
 class TestModemAtControllerLifecycle(unittest.TestCase):
-    @patch("wwan_connection_at_command.serial.Serial")
+    @patch("usb_hotspot_connection_at_command.serial.Serial")
     def test_open_creates_serial_and_disables_echo(self, mock_serial_cls):
         fake_ser = MagicMock()
         fake_ser.readline.side_effect = [b"OK\r\n"]
@@ -72,7 +72,7 @@ class TestModemAtControllerLifecycle(unittest.TestCase):
         modem.close()  # must not raise
         self.assertIsNone(modem.ser)
 
-    @patch("wwan_connection_at_command.serial.Serial")
+    @patch("usb_hotspot_connection_at_command.serial.Serial")
     def test_context_manager_opens_and_closes(self, mock_serial_cls):
         fake_ser = MagicMock()
         fake_ser.readline.side_effect = [b"OK\r\n"]
@@ -83,8 +83,8 @@ class TestModemAtControllerLifecycle(unittest.TestCase):
 
         fake_ser.close.assert_called_once()
 
-    @patch("wwan_connection_at_command.time.sleep", return_value=None)
-    @patch("wwan_connection_at_command.serial.Serial")
+    @patch("usb_hotspot_connection_at_command.time.sleep", return_value=None)
+    @patch("usb_hotspot_connection_at_command.serial.Serial")
     def test_open_polling_retries_until_available(
         self, mock_serial_cls, mock_sleep
     ):
@@ -102,11 +102,11 @@ class TestModemAtControllerLifecycle(unittest.TestCase):
         self.assertIs(modem.ser, fake_ser)
 
     @patch(
-        "wwan_connection_at_command.time.time",
+        "usb_hotspot_connection_at_command.time.time",
         side_effect=itertools.count(1000, 50),
     )
-    @patch("wwan_connection_at_command.time.sleep", return_value=None)
-    @patch("wwan_connection_at_command.serial.Serial")
+    @patch("usb_hotspot_connection_at_command.time.sleep", return_value=None)
+    @patch("usb_hotspot_connection_at_command.serial.Serial")
     def test_open_polling_gives_up_after_timeout(
         self, mock_serial_cls, mock_sleep, mock_time
     ):
@@ -142,7 +142,7 @@ class TestSendCommand(unittest.TestCase):
         self.assertEqual(modem.ser.written, [b"AT\r\n"])
 
     @patch(
-        "wwan_connection_at_command.time.time",
+        "usb_hotspot_connection_at_command.time.time",
         side_effect=itertools.count(1000, 50),
     )
     def test_times_out_without_terminator(self, mock_time):
@@ -165,13 +165,13 @@ class TestParseAtResponse(unittest.TestCase):
 
 
 class TestQuery(unittest.TestCase):
-    @patch("wwan_connection_at_command.ModemAtController.send_command")
+    @patch("usb_hotspot_connection_at_command.ModemAtController.send_command")
     def test_returns_parsed_response_on_success(self, mock_send):
         mock_send.return_value = (0, "+CSQ: 15,0\nOK")
         modem = wcac.ModemAtController("/dev/ttyUSB2")
         self.assertEqual(modem.query("AT+CSQ"), "+CSQ: 15,0")
 
-    @patch("wwan_connection_at_command.ModemAtController.send_command")
+    @patch("usb_hotspot_connection_at_command.ModemAtController.send_command")
     def test_returns_none_on_failure(self, mock_send):
         mock_send.return_value = (1, "ERROR")
         modem = wcac.ModemAtController("/dev/ttyUSB2")
@@ -180,7 +180,7 @@ class TestQuery(unittest.TestCase):
 
 class TestResolveConfigPath(unittest.TestCase):
     @patch(
-        "wwan_connection_at_command.WWAN_AT_COMMAND_DATA_DIR",
+        "usb_hotspot_connection_at_command.WWAN_AT_COMMAND_DATA_DIR",
         "/var/tmp/checkbox-providers/checkbox-provider-ce-oem/data"
         "/wwan_at_command",
     )
@@ -247,147 +247,82 @@ class TestDefaultConfigFromEnv(unittest.TestCase):
         self.assertIsNone(wcac.DEFAULT_CONFIG)
 
 
-class TestMainConfigValidation(unittest.TestCase):
-    def test_exits_when_no_control_if_set(self):
-        env = dict(os.environ)
-        env.pop("WWAN_CONTROL_IF", None)
-        test_argv = ["wwan_connection_at_command.py"]
-        with patch.dict(os.environ, env, clear=True):
-            with patch("sys.argv", test_argv):
-                with self.assertRaises(SystemExit) as ctx:
-                    wcac.main()
-        self.assertEqual(ctx.exception.code, 1)
+class TestLoadConfig(unittest.TestCase):
+    def test_returns_empty_dict_for_no_path(self):
+        self.assertEqual(wcac.load_config(None), {})
+        self.assertEqual(wcac.load_config(""), {})
 
-    @patch.object(wcac, "DEFAULT_CONFIG", None)
-    @patch.dict(os.environ, {"WWAN_CONTROL_IF": "/dev/ttyUSB2"})
-    def test_exits_when_no_config_available(self):
-        test_argv = ["wwan_connection_at_command.py"]
-        with patch("sys.argv", test_argv):
-            with self.assertRaises(SystemExit) as ctx:
-                wcac.main()
-        self.assertEqual(ctx.exception.code, 1)
+    def test_returns_empty_dict_for_missing_file(self):
+        self.assertEqual(wcac.load_config("/no/such/file.json"), {})
 
-    @patch(
-        "wwan_connection_at_command.ModemAtController.ensure_radio_enabled",
-        return_value=False,
-    )
-    @patch("wwan_connection_at_command.ModemAtController.detect_module")
-    @patch("wwan_connection_at_command.ModemAtController.close")
-    @patch("wwan_connection_at_command.ModemAtController.open")
-    @patch("wwan_connection_at_command.load_config", return_value={})
-    @patch.dict(
-        os.environ,
-        {
-            "WWAN_APN": "internet",
-            "WWAN_NET_IF": "enx0",
-            "WWAN_CONTROL_IF": "/dev/ttyUSB2",
-        },
-    )
-    def test_exits_when_radio_cannot_be_enabled(
-        self,
-        mock_load_config,
-        mock_open,
-        mock_close,
-        mock_detect_module,
-        mock_ensure_enabled,
-    ):
-        mock_detect_module.return_value = ("SIM7672G-LNGV", {})
-        test_argv = [
-            "wwan_connection_at_command.py",
-            "--config",
-            "/tmp/wwan_at_command.json",
-        ]
-        with patch("sys.argv", test_argv):
-            with self.assertRaises(SystemExit) as ctx:
-                wcac.main()
-        self.assertEqual(ctx.exception.code, 1)
-        mock_ensure_enabled.assert_called_once()
-        mock_close.assert_called_once()
+    def test_loads_json_file(self, tmp_path=None):
+        import tempfile
+
+        with tempfile.NamedTemporaryFile(
+            mode="w", suffix=".json", delete=False
+        ) as fh:
+            fh.write('{"MODULE": {"setup": ["true"]}}')
+            path = fh.name
+        try:
+            self.assertEqual(
+                wcac.load_config(path), {"MODULE": {"setup": ["true"]}}
+            )
+        finally:
+            os.unlink(path)
 
 
-class TestDetectModule(unittest.TestCase):
-    @patch("wwan_connection_at_command.ModemAtController.send_command")
-    def test_matches_first_known_module(self, mock_send):
-        mock_send.return_value = (
-            0,
-            "SIMCOM_INCORPORATED\nSIM7672G-LNGV\nOK",
+class TestExtractModuleBlock(unittest.TestCase):
+    def test_empty_config_yields_none_and_empty_block(self):
+        self.assertEqual(wcac.extract_module_block({}), (None, {}))
+
+    def test_single_module_returns_its_block(self):
+        config = {"MODULE": {"setup": ["true"], "connect": {}}}
+        self.assertEqual(
+            wcac.extract_module_block(config),
+            ("MODULE", {"setup": ["true"], "connect": {}}),
         )
-        config = {"SIM7672G-LNGV": {"Set auto-dial": "AT+DIALMODE=0"}}
-        modem = wcac.ModemAtController("/dev/ttyUSB2")
-        name, steps = modem.detect_module(config)
-        self.assertEqual(name, "SIM7672G-LNGV")
-        self.assertEqual(steps, config["SIM7672G-LNGV"])
 
-    @patch("wwan_connection_at_command.ModemAtController.send_command")
-    def test_exits_when_no_module_matches(self, mock_send):
-        mock_send.return_value = (0, "UNKNOWN_MODEL\nOK")
-        modem = wcac.ModemAtController("/dev/ttyUSB2")
-        with self.assertRaises(SystemExit):
-            modem.detect_module({"SIM7672G-LNGV": {}})
+    def test_multiple_modules_uses_first_and_warns(self):
+        config = {"FIRST": {"setup": ["true"]}, "SECOND": {"setup": ["false"]}}
+        name, block = wcac.extract_module_block(config)
+        self.assertEqual(name, "FIRST")
+        self.assertEqual(block, {"setup": ["true"]})
 
-    @patch("wwan_connection_at_command.ModemAtController.send_command")
-    def test_exits_when_ati_fails(self, mock_send):
-        mock_send.return_value = (1, "ERROR")
-        modem = wcac.ModemAtController("/dev/ttyUSB2")
-        with self.assertRaises(SystemExit):
-            modem.detect_module({"SIM7672G-LNGV": {}})
+    def test_null_block_becomes_empty_dict(self):
+        self.assertEqual(
+            wcac.extract_module_block({"MODULE": None}), ("MODULE", {})
+        )
 
 
-class TestGetCfunState(unittest.TestCase):
-    @patch("wwan_connection_at_command.ModemAtController.query")
-    def test_parses_cfun_value(self, mock_query):
-        mock_query.return_value = "+CFUN: 1"
-        modem = wcac.ModemAtController("/dev/ttyUSB2")
-        self.assertEqual(modem.get_cfun_state(), 1)
+class TestRunSetupCommands(unittest.TestCase):
+    def test_empty_list_passes(self):
+        self.assertTrue(wcac.run_setup_commands([]))
 
-    @patch(
-        "wwan_connection_at_command.ModemAtController.query",
-        return_value=None,
-    )
-    def test_returns_none_when_query_fails(self, mock_query):
-        modem = wcac.ModemAtController("/dev/ttyUSB2")
-        self.assertIsNone(modem.get_cfun_state())
+    def test_all_commands_pass(self):
+        self.assertTrue(wcac.run_setup_commands(["true", "true"]))
 
+    def test_stops_at_first_failing_command(self):
+        with patch(
+            "usb_hotspot_connection_at_command.subprocess.run"
+        ) as mock_run:
+            mock_run.side_effect = [
+                MagicMock(returncode=0, stdout=b"", stderr=b""),
+                MagicMock(returncode=1, stdout=b"", stderr=b"boom"),
+            ]
+            self.assertFalse(
+                wcac.run_setup_commands(["modprobe qmi_wwan", "false"])
+            )
+            self.assertEqual(mock_run.call_count, 2)
 
-class TestEnsureRadioEnabled(unittest.TestCase):
-    @patch("wwan_connection_at_command.ModemAtController.send_command")
-    @patch(
-        "wwan_connection_at_command.ModemAtController.query",
-        return_value="+CFUN: 1",
-    )
-    def test_already_enabled_skips_enable_command(self, mock_query, mock_send):
-        modem = wcac.ModemAtController("/dev/ttyUSB2")
-        self.assertTrue(modem.ensure_radio_enabled())
-        mock_send.assert_not_called()
-
-    @patch("wwan_connection_at_command.ModemAtController.send_command")
-    @patch("wwan_connection_at_command.ModemAtController.query")
-    def test_enables_when_not_already_enabled(self, mock_query, mock_send):
-        mock_query.side_effect = ["+CFUN: 4", "+CFUN: 1"]
-        mock_send.return_value = (0, "OK")
-        modem = wcac.ModemAtController("/dev/ttyUSB2")
-        self.assertTrue(modem.ensure_radio_enabled())
-        mock_send.assert_called_once_with("AT+CFUN=1", timeout=10)
-
-    @patch("wwan_connection_at_command.ModemAtController.send_command")
-    @patch(
-        "wwan_connection_at_command.ModemAtController.query",
-        return_value="+CFUN: 4",
-    )
-    def test_fails_when_enable_command_fails(self, mock_query, mock_send):
-        mock_send.return_value = (1, "ERROR")
-        modem = wcac.ModemAtController("/dev/ttyUSB2")
-        self.assertFalse(modem.ensure_radio_enabled())
-
-    @patch("wwan_connection_at_command.ModemAtController.send_command")
-    @patch("wwan_connection_at_command.ModemAtController.query")
-    def test_fails_when_still_not_enabled_after_command(
-        self, mock_query, mock_send
-    ):
-        mock_query.side_effect = ["+CFUN: 4", "+CFUN: 4"]
-        mock_send.return_value = (0, "OK")
-        modem = wcac.ModemAtController("/dev/ttyUSB2")
-        self.assertFalse(modem.ensure_radio_enabled())
+    def test_does_not_run_later_commands_after_failure(self):
+        with patch(
+            "usb_hotspot_connection_at_command.subprocess.run"
+        ) as mock_run:
+            mock_run.return_value = MagicMock(
+                returncode=1, stdout=b"", stderr=b""
+            )
+            wcac.run_setup_commands(["false", "true"])
+            mock_run.assert_called_once()
 
 
 class TestRunAtStep(unittest.TestCase):
@@ -396,7 +331,7 @@ class TestRunAtStep(unittest.TestCase):
     def _modem(self):
         return wcac.ModemAtController("/dev/ttyUSB2")
 
-    @patch("wwan_connection_at_command.ModemAtController.send_command")
+    @patch("usb_hotspot_connection_at_command.ModemAtController.send_command")
     def test_plain_string_step_passes_on_any_response(self, mock_send):
         mock_send.return_value = (0, "OK")
         modem = self._modem()
@@ -404,7 +339,7 @@ class TestRunAtStep(unittest.TestCase):
             modem.run_at_step("Set auto-dial", "AT+DIALMODE=0", self.ENV)
         )
 
-    @patch("wwan_connection_at_command.ModemAtController.send_command")
+    @patch("usb_hotspot_connection_at_command.ModemAtController.send_command")
     def test_plain_string_step_fails_on_nonzero_rc(self, mock_send):
         mock_send.return_value = (1, "ERROR")
         modem = self._modem()
@@ -412,7 +347,7 @@ class TestRunAtStep(unittest.TestCase):
             modem.run_at_step("Set auto-dial", "AT+DIALMODE=0", self.ENV)
         )
 
-    @patch("wwan_connection_at_command.ModemAtController.send_command")
+    @patch("usb_hotspot_connection_at_command.ModemAtController.send_command")
     def test_apn_placeholder_is_substituted(self, mock_send):
         mock_send.return_value = (0, "OK")
         modem = self._modem()
@@ -420,7 +355,7 @@ class TestRunAtStep(unittest.TestCase):
         sent_cmd = mock_send.call_args[0][0]
         self.assertEqual(sent_cmd, 'AT+CGDCONT=1,"IP","internet"')
 
-    @patch("wwan_connection_at_command.ModemAtController.send_command")
+    @patch("usb_hotspot_connection_at_command.ModemAtController.send_command")
     def test_expect_substring_pass_and_fail(self, mock_send):
         spec = {"cmd": "AT+CPIN?", "expect": "READY"}
         modem = self._modem()
@@ -430,7 +365,7 @@ class TestRunAtStep(unittest.TestCase):
         mock_send.return_value = (0, "+CPIN: SIM PIN\nOK")
         self.assertFalse(modem.run_at_step("SIM status", spec, self.ENV))
 
-    @patch("wwan_connection_at_command.ModemAtController.send_command")
+    @patch("usb_hotspot_connection_at_command.ModemAtController.send_command")
     def test_expect_nonempty_pass_and_fail(self, mock_send):
         spec = {"cmd": "AT+CGPADDR=1", "expect_nonempty": True}
         modem = self._modem()
@@ -440,7 +375,7 @@ class TestRunAtStep(unittest.TestCase):
         mock_send.return_value = (0, "OK")
         self.assertFalse(modem.run_at_step("Verify IP", spec, self.ENV))
 
-    @patch("wwan_connection_at_command.ModemAtController.send_command")
+    @patch("usb_hotspot_connection_at_command.ModemAtController.send_command")
     def test_expect_min_pass_and_fail(self, mock_send):
         spec = {"cmd": "AT+CSQ", "expect_min": 10}
         modem = self._modem()
@@ -451,7 +386,7 @@ class TestRunAtStep(unittest.TestCase):
         self.assertFalse(modem.run_at_step("Signal quality", spec, self.ENV))
 
     @patch("time.sleep", return_value=None)
-    @patch("wwan_connection_at_command.ModemAtController.send_command")
+    @patch("usb_hotspot_connection_at_command.ModemAtController.send_command")
     def test_poll_retries_until_pass(self, mock_send, mock_sleep):
         spec = {"cmd": "AT+CGATT?", "expect": "CGATT: 1", "poll": True}
         mock_send.side_effect = [
@@ -467,10 +402,10 @@ class TestRunAtStep(unittest.TestCase):
 
     @patch("time.sleep", return_value=None)
     @patch(
-        "wwan_connection_at_command.time.time",
+        "usb_hotspot_connection_at_command.time.time",
         side_effect=itertools.count(1000, 50),
     )
-    @patch("wwan_connection_at_command.ModemAtController.send_command")
+    @patch("usb_hotspot_connection_at_command.ModemAtController.send_command")
     def test_poll_gives_up_after_deadline(
         self, mock_send, mock_time, mock_sleep
     ):
@@ -482,8 +417,32 @@ class TestRunAtStep(unittest.TestCase):
         )
 
 
+class TestRunConnectSteps(unittest.TestCase):
+    ENV = {"WWAN_APN": "internet", "WWAN_NET_IF": "enx0"}
+
+    @patch("usb_hotspot_connection_at_command.ModemAtController.run_at_step")
+    def test_all_steps_pass(self, mock_run_step):
+        mock_run_step.return_value = True
+        modem = wcac.ModemAtController("/dev/ttyUSB2")
+        steps = {"a": "AT+A", "b": "AT+B"}
+        self.assertTrue(modem.run_connect_steps(steps, self.ENV))
+        self.assertEqual(mock_run_step.call_count, 2)
+
+    @patch("usb_hotspot_connection_at_command.ModemAtController.run_at_step")
+    def test_stops_at_first_failing_step(self, mock_run_step):
+        mock_run_step.side_effect = [True, False]
+        modem = wcac.ModemAtController("/dev/ttyUSB2")
+        steps = {"a": "AT+A", "b": "AT+B", "c": "AT+C"}
+        self.assertFalse(modem.run_connect_steps(steps, self.ENV))
+        self.assertEqual(mock_run_step.call_count, 2)
+
+    def test_empty_steps_pass_trivially(self):
+        modem = wcac.ModemAtController("/dev/ttyUSB2")
+        self.assertTrue(modem.run_connect_steps({}, self.ENV))
+
+
 class TestDeprioritizeDefaultRoute(unittest.TestCase):
-    @patch("wwan_connection_at_command.run_cmd")
+    @patch("usb_hotspot_connection_at_command.run_cmd")
     def test_lowers_metric_of_existing_default_route(self, mock_run_cmd):
         mock_run_cmd.side_effect = [
             (
@@ -511,7 +470,7 @@ class TestDeprioritizeDefaultRoute(unittest.TestCase):
             ],
         )
 
-    @patch("wwan_connection_at_command.run_cmd")
+    @patch("usb_hotspot_connection_at_command.run_cmd")
     def test_noop_when_no_default_route(self, mock_run_cmd):
         mock_run_cmd.return_value = (0, "", "")
         wcac.deprioritize_default_route("enx0")
@@ -522,22 +481,22 @@ class TestRegistrationParsing(unittest.TestCase):
     def _modem(self):
         return wcac.ModemAtController("/dev/ttyUSB2")
 
-    @patch("wwan_connection_at_command.ModemAtController.query")
+    @patch("usb_hotspot_connection_at_command.ModemAtController.query")
     def test_get_registration_maps_stat_codes(self, mock_query):
         mock_query.return_value = "+CREG: 0,5"
         modem = self._modem()
         self.assertEqual(modem.get_registration(), "roaming")
 
     @patch(
-        "wwan_connection_at_command.ModemAtController.query",
+        "usb_hotspot_connection_at_command.ModemAtController.query",
         return_value=None,
     )
     def test_get_registration_returns_none_on_failure(self, mock_query):
         modem = self._modem()
         self.assertIsNone(modem.get_registration())
 
-    @patch("wwan_connection_at_command.ModemAtController.query")
-    @patch("wwan_connection_at_command.ModemAtController.send_command")
+    @patch("usb_hotspot_connection_at_command.ModemAtController.query")
+    @patch("usb_hotspot_connection_at_command.ModemAtController.send_command")
     def test_get_operator_id_extracts_numeric_plmn(
         self, mock_send, mock_query
     ):
@@ -551,7 +510,7 @@ class TestResetRecoveryHelpers(unittest.TestCase):
     def _modem(self):
         return wcac.ModemAtController("/dev/ttyUSB2")
 
-    @patch("wwan_connection_at_command.ModemAtController.send_command")
+    @patch("usb_hotspot_connection_at_command.ModemAtController.send_command")
     def test_send_reset_pass_and_fail(self, mock_send):
         modem = self._modem()
         mock_send.return_value = (0, "OK")
@@ -560,7 +519,7 @@ class TestResetRecoveryHelpers(unittest.TestCase):
         mock_send.return_value = (1, "ERROR")
         self.assertFalse(modem.send_reset())
 
-    @patch("wwan_connection_at_command.ModemAtController.send_command")
+    @patch("usb_hotspot_connection_at_command.ModemAtController.send_command")
     def test_verify_cops_pass_and_fail(self, mock_send):
         modem = self._modem()
         mock_send.return_value = (0, "+COPS: 0,,,7\nOK")
@@ -570,7 +529,7 @@ class TestResetRecoveryHelpers(unittest.TestCase):
         self.assertFalse(modem.verify_cops(timeout=30))
 
     @patch("time.sleep", return_value=None)
-    @patch("wwan_connection_at_command.ModemAtController.send_command")
+    @patch("usb_hotspot_connection_at_command.ModemAtController.send_command")
     def test_radio_cycle_sends_cfun_off_then_on(self, mock_send, mock_sleep):
         modem = self._modem()
         modem.radio_cycle(wait_seconds=45)
@@ -579,8 +538,12 @@ class TestResetRecoveryHelpers(unittest.TestCase):
         mock_sleep.assert_any_call(45)
 
     @patch("time.sleep", return_value=None)
-    @patch("wwan_connection_at_command.ModemAtController.get_operator_id")
-    @patch("wwan_connection_at_command.ModemAtController.get_registration")
+    @patch(
+        "usb_hotspot_connection_at_command.ModemAtController.get_operator_id"
+    )
+    @patch(
+        "usb_hotspot_connection_at_command.ModemAtController.get_registration"
+    )
     def test_wait_for_registration_passes_immediately(
         self, mock_get_reg, mock_get_op, mock_sleep
     ):
@@ -594,14 +557,18 @@ class TestResetRecoveryHelpers(unittest.TestCase):
         self.assertEqual(registration, "roaming")
         self.assertEqual(operator_id, "46697")
 
-    @patch("wwan_connection_at_command.ModemAtController.radio_cycle")
+    @patch("usb_hotspot_connection_at_command.ModemAtController.radio_cycle")
     @patch("time.sleep", return_value=None)
     @patch(
-        "wwan_connection_at_command.time.time",
+        "usb_hotspot_connection_at_command.time.time",
         side_effect=itertools.count(1000, 200),
     )
-    @patch("wwan_connection_at_command.ModemAtController.get_operator_id")
-    @patch("wwan_connection_at_command.ModemAtController.get_registration")
+    @patch(
+        "usb_hotspot_connection_at_command.ModemAtController.get_operator_id"
+    )
+    @patch(
+        "usb_hotspot_connection_at_command.ModemAtController.get_registration"
+    )
     def test_wait_for_registration_cycles_radio_once_then_passes(
         self,
         mock_get_reg,
@@ -621,18 +588,18 @@ class TestResetRecoveryHelpers(unittest.TestCase):
         self.assertEqual(registration, "roaming")
         mock_radio_cycle.assert_called_once_with(45)
 
-    @patch("wwan_connection_at_command.ModemAtController.radio_cycle")
+    @patch("usb_hotspot_connection_at_command.ModemAtController.radio_cycle")
     @patch("time.sleep", return_value=None)
     @patch(
-        "wwan_connection_at_command.time.time",
+        "usb_hotspot_connection_at_command.time.time",
         side_effect=itertools.count(1000, 200),
     )
     @patch(
-        "wwan_connection_at_command.ModemAtController.get_operator_id",
+        "usb_hotspot_connection_at_command.ModemAtController.get_operator_id",
         return_value=None,
     )
     @patch(
-        "wwan_connection_at_command.ModemAtController.get_registration",
+        "usb_hotspot_connection_at_command.ModemAtController.get_registration",
         return_value="denied",
     )
     def test_wait_for_registration_fails_after_one_cycle(
@@ -654,19 +621,20 @@ class TestResetRecoveryHelpers(unittest.TestCase):
 
 class TestResetAndRecover(unittest.TestCase):
     @patch(
-        "wwan_connection_at_command.ModemAtController" ".wait_for_registration"
+        "usb_hotspot_connection_at_command.ModemAtController"
+        ".wait_for_registration"
     )
     @patch(
-        "wwan_connection_at_command.ModemAtController.verify_cops",
+        "usb_hotspot_connection_at_command.ModemAtController.verify_cops",
         return_value=True,
     )
-    @patch("wwan_connection_at_command.ModemAtController.open_polling")
+    @patch("usb_hotspot_connection_at_command.ModemAtController.open_polling")
     @patch(
-        "wwan_connection_at_command.ModemAtController.send_reset",
+        "usb_hotspot_connection_at_command.ModemAtController.send_reset",
         return_value=True,
     )
-    @patch("wwan_connection_at_command.ModemAtController.close")
-    @patch("wwan_connection_at_command.ModemAtController.open")
+    @patch("usb_hotspot_connection_at_command.ModemAtController.close")
+    @patch("usb_hotspot_connection_at_command.ModemAtController.open")
     def test_happy_path(
         self,
         mock_open,
@@ -684,42 +652,42 @@ class TestResetAndRecover(unittest.TestCase):
         mock_wait_registration.assert_called_once()
 
     @patch(
-        "wwan_connection_at_command.ModemAtController.send_reset",
+        "usb_hotspot_connection_at_command.ModemAtController.send_reset",
         return_value=False,
     )
-    @patch("wwan_connection_at_command.ModemAtController.close")
-    @patch("wwan_connection_at_command.ModemAtController.open")
+    @patch("usb_hotspot_connection_at_command.ModemAtController.close")
+    @patch("usb_hotspot_connection_at_command.ModemAtController.open")
     def test_fails_fast_when_reset_command_rejected(
         self, mock_open, mock_close, mock_send_reset
     ):
         self.assertFalse(wcac.reset_and_recover("/dev/ttyUSB2"))
 
     @patch(
-        "wwan_connection_at_command.ModemAtController.open_polling",
+        "usb_hotspot_connection_at_command.ModemAtController.open_polling",
         return_value=None,
     )
     @patch(
-        "wwan_connection_at_command.ModemAtController.send_reset",
+        "usb_hotspot_connection_at_command.ModemAtController.send_reset",
         return_value=True,
     )
-    @patch("wwan_connection_at_command.ModemAtController.close")
-    @patch("wwan_connection_at_command.ModemAtController.open")
+    @patch("usb_hotspot_connection_at_command.ModemAtController.close")
+    @patch("usb_hotspot_connection_at_command.ModemAtController.open")
     def test_fails_when_control_port_never_reappears(
         self, mock_open, mock_close, mock_send_reset, mock_poll
     ):
         self.assertFalse(wcac.reset_and_recover("/dev/ttyUSB2"))
 
     @patch(
-        "wwan_connection_at_command.ModemAtController.verify_cops",
+        "usb_hotspot_connection_at_command.ModemAtController.verify_cops",
         return_value=False,
     )
-    @patch("wwan_connection_at_command.ModemAtController.open_polling")
+    @patch("usb_hotspot_connection_at_command.ModemAtController.open_polling")
     @patch(
-        "wwan_connection_at_command.ModemAtController.send_reset",
+        "usb_hotspot_connection_at_command.ModemAtController.send_reset",
         return_value=True,
     )
-    @patch("wwan_connection_at_command.ModemAtController.close")
-    @patch("wwan_connection_at_command.ModemAtController.open")
+    @patch("usb_hotspot_connection_at_command.ModemAtController.close")
+    @patch("usb_hotspot_connection_at_command.ModemAtController.open")
     def test_fails_when_cops_never_responds(
         self,
         mock_open,
@@ -732,13 +700,13 @@ class TestResetAndRecover(unittest.TestCase):
 
 
 class TestRunPing(unittest.TestCase):
-    @patch("wwan_connection_at_command.run_cmd")
+    @patch("usb_hotspot_connection_at_command.run_cmd")
     def test_fails_fast_when_link_up_fails(self, mock_run_cmd):
         mock_run_cmd.return_value = (1, "", "no such device")
         self.assertFalse(wcac.run_ping("enx0", MagicMock()))
 
-    @patch("wwan_connection_at_command.deprioritize_default_route")
-    @patch("wwan_connection_at_command.run_cmd")
+    @patch("usb_hotspot_connection_at_command.deprioritize_default_route")
+    @patch("usb_hotspot_connection_at_command.run_cmd")
     def test_passes_when_ip_and_ping_succeed(
         self, mock_run_cmd, mock_deprioritize
     ):
@@ -757,9 +725,25 @@ class TestRunPing(unittest.TestCase):
         self.assertTrue(wcac.run_ping("enx0", MagicMock()))
         mock_deprioritize.assert_called_once_with("enx0")
 
+    @patch("usb_hotspot_connection_at_command.deprioritize_default_route")
+    @patch("usb_hotspot_connection_at_command.run_cmd")
+    def test_passes_with_no_modem_given(self, mock_run_cmd, mock_deprioritize):
+        def fake_run_cmd(args):
+            if args[:3] == ["ip", "addr", "show"]:
+                return (0, "inet 192.168.0.100/24 brd 192.168.0.255\n", "")
+            if args[0] == "ping":
+                return (0, "4 packets transmitted, 4 received, 0% loss\n", "")
+            return (0, "", "")
+
+        mock_run_cmd.side_effect = fake_run_cmd
+        self.assertTrue(wcac.run_ping("enx0"))
+
     @patch("time.sleep", return_value=None)
-    @patch("wwan_connection_at_command.run_cmd")
-    def test_fails_when_no_ip_assigned(self, mock_run_cmd, mock_sleep):
+    @patch("usb_hotspot_connection_at_command.log_connection_diagnostics")
+    @patch("usb_hotspot_connection_at_command.run_cmd")
+    def test_fails_when_no_ip_assigned(
+        self, mock_run_cmd, mock_diagnostics, mock_sleep
+    ):
         def fake_run_cmd(args):
             if args[:3] == ["ip", "link", "set"]:
                 return (0, "", "")
@@ -773,7 +757,193 @@ class TestRunPing(unittest.TestCase):
         modem = MagicMock()
         with patch("os.environ.get", return_value="0"):
             self.assertFalse(wcac.run_ping("enx0", modem))
-        modem.log_connection_diagnostics.assert_called_once_with("enx0")
+        mock_diagnostics.assert_called_once_with("enx0", modem)
+
+
+class TestLogConnectionDiagnostics(unittest.TestCase):
+    @patch(
+        "usb_hotspot_connection_at_command.run_cmd", return_value=(0, "", "")
+    )
+    def test_skips_at_diagnostics_when_no_modem(self, mock_run_cmd):
+        wcac.log_connection_diagnostics("enx0", None)
+        # only the two OS-level run_cmd calls (ip -s link, dmesg)
+        self.assertEqual(mock_run_cmd.call_count, 2)
+
+    @patch(
+        "usb_hotspot_connection_at_command.run_cmd", return_value=(0, "", "")
+    )
+    def test_queries_modem_when_given(self, mock_run_cmd):
+        modem = MagicMock()
+        wcac.log_connection_diagnostics("enx0", modem)
+        self.assertEqual(modem.query.call_count, 4)
+
+
+class TestMainConfigValidation(unittest.TestCase):
+    def _argv(self, *extra):
+        return ["usb_hotspot_connection_at_command.py"] + list(extra)
+
+    def test_exits_when_no_net_if_set(self):
+        env = dict(os.environ)
+        env.pop("WWAN_NET_IF", None)
+        with patch.dict(os.environ, env, clear=True):
+            with patch("sys.argv", self._argv()):
+                with self.assertRaises(SystemExit) as ctx:
+                    wcac.main()
+        self.assertEqual(ctx.exception.code, 1)
+
+    @patch("usb_hotspot_connection_at_command.run_ping", return_value=True)
+    @patch.object(wcac, "DEFAULT_CONFIG", None)
+    @patch.dict(os.environ, {"WWAN_NET_IF": "enx0"}, clear=True)
+    def test_ping_only_when_no_config(self, mock_run_ping):
+        with patch("sys.argv", self._argv()):
+            with self.assertRaises(SystemExit) as ctx:
+                wcac.main()
+        self.assertEqual(ctx.exception.code, 0)
+        mock_run_ping.assert_called_once_with("enx0", None)
+
+    @patch("usb_hotspot_connection_at_command.run_setup_commands")
+    @patch.object(wcac, "DEFAULT_CONFIG", None)
+    @patch.dict(os.environ, {"WWAN_NET_IF": "enx0"}, clear=True)
+    def test_exits_when_setup_command_fails(self, mock_run_setup):
+        mock_run_setup.return_value = False
+        with patch(
+            "usb_hotspot_connection_at_command.load_config",
+            return_value={"MODULE": {"setup": ["false"]}},
+        ):
+            with patch("sys.argv", self._argv()):
+                with self.assertRaises(SystemExit) as ctx:
+                    wcac.main()
+        self.assertEqual(ctx.exception.code, 1)
+        mock_run_setup.assert_called_once_with(["false"])
+
+    @patch.object(wcac, "DEFAULT_CONFIG", None)
+    @patch.dict(os.environ, {"WWAN_NET_IF": "enx0"}, clear=True)
+    def test_exits_when_connect_steps_present_but_no_control_if(self):
+        with patch(
+            "usb_hotspot_connection_at_command.load_config",
+            return_value={"MODULE": {"connect": {"a": "AT"}}},
+        ):
+            with patch("sys.argv", self._argv()):
+                with self.assertRaises(SystemExit) as ctx:
+                    wcac.main()
+        self.assertEqual(ctx.exception.code, 1)
+
+    @patch.object(wcac, "DEFAULT_CONFIG", None)
+    @patch.dict(
+        os.environ,
+        {"WWAN_NET_IF": "enx0", "WWAN_CONTROL_IF": "/dev/ttyUSB2"},
+        clear=True,
+    )
+    def test_exits_when_connect_steps_present_but_no_apn(self):
+        with patch(
+            "usb_hotspot_connection_at_command.load_config",
+            return_value={"MODULE": {"connect": {"a": "AT"}}},
+        ):
+            with patch("sys.argv", self._argv()):
+                with self.assertRaises(SystemExit) as ctx:
+                    wcac.main()
+        self.assertEqual(ctx.exception.code, 1)
+
+    @patch("usb_hotspot_connection_at_command.run_ping", return_value=True)
+    @patch(
+        "usb_hotspot_connection_at_command.ModemAtController.run_connect_steps"
+    )
+    @patch("usb_hotspot_connection_at_command.ModemAtController.close")
+    @patch("usb_hotspot_connection_at_command.ModemAtController.open")
+    @patch.object(wcac, "DEFAULT_CONFIG", None)
+    @patch.dict(
+        os.environ,
+        {
+            "WWAN_NET_IF": "enx0",
+            "WWAN_CONTROL_IF": "/dev/ttyUSB2",
+            "WWAN_APN": "internet",
+        },
+        clear=True,
+    )
+    def test_exits_1_when_connect_step_fails(
+        self, mock_open, mock_close, mock_run_steps, mock_run_ping
+    ):
+        mock_run_steps.return_value = False
+        with patch(
+            "usb_hotspot_connection_at_command.load_config",
+            return_value={"MODULE": {"connect": {"a": "AT"}}},
+        ):
+            with patch("sys.argv", self._argv()):
+                with self.assertRaises(SystemExit) as ctx:
+                    wcac.main()
+        self.assertEqual(ctx.exception.code, 1)
+        mock_close.assert_called_once()
+        mock_run_ping.assert_not_called()
+
+    @patch("usb_hotspot_connection_at_command.run_ping", return_value=True)
+    @patch(
+        "usb_hotspot_connection_at_command.ModemAtController.run_connect_steps",
+        return_value=True,
+    )
+    @patch("usb_hotspot_connection_at_command.ModemAtController.close")
+    @patch("usb_hotspot_connection_at_command.ModemAtController.open")
+    @patch.object(wcac, "DEFAULT_CONFIG", None)
+    @patch.dict(
+        os.environ,
+        {
+            "WWAN_NET_IF": "enx0",
+            "WWAN_CONTROL_IF": "/dev/ttyUSB2",
+            "WWAN_APN": "internet",
+        },
+        clear=True,
+    )
+    def test_full_happy_path_calls_ping_after_connect(
+        self, mock_open, mock_close, mock_run_steps, mock_run_ping
+    ):
+        with patch(
+            "usb_hotspot_connection_at_command.load_config",
+            return_value={"MODULE": {"connect": {"a": "AT"}}},
+        ):
+            with patch("sys.argv", self._argv()):
+                with self.assertRaises(SystemExit) as ctx:
+                    wcac.main()
+        self.assertEqual(ctx.exception.code, 0)
+        mock_run_ping.assert_called_once()
+        mock_close.assert_called_once()
+
+    @patch("usb_hotspot_connection_at_command.run_ping", return_value=False)
+    @patch.object(wcac, "DEFAULT_CONFIG", None)
+    @patch.dict(os.environ, {"WWAN_NET_IF": "enx0"}, clear=True)
+    def test_exits_1_when_ping_fails(self, mock_run_ping):
+        with patch(
+            "usb_hotspot_connection_at_command.load_config",
+            return_value={},
+        ):
+            with patch("sys.argv", self._argv()):
+                with self.assertRaises(SystemExit) as ctx:
+                    wcac.main()
+        self.assertEqual(ctx.exception.code, 1)
+
+    def test_reset_recovery_exits_when_no_control_if(self):
+        env = dict(os.environ)
+        env.pop("WWAN_CONTROL_IF", None)
+        env["WWAN_NET_IF"] = "enx0"
+        with patch.dict(os.environ, env, clear=True):
+            with patch("sys.argv", self._argv("--action", "reset-recovery")):
+                with self.assertRaises(SystemExit) as ctx:
+                    wcac.main()
+        self.assertEqual(ctx.exception.code, 1)
+
+    @patch(
+        "usb_hotspot_connection_at_command.reset_and_recover",
+        return_value=True,
+    )
+    @patch.dict(
+        os.environ,
+        {"WWAN_CONTROL_IF": "/dev/ttyUSB2", "WWAN_NET_IF": "enx0"},
+        clear=True,
+    )
+    def test_reset_recovery_dispatches_to_helper(self, mock_reset_recover):
+        with patch("sys.argv", self._argv("--action", "reset-recovery")):
+            with self.assertRaises(SystemExit) as ctx:
+                wcac.main()
+        self.assertEqual(ctx.exception.code, 0)
+        mock_reset_recover.assert_called_once_with("/dev/ttyUSB2")
 
 
 if __name__ == "__main__":

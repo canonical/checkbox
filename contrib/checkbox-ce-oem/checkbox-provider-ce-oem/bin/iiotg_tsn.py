@@ -15,10 +15,8 @@ def clear_qdisc_settings(interface: str) -> None:
     """Clear the previous qdisc settings.
 
     This function clears the previous qdisc settings by running the tc
-    command with the 'qdisc del' option. It may return an error if there
-    is no previous settings.
-    This will get errors if there is no previous settings.
-
+    command with the 'qdisc del' option. 
+    
     Args:
         interface (str): The name of the network interface.
 
@@ -26,14 +24,14 @@ def clear_qdisc_settings(interface: str) -> None:
         None
     """
     # Build the tc command to delete the root qdisc settings
-    cmd = "tc qdisc del dev {} root".format(interface)
 
     # Run the tc command with a timeout of 1 second
     subprocess.run(
-        shlex.split(cmd),
+        ['tc', 'qdisc', 'del', 'dev', interface, 'root'],
         stdout=subprocess.PIPE,  # Redirect stdout to a pipe.
         stderr=subprocess.PIPE,  # Redirect stderr to a pipe.
         timeout=1,
+        check=False
     )
 
 

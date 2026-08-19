@@ -73,6 +73,7 @@ def ptp4l(
     cfg: "Path | None" = None,
     timeout: int = 0,
     server_mode: bool = False,
+    print_to_console: bool = False,
 ) -> "subprocess.Popen[str]":
     """Spawn a ptp4l process
 
@@ -105,8 +106,8 @@ def ptp4l(
                 cfg,
                 "-m",
             ],
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE,
+            stdout=None if print_to_console else subprocess.PIPE,
+            stderr=None if print_to_console else subprocess.PIPE,
             text=True,
         )
     else:
@@ -129,13 +130,13 @@ def ptp4l(
         ]
         if not server_mode:
             # client only mode
-            default_cmd.append("-s")  
+            default_cmd.append("-s")
             # force 'master offset' output to appear in stdout
             default_cmd.append("--summary_interval=-4")
         process = subprocess.Popen(
             default_cmd,
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE,
+            stdout=None if print_to_console else subprocess.PIPE,
+            stderr=None if print_to_console else subprocess.PIPE,
             text=True,
         )
 
@@ -277,19 +278,18 @@ def time_sync_ptp4l(
     # Run ptp4l as a subprocess and get its output
     process = ptp4l(interface=interface, cfg=cfg, timeout=timeout)
     # discard the ones already printed to stdout
-    last_10_lines = deque(maxlen=10) # type: deque[str]
+    last_10_lines = deque(maxlen=10)  # type: deque[str]
 
     # they should be io.TextIO objects
     assert process.stdout and process.stderr
-    for line in process.stdout:
-        print(str(line).strip(), flush=True)
+    for raw_line in process.stdout:
+        line = str(raw_line).strip()
+        print(line, flush=True)
         last_10_lines.append(line)
 
     process.wait()
 
-    # Print the output of ptp4l
-    stderr = process.stderr.read().strip()
-    
+    stderr = str(process.stderr.read()).strip()
     if stderr:
         # a successful & clean run of ptp4l shows no errors
         # NOTE: if the error mentions deleting files in /var/run
@@ -360,29 +360,32 @@ def time_sync_phc2sys(
             "[ERROR] timeout should be at least 30 seconds "
             + "for a successful time sync"
         )
-    # Run ptp4l as a subprocess and get its output
-    ptp4l(interface=interface, cfg=cfg, timeout=timeout)
+
+    ptp4l(interface=interface, cfg=cfg, timeout=timeout, print_to_console=True)
 
     # Run phc2sys as a subprocess and get its output
-    process = phc2sys(interface=interface, timeout=timeout)
-    stdout, stderr = process.communicate()
+    phc2sys_proc = phc2sys(interface=interface, timeout=timeout)
+    last_10_lines = deque(maxlen=10)  # type: deque[str]
+    assert phc2sys_proc.stdout and phc2sys_proc.stderr
 
-    # Print the output of phc2sys
-    print("Standard Output (stdout):")
-    print(stdout)
-    print("Standard Error (stderr):")
-    print(stderr)
+    for raw_line in phc2sys_proc.stdout:
+        line = str(raw_line).strip()
+        print(line, flush=True)
+        last_10_lines.append(line)
 
-    # If phc2sys encountered an error, raise a SystemExit exception
+    phc2sys_proc.wait()
+
+    stderr = str(phc2sys_proc.stderr.read()).strip()
     if stderr:
-        print(f"[Error] Caught error while running ptp4l on {interface}")
+        print("Standard Error (stderr):", file=sys.stderr)
+        print(stderr, file=sys.stderr)
         raise SystemExit(
-            "[Error] Catch error while running ptp4l on {}".format(interface)
+            "[Error] Caught error while running phc2sys on {}".format(
+                interface
+            )
         )
 
-    # Check the last 10 seconds of phc2sys output
-    lines = stdout.splitlines()
-    for line in lines[-10:]:
+    for line in last_10_lines:
         offset = int(line.split()[4])
         state = line.split()[5]
         delay = int(line.split()[9])

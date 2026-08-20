@@ -120,7 +120,9 @@ Plays a golden sample and asks the operator to verify the audio and video
 stay synchronized. The video sink is picked from the conf's
 `video_sinks` map by image type (desktop / server / core), and a
 `capssetter_pipeline` can be injected per sample when the stream needs
-its caps rewritten.
+its caps rewritten. Platforms with their own AV-sync pipeline expose
+`build_audio_video_sync_command(...)` in their `codec_<family>.py`;
+everyone else uses the generic pipeline.
 
 **Conf section:**
 ```json
@@ -172,12 +174,15 @@ normal user — nothing in the framework needs root.
 id: ce-oem-video-codec/[<family prefix>-]gst_encoder_psnr-{{ encoder_plugin }}-{{ width }}x{{ height }}@{{ framerate }}fps[-{{ color_space }}][-{{ mux }}]
 ```
 
-Encodes a golden sample with the encoder under test through the family's
-pipeline (from `codec_<family>.py`), validates the artifact metadata
-(resolution, framerate, codec) with `gst-discoverer-1.0`, and compares
-the artifact against the golden reference — the average PSNR must reach
-30 dB. Which optional fields the id appends is declared per family in
-`PLATFORM_FAMILIES` (`encoder_id_suffix_fields`).
+Encodes a golden sample with the encoder under test, validates the
+artifact metadata (resolution, framerate, codec) with
+`gst-discoverer-1.0`, and compares the artifact against the golden
+reference — the average PSNR must reach 30 dB. Platforms with their own
+encoder pipeline expose `create_encoder_psnr_project(args)` in their
+`codec_<family>.py`; everyone else uses the generic reference pipeline
+(decodebin → videoconvert → encoder → mux). Which optional fields the id
+appends is declared per family in `PLATFORM_FAMILIES`
+(`encoder_id_suffix_fields`).
 
 **Conf section:**
 ```json
@@ -198,9 +203,11 @@ id: ce-oem-video-codec/gst_transform_rotate_and_flip-{{ encoder_plugin }}_{{ act
 ```
 
 Rotates (90/180/270) or flips (vertical/horizontal) a stream while
-encoding and validates the produced artifact. Pipelines come from the
-family module (`create_transform_rotate_and_flip_project()` in
-`codec_<family>.py`); currently only genio declares the scenario.
+encoding and validates the produced artifact. The generic `v4l2convert`
+pipeline is the default; platforms with their own transform pipeline
+expose `create_transform_rotate_and_flip_project(args)` in their
+`codec_<family>.py`. Currently only genio declares the scenario (using
+the default).
 
 **Conf section:**
 ```json
@@ -220,9 +227,10 @@ id: ce-oem-video-codec/gst_transform_resize-{{ encoder_plugin }}_from_{{ width_f
 ```
 
 Scales a stream up or down while encoding and validates the produced
-artifact. Pipelines come from the family module
-(`create_transform_resize_project()`); currently only genio declares the
-scenario.
+artifact. The generic `v4l2convert` pipeline is the default; platforms
+with their own transform pipeline expose
+`create_transform_resize_project(args)` in their `codec_<family>.py`.
+Currently only genio declares the scenario (using the default).
 
 **Conf section:**
 ```json
@@ -501,19 +509,20 @@ class YourPlatformProject(BaseCodecProject):
         )
 ```
 
-Every scenario resolves through the same module, so a platform only
-ever needs its `codec_<family>.py` plus the `PlatformFamily` entry. The
-hooks a module can expose:
+Every scenario ships a generic default pipeline and resolves platform
+overrides through the same module, so a platform only ever needs its
+`codec_<family>.py` plus the `PlatformFamily` entry — and only for the
+scenarios where the generic pipeline does not fit. The hooks a module
+can expose (all optional):
 
-- `create_encoder_psnr_project(args)` — required for the encoder PSNR
-  scenario
-- `build_decoder_performance_command(...)` /
-  `build_decoder_md5_checksum_command(...)` — optional; the generic
-  pipelines are used otherwise (see `codec_imx.py` or `codec_rz.py`)
+- `create_encoder_psnr_project(args)` — encoder PSNR (see any
+  `codec_<family>.py`)
+- `build_decoder_performance_command(...)` — decoder performance (see
+  `codec_imx.py` or `codec_rz.py`)
+- `build_decoder_md5_checksum_command(...)` — decoder MD5 comparison
+- `build_audio_video_sync_command(...)` — AV synchronization
 - `create_transform_rotate_and_flip_project(args)` /
-  `create_transform_resize_project(args)` — required when the conf
-  declares the transform scenarios (see `codec_genio.py`, the module
-  implementing everything)
+  `create_transform_resize_project(args)` — the transform scenarios
 
 **Important Notes:**
 - Inherit `BaseCodecProject` — it provides `artifact_file`,

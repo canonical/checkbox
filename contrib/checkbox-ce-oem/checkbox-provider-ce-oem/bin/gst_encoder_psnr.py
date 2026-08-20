@@ -20,12 +20,17 @@
 import argparse
 import logging
 
+from codec_base import BaseCodecProject
 from codec_platforms import codec_factory
 from gst_utils import (
+    GST_LAUNCH_BIN,
+    GStreamerMuxerType,
     MetadataValidator,
     compare_psnr,
     delete_file,
     execute_command,
+    generate_artifact_name,
+    get_test_file_path_by_params,
     manage_test_file_by_params,
 )
 
@@ -101,23 +106,97 @@ def register_arguments():
     return args
 
 
+class GenericEncoderProject(BaseCodecProject):
+    """
+    Reference encode pipeline used when the platform's codec module does
+    not provide its own encoder-PSNR project: decode the golden sample
+    with decodebin, convert, encode with the plugin under test and mux.
+    """
+
+    def __init__(
+        self,
+        platform: str,
+        codec: str,
+        color_space: str,
+        width: int,
+        height: int,
+        framerate: int,
+        mux: str,
+    ) -> None:
+        super().__init__(
+            platform=platform,
+            codec=codec,
+            width=width,
+            height=height,
+            framerate=framerate,
+            color_space=color_space,
+            mux=mux or "mp4mux",
+        )
+        # This sample video file will be consumed by any gstreamer piple
+        # as input video.
+        self._golden_sample = get_test_file_path_by_params(
+            self._width, self._height, self._framerate, self._codec
+        )
+        self._pipeline_builders = {
+            self._codec: self._generic_pipeline_builder,
+        }
+
+    @property
+    def artifact_file(self) -> str:
+        if not self._artifact_file:
+            try:
+                extension = GStreamerMuxerType.get_extension(
+                    mux_type=self._mux.upper()
+                )
+            except ValueError:
+                extension = "mp4"
+            self._artifact_file = generate_artifact_name(extension=extension)
+        return self._artifact_file
+
+    def _generic_pipeline_builder(self) -> str:
+        pipeline = "{} filesrc location={} ! decodebin ! videoconvert".format(
+            GST_LAUNCH_BIN, self._golden_sample
+        )
+        if self._color_space:
+            pipeline = "{} ! video/x-raw,format={}".format(
+                pipeline, self._color_space
+            )
+        pipeline = "{} ! {}".format(pipeline, self._codec)
+        if "264" in self._codec:
+            pipeline = "{} ! h264parse".format(pipeline)
+        elif "265" in self._codec:
+            pipeline = "{} ! h265parse".format(pipeline)
+        return "{} ! {} ! filesink location={}".format(
+            pipeline, self._mux, self.artifact_file
+        )
+
+
 def main() -> None:
     args = register_arguments()
     with manage_test_file_by_params(
         args.width, args.height, args.framerate, args.encoder_plugin
     ):
-        # The platform's pipelines live in its codec_<family>.py module,
-        # resolved the same way camera_factory() resolves camera platforms.
+        # Platforms with their own encoder pipeline provide a
+        # create_encoder_psnr_project in their codec_<family>.py module;
+        # everyone else uses the generic reference pipeline.
         module = codec_factory(args.platform)
-        if module is None or not hasattr(
-            module, "create_encoder_psnr_project"
-        ):
-            raise SystemExit(
-                "Error: Cannot get the implementation for '{}'".format(
-                    args.platform
-                )
+        creator = (
+            getattr(module, "create_encoder_psnr_project", None)
+            if module
+            else None
+        )
+        if creator:
+            p = creator(args)
+        else:
+            p = GenericEncoderProject(
+                platform=args.platform,
+                codec=args.encoder_plugin,
+                color_space=args.color_space,
+                width=args.width,
+                height=args.height,
+                framerate=args.framerate,
+                mux=args.mux,
             )
-        p = module.create_encoder_psnr_project(args)
         logging.info("Step 1: Generating artifact...")
         cmd = p.build_pipeline()
         # execute command

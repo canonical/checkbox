@@ -59,14 +59,6 @@ class TestCodecFactory(unittest.TestCase):
         self.assertFalse(
             hasattr(codec_dragonwing, "build_decoder_performance_command")
         )
-        # the transform scenarios resolve through the factory too; only
-        # genio implements them today
-        self.assertTrue(
-            hasattr(codec_genio, "create_transform_rotate_and_flip_project")
-        )
-        self.assertTrue(
-            hasattr(codec_genio, "create_transform_resize_project")
-        )
 
 
 class TestBaseCodecProject(unittest.TestCase):
@@ -94,6 +86,20 @@ class TestBaseCodecProject(unittest.TestCase):
         )
         with self.assertRaises(SystemExit):
             project.build_pipeline()
+
+    def test_generic_defaults_inherit_the_basic_class(self):
+        # every scenario script ships a generic default that platforms
+        # can override through their codec_<family>.py module
+        import gst_encoder_psnr
+        import gst_transform_resize
+        import gst_transform_rotate_and_flip
+
+        for project_class in (
+            gst_encoder_psnr.GenericEncoderProject,
+            gst_transform_rotate_and_flip.GenericTransformRotateAndFlipProject,
+            gst_transform_resize.GenericTransformResizeProject,
+        ):
+            self.assertTrue(issubclass(project_class, BaseCodecProject))
 
 
 if __name__ == "__main__":

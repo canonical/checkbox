@@ -19,18 +19,100 @@
 
 import argparse
 import logging
+import os
 
-
+from codec_base import BaseCodecProject
 from codec_platforms import codec_factory
 from gst_utils import (
+    GST_LAUNCH_BIN,
+    GStreamerEncodePlugins,
     MetadataValidator,
     compare_psnr,
     delete_file,
     execute_command,
+    get_test_file_path_by_params,
     manage_test_file_by_params,
 )
 
 logging.basicConfig(level=logging.INFO)
+
+
+class GenericTransformResizeProject(BaseCodecProject):
+    """
+    Generic resize transform pipeline built on the v4l2convert element,
+    used when the platform's codec module does not provide its own
+    create_transform_resize_project.
+    """
+
+    def __init__(
+        self,
+        platform: str,
+        codec: str,
+        width_from: int,
+        height_from: int,
+        width_to: int,
+        height_to: int,
+        framerate: int,
+    ) -> None:
+        super().__init__(
+            platform=platform,
+            codec=codec,
+            width=width_from,
+            height=height_from,
+            framerate=framerate,
+        )
+        self._width_to = width_to
+        self._height_to = height_to
+        self._codec_parser_map = {
+            GStreamerEncodePlugins.V4L2H264ENC.value: "h264parse"
+        }
+        # This sample video file will be consumed by any gstreamer piple as
+        # input video.
+        self._golden_sample = get_test_file_path_by_params(
+            self._width, self._height, self._framerate, self._codec
+        )
+        self._pipeline_builders = {
+            GStreamerEncodePlugins.V4L2H264ENC.value: (
+                self._resize_pipeline_builder
+            ),
+        }
+
+    @property
+    def psnr_reference_file(self) -> str:
+        """
+        A golden reference which has been transformed in advance. It's used to
+        be the compared reference file for PSNR.
+        """
+        golden_reference = get_test_file_path_by_params(
+            self._width_to, self._height_to, self._framerate, self._codec
+        )
+        if not os.path.exists(golden_reference):
+            raise SystemExit(
+                "Error: Golden PSNR reference '{}' doesn't exist".format(
+                    golden_reference
+                )
+            )
+
+        return golden_reference
+
+    def _resize_pipeline_builder(self) -> str:
+        """
+        Build the gstreamer pipeline scaling the stream while encoding.
+        """
+        pipeline = (
+            "{} filesrc location={} ! decodebin ! v4l2convert ! "
+            "video/x-raw,width={},height={} ! {} ! {} ! mp4mux ! filesink"
+            " location={}"
+        ).format(
+            GST_LAUNCH_BIN,
+            self._golden_sample,
+            self._width_to,
+            self._height_to,
+            self._codec,
+            self._codec_parser_map.get(self._codec),
+            self.artifact_file,
+        )
+        return pipeline
 
 
 def register_arguments():
@@ -110,19 +192,28 @@ def main() -> None:
         with manage_test_file_by_params(
             args.width_to, args.height_to, args.framerate, args.encoder_plugin
         ):
-            # The platform's pipelines live in its codec_<family>.py
-            # module, resolved the same way every other scenario
-            # resolves them.
+            # Platforms with their own transform pipeline provide a
+            # create_transform_resize_project in their codec_<family>.py
+            # module; everyone else uses the generic v4l2convert
+            # pipeline.
             module = codec_factory(args.platform)
-            if module is None or not hasattr(
-                module, "create_transform_resize_project"
-            ):
-                raise SystemExit(
-                    "Error: Cannot get the implementation for '{}'".format(
-                        args.platform
-                    )
+            creator = (
+                getattr(module, "create_transform_resize_project", None)
+                if module
+                else None
+            )
+            if creator:
+                p = creator(args)
+            else:
+                p = GenericTransformResizeProject(
+                    platform=args.platform,
+                    codec=args.encoder_plugin,
+                    width_from=args.width_from,
+                    height_from=args.height_from,
+                    width_to=args.width_to,
+                    height_to=args.height_to,
+                    framerate=args.framerate,
                 )
-            p = module.create_transform_resize_project(args)
             logging.info("Step 1: Generating artifact...")
             cmd = p.build_pipeline()
             # execute command

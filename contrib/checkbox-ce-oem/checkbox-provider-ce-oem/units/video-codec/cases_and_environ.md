@@ -121,7 +121,7 @@ GST_LAUNCH_BIN
 
 - **command:**
 ```
-   gst_v4l2_audio_video_synchronization.py -dp {{decoder_plugin}} -gp {{golden_sample_file}} -vs {{video_sink}} -cp "{{capssetter_pipeline}}"
+   gst_v4l2_audio_video_synchronization.py -dp {{decoder_plugin}} -gp {{golden_sample_file}} -vs {{video_sink}} -cp "{{capssetter_pipeline}}" -p "{{ platform }}"
 ```
 [Back to top](#top)
 

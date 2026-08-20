@@ -42,54 +42,49 @@ def create_encoder_psnr_project(args: argparse.Namespace):
     )
 
 
-def build_decoder_performance_command(
-    gst_bin: str,
-    golden_sample_path: str,
-    decoder: str,
-    sink: str,
-    fpsdisplaysink_sync: str,
-    platform: str,
-) -> str:
-    """
-    Builds a GStreamer command to process the golden sample.
+def create_decoder_performance_project(args: argparse.Namespace):
+    """Create the decoder-performance pipeline project for i.MX8M."""
+    return ImxDecoderPerformanceProject(args)
 
-    :param gst_bin:
-        The binary name of gstreamer. Default is "gst-launch-1.0"
-        You can assign the snap name to GST_LAUNCH_BIN env variable if you
-        want to using snap.
-    :param golden_sample_path:
-        The path to the golden sample file.
-    :param decoder:
-        The decoder to use for the video, e.g., "v4l2vp8dec", "v4l2vp9dec".
-    :param sink:
-        The desired sink option, e.g., "fakesink".
-    :param fpsdisplaysink_sync:
-        The property option of fpsdisplaysink."
-        Ref: https://gstreamer.freedesktop.org/documentation/debugutilsbad/
-        fpsdisplaysink.html?gi-language=python#fpsdisplaysink:sync
-    :param platform:
-        The platform (conf file name), unused on i.MX8M.
 
-    :returns:
-        The GStreamer command to execute.
-    """
-    if decoder == "v4l2h264dec":
-        part_pipeline = "qtdemux ! h264parse ! {}".format(decoder)
-        # qtdemux ! h264parse ! v4l2h264dec
-    elif decoder == "v4l2h265dec":
-        part_pipeline = "qtdemux ! h265parse ! {}".format(decoder)
-        # qtdemux ! h264parse ! v4l2h264dec
-    elif decoder in ["v4l2vp8dec", "v4l2vp9dec"]:
-        part_pipeline = "matroskademux ! queue ! {}".format(decoder)
-        # matroskademux ! queue ! v4l2vp9dec
-    cmd = (
-        "{} -v filesrc location={} ! {} ! queue ! videoconvert ! "
-        "queue ! fpsdisplaysink video-sink='{}' text-overlay=false sync={}"
-    ).format(
-        gst_bin, golden_sample_path, part_pipeline, sink, fpsdisplaysink_sync
-    )
+class ImxDecoderPerformanceProject(BaseCodecProject):
+    """i.MX8M decoder-performance pipeline handler and builder."""
 
-    return cmd
+    def __init__(self, args: argparse.Namespace) -> None:
+        super().__init__(
+            platform=args.platform,
+            codec=args.decoder_plugin,
+            width=0,
+            height=0,
+            framerate=0,
+        )
+        self._golden_sample = args.golden_sample_path
+        self._sink = args.sink
+        self._fpsdisplaysink_sync = args.fpsdisplaysink_sync
+        self._demux_map = {
+            "v4l2h264dec": "qtdemux ! h264parse ! {}",
+            "v4l2h265dec": "qtdemux ! h265parse ! {}",
+            "v4l2vp8dec": "matroskademux ! queue ! {}",
+            "v4l2vp9dec": "matroskademux ! queue ! {}",
+        }
+        self._pipeline_builders = {
+            decoder: self._performance_pipeline_builder
+            for decoder in self._demux_map
+        }
+
+    def _performance_pipeline_builder(self) -> str:
+        part_pipeline = self._demux_map[self._codec].format(self._codec)
+        return (
+            "{} -v filesrc location={} ! {} ! queue ! videoconvert ! "
+            "queue ! fpsdisplaysink video-sink='{}' text-overlay=false"
+            " sync={}"
+        ).format(
+            GST_LAUNCH_BIN,
+            self._golden_sample,
+            part_pipeline,
+            self._sink,
+            self._fpsdisplaysink_sync,
+        )
 
 
 class NxpIMX8mProject(BaseCodecProject):

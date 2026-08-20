@@ -21,7 +21,7 @@ import argparse
 import logging
 
 from codec_base import BaseCodecProject
-from codec_platforms import codec_factory
+from codec_platforms import create_scenario_project
 from gst_utils import (
     GST_LAUNCH_BIN,
     GStreamerMuxerType,
@@ -113,24 +113,15 @@ class GenericEncoderProject(BaseCodecProject):
     with decodebin, convert, encode with the plugin under test and mux.
     """
 
-    def __init__(
-        self,
-        platform: str,
-        codec: str,
-        color_space: str,
-        width: int,
-        height: int,
-        framerate: int,
-        mux: str,
-    ) -> None:
+    def __init__(self, args: argparse.Namespace) -> None:
         super().__init__(
-            platform=platform,
-            codec=codec,
-            width=width,
-            height=height,
-            framerate=framerate,
-            color_space=color_space,
-            mux=mux or "mp4mux",
+            platform=args.platform,
+            codec=args.encoder_plugin,
+            width=args.width,
+            height=args.height,
+            framerate=args.framerate,
+            color_space=args.color_space,
+            mux=args.mux or "mp4mux",
         )
         # This sample video file will be consumed by any gstreamer piple
         # as input video.
@@ -179,24 +170,12 @@ def main() -> None:
         # Platforms with their own encoder pipeline provide a
         # create_encoder_psnr_project in their codec_<family>.py module;
         # everyone else uses the generic reference pipeline.
-        module = codec_factory(args.platform)
-        creator = (
-            getattr(module, "create_encoder_psnr_project", None)
-            if module
-            else None
+        p = create_scenario_project(
+            args.platform,
+            "create_encoder_psnr_project",
+            GenericEncoderProject,
+            args,
         )
-        if creator:
-            p = creator(args)
-        else:
-            p = GenericEncoderProject(
-                platform=args.platform,
-                codec=args.encoder_plugin,
-                color_space=args.color_space,
-                width=args.width,
-                height=args.height,
-                framerate=args.framerate,
-                mux=args.mux,
-            )
         logging.info("Step 1: Generating artifact...")
         cmd = p.build_pipeline()
         # execute command

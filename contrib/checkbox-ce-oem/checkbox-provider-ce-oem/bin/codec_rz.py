@@ -43,61 +43,54 @@ def create_encoder_psnr_project(args: argparse.Namespace):
     )
 
 
-def build_decoder_performance_command(
-    gst_bin: str,
-    golden_sample_path: str,
-    decoder: str,
-    sink: str,
-    fpsdisplaysink_sync: str,
-    platform: str,
-) -> str:
-    """
-    Builds a GStreamer command to process the golden sample.
+def create_decoder_performance_project(args: argparse.Namespace):
+    """Create the decoder-performance pipeline project for Renesas RZ."""
+    return RenesasDecoderPerformanceProject(args)
 
-    :param gst_bin:
-        The binary name of gstreamer. Default is "gst-launch-1.0"
-        You can assign the snap name to GST_LAUNCH_BIN env variable if you
-        want to using snap.
-    :param golden_sample_path:
-        The path to the golden sample file.
-    :param decoder:
-        The decoder to use for the video, e.g., "omxh264dec".
-    :param sink:
-        The desired sink option, e.g., "fakesink".
-    :param fpsdisplaysink_sync:
-        The property option of fpsdisplaysink."
-        Ref: https://gstreamer.freedesktop.org/documentation/debugutilsbad/
-        fpsdisplaysink.html?gi-language=python#fpsdisplaysink:sync
-    :param platform:
-        The platform (conf file name).
 
-    :returns:
-        The GStreamer command to execute.
-    """
-    # Renesas RZ series support h264 and h265 as hardware decoder
-    # And some platform support both decoder.
-    # We make a simple logic to choose the decoder and build the pipeline,
-    # If the decoder is omxh265dec, we use h265parse, else we use h264parse.
-    codec_parser_map = {
-        GStreamerDecodePlugins.OMXH264DEC.value: "h264parse",
-        GStreamerDecodePlugins.OMXH265DEC.value: "h265parse",
-    }
-    logging.info("Building pipeline for platform: %s", platform)
+class RenesasDecoderPerformanceProject(BaseCodecProject):
+    """Renesas RZ decoder-performance pipeline handler and builder."""
 
-    encode_parser = codec_parser_map.get(decoder)
-    part_pipeline = "qtdemux ! {} ! {} use-dmabuf=true".format(
-        encode_parser, decoder
-    )
+    def __init__(self, args: argparse.Namespace) -> None:
+        super().__init__(
+            platform=args.platform,
+            codec=args.decoder_plugin,
+            width=0,
+            height=0,
+            framerate=0,
+        )
+        self._golden_sample = args.golden_sample_path
+        self._sink = args.sink
+        self._fpsdisplaysink_sync = args.fpsdisplaysink_sync
+        # Renesas RZ series support h264 and h265 as hardware decoder
+        # And some platform support both decoder.
+        self._codec_parser_map = {
+            GStreamerDecodePlugins.OMXH264DEC.value: "h264parse",
+            GStreamerDecodePlugins.OMXH265DEC.value: "h265parse",
+        }
+        self._pipeline_builders = {
+            decoder: self._performance_pipeline_builder
+            for decoder in self._codec_parser_map
+        }
 
-    cmd = (
-        "{} -v filesrc location={} ! {} ! queue !"
-        " vspmfilter dmabuf-use=true !"
-        " queue ! fpsdisplaysink video-sink='{}' text-overlay=false sync={}"
-    ).format(
-        gst_bin, golden_sample_path, part_pipeline, sink, fpsdisplaysink_sync
-    )
-
-    return cmd
+    def _performance_pipeline_builder(self) -> str:
+        logging.info("Building pipeline for platform: %s", self._platform)
+        encode_parser = self._codec_parser_map.get(self._codec)
+        part_pipeline = "qtdemux ! {} ! {} use-dmabuf=true".format(
+            encode_parser, self._codec
+        )
+        return (
+            "{} -v filesrc location={} ! {} ! queue !"
+            " vspmfilter dmabuf-use=true !"
+            " queue ! fpsdisplaysink video-sink='{}' text-overlay=false"
+            " sync={}"
+        ).format(
+            GST_LAUNCH_BIN,
+            self._golden_sample,
+            part_pipeline,
+            self._sink,
+            self._fpsdisplaysink_sync,
+        )
 
 
 class RenesasProject(BaseCodecProject):

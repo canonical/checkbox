@@ -22,7 +22,8 @@ import logging
 import os
 import re
 
-from codec_platforms import codec_factory
+from codec_base import BaseCodecProject
+from codec_platforms import create_scenario_project
 from gst_utils import (
     execute_command,
     manage_test_file_by_name,
@@ -136,6 +137,37 @@ def build_gst_command(
     return cmd
 
 
+class GenericDecoderPerformanceProject(BaseCodecProject):
+    """
+    Generic decoder-performance pipeline project; builds the command
+    through the module's build_gst_command.
+    """
+
+    def __init__(self, args: argparse.Namespace) -> None:
+        super().__init__(
+            platform=args.platform,
+            codec=args.decoder_plugin,
+            width=0,
+            height=0,
+            framerate=0,
+        )
+        self._golden_sample = args.golden_sample_path
+        self._sink = args.sink
+        self._fpsdisplaysink_sync = args.fpsdisplaysink_sync
+        self._pipeline_builders = {
+            args.decoder_plugin: self._performance_pipeline_builder,
+        }
+
+    def _performance_pipeline_builder(self) -> str:
+        return build_gst_command(
+            gst_bin=os.getenv("GST_LAUNCH_BIN", "gst-launch-1.0"),
+            golden_sample_path=self._golden_sample,
+            decoder=self._codec,
+            sink=self._sink,
+            fpsdisplaysink_sync=self._fpsdisplaysink_sync,
+        )
+
+
 def is_valid_result(input_text: str, min_fps: float) -> bool:
     """
     Extracts the last-message value from the given input string.
@@ -204,33 +236,16 @@ def main() -> None:
         file_name=os.path.basename(args.golden_sample_path),
         target_dir=os.path.dirname(args.golden_sample_path),
     ):
-        gst_launch_bin = os.getenv("GST_LAUNCH_BIN", "gst-launch-1.0")
         # Platforms with their own decoder pipeline provide a
-        # build_decoder_performance_command in their codec_<family>.py
+        # create_decoder_performance_project in their codec_<family>.py
         # module; everyone else uses the generic pipeline.
-        module = codec_factory(args.platform)
-        builder = (
-            getattr(module, "build_decoder_performance_command", None)
-            if module
-            else None
+        project = create_scenario_project(
+            args.platform,
+            "create_decoder_performance_project",
+            GenericDecoderPerformanceProject,
+            args,
         )
-        if builder:
-            cmd = builder(
-                gst_bin=gst_launch_bin,
-                golden_sample_path=args.golden_sample_path,
-                decoder=args.decoder_plugin,
-                sink=args.sink,
-                fpsdisplaysink_sync=args.fpsdisplaysink_sync,
-                platform=args.platform,
-            )
-        else:
-            cmd = build_gst_command(
-                gst_bin=gst_launch_bin,
-                golden_sample_path=args.golden_sample_path,
-                decoder=args.decoder_plugin,
-                sink=args.sink,
-                fpsdisplaysink_sync=args.fpsdisplaysink_sync,
-            )
+        cmd = project.build_pipeline()
 
         output = execute_command(cmd).rstrip(os.linesep)
 

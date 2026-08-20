@@ -33,7 +33,7 @@ def clear_qdisc_settings(interface: str) -> None:
         stdout=subprocess.PIPE,  # Redirect stdout to a pipe.
         stderr=subprocess.PIPE,  # Redirect stderr to a pipe.
         timeout=1,
-        check=False,
+        check=False, # cleaning nonexistent setting will return 2
     )
 
 
@@ -669,7 +669,7 @@ def traffic_scheduling(
         stdout=subprocess.PIPE,
         stderr=subprocess.PIPE,
         timeout=1,
-        check=False,
+        check=True,
     )
     if result.returncode:
         raise SystemExit(
@@ -688,11 +688,12 @@ def traffic_scheduling(
     # Create and mount /sys/fs/cgroup/net_prio
     sys_fs_cgroup_net_prio = Path("/sys/fs/cgroup/net_prio")
     sys_fs_cgroup_net_prio.mkdir(exist_ok=True)
-    subprocess.run(
+    # mount -t cgroup -onet_prio none /sys/fs/cgroup/net_prio
+    mount_result = subprocess.run(
         [
             "mount",
             "-t",
-            "group",
+            "cgroup",
             "-onet_prio",
             "none",
             str(sys_fs_cgroup_net_prio),
@@ -700,6 +701,10 @@ def traffic_scheduling(
         timeout=1,
         check=False,
     )
+    if mount_result.returncode not in (0, 32):
+        # 32 means it's already mounted, explicitly ignore it
+        # have the subprocess module print the err for us
+        mount_result.check_returncode()
 
     # Create /sys/fs/cgroup/net_prio/grp{1,2,3} and write interface {1, 2, 3}
     for grp in range(1, 4):
@@ -803,7 +808,7 @@ def iperf3_client(
 def get_interface_ip(interface: str):
     result = subprocess.run(
         ["ip", "-4", "-o", "addr", "show", "dev", interface],
-        check=False,
+        check=True,
         stdout=subprocess.PIPE,
         stderr=subprocess.PIPE,
         text=True,

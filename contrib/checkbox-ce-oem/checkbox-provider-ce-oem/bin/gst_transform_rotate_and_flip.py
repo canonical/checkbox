@@ -19,17 +19,122 @@
 
 import argparse
 import logging
+import os
 
+from codec_base import BaseCodecProject
 from codec_platforms import codec_factory
 from gst_utils import (
+    VIDEO_CODEC_TESTING_DATA,
+    SAMPLE_2_FOLDER,
+    GST_LAUNCH_BIN,
+    GStreamerEncodePlugins,
     GStreamerTransformActions,
     MetadataValidator,
     compare_psnr,
     delete_file,
     execute_command,
+    get_big_bug_bunny_golden_sample,
 )
 
 logging.basicConfig(level=logging.INFO)
+
+
+class GenericTransformRotateAndFlipProject(BaseCodecProject):
+    """
+    Generic rotate/flip transform pipeline built on the v4l2convert
+    element, used when the platform's codec module does not provide its
+    own create_transform_rotate_and_flip_project.
+    """
+
+    def __init__(
+        self,
+        platform: str,
+        codec: str,
+        action: GStreamerTransformActions,
+        width: int,
+        height: int,
+        framerate: int,
+    ) -> None:
+        super().__init__(
+            platform=platform,
+            codec=codec,
+            width=width,
+            height=height,
+            framerate=framerate,
+        )
+        self._action = action
+        self._codec_parser_map = {
+            GStreamerEncodePlugins.V4L2H264ENC.value: "h264parse"
+        }
+        self._actions_map = {
+            GStreamerTransformActions.ROTATE_90: "rotate=90",
+            GStreamerTransformActions.ROTATE_180: "rotate=180",
+            GStreamerTransformActions.ROTATE_270: "rotate=270",
+            GStreamerTransformActions.HORIZONTAL_FLIP: "horizontal_flip=1",
+            GStreamerTransformActions.VERTICAL_FLIP: "vertical_flip=1",
+        }
+        # This sample video file will be consumed by any gstreamer piple as
+        # input video.
+        self._golden_sample = get_big_bug_bunny_golden_sample(
+            width=self._width, height=self._height, framerate=self._framerate
+        )
+        self._pipeline_builders = {
+            GStreamerEncodePlugins.V4L2H264ENC.value: (
+                self._transform_pipeline_builder
+            ),
+        }
+
+    @property
+    def psnr_reference_file(self) -> str:
+        """
+        A golden reference which has been transformed in advance. It's used to
+        be the compared reference file for PSNR.
+        """
+        golden_reference = "big_bug_bunny_{}x{}_{}fps_{}.mp4".format(
+            self._width, self._height, self._framerate, self._action
+        )
+
+        full_path = os.path.join(
+            VIDEO_CODEC_TESTING_DATA, SAMPLE_2_FOLDER, golden_reference
+        )
+        if not os.path.exists(full_path):
+            raise SystemExit(
+                "Error: Golden PSNR reference '{}' doesn't exist".format(
+                    full_path
+                )
+            )
+
+        return full_path
+
+    def _transform_pipeline_builder(self) -> str:
+        """
+        Build the gstreamer pipeline performing the rotate/flip action.
+        """
+        pipeline = (
+            "{} filesrc location={} ! decodebin ! v4l2convert "
+            "extra-controls='cid,{}'"
+        ).format(
+            GST_LAUNCH_BIN,
+            self._golden_sample,
+            self._actions_map.get(self._action),
+        )
+
+        if self._action in [
+            GStreamerTransformActions.ROTATE_90,
+            GStreamerTransformActions.ROTATE_270,
+        ]:
+            pipeline = (
+                "{} ! video/x-raw,width={},height={},"
+                "pixel-aspect-ratio='(fraction)1/1'"
+            ).format(pipeline, self._height, self._width)
+
+        pipeline = ("{} ! {} ! {} ! mp4mux ! filesink location={}").format(
+            pipeline,
+            self._codec,
+            self._codec_parser_map.get(self._codec),
+            self.artifact_file,
+        )
+        return pipeline
 
 
 def register_arguments():
@@ -95,18 +200,26 @@ def register_arguments():
 
 def main() -> None:
     args = register_arguments()
-    # The platform's pipelines live in its codec_<family>.py module,
-    # resolved the same way every other scenario resolves them.
+    # Platforms with their own transform pipeline provide a
+    # create_transform_rotate_and_flip_project in their codec_<family>.py
+    # module; everyone else uses the generic v4l2convert pipeline.
     module = codec_factory(args.platform)
-    if module is None or not hasattr(
-        module, "create_transform_rotate_and_flip_project"
-    ):
-        raise SystemExit(
-            "Error: Cannot get the implementation for '{}'".format(
-                args.platform
-            )
+    creator = (
+        getattr(module, "create_transform_rotate_and_flip_project", None)
+        if module
+        else None
+    )
+    if creator:
+        p = creator(args)
+    else:
+        p = GenericTransformRotateAndFlipProject(
+            platform=args.platform,
+            codec=args.encoder_plugin,
+            action=args.action,
+            width=args.width,
+            height=args.height,
+            framerate=args.framerate,
         )
-    p = module.create_transform_rotate_and_flip_project(args)
     logging.info("Step 1: Generating artifact...")
     cmd = p.build_pipeline()
     # execute command

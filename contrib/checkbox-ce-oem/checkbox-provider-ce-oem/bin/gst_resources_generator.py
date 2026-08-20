@@ -252,6 +252,7 @@ class GstResources:
                             sample_file["file_name"],
                             video_sink,
                         ),
+                        "platform": self._conf_name,
                         "video_sink": video_sink,
                         "decoder_plugin": item["decoder_plugin"],
                         "golden_sample_file_name": sample_file["file_name"],

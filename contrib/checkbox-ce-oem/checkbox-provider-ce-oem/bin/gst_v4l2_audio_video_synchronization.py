@@ -23,6 +23,8 @@ import os
 import shlex
 import subprocess
 from typing import Any
+
+from codec_platforms import codec_factory
 from gst_utils import manage_test_file_by_name
 
 logging.basicConfig(level=logging.INFO)
@@ -71,6 +73,14 @@ def register_arguments():
         default="",
         type=str,
         help=("Specific value for caps setting. (Default: " ")"),
+    )
+
+    parser.add_argument(
+        "-p",
+        "--platform",
+        required=True,
+        type=str,
+        help="device platform uses for choosing pipeline builder e.g. imx8mp",
     )
 
     args = parser.parse_args()
@@ -175,13 +185,32 @@ def play_video_for_av_synchronization_test(args: Any) -> None:
         target_dir=os.path.dirname(args.golden_sample_path),
     ):
         gst_launch_bin = os.getenv("GST_LAUNCH_BIN", "gst-launch-1.0")
-        cmd = build_gst_command(
-            gst_bin=gst_launch_bin,
-            golden_sample_path=args.golden_sample_path,
-            decoder=args.decoder_plugin,
-            video_sink=args.video_sink,
-            capssetter_pipeline=args.capssetter_pipeline,
+        # Platforms with their own AV-sync pipeline provide a
+        # build_audio_video_sync_command in their codec_<family>.py
+        # module; everyone else uses the generic pipeline.
+        module = codec_factory(args.platform)
+        builder = (
+            getattr(module, "build_audio_video_sync_command", None)
+            if module
+            else None
         )
+        if builder:
+            cmd = builder(
+                gst_bin=gst_launch_bin,
+                golden_sample_path=args.golden_sample_path,
+                decoder=args.decoder_plugin,
+                video_sink=args.video_sink,
+                capssetter_pipeline=args.capssetter_pipeline,
+                platform=args.platform,
+            )
+        else:
+            cmd = build_gst_command(
+                gst_bin=gst_launch_bin,
+                golden_sample_path=args.golden_sample_path,
+                decoder=args.decoder_plugin,
+                video_sink=args.video_sink,
+                capssetter_pipeline=args.capssetter_pipeline,
+            )
         # The video will be displayed on the real display
         execute_command(cmd)
 

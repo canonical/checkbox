@@ -1,0 +1,28 @@
+id: ce-oem-switchdev-full
+unit: test plan
+_name: Switchdev fabric tests
+_description: Automated switchdev fabric tests for Linux-switch devices
+include:
+nested_part:
+    ce-oem-switchdev-automated
+
+id: ce-oem-switchdev-automated
+unit: test plan
+_name: Switchdev fabric test plan (automated)
+_description:
+    Automated switchdev fabric tests: port enumeration, admin link-flap
+    recovery, frozen VLAN-config drift, ASIC offload proof over the standing
+    loop-cable chain, STP loop protection, and informational L3-offload/VRF
+    capability probes. Non-switch devices produce no jobs (the resource
+    finds no phys_switch_id netdevs and manifest gates stay false).
+estimated_duration: 1200
+bootstrap_include:
+    ce-oem-switchdev-ports
+include:
+    ce-oem-switchdev/port-count
+    ce-oem-switchdev/link-flap
+    ce-oem-switchdev/vlan-config-drift
+    ce-oem-switchdev/chain-offload-proof
+    ce-oem-switchdev/rstp-loop-protection
+    ce-oem-switchdev/l3-offload-probe
+    ce-oem-switchdev/vrf-probe

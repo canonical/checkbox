@@ -121,17 +121,17 @@ def normalized_vlans():
 
 def cmd_vlan_drift(args):
     current = normalized_vlans()
+    if args.save:
+        with open(args.baseline, "w") as f:
+            json.dump(current, f, indent=1)
+        print("baseline saved to {}".format(args.baseline))
+        return
     if not os.path.exists(args.baseline):
         raise SystemExit(
             "FAIL: baseline {} missing. Create it once on a known-good "
             "standing config with:\n  switchdev_test.py vlan-drift "
             "--baseline {} --save".format(args.baseline, args.baseline)
         )
-    if args.save:
-        with open(args.baseline, "w") as f:
-            json.dump(current, f, indent=1)
-        print("baseline saved to {}".format(args.baseline))
-        return
     with open(args.baseline) as f:
         baseline = [
             (e[0], e[1], sorted(e[2])) for e in json.load(f)

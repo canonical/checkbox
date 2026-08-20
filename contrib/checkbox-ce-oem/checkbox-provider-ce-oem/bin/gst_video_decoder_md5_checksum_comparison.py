@@ -25,7 +25,8 @@ import shlex
 import subprocess
 from typing import Any
 
-from codec_platforms import codec_factory
+from codec_base import BaseCodecProject
+from codec_platforms import create_scenario_project
 
 logging.basicConfig(level=logging.INFO)
 
@@ -117,6 +118,35 @@ def build_gst_command(
     return cmd
 
 
+class GenericDecoderMd5ChecksumProject(BaseCodecProject):
+    """
+    Generic MD5-comparison pipeline project; builds the command through
+    the module's build_gst_command.
+    """
+
+    def __init__(self, args: argparse.Namespace) -> None:
+        super().__init__(
+            platform=args.platform,
+            codec=args.decoder_plugin,
+            width=0,
+            height=0,
+            framerate=0,
+            color_space=args.color_space,
+        )
+        self._golden_sample = args.golden_sample_path
+        self._pipeline_builders = {
+            args.decoder_plugin: self._md5_pipeline_builder,
+        }
+
+    def _md5_pipeline_builder(self) -> str:
+        return build_gst_command(
+            gst_bin=os.getenv("GST_LAUNCH_BIN", "gst-launch-1.0"),
+            golden_sample_path=self._golden_sample,
+            decoder=self._codec,
+            color_sapce=self._color_space,
+        )
+
+
 def get_md5_checksum_from_command(cmd: str) -> str:
     """
     Executes the GStreamer command and extracts the MD5 checksums.
@@ -206,31 +236,16 @@ def validate_video_decoder_md5_checksum(args: Any) -> None:
             )
         )
     # Run command to get comapred md5 checksum by consuming golden sample
-    gst_launch_bin = os.getenv("GST_LAUNCH_BIN", "gst-launch-1.0")
     # Platforms with their own decoder pipeline provide a
-    # build_decoder_md5_checksum_command in their codec_<family>.py
+    # create_decoder_md5_checksum_project in their codec_<family>.py
     # module; everyone else uses the generic pipeline.
-    module = codec_factory(args.platform)
-    builder = (
-        getattr(module, "build_decoder_md5_checksum_command", None)
-        if module
-        else None
+    project = create_scenario_project(
+        args.platform,
+        "create_decoder_md5_checksum_project",
+        GenericDecoderMd5ChecksumProject,
+        args,
     )
-    if builder:
-        cmd = builder(
-            gst_bin=gst_launch_bin,
-            golden_sample_path=args.golden_sample_path,
-            decoder=args.decoder_plugin,
-            color_space=args.color_space,
-            platform=args.platform,
-        )
-    else:
-        cmd = build_gst_command(
-            gst_bin=gst_launch_bin,
-            golden_sample_path=args.golden_sample_path,
-            decoder=args.decoder_plugin,
-            color_sapce=args.color_space,
-        )
+    cmd = project.build_pipeline()
     compared_md5_data = get_md5_checksum_from_command(cmd).rstrip(os.linesep)
 
     logging.info(

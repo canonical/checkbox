@@ -95,7 +95,7 @@ Decodes a golden sample with the declared decoder plugin and compares the
 produced MD5 checksums against the golden references stored under
 `$VIDEO_CODEC_TESTING_DATA/gst_video_decoder_md5_checksum_comparison/golden_md5_checksum/<conf>/`.
 Platforms with their own decoder pipeline expose
-`build_decoder_md5_checksum_command(...)` in their `codec_<family>.py`;
+`create_decoder_md5_checksum_project(args)` in their `codec_<family>.py`;
 everyone else uses the generic pipeline.
 
 **Conf section:**
@@ -121,7 +121,7 @@ stay synchronized. The video sink is picked from the conf's
 `video_sinks` map by image type (desktop / server / core), and a
 `capssetter_pipeline` can be injected per sample when the stream needs
 its caps rewritten. Platforms with their own AV-sync pipeline expose
-`build_audio_video_sync_command(...)` in their `codec_<family>.py`;
+`create_audio_video_sync_project(args)` in their `codec_<family>.py`;
 everyone else uses the generic pipeline.
 
 **Conf section:**
@@ -154,8 +154,11 @@ Decodes a golden sample into `fakesink` and reads the fps statistics from
 value at or above `minimum_fps`. Families whose single decoder element
 serves several codecs set `perf_id_includes_sample` in their
 `PLATFORM_FAMILIES` entry, which appends the golden-sample name to the id
-to keep it unique per codec. Like every video codec job, it runs as the
-normal user — nothing in the framework needs root.
+to keep it unique per codec. Platforms with their own decoder pipeline
+expose `create_decoder_performance_project(args)` in their
+`codec_<family>.py`; everyone else uses the generic pipeline. Like every
+video codec job, it runs as the normal user — nothing in the framework
+needs root.
 
 **Conf section:**
 ```json
@@ -378,6 +381,9 @@ flowchart TD
 
 #### Key Functions
 
+- **`create_scenario_project()`**: The one dispatch every scenario
+  script uses — the platform module's `create_<scenario>_project(args)`
+  hook when it exists, the scenario's generic default project otherwise
 - **`codec_factory()`**: Resolves the platform to its family module
 - **`compose_encoder_psnr_name()` / `compose_decoder_performance_name()`**:
   Compose the job names from the `PLATFORM_FAMILIES` shapes
@@ -509,18 +515,21 @@ class YourPlatformProject(BaseCodecProject):
         )
 ```
 
-Every scenario ships a generic default pipeline and resolves platform
-overrides through the same module, so a platform only ever needs its
-`codec_<family>.py` plus the `PlatformFamily` entry — and only for the
-scenarios where the generic pipeline does not fit. The hooks a module
-can expose (all optional):
+Every scenario ships a generic default project and resolves platform
+overrides through one dispatch function
+(`create_scenario_project()` in `bin/codec_platforms.py`), so a
+platform only ever needs its `codec_<family>.py` plus the
+`PlatformFamily` entry — and only for the scenarios where the generic
+pipeline does not fit. Every hook has the same shape:
+`create_<scenario>_project(args)` returning a `BaseCodecProject`
+(all optional):
 
 - `create_encoder_psnr_project(args)` — encoder PSNR (see any
   `codec_<family>.py`)
-- `build_decoder_performance_command(...)` — decoder performance (see
+- `create_decoder_performance_project(args)` — decoder performance (see
   `codec_imx.py` or `codec_rz.py`)
-- `build_decoder_md5_checksum_command(...)` — decoder MD5 comparison
-- `build_audio_video_sync_command(...)` — AV synchronization
+- `create_decoder_md5_checksum_project(args)` — decoder MD5 comparison
+- `create_audio_video_sync_project(args)` — AV synchronization
 - `create_transform_rotate_and_flip_project(args)` /
   `create_transform_resize_project(args)` — the transform scenarios
 

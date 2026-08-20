@@ -6,7 +6,12 @@ import codec_genio
 import codec_imx
 import codec_rz
 from codec_base import BaseCodecProject
-from codec_platforms import PLATFORM_FAMILIES, PlatformFamily, codec_factory
+from codec_platforms import (
+    PLATFORM_FAMILIES,
+    PlatformFamily,
+    codec_factory,
+    create_scenario_project,
+)
 from gst_utils import PipelineInterface
 
 
@@ -48,17 +53,52 @@ class TestCodecFactory(unittest.TestCase):
         ):
             self.assertTrue(hasattr(module, "create_encoder_psnr_project"))
         # only the platforms with their own decoder pipeline provide the
-        # decoder-performance builder; the others use the generic one
+        # decoder-performance project; the others use the generic one
         self.assertTrue(
-            hasattr(codec_imx, "build_decoder_performance_command")
+            hasattr(codec_imx, "create_decoder_performance_project")
         )
-        self.assertTrue(hasattr(codec_rz, "build_decoder_performance_command"))
+        self.assertTrue(
+            hasattr(codec_rz, "create_decoder_performance_project")
+        )
         self.assertFalse(
-            hasattr(codec_genio, "build_decoder_performance_command")
+            hasattr(codec_genio, "create_decoder_performance_project")
         )
         self.assertFalse(
-            hasattr(codec_dragonwing, "build_decoder_performance_command")
+            hasattr(codec_dragonwing, "create_decoder_performance_project")
         )
+
+    def test_create_scenario_project_dispatch(self):
+        class FakeDefault:
+            def __init__(self, args):
+                self.args = args
+
+        # unknown platform -> the scenario's generic default
+        project = create_scenario_project(
+            "newplatform", "create_encoder_psnr_project", FakeDefault, None
+        )
+        self.assertIsInstance(project, FakeDefault)
+        # module without the hook -> the generic default too
+        project = create_scenario_project(
+            "genio-1200",
+            "create_decoder_performance_project",
+            FakeDefault,
+            None,
+        )
+        self.assertIsInstance(project, FakeDefault)
+        # module with the hook -> the platform project
+        args = mock.Mock(
+            platform="genio-1200",
+            encoder_plugin="v4l2h264enc",
+            color_space="NV12",
+            width=1920,
+            height=1080,
+            framerate=30,
+            mux="mp4mux",
+        )
+        project = create_scenario_project(
+            "genio-1200", "create_encoder_psnr_project", FakeDefault, args
+        )
+        self.assertIsInstance(project, codec_genio.GenioProject)
 
 
 class TestBaseCodecProject(unittest.TestCase):
@@ -93,11 +133,19 @@ class TestBaseCodecProject(unittest.TestCase):
         import gst_encoder_psnr
         import gst_transform_resize
         import gst_transform_rotate_and_flip
+        import gst_v4l2_audio_video_synchronization as avsync_script
+        import gst_video_decoder_md5_checksum_comparison as md5_script
+        import gst_video_decoder_performance as perf_script
 
         for project_class in (
             gst_encoder_psnr.GenericEncoderProject,
             gst_transform_rotate_and_flip.GenericTransformRotateAndFlipProject,
             gst_transform_resize.GenericTransformResizeProject,
+            avsync_script.GenericAudioVideoSyncProject,
+            md5_script.GenericDecoderMd5ChecksumProject,
+            perf_script.GenericDecoderPerformanceProject,
+            codec_imx.ImxDecoderPerformanceProject,
+            codec_rz.RenesasDecoderPerformanceProject,
         ):
             self.assertTrue(issubclass(project_class, BaseCodecProject))
 

@@ -22,7 +22,7 @@ import logging
 import os
 
 from codec_base import BaseCodecProject
-from codec_platforms import codec_factory
+from codec_platforms import create_scenario_project
 from gst_utils import (
     VIDEO_CODEC_TESTING_DATA,
     SAMPLE_2_FOLDER,
@@ -46,23 +46,15 @@ class GenericTransformRotateAndFlipProject(BaseCodecProject):
     own create_transform_rotate_and_flip_project.
     """
 
-    def __init__(
-        self,
-        platform: str,
-        codec: str,
-        action: GStreamerTransformActions,
-        width: int,
-        height: int,
-        framerate: int,
-    ) -> None:
+    def __init__(self, args: argparse.Namespace) -> None:
         super().__init__(
-            platform=platform,
-            codec=codec,
-            width=width,
-            height=height,
-            framerate=framerate,
+            platform=args.platform,
+            codec=args.encoder_plugin,
+            width=args.width,
+            height=args.height,
+            framerate=args.framerate,
         )
-        self._action = action
+        self._action = args.action
         self._codec_parser_map = {
             GStreamerEncodePlugins.V4L2H264ENC.value: "h264parse"
         }
@@ -203,23 +195,12 @@ def main() -> None:
     # Platforms with their own transform pipeline provide a
     # create_transform_rotate_and_flip_project in their codec_<family>.py
     # module; everyone else uses the generic v4l2convert pipeline.
-    module = codec_factory(args.platform)
-    creator = (
-        getattr(module, "create_transform_rotate_and_flip_project", None)
-        if module
-        else None
+    p = create_scenario_project(
+        args.platform,
+        "create_transform_rotate_and_flip_project",
+        GenericTransformRotateAndFlipProject,
+        args,
     )
-    if creator:
-        p = creator(args)
-    else:
-        p = GenericTransformRotateAndFlipProject(
-            platform=args.platform,
-            codec=args.encoder_plugin,
-            action=args.action,
-            width=args.width,
-            height=args.height,
-            framerate=args.framerate,
-        )
     logging.info("Step 1: Generating artifact...")
     cmd = p.build_pipeline()
     # execute command

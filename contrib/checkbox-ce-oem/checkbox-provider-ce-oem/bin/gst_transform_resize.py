@@ -22,7 +22,7 @@ import logging
 import os
 
 from codec_base import BaseCodecProject
-from codec_platforms import codec_factory
+from codec_platforms import create_scenario_project
 from gst_utils import (
     GST_LAUNCH_BIN,
     GStreamerEncodePlugins,
@@ -44,25 +44,16 @@ class GenericTransformResizeProject(BaseCodecProject):
     create_transform_resize_project.
     """
 
-    def __init__(
-        self,
-        platform: str,
-        codec: str,
-        width_from: int,
-        height_from: int,
-        width_to: int,
-        height_to: int,
-        framerate: int,
-    ) -> None:
+    def __init__(self, args: argparse.Namespace) -> None:
         super().__init__(
-            platform=platform,
-            codec=codec,
-            width=width_from,
-            height=height_from,
-            framerate=framerate,
+            platform=args.platform,
+            codec=args.encoder_plugin,
+            width=args.width_from,
+            height=args.height_from,
+            framerate=args.framerate,
         )
-        self._width_to = width_to
-        self._height_to = height_to
+        self._width_to = args.width_to
+        self._height_to = args.height_to
         self._codec_parser_map = {
             GStreamerEncodePlugins.V4L2H264ENC.value: "h264parse"
         }
@@ -196,24 +187,12 @@ def main() -> None:
             # create_transform_resize_project in their codec_<family>.py
             # module; everyone else uses the generic v4l2convert
             # pipeline.
-            module = codec_factory(args.platform)
-            creator = (
-                getattr(module, "create_transform_resize_project", None)
-                if module
-                else None
+            p = create_scenario_project(
+                args.platform,
+                "create_transform_resize_project",
+                GenericTransformResizeProject,
+                args,
             )
-            if creator:
-                p = creator(args)
-            else:
-                p = GenericTransformResizeProject(
-                    platform=args.platform,
-                    codec=args.encoder_plugin,
-                    width_from=args.width_from,
-                    height_from=args.height_from,
-                    width_to=args.width_to,
-                    height_to=args.height_to,
-                    framerate=args.framerate,
-                )
             logging.info("Step 1: Generating artifact...")
             cmd = p.build_pipeline()
             # execute command

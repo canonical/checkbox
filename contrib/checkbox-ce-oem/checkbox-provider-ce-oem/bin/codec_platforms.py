@@ -107,3 +107,17 @@ def codec_factory(platform: str):
         if error.name == module_name:
             return None
         raise
+
+
+def create_scenario_project(platform, hook_name, default_class, args):
+    """
+    Resolve a scenario's pipeline project: the platform module's
+    create_<scenario>_project hook when it exposes one, the scenario's
+    generic default project otherwise. Every scenario script dispatches
+    through this one function with the same shape.
+    """
+    module = codec_factory(platform)
+    creator = getattr(module, hook_name, None) if module else None
+    if creator:
+        return creator(args)
+    return default_class(args)

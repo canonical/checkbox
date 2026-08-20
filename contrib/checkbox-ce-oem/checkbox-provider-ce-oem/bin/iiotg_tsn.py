@@ -33,7 +33,7 @@ def clear_qdisc_settings(interface: str) -> None:
         stdout=subprocess.PIPE,  # Redirect stdout to a pipe.
         stderr=subprocess.PIPE,  # Redirect stderr to a pipe.
         timeout=1,
-        check=False, # cleaning nonexistent setting will return 2
+        check=False,  # cleaning nonexistent setting will return 2
     )
 
 

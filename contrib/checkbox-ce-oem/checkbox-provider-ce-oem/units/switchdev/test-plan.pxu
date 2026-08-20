@@ -11,8 +11,9 @@ unit: test plan
 _name: Switchdev fabric test plan (automated)
 _description:
     Automated switchdev fabric tests: port enumeration, admin link-flap
-    recovery, frozen VLAN-config drift, ASIC offload proof over the standing
-    loop-cable chain, STP loop protection, and informational L3-offload/VRF
+    recovery, frozen VLAN-config drift, ASIC offload proof over the
+    permanently wired loop-cable chain, STP loop protection, and
+    informational L3-offload/VRF
     capability probes. Non-switch devices produce no jobs (the resource
     finds no phys_switch_id netdevs and manifest gates stay false).
 estimated_duration: 1200

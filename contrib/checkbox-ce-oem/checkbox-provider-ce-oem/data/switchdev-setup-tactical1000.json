@@ -1,5 +1,5 @@
 {
-  "_comment": "Novarq Tactical-1000 standing rig. Port names are PLACEHOLDERS until the 26.04 image lands and B1 records the real netdev names (epic OEMQA-6829 blocker #1).",
+  "_comment": "Novarq Tactical-1000 permanent test setup. Port names are PLACEHOLDERS until the 26.04 image lands and B1 records the real netdev names (epic OEMQA-6829 blocker #1).",
   "bridge": "br0",
   "expected_ports": 29,
   "reserved_ports": ["TODO-mgmt-netdev"],

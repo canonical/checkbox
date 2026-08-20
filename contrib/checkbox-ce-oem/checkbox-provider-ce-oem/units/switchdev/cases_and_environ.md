@@ -5,9 +5,9 @@ kernel switchdev framework (netdevs with `phys_switch_id`), e.g. Microchip
 LAN969x/SparX-5 based switches. Nothing here is device-specific: all device
 knowledge comes from checkbox config variables and the manifest.
 
-## Design assumptions (the "standing rig")
+## Design assumptions (the "permanent test setup")
 
-The automated cases assume a permanently wired test rig:
+The automated cases assume a permanently wired test setup:
 
 - Front copper ports are self-looped in adjacent pairs with short cables.
 - The bridge/VLAN layout is applied **once at boot and never changed**
@@ -28,13 +28,13 @@ One variable only:
 
 | Variable | Meaning |
 |---|---|
-| `SWITCHDEV_RIG_CONFIG` | The rig-config JSON: an absolute path, or a bare filename resolved against the provider `data/` directory (`$PLAINBOX_PROVIDER_DATA`) |
+| `SWITCHDEV_SETUP_CONFIG` | The setup config JSON: an absolute path, or a bare filename resolved against the provider `data/` directory (`$PLAINBOX_PROVIDER_DATA`) |
 
-## Rig-config JSON
+## Setup config JSON
 
-Schema: `data/switchdev-rig.schema.json` · Tactical-1000 example (port names
-TODO until the 26.04 image lands): `data/switchdev-rig-tactical1000.json`.
-Per-project files follow the `data/switchdev-rig-<project>.json` naming.
+Schema: `data/switchdev-setup.schema.json` · Tactical-1000 example (port names
+TODO until the 26.04 image lands): `data/switchdev-setup-tactical1000.json`.
+Per-project files follow the `data/switchdev-setup-<project>.json` naming.
 
 | Key | Used by | Meaning |
 |---|---|---|
@@ -42,18 +42,18 @@ Per-project files follow the `data/switchdev-rig-<project>.json` naming.
 | `expected_ports` | port-count | Expected number of fabric netdevs (Tactical-1000: 29 = 24 Cu + 4 SFP+ + management) |
 | `reserved_ports` | resource, link-flap | Netdev names tests must never touch (infra/management uplink) |
 | `vlan_baseline` | vlan-config-drift | Path of the saved known-good `bridge vlan` JSON baseline |
-| `chain.entry_svi` / `chain.exit_svi` | chain-offload-proof | Pre-provisioned chain-end SVIs (kept admin-down in the standing config) |
+| `chain.entry_svi` / `chain.exit_svi` | chain-offload-proof | Pre-provisioned chain-end SVIs (kept admin-down in the frozen boot config) |
 | `chain.entry_ip` / `chain.exit_ip` | chain-offload-proof | CIDR addresses for the two SVIs, same subnet (e.g. 10.101.0.1/24, 10.101.0.2/24) |
 | `chain.mid_port` | chain-offload-proof | A fabric port mid-chain whose counters must carry the test traffic |
 | `chain.rate` | chain-offload-proof | iperf3 UDP target rate (default 500M) |
 | `rstp_fixture_ports` | rstp-loop-protection | The two fixture pair port names |
 
 Each job requires only the keys it uses and fails with the missing key
-path (`FAIL: rig config missing required key: chain.mid_port`).
+path (`FAIL: setup config missing required key: chain.mid_port`).
 
 ## Manifest
 
-- `has_switchdev_standing_rig` — loop cables in place and frozen chain
+- `has_switchdev_test_setup` — loop cables in place and frozen chain
   VLAN plan applied at boot.
 - `has_switchdev_rstp_fixture` — the admin-down same-VLAN fixture pair
   exists in the frozen config.
@@ -65,8 +65,8 @@ path (`FAIL: rig config missing required key: chain.mid_port`).
 | `ce-oem-switchdev-ports` (resource) | switchdev device | Enumerates fabric netdevs; marks reserved ones |
 | `port-count` | config var | Fabric netdev count matches the device spec |
 | `link-flap-<port>` (template) | link on port | Link recovers after repeated admin down/up; skips empty ports; reserved ports excluded |
-| `vlan-config-drift` | rig manifest + baseline | Live `bridge vlan` table identical to the frozen baseline |
-| `chain-offload-proof` | rig manifest, iperf3 on device | Traffic crosses the loop-cable chain with low loss, FDB entries carry the `offload` flag, a mid-chain port's counters saw the packets (i.e. the ASIC, not a CPU shortcut, forwarded them) |
+| `vlan-config-drift` | test setup manifest + baseline | Live `bridge vlan` table identical to the frozen baseline |
+| `chain-offload-proof` | test setup manifest, iperf3 on device | Traffic crosses the loop-cable chain with low loss, FDB entries carry the `offload` flag, a mid-chain port's counters saw the packets (i.e. the ASIC, not a CPU shortcut, forwarded them) |
 | `rstp-loop-protection` | fixture manifest | Kernel STP blocks one side of the live loop and fails over when the forwarding port drops; bridge STP state restored |
 | `l3-offload-probe` | — | Informational: reports whether routes are hardware-offloaded |
 | `vrf-probe` | — | Informational: reports VRF support |
@@ -79,7 +79,7 @@ path (`FAIL: rig config missing required key: chain.mid_port`).
   (adds the CPU-quiet assertion the DUT-sourced variant cannot make).
 - FDB learning/aging/capacity (mausezahn MAC ramp), jumbo frames,
   SFP module/EEPROM checks, infra-isolation capture test.
-- Performance (NDR/latency) via traffic generator — separate manual rig.
+- Performance (NDR/latency) via traffic generator — separate manual test setup.
 
 First target device: Novarq Tactical-1000 (Microchip LAN9696). The full
 QA design (topology, VLAN numbering, blockers) lives in the project's

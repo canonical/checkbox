@@ -2,11 +2,11 @@
 """Generic switchdev fabric tests for Linux-switch devices.
 
 All sub-commands operate on any switchdev-capable device (ports exposing
-phys_switch_id). Device and rig specifics come from ONE rig-config JSON file
-(checkbox config var SWITCHDEV_RIG_CONFIG; bare filenames are resolved
-against $PLAINBOX_PROVIDER_DATA, schema: data/switchdev-rig.schema.json).
-Designed for a standing rig whose bridge/VLAN layout is set once at boot and
-never modified: tests only use link state, netns, and traffic - no
+phys_switch_id). Device and test-setup specifics come from ONE setup config
+JSON (checkbox config var SWITCHDEV_SETUP_CONFIG; bare filenames are resolved
+against $PLAINBOX_PROVIDER_DATA, schema: data/switchdev-setup.schema.json).
+Designed for a permanent test setup whose bridge/VLAN layout is set once at
+boot and never modified: tests only use link state, netns, and traffic - no
 `bridge vlan` changes.
 """
 import argparse
@@ -34,13 +34,13 @@ def ip_json(args, netns=None):
 
 
 def load_config(path, required=True):
-    """Load the rig-config JSON. Bare filenames resolve against
+    """Load the setup config JSON. Bare filenames resolve against
     $PLAINBOX_PROVIDER_DATA so per-project files can ship in data/."""
     if not path:
         if required:
             raise SystemExit(
-                "FAIL: set SWITCHDEV_RIG_CONFIG in the checkbox config "
-                "(path or data/ filename of the rig-config JSON)")
+                "FAIL: set SWITCHDEV_SETUP_CONFIG in the checkbox config "
+                "(path or data/ filename of the setup config JSON)")
         return {}
     if not os.path.exists(path) and not os.path.isabs(path):
         candidate = os.path.join(
@@ -52,7 +52,7 @@ def load_config(path, required=True):
             return json.load(f)
     except (OSError, ValueError) as exc:
         raise SystemExit(
-            "FAIL: cannot load rig config {}: {}".format(path, exc))
+            "FAIL: cannot load setup config {}: {}".format(path, exc))
 
 
 def cfg_get(cfg, *keys):
@@ -60,7 +60,7 @@ def cfg_get(cfg, *keys):
     for key in keys:
         if not isinstance(node, dict) or key not in node:
             raise SystemExit(
-                "FAIL: rig config missing required key: " + ".".join(keys))
+                "FAIL: setup config missing required key: " + ".".join(keys))
         node = node[key]
     return node
 
@@ -165,7 +165,7 @@ def cmd_vlan_drift(args):
     if not os.path.exists(baseline_path):
         raise SystemExit(
             "FAIL: baseline {} missing. Create it once on a known-good "
-            "standing config with:\n  switchdev_test.py vlan-drift "
+            "frozen boot config with:\n  switchdev_test.py vlan-drift "
             "--config {} --save".format(baseline_path, args.config)
         )
     with open(baseline_path) as f:
@@ -212,7 +212,7 @@ NETNS = "cbx-switchdev-exit"
 
 
 def cmd_offload_proof(args):
-    """B6-V1: DUT-sourced traffic through the standing chain.
+    """B6-V1: DUT-sourced traffic through the permanently wired chain.
 
     Moves the pre-provisioned exit SVI into a netns, runs iperf3 across the
     chain, and asserts (a) traffic actually traversed, (b) hardware-offloaded
@@ -290,7 +290,7 @@ def bridge_port_state(interface):
 def cmd_rstp_fixture(args):
     """B8: bring up the pre-provisioned same-VLAN loop pair under STP.
 
-    The fixture pair sits admin-down in the standing config. Kernel STP is
+    The fixture pair sits admin-down in the frozen boot config. Kernel STP is
     enabled for the test and restored afterwards; no VLAN change happens.
     """
     cfg = load_config(args.config)
@@ -303,7 +303,7 @@ def cmd_rstp_fixture(args):
     for port in (port_a, port_b):
         if operstate(port) == "up":
             raise SystemExit(
-                "FAIL: fixture port {} is up in standing state - rig "
+                "FAIL: fixture port {} is up in default state - test setup "
                 "mis-configured, aborting to avoid a live loop".format(port))
     saved_stp = run(
         ["cat", "/sys/class/net/{}/bridge/stp_state".format(bridge)]
@@ -374,9 +374,9 @@ def cmd_vrf_probe(_):
 def add_config_arg(parser):
     parser.add_argument(
         "--config",
-        default=os.environ.get("SWITCHDEV_RIG_CONFIG", ""),
-        help="rig-config JSON (path, or filename under "
-             "$PLAINBOX_PROVIDER_DATA); default: $SWITCHDEV_RIG_CONFIG")
+        default=os.environ.get("SWITCHDEV_SETUP_CONFIG", ""),
+        help="setup config JSON (path, or filename under "
+             "$PLAINBOX_PROVIDER_DATA); default: $SWITCHDEV_SETUP_CONFIG")
 
 
 def main():
@@ -407,7 +407,7 @@ def main():
     p = sub.add_parser("offload-proof")
     add_config_arg(p)
     p.add_argument("--rate", default="",
-                   help="override chain.rate from the rig config")
+                   help="override chain.rate from the setup config")
     p.add_argument("--duration", type=int, default=30)
     p.add_argument("--max-loss", type=float, default=1.0)
     p.add_argument("--min-offloaded", type=int, default=1)

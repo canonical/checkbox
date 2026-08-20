@@ -93,6 +93,7 @@ mandatory_include:
 bootstrap_include:
     tpm2_pcr_banks
 include:
+    tpm2/detect    certification-status=blocker
     clevis-encrypt-tpm2/precheck    certification-status=blocker
     clevis-encrypt-tpm2/detect-rsa-capabilities-pcr-bank    certification-status=blocker
     clevis-encrypt-tpm2/rsa_pcr_bank    certification-status=blocker

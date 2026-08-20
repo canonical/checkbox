@@ -1,4 +1,4 @@
-id: ce-oem-switchdev-ports
+id: ce_oem_switchdev_ports
 _summary: Enumerate switchdev fabric ports
 _description:
     Generates the list of netdevs exposing phys_switch_id (switch fabric
@@ -26,10 +26,11 @@ environ: SWITCHDEV_SETUP_CONFIG
 command: switchdev_test.py port-count
 
 unit: template
-template-resource: ce-oem-switchdev-ports
-template-filter: ce-oem-switchdev-ports.reserved == 'False'
+template-resource: ce_oem_switchdev_ports
+template-filter: ce_oem_switchdev_ports.reserved == 'False'
 template-unit: job
 template-id: ce-oem-switchdev/link-flap
+_template-summary: Admin link flap recovery on each switchdev fabric port
 id: ce-oem-switchdev/link-flap-{interface}
 _summary: Admin link flap recovery on fabric port {interface}
 _description:

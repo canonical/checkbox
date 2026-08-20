@@ -18,7 +18,7 @@ _description:
     finds no phys_switch_id netdevs and manifest gates stay false).
 estimated_duration: 1200
 bootstrap_include:
-    ce-oem-switchdev-ports
+    ce_oem_switchdev_ports
 include:
     ce-oem-switchdev/port-count
     ce-oem-switchdev/link-flap

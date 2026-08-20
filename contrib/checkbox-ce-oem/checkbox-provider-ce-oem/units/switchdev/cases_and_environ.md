@@ -62,7 +62,7 @@ path (`FAIL: setup config missing required key: chain.mid_port`).
 
 | Job | Needs | What it asserts |
 |---|---|---|
-| `ce-oem-switchdev-ports` (resource) | switchdev device | Enumerates fabric netdevs; marks reserved ones |
+| `ce_oem_switchdev_ports` (resource) | switchdev device | Enumerates fabric netdevs; marks reserved ones |
 | `port-count` | config var | Fabric netdev count matches the device spec |
 | `link-flap-<port>` (template) | link on port | Link recovers after repeated admin down/up; skips empty ports; reserved ports excluded |
 | `vlan-config-drift` | test setup manifest + baseline | Live `bridge vlan` table identical to the frozen baseline |

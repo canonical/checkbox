@@ -92,6 +92,7 @@ def ptp4l(
     # Text mode is enabled to allow access to the output as text.
 
     if cfg:
+        print("Using ptp4l config file at", cfg, flush=True)
         process = subprocess.Popen(
             # caller is responsible for making sure config file is valid
             # i.e. options are recognized by ptp4l
@@ -642,11 +643,16 @@ def traffic_scheduling(
             + f"(got {timeout})"
         )
 
-    print("Running ptp4l on {}...".format(interface))
+    print("Running ptp4l on {}...".format(interface), flush=True)
     ptp4l(interface, cfg, timeout, print_to_console=True)
+
+    print(
+        "Letting ptp4l sync for 10 seconds before starting the test",
+        flush=True,
+    )
     time.sleep(10)
 
-    print("Setting qdisc...")
+    print("Setting qdisc...", flush=True)
     cmd = (
         "tc qdisc add dev {} parent root handle 100 taprio "
         "num_tc 4 "
@@ -677,25 +683,36 @@ def traffic_scheduling(
     print(
         "Setting which hardware transmit queue",
         "each iperf3 instance using via net_prio cgroups...",
+        flush=True,
     )
 
-    # Create /sys/fs/cgroup/net_prio
-    os.makedirs("/sys/fs/cgroup/net_prio", exist_ok=True)
-
-    # Mount /sys/fs/cgroup/net_prio
-    cmd = "mount -t cgroup -onet_prio none /sys/fs/cgroup/net_prio"
-    subprocess.run(shlex.split(cmd), timeout=1, check=False)
+    # Create and mount /sys/fs/cgroup/net_prio
+    sys_fs_cgroup_net_prio = Path("/sys/fs/cgroup/net_prio")
+    sys_fs_cgroup_net_prio.mkdir(exist_ok=True)
+    subprocess.run(
+        [
+            "mount",
+            "-t",
+            "group",
+            "-onet_prio",
+            "none",
+            str(sys_fs_cgroup_net_prio),
+        ],
+        timeout=1,
+        check=False,
+    )
 
     # Create /sys/fs/cgroup/net_prio/grp{1,2,3} and write interface {1, 2, 3}
     for grp in range(1, 4):
-        path = "/sys/fs/cgroup/net_prio/grp{}".format(grp)
-        os.makedirs(path, exist_ok=True)
-        with open(path + "/net_prio.ifpriomap", "w") as f:
+        grp_path = sys_fs_cgroup_net_prio / f"grp{grp}"
+        grp_path.mkdir(exist_ok=True)
+        with (grp_path / "net_prio.ifpriomap").open("w") as f:
+            # example: enp1s1 1
             f.write("{} {}".format(interface, grp))
 
     # Run iperf3 client
     for port, group in zip(range(5201, 5204), range(1, 4)):
-        print("Running iperf3 client on port {}...".format(port))
+        print("Running iperf3 client on port {}...".format(port), flush=True)
         process = iperf3_client(
             server_ip,
             get_interface_ip(interface),
@@ -703,36 +720,38 @@ def traffic_scheduling(
             port=port,
         )
         pid = str(process.pid)
-        file = "/sys/fs/cgroup/net_prio/grp{}/cgroup.procs".format(group)
+        file = sys_fs_cgroup_net_prio / f"grp{group}" / "cgroup.procs"
         print(
             "Writing iperf3 with port {} pid {} to {}".format(port, pid, file)
         )
-        with open(file, "w") as f:
+        with file.open("w") as f:
             f.write(pid)
 
-    print("Showing qdisc settings after running iperf3...")
-    cmd = "tc -s qdisc show dev {}".format(interface)
+    print("Showing qdisc settings after running iperf3...", flush=True)
     before = subprocess.run(
-        shlex.split(cmd),
+        ["tc", "-s", "qdisc", "show", "dev", interface],
         check=True,
         stdout=subprocess.PIPE,
         stderr=subprocess.PIPE,
         text=True,
     )
-    print(before.stdout)
+    print(before.stdout, flush=True)
     pattern = r"Sent (\d+) bytes"
     bytes_before = re.findall(pattern, before.stdout)
+
     time.sleep(timeout - 15)
-    print("After {} seconds...".format(timeout - 15))
+
+    print("After", timeout - 15, "seconds...", flush=True)
     after = subprocess.run(
-        shlex.split(cmd),
+        ["tc", "-s", "qdisc", "show", "dev", interface],
         check=True,
         stdout=subprocess.PIPE,
         stderr=subprocess.PIPE,
         text=True,
     )
-    print(after.stdout)
+    print(after.stdout, flush=True)
     bytes_after = re.findall(pattern, before.stdout)
+
     # Exclude the first value because we only care about 100:1 ~ 100:4
     for before, after in zip(bytes_before[1:], bytes_after[1:]):
         # Need increasing bytes in every queue

@@ -361,9 +361,10 @@ def time_sync_phc2sys(
             + f"for a successful time sync (got {timeout})"
         )
 
+    # the timeout will cleanup the process for us
+    # so we don't have to explicitly call Process.terminate()
     ptp4l(interface=interface, cfg=cfg, timeout=timeout, print_to_console=True)
 
-    # Run phc2sys as a subprocess and get its output
     phc2sys_proc = phc2sys(interface=interface, timeout=timeout)
     last_10_lines = deque(maxlen=10)  # type: deque[str]
     assert phc2sys_proc.stdout and phc2sys_proc.stderr
@@ -390,14 +391,10 @@ def time_sync_phc2sys(
         state = line.split()[5]
         delay = int(line.split()[9])
 
-        # If the master offset is not between -100 and 100,
-        # raise a SystemExit exception
         if not -100 < offset < 100:
             print("[FAIL] phc offset is not between -100 to 100")
             raise SystemExit(1)
 
-        # If the state is not equal to "s2" for the last 10 seconds,
-        # raise a SystemExit exception
         if state != "s2":
             raise SystemExit(
                 "[FAIL] state is not equal to s2 "
@@ -407,8 +404,6 @@ def time_sync_phc2sys(
                 + "s2: synced"
             )
 
-        # If the path delay is not equal to 0 for the last 10 seconds,
-        # raise a SystemExit exception
         if delay != 0:
             raise SystemExit(
                 "[FAIL] path delay is not equal to 0\n"
@@ -562,8 +557,9 @@ def credit_based_shaper(
     subprocess.run(shlex.split(cmd), timeout=1, check=False)
 
     # Show the current qdisc settings
-    cmd = "tc qdisc show dev {}".format(interface)
-    subprocess.run(shlex.split(cmd), timeout=1, check=False)
+    subprocess.run(
+        ["tc", "qdisc", "show", "dev", interface], timeout=1, check=False
+    )
 
     # Wait for 5 seconds before running iperf3 to measure the upload speed
     time.sleep(5)
@@ -640,7 +636,7 @@ def traffic_scheduling(
         None
     """
 
-    if timeout < 30:
+    if timeout < 25:
         raise SystemExit(
             "Traffic scheduling timeout must be at least 25 seconds. "
             + f"(got {timeout})"
@@ -778,21 +774,17 @@ def iperf3_client(
         port,
     )
 
-    # Run the iperf3 client
-    process = subprocess.Popen(
+    return subprocess.Popen(
         shlex.split(cmd),
         stdout=None if print_to_console else subprocess.PIPE,
         stderr=None if print_to_console else subprocess.PIPE,
         text=True,
     )
-    # Return the process object
-    return process
 
 
 def get_interface_ip(interface: str):
-    cmd = ["ip", "-4", "-o", "addr", "show", "dev", interface]
     result = subprocess.run(
-        cmd,
+        ["ip", "-4", "-o", "addr", "show", "dev", interface],
         check=False,
         stdout=subprocess.PIPE,
         stderr=subprocess.PIPE,

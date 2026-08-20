@@ -24,6 +24,7 @@ requires:
  manifest.has_tpm2_chip == 'True'
  executable.name == 'clevis-encrypt-tpm2'
 _summary: clevis encrypt/decrypt precheck
+depends: tpm2/detect
 flags: simple
 command: true
 

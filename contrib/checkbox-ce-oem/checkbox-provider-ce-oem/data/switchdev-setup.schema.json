@@ -34,12 +34,12 @@
       },
       "required": ["entry_svi", "exit_svi", "entry_ip", "exit_ip", "mid_port"]
     },
-    "rstp_fixture_ports": {
+    "stp_fixture_ports": {
       "type": "array",
       "items": {"type": "string"},
       "minItems": 2,
       "maxItems": 2,
-      "description": "The same-VLAN cabled fixture pair, admin-down in default state. Required by: rstp-fixture"
+      "description": "The same-VLAN cabled fixture pair, admin-down in default state. Required by: stp-fixture"
     }
   }
 }

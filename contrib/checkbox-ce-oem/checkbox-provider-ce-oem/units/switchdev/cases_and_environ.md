@@ -38,7 +38,7 @@ Per-project files follow the `data/switchdev-setup-<project>.json` naming.
 
 | Key | Used by | Meaning |
 |---|---|---|
-| `bridge` | offload-proof, rstp | Bridge device name (default `br0`) |
+| `bridge` | offload-proof, stp | Bridge device name (default `br0`) |
 | `expected_ports` | port-count | Expected number of fabric netdevs (Tactical-1000: 29 = 24 Cu + 4 SFP+ + management) |
 | `reserved_ports` | resource, link-flap | Netdev names tests must never touch (infra/management uplink) |
 | `vlan_baseline` | vlan-config-drift | Path of the saved known-good `bridge vlan` JSON baseline |
@@ -46,7 +46,7 @@ Per-project files follow the `data/switchdev-setup-<project>.json` naming.
 | `chain.entry_ip` / `chain.exit_ip` | chain-offload-proof | CIDR addresses for the two SVIs, same subnet (e.g. 10.101.0.1/24, 10.101.0.2/24) |
 | `chain.mid_port` | chain-offload-proof | A fabric port mid-chain whose counters must carry the test traffic |
 | `chain.rate` | chain-offload-proof | iperf3 UDP target rate (default 500M) |
-| `rstp_fixture_ports` | rstp-loop-protection | The two fixture pair port names |
+| `stp_fixture_ports` | stp-loop-protection | The two fixture pair port names |
 
 Each job requires only the keys it uses and fails with the missing key
 path (`FAIL: setup config missing required key: chain.mid_port`).
@@ -55,7 +55,7 @@ path (`FAIL: setup config missing required key: chain.mid_port`).
 
 - `has_switchdev_test_setup` — loop cables in place and frozen chain
   VLAN plan applied at boot.
-- `has_switchdev_rstp_fixture` — the admin-down same-VLAN fixture pair
+- `has_switchdev_stp_fixture` — the admin-down same-VLAN fixture pair
   exists in the frozen config.
 
 ## Implemented cases
@@ -67,7 +67,7 @@ path (`FAIL: setup config missing required key: chain.mid_port`).
 | `link-flap-<port>` (template) | link on port | Link recovers after repeated admin down/up; skips empty ports; reserved ports excluded |
 | `vlan-config-drift` | test setup manifest + baseline | Live `bridge vlan` table identical to the frozen baseline |
 | `chain-offload-proof` | test setup manifest, iperf3 on device | Traffic crosses the loop-cable chain with low loss, FDB entries carry the `offload` flag, a mid-chain port's counters saw the packets (i.e. the ASIC, not a CPU shortcut, forwarded them) |
-| `rstp-loop-protection` | fixture manifest | Kernel STP blocks one side of the live loop and fails over when the forwarding port drops; bridge STP state restored |
+| `stp-loop-protection` | fixture manifest | Kernel STP blocks one side of the live loop and fails over when the forwarding port drops; bridge STP state restored |
 | `l3-offload-probe` | — | Informational: reports whether routes are hardware-offloaded |
 | `vrf-probe` | — | Informational: reports VRF support |
 

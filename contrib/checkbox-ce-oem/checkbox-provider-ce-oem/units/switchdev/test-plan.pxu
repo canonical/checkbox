@@ -14,8 +14,9 @@ _description:
     recovery, frozen VLAN-config drift, ASIC offload proof over the
     permanently wired loop-cable chain, STP loop protection, and
     informational L3-offload/VRF
-    capability probes. Non-switch devices produce no jobs (the resource
-    finds no phys_switch_id netdevs and manifest gates stay false).
+    capability probes. Non-switch devices run nothing: every job is gated
+    on the ports resource (no phys_switch_id netdevs = no probe/template
+    jobs) or on the test-setup manifest entries.
 estimated_duration: 1200
 bootstrap_include:
     ce_oem_switchdev_ports
@@ -24,6 +25,6 @@ include:
     ce-oem-switchdev/link-flap
     ce-oem-switchdev/vlan-config-drift
     ce-oem-switchdev/chain-offload-proof
-    ce-oem-switchdev/rstp-loop-protection
+    ce-oem-switchdev/stp-loop-protection
     ce-oem-switchdev/l3-offload-probe
     ce-oem-switchdev/vrf-probe

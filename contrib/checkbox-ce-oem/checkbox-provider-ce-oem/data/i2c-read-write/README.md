@@ -10,9 +10,7 @@ Therefore, this document is intended to demonstrate how to write a JSON file tha
 
 ```json
 {
-  "scenarios": [                       // Mandatory, array
-    {
-      "scenario_name": "...",          // Mandatory
+  "...": {                         // Mandatory, name of scenario
       "steps": [                       // Mandatory, array
         {
           "description": "...",        // Mandatory
@@ -41,18 +39,14 @@ Therefore, this document is intended to demonstrate how to write a JSON file tha
         }
       ]
     }
-  ]
 }
 ```
 
 ### 1. Scenario-level fields
 
 - `scenarios` (Mandatory)
-  - Root node of the JSON document.
-  - Must be an array.
-- `scenario_name` (Mandatory)
   - Name of the scenario.
-  - It does not affect command execution, but it is required for readable logs.
+  - It does not affect command 
 - `steps` (Mandatory)
   - Array containing all test steps in the scenario.
 
@@ -119,9 +113,7 @@ same register and compares the result with `expected_output`.
 ### JSON definition
 ```json
 {
-  "scenarios": [
-    {
-      "scenario_name": "FT24C32 EEPROM Basic Write-Read",
+  "FT24C32 EEPROM Basic Write-Read": {
       "steps": [
         {
           "description": "Write initial data to EEPROM",
@@ -143,7 +135,6 @@ same register and compares the result with `expected_output`.
         }
       ]
     }
-  ]
 }
 ```
 
@@ -160,9 +151,7 @@ data produced by a previous step.
 
 ```json
 {
-  "scenarios": [
-    {
-      "scenario_name": "Cross-Bus Sensor to Display Bridge",
+  "Cross-Bus Sensor to Display Bridge": {
       "steps": [
         {
           "description": "Read from SHT30 Sensor on Bus 10",
@@ -182,6 +171,5 @@ data produced by a previous step.
         }
       ]
     }
-  ]
 }
 ```

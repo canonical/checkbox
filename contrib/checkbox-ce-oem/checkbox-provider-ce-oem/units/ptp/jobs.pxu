@@ -90,7 +90,7 @@ command:
     # Add --tx_timstamp_timeout=5 due to the patch of ptp4l increace from 1 to 5ms.
     # https://www.mail-archive.com/linuxptp-devel@lists.sourceforge.net/msg05015.html
     # And this patch has been merged into the versoin later then V2.0
-    ptp4l_args="-i {eth-interface} -m -s --network_transport=L2 --tx_timestamp_timeout=5"
+    ptp4l_args="-i {eth-interface} -m -s --network_transport=L2 --tx_timestamp_timeout=5 --transportSpecific=1"
     if [ -n "$PTP4L_PTP_MINOR_VERSION" ]; then
         ptp4l_version=$(ptp4l -v 2>&1 | grep -oP '\d+' | head -n 1)
         if [[ "$ptp4l_version" -ge 4 ]]; then

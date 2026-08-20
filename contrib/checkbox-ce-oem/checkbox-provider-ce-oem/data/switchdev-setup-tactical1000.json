@@ -12,5 +12,5 @@
     "mid_port": "TODO-CU12",
     "rate": "500M"
   },
-  "rstp_fixture_ports": ["TODO-CU23", "TODO-CU24"]
+  "stp_fixture_ports": ["TODO-CU23", "TODO-CU24"]
 }

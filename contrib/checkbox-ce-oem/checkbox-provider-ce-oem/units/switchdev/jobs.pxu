@@ -23,6 +23,8 @@ user: root
 category_id: com.canonical.plainbox::ethernet
 estimated_duration: 5
 environ: SWITCHDEV_SETUP_CONFIG
+imports: from com.canonical.plainbox import manifest
+requires: manifest.has_switchdev_test_setup == 'True'
 command: switchdev_test.py port-count
 
 unit: template
@@ -40,8 +42,10 @@ _description:
 plugin: shell
 user: root
 category_id: com.canonical.plainbox::ethernet
-estimated_duration: 60
+estimated_duration: 180
 environ: SWITCHDEV_SETUP_CONFIG
+imports: from com.canonical.plainbox import manifest
+requires: manifest.has_switchdev_test_setup == 'True'
 command: switchdev_test.py link-flap --interface {interface}
 
 id: ce-oem-switchdev/vlan-config-drift
@@ -64,10 +68,13 @@ command: switchdev_test.py vlan-drift
 id: ce-oem-switchdev/chain-offload-proof
 _summary: Chain traffic is forwarded by the switch ASIC (offload proof)
 _description:
-    Sends iperf3 UDP from the chain-entry SVI to the chain-exit SVI (moved
-    into a netns) so traffic traverses the permanently wired loop-cable chain, then
-    asserts: traffic arrived (loss below threshold), hardware-offloaded FDB
+    Sends iperf3 UDP between the chain-entry SVI and the chain-exit SVI
+    (moved into a netns) in BOTH directions so traffic traverses the
+    permanently wired loop-cable chain each way, then asserts: traffic
+    arrived (loss below threshold per direction), hardware-offloaded FDB
     entries exist, and a mid-chain fabric port actually carried the packets.
+    UDP is deliberate: a fixed offered rate keeps loss assertable, while
+    TCP congestion control would slow down and hide path problems.
     Chain endpoints come from the chain object of the setup config JSON.
     Requires iperf3 on the device and the permanent test setup VLAN plan.
 plugin: shell
@@ -79,22 +86,23 @@ imports: from com.canonical.plainbox import manifest
 requires: manifest.has_switchdev_test_setup == 'True'
 command: switchdev_test.py offload-proof
 
-id: ce-oem-switchdev/rstp-loop-protection
+id: ce-oem-switchdev/stp-loop-protection
 _summary: STP contains the pre-provisioned loop and fails over
 _description:
     Brings up the permanently cabled same-VLAN fixture pair (admin-down by
-    default, named by rstp_fixture_ports in the setup config JSON) with
-    kernel STP enabled: one port must go blocking (loop contained), and
-    admin-downing the forwarding port must promote the blocked one.
-    Restores ports down and the bridge STP state afterwards.
+    default, named by stp_fixture_ports in the setup config JSON) with
+    kernel classic (802.1D) STP enabled: one port must go blocking (loop
+    contained), and admin-downing the forwarding port must promote the
+    blocked one. Restores ports down and the bridge STP state afterwards.
+    RSTP via mstpd is a planned upgrade of this job.
 plugin: shell
 user: root
 category_id: com.canonical.plainbox::ethernet
 estimated_duration: 300
 environ: SWITCHDEV_SETUP_CONFIG
 imports: from com.canonical.plainbox import manifest
-requires: manifest.has_switchdev_rstp_fixture == 'True'
-command: switchdev_test.py rstp-fixture
+requires: manifest.has_switchdev_stp_fixture == 'True'
+command: switchdev_test.py stp-fixture
 
 id: ce-oem-switchdev/l3-offload-probe
 _summary: Report whether L3 routes are hardware-offloaded (informational)
@@ -102,10 +110,12 @@ _description:
     Informational probe: reports whether any kernel route carries the
     offload flag. On devices whose driver lacks L3 offload this documents
     the CPU-path routing status per release; it never fails the run.
+    Runs only when switchdev fabric ports exist.
 plugin: shell
 user: root
 category_id: com.canonical.plainbox::ethernet
 estimated_duration: 5
+requires: ce_oem_switchdev_ports.switch_id != ''
 command: switchdev_test.py l3-offload-probe
 
 id: ce-oem-switchdev/vrf-probe
@@ -113,8 +123,10 @@ _summary: Report whether VRF creation is supported (informational)
 _description:
     Informational probe: tries to create and delete a VRF device and
     reports driver/kernel support status; it never fails the run.
+    Runs only when switchdev fabric ports exist.
 plugin: shell
 user: root
 category_id: com.canonical.plainbox::ethernet
 estimated_duration: 5
+requires: ce_oem_switchdev_ports.switch_id != ''
 command: switchdev_test.py vrf-probe

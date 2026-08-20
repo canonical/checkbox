@@ -13,7 +13,9 @@ boot and never modified: tests only use link state, netns, and traffic - no
 import argparse
 import json
 import os
+import signal
 import subprocess
+import sys
 import time
 
 
@@ -77,6 +79,20 @@ def fabric_ports():
     return ports
 
 
+def check_reserved_sane(reserved):
+    """A reserved entry that matches no real netdev is a placeholder or
+    typo: the protection it should provide is silently OFF. Fail loudly.
+    Compared against ALL netdevs (an OOB management NIC need not be a
+    fabric port)."""
+    bogus = sorted(set(reserved) - set(os.listdir("/sys/class/net")))
+    if bogus:
+        raise SystemExit(
+            "FAIL: reserved_ports entries match no netdev (placeholder "
+            "or typo - the infra-port protection is not active): "
+            + " ".join(bogus)
+        )
+
+
 def cmd_resource(args):
     reserved = set(
         load_config(args.config, required=False).get("reserved_ports", [])
@@ -90,9 +106,11 @@ def cmd_resource(args):
 
 
 def cmd_port_count(args):
-    expected = cfg_get(load_config(args.config), "expected_ports")
+    cfg = load_config(args.config)
+    expected = cfg_get(cfg, "expected_ports")
     found = sorted(p["ifname"] for p in fabric_ports())
     print("fabric ports ({}): {}".format(len(found), " ".join(found)))
+    check_reserved_sane(cfg.get("reserved_ports", []))
     if len(found) != expected:
         raise SystemExit(
             "FAIL: expected {} fabric ports, found {}".format(
@@ -107,10 +125,10 @@ def operstate(interface):
         return f.read().strip()
 
 
-def wait_operstate(interface, state, timeout):
+def wait_link_up(interface, timeout):
     deadline = time.time() + timeout
     while time.time() < deadline:
-        if operstate(interface) == state:
+        if operstate(interface) == "up":
             return True
         time.sleep(0.5)
     return False
@@ -118,9 +136,12 @@ def wait_operstate(interface, state, timeout):
 
 def cmd_link_flap(args):
     interface = args.interface
-    reserved = load_config(args.config, required=False).get(
-        "reserved_ports", []
-    )
+    # required=True: this job is manifest-gated on the wired test setup,
+    # so a missing config is an operator error - refuse rather than run
+    # with an empty reserved list (which would allow flapping the SSH
+    # uplink).
+    reserved = load_config(args.config).get("reserved_ports", [])
+    check_reserved_sane(reserved)
     if interface in reserved:
         raise SystemExit(
             "FAIL: refusing to flap reserved infra port " + interface
@@ -131,16 +152,19 @@ def cmd_link_flap(args):
             "meaningful (empty port)".format(interface)
         )
         return
-    for i in range(args.iterations):
-        run(["ip", "link", "set", interface, "down"])
-        time.sleep(args.settle)
-        run(["ip", "link", "set", interface, "up"])
-        if not wait_operstate(interface, "up", args.timeout):
-            raise SystemExit(
-                "FAIL: {} did not recover link after flap {}/{}".format(
-                    interface, i + 1, args.iterations
+    try:
+        for i in range(args.iterations):
+            run(["ip", "link", "set", interface, "down"])
+            time.sleep(args.settle)
+            run(["ip", "link", "set", interface, "up"])
+            if not wait_link_up(interface, args.timeout):
+                raise SystemExit(
+                    "FAIL: {} did not recover link after flap {}/{}".format(
+                        interface, i + 1, args.iterations
+                    )
                 )
-            )
+    finally:
+        run(["ip", "link", "set", interface, "up"], check=False)
     print(
         "PASS: {} recovered link after {} admin flaps".format(
             interface, args.iterations
@@ -158,7 +182,7 @@ def normalized_vlans():
                 (
                     item["ifname"],
                     vlan["vlan"],
-                    sorted(vlan.get("flags", [])),
+                    tuple(sorted(vlan.get("flags", []))),
                 )
             )
     return sorted(entries)
@@ -167,7 +191,15 @@ def normalized_vlans():
 def cmd_vlan_drift(args):
     baseline_path = cfg_get(load_config(args.config), "vlan_baseline")
     current = normalized_vlans()
+    if not current:
+        raise SystemExit(
+            "FAIL: live bridge VLAN table is empty - the frozen boot "
+            "config did not apply (or vlan_filtering is off)"
+        )
     if args.save:
+        parent = os.path.dirname(baseline_path)
+        if parent:
+            os.makedirs(parent, exist_ok=True)
         with open(baseline_path, "w") as f:
             json.dump(current, f, indent=1)
         print("baseline saved to {}".format(baseline_path))
@@ -179,10 +211,9 @@ def cmd_vlan_drift(args):
             "--config {} --save".format(baseline_path, args.config)
         )
     with open(baseline_path) as f:
-        baseline = [(e[0], e[1], sorted(e[2])) for e in json.load(f)]
-    cur_set, base_set = set(map(tuple2, current)), set(map(tuple2, baseline))
-    missing = base_set - cur_set
-    extra = cur_set - base_set
+        baseline = [(e[0], e[1], tuple(sorted(e[2]))) for e in json.load(f)]
+    missing = set(baseline) - set(current)
+    extra = set(current) - set(baseline)
     for entry in sorted(missing):
         print("MISSING from device: {}".format(entry))
     for entry in sorted(extra):
@@ -194,12 +225,14 @@ def cmd_vlan_drift(args):
     )
 
 
-def tuple2(entry):
-    return (entry[0], entry[1], tuple(entry[2]))
-
-
 def port_stats(interface):
-    link = ip_json(["-s", "link", "show", interface])[0]
+    # Assumption: the switchdev driver reports hardware-forwarded packets
+    # in ndo_get_stats64 (true for sparx5/lan969x). A driver exposing HW
+    # counters only via ethtool -S would need this adapted.
+    links = ip_json(["-s", "link", "show", interface])
+    if not links:
+        raise SystemExit("FAIL: no such interface: " + interface)
+    link = links[0]
     return (
         link["stats64"]["rx"]["packets"],
         link["stats64"]["tx"]["packets"],
@@ -217,6 +250,11 @@ def offloaded_fdb_count(bridge):
 
 
 NETNS = "cbx-switchdev-exit"
+# Keep UDP datagrams below the fabric MTU: iperf3's UDP default block size
+# is 32 KB, which fragments into ~23 link-layer packets each - inflating
+# the mid-port counter check and amplifying loss (one lost fragment kills
+# the whole datagram).
+UDP_LEN = "1400"
 
 
 def cmd_offload_proof(args):
@@ -230,60 +268,91 @@ def cmd_offload_proof(args):
     cfg = load_config(args.config)
     bridge = cfg.get("bridge", "br0")
     chain = cfg_get(cfg, "chain")
-    entry = cfg_get(cfg, "chain", "entry_svi")
-    exit_ = cfg_get(cfg, "chain", "exit_svi")
-    entry_ip = cfg_get(cfg, "chain", "entry_ip")
-    exit_ip = cfg_get(cfg, "chain", "exit_ip")
-    mid_port = cfg_get(cfg, "chain", "mid_port")
+    entry, exit_, entry_ip, exit_ip, mid_port = (
+        cfg_get(cfg, "chain", key)
+        for key in ("entry_svi", "exit_svi", "entry_ip", "exit_ip", "mid_port")
+    )
+    reserved = cfg.get("reserved_ports", [])
+    if mid_port in reserved:
+        raise SystemExit(
+            "FAIL: chain.mid_port {} is a reserved infra port".format(mid_port)
+        )
     rate = args.rate or chain.get("rate", "500M")
     mid_rx0, mid_tx0 = port_stats(mid_port)
     run(["ip", "netns", "del", NETNS], check=False)
     run(["ip", "netns", "add", NETNS])
+    server = None
     try:
         run(["ip", "link", "set", exit_, "netns", NETNS])
         run(["ip", "addr", "add", exit_ip, "dev", exit_], netns=NETNS)
         run(["ip", "link", "set", exit_, "up"], netns=NETNS)
         run(["ip", "addr", "replace", entry_ip, "dev", entry])
         run(["ip", "link", "set", entry, "up"])
-        server = subprocess.Popen(
-            ["ip", "netns", "exec", NETNS, "iperf3", "-s", "-1"],
-            stdout=subprocess.DEVNULL,
-            stderr=subprocess.DEVNULL,
-        )
-        time.sleep(2)
         peer = exit_ip.split("/")[0]
-        result = run(
-            [
-                "iperf3",
-                "-c",
-                peer,
-                "-u",
-                "-b",
-                rate,
-                "-t",
-                str(args.duration),
-                "--json",
-            ]
-        )
-        server.wait(timeout=30)
-        report = json.loads(result.stdout)
-        sent = report["end"]["sum"]["packets"]
-        lost = report["end"]["sum"]["lost_packets"]
-        loss_pct = 100.0 * lost / sent if sent else 100.0
+        failures = []
+        total_sent = 0
+        # UDP on purpose: a fixed offered rate keeps sent/lost assertable
+        # (TCP adapts and hides loss). Run BOTH directions - the chain's
+        # reverse path is otherwise untested.
+        for direction, extra in (("forward", []), ("reverse", ["-R"])):
+            server = subprocess.Popen(
+                ["ip", "netns", "exec", NETNS, "iperf3", "-s", "-1"],
+                stdout=subprocess.DEVNULL,
+                stderr=subprocess.DEVNULL,
+            )
+            time.sleep(2)
+            result = run(
+                [
+                    "iperf3",
+                    "-c",
+                    peer,
+                    "-u",
+                    "-b",
+                    rate,
+                    "-l",
+                    UDP_LEN,
+                    "-t",
+                    str(args.duration),
+                    "--connect-timeout",
+                    "10000",
+                    "--json",
+                ]
+                + extra
+            )
+            server.wait(timeout=30)
+            server = None
+            try:
+                report = json.loads(result.stdout)
+                sent = report["end"]["sum"]["packets"]
+                lost = report["end"]["sum"]["lost_packets"]
+            except (ValueError, KeyError, TypeError) as exc:
+                raise SystemExit(
+                    "FAIL: cannot parse iperf3 {} report: {}".format(
+                        direction, exc
+                    )
+                )
+            loss_pct = 100.0 * lost / sent if sent else 100.0
+            total_sent += sent
+            print(
+                "{}: sent={} lost={} ({:.2f}%)".format(
+                    direction, sent, lost, loss_pct
+                )
+            )
+            if loss_pct > args.max_loss:
+                failures.append(
+                    "{} loss {:.2f}% > {}%".format(
+                        direction, loss_pct, args.max_loss
+                    )
+                )
+        sent = total_sent
         offloaded = offloaded_fdb_count(bridge)
         mid_rx1, mid_tx1 = port_stats(mid_port)
         mid_seen = (mid_rx1 - mid_rx0) + (mid_tx1 - mid_tx0)
         print(
-            "sent={} lost={} ({:.2f}%) offloaded_fdb={} "
-            "mid_port_packets={}".format(
-                sent, lost, loss_pct, offloaded, mid_seen
+            "offloaded_fdb={} mid_port_packets={} (total sent={})".format(
+                offloaded, mid_seen, sent
             )
         )
-        failures = []
-        if loss_pct > args.max_loss:
-            failures.append(
-                "loss {:.2f}% > {}%".format(loss_pct, args.max_loss)
-            )
         if offloaded < args.min_offloaded:
             failures.append(
                 "only {} offloaded FDB entries (need >= {})".format(
@@ -301,7 +370,29 @@ def cmd_offload_proof(args):
             raise SystemExit("FAIL: " + "; ".join(failures))
         print("PASS: chain traffic hardware-forwarded")
     finally:
-        run(["ip", "netns", "del", NETNS], check=False)
+        # Restore the frozen-config state even on failure. Order matters:
+        # kill the server so nothing holds the netns, then move the
+        # (virtual!) SVI back to the root namespace BEFORE deleting the
+        # netns - netns deletion destroys virtual devices left inside it,
+        # so the netns is only deleted once the move-back succeeded.
+        if server is not None and server.poll() is None:
+            server.kill()
+            server.wait()
+        moved_back = run(
+            ["ip", "-n", NETNS, "link", "set", exit_, "netns", "1"],
+            check=False,
+        )
+        if moved_back.returncode == 0:
+            run(["ip", "netns", "del", NETNS], check=False)
+            run(["ip", "addr", "del", exit_ip, "dev", exit_], check=False)
+            run(["ip", "link", "set", exit_, "down"], check=False)
+        else:
+            print(
+                "WARNING: could not move {} back to the root namespace; "
+                "keeping netns {} so the device is recoverable "
+                "manually".format(exit_, NETNS)
+            )
+        run(["ip", "addr", "del", entry_ip, "dev", entry], check=False)
         run(["ip", "link", "set", entry, "down"], check=False)
 
 
@@ -312,17 +403,21 @@ def bridge_port_state(interface):
     return link[0].get("state", "unknown") if link else "unknown"
 
 
-def cmd_rstp_fixture(args):
+def cmd_stp_fixture(args):
     """B8: bring up the pre-provisioned same-VLAN loop pair under STP.
 
-    The fixture pair sits admin-down in the frozen boot config. Kernel STP is
-    enabled for the test and restored afterwards; no VLAN change happens.
+    The fixture pair sits admin-down in the frozen boot config. Kernel
+    (classic 802.1D) STP is enabled for the test and restored afterwards;
+    no VLAN change happens. RSTP via mstpd is a planned upgrade.
+    Note: asserts the KERNEL bridge port state; whether the driver
+    offloads the blocking state to the ASIC is validated on real hardware
+    by the absence of a storm during the run.
     """
     cfg = load_config(args.config)
     bridge = cfg.get("bridge", "br0")
-    ports = cfg_get(cfg, "rstp_fixture_ports")
+    ports = cfg_get(cfg, "stp_fixture_ports")
     if len(ports) != 2:
-        raise SystemExit("FAIL: rstp_fixture_ports must list exactly 2 ports")
+        raise SystemExit("FAIL: stp_fixture_ports must list exactly 2 ports")
     port_a, port_b = ports
     for port in (port_a, port_b):
         if operstate(port) == "up":
@@ -330,9 +425,18 @@ def cmd_rstp_fixture(args):
                 "FAIL: fixture port {} is up in default state - test setup "
                 "mis-configured, aborting to avoid a live loop".format(port)
             )
-    saved_stp = run(
-        ["cat", "/sys/class/net/{}/bridge/stp_state".format(bridge)]
-    ).stdout.strip()
+    stp_path = "/sys/class/net/{}/bridge/stp_state".format(bridge)
+    try:
+        with open(stp_path) as f:
+            saved_stp = f.read().strip()
+    except OSError as exc:
+        raise SystemExit("FAIL: {} is not a bridge: {}".format(bridge, exc))
+    if saved_stp == "2":
+        raise SystemExit(
+            "FAIL: bridge {} runs user-space STP (stp_state 2, e.g. "
+            "mstpd); this job drives kernel STP only and cannot restore "
+            "stp_state 2 afterwards - skip it on this setup".format(bridge)
+        )
     try:
         run(["ip", "link", "set", bridge, "type", "bridge", "stp_state", "1"])
         run(["ip", "link", "set", port_a, "up"])
@@ -394,7 +498,13 @@ def cmd_rstp_fixture(args):
 def cmd_l3_offload_probe(_):
     """C2: informational - report whether any route is hardware-offloaded."""
     routes = ip_json(["route", "show"])
-    offloaded = [r for r in routes if r.get("offload")]
+    # iproute2 reports hardware offload as "rt_offload" in the flags
+    # array (older builds used a bare "offload" attribute - accept both).
+    offloaded = [
+        r
+        for r in routes
+        if "rt_offload" in r.get("flags", []) or r.get("offload")
+    ]
     print(
         "routes={} hardware-offloaded={}".format(len(routes), len(offloaded))
     )
@@ -405,15 +515,32 @@ def cmd_l3_offload_probe(_):
     )
 
 
+def l3mdev_rule_present(family):
+    return any(
+        rule.get("l3mdev") is not None or rule.get("table") == "l3mdev"
+        for rule in ip_json([family, "rule", "show"])
+    )
+
+
 def cmd_vrf_probe(_):
     """C3: informational - report whether the kernel/driver accepts a VRF."""
     name = "cbx-vrf-probe"
+    # Creating the first-ever VRF installs persistent l3mdev FIB rules as
+    # a kernel side effect; remember whether they existed so the probe can
+    # leave the routing-rule chain exactly as found (frozen config!).
+    had_rule = {fam: l3mdev_rule_present(fam) for fam in ("-4", "-6")}
     result = run(
         ["ip", "link", "add", name, "type", "vrf", "table", "4242"],
         check=False,
     )
     if result.returncode == 0:
         run(["ip", "link", "del", name], check=False)
+        for fam, present_before in had_rule.items():
+            if not present_before and l3mdev_rule_present(fam):
+                run(
+                    ["ip", fam, "rule", "del", "l3mdev", "pref", "1000"],
+                    check=False,
+                )
         print("STATUS: VRF creation SUPPORTED")
     else:
         print(
@@ -433,6 +560,9 @@ def add_config_arg(parser):
 
 
 def main():
+    # Make checkbox job aborts (SIGTERM) unwind through the try/finally
+    # blocks so stateful tests restore link/STP/netns state.
+    signal.signal(signal.SIGTERM, lambda *_: sys.exit(143))
     parser = argparse.ArgumentParser(description=__doc__)
     sub = parser.add_subparsers(dest="command", required=True)
 
@@ -467,10 +597,10 @@ def main():
     p.add_argument("--min-offloaded", type=int, default=1)
     p.set_defaults(func=cmd_offload_proof)
 
-    p = sub.add_parser("rstp-fixture")
+    p = sub.add_parser("stp-fixture")
     add_config_arg(p)
     p.add_argument("--timeout", type=float, default=90.0)
-    p.set_defaults(func=cmd_rstp_fixture)
+    p.set_defaults(func=cmd_stp_fixture)
 
     sub.add_parser("l3-offload-probe").set_defaults(func=cmd_l3_offload_probe)
     sub.add_parser("vrf-probe").set_defaults(func=cmd_vrf_probe)

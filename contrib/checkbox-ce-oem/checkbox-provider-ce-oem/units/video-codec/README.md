@@ -15,6 +15,7 @@ resolved by a factory.
 - [Environment Variables](#environment-variables)
 - [Code Structure](#code-structure)
 - [How It Works](#how-it-works)
+- [Platform Notes: NVIDIA Jetson](#platform-notes-nvidia-jetson-orin--thor)
 - [Contributing: Adding New Platforms](#contributing-adding-new-platforms)
 - [Real Example: Genio 1200](#real-example-genio-1200)
 - [Scenario Documentation](#scenario-documentation)
@@ -390,6 +391,28 @@ flowchart TD
 - **`manage_test_file_by_name()` / `manage_test_file_by_params()`**:
   Download and clean up golden samples around a test
 - **`MetadataValidator` / `compare_psnr()`**: Encoder artifact validation
+
+## Platform Notes: NVIDIA Jetson (Orin / Thor)
+
+Jetson platforms use the conf files `jetson-orin-agx.json`,
+`jetson-orin-nx.json`, `jetson-orin-nano.json` (decode-only — the Orin
+Nano has no NVENC) and `jetson-thor.json`, with the pipelines in
+`bin/codec_jetson.py`:
+
+- Every codec is decoded by the single `nvv4l2decoder` element, so the
+  Jetson decoder-performance job names carry the golden-sample name to
+  stay unique per codec (`perf_id_includes_sample` in its
+  `PLATFORM_FAMILIES` entry).
+- Encoding uses `nvv4l2h264enc` / `nvv4l2h265enc` / `nvv4l2av1enc`.
+- On Ubuntu Core images the NVIDIA GStreamer stack lives in the
+  `multimedia` snap: set `GST_LAUNCH_BIN=/snap/bin/gst-launch-1.0` (snap
+  alias, created at pre-test setup) in the checkbox configuration. The
+  `checkbox` runtime ships no `wget`, so golden samples are downloaded to
+  the DUT during setup via `multimedia.wget` (into a snap-writable path)
+  and moved to `VIDEO_CODEC_TESTING_DATA`.
+- The VP9/AV1 decoder-performance samples (`1080p_30fps_vp9.webm`,
+  `1080p_30fps_av1.webm`) are new for Jetson and must be provisioned in
+  the testing-data store before those jobs can run.
 
 ## Contributing: Adding New Platforms
 

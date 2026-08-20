@@ -103,6 +103,7 @@ command:
     rms_data=$(tail -5 $output_file | awk '/rms/{{print $3}}')
     if [[ -z $rms_data ]]; then
         echo "ERROR: unable to get rms value from the output file"
+        echo "HINT: Make sure the ptp4l grandmaster is using a large enough --logSyncInterval"
         exit 1
     fi
     echo

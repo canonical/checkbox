@@ -1,4 +1,6 @@
 id: nxp_ele_list_tv_files
+imports: from com.canonical.plainbox import manifest
+requires: manifest.has_nxp_secure_element_ele == 'True'
 plugin: resource
 _summary: Enumerate available NXP ELE test vector files
 _description:

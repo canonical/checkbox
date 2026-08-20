@@ -2,10 +2,12 @@
 """Generic switchdev fabric tests for Linux-switch devices.
 
 All sub-commands operate on any switchdev-capable device (ports exposing
-phys_switch_id). Device specifics come from checkbox config variables, never
-from hardcoded names. Designed for a standing rig whose bridge/VLAN layout is
-set once at boot and never modified: tests only use link state, netns, and
-traffic - no `bridge vlan` changes.
+phys_switch_id). Device and rig specifics come from ONE rig-config JSON file
+(checkbox config var SWITCHDEV_RIG_CONFIG; bare filenames are resolved
+against $PLAINBOX_PROVIDER_DATA, schema: data/switchdev-rig.schema.json).
+Designed for a standing rig whose bridge/VLAN layout is set once at boot and
+never modified: tests only use link state, netns, and traffic - no
+`bridge vlan` changes.
 """
 import argparse
 import json
@@ -31,6 +33,38 @@ def ip_json(args, netns=None):
     return json.loads(run(["ip", "-j"] + args, netns=netns).stdout or "[]")
 
 
+def load_config(path, required=True):
+    """Load the rig-config JSON. Bare filenames resolve against
+    $PLAINBOX_PROVIDER_DATA so per-project files can ship in data/."""
+    if not path:
+        if required:
+            raise SystemExit(
+                "FAIL: set SWITCHDEV_RIG_CONFIG in the checkbox config "
+                "(path or data/ filename of the rig-config JSON)")
+        return {}
+    if not os.path.exists(path) and not os.path.isabs(path):
+        candidate = os.path.join(
+            os.environ.get("PLAINBOX_PROVIDER_DATA", ""), path)
+        if os.path.exists(candidate):
+            path = candidate
+    try:
+        with open(path) as f:
+            return json.load(f)
+    except (OSError, ValueError) as exc:
+        raise SystemExit(
+            "FAIL: cannot load rig config {}: {}".format(path, exc))
+
+
+def cfg_get(cfg, *keys):
+    node = cfg
+    for key in keys:
+        if not isinstance(node, dict) or key not in node:
+            raise SystemExit(
+                "FAIL: rig config missing required key: " + ".".join(keys))
+        node = node[key]
+    return node
+
+
 def fabric_ports():
     """All netdevs exposing phys_switch_id, i.e. switch fabric ports."""
     ports = []
@@ -40,26 +74,25 @@ def fabric_ports():
     return ports
 
 
-def reserved_ports():
-    return set(os.environ.get("SWITCHDEV_RESERVED_PORTS", "").split())
-
-
-def cmd_resource(_):
+def cmd_resource(args):
+    reserved = set(load_config(args.config, required=False).get(
+        "reserved_ports", []))
     for link in fabric_ports():
         name = link["ifname"]
         print("interface: {}".format(name))
         print("switch_id: {}".format(link["phys_switch_id"]))
-        print("reserved: {}".format(name in reserved_ports()))
+        print("reserved: {}".format(name in reserved))
         print()
 
 
 def cmd_port_count(args):
+    expected = cfg_get(load_config(args.config), "expected_ports")
     found = sorted(p["ifname"] for p in fabric_ports())
     print("fabric ports ({}): {}".format(len(found), " ".join(found)))
-    if len(found) != args.expected:
+    if len(found) != expected:
         raise SystemExit(
             "FAIL: expected {} fabric ports, found {}".format(
-                args.expected, len(found)
+                expected, len(found)
             )
         )
     print("PASS")
@@ -81,7 +114,9 @@ def wait_operstate(interface, state, timeout):
 
 def cmd_link_flap(args):
     interface = args.interface
-    if interface in reserved_ports():
+    reserved = load_config(args.config, required=False).get(
+        "reserved_ports", [])
+    if interface in reserved:
         raise SystemExit(
             "FAIL: refusing to flap reserved infra port " + interface
         )
@@ -120,19 +155,20 @@ def normalized_vlans():
 
 
 def cmd_vlan_drift(args):
+    baseline_path = cfg_get(load_config(args.config), "vlan_baseline")
     current = normalized_vlans()
     if args.save:
-        with open(args.baseline, "w") as f:
+        with open(baseline_path, "w") as f:
             json.dump(current, f, indent=1)
-        print("baseline saved to {}".format(args.baseline))
+        print("baseline saved to {}".format(baseline_path))
         return
-    if not os.path.exists(args.baseline):
+    if not os.path.exists(baseline_path):
         raise SystemExit(
             "FAIL: baseline {} missing. Create it once on a known-good "
             "standing config with:\n  switchdev_test.py vlan-drift "
-            "--baseline {} --save".format(args.baseline, args.baseline)
+            "--config {} --save".format(baseline_path, args.config)
         )
-    with open(args.baseline) as f:
+    with open(baseline_path) as f:
         baseline = [
             (e[0], e[1], sorted(e[2])) for e in json.load(f)
         ]
@@ -183,24 +219,32 @@ def cmd_offload_proof(args):
     FDB entries exist, (c) mid-chain port counters saw the traffic.
     CPU/softirq is NOT asserted here: the DUT itself sources the packets.
     """
-    entry, exit_ = args.entry_svi, args.exit_svi
-    mid_rx0, mid_tx0 = port_stats(args.mid_port)
+    cfg = load_config(args.config)
+    bridge = cfg.get("bridge", "br0")
+    chain = cfg_get(cfg, "chain")
+    entry = cfg_get(cfg, "chain", "entry_svi")
+    exit_ = cfg_get(cfg, "chain", "exit_svi")
+    entry_ip = cfg_get(cfg, "chain", "entry_ip")
+    exit_ip = cfg_get(cfg, "chain", "exit_ip")
+    mid_port = cfg_get(cfg, "chain", "mid_port")
+    rate = args.rate or chain.get("rate", "500M")
+    mid_rx0, mid_tx0 = port_stats(mid_port)
     run(["ip", "netns", "del", NETNS], check=False)
     run(["ip", "netns", "add", NETNS])
     try:
         run(["ip", "link", "set", exit_, "netns", NETNS])
-        run(["ip", "addr", "add", args.exit_ip, "dev", exit_], netns=NETNS)
+        run(["ip", "addr", "add", exit_ip, "dev", exit_], netns=NETNS)
         run(["ip", "link", "set", exit_, "up"], netns=NETNS)
-        run(["ip", "addr", "replace", args.entry_ip, "dev", entry])
+        run(["ip", "addr", "replace", entry_ip, "dev", entry])
         run(["ip", "link", "set", entry, "up"])
         server = subprocess.Popen(
             ["ip", "netns", "exec", NETNS, "iperf3", "-s", "-1"],
             stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL,
         )
         time.sleep(2)
-        peer = args.exit_ip.split("/")[0]
+        peer = exit_ip.split("/")[0]
         result = run([
-            "iperf3", "-c", peer, "-u", "-b", args.rate,
+            "iperf3", "-c", peer, "-u", "-b", rate,
             "-t", str(args.duration), "--json",
         ])
         server.wait(timeout=30)
@@ -208,8 +252,8 @@ def cmd_offload_proof(args):
         sent = report["end"]["sum"]["packets"]
         lost = report["end"]["sum"]["lost_packets"]
         loss_pct = 100.0 * lost / sent if sent else 100.0
-        offloaded = offloaded_fdb_count(args.bridge)
-        mid_rx1, mid_tx1 = port_stats(args.mid_port)
+        offloaded = offloaded_fdb_count(bridge)
+        mid_rx1, mid_tx1 = port_stats(mid_port)
         mid_seen = (mid_rx1 - mid_rx0) + (mid_tx1 - mid_tx0)
         print("sent={} lost={} ({:.2f}%) offloaded_fdb={} "
               "mid_port_packets={}".format(
@@ -226,7 +270,7 @@ def cmd_offload_proof(args):
             failures.append(
                 "mid-chain port {} saw {} packets < {} sent - traffic "
                 "did not traverse the fabric chain".format(
-                    args.mid_port, mid_seen, sent))
+                    mid_port, mid_seen, sent))
         if failures:
             raise SystemExit("FAIL: " + "; ".join(failures))
         print("PASS: chain traffic hardware-forwarded")
@@ -249,22 +293,29 @@ def cmd_rstp_fixture(args):
     The fixture pair sits admin-down in the standing config. Kernel STP is
     enabled for the test and restored afterwards; no VLAN change happens.
     """
-    port_a, port_b = args.ports
+    cfg = load_config(args.config)
+    bridge = cfg.get("bridge", "br0")
+    ports = cfg_get(cfg, "rstp_fixture_ports")
+    if len(ports) != 2:
+        raise SystemExit(
+            "FAIL: rstp_fixture_ports must list exactly 2 ports")
+    port_a, port_b = ports
     for port in (port_a, port_b):
         if operstate(port) == "up":
             raise SystemExit(
                 "FAIL: fixture port {} is up in standing state - rig "
                 "mis-configured, aborting to avoid a live loop".format(port))
     saved_stp = run(
-        ["cat", "/sys/class/net/{}/bridge/stp_state".format(args.bridge)]
+        ["cat", "/sys/class/net/{}/bridge/stp_state".format(bridge)]
     ).stdout.strip()
     try:
-        run(["ip", "link", "set", args.bridge, "type", "bridge",
+        run(["ip", "link", "set", bridge, "type", "bridge",
              "stp_state", "1"])
         run(["ip", "link", "set", port_a, "up"])
         run(["ip", "link", "set", port_b, "up"])
         deadline = time.time() + args.timeout
         blocked = forwarding = None
+        states = {}
         while time.time() < deadline:
             states = {p: bridge_port_state(p) for p in (port_a, port_b)}
             blocking = [p for p, s in states.items() if s == "blocking"]
@@ -293,7 +344,7 @@ def cmd_rstp_fixture(args):
     finally:
         run(["ip", "link", "set", port_a, "down"], check=False)
         run(["ip", "link", "set", port_b, "down"], check=False)
-        run(["ip", "link", "set", args.bridge, "type", "bridge",
+        run(["ip", "link", "set", bridge, "type", "bridge",
              "stp_state", saved_stp], check=False)
 
 
@@ -320,17 +371,28 @@ def cmd_vrf_probe(_):
             result.stderr.strip()))
 
 
+def add_config_arg(parser):
+    parser.add_argument(
+        "--config",
+        default=os.environ.get("SWITCHDEV_RIG_CONFIG", ""),
+        help="rig-config JSON (path, or filename under "
+             "$PLAINBOX_PROVIDER_DATA); default: $SWITCHDEV_RIG_CONFIG")
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     sub = parser.add_subparsers(dest="command", required=True)
 
-    sub.add_parser("resource").set_defaults(func=cmd_resource)
+    p = sub.add_parser("resource")
+    add_config_arg(p)
+    p.set_defaults(func=cmd_resource)
 
     p = sub.add_parser("port-count")
-    p.add_argument("--expected", type=int, required=True)
+    add_config_arg(p)
     p.set_defaults(func=cmd_port_count)
 
     p = sub.add_parser("link-flap")
+    add_config_arg(p)
     p.add_argument("--interface", required=True)
     p.add_argument("--iterations", type=int, default=10)
     p.add_argument("--settle", type=float, default=1.0)
@@ -338,26 +400,21 @@ def main():
     p.set_defaults(func=cmd_link_flap)
 
     p = sub.add_parser("vlan-drift")
-    p.add_argument("--baseline", required=True)
+    add_config_arg(p)
     p.add_argument("--save", action="store_true")
     p.set_defaults(func=cmd_vlan_drift)
 
     p = sub.add_parser("offload-proof")
-    p.add_argument("--bridge", default="br0")
-    p.add_argument("--entry-svi", required=True)
-    p.add_argument("--exit-svi", required=True)
-    p.add_argument("--entry-ip", required=True)
-    p.add_argument("--exit-ip", required=True)
-    p.add_argument("--mid-port", required=True)
-    p.add_argument("--rate", default="500M")
+    add_config_arg(p)
+    p.add_argument("--rate", default="",
+                   help="override chain.rate from the rig config")
     p.add_argument("--duration", type=int, default=30)
     p.add_argument("--max-loss", type=float, default=1.0)
     p.add_argument("--min-offloaded", type=int, default=1)
     p.set_defaults(func=cmd_offload_proof)
 
     p = sub.add_parser("rstp-fixture")
-    p.add_argument("--bridge", default="br0")
-    p.add_argument("--ports", nargs=2, required=True)
+    add_config_arg(p)
     p.add_argument("--timeout", type=float, default=90.0)
     p.set_defaults(func=cmd_rstp_fixture)
 

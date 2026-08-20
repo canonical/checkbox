@@ -2,32 +2,28 @@ id: ce-oem-switchdev-ports
 _summary: Enumerate switchdev fabric ports
 _description:
     Generates the list of netdevs exposing phys_switch_id (switch fabric
-    ports). Ports listed in checkbox config SWITCHDEV_RESERVED_PORTS
-    (space-separated names, e.g. the management/infra uplink) are marked
-    reserved: True so destructive templates exclude them.
+    ports). Ports listed under reserved_ports in the rig-config JSON
+    (checkbox config SWITCHDEV_RIG_CONFIG, e.g. the management/infra
+    uplink) are marked reserved: True so destructive templates exclude
+    them. Schema: data/switchdev-rig.schema.json.
 plugin: resource
 category_id: com.canonical.plainbox::ethernet
 estimated_duration: 2
-environ: SWITCHDEV_RESERVED_PORTS
+environ: SWITCHDEV_RIG_CONFIG
 command: switchdev_test.py resource
 
 id: ce-oem-switchdev/port-count
 _summary: Check the expected number of switchdev fabric ports enumerate
 _description:
-    Counts netdevs with phys_switch_id and compares against checkbox config
-    SWITCHDEV_EXPECTED_PORTS (e.g. 29 = 24 copper + 4 SFP+ + management on a
-    Tactical-1000 class device).
+    Counts netdevs with phys_switch_id and compares against the
+    expected_ports key of the rig-config JSON (e.g. 29 = 24 copper +
+    4 SFP+ + management on a Tactical-1000 class device).
 plugin: shell
 user: root
 category_id: com.canonical.plainbox::ethernet
 estimated_duration: 5
-environ: SWITCHDEV_EXPECTED_PORTS
-command:
-    if [ -z "$SWITCHDEV_EXPECTED_PORTS" ]; then
-        echo "FAIL: set SWITCHDEV_EXPECTED_PORTS in the checkbox config"
-        exit 1
-    fi
-    switchdev_test.py port-count --expected "$SWITCHDEV_EXPECTED_PORTS"
+environ: SWITCHDEV_RIG_CONFIG
+command: switchdev_test.py port-count
 
 unit: template
 template-resource: ce-oem-switchdev-ports
@@ -44,24 +40,25 @@ plugin: shell
 user: root
 category_id: com.canonical.plainbox::ethernet
 estimated_duration: 60
+environ: SWITCHDEV_RIG_CONFIG
 command: switchdev_test.py link-flap --interface {interface}
 
 id: ce-oem-switchdev/vlan-config-drift
 _summary: Frozen bridge VLAN table matches the saved baseline
 _description:
     The standing rig freezes the bridge/VLAN layout in the boot config.
-    This job diffs the live `bridge vlan` table against the baseline JSON at
-    checkbox config SWITCHDEV_VLAN_BASELINE. Create the baseline once on a
-    known-good rig with:
-    switchdev_test.py vlan-drift --baseline <path> --save
+    This job diffs the live `bridge vlan` table against the baseline JSON
+    at the vlan_baseline path of the rig-config JSON. Create the baseline
+    once on a known-good rig with:
+    switchdev_test.py vlan-drift --config <rig-config> --save
 plugin: shell
 user: root
 category_id: com.canonical.plainbox::ethernet
 estimated_duration: 5
-environ: SWITCHDEV_VLAN_BASELINE
+environ: SWITCHDEV_RIG_CONFIG
 imports: from com.canonical.plainbox import manifest
 requires: manifest.has_switchdev_standing_rig == 'True'
-command: switchdev_test.py vlan-drift --baseline "$SWITCHDEV_VLAN_BASELINE"
+command: switchdev_test.py vlan-drift
 
 id: ce-oem-switchdev/chain-offload-proof
 _summary: Chain traffic is forwarded by the switch ASIC (offload proof)
@@ -70,41 +67,33 @@ _description:
     into a netns) so traffic traverses the standing loop-cable chain, then
     asserts: traffic arrived (loss below threshold), hardware-offloaded FDB
     entries exist, and a mid-chain fabric port actually carried the packets.
+    Chain endpoints come from the chain object of the rig-config JSON.
     Requires iperf3 on the device and the standing rig VLAN plan.
 plugin: shell
 user: root
 category_id: com.canonical.plainbox::ethernet
 estimated_duration: 60
-environ: SWITCHDEV_BRIDGE SWITCHDEV_CHAIN_ENTRY_SVI SWITCHDEV_CHAIN_EXIT_SVI SWITCHDEV_CHAIN_ENTRY_IP SWITCHDEV_CHAIN_EXIT_IP SWITCHDEV_CHAIN_MID_PORT SWITCHDEV_CHAIN_RATE
+environ: SWITCHDEV_RIG_CONFIG
 imports: from com.canonical.plainbox import manifest
 requires: manifest.has_switchdev_standing_rig == 'True'
-command:
-    switchdev_test.py offload-proof \
-        --bridge "${SWITCHDEV_BRIDGE:-br0}" \
-        --entry-svi "$SWITCHDEV_CHAIN_ENTRY_SVI" \
-        --exit-svi "$SWITCHDEV_CHAIN_EXIT_SVI" \
-        --entry-ip "$SWITCHDEV_CHAIN_ENTRY_IP" \
-        --exit-ip "$SWITCHDEV_CHAIN_EXIT_IP" \
-        --mid-port "$SWITCHDEV_CHAIN_MID_PORT" \
-        --rate "${SWITCHDEV_CHAIN_RATE:-500M}"
+command: switchdev_test.py offload-proof
 
 id: ce-oem-switchdev/rstp-loop-protection
 _summary: STP contains the pre-provisioned loop and fails over
 _description:
     Brings up the standing same-VLAN cabled fixture pair (admin-down by
-    default) with kernel STP enabled: one port must go blocking (loop
-    contained), and admin-downing the forwarding port must promote the
-    blocked one. Restores ports down and the bridge STP state afterwards.
+    default, named by rstp_fixture_ports in the rig-config JSON) with
+    kernel STP enabled: one port must go blocking (loop contained), and
+    admin-downing the forwarding port must promote the blocked one.
+    Restores ports down and the bridge STP state afterwards.
 plugin: shell
 user: root
 category_id: com.canonical.plainbox::ethernet
 estimated_duration: 300
-environ: SWITCHDEV_BRIDGE SWITCHDEV_RSTP_FIXTURE_PORTS
+environ: SWITCHDEV_RIG_CONFIG
 imports: from com.canonical.plainbox import manifest
 requires: manifest.has_switchdev_rstp_fixture == 'True'
-command:
-    # shellcheck disable=SC2086
-    switchdev_test.py rstp-fixture --bridge "${SWITCHDEV_BRIDGE:-br0}" --ports $SWITCHDEV_RSTP_FIXTURE_PORTS
+command: switchdev_test.py rstp-fixture
 
 id: ce-oem-switchdev/l3-offload-probe
 _summary: Report whether L3 routes are hardware-offloaded (informational)

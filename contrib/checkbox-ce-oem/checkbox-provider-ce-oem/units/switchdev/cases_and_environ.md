@@ -24,17 +24,32 @@ The automated cases assume a permanently wired test rig:
 
 ## Environ
 
-| Variable | Used by | Meaning |
+One variable only:
+
+| Variable | Meaning |
+|---|---|
+| `SWITCHDEV_RIG_CONFIG` | The rig-config JSON: an absolute path, or a bare filename resolved against the provider `data/` directory (`$PLAINBOX_PROVIDER_DATA`) |
+
+## Rig-config JSON
+
+Schema: `data/switchdev-rig.schema.json` · Tactical-1000 example (port names
+TODO until the 26.04 image lands): `data/switchdev-rig-tactical1000.json`.
+Per-project files follow the `data/switchdev-rig-<project>.json` naming.
+
+| Key | Used by | Meaning |
 |---|---|---|
-| `SWITCHDEV_RESERVED_PORTS` | resource, link-flap | Space-separated netdev names tests must never touch (infra/management uplink) |
-| `SWITCHDEV_EXPECTED_PORTS` | port-count | Expected number of fabric netdevs (Tactical-1000: 29 = 24 Cu + 4 SFP+ + management) |
-| `SWITCHDEV_VLAN_BASELINE` | vlan-config-drift | Path to the saved known-good `bridge vlan` JSON baseline |
-| `SWITCHDEV_BRIDGE` | offload-proof, rstp | Bridge device name (default `br0`) |
-| `SWITCHDEV_CHAIN_ENTRY_SVI` / `SWITCHDEV_CHAIN_EXIT_SVI` | chain-offload-proof | Pre-provisioned chain-end SVIs (kept admin-down in the standing config) |
-| `SWITCHDEV_CHAIN_ENTRY_IP` / `SWITCHDEV_CHAIN_EXIT_IP` | chain-offload-proof | CIDR addresses for the two SVIs, same subnet (e.g. 10.101.0.1/24, 10.101.0.2/24) |
-| `SWITCHDEV_CHAIN_MID_PORT` | chain-offload-proof | A fabric port mid-chain whose counters must carry the test traffic |
-| `SWITCHDEV_CHAIN_RATE` | chain-offload-proof | iperf3 UDP target rate (default 500M) |
-| `SWITCHDEV_RSTP_FIXTURE_PORTS` | rstp-loop-protection | The two fixture pair port names, space-separated |
+| `bridge` | offload-proof, rstp | Bridge device name (default `br0`) |
+| `expected_ports` | port-count | Expected number of fabric netdevs (Tactical-1000: 29 = 24 Cu + 4 SFP+ + management) |
+| `reserved_ports` | resource, link-flap | Netdev names tests must never touch (infra/management uplink) |
+| `vlan_baseline` | vlan-config-drift | Path of the saved known-good `bridge vlan` JSON baseline |
+| `chain.entry_svi` / `chain.exit_svi` | chain-offload-proof | Pre-provisioned chain-end SVIs (kept admin-down in the standing config) |
+| `chain.entry_ip` / `chain.exit_ip` | chain-offload-proof | CIDR addresses for the two SVIs, same subnet (e.g. 10.101.0.1/24, 10.101.0.2/24) |
+| `chain.mid_port` | chain-offload-proof | A fabric port mid-chain whose counters must carry the test traffic |
+| `chain.rate` | chain-offload-proof | iperf3 UDP target rate (default 500M) |
+| `rstp_fixture_ports` | rstp-loop-protection | The two fixture pair port names |
+
+Each job requires only the keys it uses and fails with the missing key
+path (`FAIL: rig config missing required key: chain.mid_port`).
 
 ## Manifest
 

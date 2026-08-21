@@ -117,3 +117,14 @@ requires:
     executable.name in ("fwupdmgr", "fwupd.fwupdmgr")
 command:
     get_firmware_info_fwupd.py
+
+id: firmware/fwupdmgr_get_bios_setting
+plugin: attachment
+user: root
+category_id: com.canonical.plainbox::firmware
+_summary: Collect the BIOS setting information
+_purpose: Attach information about the BIOS, as reported by the fwupdmgr
+requires:
+    executable.name in ("fwupdmgr", "fwupd.fwupdmgr")
+command:
+    get_firmware_info_fwupd.py -c get-bios-setting

@@ -59,7 +59,9 @@ def _normalize_hex_byte(value: Any, field_name: str) -> str:
         stripped = value.strip().lower()
         if re.fullmatch(r"0x[0-9a-f]{1,2}", stripped):
             return "0x{:02x}".format(int(stripped, 16))
-        raise ValueError("Invalid byte in '{}' : {!r}".format(field_name, value))
+        raise ValueError(
+            "Invalid byte in '{}' : {!r}".format(field_name, value)
+        )
 
     if isinstance(value, int) and 0 <= value <= 0xFF:
         return "0x{:02x}".format(value)
@@ -81,7 +83,9 @@ def _normalize_hex_byte_list(value: Any, field_name: str) -> List[str]:
         ValueError: If the field is not a list of valid byte values.
     """
     if not isinstance(value, list):
-        raise ValueError("Field '{}' must be a list of bytes.".format(field_name))
+        raise ValueError(
+            "Field '{}' must be a list of bytes.".format(field_name)
+        )
 
     result: List[str] = []
     for item in value:
@@ -122,7 +126,9 @@ def _normalize_chip_address(value: Any) -> str:
     return "0x{:02x}".format(addr)
 
 
-def _run_i2c_transfer(bus: int, messages: List[str]) -> subprocess.CompletedProcess:
+def _run_i2c_transfer(
+    bus: int, messages: List[str]
+) -> subprocess.CompletedProcess:
     """Run a single i2ctransfer command and return the process result.
 
     Raises:
@@ -143,9 +149,7 @@ def _run_i2c_transfer(bus: int, messages: List[str]) -> subprocess.CompletedProc
     except FileNotFoundError:
         raise RuntimeError("{} command not found.".format(I2CTRANSFER_CMD))
     except OSError as err:
-        raise RuntimeError(
-            "Failed to run {}: {}".format(I2CTRANSFER_CMD, err)
-        )
+        raise RuntimeError("Failed to run {}: {}".format(I2CTRANSFER_CMD, err))
 
     if result.returncode != 0:
         raise RuntimeError(
@@ -163,6 +167,7 @@ def _extract_hex_bytes(output: str) -> List[str]:
     """Extract hexadecimal bytes from i2ctransfer output."""
     matches = re.findall(r"0x[0-9a-fA-F]{1,2}", output)
     return ["0x{:02x}".format(int(item, 16)) for item in matches]
+
 
 def load_json_file(
     json_file_path: str,
@@ -187,7 +192,9 @@ def load_json_file(
             )
         return {}
 
-    resolved_path = os.path.join(os.getenv("PLAINBOX_PROVIDER_DATA", ""), json_file_path)
+    resolved_path = os.path.join(
+        os.getenv("PLAINBOX_PROVIDER_DATA", ""), json_file_path
+    )
     if not Path(resolved_path).exists():
         resolved_path = json_file_path
 
@@ -205,6 +212,7 @@ def load_json_file(
             logging.warning("Failed to load JSON file: %s", resolved_path)
         return {}
 
+
 def get_i2c_scenarios(enable_logger: bool = False) -> dict:
     """Load scenario definitions from I2C_SPECIFIC_SCENARIO_FILE_PATH.
 
@@ -215,7 +223,8 @@ def get_i2c_scenarios(enable_logger: bool = False) -> dict:
         Scenario mapping loaded from the JSON file, or an empty dictionary.
     """
     scenario_file_path = load_json_file(
-        os.getenv("I2C_SPECIFIC_SCENARIO_FILE_PATH", ""), enable_logger=enable_logger
+        os.getenv("I2C_SPECIFIC_SCENARIO_FILE_PATH", ""),
+        enable_logger=enable_logger,
     )
     return scenario_file_path
 
@@ -346,9 +355,7 @@ def _execute_read_step(
             logger.error("Read step has invalid save_to_variable.")
             return False
         variables[save_to_variable] = read_values
-        logger.info(
-            "Stored read values to variable '%s'.", save_to_variable
-        )
+        logger.info("Stored read values to variable '%s'.", save_to_variable)
 
     # Optional field: assert fixed expected bytes when provided.
     if "expected_output" in step:
@@ -370,6 +377,7 @@ def _execute_read_step(
 
     return True
 
+
 def cmd_resource() -> int:
     """Print all available scenario names as resource output.
 
@@ -381,6 +389,7 @@ def cmd_resource() -> int:
         print("scenario_name: {}".format(k))
         print("")
     return 0
+
 
 def cmd_test(scenario_name: str) -> int:
     """Execute an I2C test scenario by name.
@@ -396,7 +405,9 @@ def cmd_test(scenario_name: str) -> int:
     scenarios = get_i2c_scenarios(enable_logger=True)
 
     if scenario_name not in scenarios:
-        logger.error("Scenario '%s' not found in the scenarios file.", scenario_name)
+        logger.error(
+            "Scenario '%s' not found in the scenarios file.", scenario_name
+        )
         logger.info("Available scenarios: %s", list(scenarios.keys()))
         return 1
 
@@ -479,6 +490,7 @@ def cmd_test(scenario_name: str) -> int:
     logger.info("Scenario '%s' completed successfully.", scenario_name)
     return 0
 
+
 def build_parser() -> argparse.ArgumentParser:
     """Build and return the argument parser for this script.
 
@@ -495,9 +507,17 @@ def build_parser() -> argparse.ArgumentParser:
         help="enable debug logging",
     )
 
-    subparsers.add_parser("resource", parents=[common_parser], help="Generate the resource of i2c read and write scenario from an external JSON file")
+    subparsers.add_parser(
+        "resource",
+        parents=[common_parser],
+        help="Generate the resource of i2c read and write scenario from an external JSON file",
+    )
 
-    test_parser = subparsers.add_parser("test", parents=[common_parser], help="Execute the i2c read and write case based on the scenario name")
+    test_parser = subparsers.add_parser(
+        "test",
+        parents=[common_parser],
+        help="Execute the i2c read and write case based on the scenario name",
+    )
 
     test_parser.add_argument(
         "-sn",
@@ -516,11 +536,12 @@ def main() -> int:
     if args.debug:
         logger.setLevel(logging.DEBUG)
 
-
     if args.action == "resource":
         return cmd_resource()
     if args.action == "test":
-        return cmd_test(args.scenario_name,)
+        return cmd_test(
+            args.scenario_name,
+        )
 
     parser.print_help()
     return 1

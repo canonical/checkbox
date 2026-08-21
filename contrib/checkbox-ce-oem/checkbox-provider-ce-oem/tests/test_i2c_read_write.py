@@ -55,7 +55,6 @@ class TestRunI2CTransfer(unittest.TestCase):
         mock_run.assert_called_once_with(
             [
                 "i2ctransfer",
-                "-f",
                 "-y",
                 "10",
                 "w2@0x50",

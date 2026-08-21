@@ -1,6 +1,8 @@
 import io
+import json
+import tempfile
 import unittest
-from contextlib import redirect_stdout
+from contextlib import redirect_stderr, redirect_stdout
 from subprocess import CompletedProcess
 from unittest.mock import patch
 
@@ -85,6 +87,43 @@ class TestInstallTa(unittest.TestCase):
             ["/ta/a.ta", "/ta/b.ta", "/ta/c.ta"],
         )
         self.assertIn("Rejected b.ta: TEEC_InvokeCommand", out.getvalue())
+
+
+class TestGenerateSkipsSnapSupplicantOnlyCases(unittest.TestCase):
+    CASES = [
+        {"suite": s, "test_id": i, "test_name": "t" + i, "test_description": d}
+        for s, i, d in [
+            ("regression", "1033", "Test the supplicant plugin framework"),
+            ("regression", "1039", "Test subkey verification"),
+            ("regression", "4101", "Bigint init"),
+            ("pkcs11", "1000", "Initialize and close Cryptoki library"),
+        ]
+    ]
+
+    def _generate(self):
+        with tempfile.NamedTemporaryFile("w", suffix=".json") as fp:
+            json.dump(self.CASES, fp)
+            fp.flush()
+            out, err = io.StringIO(), io.StringIO()
+            with redirect_stdout(out), redirect_stderr(err):
+                optee_helper.parse_json_file(fp.name)
+        return out.getvalue(), err.getvalue()
+
+    @patch("optee_helper._supplicant_serves_ta_dir", return_value=False)
+    def test_system_supplicant_drops_1033_and_1039(self, _):
+        out, err = self._generate()
+        self.assertNotIn("test_id: 1033", out)
+        self.assertNotIn("test_id: 1039", out)
+        self.assertIn("test_id: 4101", out)
+        self.assertIn("skipping regression 1033", err)
+        self.assertIn("skipping regression 1039", err)
+
+    @patch("optee_helper._supplicant_serves_ta_dir", return_value=True)
+    def test_snap_supplicant_keeps_every_case(self, _):
+        out, err = self._generate()
+        self.assertIn("test_id: 1033", out)
+        self.assertIn("test_id: 1039", out)
+        self.assertEqual(err, "")
 
 
 if __name__ == "__main__":

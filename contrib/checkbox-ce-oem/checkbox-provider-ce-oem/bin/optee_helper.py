@@ -6,12 +6,20 @@ import os
 import re
 import shlex
 import subprocess
+import sys
 
 from look_up_xtest import look_up_app
 from pathlib import Path
 from xtest_install_ta import find_ta_path, install_ta
 
 TEST_FILE_PREFIX = "optee-test-"
+# xtest cases only a tee-supplicant started by the x-test snap can pass:
+# 1033 needs its --plugin-path, 1039 loads subkey-signed TAs that the
+# secure-storage bootstrap rejects, so they cannot be installed either.
+SNAP_SUPPLICANT_ONLY_CASES = {
+    ("regression", "1033"),
+    ("regression", "1039"),
+}
 
 
 def _run_command(cmd, **kwargs):
@@ -155,7 +163,19 @@ def parse_json_file(filepath, filter_pkcs11=False):
     if not fp.exists():
         print("error: {} is not available".format(filepath))
     else:
+        skipped = (
+            set()
+            if _supplicant_serves_ta_dir()
+            else SNAP_SUPPLICANT_ONLY_CASES
+        )
         for test in json.loads(fp.read_text()):
+            if (test["suite"], test["test_id"]) in skipped:
+                print(
+                    "skipping {} {}: needs the x-test snap "
+                    "tee-supplicant".format(test["suite"], test["test_id"]),
+                    file=sys.stderr,
+                )
+                continue
             if (filter_pkcs11 and test["suite"] == "pkcs11") or (
                 not filter_pkcs11 and test["suite"] != "pkcs11"
             ):

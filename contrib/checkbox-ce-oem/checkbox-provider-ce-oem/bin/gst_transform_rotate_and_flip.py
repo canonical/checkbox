@@ -21,35 +21,112 @@ import argparse
 import logging
 import os
 
-from enum import Enum
-from typing import Any
-
+from codec_base import BaseCodecProject
+from codec_platforms import create_scenario_project
 from gst_utils import (
-    GST_LAUNCH_BIN,
     VIDEO_CODEC_TESTING_DATA,
     SAMPLE_2_FOLDER,
-    PipelineInterface,
+    GST_LAUNCH_BIN,
     GStreamerEncodePlugins,
+    GStreamerTransformActions,
     MetadataValidator,
-    get_big_bug_bunny_golden_sample,
-    generate_artifact_name,
     compare_psnr,
     delete_file,
     execute_command,
+    get_big_bug_bunny_golden_sample,
 )
 
 logging.basicConfig(level=logging.INFO)
 
 
-class Actions(Enum):
-    ROTATE_90 = "rotate_90"
-    ROTATE_180 = "rotate_180"
-    ROTATE_270 = "rotate_270"
-    VERTICAL_FLIP = "vertical_flip"
-    HORIZONTAL_FLIP = "horizontal_flip"
+class GenericTransformRotateAndFlipProject(BaseCodecProject):
+    """
+    Generic rotate/flip transform pipeline built on the v4l2convert
+    element, used when the platform's codec module does not provide its
+    own create_transform_rotate_and_flip_project.
+    """
 
-    def __str__(self):
-        return self.value
+    def __init__(self, args: argparse.Namespace) -> None:
+        super().__init__(
+            platform=args.platform,
+            codec=args.encoder_plugin,
+            width=args.width,
+            height=args.height,
+            framerate=args.framerate,
+        )
+        self._action = args.action
+        self._codec_parser_map = {
+            GStreamerEncodePlugins.V4L2H264ENC.value: "h264parse"
+        }
+        self._actions_map = {
+            GStreamerTransformActions.ROTATE_90: "rotate=90",
+            GStreamerTransformActions.ROTATE_180: "rotate=180",
+            GStreamerTransformActions.ROTATE_270: "rotate=270",
+            GStreamerTransformActions.HORIZONTAL_FLIP: "horizontal_flip=1",
+            GStreamerTransformActions.VERTICAL_FLIP: "vertical_flip=1",
+        }
+        # This sample video file will be consumed by any gstreamer piple as
+        # input video.
+        self._golden_sample = get_big_bug_bunny_golden_sample(
+            width=self._width, height=self._height, framerate=self._framerate
+        )
+        self._pipeline_builders = {
+            GStreamerEncodePlugins.V4L2H264ENC.value: (
+                self._transform_pipeline_builder
+            ),
+        }
+
+    @property
+    def psnr_reference_file(self) -> str:
+        """
+        A golden reference which has been transformed in advance. It's used to
+        be the compared reference file for PSNR.
+        """
+        golden_reference = "big_bug_bunny_{}x{}_{}fps_{}.mp4".format(
+            self._width, self._height, self._framerate, self._action
+        )
+
+        full_path = os.path.join(
+            VIDEO_CODEC_TESTING_DATA, SAMPLE_2_FOLDER, golden_reference
+        )
+        if not os.path.exists(full_path):
+            raise SystemExit(
+                "Error: Golden PSNR reference '{}' doesn't exist".format(
+                    full_path
+                )
+            )
+
+        return full_path
+
+    def _transform_pipeline_builder(self) -> str:
+        """
+        Build the gstreamer pipeline performing the rotate/flip action.
+        """
+        pipeline = (
+            "{} filesrc location={} ! decodebin ! v4l2convert "
+            "extra-controls='cid,{}'"
+        ).format(
+            GST_LAUNCH_BIN,
+            self._golden_sample,
+            self._actions_map.get(self._action),
+        )
+
+        if self._action in [
+            GStreamerTransformActions.ROTATE_90,
+            GStreamerTransformActions.ROTATE_270,
+        ]:
+            pipeline = (
+                "{} ! video/x-raw,width={},height={},"
+                "pixel-aspect-ratio='(fraction)1/1'"
+            ).format(pipeline, self._height, self._width)
+
+        pipeline = ("{} ! {} ! {} ! mp4mux ! filesink location={}").format(
+            pipeline,
+            self._codec,
+            self._codec_parser_map.get(self._codec),
+            self.artifact_file,
+        )
+        return pipeline
 
 
 def register_arguments():
@@ -79,9 +156,9 @@ def register_arguments():
     parser.add_argument(
         "-a",
         "--action",
-        type=Actions,
+        type=GStreamerTransformActions,
         required=True,
-        choices=list(Actions),
+        choices=list(GStreamerTransformActions),
         help="Supported transform operation of rotation or flip",
     )
 
@@ -113,138 +190,17 @@ def register_arguments():
     return args
 
 
-def project_factory(args: argparse.Namespace) -> Any:
-    """
-    Factory function to create a project instance based on the platform
-    specified in the argparse arguments.
-    Args:
-        args (argparse.Namespace): A parsed argument object that contains the
-            project parameters.
-    Returns:
-        Any: An instance of the project class (e.g., `GenioProject`) created
-            with the specified parameters.
-    Raises:
-        SystemExit: If the platform is not recognized or supported.
-    """
-    if "genio" in args.platform:
-        return GenioProject(
-            platform=args.platform,
-            codec=args.encoder_plugin,
-            action=args.action,
-            width=args.width,
-            height=args.height,
-            framerate=args.framerate,
-        )
-    else:
-        raise SystemExit(
-            "Error: Cannot get the implementation for '{}'".format(
-                args.platform
-            )
-        )
-
-
-class GenioProject(PipelineInterface):
-    """
-    Genio project manages platforms and codecs, and handles
-    building.
-    Spec: https://download.mediatek.com/aiot/download/release-note/v24.0/v24.0_IoT_Yocto_Feature_Table_v1.0.pdf     # noqa: E501
-    """
-
-    def __init__(
-        self,
-        platform: str,
-        codec: str,
-        action: str,
-        width: int,
-        height: int,
-        framerate: int,
-    ):
-        self._platform = platform
-        self._codec = codec
-        self._action = action
-        self._width = width
-        self._height = height
-        self._framerate = framerate
-        self._codec_parser_map = {
-            GStreamerEncodePlugins.V4L2H264ENC.value: "h264parse"
-        }
-        self._actions_map = {
-            Actions.ROTATE_90: "rotate=90",
-            Actions.ROTATE_180: "rotate=180",
-            Actions.ROTATE_270: "rotate=270",
-            Actions.HORIZONTAL_FLIP: "horizontal_flip=1",
-            Actions.VERTICAL_FLIP: "vertical_flip=1",
-        }
-        # This sample video file will be consumed by any gstreamer piple as
-        # input video.
-        self._golden_sample = get_big_bug_bunny_golden_sample(
-            width=self._width, height=self._height, framerate=self._framerate
-        )
-        self._artifact_file = ""
-
-    @property
-    def artifact_file(self) -> str:
-        if not self._artifact_file:
-            self._artifact_file = generate_artifact_name(extension="mp4")
-        return self._artifact_file
-
-    @property
-    def psnr_reference_file(self) -> str:
-        """
-        A golden reference which has been transformed in advance. It's used to
-        be the compared reference file for PSNR.
-        """
-        golden_reference = "big_bug_bunny_{}x{}_{}fps_{}.mp4".format(
-            self._width, self._height, self._framerate, self._action
-        )
-
-        full_path = os.path.join(
-            VIDEO_CODEC_TESTING_DATA, SAMPLE_2_FOLDER, golden_reference
-        )
-        if not os.path.exists(full_path):
-            raise SystemExit(
-                "Error: Golden PSNR reference '{}' doesn't exist".format(
-                    full_path
-                )
-            )
-
-        return full_path
-
-    def build_pipeline(self) -> str:
-        """
-        Build the GStreamer commands based on the platform and codec.
-
-        Returns:
-            str: A GStreamer command based on the platform and
-            codec.
-        """
-        pipeline = (
-            "{} filesrc location={} ! decodebin ! v4l2convert "
-            "extra-controls='cid,{}'"
-        ).format(
-            GST_LAUNCH_BIN,
-            self._golden_sample,
-            self._actions_map.get(self._action),
-        )
-
-        if self._action in [Actions.ROTATE_90, Actions.ROTATE_270]:
-            pipeline = (
-                "{} ! video/x-raw,width={},height={},"
-                "pixel-aspect-ratio='(fraction)1/1'"
-            ).format(pipeline, self._height, self._width)
-
-        pipeline = ("{} ! {} ! {} ! mp4mux ! filesink location={}").format(
-            pipeline,
-            self._codec,
-            self._codec_parser_map.get(self._codec),
-            self.artifact_file,
-        )
-        return pipeline
-
-
 def main() -> None:
     args = register_arguments()
-    p = project_factory(args)
+    # Platforms with their own transform pipeline provide a
+    # create_transform_rotate_and_flip_project in their codec_<family>.py
+    # module; everyone else uses the generic v4l2convert pipeline.
+    p = create_scenario_project(
+        args.platform,
+        "create_transform_rotate_and_flip_project",
+        GenericTransformRotateAndFlipProject,
+        args,
+    )
     logging.info("Step 1: Generating artifact...")
     cmd = p.build_pipeline()
     # execute command
@@ -255,7 +211,10 @@ def main() -> None:
     # should be exchanged.
     expeted_width = args.width
     expeted_height = args.height
-    if args.action in [Actions.ROTATE_90, Actions.ROTATE_270]:
+    if args.action in [
+        GStreamerTransformActions.ROTATE_90,
+        GStreamerTransformActions.ROTATE_270,
+    ]:
         expeted_width = args.height
         expeted_height = args.width
     mv = MetadataValidator(file_path=p.artifact_file)

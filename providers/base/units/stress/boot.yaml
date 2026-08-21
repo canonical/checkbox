@@ -107,7 +107,7 @@ flags:
   - noreturn
 estimated_duration: '180.0'
 after:
-  - cold-boot-loop-test{reboot_id_previous}
+  - cold-boot-loop-test-{reboot_id_previous}
 depends:
   - init-boot-loop-data
 ---

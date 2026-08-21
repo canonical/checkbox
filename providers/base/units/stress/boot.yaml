@@ -204,7 +204,7 @@ flags:
   - preserve-locale
 estimated_duration: '1.0'
 depends:
-  - warm-boot-loop-reboot1
+  - warm-boot-loop-reboot-1
 ---
 id: warm-boot-loop-test-{reboot_id}
 template-id: warm-boot-loop-test-reboot_id

@@ -125,7 +125,7 @@ class TestStageTaForSupplicant(unittest.TestCase):
         self.assertIn("Cannot stage TAs into", out.getvalue())
 
 
-class TestGenerateSkipsSnapSupplicantOnlyCases(unittest.TestCase):
+class TestGenerateSkipsSupplicantPluginCases(unittest.TestCase):
     CASES = [
         {"suite": s, "test_id": i, "test_name": "t" + i, "test_description": d}
         for s, i, d in [
@@ -149,13 +149,13 @@ class TestGenerateSkipsSnapSupplicantOnlyCases(unittest.TestCase):
         "optee_helper._find_supplicant",
         return_value=("352", INITRAMFS_SUPPLICANT),
     )
-    def test_system_supplicant_drops_1033_and_1039(self, _):
+    def test_supplicant_without_plugin_path_drops_1033_only(self, _):
         out, err = self._generate()
         self.assertNotIn("test_id: 1033", out)
-        self.assertNotIn("test_id: 1039", out)
+        self.assertIn("test_id: 1039", out)
         self.assertIn("test_id: 4101", out)
         self.assertIn("skipping regression 1033", err)
-        self.assertIn("skipping regression 1039", err)
+        self.assertNotIn("1039", err)
 
     @patch(
         "optee_helper._find_supplicant", return_value=("1234", SNAP_SUPPLICANT)

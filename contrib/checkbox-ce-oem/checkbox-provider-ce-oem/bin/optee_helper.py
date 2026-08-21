@@ -17,13 +17,9 @@ TEST_FILE_PREFIX = "optee-test-"
 # Where tee-supplicant loads TAs from when started without --ta-path/--ta-dir
 # (optee_client default: TEEC_LOAD_PATH/optee_armtz).
 DEFAULT_TA_DIR = "lib/optee_armtz"
-# xtest cases only a tee-supplicant started by the x-test snap can pass:
-# 1033 needs its --plugin-path, 1039 loads subkey-signed TAs that the
-# secure-storage bootstrap rejects, so they cannot be installed either.
-SNAP_SUPPLICANT_ONLY_CASES = {
-    ("regression", "1033"),
-    ("regression", "1039"),
-}
+# xtest cases that need tee-supplicant to have been *started* with the
+# x-test plugin path: the supplicant loads plugins once, at startup.
+SUPPLICANT_PLUGIN_CASES = {("regression", "1033")}
 
 
 def _run_command(cmd, **kwargs):
@@ -201,15 +197,15 @@ def parse_json_file(filepath, filter_pkcs11=False):
     else:
         _, cmdline = _find_supplicant()
         skipped = (
-            set()
-            if _supplicant_serves_ta_dir(cmdline)
-            else SNAP_SUPPLICANT_ONLY_CASES
+            set() if "--plugin-path" in cmdline else SUPPLICANT_PLUGIN_CASES
         )
         for test in json.loads(fp.read_text()):
             if (test["suite"], test["test_id"]) in skipped:
                 print(
-                    "skipping {} {}: needs the x-test snap "
-                    "tee-supplicant".format(test["suite"], test["test_id"]),
+                    "skipping {} {}: tee-supplicant was started without "
+                    "the x-test plugin path".format(
+                        test["suite"], test["test_id"]
+                    ),
                     file=sys.stderr,
                 )
                 continue

@@ -47,7 +47,7 @@ environ:
     TSN_DEVICE_IP_LIST
 command:
     if [ -v TSN_DEVICE_IP_LIST ]; then
-        iiotg_tsn.py --parse-string "$TSN_DEVICE_IP_LIST"
+        iiotg_tsn.py validate-string "$TSN_DEVICE_IP_LIST"
     else
         echo "You did not set the environment variable 'TSN_DEVICE_IP_LIST'"
         exit 1
@@ -91,11 +91,14 @@ requires:
 plugin: shell
 user: root
 environ:
-    SNAP
     PTP4L_TESTING_TIME
     PTP_CLIENT_CFG
 command:
-    iiotg_tsn.py --run ptp4l -i {{ interface }} -t "${PTP4L_TESTING_TIME:-60}" --client-config "${PTP_CLIENT_CFG:-"$SNAP"/usr/share/doc/linuxptp/configs/automotive-slave.cfg}"
+    if [ -n "${PTP_CLIENT_CFG:-}" ]; then
+        iiotg_tsn.py client ptp4l -i {{ interface }} -t "${PTP4L_TESTING_TIME:-60}" --client-config "$PTP_CLIENT_CFG"
+    else
+        iiotg_tsn.py client ptp4l -i {{ interface }} -t "${PTP4L_TESTING_TIME:-60}"
+    fi
 
 unit: template
 template-resource: iiotg-tsn/tsn-device-ip-match
@@ -115,11 +118,14 @@ requires:
 plugin: shell
 user: root
 environ:
-    SNAP
     PHC2SYS_TESTING_TIME
     PTP_CLIENT_CFG
 command:
-    iiotg_tsn.py --run phc2sys -i {{ interface }} -t "${PHC2SYS_TESTING_TIME:-60}" --client-config "${PTP_CLIENT_CFG:-"$SNAP"/usr/share/doc/linuxptp/configs/automotive-slave.cfg}"
+    if [ -n "${PTP_CLIENT_CFG:-}" ]; then
+        iiotg_tsn.py client phc2sys -i {{ interface }} -t "${PHC2SYS_TESTING_TIME:-60}" --client-config "$PTP_CLIENT_CFG"
+    else
+        iiotg_tsn.py client phc2sys -i {{ interface }} -t "${PHC2SYS_TESTING_TIME:-60}"
+    fi
 
 unit: template
 template-resource: iiotg-tsn/tsn-device-ip-match
@@ -141,7 +147,7 @@ _purpose:
 environ:
     TSN_CREDIT_BASED_SHAPER_TESTING_TIME
 command:
-    iiotg_tsn.py --run credit_based_shaper --interface {{ interface }}  -t "${TSN_CREDIT_BASED_SHAPER_TESTING_TIME:-10}" --server-ip {{ server_ip }}
+    iiotg_tsn.py client credit-based-shaper --interface {{ interface }}  -t "${TSN_CREDIT_BASED_SHAPER_TESTING_TIME:-10}" --server-ip {{ server_ip }}
 
 unit: template
 template-resource: iiotg-tsn/tsn-device-ip-match
@@ -163,8 +169,13 @@ _purpose:
     using TAPRIO qdisc to limit the bandwidth of each stream.
 environ:
     TSN_CREDIT_BASED_SHAPER_TESTING_TIME
+    PTP_CLIENT_CFG
 command:
-    iiotg_tsn.py --run traffic_scheduling --interface {{ interface }} -t "${TSN_CREDIT_BASED_SHAPER_TESTING_TIME:-25}" --server-ip {{ server_ip }}
+    if [ -n "${PTP_CLIENT_CFG:-}" ]; then
+        iiotg_tsn.py client traffic-scheduling --interface {{ interface }} -t "${TSN_CREDIT_BASED_SHAPER_TESTING_TIME:-25}" --server-ip {{ server_ip }} --client-config "$PTP_CLIENT_CFG"
+    else
+        iiotg_tsn.py client traffic-scheduling --interface {{ interface }} -t "${TSN_CREDIT_BASED_SHAPER_TESTING_TIME:-25}" --server-ip {{ server_ip }}
+    fi
 
 
 unit: template

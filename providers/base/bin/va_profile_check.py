@@ -175,7 +175,8 @@ def main(argv=None):
             "declared in the DUT manifest"
         )
     )
-    subparsers = parser.add_subparsers(dest="command", required=True)
+    subparsers = parser.add_subparsers(dest="command")
+    subparsers.required = True
     subparsers.add_parser(
         "resource", help="emit one resource record per (profile, direction)"
     )

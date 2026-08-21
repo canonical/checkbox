@@ -136,6 +136,7 @@ def cmd_forward(feature):
 
 def cmd_reverse():
     features = get_supported_features(run_vainfo())
+    declared = []
     missing = []
     for key, value in sorted(get_manifest().items()):
         if not key.startswith(NAMESPACE + "::has_"):
@@ -145,8 +146,16 @@ def cmd_reverse():
         if not value:
             continue
         feature = key.split("::", 1)[1]
+        declared.append(feature)
         if feature not in features:
             missing.append(feature)
+    if not declared:
+        print(
+            "ERROR: no VA-API codec features are declared in the DUT "
+            "manifest; nothing to verify. Check that the manifest declares "
+            "the expected has_<profile>_<direction> features."
+        )
+        return 1
     if missing:
         print(
             "ERROR: the following features are declared in the DUT manifest "

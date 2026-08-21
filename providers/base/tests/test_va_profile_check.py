@@ -210,6 +210,7 @@ class TestCmdReverse(TestCase):
                 "va_profile_check.get_manifest",
                 return_value={
                     NAMESPACE + "::has_va_api": True,
+                    NAMESPACE + "::has_h264_main_decoder": True,
                     "com.canonical.certification::other_key": True,
                 },
             ):

@@ -1,6 +1,5 @@
 {
     "FT24C32 EEPROM Basic Write-Read": {
-        "scenario_name": "FT24C32 EEPROM Basic Write-Read",
         "steps": [
             {
                 "description": "Write initial data to EEPROM",

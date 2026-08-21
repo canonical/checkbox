@@ -175,8 +175,8 @@ plugin: shell
 environ:
   - STRESS_BOOT_WAIT_DELAY
 command: |
-  delay=${STRESS_BOOT_WAIT_DELAY:-120}
-  echo Sleeping "${delay}s" before rebooting
+  delay=${{STRESS_BOOT_WAIT_DELAY:-120}}
+  echo Sleeping "${{delay}}s" before rebooting
   sleep "$delay"
   reboot
 user: root

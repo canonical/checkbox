@@ -39,7 +39,7 @@ requires:
     manifest.has_va_api == 'True'
 command: va_profile_check.py forward {feature}
 estimated_duration: 0.1
-_summary: Verify that {profile_name} {direction} is declared in the DUT manifest
+_summary: Verify {profile_name} {direction} is declared in the manifest
 _purpose:
     The VA driver advertises this profile and direction through vainfo. This
     test checks that the DUT manifest declares the corresponding feature, so

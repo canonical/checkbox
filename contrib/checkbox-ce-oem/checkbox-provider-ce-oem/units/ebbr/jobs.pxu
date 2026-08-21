@@ -7,6 +7,22 @@ imports:
     from com.canonical.certification import cpuinfo
 requires: cpuinfo.platform in ("aarch64", "armv7l")
 command:
+    resource_wrapper.sh -- ebbr_resource.py
+
+id: ce-oem-ebbr/check-fwts-ebbr-resource
+_summary: Check FWTS EBBR resource generation
+_description:
+    Verify FWTS EBBR resource generation command executes directly.
+estimated_duration: 0.02
+category_id: ce-oem-ebbr
+plugin: shell
+imports:
+    from com.canonical.certification import cpuinfo
+    from com.canonical.plainbox import manifest
+requires:
+    cpuinfo.platform in ("aarch64", "armv7l")
+    manifest.has_arm_ebbr == 'True'
+command:
     ebbr_resource.py
 
 unit: template

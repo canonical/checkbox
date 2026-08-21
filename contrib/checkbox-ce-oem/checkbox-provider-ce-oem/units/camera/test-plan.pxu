@@ -21,6 +21,7 @@ _description: Automated tests for MIPI Camera in before suspend and post suspend
 bootstrap_include:
     mipi_camera_resource
 include:
+    check_mipi_camera_resource
     ce-oem-mipi-camera/readiness
     ce-oem-mipi-camera/capture-image-scenario
     ce-oem-mipi-camera/record-video-scenario

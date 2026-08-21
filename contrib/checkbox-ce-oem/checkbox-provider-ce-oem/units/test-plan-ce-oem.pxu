@@ -98,7 +98,6 @@ nested_part:
     ce-oem-mir-automated
     ce-oem-wifi-ap-automated
     ce-oem-regulator-automated
-    ce-oem-power-automated-by-pdu
     ce-oem-mipi-camera-automated
     ce-oem-graphics-automated
     ce-oem-video-codec-automated
@@ -194,7 +193,6 @@ _description:
 estimated_duration: 3600
 include:
 nested_part:
-    ce-oem-cold-boot-stress-test-by-pdu
     ce-oem-ethernet-tcp-stress
     ce-oem-serial-stress
 certification_status_overrides:

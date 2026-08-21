@@ -8,27 +8,21 @@ _description:
 user: root
 estimated_duration: 2s
 flags: preserve-locale
-command:
-    KEYWORDS="hardware-transmit
-              hardware-receive
-              hardware-raw-clock"
-    for iface in /sys/class/net/*; do
-        iface=${iface##*/}
-        supported=true
-        if [[ $iface == e* ]]; then
-            output=$(ethtool -T "$iface")
-            for keyword in $KEYWORDS; do
-                if ! grep -q "$keyword" <<< "$output"; then
-                    supported=false
-                    break
-                fi
-            done
-            if [[ $supported == true ]]; then
-                echo "eth-interface: $iface"
-                echo
-            fi
-        fi
-    done
+command: resource_wrapper.sh -- resource_ptp_devices.sh
+
+unit: job
+category_id: ptp
+id: ce-oem-ptp/check-ptp-devices-resource
+plugin: shell
+_summary: Check PTP device resource generation
+_description:
+    Check all ethernet devices and list PTP-supported devices directly.
+user: root
+estimated_duration: 2s
+flags: preserve-locale
+imports: from com.canonical.plainbox import manifest
+requires: manifest.has_ptp == 'True'
+command: resource_ptp_devices.sh
 
 unit: template
 template-resource: ce-oem-ptp/ptp-devices

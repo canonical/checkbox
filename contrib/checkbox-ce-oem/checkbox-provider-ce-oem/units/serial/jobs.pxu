@@ -12,9 +12,18 @@ estimated_duration: 1.0
 environ:
     SERIAL_CONSOLE_PORTS
 command:
-    if [ -z "$SERIAL_CONSOLE_PORTS" ]; then
-        exit 0
-    fi
+    resource_wrapper.sh -- serial_config_parser.py "$SERIAL_CONSOLE_PORTS"
+
+id: ce-oem-serial/check-serial-console-list-resource
+_summary:
+    Check serial console resource generation
+_description:
+    Verify serial console resource generation command executes directly.
+plugin: shell
+estimated_duration: 1.0
+environ:
+    SERIAL_CONSOLE_PORTS
+command:
     serial_config_parser.py "$SERIAL_CONSOLE_PORTS"
 
 unit: template
@@ -58,6 +67,18 @@ command:
     if [ -z "$SERIAL_PORTS" ]; then
         exit 0
     fi
+    resource_wrapper.sh -- serial_config_parser.py "$SERIAL_PORTS"
+
+id: ce-oem-serial/check-serial-list-resource
+_summary:
+    Check serial resource generation
+_description:
+    Verify serial resource generation command executes directly.
+plugin: shell
+estimated_duration: 1.0
+environ:
+    SERIAL_PORTS
+command:
     serial_config_parser.py "$SERIAL_PORTS"
 
 unit: template

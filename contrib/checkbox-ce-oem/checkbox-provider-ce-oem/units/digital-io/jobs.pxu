@@ -9,14 +9,17 @@ estimated_duration: 0.02
 category_id: digital-io
 plugin: resource
 environ: DIGITAL_IO_LOOPBACK_GPIO
-command:
-    awk '{
-        split($0, record, " ")
-        for (i in record) {
-            split(record[i], data, ":")
-            printf "DO: %s\nDO_GPIO: %s\nDI: %s\nDI_GPIO: %s\n\n", data[1], data[2], data[3], data[4]
-        }
-    }' <<< "$DIGITAL_IO_LOOPBACK_GPIO"
+command: resource_wrapper.sh -- resource_digital_io_loopback_mapping_gpio.sh
+
+id: check_digital_io_loopback_mapping_gpio_resource
+_summary: Check digital I/O GPIO loopback resource generation
+plugin: shell
+category_id: digital-io
+imports: from com.canonical.plainbox import manifest
+requires: manifest.has_digital_io == 'True'
+estimated_duration: 0.02
+environ: DIGITAL_IO_LOOPBACK_GPIO
+command: resource_digital_io_loopback_mapping_gpio.sh
 
 unit: template
 template-resource: ce-oem-digital-io/loopback_mapping_gpio
@@ -49,14 +52,17 @@ estimated_duration: 0.02
 category_id: digital-io
 plugin: resource
 environ: DIGITAL_IO_LOOPBACK_SERIAL
-command:
-    awk '{
-        split($0, record, " ")
-        for (i in record) {
-            split(record[i], data, ":")
-            printf "DO: %s\nDO_REGISTER_BYTE: %s\nDI: %s\nDI_REGISTER_BYTE: %s\n\n", data[1], data[2], data[3], data[4]
-        }
-    }' <<< "$DIGITAL_IO_LOOPBACK_SERIAL"
+command: resource_wrapper.sh -- resource_digital_io_loopback_mapping_serial.sh
+
+id: check_digital_io_loopback_mapping_serial_resource
+_summary: Check digital I/O serial loopback resource generation
+plugin: shell
+category_id: digital-io
+imports: from com.canonical.plainbox import manifest
+requires: manifest.has_digital_io == 'True'
+estimated_duration: 0.02
+environ: DIGITAL_IO_LOOPBACK_SERIAL
+command: resource_digital_io_loopback_mapping_serial.sh
 
 unit: template
 template-resource: ce-oem-digital-io/loopback_mapping_serial

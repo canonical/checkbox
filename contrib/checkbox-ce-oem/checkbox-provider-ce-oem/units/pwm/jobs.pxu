@@ -22,6 +22,30 @@ command:
     if [ -n "${PWM_ALLOW:-}" ]; then
         set -- "$@" --allow "$PWM_ALLOW"
     fi
+    resource_wrapper.sh -- pwm_test.py "$@"
+
+id: ce-oem-pwm/check-pwm-list-resource
+_summary:
+    Check PWM resource list generation
+_description:
+    Verify PWM resource generation command executes directly.
+plugin: shell
+user: root
+category_id: pwm
+estimated_duration: 5s
+imports: from com.canonical.plainbox import manifest
+requires: manifest.has_pwm == 'True'
+environ:
+    PWM_IGNORE
+    PWM_ALLOW
+command:
+    set -- resource
+    if [ -n "${PWM_IGNORE:-}" ]; then
+        set -- "$@" --ignore "$PWM_IGNORE"
+    fi
+    if [ -n "${PWM_ALLOW:-}" ]; then
+        set -- "$@" --allow "$PWM_ALLOW"
+    fi
     pwm_test.py "$@"
 
 id: ce-oem-pwm/check

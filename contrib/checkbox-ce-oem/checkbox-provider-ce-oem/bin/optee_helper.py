@@ -33,6 +33,21 @@ def _run_command(cmd, **kwargs):
         raise e
 
 
+def _supplicant_serves_ta_dir():
+    """Whether the running tee-supplicant was given a TA directory
+    (--ta-path / --ta-dir, as the x-test snap service passes). A
+    supplicant started without one, e.g. the one Ubuntu Core's initramfs
+    runs for the fTPM, can only load TAs from secure storage, so the TAs
+    must be installed there first.
+    """
+    ret = subprocess.run(
+        shlex.split("pgrep -a tee-supplicant"),
+        capture_output=True,
+        text=True,
+    )
+    return "--ta-path" in ret.stdout or "--ta-dir" in ret.stdout
+
+
 def launch_xtest(test_suite, test_id):
     test_utility = look_up_app("xtest", os.environ.get("XTEST"))
 
@@ -48,7 +63,7 @@ def launch_xtest(test_suite, test_id):
             flush=True,
         )
         return 2
-    elif optee_fw < "4.0":
+    elif optee_fw < "4.0" or not _supplicant_serves_ta_dir():
         ta_path = find_ta_path()
         install_ta(test_utility, ta_path)
 

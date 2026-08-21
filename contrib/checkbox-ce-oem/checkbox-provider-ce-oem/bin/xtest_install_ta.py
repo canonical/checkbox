@@ -1,19 +1,9 @@
 #!/usr/bin/env python3
 
 from look_up_xtest import look_up_app
-from subprocess import run, CalledProcessError
+from subprocess import run
 import glob
 import os
-
-
-def run_command(cmd, capture_output=True, text=True, check=True):
-    try:
-        result = run(
-            cmd, capture_output=capture_output, text=text, check=check
-        )
-        return result.stdout.strip() if capture_output else None
-    except CalledProcessError as e:
-        raise SystemExit("Error: {}".format(e))
 
 
 def find_ta_path():
@@ -31,10 +21,35 @@ def find_ta_path():
 
 
 def install_ta(xtest, path):
-    cmd = ["timeout", "30", xtest, "--install-ta", path]
+    """Install every TA under path into OP-TEE secure storage, one file at
+    a time: xtest stops at the first TA the TEE rejects (subkey-signed
+    TAs fail the secure-storage bootstrap with TEEC_ERROR_SECURITY), so a
+    whole-directory install would leave the remaining TAs uninstalled.
+    Returns the rejected TA file names.
+    """
     print("Attempting to install TA...", flush=True)
-    run_command(cmd)
-    print("TA install succeeded!", flush=True)
+    rejected = []
+    for ta in sorted(glob.glob(os.path.join(path, "*.ta"))):
+        result = run(
+            ["timeout", "30", xtest, "--install-ta", ta],
+            capture_output=True,
+            text=True,
+        )
+        if result.returncode != 0:
+            rejected.append(os.path.basename(ta))
+            print(
+                "Rejected {}: {}".format(
+                    os.path.basename(ta), result.stderr.strip()
+                ),
+                flush=True,
+            )
+    print(
+        "TA install done, {} rejected: {}".format(
+            len(rejected), " ".join(rejected) or "-"
+        ),
+        flush=True,
+    )
+    return rejected
 
 
 def main():

@@ -20,7 +20,12 @@ _description: Automated GPIO tests for devices
 bootstrap_include:
     ce-oem-gpio-gadget-slots
     gpio_loopback_pin_mapping
+    ce-oem-gpiod-gpio/simple-resource
+    ce-oem-gpiod-gpio/loopback-resource
 include:
     ce-oem-gpio/loopback-on-phycial-output-.*-input-.*
     ce-oem-gpio/check-slots
     ce-oem-gpio/node-export-test
+    ce-oem-gpiod-gpio/simple-input-GPIO_CHIP-GPIO_LINE
+    ce-oem-gpiod-gpio/simple-output-GPIO_CHIP-GPIO_LINE
+    ce-oem-gpiod-gpio/loopback-input-GPIO_INPUT_CHIP-GPIO_INPUT_LINE-output-GPIO_OUTPUT_CHIP-GPIO_OUTPUT_LINE

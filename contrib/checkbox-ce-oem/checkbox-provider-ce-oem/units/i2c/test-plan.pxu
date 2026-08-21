@@ -1,0 +1,27 @@
+id: ce-oem-i2c-full
+unit: test plan
+_name: CE-OEM I²C Full Tests
+_description:
+    CE-OEM I²C Full Tests
+include:
+nested_part:
+    ce-oem-i2c-manual
+    ce-oem-i2c-automated
+
+id: ce-oem-i2c-manual
+unit: test plan
+_name: CE-OEM I²C Manual Tests
+_description:
+    CE-OEM I²C Manual Tests
+bootstrap_include:
+include:
+
+id: ce-oem-i2c-automated
+unit: test plan
+_name: CE-OEM I²C Automated Tests
+_description:
+    CE-OEM I²C Automated Tests
+bootstrap_include:
+    i2c_read_write_resource
+include:
+    ce-oem-i2c/specific_i2c_read_write

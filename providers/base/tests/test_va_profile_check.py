@@ -225,12 +225,27 @@ class TestCmdReverse(TestCase):
             with patch(
                 "va_profile_check.get_manifest",
                 return_value={
-                    NAMESPACE + "::has_h264_main_decoder": False,
+                    NAMESPACE + "::has_hevc_main12_decoder": False,
                     NAMESPACE + "::has_h264_main_encoder": True,
                 },
             ):
                 with redirect_stdout(StringIO()):
                     self.assertEqual(cmd_reverse(), 0)
+
+    def test_no_declared_features_fails(self):
+        with patch(
+            "va_profile_check.run_vainfo",
+            return_value=VAINFO_OUTPUT,
+        ):
+            with patch(
+                "va_profile_check.get_manifest",
+                return_value={
+                    NAMESPACE + "::has_va_api": True,
+                    NAMESPACE + "::has_h264_main_decoder": False,
+                },
+            ):
+                with redirect_stdout(StringIO()):
+                    self.assertEqual(cmd_reverse(), 1)
 
 
 class TestCmdResource(TestCase):

@@ -13,11 +13,11 @@ template-engine: jinja2
 template-resource: i2c_read_write_resource
 template-unit: job
 template-id: ce-oem-i2c/specific_i2c_read_write
-id: ce-oem-i2c/specific-i2c-{{scenario_name}}
+id: ce-oem-i2c/specific-i2c-{{ scenario_name }}
 category_id: com.canonical.certification::i2c
-_summary: Specific I2c scenraio: {{scenario_name}}
+_summary: Specific I2c scenraio: {{ scenario_name }}
 _purpose:
-    Validate the device befined the I2c bus, the scenario is '{{scenario_name}}'
+    Validate devices behind the I2C bus; scenario is '{{ scenario_name }}'
 plugin: shell
 user: root
 imports: from com.canonical.plainbox import manifest
@@ -25,4 +25,4 @@ requires: manifest.has_i2c == 'True'
 estimated_duration: 1s
 flags: also-after-suspend
 environ: PLAINBOX_PROVIDER_DATA I2C_SPECIFIC_SCENARIO_FILE_PATH
-command: i2c_read_write.py test -sn "{{scenario_name}}"
+command: i2c_read_write.py test -sn "{{ scenario_name }}"

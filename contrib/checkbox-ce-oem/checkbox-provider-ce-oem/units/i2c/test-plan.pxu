@@ -5,8 +5,8 @@ _description:
     CE-OEM I²C Full Tests
 include:
 nested_part:
-    ce-oem-spi-manual
-    ce-oem-spi-automated
+    ce-oem-i2c-manual
+    ce-oem-i2c-automated
 
 id: ce-oem-i2c-manual
 unit: test plan

@@ -44,9 +44,9 @@ Therefore, this document is intended to demonstrate how to write a JSON file tha
 
 ### 1. Scenario-level fields
 
-- `scenarios` (Mandatory)
-  - Name of the scenario.
-  - It does not affect command 
+ - `scenario_name` (Mandatory)
+   - The scenario identifier (the top-level JSON object key).
+   - It is used by Checkbox and passed to `i2c_read_write.py --scenario-name`.
 - `steps` (Mandatory)
   - Array containing all test steps in the scenario.
 
@@ -103,7 +103,7 @@ These fields are optional in the schema, but required in specific contexts.
 
 # Examples
 
-## Example 1 - Write and Read the same deivce
+## Example 1 - Write and Read the same device
 
 This example performs a write-read verification on the same FT24C32 EEPROM.
 It writes `0x11 0x22 0x33 0x44` to register address `0x0000` on bus `10`
@@ -138,7 +138,7 @@ same register and compares the result with `expected_output`.
 }
 ```
 
-## Example 2 - Read and Write the differenct devices
+## Example 2 - Read and Write the different devices
 
 This example demonstrates cross-device data transfer across different I2C
 buses. It first reads dynamic data from an SHT30 sensor on bus `10`

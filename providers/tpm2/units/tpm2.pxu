@@ -16,6 +16,16 @@
 # You should have received a copy of the GNU General Public License
 # along with Checkbox.  If not, see <http://www.gnu.org/licenses/>.
 
+id: tpm2/detect
+category_id: tpm2
+plugin: shell
+imports: from com.canonical.plainbox import manifest
+requires:
+ manifest.has_tpm2_chip == 'True'
+_summary: Check at least one TPM2 device is identified
+flags: simple
+command: ls -l /dev/tpm*
+
 id: tpm2/pcr7-unsealing
 _summary: TPM2 PCR7 unsealing
 _description: Check that PCR7 can be unsealed, extended and fails to be unsealed afterwards

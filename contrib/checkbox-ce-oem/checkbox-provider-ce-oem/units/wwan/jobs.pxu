@@ -37,7 +37,7 @@ imports:
 requires:
   manifest.has_wwan_module == 'True'
   manifest.has_sim_card == 'True'
-  manifest.has_wwan_module_via_at_command == 'True'
+  manifest.has_wwan_hotspot == 'True'
 
 unit: job
 id: ce-oem-wwan/usb-hotspot-recovery-auto
@@ -70,4 +70,4 @@ depends: ce-oem-wwan/usb-hotspot-auto
 requires:
   manifest.has_wwan_module == 'True'
   manifest.has_sim_card == 'True'
-  manifest.has_wwan_module_via_at_command == 'True'
+  manifest.has_wwan_hotspot == 'True'

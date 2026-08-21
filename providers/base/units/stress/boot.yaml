@@ -1,0 +1,227 @@
+# Copyright 2026 Canonical Ltd.
+# All rights reserved.
+
+# Written by:
+# Jonathan Cave <jonathan.cave@canonical.com>
+# Zhongning Li <zhongning.li@canonical.com>
+
+unit: category
+id: stress-tests/cold-boot
+name: Cold-boot Stress Test
+---
+unit: category
+id: stress-tests/warm-boot
+name: Warm-boot Stress Test
+---
+id: reboot-run-generator
+category_id: com.canonical.plainbox::stress
+purpose: |
+  Generate a set of IDs corresponding to number of iterations required in the
+  reboots tests.
+plugin: resource
+environ:
+  - STRESS_BOOT_ITERATIONS
+command: |
+  ITERATIONS=${STRESS_BOOT_ITERATIONS:-2}
+  for i in $(seq 2 "$ITERATIONS"); do
+    echo "reboot_id: $i"
+    echo "reboot_id_previous: $((i - 1))"
+    echo
+  done
+estimated_duration: 1s
+flags:
+  - preserve-locale
+summary: Generates IDs for each iteration of reboot tests based on the specified number of iterations.
+---
+id: init-boot-loop-data
+category_id: com.canonical.plainbox::stress
+summary: Generate the baseline data set to test against
+purpose: |
+  This creates baseline data sets which will be considered the master
+  copies and all further tests will be compared against these. Baseline data
+  includes network status, SSID, and USB device.
+unit: job
+plugin: shell
+imports:
+  - from com.canonical.plainbox import manifest
+requires:
+  - manifest._ignore_reboot_loop_tests == 'False'
+command: reboot_check_test.py -d "$PLAINBOX_SESSION_SHARE/before_reboot"
+environ:
+  - LD_LIBRARY_PATH
+user: root
+estimated_duration: 1s
+flags:
+  - preserve-locale
+---
+id: cold-boot-loop-reboot-1
+category_id: stress-tests/cold-boot
+summary: Perform cold reboot 1
+unit: job
+plugin: shell
+requires:
+  - rtc.state == 'supported'
+  - rtc.wakealarm == 'supported'
+environ:
+  - STRESS_BOOT_WAKEUP_DELAY
+  - RTC_DEVICE_FILE
+command: |
+  rtcwake -v -d "${RTC_DEVICE_FILE:-rtc0}" --mode no -s "${STRESS_BOOT_WAKEUP_DELAY:-120}"
+  sleep 5
+  rtcwake -v -d "${RTC_DEVICE_FILE:-rtc0}" -m show
+  sleep 5
+  dbus-send --system --print-reply --dest=org.freedesktop.login1 /org/freedesktop/login1 "org.freedesktop.login1.Manager.PowerOff" boolean:true
+user: root
+flags:
+  - preserve-locale
+  - noreturn
+estimated_duration: '180.0'
+depends:
+  - init-boot-loop-data
+---
+id: cold-boot-loop-reboot-{reboot_id}
+template-id: cold-boot-loop-reboot-reboot_id
+category_id: stress-tests/cold-boot
+summary: Perform cold reboot {reboot_id}
+unit: template
+template-resource: reboot-run-generator
+template-unit: job
+plugin: shell
+requires:
+  - rtc.state == 'supported'
+  - rtc.wakealarm == 'supported'
+environ:
+  - STRESS_BOOT_WAKEUP_DELAY
+  - STRESS_BOOT_WAIT_DELAY
+  - RTC_DEVICE_FILE
+command: |
+  sleep "${{STRESS_BOOT_WAIT_DELAY:-120}}"
+  rtcwake -v -d "${{RTC_DEVICE_FILE:-rtc0}}" --mode no -s "${{STRESS_BOOT_WAKEUP_DELAY:-120}}"
+  sleep 5
+  rtcwake -v -d "${{RTC_DEVICE_FILE:-rtc0}}" -m show
+  sleep 5
+  dbus-send --system --print-reply --dest=org.freedesktop.login1 /org/freedesktop/login1 "org.freedesktop.login1.Manager.PowerOff" boolean:true
+user: root
+flags:
+  - preserve-locale
+  - noreturn
+estimated_duration: '180.0'
+after:
+  - cold-boot-loop-test{reboot_id_previous}
+depends:
+  - init-boot-loop-data
+---
+id: cold-boot-loop-test-1
+category_id: stress-tests/cold-boot
+summary: Cold boot system configuration test 1
+purpose: Compare the data after waking up the system with the base data set
+unit: job
+plugin: shell
+environ:
+  - LD_LIBRARY_PATH
+command: reboot_check_test.py -g -c "$PLAINBOX_SESSION_SHARE/before_reboot" -d 
+  "$PLAINBOX_SESSION_SHARE/cold_reboot_cycle-1" -s -f
+user: root
+flags:
+  - preserve-locale
+estimated_duration: '1.0'
+depends:
+  - cold-boot-loop-reboot-1
+---
+id: cold-boot-loop-test-{reboot_id}
+template-id: cold-boot-loop-test-reboot_id
+category_id: stress-tests/cold-boot
+summary: Cold boot system configuration test {reboot_id}
+purpose: Compare the data after cold booting up the system with the base data set
+unit: template
+template-resource: reboot-run-generator
+template-unit: job
+plugin: shell
+environ:
+  - LD_LIBRARY_PATH
+command: reboot_check_test.py -g -c "$PLAINBOX_SESSION_SHARE/before_reboot" -d 
+  "$PLAINBOX_SESSION_SHARE/cold_reboot_cycle-{reboot_id}" -s -f
+user: root
+flags:
+  - preserve-locale
+estimated_duration: '1.0'
+depends:
+  - cold-boot-loop-reboot-{reboot_id}
+---
+id: warm-boot-loop-reboot-1
+category_id: stress-tests/warm-boot
+summary: Perform warm reboot 1
+purpose: Perform warm reboot of the system boot. Specifically, this is how the device will request a reboot.
+unit: job
+plugin: shell
+command: reboot
+user: root
+flags:
+  - preserve-locale
+  - noreturn
+estimated_duration: 60s
+depends:
+  - init-boot-loop-data
+---
+id: warm-boot-loop-reboot-{reboot_id}
+template-id: warm-boot-loop-reboot-reboot_id
+category_id: stress-tests/warm-boot
+summary: Perform warm reboot {reboot_id}
+purpose: Perform warm reboot after a configurable delay.
+unit: template
+template-resource: reboot-run-generator
+template-unit: job
+plugin: shell
+environ:
+  - STRESS_BOOT_WAIT_DELAY
+command: |
+  delay=${STRESS_BOOT_WAIT_DELAY:-120}
+  echo Sleeping "${delay}s" before rebooting
+  sleep "$delay"
+  reboot
+user: root
+flags:
+  - preserve-locale
+  - noreturn
+estimated_duration: '60.0'
+after:
+  - warm-boot-loop-test-{reboot_id_previous}
+depends:
+  - init-boot-loop-data
+---
+id: warm-boot-loop-test-1
+category_id: stress-tests/warm-boot
+summary: Warm boot system configuration test 1
+purpose: Compare data after warm boot with baseline data set
+unit: job
+plugin: shell
+environ:
+  - LD_LIBRARY_PATH
+command: reboot_check_test.py -g -c "$PLAINBOX_SESSION_SHARE/before_reboot" -d 
+  "$PLAINBOX_SESSION_SHARE/warm_reboot_cycle-1" -s -f
+user: root
+flags:
+  - preserve-locale
+estimated_duration: '1.0'
+depends:
+  - warm-boot-loop-reboot1
+---
+id: warm-boot-loop-test-{reboot_id}
+template-id: warm-boot-loop-test-reboot_id
+category_id: stress-tests/warm-boot
+summary: Warm boot system configuration test {reboot_id}
+purpose: Compare data after a warm boot with baseline data set
+unit: template
+template-resource: reboot-run-generator
+template-unit: job
+plugin: shell
+environ:
+  - LD_LIBRARY_PATH
+command: reboot_check_test.py -g -c "$PLAINBOX_SESSION_SHARE/before_reboot" -d 
+  "$PLAINBOX_SESSION_SHARE/warm_reboot_cycle-{reboot_id}" -s -f
+user: root
+flags:
+  - preserve-locale
+estimated_duration: '1.0'
+depends:
+  - warm-boot-loop-reboot-{reboot_id}

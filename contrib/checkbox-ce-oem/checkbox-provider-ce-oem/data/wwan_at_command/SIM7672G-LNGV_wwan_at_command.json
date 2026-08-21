@@ -1,0 +1,20 @@
+{
+    "SIM7672G-LNGV": {
+        "setup": [
+            "echo 521 > /sys/class/gpio/export || true",
+            "echo 522 > /sys/class/gpio/export || true",
+            "echo 523 > /sys/class/gpio/export || true",
+            "echo 617 > /sys/class/gpio/export || true",
+            "echo out > /sys/class/gpio/gpio521/direction",
+            "echo out > /sys/class/gpio/gpio522/direction",
+            "echo out > /sys/class/gpio/gpio523/direction",
+            "echo out > /sys/class/gpio/gpio617/direction",
+            "echo 0 > /sys/class/gpio/gpio521/value",
+            "echo 0 > /sys/class/gpio/gpio522/value",
+            "echo 0 > /sys/class/gpio/gpio523/value",
+            "echo 1 > /sys/class/gpio/gpio617/value",
+            "sleep 2",
+            "echo 1 > /sys/class/gpio/gpio521/value"
+        ]
+    }
+}

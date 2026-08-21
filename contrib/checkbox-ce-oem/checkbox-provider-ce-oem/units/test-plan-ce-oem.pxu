@@ -110,6 +110,7 @@ nested_part:
     ce-oem-nxp-ele-automated
     ce-oem-monitor-automated
     ce-oem-ebbr-automated
+    ce-oem-wwan-automated
 certification_status_overrides:
     apply blocker to .*
 

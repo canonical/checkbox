@@ -55,6 +55,7 @@ nested_part:
     ce-oem-printer-manual
     ce-oem-cash-drawer-manual
     ce-oem-power-manual
+    ce-oem-i2c-manual
 certification_status_overrides:
     apply blocker to .*
 
@@ -110,6 +111,7 @@ nested_part:
     ce-oem-nxp-ele-automated
     ce-oem-monitor-automated
     ce-oem-ebbr-automated
+    ce-oem-i2c-automated
 certification_status_overrides:
     apply blocker to .*
 

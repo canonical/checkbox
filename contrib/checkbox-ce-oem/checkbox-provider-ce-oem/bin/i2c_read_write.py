@@ -417,6 +417,7 @@ def cmd_test(scenario_name: str) -> int:
         logger.error("Scenario '%s' has no valid steps.", scenario_name)
         return 1
 
+    # Stores bytes read from prior steps for later data_from_variable writes.
     variables: Dict[str, List[str]] = {}
 
     for idx, step in enumerate(steps, start=1):
@@ -510,7 +511,10 @@ def build_parser() -> argparse.ArgumentParser:
     subparsers.add_parser(
         "resource",
         parents=[common_parser],
-        help="Generate the resource of i2c read and write scenario from an external JSON file",
+        help=(
+            "Generate the resource of i2c read and write scenario "
+            "from an external JSON file"
+        ),
     )
 
     test_parser = subparsers.add_parser(
@@ -523,7 +527,11 @@ def build_parser() -> argparse.ArgumentParser:
         "-sn",
         "--scenario-name",
         required=True,
-        help="The scenario name to be tested which is defined in the i2c read and write specific scenario JSON file, e.g. 'FT24C32 EEPROM Basic Write-Read'",
+        help=(
+            "The scenario name to be tested which is defined "
+            "in the i2c read and write specific scenario JSON file, "
+            "e.g. 'FT24C32 EEPROM Basic Write-Read'"
+        ),
     )
 
     return parser

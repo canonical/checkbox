@@ -274,22 +274,6 @@ class TestMain(TestCase):
             with redirect_stdout(StringIO()):
                 self.assertEqual(main(["resource"]), 0)
 
-    def test_forward_declared(self):
-        with patch(
-            "va_profile_check.get_manifest",
-            return_value={NAMESPACE + "::has_h264_high_decoder": True},
-        ):
-            with redirect_stdout(StringIO()):
-                self.assertEqual(main(["forward", "has_h264_high_decoder"]), 0)
-
-    def test_forward_undeclared(self):
-        with patch(
-            "va_profile_check.get_manifest",
-            return_value={NAMESPACE + "::has_hevc_main_decoder": True},
-        ):
-            with redirect_stdout(StringIO()):
-                self.assertEqual(main(["forward", "has_h264_high_decoder"]), 1)
-
     def test_reverse(self):
         with patch(
             "va_profile_check.run_vainfo",

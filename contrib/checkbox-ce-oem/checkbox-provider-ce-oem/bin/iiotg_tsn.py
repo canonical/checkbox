@@ -140,8 +140,10 @@ def ptp4l(
             # print a warning message that we are using --transportSpecific=1
             # clients must also specify --transportSpecific=1
             # or their packets will be dropped silently
+            print("=" * 80)
             print(
-                "Launching default ptp4l grandmaster with --transportSpecific=1"
+                "Launching default ptp4l grandmaster",
+                "with --transportSpecific=1",
             )
             print(
                 "All clients must also specify --transportSpecific=1",
@@ -152,6 +154,7 @@ def ptp4l(
                 "See /usr/share/doc/linuxptp/configs/automotive-master.cfg",
                 "for an example",
             )
+            print("=" * 80)
 
         process = subprocess.Popen(
             default_cmd,

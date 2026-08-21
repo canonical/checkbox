@@ -132,6 +132,27 @@ def ptp4l(
             default_cmd.append("-s")
             # force 'master offset' output to appear in stdout
             default_cmd.append("--summary_interval=-4")
+        else:
+            default_cmd.extend(
+                # print more logs basically
+                ["--logAnnounceInterval=0", "--logSyncInterval=-3"]
+            )
+            # print a warning message that we are using --transportSpecific=1
+            # clients must also specify --transportSpecific=1
+            # or their packets will be dropped silently
+            print(
+                "Launching default ptp4l grandmaster with --transportSpecific=1"
+            )
+            print(
+                "All clients must also specify --transportSpecific=1",
+                "to prevent their packets from being dropped",
+            )
+            print(
+                "You can override this by specifying a config file.",
+                "See /usr/share/doc/linuxptp/configs/automotive-master.cfg",
+                "for an example",
+            )
+
         process = subprocess.Popen(
             default_cmd,
             stdout=None if print_to_console else subprocess.PIPE,

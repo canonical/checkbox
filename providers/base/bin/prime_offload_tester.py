@@ -258,6 +258,7 @@ class PrimeOffloader:
                 return False
 
             # Define NVML return codes
+            # https://github.com/NVIDIA/nvidia-settings/blob/5b341a9e54f08ac324e148e1e7e102030e42b1c4/src/nvml.h#L1293
             NVML_SUCCESS = 0
             NVML_ERROR_NOT_SUPPORTED = 3
 
@@ -265,6 +266,7 @@ class PrimeOffloader:
             nvmlInit = nvml.nvmlInit_v2
             nvmlInit.restype = ctypes.c_int
 
+            # https://github.com/NVIDIA/nvidia-settings/blob/5b341a9e54f08ac324e148e1e7e102030e42b1c4/src/nvml.h#L3974-L4000
             ret = nvmlInit()
             if ret != NVML_SUCCESS:
                 self.logger.info("NVML initialization failed")
@@ -282,11 +284,13 @@ class PrimeOffloader:
                 return False
 
             # Check each device for NVLink
+            # https://github.com/NVIDIA/nvidia-settings/blob/5b341a9e54f08ac324e148e1e7e102030e42b1c4/src/nvml.h#L4593-L4639
             nvmlDeviceGetHandleByIndex = nvml.nvmlDeviceGetHandleByIndex_v2
             nvmlDeviceGetHandleByIndex.argtypes = [
                 ctypes.c_uint,
                 ctypes.POINTER(ctypes.c_void_p),
             ]
+            # https://github.com/NVIDIA/nvidia-settings/blob/5b341a9e54f08ac324e148e1e7e102030e42b1c4/src/nvml.h#L9486-L9504
             nvmlDeviceGetHandleByIndex.restype = ctypes.c_int
 
             nvmlDeviceGetNvLinkState = nvml.nvmlDeviceGetNvLinkState

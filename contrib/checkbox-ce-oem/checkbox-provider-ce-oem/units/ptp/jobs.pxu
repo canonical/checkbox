@@ -99,7 +99,8 @@ command:
             echo "ptp4l version $ptp4l_version does not support --ptp_minor_version, skipping this option."
         fi
     fi
-    (set -x; timeout 30s ptp4l $ptp4l_args | tee "$output_file") # shellcheck disable=SC2086
+    # shellcheck disable=SC2086
+    (set -x; timeout 30s ptp4l $ptp4l_args | tee "$output_file")
     rms_data=$(tail -5 $output_file | awk '/rms/{{print $3}}')
     if [[ -z $rms_data ]]; then
         echo "ERROR: unable to get rms value from the output file"

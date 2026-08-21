@@ -5,6 +5,7 @@ import json
 import os
 import re
 import shlex
+import shutil
 import subprocess
 
 from look_up_xtest import look_up_app
@@ -12,6 +13,9 @@ from pathlib import Path
 from xtest_install_ta import find_ta_path, install_ta
 
 TEST_FILE_PREFIX = "optee-test-"
+# Where tee-supplicant loads TAs from when started without --ta-path/--ta-dir
+# (optee_client default: TEEC_LOAD_PATH/optee_armtz).
+DEFAULT_TA_DIR = "lib/optee_armtz"
 
 
 def _run_command(cmd, **kwargs):
@@ -33,19 +37,45 @@ def _run_command(cmd, **kwargs):
         raise e
 
 
-def _supplicant_serves_ta_dir():
-    """Whether the running tee-supplicant was given a TA directory
-    (--ta-path / --ta-dir, as the x-test snap service passes). A
-    supplicant started without one, e.g. the one Ubuntu Core's initramfs
-    runs for the fTPM, can only load TAs from secure storage, so the TAs
-    must be installed there first.
-    """
+def _find_supplicant():
+    """Return (pid, command line) of the running tee-supplicant."""
     ret = subprocess.run(
         shlex.split("pgrep -a tee-supplicant"),
         capture_output=True,
         text=True,
     )
-    return "--ta-path" in ret.stdout or "--ta-dir" in ret.stdout
+    pid, _, cmdline = ret.stdout.strip().partition(" ")
+    return pid, cmdline
+
+
+def _supplicant_serves_ta_dir(cmdline):
+    """Whether tee-supplicant was started with a TA directory, as the
+    x-test snap service does (--ta-path, or --ta-dir on 4.0.0)."""
+    return "--ta-path" in cmdline or "--ta-dir" in cmdline
+
+
+def stage_ta_for_supplicant(ta_path, root):
+    """Copy the snap's TAs into the directory a tee-supplicant started
+    without --ta-path/--ta-dir loads TAs from: its compiled-in default,
+    resolved inside that process's own root.
+
+    The supplicant Ubuntu Core's initramfs starts for the fTPM keeps
+    running after switch-root from the (emptied) initramfs rootfs, so that
+    directory is only reachable through /proc/<pid>/root and is gone on
+    reboot - hence the copy is repeated on every job. OP-TEE still checks
+    each TA signature when loading it; the subkey-signed xtest TAs load
+    this way, whereas a secure-storage install rejects them.
+    """
+    dest = os.path.join(root, DEFAULT_TA_DIR)
+    tas = sorted(glob.glob(os.path.join(ta_path, "*.ta")))
+    try:
+        os.makedirs(dest, exist_ok=True)
+        for ta in tas:
+            shutil.copy(ta, dest)
+    except OSError as e:
+        print("Cannot stage TAs into {}: {}".format(dest, e), flush=True)
+        return
+    print("Staged {} TAs into {}".format(len(tas), dest), flush=True)
 
 
 def launch_xtest(test_suite, test_id):
@@ -63,9 +93,15 @@ def launch_xtest(test_suite, test_id):
             flush=True,
         )
         return 2
-    elif optee_fw < "4.0" or not _supplicant_serves_ta_dir():
+    elif optee_fw < "4.0":
         ta_path = find_ta_path()
         install_ta(test_utility, ta_path)
+    else:
+        pid, cmdline = _find_supplicant()
+        if not _supplicant_serves_ta_dir(cmdline):
+            stage_ta_for_supplicant(
+                find_ta_path(), "/proc/{}/root".format(pid)
+            )
 
     ret = _run_command(
         "{} -t {} {}".format(test_utility, test_suite, test_id), check=False

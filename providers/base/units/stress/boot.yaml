@@ -189,7 +189,7 @@ after:
 depends:
   - init-boot-loop-data
 ---
-id: warm-boot-loop-fwts-test-1
+id: warm-boot-loop-1-fwts-test
 category_id: stress-tests/warm-boot
 summary: Warm boot system configuration test 1
 purpose: Compare data after warm boot with baseline data set
@@ -202,9 +202,9 @@ certification-status: blocker
 siblings:
   - id: warm-boot-loop-1-hardware-renderer-check
     command: reboot_check_test.py -g
-  - id: warm-boot-loop-1-hardware-service-check
+  - id: warm-boot-loop-1-service-check
     command: reboot_check_test.py -s
-  - id: warm-boot-loop-1-hardware-device-check
+  - id: warm-boot-loop-1-device-check
     command: >-
       reboot_check_test.py 
       -c "$PLAINBOX_SESSION_SHARE/before_reboot" 
@@ -216,10 +216,10 @@ estimated_duration: "1.0"
 depends:
   - warm-boot-loop-reboot-1
 ---
-id: warm-boot-loop-test-{reboot_id}
-template-id: warm-boot-loop-test-reboot_id
+id: warm-boot-loop-fwts-test-{reboot_id}
+template-id: warm-boot-loop-fwts-test-reboot_id
 category_id: stress-tests/warm-boot
-summary: Warm boot system configuration test {reboot_id}
+summary: Warm boot FWTS test {reboot_id}
 purpose: Compare data after a warm boot with baseline data set
 unit: template
 template-resource: reboot-run-generator
@@ -227,8 +227,68 @@ template-unit: job
 plugin: shell
 environ:
   - LD_LIBRARY_PATH
-command: reboot_check_test.py -g -c "$PLAINBOX_SESSION_SHARE/before_reboot" -d
-  "$PLAINBOX_SESSION_SHARE/warm_reboot_cycle-{reboot_id}" -s -f
+#  reboot_check_test.py -g -c "$PLAINBOX_SESSION_SHARE/before_reboot" -d
+#"$PLAINBOX_SESSION_SHARE/warm_reboot_cycle-{reboot_id}" -s -f
+command: reboot_check_test.py -f
+user: root
+flags:
+  - preserve-locale
+estimated_duration: "1.0"
+depends:
+  - warm-boot-loop-reboot-{reboot_id}
+---
+id: warm-boot-loop-device-check-{reboot_id}
+template-id: warm-boot-loop-device-check-reboot_id
+category_id: stress-tests/warm-boot
+summary: Warm boot device comparison test {reboot_id}
+unit: template
+template-resource: reboot-run-generator
+template-unit: job
+plugin: shell
+environ:
+  - LD_LIBRARY_PATH
+command: >-
+  reboot_check_test.py 
+  -c "$PLAINBOX_SESSION_SHARE/before_reboot" 
+  -d "$PLAINBOX_SESSION_SHARE/warm_reboot_cycle-{reboot_id}"
+user: root
+flags:
+  - preserve-locale
+estimated_duration: "1.0"
+depends:
+  - warm-boot-loop-reboot-{reboot_id}
+---
+id: warm-boot-loop-service-check-{reboot_id}
+template-id: warm-boot-loop-service-check-reboot_id
+category_id: stress-tests/warm-boot
+summary: Check failed services after warm reboot {reboot_id}
+unit: template
+template-resource: reboot-run-generator
+template-unit: job
+plugin: shell
+environ:
+  - LD_LIBRARY_PATH
+command: >-
+  reboot_check_test.py -s
+user: root
+flags:
+  - preserve-locale
+estimated_duration: "1.0"
+depends:
+  - warm-boot-loop-reboot-{reboot_id}
+---
+id: warm-boot-loop-hardware-renderer-check-{reboot_id}
+template-id:  warm-boot-loop-hardware-renderer-check-reboot_id
+category_id: stress-tests/warm-boot
+summary: Check that the desktop is hardware-rendered after warm reboot {reboot_id}
+unit: template
+template-resource: reboot-run-generator
+template-unit: job
+plugin: shell
+environ:
+  - LD_LIBRARY_PATH
+command: >-
+  reboot_check_test.py -g
 user: root
 flags:
   - preserve-locale

@@ -107,20 +107,36 @@ flags:
   - noreturn
 estimated_duration: "180.0"
 after:
-  - cold-boot-loop-test-{reboot_id_previous}
+  - cold-boot-loop-{reboot_id_previous}-fwts-test
+  - cold-boot-loop-{reboot_id_previous}-device-check
+  - cold-boot-loop-{reboot_id_previous}-service-check
+  - cold-boot-loop-{reboot_id_previous}-hardware-renderer-check
 depends:
   - init-boot-loop-data
 ---
-id: cold-boot-loop-test-1
+id: cold-boot-loop-1-fwts-test
 category_id: stress-tests/cold-boot
-summary: Cold boot system configuration test 1
-purpose: Compare the data after waking up the system with the base data set
+summary: Cold boot 1 FWTS test
+purpose: Compare data after cold boot with baseline data set
 unit: job
 plugin: shell
 environ:
   - LD_LIBRARY_PATH
-command: reboot_check_test.py -g -c "$PLAINBOX_SESSION_SHARE/before_reboot" -d
-  "$PLAINBOX_SESSION_SHARE/cold_reboot_cycle-1" -s -f
+command: reboot_check_test.py -f -d "$PLAINBOX_SESSION_SHARE/cold_reboot_cycle-1"
+certification-status: blocker
+siblings:
+  - id: cold-boot-loop-1-hardware-renderer-check
+    summary: Cold boot 1 hardware renderer check
+    command: reboot_check_test.py -g
+  - id: cold-boot-loop-1-service-check
+    summary: Cold boot 1 failed services check
+    command: reboot_check_test.py -s
+  - id: cold-boot-loop-1-device-check
+    summary: Cold boot 1 device difference check
+    command: >-
+      reboot_check_test.py 
+      -c "$PLAINBOX_SESSION_SHARE/before_reboot" 
+      -d "$PLAINBOX_SESSION_SHARE/cold_reboot_cycle-1"
 user: root
 flags:
   - preserve-locale
@@ -128,19 +144,77 @@ estimated_duration: "1.0"
 depends:
   - cold-boot-loop-reboot-1
 ---
-id: cold-boot-loop-test-{reboot_id}
-template-id: cold-boot-loop-test-reboot_id
+id: cold-boot-loop-{reboot_id}-fwts-test
+template-id: cold-boot-loop-reboot_id-fwts-test
 category_id: stress-tests/cold-boot
-summary: Cold boot system configuration test {reboot_id}
-purpose: Compare the data after cold booting up the system with the base data set
+summary: Cold boot {reboot_id} FWTS test
+purpose: Compare data after a cold boot with baseline data set
 unit: template
 template-resource: reboot-run-generator
 template-unit: job
 plugin: shell
 environ:
   - LD_LIBRARY_PATH
-command: reboot_check_test.py -g -c "$PLAINBOX_SESSION_SHARE/before_reboot" -d
-  "$PLAINBOX_SESSION_SHARE/cold_reboot_cycle-{reboot_id}" -s -f
+command: reboot_check_test.py -f -d "$PLAINBOX_SESSION_SHARE/cold_reboot_cycle-{reboot_id}"
+user: root
+flags:
+  - preserve-locale
+estimated_duration: "1.0"
+depends:
+  - cold-boot-loop-reboot-{reboot_id}
+---
+id: cold-boot-loop-{reboot_id}-device-check
+template-id: cold-boot-loop-reboot_id-device-check
+category_id: stress-tests/cold-boot
+summary: Cold boot {reboot_id} device difference check
+unit: template
+template-resource: reboot-run-generator
+template-unit: job
+plugin: shell
+environ:
+  - LD_LIBRARY_PATH
+command: >-
+  reboot_check_test.py 
+  -c "$PLAINBOX_SESSION_SHARE/before_reboot" 
+  -d "$PLAINBOX_SESSION_SHARE/cold_reboot_cycle-{reboot_id}"
+user: root
+flags:
+  - preserve-locale
+estimated_duration: "1.0"
+depends:
+  - cold-boot-loop-reboot-{reboot_id}
+---
+id: cold-boot-loop-{reboot_id}-service-check
+template-id: cold-boot-loop-reboot_id-service-check
+category_id: stress-tests/cold-boot
+summary: Cold boot {reboot_id} failed services check
+unit: template
+template-resource: reboot-run-generator
+template-unit: job
+plugin: shell
+environ:
+  - LD_LIBRARY_PATH
+command: >-
+  reboot_check_test.py -s
+user: root
+flags:
+  - preserve-locale
+estimated_duration: "1.0"
+depends:
+  - cold-boot-loop-reboot-{reboot_id}
+---
+id: cold-boot-loop-{reboot_id}-hardware-renderer-check
+template-id: cold-boot-loop-hardware-renderer-check-reboot_id
+category_id: stress-tests/cold-boot
+summary: Cold boot {reboot_id} hardware renderer check
+unit: template
+template-resource: reboot-run-generator
+template-unit: job
+plugin: shell
+environ:
+  - LD_LIBRARY_PATH
+command: >-
+  reboot_check_test.py -g
 user: root
 flags:
   - preserve-locale
@@ -185,20 +259,36 @@ flags:
   - noreturn
 estimated_duration: "60.0"
 after:
-  - warm-boot-loop-test-{reboot_id_previous}
+  - warm-boot-loop-{reboot_id_previous}-fwts-test
+  - warm-boot-loop-{reboot_id_previous}-device-check
+  - warm-boot-loop-{reboot_id_previous}-service-check
+  - warm-boot-loop-{reboot_id_previous}-hardware-renderer-check
 depends:
   - init-boot-loop-data
 ---
-id: warm-boot-loop-test-1
+id: warm-boot-loop-1-fwts-test
 category_id: stress-tests/warm-boot
-summary: Warm boot system configuration test 1
+summary: Warm boot 1 FWTS test
 purpose: Compare data after warm boot with baseline data set
 unit: job
 plugin: shell
 environ:
   - LD_LIBRARY_PATH
-command: reboot_check_test.py -g -c "$PLAINBOX_SESSION_SHARE/before_reboot" -d
-  "$PLAINBOX_SESSION_SHARE/warm_reboot_cycle-1" -s -f
+command: reboot_check_test.py -f -d "$PLAINBOX_SESSION_SHARE/cold_reboot_cycle-1"
+certification-status: blocker
+siblings:
+  - id: warm-boot-loop-1-hardware-renderer-check
+    summary: Warm boot 1 hardware renderer check
+    command: reboot_check_test.py -g
+  - id: warm-boot-loop-1-service-check
+    summary: Warm boot 1 failed services check
+    command: reboot_check_test.py -s
+  - id: warm-boot-loop-1-device-check
+    summary: Warm boot 1 device difference check
+    command: >-
+      reboot_check_test.py 
+      -c "$PLAINBOX_SESSION_SHARE/before_reboot" 
+      -d "$PLAINBOX_SESSION_SHARE/warm_reboot_cycle-1"
 user: root
 flags:
   - preserve-locale
@@ -206,10 +296,10 @@ estimated_duration: "1.0"
 depends:
   - warm-boot-loop-reboot-1
 ---
-id: warm-boot-loop-test-{reboot_id}
-template-id: warm-boot-loop-test-reboot_id
+id: warm-boot-loop-{reboot_id}-fwts-test
+template-id: warm-boot-loop-reboot_id-fwts-test
 category_id: stress-tests/warm-boot
-summary: Warm boot system configuration test {reboot_id}
+summary: Warm boot {reboot_id} FWTS test
 purpose: Compare data after a warm boot with baseline data set
 unit: template
 template-resource: reboot-run-generator
@@ -217,8 +307,66 @@ template-unit: job
 plugin: shell
 environ:
   - LD_LIBRARY_PATH
-command: reboot_check_test.py -g -c "$PLAINBOX_SESSION_SHARE/before_reboot" -d
-  "$PLAINBOX_SESSION_SHARE/warm_reboot_cycle-{reboot_id}" -s -f
+command: reboot_check_test.py -f -d "$PLAINBOX_SESSION_SHARE/cold_reboot_cycle-{reboot_id}"
+user: root
+flags:
+  - preserve-locale
+estimated_duration: "1.0"
+depends:
+  - warm-boot-loop-reboot-{reboot_id}
+---
+id: warm-boot-loop-{reboot_id}-device-check
+template-id: warm-boot-loop-reboot_id-device-check
+category_id: stress-tests/warm-boot
+summary: Warm boot {reboot_id} device difference check
+unit: template
+template-resource: reboot-run-generator
+template-unit: job
+plugin: shell
+environ:
+  - LD_LIBRARY_PATH
+command: >-
+  reboot_check_test.py 
+  -c "$PLAINBOX_SESSION_SHARE/before_reboot" 
+  -d "$PLAINBOX_SESSION_SHARE/warm_reboot_cycle-{reboot_id}"
+user: root
+flags:
+  - preserve-locale
+estimated_duration: "1.0"
+depends:
+  - warm-boot-loop-reboot-{reboot_id}
+---
+id: warm-boot-loop-{reboot_id}-service-check
+template-id: warm-boot-loop-reboot_id-service-check
+category_id: stress-tests/warm-boot
+summary: Warm boot {reboot_id} failed services check
+unit: template
+template-resource: reboot-run-generator
+template-unit: job
+plugin: shell
+environ:
+  - LD_LIBRARY_PATH
+command: >-
+  reboot_check_test.py -s
+user: root
+flags:
+  - preserve-locale
+estimated_duration: "1.0"
+depends:
+  - warm-boot-loop-reboot-{reboot_id}
+---
+id: warm-boot-loop-{reboot_id}-hardware-renderer-check
+template-id: warm-boot-loop-hardware-renderer-check-reboot_id
+category_id: stress-tests/warm-boot
+summary: Warm boot {reboot_id} hardware renderer check
+unit: template
+template-resource: reboot-run-generator
+template-unit: job
+plugin: shell
+environ:
+  - LD_LIBRARY_PATH
+command: >-
+  reboot_check_test.py -g
 user: root
 flags:
   - preserve-locale

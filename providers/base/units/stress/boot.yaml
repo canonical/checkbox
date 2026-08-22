@@ -191,7 +191,7 @@ depends:
 ---
 id: warm-boot-loop-1-fwts-test
 category_id: stress-tests/warm-boot
-summary: Warm boot system configuration test 1
+summary: Warm boot 1 FWTS test
 purpose: Compare data after warm boot with baseline data set
 unit: job
 plugin: shell
@@ -201,10 +201,13 @@ command: reboot_check_test.py -f
 certification-status: blocker
 siblings:
   - id: warm-boot-loop-1-hardware-renderer-check
+    summary: Warm boot 1 hardware renderer check
     command: reboot_check_test.py -g
   - id: warm-boot-loop-1-service-check
+    summary: Warm boot 1 failed services check
     command: reboot_check_test.py -s
   - id: warm-boot-loop-1-device-check
+    summary: Warm boot 1 device difference check
     command: >-
       reboot_check_test.py 
       -c "$PLAINBOX_SESSION_SHARE/before_reboot" 
@@ -278,7 +281,7 @@ depends:
   - warm-boot-loop-reboot-{reboot_id}
 ---
 id: warm-boot-loop-hardware-renderer-check-{reboot_id}
-template-id:  warm-boot-loop-hardware-renderer-check-reboot_id
+template-id: warm-boot-loop-hardware-renderer-check-reboot_id
 category_id: stress-tests/warm-boot
 summary: Check that the desktop is hardware-rendered after warm reboot {reboot_id}
 unit: template

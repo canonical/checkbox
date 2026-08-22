@@ -75,7 +75,7 @@ user: root
 flags:
   - preserve-locale
   - noreturn
-estimated_duration: '180.0'
+estimated_duration: "180.0"
 depends:
   - init-boot-loop-data
 ---
@@ -105,7 +105,7 @@ user: root
 flags:
   - preserve-locale
   - noreturn
-estimated_duration: '180.0'
+estimated_duration: "180.0"
 after:
   - cold-boot-loop-test-{reboot_id_previous}
 depends:
@@ -119,12 +119,12 @@ unit: job
 plugin: shell
 environ:
   - LD_LIBRARY_PATH
-command: reboot_check_test.py -g -c "$PLAINBOX_SESSION_SHARE/before_reboot" -d 
+command: reboot_check_test.py -g -c "$PLAINBOX_SESSION_SHARE/before_reboot" -d
   "$PLAINBOX_SESSION_SHARE/cold_reboot_cycle-1" -s -f
 user: root
 flags:
   - preserve-locale
-estimated_duration: '1.0'
+estimated_duration: "1.0"
 depends:
   - cold-boot-loop-reboot-1
 ---
@@ -139,12 +139,12 @@ template-unit: job
 plugin: shell
 environ:
   - LD_LIBRARY_PATH
-command: reboot_check_test.py -g -c "$PLAINBOX_SESSION_SHARE/before_reboot" -d 
+command: reboot_check_test.py -g -c "$PLAINBOX_SESSION_SHARE/before_reboot" -d
   "$PLAINBOX_SESSION_SHARE/cold_reboot_cycle-{reboot_id}" -s -f
 user: root
 flags:
   - preserve-locale
-estimated_duration: '1.0'
+estimated_duration: "1.0"
 depends:
   - cold-boot-loop-reboot-{reboot_id}
 ---
@@ -183,7 +183,7 @@ user: root
 flags:
   - preserve-locale
   - noreturn
-estimated_duration: '60.0'
+estimated_duration: "60.0"
 after:
   - warm-boot-loop-test-{reboot_id_previous}
 depends:
@@ -197,12 +197,12 @@ unit: job
 plugin: shell
 environ:
   - LD_LIBRARY_PATH
-command: reboot_check_test.py -g -c "$PLAINBOX_SESSION_SHARE/before_reboot" -d 
+command: reboot_check_test.py -g -c "$PLAINBOX_SESSION_SHARE/before_reboot" -d
   "$PLAINBOX_SESSION_SHARE/warm_reboot_cycle-1" -s -f
 user: root
 flags:
   - preserve-locale
-estimated_duration: '1.0'
+estimated_duration: "1.0"
 depends:
   - warm-boot-loop-reboot-1
 ---
@@ -217,11 +217,11 @@ template-unit: job
 plugin: shell
 environ:
   - LD_LIBRARY_PATH
-command: reboot_check_test.py -g -c "$PLAINBOX_SESSION_SHARE/before_reboot" -d 
+command: reboot_check_test.py -g -c "$PLAINBOX_SESSION_SHARE/before_reboot" -d
   "$PLAINBOX_SESSION_SHARE/warm_reboot_cycle-{reboot_id}" -s -f
 user: root
 flags:
   - preserve-locale
-estimated_duration: '1.0'
+estimated_duration: "1.0"
 depends:
   - warm-boot-loop-reboot-{reboot_id}

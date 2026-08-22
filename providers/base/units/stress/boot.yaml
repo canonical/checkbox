@@ -185,7 +185,10 @@ flags:
   - noreturn
 estimated_duration: "60.0"
 after:
-  - warm-boot-loop-test-{reboot_id_previous}
+  - warm-boot-loop-{reboot_id_previous}-fwts-test
+  - warm-boot-loop-{reboot_id_previous}-device-check
+  - warm-boot-loop-{reboot_id_previous}-service-check
+  - warm-boot-loop-{reboot_id_previous}-hardware-renderer-check
 depends:
   - init-boot-loop-data
 ---
@@ -219,8 +222,8 @@ estimated_duration: "1.0"
 depends:
   - warm-boot-loop-reboot-1
 ---
-id: warm-boot-loop-fwts-test-{reboot_id}
-template-id: warm-boot-loop-fwts-test-reboot_id
+id: warm-boot-loop-{reboot_id}-fwts-test
+template-id: warm-boot-loop-reboot_id-fwts-test
 category_id: stress-tests/warm-boot
 summary: Warm boot FWTS test {reboot_id}
 purpose: Compare data after a warm boot with baseline data set
@@ -230,8 +233,6 @@ template-unit: job
 plugin: shell
 environ:
   - LD_LIBRARY_PATH
-#  reboot_check_test.py -g -c "$PLAINBOX_SESSION_SHARE/before_reboot" -d
-#"$PLAINBOX_SESSION_SHARE/warm_reboot_cycle-{reboot_id}" -s -f
 command: reboot_check_test.py -f
 user: root
 flags:
@@ -240,8 +241,8 @@ estimated_duration: "1.0"
 depends:
   - warm-boot-loop-reboot-{reboot_id}
 ---
-id: warm-boot-loop-device-check-{reboot_id}
-template-id: warm-boot-loop-device-check-reboot_id
+id: warm-boot-loop-{reboot_id}-device-check
+template-id: warm-boot-loop-reboot_id-device-check
 category_id: stress-tests/warm-boot
 summary: Warm boot device comparison test {reboot_id}
 unit: template
@@ -261,8 +262,8 @@ estimated_duration: "1.0"
 depends:
   - warm-boot-loop-reboot-{reboot_id}
 ---
-id: warm-boot-loop-service-check-{reboot_id}
-template-id: warm-boot-loop-service-check-reboot_id
+id: warm-boot-loop-{reboot_id}-service-check
+template-id: warm-boot-loop-reboot_id-service-check
 category_id: stress-tests/warm-boot
 summary: Check failed services after warm reboot {reboot_id}
 unit: template
@@ -280,7 +281,7 @@ estimated_duration: "1.0"
 depends:
   - warm-boot-loop-reboot-{reboot_id}
 ---
-id: warm-boot-loop-hardware-renderer-check-{reboot_id}
+id: warm-boot-loop-{reboot_id}-hardware-renderer-check
 template-id: warm-boot-loop-hardware-renderer-check-reboot_id
 category_id: stress-tests/warm-boot
 summary: Check that the desktop is hardware-rendered after warm reboot {reboot_id}

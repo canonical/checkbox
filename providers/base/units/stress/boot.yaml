@@ -225,7 +225,7 @@ depends:
 id: warm-boot-loop-{reboot_id}-fwts-test
 template-id: warm-boot-loop-reboot_id-fwts-test
 category_id: stress-tests/warm-boot
-summary: Warm boot FWTS test {reboot_id}
+summary: Warm boot {reboot_id} FWTS test
 purpose: Compare data after a warm boot with baseline data set
 unit: template
 template-resource: reboot-run-generator
@@ -244,7 +244,7 @@ depends:
 id: warm-boot-loop-{reboot_id}-device-check
 template-id: warm-boot-loop-reboot_id-device-check
 category_id: stress-tests/warm-boot
-summary: Warm boot device comparison test {reboot_id}
+summary: Warm boot {reboot_id} device difference check
 unit: template
 template-resource: reboot-run-generator
 template-unit: job
@@ -265,7 +265,7 @@ depends:
 id: warm-boot-loop-{reboot_id}-service-check
 template-id: warm-boot-loop-reboot_id-service-check
 category_id: stress-tests/warm-boot
-summary: Check failed services after warm reboot {reboot_id}
+summary: Warm boot {reboot_id} failed services check
 unit: template
 template-resource: reboot-run-generator
 template-unit: job
@@ -284,7 +284,7 @@ depends:
 id: warm-boot-loop-{reboot_id}-hardware-renderer-check
 template-id: warm-boot-loop-hardware-renderer-check-reboot_id
 category_id: stress-tests/warm-boot
-summary: Check that the desktop is hardware-rendered after warm reboot {reboot_id}
+summary: Warm boot {reboot_id} hardware renderer check
 unit: template
 template-resource: reboot-run-generator
 template-unit: job

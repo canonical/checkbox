@@ -189,7 +189,7 @@ after:
 depends:
   - init-boot-loop-data
 ---
-id: warm-boot-loop-test-1
+id: warm-boot-loop-fwts-test-1
 category_id: stress-tests/warm-boot
 summary: Warm boot system configuration test 1
 purpose: Compare data after warm boot with baseline data set
@@ -197,8 +197,18 @@ unit: job
 plugin: shell
 environ:
   - LD_LIBRARY_PATH
-command: reboot_check_test.py -g -c "$PLAINBOX_SESSION_SHARE/before_reboot" -d
-  "$PLAINBOX_SESSION_SHARE/warm_reboot_cycle-1" -s -f
+command: reboot_check_test.py -f
+certification-status: blocker
+siblings:
+  - id: warm-boot-loop-1-hardware-renderer-check
+    command: reboot_check_test.py -g
+  - id: warm-boot-loop-1-hardware-service-check
+    command: reboot_check_test.py -s
+  - id: warm-boot-loop-1-hardware-device-check
+    command: >-
+      reboot_check_test.py 
+      -c "$PLAINBOX_SESSION_SHARE/before_reboot" 
+      -d "$PLAINBOX_SESSION_SHARE/warm_reboot_cycle-1"
 user: root
 flags:
   - preserve-locale

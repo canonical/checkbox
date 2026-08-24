@@ -488,6 +488,24 @@ def log_connection_diagnostics(iface, modem=None):
     logging.info("[DIAG] ---------------------------------")
 
 
+def wait_for_interface(iface, timeout, interval=2):
+    """Poll for iface to exist (`ip link show dev <iface>`), up to timeout s.
+
+    After the module's "setup" commands (e.g. GPIO power-on), the USB
+    modem can take a variable amount of time to enumerate and have its
+    network interface created by the kernel, so this polls for it
+    instead of relying on a fixed sleep in the setup config.
+    """
+    deadline = time.time() + timeout
+    while True:
+        rc, _, _ = run_cmd(["ip", "link", "show", "dev", iface])
+        if rc == 0:
+            return True
+        if time.time() >= deadline:
+            return False
+        time.sleep(interval)
+
+
 def run_ping(iface, modem=None):
     """Bring up iface, wait for a DHCP lease, then ping 8.8.8.8.
 
@@ -502,7 +520,21 @@ def run_ping(iface, modem=None):
     `modem` is optional and only used to enrich diagnostics on failure
     (see log_connection_diagnostics).
     """
-    # 1. Bring the link UP
+    setuptime = int(os.environ.get("WWAN_SETUPTIME", "30"))
+
+    # 1. Wait for the interface to exist, then bring the link UP
+    logging.info(
+        "[NET] Waiting up to %ss for interface %s to appear ...",
+        setuptime,
+        iface,
+    )
+    if not wait_for_interface(iface, setuptime):
+        logging.error(
+            "[NET] Interface %s never appeared after %ss", iface, setuptime
+        )
+        log_connection_diagnostics(iface, modem)
+        return False
+
     logging.info("[NET] Bringing up interface %s ...", iface)
     rc, _, stderr = run_cmd(["ip", "link", "set", iface, "up"])
     if rc != 0:
@@ -520,7 +552,6 @@ def run_ping(iface, modem=None):
     run_cmd(["nmcli", "device", "connect", iface])
 
     # 3. Wait for NetworkManager's own DHCP client to assign a lease
-    setuptime = int(os.environ.get("WWAN_SETUPTIME", "30"))
     logging.info(
         "[NET] Waiting up to %ss for a DHCP lease on %s ...",
         setuptime,

@@ -31,7 +31,7 @@ command: |
 estimated_duration: 1s
 flags:
   - preserve-locale
-summary: Generates IDs for each iteration of reboot tests based on the specified number of iterations.
+summary: Generate an ID for each reboot iteration
 ---
 id: init-boot-loop-data
 category_id: com.canonical.plainbox::stress

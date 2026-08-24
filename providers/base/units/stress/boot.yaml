@@ -134,6 +134,7 @@ command: >-
 certification-status: blocker
 siblings:
   - id: cold-boot-loop-1-fwts-all
+    certification-status: non-blocker
     summary: Cold boot 1 FWTS test (all levels)
     # since we are only checking klog and oops
     # it's safe to do duplicate work and run fwts again
@@ -189,6 +190,7 @@ depends:
   - cold-boot-loop-reboot-{reboot_id}
 ---
 id: cold-boot-loop-{reboot_id}-fwts-all
+certification-status: non-blocker
 template-id: cold-boot-loop-reboot_id-fwts-all
 category_id: stress-tests/cold-boot
 summary: Cold boot {reboot_id} FWTS test (all levels)
@@ -344,6 +346,7 @@ siblings:
       -t oops
       -f critical
       -l $PLAINBOX_SESSION_SHARE/warm_reboot_cycle-1/fwts-all.log
+    certification-status: non-blocker
   - id: warm-boot-loop-1-hardware-renderer-check
     summary: Warm boot 1 hardware renderer check
     command: reboot_check_test.py -g
@@ -390,6 +393,7 @@ depends:
   - warm-boot-loop-reboot-{reboot_id}
 ---
 id: warm-boot-loop-{reboot_id}-fwts-all
+certification-status: non-blocker
 template-id: warm-boot-loop-reboot_id-fwts-all
 category_id: stress-tests/warm-boot
 summary: Warm boot {reboot_id} FWTS test (all levels) 

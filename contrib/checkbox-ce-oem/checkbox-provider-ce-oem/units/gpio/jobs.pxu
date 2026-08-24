@@ -40,6 +40,7 @@ _description:
 estimated_duration: 0.02
 imports:
   from com.canonical.certification import lsb
+  from com.canonical.plainbox import manifest
 requires:
   lsb.distributor_id == 'Ubuntu Core'
   manifest.has_gpio_slot_been_defined == 'True'

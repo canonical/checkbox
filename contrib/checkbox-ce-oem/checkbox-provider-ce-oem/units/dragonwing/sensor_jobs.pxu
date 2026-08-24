@@ -10,6 +10,7 @@ plugin: shell
 category_id: dragonwing-sensor
 id: dragonwing-sensor/check-sensor-list-resource
 _summary: Check Dragonwing sensor list resource generation
+imports: from com.canonical.plainbox import manifest
 requires:
     manifest.is_dragonwing_series == 'True'
 environ: DRAGONWING_PLATFORM

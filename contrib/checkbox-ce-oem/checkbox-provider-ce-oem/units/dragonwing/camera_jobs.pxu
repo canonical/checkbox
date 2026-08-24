@@ -10,6 +10,7 @@ plugin: shell
 category_id: dragonwing-camera
 id: dragonwing-camera/check-camera-list-resource
 _summary: Check Dragonwing camera list resource generation
+imports: from com.canonical.plainbox import manifest
 requires:
     manifest.is_dragonwing_series == 'True'
 environ: CARMEL_CAMERAS

@@ -18,18 +18,20 @@
 # along with Checkbox.  If not, see <http://www.gnu.org/licenses/>.
 
 """
-Host Vulkan helper for Checkbox.
+Host Level Zero helper for Checkbox.
 
 Subcommands:
   resource          Emit a resource record if a GPU is available via host
-                    Vulkan drivers (used by depends:
-                    graphics/vk_classic_gpu_avail).
-  validate-install  Emit a resource record if the host Vulkan ICD loader is
-                    installed (used by depends: graphics/vk_classic_vk_avail).
-  run-test ARGS...  Run a vulkan-cts test binary with --no-confinement,
+                    Level Zero drivers (used by depends:
+                    graphics/lz_classic_gpu_avail).
+  validate-install  Emit a resource record if the host Level Zero ICD loader
+                    is installed (used by depends:
+                    graphics/lz_classic_lz_avail).
+  run-test ARGS...  Run a level-zero-tests test binary with --no-confinement,
                     forwarding all remaining arguments to the test.
 """
 
+import glob
 import logging
 import os
 import subprocess
@@ -37,52 +39,65 @@ import sys
 
 from checkbox_support.helpers.host_utils import (
     HostGPUDetectionError,
-    active_vendor_prefixes,
-    check_host_gpu,
-    find_host_icd_filenames,
     find_plz_run,
     get_arch_triple,
 )
 
 
+def check_host_gpu(plz_run, arch_triple):
+    """Check for a Level Zero GPU by probing render device nodes.
+
+    plz-run is used to escape snap confinement so that the host device
+    nodes and libraries are visible.
+    """
+    render_nodes = glob.glob("/dev/dri/renderD*")
+    if not render_nodes:
+        logging.error("No render device nodes found in /dev/dri")
+        return False
+    loader = "/usr/lib/{}/libze_loader.so.1".format(arch_triple)
+    if not os.path.isfile(loader):
+        logging.error("Host Level Zero loader not found at %s", loader)
+        return False
+    logging.info("Found render device(s) and Level Zero loader at %s", loader)
+    return True
+
+
 def cmd_resource():
     arch_triple = get_arch_triple()
-    plz_run = find_plz_run()
+
+    try:
+        plz_run = find_plz_run()
+    except HostGPUDetectionError as exc:
+        logging.error("%s", exc)
+        return 1
+
     if check_host_gpu(plz_run, arch_triple):
-        logging.info("Found a Vulkan-capable GPU using host drivers")
+        print("gpu_available: True")
         return 0
 
-    logging.error(
-        "No GPU device found in vulkaninfo output using host drivers"
-    )
+    logging.error("No Level Zero GPU device found using host drivers")
     return 1
 
 
 def cmd_validate_install():
     arch_triple = get_arch_triple()
-    host_vk = "/usr/lib/{}/libvulkan.so.1".format(arch_triple)
-    if os.path.isfile(host_vk):
-        logging.info("Host Vulkan ICD loader found at %s", host_vk)
+    host_ze = "/usr/lib/{}/libze_loader.so.1".format(arch_triple)
+    if os.path.isfile(host_ze):
+        logging.info("Host Level Zero loader found at %s", host_ze)
+        print("ze_loader_available: True")
         return 0
-    logging.error("Host Vulkan ICD loader not found at %s", host_vk)
+    logging.error("Host Level Zero loader not found at %s", host_ze)
     logging.error(
-        "Install libvulkan1 or equivalent before running host Vulkan tests"
+        "Install libze1 or equivalent before running host Level Zero tests"
     )
     return 1
 
 
 def cmd_run_test(test_args):
-    snap = "/snap/vulkan-cts/current"
-    # NODEVICE_SELECT disables VK_LAYER_MESA_device_select — the layer
-    # requires GLIBC_ABI_GNU2_TLS, which the snap's core24 glibc lacks.
-    env = dict(os.environ, SNAP=snap, NODEVICE_SELECT="1")
-    if not env.get("VK_ICD_FILENAMES"):
-        icd_filenames = find_host_icd_filenames(active_vendor_prefixes())
-        if icd_filenames:
-            env["VK_ICD_FILENAMES"] = icd_filenames
+    snap = "/snap/level-zero-tests/current"
     result = subprocess.run(
         ["{}/test".format(snap), "--no-confinement"] + test_args,
-        env=env,
+        env=dict(os.environ, SNAP=snap),
     )
     return result.returncode
 
@@ -93,7 +108,7 @@ def main():
     )
     if len(sys.argv) < 2:
         logging.error(
-            "Usage: vk_host.py {resource,validate-install,run-test} [args...]"
+            "Usage: lz_host.py {resource,validate-install,run-test} [args...]"
         )
         return 1
     command = sys.argv[1]

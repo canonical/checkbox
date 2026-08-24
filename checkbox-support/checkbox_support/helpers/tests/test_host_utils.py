@@ -31,7 +31,7 @@ class TestFindPlzRun(unittest.TestCase):
 
     @patch("shutil.which", return_value=None)
     def test_raises_when_not_found(self, _which):
-        with self.assertRaises(host_utils.VulkanDetectionError):
+        with self.assertRaises(host_utils.HostGPUDetectionError):
             host_utils.find_plz_run()
 
 
@@ -184,12 +184,12 @@ class TestPrimeSelectedVendor(unittest.TestCase):
 
     @patch("subprocess.check_output", return_value="on-demand\n")
     def test_raises_for_on_demand(self, _mock):
-        with self.assertRaises(host_utils.VulkanDetectionError):
+        with self.assertRaises(host_utils.HostGPUDetectionError):
             host_utils.prime_selected_vendor()
 
     @patch("subprocess.check_output", side_effect=FileNotFoundError)
     def test_raises_when_prime_select_not_found(self, _mock):
-        with self.assertRaises(host_utils.VulkanDetectionError):
+        with self.assertRaises(host_utils.HostGPUDetectionError):
             host_utils.prime_selected_vendor()
 
     @patch(
@@ -197,7 +197,7 @@ class TestPrimeSelectedVendor(unittest.TestCase):
         side_effect=subprocess.CalledProcessError(1, "prime-select"),
     )
     def test_raises_on_error(self, _mock):
-        with self.assertRaises(host_utils.VulkanDetectionError):
+        with self.assertRaises(host_utils.HostGPUDetectionError):
             host_utils.prime_selected_vendor()
 
 
@@ -210,12 +210,12 @@ class TestVendorPrefixesFromVulkaninfo(unittest.TestCase):
 
     def test_raises_for_unknown_vendor(self):
         output = "    vendorID           = 0x1234\n"
-        with self.assertRaises(host_utils.VulkanDetectionError):
+        with self.assertRaises(host_utils.HostGPUDetectionError):
             host_utils._vendor_prefixes_from_vulkaninfo(output)
 
     def test_raises_when_no_vendorid_line(self):
         output = "deviceType = PHYSICAL_DEVICE_TYPE_INTEGRATED_GPU\n"
-        with self.assertRaises(host_utils.VulkanDetectionError):
+        with self.assertRaises(host_utils.HostGPUDetectionError):
             host_utils._vendor_prefixes_from_vulkaninfo(output)
 
 
@@ -229,7 +229,7 @@ class TestActiveVendorPrefixes(unittest.TestCase):
 
     @patch(
         "checkbox_support.helpers.host_utils.prime_selected_vendor",
-        side_effect=host_utils.VulkanDetectionError,
+        side_effect=host_utils.HostGPUDetectionError,
     )
     @patch(
         "checkbox_support.helpers.host_utils.find_plz_run",
@@ -248,14 +248,14 @@ class TestActiveVendorPrefixes(unittest.TestCase):
 
     @patch(
         "checkbox_support.helpers.host_utils.prime_selected_vendor",
-        side_effect=host_utils.VulkanDetectionError,
+        side_effect=host_utils.HostGPUDetectionError,
     )
     @patch(
         "checkbox_support.helpers.host_utils.find_plz_run",
-        side_effect=host_utils.VulkanDetectionError,
+        side_effect=host_utils.HostGPUDetectionError,
     )
     def test_raises_when_all_methods_fail(self, _plz, _prime):
-        with self.assertRaises(host_utils.VulkanDetectionError):
+        with self.assertRaises(host_utils.HostGPUDetectionError):
             host_utils.active_vendor_prefixes()
 
 
@@ -291,7 +291,7 @@ class TestFindHostIcdFilenames(unittest.TestCase):
 
     def test_raises_when_icd_dir_missing(self):
         with patch("os.listdir", side_effect=OSError):
-            with self.assertRaises(host_utils.VulkanDetectionError):
+            with self.assertRaises(host_utils.HostGPUDetectionError):
                 host_utils.find_host_icd_filenames()
 
 

@@ -261,7 +261,7 @@ help_function() {
     echo "Usage: button_test.sh -t type -n button_name -p gpio_port -e [0|1]"
     echo -e "\t-e    the state to make a sound from buzzer. [0|1]"
     echo -e "\t-n    button name."
-    echo -e "\t-p    gpio or pwm port. GPIO accepts a line name when gpiod tools are available, otherwise a global GPIO number.""
+    echo -e "\t-p    gpio or pwm port. GPIO accepts a line name when gpiod tools are available, otherwise a global GPIO number."
     echo -e "\t-c    pwm chip number"
     echo -e "\t-t    type of test target in gpio or pwm"
 }

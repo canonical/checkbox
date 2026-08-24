@@ -23,19 +23,34 @@ requires: manifest.has_buzzer == 'True'
 id: ce-oem-gpio-buzzer-mapping
 _summary: Generates a GPIO and buzzer mappings for further buzzer test
 _description:
-    A buzzer-gpio mapping resource that relies on the user specifying in config varirable.
-    Usage of parameter: GPIO_BUZZER=name1:port1:enable_value1 name2:port2:enable_value2 ...
-    e.g. GPIO_BUZZER=buzzer1:498:0
+    This resource maps buzzer names to GPIO settings from the GPIO_BUZZER configuration variable.
+    Supported formats:
+    GPIO_BUZZER=name1:port1:enable_value1 name2:port2:enable_value2 ...
+    or GPIO_BUZZER=GPIO_line_name1:enable_value1 ...
+    The port can be either a legacy global GPIO number or a GPIO line name.
+    If a GPIO line name is missing or shown as "-" (unnamed), please file an issue and ask the customer to define a proper GPIO line name.
+    Example: GPIO_BUZZER=buzzer1:498:0 BUZZER_EN:1
 estimated_duration: 0.02
 category_id: buzzer
 plugin: resource
 environ: GPIO_BUZZER
 command:
     awk '{
-        split($0, record, " ")
-        for (i in record) {
+        count = split($0, record, " ")
+        for (i = 1; i <= count; i++) {
             split(record[i], data, ":")
-            printf "name: %s\nport: %s\nenable_value: %s\n", data[1], data[2], data[3]
+            if (length(data) == 2) {
+                # Example: BUZZER_EN:1
+                #   BUZZER_EN is the GPIO line name
+                #   You can find the name via /sys/kernel/debug/gpio or the gpioinfo command
+                port = data[1]
+                enable_value = data[2]
+            } else if (length(data) == 3) {
+                # Example: buzzer1:498:0
+                port = data[2]
+                enable_value = data[3]
+            }
+            printf "name: %s\nport: %s\nenable_value: %s\n\n", data[1], port, enable_value
         }
     }' <<< "$GPIO_BUZZER"
 

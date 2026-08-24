@@ -274,7 +274,7 @@ unit: job
 plugin: shell
 environ:
   - LD_LIBRARY_PATH
-command: reboot_check_test.py -f -d "$PLAINBOX_SESSION_SHARE/cold_reboot_cycle-1"
+command: reboot_check_test.py -f -d "$PLAINBOX_SESSION_SHARE/warm_reboot_cycle-1"
 certification-status: blocker
 siblings:
   - id: warm-boot-loop-1-hardware-renderer-check
@@ -307,7 +307,7 @@ template-unit: job
 plugin: shell
 environ:
   - LD_LIBRARY_PATH
-command: reboot_check_test.py -f -d "$PLAINBOX_SESSION_SHARE/cold_reboot_cycle-{reboot_id}"
+command: reboot_check_test.py -f -d "$PLAINBOX_SESSION_SHARE/warm_reboot_cycle-{reboot_id}"
 user: root
 flags:
   - preserve-locale

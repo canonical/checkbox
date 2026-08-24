@@ -107,7 +107,8 @@ flags:
   - noreturn
 estimated_duration: "180.0"
 after:
-  - cold-boot-loop-{reboot_id_previous}-fwts-test
+  - cold-boot-loop-{reboot_id_previous}-fwts-critical-only
+  - cold-boot-loop-{reboot_id_previous}-fwts-all
   - cold-boot-loop-{reboot_id_previous}-device-check
   - cold-boot-loop-{reboot_id_previous}-service-check
   - cold-boot-loop-{reboot_id_previous}-hardware-renderer-check
@@ -307,7 +308,8 @@ flags:
   - noreturn
 estimated_duration: "60.0"
 after:
-  - warm-boot-loop-{reboot_id_previous}-fwts-test
+  - warm-boot-loop-{reboot_id_previous}-fwts-critical-only
+  - warm-boot-loop-{reboot_id_previous}-fwts-all
   - warm-boot-loop-{reboot_id_previous}-device-check
   - warm-boot-loop-{reboot_id_previous}-service-check
   - warm-boot-loop-{reboot_id_previous}-hardware-renderer-check

@@ -203,7 +203,7 @@ command: >-
   checkbox-support-fwts_test
   -t klog
   -t oops
-  -l $PLAINBOX_SESSION_SHARE/cold_reboot_cycle-{reboot_id}/fwts-critical-only.log
+  -l $PLAINBOX_SESSION_SHARE/cold_reboot_cycle-{reboot_id}/fwts-all.log
 user: root
 flags:
   - preserve-locale
@@ -388,7 +388,7 @@ depends:
   - warm-boot-loop-reboot-{reboot_id}
 ---
 id: warm-boot-loop-{reboot_id}-fwts-all
-template-id: warm-boot-loop-reboot_id-fwts-critical-only
+template-id: warm-boot-loop-reboot_id-fwts-all
 category_id: stress-tests/warm-boot
 summary: Warm boot {reboot_id} FWTS test (all levels) 
 purpose: Compare data after a warm boot with baseline data set

@@ -117,7 +117,6 @@ depends:
 id: cold-boot-loop-1-fwts-test
 category_id: stress-tests/cold-boot
 summary: Cold boot 1 FWTS test
-purpose: Compare data after cold boot with baseline data set
 unit: job
 plugin: shell
 environ:
@@ -148,7 +147,6 @@ id: cold-boot-loop-{reboot_id}-fwts-test
 template-id: cold-boot-loop-reboot_id-fwts-test
 category_id: stress-tests/cold-boot
 summary: Cold boot {reboot_id} FWTS test
-purpose: Compare data after a cold boot with baseline data set
 unit: template
 template-resource: reboot-run-generator
 template-unit: job
@@ -269,7 +267,6 @@ depends:
 id: warm-boot-loop-1-fwts-test
 category_id: stress-tests/warm-boot
 summary: Warm boot 1 FWTS test
-purpose: Compare data after warm boot with baseline data set
 unit: job
 plugin: shell
 environ:
@@ -300,7 +297,6 @@ id: warm-boot-loop-{reboot_id}-fwts-test
 template-id: warm-boot-loop-reboot_id-fwts-test
 category_id: stress-tests/warm-boot
 summary: Warm boot {reboot_id} FWTS test
-purpose: Compare data after a warm boot with baseline data set
 unit: template
 template-resource: reboot-run-generator
 template-unit: job

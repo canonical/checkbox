@@ -257,7 +257,7 @@ copy such constructs when working on a new test plan from scratch
 
     .. note::
 
-        Categories can also be overriden directly in the :option:`include`
+        Categories can also be overridden directly in the :option:`include`
         section using :ref:`inline overrides<test-plan-inline-overrides>`.
 
 .. option:: certification_status_overrides
@@ -278,7 +278,7 @@ copy such constructs when working on a new test plan from scratch
 
     .. note::
 
-        Certification statuses can also be overriden directly in the
+        Certification statuses can also be overridden directly in the
         :option:`include` section using
         :ref:`inline overrides<test-plan-inline-overrides>`.
 

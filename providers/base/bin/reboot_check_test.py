@@ -1,18 +1,19 @@
 #!/usr/bin/env python3
 
 import argparse
-import os
-import subprocess as sp
-import shutil
 import filecmp
-import sys
-import typing as T
-from checkbox_support.scripts.image_checker import has_desktop_environment
-from checkbox_support.scripts.fwts_test import get_fwts_base_cmd
-from shlex import split as sh_split
-from datetime import datetime
-import time
+import os
 import platform
+import shutil
+import subprocess as sp
+import sys
+import time
+from datetime import datetime
+from pathlib import Path
+from shlex import split as sh_split
+
+from checkbox_support.scripts.fwts_test import get_fwts_base_cmd
+from checkbox_support.scripts.image_checker import has_desktop_environment
 
 # Checkbox could run in a snap container, so we need to prepend this root path
 RUNTIME_ROOT = os.getenv("CHECKBOX_RUNTIME", default="").rstrip("/")
@@ -24,11 +25,11 @@ COMMAND_TIMEOUT_SECONDS = 30
 
 
 def get_timestamp_str() -> str:
-    with open("/proc/uptime", "r") as f:
-        # uptime file always have 2 numbers
-        # uptime_seconds total_idle_seconds
-        # take the 1st one
-        uptime_seconds = f.readline().split()[0]
+    # with open("/proc/uptime", "r") as f:
+    # uptime file always have 2 numbers
+    # uptime_seconds total_idle_seconds
+    # take the 1st one
+    uptime_seconds = Path("/proc/uptime").read_text().strip().split()[0]
 
     return "Time: {}. Uptime: {} seconds".format(
         datetime.now().strftime("%m/%d/%Y, %H:%M:%S"), uptime_seconds
@@ -36,10 +37,14 @@ def get_timestamp_str() -> str:
 
 
 def get_current_boot_id() -> str:
-    with open("/proc/sys/kernel/random/boot_id", "r") as f:
-        # the boot_id file has a Version 4 UUID with hyphens
-        # journalctl doesn't use hyphens so we just remove it
-        return f.read().strip().replace("-", "")
+    # the boot_id file has a Version 4 UUID with hyphens
+    # journalctl doesn't use hyphens so we just remove it
+    return (
+        Path("/proc/sys/kernel/random/boot_id")
+        .read_text()
+        .strip()
+        .replace("-", "")
+    )
 
 
 class DeviceInfoCollector:
@@ -50,14 +55,6 @@ class DeviceInfoCollector:
         USB = "usb"
         DRM = "drm"
 
-    DEFAULT_DEVICES = {
-        "required": [
-            Device.WIRELESS,
-            Device.PCI,
-            Device.USB,
-        ],  # these can fail the test case
-        "optional": [Device.DRM],  # these only produce warnings
-    }  # type: dict[str, list[str]]
     # to modify, add more values in the enum
     # and reference them in required/optional respectively
 
@@ -79,7 +76,7 @@ class DeviceInfoCollector:
                 sorted(lines),
             )
         )
-        return "\n".join(map(lambda line: line.strip(), lines_to_write))
+        return "\n".join([l.strip() for l in lines_to_write])
 
     def get_usb_info(self) -> str:
         out = sp.check_output(
@@ -106,7 +103,7 @@ class DeviceInfoCollector:
         self,
         expected_dir: str,
         actual_dir: str,
-        devices: T.Dict[str, T.List[str]] = DEFAULT_DEVICES,
+        devices: "dict[str, list[str]] | None" = None,
     ) -> bool:
         """Compares the list of devices in expected_dir against actual_dir
 
@@ -115,6 +112,9 @@ class DeviceInfoCollector:
         :param devices: what devices do we want to compare, see DEFAULT_DEVICES
         :return: whether the device list matches
         """
+        if devices is None:
+            devices = self.DEFAULT_DEVICES
+
         print(
             "Comparing devices in (expected) {} against (actual) {}...".format(
                 expected_dir, actual_dir
@@ -147,8 +147,10 @@ class DeviceInfoCollector:
     def dump(
         self,
         output_directory: str,
-        devices: T.Dict[str, T.List[str]] = DEFAULT_DEVICES,
+        devices: "dict[str, list[str]] | None" = None,
     ) -> None:
+        if devices is None:
+            devices = self.DEFAULT_DEVICES
         os.makedirs(output_directory, exist_ok=True)
         # add extra behavior if necessary
         for device in devices["required"]:
@@ -182,6 +184,14 @@ class DeviceInfoCollector:
             self.Device.USB: self.get_usb_info,
             self.Device.WIRELESS: self.get_wireless_info,
         }
+        self.DEFAULT_DEVICES = {
+            "required": [
+                self.Device.WIRELESS,
+                self.Device.PCI,
+                self.Device.USB,
+            ],  # these can fail the test case
+            "optional": [self.Device.DRM],  # these only produce warnings
+        }
 
 
 class FwtsTester:
@@ -190,8 +200,8 @@ class FwtsTester:
 
     def fwts_log_check_passed(
         self,
-        output_directory: str,
-        fwts_arguments: T.Sequence[str] = ["klog", "oops"],
+        output_directory: Path,
+        fwts_arguments: "tuple[str, ...]" = ("klog", "oops"),
     ) -> bool:
         """
         Check if fwts logs passes the checks specified in sleep_test_log_check
@@ -212,7 +222,8 @@ class FwtsTester:
                 log_file_path,
                 "-q",
                 *fwts_arguments,
-            ]
+            ],
+            check=False,
         )
         result = sp.run(
             [
@@ -232,7 +243,7 @@ class HardwareRendererTester:
 
     def get_desktop_environment_variables(
         self,
-    ) -> T.Optional[T.Dict[str, str]]:
+    ) -> "dict[str, str] | None":
         """Gets all the environment variables used by the desktop process
 
         :return: dict[str, str] similar to os.environ
@@ -297,7 +308,7 @@ class HardwareRendererTester:
             # kernel doesn't see any GPU nodes
             print(
                 "There's nothing under {}".format(DRM_PATH),
-                "if an external GPU is connected,"
+                "if an external GPU is connected,",
                 "check if the connection is loose.",
             )
             return False
@@ -327,7 +338,7 @@ class HardwareRendererTester:
             print(
                 "No display is connected. This case will be skipped.",
                 "Maybe the display cable is not connected?",
-                "If the device is not supposed to have a display,"
+                "If the device is not supposed to have a display,",
                 "then skipping is expected.",
             )
 
@@ -374,15 +385,12 @@ class HardwareRendererTester:
             return False
         # https://docs.mesa3d.org/envvars.html#envvar-GALLIUM_DRIVER
         # it's almost always the 'llvmpipe' case if we find software rendering
-        if "llvmpipe" in gl_renderer or "softpipe" in gl_renderer:
-            return False
-
-        return True
+        return not ("llvmpipe" in gl_renderer or "softpipe" in gl_renderer)
 
     def extract_gl_renderer_str(
         self,
         glmark2_validate_output: str,
-    ) -> T.Optional[str]:
+    ) -> "str | None":
         """Attempts to extract GL_RENDERER from `glmark2 --validate`'s output
 
         :param glmark2_validate_output: the .stdout from `glmark2 --validate`
@@ -411,8 +419,8 @@ class HardwareRendererTester:
         desktop_env_vars = self.get_desktop_environment_variables()
         if desktop_env_vars is None:
             print(
-                "[ ERR ] Unable to get the environment variables "
-                "used by the current desktop. Is the desktop process running?"
+                "[ ERR ] Unable to get the environment variables",
+                "used by the current desktop. Is the desktop process running?",
             )
             return False
 
@@ -464,6 +472,7 @@ class HardwareRendererTester:
                 timeout=120,
                 # literally dump all envs from gnome/unity to glmark2
                 env=desktop_env_vars,
+                check=False,
             )
         except sp.TimeoutExpired:
             print(
@@ -516,7 +525,7 @@ class HardwareRendererTester:
         return False
 
 
-def get_failed_services() -> T.List[str]:
+def get_failed_services() -> "list[str]":
     """
     Counts the number of failed services listed in systemctl
 
@@ -700,6 +709,10 @@ def main() -> int:
         DeviceInfoCollector().dump(args.output_directory)
 
     if args.do_fwts_check:
+        if not args.output_directory:
+            raise FileNotFoundError(
+                "fwts checks requested, but dump dir '-d' was not specified"
+            )
         tester = FwtsTester()
         if tester.is_fwts_supported() and not tester.fwts_log_check_passed(
             args.output_directory
@@ -741,4 +754,4 @@ def main() -> int:
 
 
 if __name__ == "__main__":
-    exit(main())
+    sys.exit(main())

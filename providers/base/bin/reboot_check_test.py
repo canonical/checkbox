@@ -25,7 +25,6 @@ COMMAND_TIMEOUT_SECONDS = 30
 
 
 def get_timestamp_str() -> str:
-    # with open("/proc/uptime", "r") as f:
     # uptime file always have 2 numbers
     # uptime_seconds total_idle_seconds
     # take the 1st one

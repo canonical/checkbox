@@ -144,6 +144,7 @@ siblings:
       checkbox-support-fwts_test 
       -t klog 
       -t oops
+      -f aborted
       -l $PLAINBOX_SESSION_SHARE/cold_reboot_cycle-1/fwts-all.log
   - id: cold-boot-loop-1-hardware-renderer-check
     summary: Cold boot 1 hardware renderer check
@@ -200,12 +201,13 @@ template-unit: job
 plugin: shell
 environ:
   - LD_LIBRARY_PATH
-command: >-
+command: >- # 'aborted' is the lowest non-warning level
   mkdir -p $PLAINBOX_SESSION_SHARE/cold_reboot_cycle-{reboot_id}
 
   checkbox-support-fwts_test
   -t klog
   -t oops
+  -f aborted 
   -l $PLAINBOX_SESSION_SHARE/cold_reboot_cycle-{reboot_id}/fwts-all.log
 user: root
 flags:
@@ -340,11 +342,11 @@ siblings:
     summary: Warm boot 1 FWTS test (all levels)
     command: >-
       mkdir -p $PLAINBOX_SESSION_SHARE/warm_reboot_cycle-1
-      
+
       checkbox-support-fwts_test
       -t klog
       -t oops
-      -f critical
+      -f aborted 
       -l $PLAINBOX_SESSION_SHARE/warm_reboot_cycle-1/fwts-all.log
     certification-status: non-blocker
   - id: warm-boot-loop-1-hardware-renderer-check
@@ -369,7 +371,7 @@ depends:
 id: warm-boot-loop-{reboot_id}-fwts-critical-only
 template-id: warm-boot-loop-reboot_id-fwts-critical-only
 category_id: stress-tests/warm-boot
-summary: Warm boot {reboot_id} FWTS test (only fail at critical errors) 
+summary: Warm boot {reboot_id} FWTS test (only fail at critical errors)
 purpose: Compare data after a warm boot with baseline data set
 unit: template
 template-resource: reboot-run-generator
@@ -396,7 +398,7 @@ id: warm-boot-loop-{reboot_id}-fwts-all
 certification-status: non-blocker
 template-id: warm-boot-loop-reboot_id-fwts-all
 category_id: stress-tests/warm-boot
-summary: Warm boot {reboot_id} FWTS test (all levels) 
+summary: Warm boot {reboot_id} FWTS test (all levels)
 purpose: Compare data after a warm boot with baseline data set
 unit: template
 template-resource: reboot-run-generator
@@ -410,6 +412,7 @@ command: >-
   checkbox-support-fwts_test
   -t klog
   -t oops
+  -f aborted 
   -l $PLAINBOX_SESSION_SHARE/warm_reboot_cycle-{reboot_id}/fwts-all.log
 user: root
 flags:

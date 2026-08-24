@@ -24,7 +24,15 @@ requires:
  manifest.has_tpm2_chip == 'True'
 _summary: Check at least one TPM2 device is identified
 flags: simple
-command: ls -l /dev/tpm*
+command:
+    echo "Looking for TPM devices in /dev/tpm*..."
+    TPM_LIST=$(ls -l /dev/tpm*)
+    if [ -z "$TPM_LIST" ]; then
+        echo "No TPM device found in /dev/tpm*!"
+    else
+        echo "TPM device(s) found:"
+        echo "$TPM_LIST"
+    fi
 
 id: tpm2/pcr7-unsealing
 _summary: TPM2 PCR7 unsealing

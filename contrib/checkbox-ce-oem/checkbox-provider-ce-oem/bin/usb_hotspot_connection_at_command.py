@@ -358,14 +358,28 @@ class ModemAtController:
         time.sleep(wait_seconds)
 
     def get_registration(self):
-        """Return the 3GPP registration state (e.g. 'home', 'roaming')."""
-        resp = self.query("AT+CREG?")
-        if not resp:
-            return None
-        m = re.search(r"\+CREG:\s*\d+,\s*(\d+)", resp)
-        if not m:
-            return None
-        return REGISTRATION_STATES.get(m.group(1), m.group(1))
+        """Return the registration state (e.g. 'home', 'roaming').
+
+        Tries AT+CEREG? (EPS/LTE registration) first, falling back to
+        AT+CREG? (legacy CS-domain registration) if the modem doesn't
+        answer it. AT+CREG? alone can report non-standard "SMS only"
+        states (6/7) for LTE-only modules even while the modem is
+        fully registered for data, since it reflects a CS domain that
+        doesn't really exist on LTE; AT+CEREG? reports the actual
+        EPS/data attach status instead.
+        """
+        for cmd, pattern in (
+            ("AT+CEREG?", r"\+CEREG:\s*\d+,\s*(\d+)"),
+            ("AT+CREG?", r"\+CREG:\s*\d+,\s*(\d+)"),
+        ):
+            resp = self.query(cmd)
+            if not resp:
+                continue
+            m = re.search(pattern, resp)
+            if not m:
+                continue
+            return REGISTRATION_STATES.get(m.group(1), m.group(1))
+        return None
 
     def get_operator_id(self):
         """Return the numeric PLMN operator id, requesting numeric fmt."""

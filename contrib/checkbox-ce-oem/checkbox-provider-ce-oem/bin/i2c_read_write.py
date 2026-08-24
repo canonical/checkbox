@@ -110,16 +110,12 @@ def _normalize_chip_address(value: Any) -> str:
     Raises:
         ValueError: If chip_address is invalid or out of 7-bit range.
     """
-    if isinstance(value, str):
-        stripped = value.strip().lower()
-        if re.fullmatch(r"0x[0-9a-f]{1,2}", stripped):
-            addr = int(stripped, 16)
-        else:
-            raise ValueError("Invalid chip_address: {!r}".format(value))
-    elif isinstance(value, int):
-        addr = value
-    else:
-        raise ValueError("Invalid chip_address type: {!r}".format(value))
+    try:
+        normalized = _normalize_hex_byte(value, "chip_address")
+    except ValueError:
+        raise ValueError("Invalid chip_address: {!r}".format(value))
+
+    addr = int(normalized, 16)
 
     if not 0 <= addr <= 0x7F:
         raise ValueError("chip_address out of 7-bit range: {!r}".format(value))

@@ -338,7 +338,7 @@ siblings:
   - id: warm-boot-loop-1-fwts-all
     summary: Warm boot 1 FWTS test (all levels)
     command: >-
-      mkdir -p $PLAINBOX_SESSION_SHARE/warm_reboot_cycle-1
+      mkdir -p "$PLAINBOX_SESSION_SHARE"/warm_reboot_cycle-1
 
       checkbox-support-fwts_test
       -t klog

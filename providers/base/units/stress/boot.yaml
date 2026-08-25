@@ -46,7 +46,7 @@ imports:
   - from com.canonical.plainbox import manifest
 requires:
   - manifest._ignore_reboot_loop_tests == 'False'
-command: reboot_check_test.py -d "$PLAINBOX_SESSION_SHARE/before_reboot"
+command: reboot_check_test.py -d "$PLAINBOX_SESSION_SHARE"/before_reboot
 environ:
   - LD_LIBRARY_PATH
 user: root
@@ -124,13 +124,13 @@ plugin: shell
 environ:
   - LD_LIBRARY_PATH
 command: >-
-  mkdir -p $PLAINBOX_SESSION_SHARE/cold_reboot_cycle-1
+  mkdir -p "$PLAINBOX_SESSION_SHARE"/cold_reboot_cycle-1
 
   checkbox-support-fwts_test
   -t klog
   -t oops
   -f critical
-  -l $PLAINBOX_SESSION_SHARE/cold_reboot_cycle-1/fwts-critical-only.log
+  -l "$PLAINBOX_SESSION_SHARE"/cold_reboot_cycle-1/fwts-critical-only.log
 certification-status: blocker
 siblings:
   - id: cold-boot-loop-1-fwts-all
@@ -139,13 +139,13 @@ siblings:
     # since we are only checking klog and oops
     # it's safe to do duplicate work and run fwts again
     command: >-
-      mkdir -p $PLAINBOX_SESSION_SHARE/cold_reboot_cycle-1
+      mkdir -p "$PLAINBOX_SESSION_SHARE"/cold_reboot_cycle-1
 
       checkbox-support-fwts_test 
       -t klog 
       -t oops
       -f aborted
-      -l $PLAINBOX_SESSION_SHARE/cold_reboot_cycle-1/fwts-all.log
+      -l "$PLAINBOX_SESSION_SHARE"/cold_reboot_cycle-1/fwts-all.log
   - id: cold-boot-loop-1-hardware-renderer-check
     summary: Cold boot 1 hardware renderer check
     command: reboot_check_test.py -g
@@ -156,8 +156,8 @@ siblings:
     summary: Cold boot 1 device difference check
     command: >-
       reboot_check_test.py 
-      -c "$PLAINBOX_SESSION_SHARE/before_reboot" 
-      -d "$PLAINBOX_SESSION_SHARE/cold_reboot_cycle-1"
+      -c "$PLAINBOX_SESSION_SHARE"/before_reboot
+      -d "$PLAINBOX_SESSION_SHARE"/cold_reboot_cycle-1
 user: root
 flags:
   - preserve-locale
@@ -177,13 +177,13 @@ plugin: shell
 environ:
   - LD_LIBRARY_PATH
 command: >-
-  mkdir -p $PLAINBOX_SESSION_SHARE/cold_reboot_cycle-{reboot_id}
+  mkdir -p "$PLAINBOX_SESSION_SHARE"/cold_reboot_cycle-{reboot_id}
 
   checkbox-support-fwts_test
   -t klog
   -t oops
   -f critical
-  -l $PLAINBOX_SESSION_SHARE/cold_reboot_cycle-{reboot_id}/fwts-critical-only.log
+  -l "$PLAINBOX_SESSION_SHARE"/cold_reboot_cycle-{reboot_id}/fwts-critical-only.log
 user: root
 flags:
   - preserve-locale
@@ -203,13 +203,13 @@ plugin: shell
 environ:
   - LD_LIBRARY_PATH
 command: >- # 'aborted' is the lowest non-warning level
-  mkdir -p $PLAINBOX_SESSION_SHARE/cold_reboot_cycle-{reboot_id}
+  mkdir -p "$PLAINBOX_SESSION_SHARE"/cold_reboot_cycle-{reboot_id}
 
   checkbox-support-fwts_test
   -t klog
   -t oops
   -f aborted 
-  -l $PLAINBOX_SESSION_SHARE/cold_reboot_cycle-{reboot_id}/fwts-all.log
+  -l "$PLAINBOX_SESSION_SHARE"/cold_reboot_cycle-{reboot_id}/fwts-all.log
 user: root
 flags:
   - preserve-locale
@@ -230,8 +230,8 @@ environ:
   - LD_LIBRARY_PATH
 command: >-
   reboot_check_test.py 
-  -c "$PLAINBOX_SESSION_SHARE/before_reboot" 
-  -d "$PLAINBOX_SESSION_SHARE/cold_reboot_cycle-{reboot_id}"
+  -c "$PLAINBOX_SESSION_SHARE"/before_reboot
+  -d "$PLAINBOX_SESSION_SHARE"/cold_reboot_cycle-{reboot_id}
 user: root
 flags:
   - preserve-locale
@@ -334,13 +334,13 @@ plugin: shell
 environ:
   - LD_LIBRARY_PATH
 command: >-
-  mkdir -p $PLAINBOX_SESSION_SHARE/warm_reboot_cycle-1
+  mkdir -p "$PLAINBOX_SESSION_SHARE"/warm_reboot_cycle-1
 
   checkbox-support-fwts_test
   -t klog
   -t oops
   -f critical
-  -l $PLAINBOX_SESSION_SHARE/warm_reboot_cycle-1/fwts-critical-only.log
+  -l "$PLAINBOX_SESSION_SHARE"/warm_reboot_cycle-1/fwts-critical-only.log
 siblings:
   - id: warm-boot-loop-1-fwts-all
     summary: Warm boot 1 FWTS test (all levels)
@@ -351,7 +351,7 @@ siblings:
       -t klog
       -t oops
       -f aborted 
-      -l $PLAINBOX_SESSION_SHARE/warm_reboot_cycle-1/fwts-all.log
+      -l "$PLAINBOX_SESSION_SHARE"/warm_reboot_cycle-1/fwts-all.log
     certification-status: non-blocker
   - id: warm-boot-loop-1-hardware-renderer-check
     summary: Warm boot 1 hardware renderer check
@@ -363,8 +363,8 @@ siblings:
     summary: Warm boot 1 device difference check
     command: >-
       reboot_check_test.py 
-      -c "$PLAINBOX_SESSION_SHARE/before_reboot" 
-      -d "$PLAINBOX_SESSION_SHARE/warm_reboot_cycle-1"
+      -c ""$PLAINBOX_SESSION_SHARE"/before_reboot" 
+      -d ""$PLAINBOX_SESSION_SHARE"/warm_reboot_cycle-1"
 user: root
 flags:
   - preserve-locale
@@ -385,13 +385,13 @@ plugin: shell
 environ:
   - LD_LIBRARY_PATH
 command: >-
-  mkdir -p $PLAINBOX_SESSION_SHARE/warm_reboot_cycle-{reboot_id}
+  mkdir -p "$PLAINBOX_SESSION_SHARE"/warm_reboot_cycle-{reboot_id}
 
   checkbox-support-fwts_test
   -t klog
   -t oops
   -f critical
-  -l $PLAINBOX_SESSION_SHARE/warm_reboot_cycle-{reboot_id}/fwts-critical-only.log
+  -l "$PLAINBOX_SESSION_SHARE"/warm_reboot_cycle-{reboot_id}/fwts-critical-only.log
 user: root
 flags:
   - preserve-locale
@@ -412,13 +412,13 @@ plugin: shell
 environ:
   - LD_LIBRARY_PATH
 command: >-
-  mkdir -p $PLAINBOX_SESSION_SHARE/warm_reboot_cycle-{reboot_id}
+  mkdir -p "$PLAINBOX_SESSION_SHARE"/warm_reboot_cycle-{reboot_id}
 
   checkbox-support-fwts_test
   -t klog
   -t oops
   -f aborted 
-  -l $PLAINBOX_SESSION_SHARE/warm_reboot_cycle-{reboot_id}/fwts-all.log
+  -l "$PLAINBOX_SESSION_SHARE"/warm_reboot_cycle-{reboot_id}/fwts-all.log
 user: root
 flags:
   - preserve-locale
@@ -439,8 +439,8 @@ environ:
   - LD_LIBRARY_PATH
 command: >-
   reboot_check_test.py 
-  -c "$PLAINBOX_SESSION_SHARE/before_reboot" 
-  -d "$PLAINBOX_SESSION_SHARE/warm_reboot_cycle-{reboot_id}"
+  -c "$PLAINBOX_SESSION_SHARE"/before_reboot
+  -d "$PLAINBOX_SESSION_SHARE"/warm_reboot_cycle-{reboot_id}
 user: root
 flags:
   - preserve-locale

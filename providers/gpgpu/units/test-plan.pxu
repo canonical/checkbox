@@ -46,6 +46,17 @@ bootstrap_include:
     package
     snap
 
+id: gpgpu-cuda-prebuilt-automated
+unit: test plan
+_name: NVIDIA CUDA prebuilt samples
+_description:
+ One job per CUDA sample from a provision-time cuda-samples build
+ (CUDA_SAMPLES_PATH). Empty when no prebuilt tree is configured.
+include:
+    gpgpu/cuda-sample-name
+bootstrap_include:
+    cuda_samples_prebuilt
+
 id: gpgpu-nvidia-cert-automated
 unit: test plan
 _name: NVIDIA Feature testing

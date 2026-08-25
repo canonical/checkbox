@@ -55,6 +55,7 @@ flags:
   - preserve-locale
 ---
 id: cold-boot-loop-reboot-1
+certification-status: blocker
 category_id: stress-tests/cold-boot
 summary: Perform cold reboot 1
 unit: job
@@ -80,6 +81,7 @@ depends:
   - init-boot-loop-data
 ---
 id: cold-boot-loop-reboot-{reboot_id}
+certification-status: blocker
 template-id: cold-boot-loop-reboot-reboot_id
 category_id: stress-tests/cold-boot
 summary: Perform cold reboot {reboot_id}
@@ -280,6 +282,7 @@ depends:
   - cold-boot-loop-reboot-{reboot_id}
 ---
 id: warm-boot-loop-reboot-1
+certification-status: blocker
 category_id: stress-tests/warm-boot
 summary: Perform warm reboot 1
 purpose: Perform warm reboot of the system boot. Specifically, this is how the device will request a reboot.
@@ -295,6 +298,7 @@ depends:
   - init-boot-loop-data
 ---
 id: warm-boot-loop-reboot-{reboot_id}
+certification-status: blocker
 template-id: warm-boot-loop-reboot-reboot_id
 category_id: stress-tests/warm-boot
 summary: Perform warm reboot {reboot_id}

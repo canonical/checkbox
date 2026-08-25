@@ -15,7 +15,6 @@ _description:
     configured (CUDA_SAMPLES_PATH), otherwise the per-set jobs that
     clone and build at test time. Core images use the cuda-samples snap.
 include:
-    com.canonical.certification::gpgpu/cuda-sample-name
     com.canonical.certification::gpgpu/cuda-samples-0-int
     com.canonical.certification::gpgpu/cuda-samples-1-utils
     com.canonical.certification::gpgpu/cuda-samples-2-conc
@@ -26,9 +25,10 @@ include:
     com.canonical.certification::gpgpu/cuda-samples-7-nvvm
     com.canonical.certification::gpgpu/cuda-samples-8-plat
     jetson-core-gpu/cuda-samples-name
+nested_part:
+    com.canonical.certification::gpgpu-cuda-prebuilt-automated
 bootstrap_include:
     com.canonical.certification::cuda_prebuilt_state
-    com.canonical.certification::cuda_samples_prebuilt
     jetson_cuda_samples_list_core
 
 id: jetson-tensorrt-automated

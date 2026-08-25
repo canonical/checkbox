@@ -18,6 +18,10 @@ _summary: Check WiFi AP mode resource generation
 plugin: shell
 estimated_duration: 0.02
 environ: WIFI_AP_MODE
+imports:
+  from com.canonical.plainbox import manifest
+requires:
+  manifest.has_wifi_ap_host == 'True'
 command: resource_wifi_ap_mode.sh
 
 unit: template

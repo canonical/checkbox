@@ -34,7 +34,6 @@ flags:
 summary: Generate an ID for each reboot iteration
 ---
 id: init-boot-loop-data
-certification-status: blocker
 category_id: com.canonical.plainbox::stress
 summary: Generate the baseline data set to test against
 purpose: |
@@ -56,7 +55,6 @@ flags:
   - preserve-locale
 ---
 id: cold-boot-loop-reboot-1
-certification-status: blocker
 category_id: stress-tests/cold-boot
 summary: Perform cold reboot 1
 unit: job
@@ -82,7 +80,6 @@ depends:
   - init-boot-loop-data
 ---
 id: cold-boot-loop-reboot-{reboot_id}
-certification-status: blocker
 template-id: cold-boot-loop-reboot-reboot_id
 category_id: stress-tests/cold-boot
 summary: Perform cold reboot {reboot_id}
@@ -134,10 +131,9 @@ command: >-
   -t oops
   -f critical
   -l "$PLAINBOX_SESSION_SHARE"/cold_reboot_cycle-1/fwts-critical-only.log
-certification-status: blocker
 siblings:
   - id: cold-boot-loop-1-fwts-all
-    certification-status: non-blocker
+  
     summary: Cold boot 1 FWTS test (all levels)
     # since we are only checking klog and oops
     # it's safe to do duplicate work and run fwts again
@@ -169,7 +165,6 @@ depends:
   - cold-boot-loop-reboot-1
 ---
 id: cold-boot-loop-{reboot_id}-fwts-critical-only
-certification-status: blocker
 template-id: cold-boot-loop-reboot_id-fwts-critical-only
 category_id: stress-tests/cold-boot
 summary: Cold boot {reboot_id} FWTS test (only fail at critical errors)
@@ -195,7 +190,6 @@ depends:
   - cold-boot-loop-reboot-{reboot_id}
 ---
 id: cold-boot-loop-{reboot_id}-fwts-all
-certification-status: non-blocker
 template-id: cold-boot-loop-reboot_id-fwts-all
 category_id: stress-tests/cold-boot
 summary: Cold boot {reboot_id} FWTS test (all levels)
@@ -221,7 +215,6 @@ depends:
   - cold-boot-loop-reboot-{reboot_id}
 ---
 id: cold-boot-loop-{reboot_id}-device-check
-certification-status: blocker
 template-id: cold-boot-loop-reboot_id-device-check
 category_id: stress-tests/cold-boot
 summary: Cold boot {reboot_id} device difference check
@@ -243,7 +236,6 @@ depends:
   - cold-boot-loop-reboot-{reboot_id}
 ---
 id: cold-boot-loop-{reboot_id}-service-check
-certification-status: blocker
 template-id: cold-boot-loop-reboot_id-service-check
 category_id: stress-tests/cold-boot
 summary: Cold boot {reboot_id} failed services check
@@ -263,7 +255,6 @@ depends:
   - cold-boot-loop-reboot-{reboot_id}
 ---
 id: cold-boot-loop-{reboot_id}-hardware-renderer-check
-certification-status: blocker
 template-id: cold-boot-loop-hardware-renderer-check-reboot_id
 category_id: stress-tests/cold-boot
 summary: Cold boot {reboot_id} hardware renderer check
@@ -283,7 +274,6 @@ depends:
   - cold-boot-loop-reboot-{reboot_id}
 ---
 id: warm-boot-loop-reboot-1
-certification-status: blocker
 category_id: stress-tests/warm-boot
 summary: Perform warm reboot 1
 purpose: Perform warm reboot of the system boot. Specifically, this is how the device will request a reboot.
@@ -299,7 +289,6 @@ depends:
   - init-boot-loop-data
 ---
 id: warm-boot-loop-reboot-{reboot_id}
-certification-status: blocker
 template-id: warm-boot-loop-reboot-reboot_id
 category_id: stress-tests/warm-boot
 summary: Perform warm reboot {reboot_id}
@@ -330,7 +319,6 @@ depends:
   - init-boot-loop-data
 ---
 id: warm-boot-loop-1-fwts-critical-only
-certification-status: blocker
 category_id: stress-tests/warm-boot
 summary: Warm boot 1 FWTS test (only fail at critical errors)
 purpose: Compare data after warm boot with baseline data set
@@ -357,7 +345,6 @@ siblings:
       -t oops
       -f aborted 
       -l "$PLAINBOX_SESSION_SHARE"/warm_reboot_cycle-1/fwts-all.log
-    certification-status: non-blocker
   - id: warm-boot-loop-1-hardware-renderer-check
     summary: Warm boot 1 hardware renderer check
     command: reboot_check_test.py -g
@@ -378,7 +365,6 @@ depends:
   - warm-boot-loop-reboot-1
 ---
 id: warm-boot-loop-{reboot_id}-fwts-critical-only
-certification-status: blocker
 template-id: warm-boot-loop-reboot_id-fwts-critical-only
 category_id: stress-tests/warm-boot
 summary: Warm boot {reboot_id} FWTS test (only fail at critical errors)
@@ -405,7 +391,6 @@ depends:
   - warm-boot-loop-reboot-{reboot_id}
 ---
 id: warm-boot-loop-{reboot_id}-fwts-all
-certification-status: non-blocker
 template-id: warm-boot-loop-reboot_id-fwts-all
 category_id: stress-tests/warm-boot
 summary: Warm boot {reboot_id} FWTS test (all levels)
@@ -432,7 +417,6 @@ depends:
   - warm-boot-loop-reboot-{reboot_id}
 ---
 id: warm-boot-loop-{reboot_id}-device-check
-certification-status: blocker
 template-id: warm-boot-loop-reboot_id-device-check
 category_id: stress-tests/warm-boot
 summary: Warm boot {reboot_id} device difference check
@@ -454,7 +438,6 @@ depends:
   - warm-boot-loop-reboot-{reboot_id}
 ---
 id: warm-boot-loop-{reboot_id}-service-check
-certification-status: blocker
 template-id: warm-boot-loop-reboot_id-service-check
 category_id: stress-tests/warm-boot
 summary: Warm boot {reboot_id} failed services check
@@ -474,7 +457,6 @@ depends:
   - warm-boot-loop-reboot-{reboot_id}
 ---
 id: warm-boot-loop-{reboot_id}-hardware-renderer-check
-certification-status: blocker
 template-id: warm-boot-loop-hardware-renderer-check-reboot_id
 category_id: stress-tests/warm-boot
 summary: Warm boot {reboot_id} hardware renderer check

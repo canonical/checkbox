@@ -355,8 +355,8 @@ siblings:
     summary: Warm boot 1 device difference check
     command: >-
       reboot_check_test.py 
-      -c ""$PLAINBOX_SESSION_SHARE"/before_reboot" 
-      -d ""$PLAINBOX_SESSION_SHARE"/warm_reboot_cycle-1"
+      -c "$PLAINBOX_SESSION_SHARE"/before_reboot
+      -d "$PLAINBOX_SESSION_SHARE"/warm_reboot_cycle-1
 user: root
 flags:
   - preserve-locale

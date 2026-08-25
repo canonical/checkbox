@@ -278,12 +278,7 @@ def clone_and_build(orig_dir, test_set, cuda_samples_version):
         check=True,
     )
 
-    cmake_file = test_set_dir / "CMakeLists.txt"
-    cmake_file.write_text(
-        "{}\n{}".format(
-            'set(EXECUTABLE_OUTPUT_PATH "bin")', cmake_file.read_text()
-        )
-    )
+    makefile_build = (test_set_dir / "Makefile").exists()
 
     # Remove unnecessary folders
     samples_dir = test_set_dir / "Samples"
@@ -291,20 +286,43 @@ def clone_and_build(orig_dir, test_set, cuda_samples_version):
         folder_number = folder.name.split("_")[0]
         if folder_number != test_set:
             shutil.rmtree(str(folder))
-            remove_add_subdirectory_line(
-                Path(samples_dir, "CMakeLists.txt"), folder
-            )
+            if not makefile_build:
+                remove_add_subdirectory_line(
+                    Path(samples_dir, "CMakeLists.txt"), folder
+                )
         else:
             logging.info("Keeping directory: %s", folder.name)
+
+    if makefile_build:
+        # Makefile-era samples (v12.5 and older): the recursive root
+        # Makefile builds each remaining sample and releases its binary
+        # into bin/<arch>/linux/release. -k keeps going past samples
+        # whose build deps are missing; those are simply not released.
+        subprocess.run(
+            ["make", "-k", "-j", str(os.cpu_count() - 1)],
+            cwd=str(test_set_dir),
+            check=False,
+        )
+        return
+
+    cmake_file = test_set_dir / "CMakeLists.txt"
+    cmake_file.write_text(
+        "{}\n{}".format(
+            'set(EXECUTABLE_OUTPUT_PATH "bin")', cmake_file.read_text()
+        )
+    )
 
     # Build the sample
     build_dir = test_set_dir / "build"
     build_dir.mkdir(parents=True, exist_ok=True)
     cuda_path = os.getenv("CUDA_PATH", "/usr/local/cuda")
+    # native needs a working driver to detect the GPU; allow an explicit
+    # override (e.g. 87 for Orin) via CUDA_SAMPLES_ARCHS.
+    cuda_archs = os.getenv("CUDA_SAMPLES_ARCHS", "native")
     subprocess.run(
         [
             "cmake",
-            "-DCMAKE_CUDA_ARCHITECTURES=native",
+            "-DCMAKE_CUDA_ARCHITECTURES=" + cuda_archs,
             "-DCMAKE_CUDA_COMPILER=" + cuda_path + "/bin/nvcc",
             "-DCMAKE_LIBRARY_PATH=/usr/local/cuda/lib64/",
             "-DCMAKE_INCLUDE_PATH=/usr/local/cuda/include",
@@ -333,13 +351,23 @@ def run_tests(orig_dir, test_set, exclude_list):
     Returns:
         (int, int, [str]): total tests, skipped tests, failed test names
     """
-    test_set_dir = Path(orig_dir) / test_set / "build" / "Samples"
-
-    executable_list = [
-        exe
-        for exe in test_set_dir.rglob("*/*/bin/*")
-        if os.access(str(exe), os.X_OK)
-    ]
+    build_samples = Path(orig_dir) / test_set / "build" / "Samples"
+    if build_samples.is_dir():
+        executable_list = [
+            exe
+            for exe in build_samples.rglob("*/*/bin/*")
+            if os.access(str(exe), os.X_OK)
+        ]
+    else:
+        # Makefile-era layout: binaries released into bin/<arch>/linux/release
+        executable_list = [
+            exe
+            for release_dir in sorted(
+                (Path(orig_dir) / test_set).glob("bin/*/linux/release")
+            )
+            for exe in sorted(release_dir.iterdir())
+            if exe.is_file() and os.access(str(exe), os.X_OK)
+        ]
 
     skipped = 0
     failed = []
@@ -521,13 +549,15 @@ def main():
         )
 
     try:
-        _, _, failed = run_tests(
+        total, _, failed = run_tests(
             orig_dir, str(args.test_set), args.cuda_ignore_tests
         )
     finally:
         if not args.keep_cache:
             cleanup_temporary_files(orig_dir, str(args.test_set))
 
+    if total == 0:
+        raise SystemExit("No sample binaries were built for this set")
     if failed:
         raise SystemExit("Failed samples: " + " ".join(failed))
 

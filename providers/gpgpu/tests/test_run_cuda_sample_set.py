@@ -290,6 +290,57 @@ class TestCudaSamples(unittest.TestCase):
         with self.assertRaises(SystemExit):
             run_cuda_sample_set.main()
 
+        mock_run.return_value = (0, 0, [])
+        with self.assertRaises(SystemExit):
+            run_cuda_sample_set.main()
+
+    @mock.patch("subprocess.run")
+    def test_clone_and_build_makefile_mode(self, mock_subprocess_run):
+        # Makefile-era samples: no CMakeLists edit, make -k in tree root.
+        with tempfile.TemporaryDirectory() as tmp:
+            orig_dir = Path(tmp)
+            test_set = "0"
+            tree = orig_dir / test_set
+
+            def fake_clone(cmd, **kwargs):
+                if cmd[0] == "git":
+                    (tree / "Samples" / "0_Introduction").mkdir(parents=True)
+                    (tree / "Samples" / "5_Domain_Specific").mkdir(
+                        parents=True
+                    )
+                    (tree / "Makefile").write_text("all:\n")
+                return subprocess.CompletedProcess(cmd, 0)
+
+            mock_subprocess_run.side_effect = fake_clone
+            run_cuda_sample_set.clone_and_build(orig_dir, test_set, "12.5")
+
+            make_cmd, make_kwargs = mock_subprocess_run.call_args_list[-1]
+            self.assertEqual(make_cmd[0][:2], ["make", "-k"])
+            self.assertEqual(make_kwargs["cwd"], str(tree))
+            # other set pruned, own set kept
+            self.assertFalse(
+                (tree / "Samples" / "5_Domain_Specific").exists()
+            )
+            self.assertTrue((tree / "Samples" / "0_Introduction").exists())
+
+    @mock.patch("subprocess.run", return_value=True)
+    def test_run_tests_makefile_layout(self, mock_run):
+        # Makefile-era layout: binaries in <set>/bin/<arch>/linux/release
+        with tempfile.TemporaryDirectory() as tmp:
+            release = Path(tmp) / "0" / "bin" / "aarch64" / "linux" / "release"
+            release.mkdir(parents=True)
+            for name in ("alpha", "beta"):
+                exe = release / name
+                exe.write_text("#!/bin/bash\n")
+                os.chmod(str(exe), 0o755)
+
+            total, skipped, failed = run_cuda_sample_set.run_tests(
+                tmp, "0", ["beta"]
+            )
+            self.assertEqual(total, 2)
+            self.assertEqual(skipped, 1)
+            self.assertEqual(failed, [])
+
     @patch("run_cuda_sample_set.argparse")
     def test_parse_args(self, argparse_mock):
         run_cuda_sample_set.parse_args()

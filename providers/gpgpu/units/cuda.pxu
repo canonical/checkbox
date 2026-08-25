@@ -46,6 +46,7 @@ imports: from com.canonical.plainbox import manifest
 category_id: nvgpgpu
 environ:
     CUDA_SAMPLES_VERSION
+    CUDA_SAMPLES_ARCHS
     CUDA_IGNORE_TESTS
     CUDA_IGNORE_TENSORCORE
     CUDA_MULTIGPU

@@ -34,6 +34,7 @@ flags:
 summary: Generate an ID for each reboot iteration
 ---
 id: init-boot-loop-data
+certification-status: blocker
 category_id: com.canonical.plainbox::stress
 summary: Generate the baseline data set to test against
 purpose: |

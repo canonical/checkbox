@@ -293,6 +293,11 @@ def clone_and_build(orig_dir, test_set, cuda_samples_version):
         else:
             logging.info("Keeping directory: %s", folder.name)
 
+    if not any(samples_dir.glob("[0-9]_*/")):
+        # This set does not exist in this cuda-samples version (e.g.
+        # 8_Platform_Specific arrived with v12.8).
+        return False
+
     if makefile_build:
         # Makefile-era samples (v12.5 and older): the recursive root
         # Makefile builds each remaining sample and releases its binary
@@ -303,7 +308,7 @@ def clone_and_build(orig_dir, test_set, cuda_samples_version):
             cwd=str(test_set_dir),
             check=False,
         )
-        return
+        return True
 
     cmake_file = test_set_dir / "CMakeLists.txt"
     cmake_file.write_text(
@@ -337,6 +342,7 @@ def clone_and_build(orig_dir, test_set, cuda_samples_version):
         cwd=str(build_dir),
         check=True,
     )
+    return True
 
 
 # Function to run tests
@@ -359,14 +365,18 @@ def run_tests(orig_dir, test_set, exclude_list):
             if os.access(str(exe), os.X_OK)
         ]
     else:
-        # Makefile-era layout: binaries released into bin/<arch>/linux/release
+        # Makefile-era layout: binaries released into bin/<arch>/linux/release.
+        # Sample binaries have undotted names; dotted entries are shipped
+        # artifacts (libraries, scripts), not tests.
         executable_list = [
             exe
             for release_dir in sorted(
                 (Path(orig_dir) / test_set).glob("bin/*/linux/release")
             )
             for exe in sorted(release_dir.iterdir())
-            if exe.is_file() and os.access(str(exe), os.X_OK)
+            if exe.is_file()
+            and os.access(str(exe), os.X_OK)
+            and "." not in exe.name
         ]
 
     skipped = 0
@@ -533,20 +543,39 @@ def main():
 
     try:
         if not args.no_clone:
-            clone_and_build(
+            set_exists = clone_and_build(
                 orig_dir, str(args.test_set), args.cuda_samples_version
             )
+            if not set_exists:
+                logging.info(
+                    "Set %s does not exist in cuda-samples v%s; "
+                    "nothing to test.",
+                    args.test_set,
+                    args.cuda_samples_version,
+                )
+                if not args.keep_cache:
+                    cleanup_temporary_files(orig_dir, str(args.test_set))
+                return
     except (subprocess.CalledProcessError, FileExistsError, OSError):
         if not args.keep_cache:
             cleanup_temporary_files(orig_dir, str(args.test_set))
         raise
 
-    for src, dest, extension in args.missing_files:
-        copy_and_set_permissions(
-            orig_dir / str(args.test_set) / src,
-            orig_dir / str(args.test_set) / dest,
-            extension,
-        )
+    # missing_files destinations are cmake-layout paths; Makefile-era
+    # builds run samples from the release dir instead. Creating build/
+    # here would also misroute run_tests into the cmake layout.
+    makefile_build = (
+        orig_dir / str(args.test_set) / "Makefile"
+    ).exists()
+    if not makefile_build:
+        for src, dest, extension in args.missing_files:
+            src_path = orig_dir / str(args.test_set) / src
+            if src_path.is_dir():
+                copy_and_set_permissions(
+                    src_path,
+                    orig_dir / str(args.test_set) / dest,
+                    extension,
+                )
 
     try:
         total, _, failed = run_tests(

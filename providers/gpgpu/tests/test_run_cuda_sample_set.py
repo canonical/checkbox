@@ -283,6 +283,7 @@ class TestCudaSamples(unittest.TestCase):
             run_cuda_sample_set.main()
 
         mock_run.side_effect = None
+        mock_clone.return_value = True
         mock_run.return_value = (3, 0, [])
         run_cuda_sample_set.main()
 
@@ -293,6 +294,13 @@ class TestCudaSamples(unittest.TestCase):
         mock_run.return_value = (0, 0, [])
         with self.assertRaises(SystemExit):
             run_cuda_sample_set.main()
+
+        # A set absent from this samples version is nothing-to-test, not
+        # a failure.
+        mock_clone.return_value = False
+        mock_run.reset_mock()
+        run_cuda_sample_set.main()
+        mock_run.assert_not_called()
 
     @mock.patch("subprocess.run")
     def test_clone_and_build_makefile_mode(self, mock_subprocess_run):

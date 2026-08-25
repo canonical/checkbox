@@ -48,6 +48,7 @@ parts:
       - linuxptp
       - snmp
       - python3-rpyc
+      - python3-pymodbus
       - gpsd
     override-prime: |
       craftctl default

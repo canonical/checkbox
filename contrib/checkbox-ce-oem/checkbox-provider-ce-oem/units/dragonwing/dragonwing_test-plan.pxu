@@ -17,7 +17,6 @@ _description:
     Manual Dragonwing project-specific tests for Ubuntu Server images.
 include:
 nested_part:
-    dragonwing-audio-manual
     dragonwing-camera-gstreamer-manual
     dragonwing-video-gstreamer-manual
 certification_status_overrides:
@@ -30,7 +29,6 @@ _description:
     Automated Dragonwing project-specific tests for Ubuntu Server images.
 include:
 nested_part:
-    dragonwing-audio-automated
     dragonwing-camera-gstreamer-automated
     dragonwing-fastrpc-automated
     dragonwing-sensor-automated
@@ -59,7 +57,6 @@ _description:
     Manual Dragonwing project-specific tests for Ubuntu Desktop images.
 include:
 nested_part:
-    dragonwing-audio-manual
     dragonwing-camera-gstreamer-manual
     dragonwing-video-gstreamer-manual
 certification_status_overrides:
@@ -72,7 +69,6 @@ _description:
     Automated Dragonwing project-specific tests for Ubuntu Desktop images.
 include:
 nested_part:
-    dragonwing-audio-automated
     dragonwing-camera-gstreamer-automated
     dragonwing-fastrpc-automated
     dragonwing-sensor-automated
@@ -101,7 +97,6 @@ _description:
     Manual Dragonwing project-specific tests for Ubuntu Core images.
 include:
 nested_part:
-    dragonwing-audio-manual
     dragonwing-camera-gstreamer-manual
     dragonwing-video-gstreamer-manual
 certification_status_overrides:
@@ -114,7 +109,6 @@ _description:
     Automated Dragonwing project-specific tests for Ubuntu Core images.
 include:
 nested_part:
-    dragonwing-audio-automated
     dragonwing-camera-gstreamer-automated
     dragonwing-fastrpc-automated
     dragonwing-sensor-automated

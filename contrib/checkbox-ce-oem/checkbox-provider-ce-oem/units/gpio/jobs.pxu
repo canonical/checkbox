@@ -31,6 +31,21 @@ requires:
   lsb.distributor_id == 'Ubuntu Core'
 category_id: com.canonical.certification::gpio
 plugin: resource
+command: resource_wrapper.sh -- check_gpio.py dump
+
+id: ce-oem-gpio/check-gadget-slots-resource
+_summary: Check GPIO gadget slots resource generation
+_description:
+    Verify GPIO gadget slots resource generation command executes directly.
+estimated_duration: 0.02
+imports:
+  from com.canonical.certification import lsb
+  from com.canonical.plainbox import manifest
+requires:
+  lsb.distributor_id == 'Ubuntu Core'
+  manifest.has_gpio_slot_been_defined == 'True'
+category_id: com.canonical.certification::gpio
+plugin: shell
 command: check_gpio.py dump
 
 unit: template
@@ -63,14 +78,17 @@ estimated_duration: 0.02
 category_id: com.canonical.certification::gpio
 plugin: resource
 environ: GPIO_LOOPBACK_PIN_MAPPING
-command:
-    awk '{
-        split($0, record, " ")
-        for (i in record) {
-            split(record[i], data, ":")
-            printf "OUTPUT_GPIO_CHIP_NUMBER: %s\nPHYSICAL_OUTPUT_PORT: %s\nGPIO_OUTPUT_PIN: %s\nINPUT_GPIO_CHIP_NUMBER: %s\nPHYSICAL_INPUT_PORT: %s\nGPIO_INPUT_PIN: %s\n", data[1], data[2], data[3], data[4], data[5], data[6]
-        }
-    }' <<< "$GPIO_LOOPBACK_PIN_MAPPING"
+command: resource_wrapper.sh -- resource_gpio_loopback_pin_mapping.sh
+
+id: check_gpio_loopback_pin_mapping_resource
+_summary: Check GPIO loopback pin mapping resource generation
+plugin: shell
+category_id: com.canonical.certification::gpio
+imports: from com.canonical.plainbox import manifest
+requires: manifest.gpio_loopback == 'True'
+estimated_duration: 0.02
+environ: GPIO_LOOPBACK_PIN_MAPPING
+command: resource_gpio_loopback_pin_mapping.sh
 
 id: ce-oem-gpio/loopback-on-phycial-output-{{PHYSICAL_OUTPUT_PORT}}-input-{{PHYSICAL_INPUT_PORT}}
 unit: template

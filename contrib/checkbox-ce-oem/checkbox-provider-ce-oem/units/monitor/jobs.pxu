@@ -10,6 +10,21 @@ category_id: com.canonical.plainbox::monitor
 plugin: resource
 environ: BACKLIGHT_PANEL_MAP
 command:
+    resource_wrapper.sh -- backlight_panel.py resource --panel-mapping "$BACKLIGHT_PANEL_MAP"
+
+id: ce-oem-monitor/check-backlight-panel-list-resource
+_summary: Check monitor backlight panel resource generation
+_description:
+    Verify backlight panel resource generation command executes directly.
+estimated_duration: 0.02
+category_id: com.canonical.plainbox::monitor
+plugin: shell
+environ: BACKLIGHT_PANEL_MAP
+imports:
+    from com.canonical.plainbox import manifest
+requires:
+    manifest.has_built_in_panel == "True"
+command:
     backlight_panel.py resource --panel-mapping "$BACKLIGHT_PANEL_MAP"
 
 id: ce-oem-monitor/panel-brightness-{{panel_alias}}

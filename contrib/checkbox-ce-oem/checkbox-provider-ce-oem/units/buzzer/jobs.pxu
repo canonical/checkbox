@@ -34,25 +34,17 @@ estimated_duration: 0.02
 category_id: buzzer
 plugin: resource
 environ: GPIO_BUZZER
-command:
-    awk '{
-        count = split($0, record, " ")
-        for (i = 1; i <= count; i++) {
-            split(record[i], data, ":")
-            if (length(data) == 2) {
-                # Example: BUZZER_EN:1
-                #   BUZZER_EN is the GPIO line name
-                #   You can find the name via /sys/kernel/debug/gpio or the gpioinfo command
-                port = data[1]
-                enable_value = data[2]
-            } else if (length(data) == 3) {
-                # Example: buzzer1:498:0
-                port = data[2]
-                enable_value = data[3]
-            }
-            printf "name: %s\nport: %s\nenable_value: %s\n\n", data[1], port, enable_value
-        }
-    }' <<< "$GPIO_BUZZER"
+command: resource_wrapper.sh -- resource_gpio_buzzer_mapping.sh
+
+id: check_gpio_buzzer_mapping_resource
+_summary: Check GPIO buzzer mapping resource generation
+plugin: shell
+category_id: buzzer
+imports: from com.canonical.plainbox import manifest
+requires: manifest.has_buzzer == 'True'
+estimated_duration: 0.02
+environ: GPIO_BUZZER
+command: resource_gpio_buzzer_mapping.sh
 
 unit: template
 template-resource: ce-oem-gpio-buzzer-mapping
@@ -80,14 +72,17 @@ estimated_duration: 0.02
 category_id: buzzer
 plugin: resource
 environ: PWM_BUZZER
-command:
-    awk '{
-        split($0, record, " ")
-        for (i in record) {
-            split(record[i], data, ":")
-            printf "name: %s\nchip: %s\nport: %s\nenable_value: %s\n", data[1], data[2], data[3], data[4]
-        }
-    }' <<< "$PWM_BUZZER"
+command: resource_wrapper.sh -- resource_pwm_buzzer_mapping.sh
+
+id: check_pwm_buzzer_mapping_resource
+_summary: Check PWM buzzer mapping resource generation
+plugin: shell
+category_id: buzzer
+imports: from com.canonical.plainbox import manifest
+requires: manifest.has_buzzer == 'True'
+estimated_duration: 0.02
+environ: PWM_BUZZER
+command: resource_pwm_buzzer_mapping.sh
 
 unit: template
 template-resource: ce-oem-pwm-buzzer-mapping

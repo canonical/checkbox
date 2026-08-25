@@ -2,6 +2,17 @@ id: jetson_cuda_samples_list
 estimated_duration: 0.01
 plugin: resource
 command:
+    resource_wrapper.sh -- /opt/nvidia/run-cuda-samples.py --list
+_description: Creates resource info for CUDA-samples tests
+
+id: check_jetson_cuda_samples_list_resource
+estimated_duration: 0.01
+plugin: shell
+imports:
+ from com.canonical.plainbox import manifest
+requires:
+ manifest.is_Jetson == 'True'
+command:
     # The deb and snap variants bootstrap in the same plans: stay quiet
     # when the core (snap) variant covers this device, fail visibly when
     # no cuda-samples variant is present at all.
@@ -11,19 +22,21 @@ command:
         exit 1
     fi
     /opt/nvidia/run-cuda-samples.py --list
-_description: Creates resource info for CUDA-samples tests
+_description: Verify CUDA-samples resource generation command executes directly
 
 id: jetson_cuda_samples_list_core
 estimated_duration: 0.01
 plugin: resource
-command:
-    # The deb and snap variants bootstrap in the same plans: stay quiet
-    # when the deb variant covers this device, fail visibly when no
-    # cuda-samples variant is present at all.
-    if [ ! -f /snap/cuda-samples/current/etc/cuda-samples.list ]; then
-        [ -x /opt/nvidia/run-cuda-samples.py ] && exit 0
-        echo "cuda-samples not found (neither snap nor deb runner)" >&2
-        exit 1
-    fi
-    while IFS= read -r f; do printf "name: %s\n\n" "$f"; done < /snap/cuda-samples/current/etc/cuda-samples.list
+command: resource_wrapper.sh -- resource_jetson_cuda_samples_list_core.sh
 _description: Creates resource info for CUDA-samples tests
+
+id: check_jetson_cuda_samples_list_core_resource
+estimated_duration: 0.01
+plugin: shell
+imports:
+ from com.canonical.plainbox import manifest
+requires:
+ manifest.is_Jetson == 'True'
+command:
+    resource_jetson_cuda_samples_list_core.sh
+_description: Verify CUDA-samples resource generation command executes directly

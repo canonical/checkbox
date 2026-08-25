@@ -2,6 +2,17 @@ id: jetson_tensorrt_samples_list
 estimated_duration: 0.01
 plugin: resource
 command:
+    resource_wrapper.sh -- /opt/nvidia/run-tensorrt-samples.py --list
+_description: Creates resource info for Tensor RT samples tests
+
+id: check_jetson_tensorrt_samples_list_resource
+estimated_duration: 0.01
+imports:
+  from com.canonical.plainbox import manifest
+requires:
+  manifest.is_Jetson == 'True'
+plugin: shell
+command:
     # The deb and snap variants bootstrap in the same plans: stay quiet
     # when the core (snap) variant covers this device, fail visibly when
     # no tensorrt-samples variant is present at all.
@@ -11,19 +22,21 @@ command:
         exit 1
     fi
     /opt/nvidia/run-tensorrt-samples.py --list
-_description: Creates resource info for Tensor RT samples tests
+_description: Verify TensorRT samples resource generation command executes directly
 
 id: jetson_tensorrt_samples_list_core
 estimated_duration: 0.01
 plugin: resource
-command:
-    # The deb and snap variants bootstrap in the same plans: stay quiet
-    # when the deb variant covers this device, fail visibly when no
-    # tensorrt-samples variant is present at all.
-    if [ ! -f /snap/tensorrt-samples/current/etc/tensorrt-samples.list ]; then
-        [ -x /opt/nvidia/run-tensorrt-samples.py ] && exit 0
-        echo "tensorrt-samples not found (neither snap nor deb runner)" >&2
-        exit 1
-    fi
-    while IFS= read -r f; do printf "name: %s\n\n" "$f"; done < /snap/tensorrt-samples/current/etc/tensorrt-samples.list
+command: resource_wrapper.sh -- resource_jetson_tensorrt_samples_list_core.sh
 _description: Creates resource info for Tensor RT samples tests
+
+id: check_jetson_tensorrt_samples_list_core_resource
+estimated_duration: 0.01
+imports:
+  from com.canonical.plainbox import manifest
+requires:
+  manifest.is_Jetson == 'True'
+plugin: shell
+command:
+    resource_jetson_tensorrt_samples_list_core.sh
+_description: Verify TensorRT samples resource generation command executes directly for Ubuntu Core

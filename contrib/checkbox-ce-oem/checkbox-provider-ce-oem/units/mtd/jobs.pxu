@@ -26,6 +26,16 @@ _summary: Gather list of mtd on the platform
 _description:
  Gather list of all Memory Technology Device on the platform
 estimated_duration: 1s
+command: resource_wrapper.sh -- mtd.sh list
+
+id: ce-oem-mtd/check-mtd-list-resource
+plugin: shell
+_summary: Check MTD resource generation
+_description:
+ Gather list of all Memory Technology Device on the platform directly.
+estimated_duration: 1s
+requires: manifest.has_mtd == 'True'
+imports: from com.canonical.plainbox import manifest
 command: mtd.sh list
 
 unit: template

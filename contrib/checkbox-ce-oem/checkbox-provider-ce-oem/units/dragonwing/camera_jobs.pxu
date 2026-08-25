@@ -4,7 +4,18 @@ id: dragonwing-camera/camera-list
 _summary: get cameras list and supported resolutions
 environ: CARMEL_CAMERAS
 command:
-    [ -n "$CARMEL_CAMERAS" ] && dragonwing_camera_test.py camera-list -c "$CARMEL_CAMERAS" || exit 1
+    resource_wrapper.sh -- dragonwing_camera_test.py camera-list -c "$CARMEL_CAMERAS"
+
+plugin: shell
+category_id: dragonwing-camera
+id: dragonwing-camera/check-camera-list-resource
+_summary: Check Dragonwing camera list resource generation
+imports: from com.canonical.plainbox import manifest
+requires:
+    manifest.is_dragonwing_series == 'True'
+environ: CARMEL_CAMERAS
+command:
+    dragonwing_camera_test.py camera-list -c "$CARMEL_CAMERAS"
 
 plugin: user-interact-verify
 category_id: dragonwing-camera
@@ -46,7 +57,7 @@ flags: also-after-suspend
 _verification:
     The preview on the display looks as expected without any abnormal symptoms
 environ: PLAINBOX_SESSION_SHARE
-command: 
+command:
     set -x
     export GST_DEBUG=2
     export GST_PLUGIN_PATH=/usr/lib/aarch64-linux-gnu/gstreamer-1.0/
@@ -75,7 +86,7 @@ id: dragonwing-camera/{{ name }}-yuv-{{ resolution }}-automated
 plugin: shell
 flags: also-after-suspend
 environ: PLAINBOX_SESSION_SHARE
-command: 
+command:
     set -x
     export GST_DEBUG=2
     export GST_PLUGIN_PATH=/usr/lib/aarch64-linux-gnu/gstreamer-1.0/
@@ -104,7 +115,7 @@ id: dragonwing-camera/{{ name }}-video-encode-{{ resolution }}-automated
 plugin: shell
 flags: also-after-suspend
 environ: PLAINBOX_SESSION_SHARE
-command: 
+command:
     set -x
     export GST_DEBUG=2
     export GST_PLUGIN_PATH=/usr/lib/aarch64-linux-gnu/gstreamer-1.0/
@@ -161,7 +172,7 @@ id: dragonwing-camera/{{ name }}-snapshot-{{ resolution }}-automated
 plugin: shell
 flags: also-after-suspend
 environ: PLAINBOX_SESSION_SHARE
-command: 
+command:
     set -x
     export GST_DEBUG=2
     export GST_PLUGIN_PATH=/usr/lib/aarch64-linux-gnu/gstreamer-1.0/

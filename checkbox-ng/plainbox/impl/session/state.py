@@ -1555,10 +1555,15 @@ class SessionState:
             if child_status in (
                 IJobResult.OUTCOME_FAIL,
                 IJobResult.OUTCOME_CRASH,
+                IJobResult.OUTCOME_XFAIL_FAIL,
             ):
                 tmp_result_map[category] = IJobResult.OUTCOME_FAIL
             elif (
-                child_status == IJobResult.OUTCOME_PASS
+                child_status
+                in (
+                    IJobResult.OUTCOME_PASS,
+                    IJobResult.OUTCOME_XFAIL_PASS,
+                )
                 and tmp_result_map[category] != IJobResult.OUTCOME_FAIL
             ):
                 tmp_result_map[category] = IJobResult.OUTCOME_PASS
@@ -1583,10 +1588,15 @@ class SessionState:
             if child_status in (
                 IJobResult.OUTCOME_FAIL,
                 IJobResult.OUTCOME_CRASH,
+                IJobResult.OUTCOME_XFAIL_FAIL,
             ):
                 global_outcome = IJobResult.OUTCOME_FAIL
             elif (
-                child_status == IJobResult.OUTCOME_PASS
+                child_status
+                in (
+                    IJobResult.OUTCOME_PASS,
+                    IJobResult.OUTCOME_XFAIL_PASS,
+                )
                 and global_outcome != IJobResult.OUTCOME_FAIL
             ):
                 global_outcome = IJobResult.OUTCOME_PASS
@@ -1611,10 +1621,15 @@ class SessionState:
             if child_status in (
                 IJobResult.OUTCOME_FAIL,
                 IJobResult.OUTCOME_CRASH,
+                IJobResult.OUTCOME_XFAIL_FAIL,
             ):
                 global_outcome = IJobResult.OUTCOME_FAIL
             elif (
-                child_status == IJobResult.OUTCOME_PASS
+                child_status
+                in (
+                    IJobResult.OUTCOME_PASS,
+                    IJobResult.OUTCOME_XFAIL_PASS,
+                )
                 and global_outcome != IJobResult.OUTCOME_FAIL
             ):
                 global_outcome = IJobResult.OUTCOME_PASS

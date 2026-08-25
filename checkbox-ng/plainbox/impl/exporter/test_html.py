@@ -27,7 +27,7 @@ Test definitions for plainbox.impl.exporter.html module
 """
 
 import io
-from unittest import mock, TestCase
+from unittest import TestCase, mock
 
 try:
     from importlib.resources import files

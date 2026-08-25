@@ -193,7 +193,9 @@ class UnifiedRunner(IJobRunner):
                 outcome=IJobResult.OUTCOME_FAIL,
                 comments=_("No command to run!"),
             ).get_result()
-        result_builder = self._run_command(job, environ, as_systemd_unit)
+        result_builder = self._run_command(
+            job, environ, as_systemd_unit, xfail=job_state.effective_xfail
+        )
 
         # for user-interact-verify and user-verify jobs the operator chooses
         # the final outcome, so we need to reset the outcome to undecided
@@ -210,7 +212,20 @@ class UnifiedRunner(IJobRunner):
         # this is left here to conform to the interface
         return []
 
-    def _run_command(self, job, environ, as_systemd_unit):
+    @staticmethod
+    def _return_code_to_outcome(return_code, xfail):
+        if return_code == 0:
+            if xfail:
+                return IJobResult.OUTCOME_XFAIL_FAIL
+            return IJobResult.OUTCOME_PASS
+        elif return_code < 0:
+            return IJobResult.OUTCOME_CRASH
+        else:
+            if xfail:
+                return IJobResult.OUTCOME_XFAIL_PASS
+            return IJobResult.OUTCOME_FAIL
+
+    def _run_command(self, job, environ, as_systemd_unit, xfail=False):
         start_time = time.time()
         slug = slugify(job.id)
         output_writer = CommandOutputWriter(
@@ -241,14 +256,8 @@ class UnifiedRunner(IJobRunner):
                 job, environ, ecmd, self._stdin, as_systemd_unit
             )
             io_log_gen.on_new_record.disconnect(writer.write_record)
-        if return_code == 0:
-            outcome = IJobResult.OUTCOME_PASS
-        elif return_code < 0:
-            outcome = IJobResult.OUTCOME_CRASH
-        else:
-            outcome = IJobResult.OUTCOME_FAIL
         return JobResultBuilder(
-            outcome=outcome,
+            outcome=self._return_code_to_outcome(return_code, xfail),
             return_code=return_code,
             io_log_filename=log,
             execution_duration=time.time() - start_time,

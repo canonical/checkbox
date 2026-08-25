@@ -5,7 +5,7 @@ _summary: Resource for specific i2c read and write scenario
 _purpose:
     Emit scenario_name for the ce-oem-i2c/specific_i2c_read_write job validation.
 environ: PLAINBOX_PROVIDER_DATA I2C_SPECIFIC_SCENARIO_FILE_PATH
-command: i2c_read_write.py resource
+command: resource_wrapper.sh -- i2c_read_write.py resource
 
 id: ce-oem-i2c/check-i2c_read_write_resource
 _summary: Check specific i2c scenario resource generation
@@ -17,6 +17,7 @@ imports:
 requires:
   manifest.has_specific_i2c_read_write_scenario == 'True'
 category_id: com.canonical.certification::i2c
+environ: PLAINBOX_PROVIDER_DATA I2C_SPECIFIC_SCENARIO_FILE_PATH
 plugin: shell
 command: i2c_read_write.py resource --debug
 
@@ -37,4 +38,4 @@ requires: manifest.has_specific_i2c_read_write_scenario == 'True'
 estimated_duration: 1s
 flags: also-after-suspend
 environ: PLAINBOX_PROVIDER_DATA I2C_SPECIFIC_SCENARIO_FILE_PATH
-command: i2c_read_write.py test -sn "{{ scenario_name }}"
+command: i2c_read_write.py test --debug -sn "{{ scenario_name }}"

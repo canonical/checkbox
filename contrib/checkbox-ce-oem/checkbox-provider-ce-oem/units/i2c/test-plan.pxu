@@ -24,4 +24,5 @@ _description:
 bootstrap_include:
     i2c_read_write_resource
 include:
+    ce-oem-i2c/check-i2c_read_write_resource
     ce-oem-i2c/specific_i2c_read_write

@@ -9,12 +9,26 @@ include:
 id: jetson-cuda-automated
 unit: test plan
 _name: Jetson CUDA automated tests
-_description: Automated Jetson CUDA tests
+_description:
+    Automated Jetson CUDA tests. Classic images use the gpgpu provider
+    jobs: per-sample jobs when a provision-time cuda-samples build is
+    configured (CUDA_SAMPLES_PATH), otherwise the per-set jobs that
+    clone and build at test time. Core images use the cuda-samples snap.
 include:
-    jetson-gpu/cuda-samples-name
+    com.canonical.certification::gpgpu/cuda-sample-name
+    com.canonical.certification::gpgpu/cuda-samples-0-int
+    com.canonical.certification::gpgpu/cuda-samples-1-utils
+    com.canonical.certification::gpgpu/cuda-samples-2-conc
+    com.canonical.certification::gpgpu/cuda-samples-3-feat
+    com.canonical.certification::gpgpu/cuda-samples-4-libs
+    com.canonical.certification::gpgpu/cuda-samples-5-dom
+    com.canonical.certification::gpgpu/cuda-samples-6-perf
+    com.canonical.certification::gpgpu/cuda-samples-7-nvvm
+    com.canonical.certification::gpgpu/cuda-samples-8-plat
     jetson-core-gpu/cuda-samples-name
 bootstrap_include:
-    jetson_cuda_samples_list
+    com.canonical.certification::cuda_prebuilt_state
+    com.canonical.certification::cuda_samples_prebuilt
     jetson_cuda_samples_list_core
 
 id: jetson-tensorrt-automated

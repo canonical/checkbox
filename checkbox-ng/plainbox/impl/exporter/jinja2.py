@@ -86,7 +86,7 @@ def do_nl2br(value):
     """Convert newlines to <br/> tags for HTML display."""
     if value is None:
         return ""
-    result = escape(value).replace("\n", Markup("<br/>"))
+    result = value.replace("\n", Markup("<br/>"))
     return Markup(result)
 
 

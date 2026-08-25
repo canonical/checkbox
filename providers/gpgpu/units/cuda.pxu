@@ -1,3 +1,46 @@
+id: cuda_prebuilt_state
+_summary: Check for a provision-time build of the CUDA samples
+plugin: resource
+estimated_duration: 0.1
+environ: CUDA_SAMPLES_PATH
+command:
+    if [ -n "$CUDA_SAMPLES_PATH" ] && [ -d "$CUDA_SAMPLES_PATH" ]; then
+        echo "available: True"
+    else
+        echo "available: False"
+    fi
+_description: Reports whether a pre-built cuda-samples tree is configured
+
+id: cuda_samples_prebuilt
+_summary: Enumerate prebuilt CUDA sample binaries
+plugin: resource
+estimated_duration: 1
+environ:
+    CUDA_SAMPLES_PATH
+    CUDA_IGNORE_TESTS
+    CUDA_IGNORE_TENSORCORE
+    CUDA_MULTIGPU
+command: run_cuda_sample_set.py list
+_description:
+ Creates one resource record per sample binary found in the pre-built
+ cuda-samples tree pointed at by CUDA_SAMPLES_PATH. Empty when unset.
+
+unit: template
+template-resource: cuda_samples_prebuilt
+template-unit: job
+template-id: gpgpu/cuda-sample-name
+id: gpgpu/cuda-sample-{name}
+category_id: nvgpgpu
+plugin: shell
+estimated_duration: 30
+environ: CUDA_SAMPLES_PATH
+imports: from com.canonical.plainbox import manifest
+requires:
+    manifest.has_nvidia_gpu == 'True'
+command: run_cuda_sample_set.py run {name}
+_template-summary: Run one prebuilt NVIDIA CUDA sample
+_summary: NVIDIA CUDA sample {name}
+
 id: gpgpu/cuda-samples-0-int
 imports: from com.canonical.plainbox import manifest
 category_id: nvgpgpu
@@ -10,6 +53,7 @@ plugin: shell
 estimated_duration: 4
 requires:
     manifest.has_nvidia_gpu == 'True'
+    cuda_prebuilt_state.available == 'False'
 _summary: NVIDIA CUDA 0 - introduction
 command: run_cuda_sample_set.py introduction
 _siblings: [

@@ -136,6 +136,26 @@ def parse_args():
         ]
     )
 
+    list_parser = subparsers.add_parser(
+        "list",
+        help="List prebuilt samples as Checkbox resource records",
+    )
+    list_parser.set_defaults(action="list")
+
+    run_parser = subparsers.add_parser(
+        "run",
+        help="Run one prebuilt sample by name",
+    )
+    run_parser.add_argument(
+        "name", help="Sample name as <category>/<binary>"
+    )
+    run_parser.set_defaults(action="run")
+
+    parser.add_argument(
+        "--samples-path",
+        default=os.getenv("CUDA_SAMPLES_PATH", ""),
+        help="Path to a pre-built cuda-samples tree (provision-time build).",
+    )
     parser.add_argument(
         "--cuda-samples-version",
         default=os.getenv("CUDA_SAMPLES_VERSION", "12.8"),
@@ -178,12 +198,12 @@ def parse_args():
         else []
     )
 
-    if args.cuda_ignore_tensorcore:
+    if args.cuda_ignore_tensorcore == "1":
         args.cuda_ignore_tests.extend(
             ["dmmaTensorCoreGemm", "tf32TensorCoreGemm", "bf16TensorCoreGemm"]
         )
 
-    if args.cuda_multigpu:
+    if args.cuda_multigpu == "1":
         args.cuda_ignore_tests.extend(
             [
                 "simpleP2P",
@@ -311,7 +331,7 @@ def run_tests(orig_dir, test_set, exclude_list):
         exclude_list ([str]): list of test to skip
 
     Returns:
-        (int, int): total tests, skipped tests
+        (int, int, [str]): total tests, skipped tests, failed test names
     """
     test_set_dir = Path(orig_dir) / test_set / "build" / "Samples"
 
@@ -322,15 +342,15 @@ def run_tests(orig_dir, test_set, exclude_list):
     ]
 
     skipped = 0
+    failed = []
     total = len(executable_list)
 
     for index, exe in enumerate(executable_list, 0):
         logging.info("Step %i of %i: %s", index, total, exe)
 
         exe_name = exe.name
-        excluded = any(exe_name == pattern for pattern in exclude_list)
 
-        if excluded:
+        if exe_name in exclude_list:
             logging.info("Skipping %s", exe)
             skipped += 1
             continue
@@ -338,24 +358,150 @@ def run_tests(orig_dir, test_set, exclude_list):
         logging.info("Running: %s in %s", exe.name, os.path.dirname(str(exe)))
         exe_args = "test.ll" if exe_name == "ptxgen" else None
 
-        proc = subprocess.run(
-            [str(exe), exe_args] if exe_args else [str(exe)],
-            check=True,
-            cwd=os.path.dirname(str(exe)),
-        )
+        try:
+            subprocess.run(
+                [str(exe), exe_args] if exe_args else [str(exe)],
+                check=True,
+                cwd=os.path.dirname(str(exe)),
+            )
+        except subprocess.CalledProcessError as err:
+            logging.error("FAILED (exit %s): %s", err.returncode, exe_name)
+            failed.append(exe_name)
 
-        code = proc.returncode if not isinstance(proc, bool) else 0
+    logging.info(
+        "All %i tests done; %i skipped, %i failed.",
+        total,
+        skipped,
+        len(failed),
+    )
+    return total, skipped, failed
 
-        logging.error("Error code : " + str(code))
 
-    logging.info("All %i tests done,; %s skipped.", total, skipped)
-    return total, skipped
+# Samples that do not run from a prebuilt Tegra/L4T tree, curated over
+# BSP releases by the runner previously shipped to the devices.
+PREBUILT_EXCLUDED = [
+    "streamOrderedAllocationP2P",
+    "conjugateGradientMultiDeviceCG",
+    "cuDLAErrorReporting",
+    "cuDLAHybridMode",
+    "cuDLALayerwiseStatsHybrid",
+    "EGLStream_CUDA_CrossGPU",
+    "EGLStream_CUDA_Interop",
+    "EGLSync_CUDAEvent_Interop",
+    "fluidsGLES",
+    "nbody_opengles",
+    "simpleCUFFT_2d_MGPU",
+    "simpleCUFFT_MGPU",
+    "simpleGLES",
+    "simpleGLES_EGLOutput",
+    # test apps we had to exclude since 12.6
+    "matrixMul_nvrtc",
+    "segmentationTreeThrust",
+    "memMapIPCDrv",
+    # test apps we had to exclude since 13.0
+    "cudaCompressibleMemory",
+    "dsl",
+    "ptxgen",
+    "simple",
+    "uvmlite",
+    # tests excluded since 13.2 will be reintegrated in future BSP updates
+    "nvJPEG",
+    "nvJPEG_encoder",
+]
+
+
+def prebuilt_release_dir(samples_path):
+    """Return the flat release directory of a provision-time build.
+
+    The provision script releases every built sample (binary or symlink)
+    into bin/<arch>/linux/release under the tree root.
+    """
+    for release_dir in sorted(Path(samples_path).glob("bin/*/linux/release")):
+        return release_dir
+    return None
+
+
+def prebuilt_samples(samples_path):
+    """Yield (name, path) for the runnable prebuilt samples.
+
+    A sample is runnable on this device when its binary exists in its
+    Samples/<category>/<test>/ source directory and was also released
+    into the flat bin/<arch>/linux/release directory, i.e. it actually
+    built here. name is <category>/<binary>, keeping the upstream sample
+    category in the Checkbox job id.
+    """
+    release_dir = prebuilt_release_dir(samples_path)
+    if release_dir is None:
+        return
+    released = {
+        exe.name
+        for exe in release_dir.iterdir()
+        if os.access(str(exe), os.X_OK)
+    }
+    samples_dir = Path(samples_path) / "Samples"
+    if not samples_dir.is_dir():
+        return
+    for category in sorted(samples_dir.iterdir()):
+        if not category.is_dir():
+            continue
+        for test in sorted(category.iterdir()):
+            if not test.is_dir():
+                continue
+            for exe in sorted(test.iterdir()):
+                if (
+                    exe.is_file()
+                    and os.access(str(exe), os.X_OK)
+                    and exe.name in released
+                ):
+                    yield "{}/{}".format(category.name, exe.name), exe
+
+
+def list_prebuilt_samples(args):
+    """Print one Checkbox resource record per runnable prebuilt sample.
+
+    Prints nothing (and succeeds) when no prebuilt tree is configured, so
+    that plans bootstrapping this resource stay quiet on machines that
+    build the samples at test time instead.
+    """
+    if not args.samples_path or not Path(args.samples_path).is_dir():
+        return
+    for name, exe in prebuilt_samples(args.samples_path):
+        if exe.name in PREBUILT_EXCLUDED or exe.name in args.cuda_ignore_tests:
+            continue
+        print("name: {}".format(name))
+        print("path: {}".format(exe))
+        print()
+
+
+def run_prebuilt_sample(args):
+    """Run a single prebuilt sample named <category>/<binary>.
+
+    Samples run from the flat release directory, matching how the tree
+    was exercised on the devices so far.
+    """
+    if not args.samples_path:
+        raise SystemExit("CUDA_SAMPLES_PATH is not set")
+    for name, exe in prebuilt_samples(args.samples_path):
+        if name == args.name:
+            release_dir = prebuilt_release_dir(args.samples_path)
+            subprocess.run([str(exe)], check=True, cwd=str(release_dir))
+            return
+    raise SystemExit(
+        "Sample {} not found in {}".format(args.name, args.samples_path)
+    )
 
 
 def main():
     args = parse_args()
-    orig_dir = Path.cwd()
     logging.basicConfig(level=args.log_level)
+
+    action = getattr(args, "action", "set")
+    if action == "list":
+        return list_prebuilt_samples(args)
+    if action == "run":
+        return run_prebuilt_sample(args)
+
+    orig_dir = Path.cwd()
 
     try:
         if not args.no_clone:
@@ -375,16 +521,15 @@ def main():
         )
 
     try:
-        run_tests(orig_dir, str(args.test_set), args.cuda_ignore_tests)
-
-    except subprocess.CalledProcessError:
-        logging.error("Test failed")
+        _, _, failed = run_tests(
+            orig_dir, str(args.test_set), args.cuda_ignore_tests
+        )
+    finally:
         if not args.keep_cache:
             cleanup_temporary_files(orig_dir, str(args.test_set))
-        raise
 
-    if not args.keep_cache:
-        cleanup_temporary_files(orig_dir, str(args.test_set))
+    if failed:
+        raise SystemExit("Failed samples: " + " ".join(failed))
 
 
 if __name__ == "__main__":

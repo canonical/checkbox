@@ -7,5 +7,7 @@ command: resource_wrapper.sh -- resource_genio_device_soc.sh
 id: check_genio_device_soc_resource
 plugin: shell
 _summary: Check Genio SoC type resource generation
+imports: from com.canonical.plainbox import manifest
+requires: manifest.is_Genio == 'True'
 estimated_duration: 0.1
 command: resource_genio_device_soc.sh

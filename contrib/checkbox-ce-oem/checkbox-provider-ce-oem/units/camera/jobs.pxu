@@ -15,6 +15,10 @@ estimated_duration: 0.02
 category_id: com.canonical.plainbox::camera
 plugin: shell
 environ: MIPI_SCENARIO_DEFINITION_FILE_PATH
+imports:
+    from com.canonical.plainbox import manifest
+requires:
+    manifest.has_vendor_specific_mipi_camera == "True"
 command:
     camera_test.py generate_resource -sf "$MIPI_SCENARIO_DEFINITION_FILE_PATH"
 

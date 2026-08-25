@@ -29,7 +29,6 @@ from pathlib import Path
 from typing import Any, Dict, List
 
 logging.basicConfig(
-    level=logging.INFO,
     format="%(levelname)-8s - %(module)-10s: %(funcName)s "
     + "%(lineno)-4d - %(message)s",
 )
@@ -380,7 +379,11 @@ def cmd_resource() -> int:
     Returns:
         Exit status code. Returns 0 when output is generated.
     """
-    scenarios = get_i2c_scenarios()
+    scenarios = get_i2c_scenarios(enable_logger=True)
+    if not scenarios:
+        logger.warning("No scenarios found in the scenarios file.")
+        return 1
+
     for _, k in enumerate(scenarios):
         print("scenario_name: {}".format(k))
         print("")

@@ -16,6 +16,7 @@ mandatory_include:
 bootstrap_include:
     dragonwing-sensor/sensor-list
 include:
+    dragonwing-sensor/check-sensor-list-resource
 
 
 id: dragonwing-sensor-automated
@@ -27,6 +28,7 @@ mandatory_include:
 bootstrap_include:
     dragonwing-sensor/sensor-list
 include:
+    dragonwing-sensor/check-sensor-list-resource
     dragonwing-sensor/detect
     dragonwing-sensor/streaming-test
     dragonwing-sensor/streaming-workhorse-test

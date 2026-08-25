@@ -31,6 +31,7 @@ template-unit: job
 template-id: gpgpu/cuda-sample-name
 id: gpgpu/cuda-sample-{name}
 category_id: nvgpgpu
+user: root
 plugin: shell
 estimated_duration: 30
 environ: CUDA_SAMPLES_PATH

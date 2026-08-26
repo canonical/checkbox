@@ -132,7 +132,6 @@ command: >-
   -l "$PLAINBOX_SESSION_SHARE"/cold_reboot_cycle-1/fwts-critical-only.log
 siblings:
   - id: cold-boot-loop-1-fwts-all
-  
     summary: Cold boot 1 FWTS test (all levels)
     # since we are only checking klog and oops
     # it's safe to do duplicate work and run fwts again
@@ -198,7 +197,7 @@ template-unit: job
 plugin: shell
 environ:
   - LD_LIBRARY_PATH
-command: >- # 'aborted' is the lowest non-warning level
+command: >-
   mkdir -p "$PLAINBOX_SESSION_SHARE"/cold_reboot_cycle-{reboot_id}
 
   checkbox-support-fwts_test

@@ -11,6 +11,8 @@ unit: test plan
 _name: Jetson CUDA automated tests
 _description: Automated Jetson CUDA tests
 include:
+    check_jetson_cuda_samples_list_resource
+    check_jetson_cuda_samples_list_core_resource
     jetson-gpu/cuda-samples-name
     jetson-core-gpu/cuda-samples-name
 bootstrap_include:
@@ -22,6 +24,8 @@ unit: test plan
 _name: Jetson TensorRT automated tests
 _description: Automated Jetson TensorRT tests
 include:
+    check_jetson_tensorrt_samples_list_resource
+    check_jetson_tensorrt_samples_list_core_resource
     jetson-gpu/tensorrt-samples-name
     jetson-core-gpu/tensorrt-samples-name
 bootstrap_include:

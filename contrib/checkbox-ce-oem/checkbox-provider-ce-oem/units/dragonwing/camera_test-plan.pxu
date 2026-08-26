@@ -16,6 +16,7 @@ mandatory_include:
 bootstrap_include:
     dragonwing-camera/camera-list
 include:
+    dragonwing-camera/check-camera-list-resource
     dragonwing-camera/preview
     dragonwing-camera/video-encode
     dragonwing-camera/snapshot
@@ -31,6 +32,7 @@ mandatory_include:
 bootstrap_include:
     dragonwing-camera/camera-list
 include:
+    dragonwing-camera/check-camera-list-resource
     dragonwing-camera/yuv-automated
     dragonwing-camera/video-encode-automated
     dragonwing-camera/snapshot-automated

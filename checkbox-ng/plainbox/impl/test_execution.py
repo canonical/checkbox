@@ -30,6 +30,7 @@ from plainbox.impl.execution import (
     get_execution_command_subshell,
     get_execution_command_systemd_unit,
     get_execution_environment,
+    IJobResult,
 )
 from plainbox.impl.unit.job import InvalidJob
 
@@ -651,3 +652,37 @@ class FakeJobRunnerTests(TestCase):
             mock_parent_run_job.assert_called_once_with(
                 job, job_state, environ, ui, True
             )
+
+    def test__return_code_to_outcome_ok(self):
+        self.assertEqual(
+            UnifiedRunner._return_code_to_outcome(0, xfail=False),
+            IJobResult.OUTCOME_PASS,
+        )
+
+    def test__return_code_to_outcome_ok_xfail_not_ok(self):
+        self.assertEqual(
+            UnifiedRunner._return_code_to_outcome(0, xfail=True),
+            IJobResult.OUTCOME_XFAIL_FAIL,
+        )
+
+    def test__return_code_to_outcome_fail(self):
+        self.assertEqual(
+            UnifiedRunner._return_code_to_outcome(1, xfail=False),
+            IJobResult.OUTCOME_FAIL,
+        )
+
+    def test__return_code_to_outcome_fail_xfail_pass(self):
+        self.assertEqual(
+            UnifiedRunner._return_code_to_outcome(1, xfail=True),
+            IJobResult.OUTCOME_XFAIL_PASS,
+        )
+
+    def test_crash_doesnt_use_xfail(self):
+        self.assertEqual(
+            UnifiedRunner._return_code_to_outcome(-1, xfail=True),
+            UnifiedRunner._return_code_to_outcome(-1, xfail=False),
+        )
+        self.assertEqual(
+            UnifiedRunner._return_code_to_outcome(-1, xfail=True),
+            IJobResult.OUTCOME_CRASH,
+        )

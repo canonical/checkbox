@@ -3,6 +3,7 @@ unit: test plan
 _name: Jetson automated camera tests
 _description: Automated Jetson camera tests
 include:
+    check_jetson_camera_sensors_resource
     jetson-camera/nvargus-image_sensor_source_index
     jetson-camera/gstreamer-image_sensor_source_index
     jetson-camera/gstreamer-video_sensor_source_index
@@ -16,6 +17,7 @@ unit: test plan
 _name: Jetson core automated camera tests
 _description: Automated Jetson core camera tests
 include:
+    check_jetson_camera_sensors_resource
     jetson-core-camera/nvargus-image_sensor_source_index
     jetson-core-camera/gstreamer-image_sensor_source_index
     jetson-core-camera/gstreamer-video_sensor_source_index

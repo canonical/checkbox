@@ -5,4 +5,17 @@ plugin: resource
 _summary:
     List all the SPI device nodes
 command:
+    resource_wrapper.sh -- spidev_test.py -l
+
+id: ce-oem-spi/check-list-resource
+category_id: spi
+estimated_duration: 2s
+plugin: shell
+imports:
+    from com.canonical.plainbox import manifest
+requires:
+    manifest.has_spi == 'True'
+_summary:
+    Check SPI device node resource generation
+command:
     spidev_test.py -l

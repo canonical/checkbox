@@ -23,17 +23,15 @@ plainbox.impl.unit.test_testplan
 Test definitions for plainbox.impl.unit.testplan module
 """
 
-from unittest import TestCase
 import doctest
 import operator
+from unittest import TestCase
+from functools import partial
 
-from plainbox.abc import IProvider1
-from plainbox.abc import ITextSource
+from plainbox.abc import IProvider1, ITextSource
 from plainbox.impl.secure.origin import Origin
-from plainbox.impl.secure.qualifiers import OperatorMatcher
-from plainbox.impl.secure.qualifiers import PatternMatcher
-from plainbox.impl.unit.testplan import TestPlanUnit
-from plainbox.impl.unit.testplan import TestPlanUnitSupport
+from plainbox.impl.secure.qualifiers import OperatorMatcher, PatternMatcher
+from plainbox.impl.unit.testplan import TestPlanUnit, TestPlanUnitSupport
 from plainbox.vendor import mock
 
 
@@ -56,6 +54,9 @@ class TestTestPlan(TestCase):
         self_mock = mock.Mock()
         self_mock.get_nested_part.return_value = []
         self_mock.certification_status_overrides = "apply blocker to Bar"
+        self_mock._get_overrides_field_value = partial(
+            TestPlanUnitSupport._get_overrides_field_value, self_mock
+        )
         overrides = TestPlanUnitSupport._get_blocker_status_overrides(
             self_mock, self_mock
         )
@@ -68,6 +69,9 @@ class TestTestPlan(TestCase):
         self_mock = mock.Mock()
         self_mock.get_nested_part.return_value = []
         self_mock.certification_status_overrides = ["apply blocker to Bar"]
+        self_mock._get_overrides_field_value = partial(
+            TestPlanUnitSupport._get_overrides_field_value, self_mock
+        )
         overrides = TestPlanUnitSupport._get_blocker_status_overrides(
             self_mock, self_mock
         )

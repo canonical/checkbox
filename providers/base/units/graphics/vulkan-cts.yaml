@@ -42,7 +42,7 @@ summary: Run the api tests from Vulkan-CTS (core)
 environ:
   - XDG_SESSION_TYPE
   - XDG_RUNTIME_DIR
-estimated_duration: 30m
+estimated_duration: 5m
 command: |
   # mustpass/main/vk-default/api.txt is contained in the vulkan-cts snap
   # All options can be found in vulkan-cts.list-tests
@@ -376,7 +376,7 @@ summary: Run the api tests from Vulkan-CTS (classic)
 environ:
   - XDG_SESSION_TYPE
   - XDG_RUNTIME_DIR
-estimated_duration: 30m
+estimated_duration: 5m
 command: |
   # mustpass/main/vk-default/api.txt is contained in the vulkan-cts snap
   # All options can be found in vulkan-cts.list-tests

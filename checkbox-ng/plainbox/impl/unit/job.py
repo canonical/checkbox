@@ -1086,15 +1086,13 @@ class JobDefinition(UnitWithId, IJobDefinition):
                 ),
                 CorrectFieldValueValidator(
                     lambda value, unit: all(
-                        [
-                            all(
-                                [
-                                    hasattr(JobDefinition, k.lstrip("_"))
-                                    for k in s.keys()
-                                ]
+                        all(
+                            hasattr(
+                                JobDefinition, k.lstrip("_").replace("-", "_")
                             )
-                            for s in value
-                        ]
+                            for k in s
+                        )
+                        for s in value
                     ),
                     Problem.bad_reference,
                     Severity.error,

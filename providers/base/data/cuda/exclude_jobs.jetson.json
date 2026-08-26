@@ -1,0 +1,105 @@
+{
+    "$schema": "exclude_jobs.schema.json",
+    "excludes": [
+        {
+            "name": "streamOrderedAllocationP2P",
+            "reason": "Needs multiple CUDA GPUs with P2P support"
+        },
+        {
+            "name": "conjugateGradientMultiDeviceCG",
+            "reason": "Needs multiple CUDA GPUs with P2P support"
+        },
+        {
+            "name": "simpleCUFFT_MGPU",
+            "reason": "Needs multiple CUDA GPUs"
+        },
+        {
+            "name": "simpleCUFFT_2d_MGPU",
+            "reason": "Needs multiple CUDA GPUs"
+        },
+        {
+            "name": "cuDLAErrorReporting",
+            "reason": "Excluded by NVIDIA's Jetson reference runner (cuDLA)"
+        },
+        {
+            "name": "cuDLAHybridMode",
+            "reason": "Excluded by NVIDIA's Jetson reference runner (cuDLA)"
+        },
+        {
+            "name": "cuDLALayerwiseStatsHybrid",
+            "reason": "Excluded by NVIDIA's Jetson reference runner (cuDLA)"
+        },
+        {
+            "name": "EGLStream_CUDA_CrossGPU",
+            "reason": "EGL/GLES rendering; hangs or fails on headless systems"
+        },
+        {
+            "name": "EGLStream_CUDA_Interop",
+            "reason": "EGL/GLES rendering; hangs or fails on headless systems"
+        },
+        {
+            "name": "EGLSync_CUDAEvent_Interop",
+            "reason": "EGL/GLES rendering; hangs or fails on headless systems"
+        },
+        {
+            "name": "fluidsGLES",
+            "reason": "EGL/GLES rendering; hangs or fails on headless systems"
+        },
+        {
+            "name": "nbody_opengles",
+            "reason": "EGL/GLES rendering; hangs or fails on headless systems"
+        },
+        {
+            "name": "simpleGLES",
+            "reason": "EGL/GLES rendering; hangs or fails on headless systems"
+        },
+        {
+            "name": "simpleGLES_EGLOutput",
+            "reason": "EGL/GLES rendering; hangs or fails on headless systems"
+        },
+        {
+            "name": "matrixMul_nvrtc",
+            "reason": "Fails on Jetson/L4T since CUDA 12.6 (NVIDIA Jetson reference runner exclude)"
+        },
+        {
+            "name": "segmentationTreeThrust",
+            "reason": "Fails on Jetson/L4T since CUDA 12.6 (NVIDIA Jetson reference runner exclude)"
+        },
+        {
+            "name": "memMapIPCDrv",
+            "reason": "Fails on Jetson/L4T since CUDA 12.6 (NVIDIA Jetson reference runner exclude)"
+        },
+        {
+            "name": "cudaCompressibleMemory",
+            "reason": "Fails on Jetson/L4T since CUDA 13.0 (NVIDIA Jetson reference runner exclude)"
+        },
+        {
+            "name": "dsl",
+            "reason": "Fails on Jetson/L4T since CUDA 13.0 (NVIDIA Jetson reference runner exclude)",
+            "category": "7_libNVVM"
+        },
+        {
+            "name": "simple",
+            "reason": "Fails on Jetson/L4T since CUDA 13.0 (NVIDIA Jetson reference runner exclude)",
+            "category": "7_libNVVM"
+        },
+        {
+            "name": "uvmlite",
+            "reason": "Fails on Jetson/L4T since CUDA 13.0 (NVIDIA Jetson reference runner exclude)",
+            "category": "7_libNVVM"
+        },
+        {
+            "name": "nvJPEG",
+            "reason": "Fails on Jetson/L4T since CUDA 13.2 (NVIDIA Jetson reference runner exclude); to be re-integrated in a future BSP update"
+        },
+        {
+            "name": "nvJPEG_encoder",
+            "reason": "Fails on Jetson/L4T since CUDA 13.2 (NVIDIA Jetson reference runner exclude); to be re-integrated in a future BSP update"
+        },
+        {
+            "name": "ptxgen",
+            "category": "7_libNVVM",
+            "reason": "Requires an input .ll/.bc file argument; not a self-contained test (prints usage and exits non-zero)"
+        }
+    ]
+}

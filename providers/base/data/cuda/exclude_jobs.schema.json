@@ -1,0 +1,36 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "title": "cuda-samples exclude list",
+    "description": "Samples that must not run on this project/device. Excluded samples are still listed by the cuda_samples_resource resource job (with skip: True and the reason), so the jobs generated for them appear as visible skips in the run instead of silently disappearing.",
+    "type": "object",
+    "additionalProperties": false,
+    "required": ["excludes"],
+    "properties": {
+        "$schema": {"type": "string"},
+        "excludes": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": ["name", "reason"],
+                "properties": {
+                    "name": {
+                        "type": "string",
+                        "minLength": 1,
+                        "description": "Exact sample directory name, e.g. deviceQuery"
+                    },
+                    "category": {
+                        "type": "string",
+                        "minLength": 1,
+                        "description": "Optional samples category directory, e.g. 0_Introduction; when present the exclude only matches that category"
+                    },
+                    "reason": {
+                        "type": "string",
+                        "minLength": 1,
+                        "description": "Why the sample is excluded; shown as the job's skip reason"
+                    }
+                }
+            }
+        }
+    }
+}

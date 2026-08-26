@@ -1,0 +1,16 @@
+unit: job
+plugin: resource
+id: cuda_samples_resource
+category_id: cuda
+_summary: Enumerate the samples in the prebuilt cuda-samples tree
+_description:
+ Emits one record per sample source directory in the cuda-samples tree
+ (category/name/path).  Samples listed in the exclude-jobs JSON file
+ are still emitted, with skip set to True and their skip_reason, so
+ the jobs generated for them show up as visible skips instead of
+ silently disappearing from the run.
+estimated_duration: 5s
+imports: from com.canonical.plainbox import manifest
+requires: manifest.has_nvidia_cuda == 'True'
+environ: CUDA_SAMPLES_PATH CUDA_SAMPLES_EXCLUDE_FILE
+command: cuda_samples.py list

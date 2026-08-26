@@ -30,8 +30,7 @@ def clear_qdisc_settings(interface: str) -> None:
     # Run the tc command with a timeout of 1 second
     subprocess.run(
         ["tc", "qdisc", "del", "dev", interface, "root"],
-        stdout=subprocess.PIPE,  # Redirect stdout to a pipe.
-        stderr=subprocess.PIPE,  # Redirect stderr to a pipe.
+        capture_output=True,
         timeout=1,
         check=False,  # cleaning nonexistent setting will return 2
     )
@@ -514,10 +513,8 @@ def time_based_shaper(interface: str, timeout: int = 10) -> None:
     # raise a SystemExit exception
     if cnt > timeout * 1000 * 0.05:
         raise SystemExit(
-            (
-                f"[FAIL] There are {cnt}/{timeout * 1000} (more than 5%) packets not "
-                "within the required time interval (999500 - 1000500)"
-            )
+            f"[FAIL] There are {cnt}/{timeout * 1000} (more than 5%) packets not "
+            "within the required time interval (999500 - 1000500)"
         )
 
     print(
@@ -685,8 +682,7 @@ def traffic_scheduling(
     )
     result = subprocess.run(
         shlex.split(cmd),
-        stdout=subprocess.PIPE,
-        stderr=subprocess.PIPE,
+        capture_output=True,
         timeout=1,
         check=True,
     )
@@ -753,8 +749,7 @@ def traffic_scheduling(
     before = subprocess.run(
         ["tc", "-s", "qdisc", "show", "dev", interface],
         check=True,
-        stdout=subprocess.PIPE,
-        stderr=subprocess.PIPE,
+        capture_output=True,
         text=True,
     )
     print(before.stdout, flush=True)
@@ -767,8 +762,7 @@ def traffic_scheduling(
     after = subprocess.run(
         ["tc", "-s", "qdisc", "show", "dev", interface],
         check=True,
-        stdout=subprocess.PIPE,
-        stderr=subprocess.PIPE,
+        capture_output=True,
         text=True,
     )
     print(after.stdout, flush=True)
@@ -830,8 +824,7 @@ def get_interface_ip(interface: str):
     result = subprocess.run(
         ["ip", "-4", "-o", "addr", "show", "dev", interface],
         check=True,
-        stdout=subprocess.PIPE,
-        stderr=subprocess.PIPE,
+        capture_output=True,
         text=True,
     )
     if result.returncode != 0:

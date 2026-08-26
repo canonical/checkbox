@@ -495,20 +495,20 @@ def time_based_shaper(interface: str, timeout: int = 10) -> None:
     # capture packets with tcpdump and
     # check that they are within the required time interval
     cmd = [
-        "tcpdump", 
-        "-G", # rotate output file every <timeout> seconds
-        str(timeout), # since we write to stdout, tcpdump stops after 10s
-        "-Q", 
-        "out", # only check outgoing packets
-        "-ttt",#print time delta for each packet
-        "-ni", # do not resolve ip
-        interface, # and listen on this interface
-        "--time-stamp-precision=nano", 
-        "-j", # specify timestamp type
+        "tcpdump",
+        "-G",  # rotate output file every <timeout> seconds
+        str(timeout),  # since we write to stdout, tcpdump stops after 10s
+        "-Q",
+        "out",  # only check outgoing packets
+        "-ttt",  # print time delta for each packet
+        "-ni",  # do not resolve ip
+        interface,  # and listen on this interface
+        "--time-stamp-precision=nano",
+        "-j",  # specify timestamp type
         "adapter_unsynced",
-        "port", # check this port only
+        "port",  # check this port only
         "7788",
-        "-c", # stop after this many packets
+        "-c",  # stop after this many packets
         str(timeout * 1000),
     ]
     tcp_dump_proc = subprocess.Popen(cmd, stdout=subprocess.PIPE, text=True)
@@ -573,21 +573,34 @@ def credit_based_shaper(
     )
     subprocess.run(["ping", "-I", interface, "-c", "5", server_ip], check=True)
 
-    # Replace the main qdisc with a multi-queue qdisc (mqprio) with four
-    # traffic classes and 1 queue for each class
-    # Set the queues to be associated with classes 0-3
-    # and enable hardware offload
+    # this is mostly the same as time based shaper
+    # except it uses a different handle
+    # https://man7.org/linux/man-pages/man8/tc-mqprio.8.html
     cmd = (
-        f"tc qdisc replace dev {interface} handle 100: "
-        "parent root mqprio num_tc 4 "
-        "map 0 1 2 3 3 3 3 3 3 3 3 3 3 3 3 3 "
-        "queues 1@0 1@1 1@2 1@3 hw 0"
+        # create a new Queueing Discipline at <interface> with handle 8001:
+        ["tc", "qdisc", "add", "dev", interface, "handle", "100:"]
+        # attach this Discipline to the root
+        # use the multi queue priority scheme (mqprio)
+        # and create 4 unique traffic classes
+        + ["parent", "root", "mqprio", "num_tc", "4"]
+        + [
+            "map",  # assign each of the 16 prio bands to the traffic classes
+            "0",  # band 0 to class 0
+            "1",  # band 1 to class 1
+            "2",  # band 2 to class 2
+            *(["3"] * (16 - 3)),  # dump all remaining bands to class 3
+        ]
+        # all traffic classes start with exactly 1 queue
+        + ["queues", "1@0", "1@1", "1@2", "1@3"]
+        # disable hw offloading
+        + ["hw", "0"]
     )
-    subprocess.run(shlex.split(cmd), timeout=1, check=False)
+    subprocess.run(cmd, timeout=1, check=False)
 
     # Show the current qdisc settings
-    cmd = f"tc -g class show dev {interface}"
-    subprocess.run(shlex.split(cmd), timeout=1, check=False)
+    subprocess.run(
+        ["tc", "-g", "class", "show", "dev", interface], timeout=1, check=False
+    )
 
     # Wait for 5 seconds before replacing the parent qdisc with a credit-based
     # shaper (cbs) and configuring its parameters
@@ -597,12 +610,23 @@ def credit_based_shaper(
     # Set the low credit and high credit values
     # Set the send slope and idle slope values
     # Enable offload
-    cmd = (
-        f"tc qdisc replace dev {interface} parent 100:1 cbs "
-        "locredit -1350 hicredit 150 sendslope -900000 "
-        "idleslope 100000 offload 1"
-    )
-    subprocess.run(shlex.split(cmd), timeout=1, check=False)
+    # cmd = (
+    cmd = ["tc", "qdisc", "replace", "dev", interface, "parent", "100:1"] + [
+        "cbs",  # configure credit based shaping (cbs)
+        "locredit",  # min credit
+        "-1350",
+        "hicredit",  # max credit
+        "150",
+        "sendslope",
+        "-900000",  # comes from idleslope - link_speed
+        # NOTE: this value is picked specifically for 1Gbps ports
+        "idleslope",
+        "100000",  # reserve 100Mbps bandwidth
+        "offload",
+        "1",  # enable hardware offload
+    ]
+
+    subprocess.run(cmd, timeout=1, check=False)
 
     # Show the current qdisc settings
     subprocess.run(

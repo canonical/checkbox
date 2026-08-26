@@ -418,8 +418,7 @@ def time_sync_phc2sys(
 
         if state != "s2":
             raise SystemExit(
-                "[FAIL] state is not equal to s2 "
-                + "for the last 10 seconds\n"
+                "[FAIL] state is not equal to s2 for the last 10 seconds\n"
                 + "s0: unsynced\n"
                 + "s1: syncing\n"
                 + "s2: synced"
@@ -446,55 +445,81 @@ def time_based_shaper(interface: str, timeout: int = 10) -> None:
         SystemExit: If there are more than 5% packets not within the required
             time interval.
     """
-
-    # Add mqprio qdisc with four traffic classes
+    # https://man7.org/linux/man-pages/man8/tc-mqprio.8.html
     cmd = (
-        f"tc qdisc add dev {interface} handle 8001: "
-        "parent root mqprio num_tc 4 "
-        "map 0 1 2 3 3 3 3 3 3 3 3 3 3 3 3 3 queues 1@0 1@1 1@2 1@3 hw 0"
+        # create a new Queueing Discipline at <interface> with handle 8001:
+        ["tc", "qdisc", "add", "dev", interface, "handle", "8001:"]
+        # attach this Discipline to the root
+        # use the multi queue priority scheme (mqprio)
+        # and create 4 unique traffic classes
+        + ["parent", "root", "mqprio", "num_tc", "4"]
+        + [
+            "map",  # assign each of the 16 prio bands to the traffic classes
+            "0",  # band 0 to class 0
+            "1",  # band 1 to class 1
+            "2",  # band 2 to class 2
+            *(["3"] * (16 - 3)),  # dump all remaining bands to class 3
+        ]
+        # all traffic classes start with exactly 1 queue
+        + ["queues", "1@0", "1@1", "1@2", "1@3"]
+        # disable hw offloading
+        + ["hw", "0"]
     )
-    subprocess.run(shlex.split(cmd), timeout=1, check=False)
+    subprocess.run(cmd, timeout=1, check=False)
 
-    # Replace parent qdisc with etf offload
+    # configure Earliest TxTime First
+    # https://man7.org/linux/man-pages/man8/tc-etf.8.html
     cmd = (
-        f"tc qdisc replace dev {interface} "
-        "parent 8001:4 etf offload clockid CLOCK_TAI "
-        "delta 500000"
+        # Replace parent qdisc with etf offload
+        ["tc", "qdisc", "replace", "dev", interface]
+        # specifically, replace the 4th queue
+        + ["parent", "8001:4"]
+        + ["etf", "offload", "clockid", "CLOCK_TAI", "delta", "500000"]
     )
-    subprocess.run(shlex.split(cmd), timeout=1, check=False)
+    subprocess.run(cmd, timeout=1, check=False)
 
-    # Show the current qdisc settings
-    cmd = f"tc qdisc show dev {interface}"
-    subprocess.run(shlex.split(cmd), timeout=1, check=False)
+    # show the current qdisc settings
+    subprocess.run(
+        ["tc", "qdisc", "show", "dev", interface], timeout=1, check=False
+    )
 
-    # Run udp_tai with specified parameters
-    cmd = f"udp_tai -c 3 -i {interface} -P 1000000 -p 90 -d 600000"
+    # spawn udp_tai. To get this command, compile from
+    # https://gist.github.com/tomli380576/73529ee1449106eaa7d289ef0253c9ed
     process_udp_tai = subprocess.Popen(
-        shlex.split(cmd), stdout=subprocess.PIPE, text=True
+        ["udp_tai", "-c", "3", "-i", interface]
+        + ["-P", "1000000", "-p", "90", "-d", "600000"],
+        stdout=subprocess.PIPE,
+        text=True,
     )
 
-    # Capture packets with tcpdump and
+    # capture packets with tcpdump and
     # check that they are within the required time interval
-    cmd = (
-        f"tcpdump -G {timeout} -Q out -ttt -ni {interface} "
-        "--time-stamp-precision=nano "
-        f"-j adapter_unsynced port 7788 -c {timeout * 1000}"
-    )
-    process = subprocess.Popen(
-        shlex.split(cmd), stdout=subprocess.PIPE, text=True
-    )
+    cmd = [
+        "tcpdump", 
+        "-G", # rotate output file every <timeout> seconds
+        str(timeout), # since we write to stdout, tcpdump stops after 10s
+        "-Q", 
+        "out", # only check outgoing packets
+        "-ttt",#print time delta for each packet
+        "-ni", # do not resolve ip
+        interface, # and listen on this interface
+        "--time-stamp-precision=nano", 
+        "-j", # specify timestamp type
+        "adapter_unsynced",
+        "port", # check this port only
+        "7788",
+        "-c", # stop after this many packets
+        str(timeout * 1000),
+    ]
+    tcp_dump_proc = subprocess.Popen(cmd, stdout=subprocess.PIPE, text=True)
     try:
-        stdout, stderr = process.communicate(timeout=timeout * 2)
+        stdout, stderr = tcp_dump_proc.communicate(timeout=timeout * 2)
     except subprocess.TimeoutExpired:
-        process.kill()
-        raise SystemExit(f"Reach timeout {timeout * 2}")
+        tcp_dump_proc.kill()
+        raise SystemExit(f"Reached timeout {timeout * 2}s")
     finally:
         process_udp_tai.kill()
 
-    if stdout is None or stderr is not None:
-        raise SystemExit("No output from tcpdump!")
-
-    # Print the output of tcpdump
     print("Standard Output (stdout):")
     print(stdout)
     print("Standard Error (stderr):")

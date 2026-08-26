@@ -35,8 +35,8 @@ logger = logging.getLogger(__name__)
 
 # Resolved from PATH: /snap/bin/... (the multimedia snap alias set
 # up before testing on Ubuntu Core) or /usr/bin / /usr/sbin on classic images
-RPICAM_VID_BIN = shutil.which("rpicam-vid")
-RPICAM_STILL_BIN = shutil.which("rpicam-still")
+RPICAM_VID_BIN = shutil.which("rpicam-vid") or "rpicam-vid"
+RPICAM_STILL_BIN = shutil.which("rpicam-still") or "rpicam-still"
 
 
 class SupportedCamera(Enum):

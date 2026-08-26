@@ -72,6 +72,7 @@ apps:
     environment:
       PYTHONPATH: $SNAP/lib/python3.8/site-packages/:$SNAP/lib64/python3.8/site-packages/:$SNAP/usr/lib/python3/dist-packages:$PYTHONPATH
       PATH: /snap/bin:$PATH
+      PYTHONUNBUFFERED: "1"
   agent:
     command: bin/checkbox-cli run-agent
     daemon: simple
@@ -82,6 +83,7 @@ apps:
     environment:
       PYTHONPATH: $SNAP/lib/python3.8/site-packages/:$SNAP/lib64/python3.8/site-packages/:$SNAP/usr/lib/python3/dist-packages:$PYTHONPATH
       PATH: /snap/bin:$PATH
+      PYTHONUNBUFFERED: "1"
 
 package-repositories:
   - type: apt

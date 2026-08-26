@@ -6,6 +6,8 @@ function append_path() {
   fi
 }
 
+export PYTHONUNBUFFERED=1
+
 if [ -z "$RUNTIME" ]; then
   RUNTIME=$SNAP
 else

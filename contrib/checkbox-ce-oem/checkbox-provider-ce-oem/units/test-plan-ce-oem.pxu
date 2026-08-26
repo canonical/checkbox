@@ -80,7 +80,7 @@ nested_part:
     ce-oem-audio-automated
     ce-oem-otg-automated
     ce-oem-rtc-automated
-    before-suspend-ce-oem-serial-automated
+    ce-oem-serial-automated
     ce-oem-eeprom-automated
     ce-oem-led-automated
     ce-oem-accelerator-automated
@@ -168,7 +168,6 @@ nested_part:
     after-suspend-ce-oem-audio-automated
     after-suspend-ce-oem-otg-automated
     after-suspend-ce-oem-rtc-automated
-    after-suspend-ce-oem-serial-automated
     after-suspend-ce-oem-eeprom-automated
     after-suspend-ce-oem-led-automated
     after-suspend-ce-oem-accelerator-automated

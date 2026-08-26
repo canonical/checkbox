@@ -143,7 +143,7 @@ siblings:
       checkbox-support-fwts_test 
       -t klog 
       -t oops
-      -f aborted
+      -f low
       -l "$PLAINBOX_SESSION_SHARE"/cold_reboot_cycle-1/fwts-all.log
   - id: cold-boot-loop-1-hardware-renderer-check
     summary: Cold boot 1 hardware renderer check
@@ -205,7 +205,7 @@ command: >- # 'aborted' is the lowest non-warning level
   checkbox-support-fwts_test
   -t klog
   -t oops
-  -f aborted 
+  -f low 
   -l "$PLAINBOX_SESSION_SHARE"/cold_reboot_cycle-{reboot_id}/fwts-all.log
 user: root
 flags:
@@ -343,7 +343,7 @@ siblings:
       checkbox-support-fwts_test
       -t klog
       -t oops
-      -f aborted 
+      -f low 
       -l "$PLAINBOX_SESSION_SHARE"/warm_reboot_cycle-1/fwts-all.log
   - id: warm-boot-loop-1-hardware-renderer-check
     summary: Warm boot 1 hardware renderer check
@@ -407,7 +407,7 @@ command: >-
   checkbox-support-fwts_test
   -t klog
   -t oops
-  -f aborted 
+  -f low 
   -l "$PLAINBOX_SESSION_SHARE"/warm_reboot_cycle-{reboot_id}/fwts-all.log
 user: root
 flags:

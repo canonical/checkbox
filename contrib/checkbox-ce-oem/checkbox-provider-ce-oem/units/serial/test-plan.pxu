@@ -44,7 +44,7 @@ bootstrap_include:
     ce-oem-serial/serial-list
     ce-oem-serial/serial-console-list
 include:
-    after-suspend-ce-oem-serial/serial-transmit-data-.*
+    after-suspend-ce-oem-serial/serial-transmit-data-(?!stress-).*
     after-suspend-ce-oem-serial/serial-console-.*
 
 id: ce-oem-serial-stress

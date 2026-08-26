@@ -118,7 +118,6 @@ depends:
 id: cold-boot-loop-1-fwts-critical-only
 category_id: stress-tests/cold-boot
 summary: Cold boot 1 FWTS test (only fail at critical errors)
-purpose: Compare data after cold boot with baseline data set
 unit: job
 plugin: shell
 environ:

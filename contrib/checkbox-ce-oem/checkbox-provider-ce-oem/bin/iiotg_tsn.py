@@ -235,7 +235,7 @@ def server_mode(
         # Run ptp4l as master with the provided interface and configuration
         process = ptp4l(interface=interface, cfg=cfg, server_mode=True)
         processes.append(process)
-        print("Start running ptp4l on {} as master".format(interface))
+        print(f"Start running ptp4l on {interface} as grandmaster")
 
         # Get the IP address of the interface
         ip = get_interface_ip(interface)
@@ -322,7 +322,7 @@ def time_sync_ptp4l(
         print("Standard Error (stderr):", file=sys.stderr)
         print(stderr, file=sys.stderr)
         raise SystemExit(
-            "[Error] Caught error while running ptp4l on {}".format(interface)
+            f"[Error] Caught error while running ptp4l on {interface}"
         )
 
     # now we check the last 10 lines of ptp4l's output
@@ -405,9 +405,7 @@ def time_sync_phc2sys(
         print("Standard Error (stderr):", file=sys.stderr)
         print(stderr, file=sys.stderr)
         raise SystemExit(
-            "[Error] Caught error while running phc2sys on {}".format(
-                interface
-            )
+            f"[Error] Caught error while running phc2sys on {interface}"
         )
 
     for line in last_10_lines:
@@ -452,24 +450,24 @@ def time_based_shaper(interface: str, timeout: int = 10) -> None:
 
     # Add mqprio qdisc with four traffic classes
     cmd = (
-        "tc qdisc add dev {} handle 8001: parent root mqprio num_tc 4 "
+        f"tc qdisc add dev {interface} handle 8001: parent root mqprio num_tc 4 "
         "map 0 1 2 3 3 3 3 3 3 3 3 3 3 3 3 3 queues 1@0 1@1 1@2 1@3 hw 0"
-    ).format(interface)
+    )
     subprocess.run(shlex.split(cmd), timeout=1, check=False)
 
     # Replace parent qdisc with etf offload
     cmd = (
-        "tc qdisc replace dev {} parent 8001:4 etf offload clockid CLOCK_TAI "
+        f"tc qdisc replace dev {interface} parent 8001:4 etf offload clockid CLOCK_TAI "
         "delta 500000"
-    ).format(interface)
+    )
     subprocess.run(shlex.split(cmd), timeout=1, check=False)
 
     # Show the current qdisc settings
-    cmd = "tc qdisc show dev {}".format(interface)
+    cmd = f"tc qdisc show dev {interface}"
     subprocess.run(shlex.split(cmd), timeout=1, check=False)
 
     # Run udp_tai with specified parameters
-    cmd = "udp_tai -c 3 -i {} -P 1000000 -p 90 -d 600000".format(interface)
+    cmd = f"udp_tai -c 3 -i {interface} -P 1000000 -p 90 -d 600000"
     process_udp_tai = subprocess.Popen(
         shlex.split(cmd), stdout=subprocess.PIPE, text=True
     )
@@ -477,9 +475,9 @@ def time_based_shaper(interface: str, timeout: int = 10) -> None:
     # Capture packets with tcpdump and
     # check that they are within the required time interval
     cmd = (
-        "tcpdump -G {} -Q out -ttt -ni {} --time-stamp-precision=nano "
-        "-j adapter_unsynced port 7788 -c {}"
-    ).format(timeout, interface, timeout * 1000)
+        f"tcpdump -G {timeout} -Q out -ttt -ni {interface} --time-stamp-precision=nano "
+        f"-j adapter_unsynced port 7788 -c {timeout * 1000}"
+    )
     process = subprocess.Popen(
         shlex.split(cmd), stdout=subprocess.PIPE, text=True
     )
@@ -487,7 +485,7 @@ def time_based_shaper(interface: str, timeout: int = 10) -> None:
         stdout, stderr = process.communicate(timeout=timeout * 2)
     except subprocess.TimeoutExpired:
         process.kill()
-        raise SystemExit("Reach timeout {}".format(timeout * 2))
+        raise SystemExit(f"Reach timeout {timeout * 2}")
     finally:
         process_udp_tai.kill()
 
@@ -507,7 +505,7 @@ def time_based_shaper(interface: str, timeout: int = 10) -> None:
             time = int(line.split()[0].split(".")[1])
         except (IndexError, ValueError):
             raise SystemExit(
-                "[ERROR] Cannot find the time in the line: {}".format(line)
+                f"[ERROR] Cannot find the time in the line: {line}"
             )
         if not 999500 < time < 1000500:
             cnt += 1
@@ -517,14 +515,14 @@ def time_based_shaper(interface: str, timeout: int = 10) -> None:
     if cnt > timeout * 1000 * 0.05:
         raise SystemExit(
             (
-                "[FAIL] There are {}/{} (more than 5%) packets not "
+                f"[FAIL] There are {cnt}/{timeout * 1000} (more than 5%) packets not "
                 "within the required time interval (999500 - 1000500)"
-            ).format(cnt, timeout * 1000)
+            )
         )
 
     print(
         "[PASS] There are",
-        "{}/{}".format(cnt, timeout * 1000),
+        f"{cnt}/{timeout * 1000}",
         "packets (less than 5%) within",
         "the required time interval (999500 - 1000500)",
     )
@@ -555,14 +553,15 @@ def credit_based_shaper(
     # Set the queues to be associated with classes 0-3
     # and enable hardware offload
     cmd = (
-        "tc qdisc replace dev {} handle 100: parent root mqprio num_tc 4 "
+        f"tc qdisc replace dev {interface} handle 100: "
+        "parent root mqprio num_tc 4 "
         "map 0 1 2 3 3 3 3 3 3 3 3 3 3 3 3 3 "
         "queues 1@0 1@1 1@2 1@3 hw 0"
-    ).format(interface)
+    )
     subprocess.run(shlex.split(cmd), timeout=1, check=False)
 
     # Show the current qdisc settings
-    cmd = "tc -g class show dev {}".format(interface)
+    cmd = f"tc -g class show dev {interface}"
     subprocess.run(shlex.split(cmd), timeout=1, check=False)
 
     # Wait for 5 seconds before replacing the parent qdisc with a credit-based
@@ -574,10 +573,10 @@ def credit_based_shaper(
     # Set the send slope and idle slope values
     # Enable offload
     cmd = (
-        "tc qdisc replace dev {} parent 100:1 cbs "
+        f"tc qdisc replace dev {interface} parent 100:1 cbs "
         "locredit -1350 hicredit 150 sendslope -900000 "
         "idleslope 100000 offload 1"
-    ).format(interface)
+    )
     subprocess.run(shlex.split(cmd), timeout=1, check=False)
 
     # Show the current qdisc settings
@@ -612,9 +611,7 @@ def credit_based_shaper(
     # Check for errors in the iperf3 output
     if iperf_stderr:
         raise SystemExit(
-            "[ERROR] Found error while running iperf3:\n{}".format(
-                iperf_stderr
-            )
+            f"[ERROR] Found error while running iperf3:\n{iperf_stderr}"
         )
 
     # Parse the upload speed from the iperf3 output
@@ -623,10 +620,8 @@ def credit_based_shaper(
     # Check if the upload speed is between 90 and 100 Mbps
     if not 90 < speed_bits < 100:
         raise SystemExit(
-            (
-                "[FAIL] The upload speed is not between 90 and 100 Mbps\n"
-                "The upload speed is {} Mbps"
-            ).format(speed_bits)
+            "[FAIL] The upload speed is not between 90 and 100 Mbps\n"
+            + f"The upload speed is {speed_bits} Mbps"
         )
 
     # Print the upload speed and a success message
@@ -666,7 +661,7 @@ def traffic_scheduling(
             + f"(got {timeout})"
         )
 
-    print("Running ptp4l on {}...".format(interface), flush=True)
+    print(f"Running ptp4l on {interface}...", flush=True)
     ptp4l(interface, cfg, timeout, print_to_console=True)
 
     print(
@@ -677,7 +672,7 @@ def traffic_scheduling(
 
     print("Setting qdisc...", flush=True)
     cmd = (
-        "tc qdisc add dev {} parent root handle 100 taprio "
+        f"tc qdisc add dev {interface} parent root handle 100 taprio "
         "num_tc 4 "
         "map 0 1 2 3 3 3 3 3 3 3 3 3 3 3 3 3 "
         "queues 1@0 1@1 1@2 1@3 "
@@ -687,7 +682,7 @@ def traffic_scheduling(
         "sched-entry S 08 5000000 "
         "flags 0x2 "
         "txtime-delay 0"
-    ).format(interface)
+    )
     result = subprocess.run(
         shlex.split(cmd),
         stdout=subprocess.PIPE,
@@ -697,9 +692,8 @@ def traffic_scheduling(
     )
     if result.returncode:
         raise SystemExit(
-            "[ERROR] Found error while setting qdisc:\n{}".format(
-                result.stderr.decode()
-            )
+            "[ERROR] Found error while setting qdisc:\n"
+            + result.stderr.decode()
         )
     time.sleep(5)
 
@@ -712,7 +706,6 @@ def traffic_scheduling(
     # Create and mount /sys/fs/cgroup/net_prio
     sys_fs_cgroup_net_prio = Path("/sys/fs/cgroup/net_prio")
     sys_fs_cgroup_net_prio.mkdir(exist_ok=True)
-    # mount -t cgroup -onet_prio none /sys/fs/cgroup/net_prio
     mount_result = subprocess.run(
         [
             "mount",
@@ -727,7 +720,7 @@ def traffic_scheduling(
     )
     if mount_result.returncode not in (0, 32):
         # 32 means it's already mounted, explicitly ignore it
-        # have the subprocess module print the err for us
+        # otherwise let check_returncode panic and print the err for us
         mount_result.check_returncode()
 
     # Create /sys/fs/cgroup/net_prio/grp{1,2,3} and write interface {1, 2, 3}
@@ -736,11 +729,11 @@ def traffic_scheduling(
         grp_path.mkdir(exist_ok=True)
         with (grp_path / "net_prio.ifpriomap").open("w") as f:
             # example: enp1s1 1
-            f.write("{} {}".format(interface, grp))
+            f.write(f"{interface} {grp}")
 
     # Run iperf3 client
     for port, group in zip(range(5201, 5204), range(1, 4)):
-        print("Running iperf3 client on port {}...".format(port), flush=True)
+        print(f"Running iperf3 client on port {port}...", flush=True)
         process = iperf3_client(
             server_ip,
             get_interface_ip(interface),
@@ -750,7 +743,8 @@ def traffic_scheduling(
         pid = str(process.pid)
         file = sys_fs_cgroup_net_prio / f"grp{group}" / "cgroup.procs"
         print(
-            "Writing iperf3 with port {} pid {} to {}".format(port, pid, file)
+            f"Adding iperf3 process (port={port} pid={pid}) to {file}",
+            flush=True,
         )
         with file.open("w") as f:
             f.write(pid)
@@ -817,14 +811,14 @@ def iperf3_client(
     return subprocess.Popen(
         [
             "iperf3",
-            "--client", # run in client mode
-            server_ip, # connect to this server
-            "--time", # stop after <timeout> seconds
+            "--client",  # run in client mode
+            server_ip,  # connect to this server
+            "--time",  # stop after <timeout> seconds
             str(timeout),
-            "--bind", # iperf should only listen on the port associated with...
-            client_ip, # this ip
-            "--format", # print the speed in
-            "m", # megabits
+            "--bind",  # iperf should only listen on the port associated with...
+            client_ip,  # this ip
+            "--format",  # print the speed in
+            "m",  # megabits
         ],
         stdout=None if print_to_console else subprocess.PIPE,
         stderr=None if print_to_console else subprocess.PIPE,
@@ -842,9 +836,7 @@ def get_interface_ip(interface: str):
     )
     if result.returncode != 0:
         raise SystemExit(
-            "Cannot find ip address for {}: {}".format(
-                interface, result.stderr.strip()
-            )
+            f"Cannot find ip address for {interface}: {result.stderr.strip()}"
         )
 
     for line in result.stdout.splitlines():
@@ -853,36 +845,30 @@ def get_interface_ip(interface: str):
             ip_with_prefix = tokens[tokens.index("inet") + 1]
             return ip_with_prefix.split("/")[0]
 
-    raise SystemExit("Cannot find ip address for {}".format(interface))
+    raise SystemExit(f"Cannot find ip address for {interface}")
 
 
 def parse_string(string: str):
     """It should be this format, INTERFACE1:SERVER_IP1,INTERFACE2:SERVER_IP2"""
     interface_ip_pairs = string.strip().split(",")
     if len(interface_ip_pairs) == 0:
-        raise SystemExit(
-            "Found no INTERFACE:SERVER_IP pairs in '{}'".format(string)
-        )
+        raise SystemExit(f"Found no INTERFACE:SERVER_IP pairs in '{string}'")
 
     for pair in interface_ip_pairs:
         words = pair.strip().split(":")
         if len(words) != 2:
-            raise SystemExit(
-                "Expected INTERFACE:SERVER_IP, but got '{}'".format(pair)
-            )
+            raise SystemExit(f"Expected INTERFACE:SERVER_IP, but got '{pair}'")
         interface, server_ip = words
         if not (Path("/sys/class/net/") / interface).exists():
             raise SystemExit(
-                (
-                    "Parsed interface '{}', "
-                    "but it doesn't exist under /sys/class/net"
-                ).format(interface)
+                f"Parsed interface '{interface}', "
+                + "but it doesn't exist under /sys/class/net"
             )
         # this will raise ValueError for us if addr invalid
         ip_address(server_ip)
 
-        print("interface: {}".format(interface))
-        print("server_ip: {}".format(server_ip))
+        print("interface:", interface)
+        print("server_ip:", server_ip)
 
 
 def parse_args() -> argparse.Namespace:

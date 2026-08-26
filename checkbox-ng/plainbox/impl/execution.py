@@ -642,6 +642,7 @@ def get_execution_environment(job, environ, session_id, nest_dir):
     set_if_not_none("PLAINBOX_PROVIDER_DATA", job.provider.data_dir)
     set_if_not_none("PLAINBOX_PROVIDER_UNITS", job.provider.units_dir)
     set_if_not_none("CHECKBOX_SHARE", job.provider.CHECKBOX_SHARE)
+    set_if_not_none("PYTHONUNBUFFERED", "1")
     if os.getenv("SNAP"):
         set_if_not_none("CHECKBOX_RUNTIME", str(get_checkbox_runtime_path()))
 

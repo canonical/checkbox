@@ -105,7 +105,7 @@ class RPIBaseCamera(CameraInterface):
         so a sensor on CAM0 is typically index 0 and a sensor on
         CAM1 is typically index 1.
 
-        Ref: https://www.raspberrypi.com/documentation/accessories/camera.html#step-2-connect-the-cable-to-your-raspberry-pi
+        Ref: https://www.raspberrypi.com/documentation/accessories/camera.html#step-2-connect-the-cable-to-your-raspberry-pi  # noqa: E501
         """
         try:
             return int(v4l2_device_name)
@@ -120,7 +120,8 @@ class RPIBaseCamera(CameraInterface):
     def _get_artifact_path(
         self, store_path: str, artifact_name: str, extension: str
     ) -> str:
-        """Get the appropriate file extension based on the provided extension."""
+        """Get the appropriate file extension based on the provided
+        extension."""
         suffix = (
             ".jpg"
             if extension == "JPEG"
@@ -131,7 +132,7 @@ class RPIBaseCamera(CameraInterface):
     def _rpicam_format_mapping(self, format: str) -> str:
         """Map the format string to the corresponding rpicam format.
 
-        Ref: https://www.raspberrypi.com/documentation/computers/camera_software.html#list-cameras
+        Ref: https://www.raspberrypi.com/documentation/computers/camera_software.html#list-cameras  # noqa: E501
         """
         if format == "SRGGB10_CSI2P":
             return "10"
@@ -237,7 +238,7 @@ class RPIBaseCamera(CameraInterface):
             logger.info("Running command: '{}'".format(cmd))
             execute_command(cmd=cmd)
         else:
-            msg = "No suitable method such as '{}' or '{}' be provided".format(
+            msg = "No suitable method such as '{}' be provided".format(
                 SupportedMethods.RPICAM_STILL
             )
             log_and_raise_error(msg, CameraConfigurationError)

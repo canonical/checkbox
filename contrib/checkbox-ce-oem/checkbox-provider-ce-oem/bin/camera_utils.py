@@ -88,8 +88,8 @@ class SupportedMethods(Enum):
     # nvargus_nvraw is the Argus CLI tool on NVIDIA Jetson platforms.
     # It captures the native Bayer raw data before the ISP processes it.
     NVARGUS_NVRAW = "nvargus_nvraw"
-    # rpicam-still and rpicam-vid are the Raspberry Pi CLI tools for still image
-    # capture and video recording, respectively. Make sure to install rpicam-apps
+    # rpicam-still and rpicam-vid are the tools for still
+    # image capture and video recording. Make sure to install rpicam-apps
     # package.
     RPICAM_STILL = "rpicam-still"
     RPICAM_VID = "rpicam-vid"

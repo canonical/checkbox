@@ -813,16 +813,19 @@ def iperf3_client(
     Raises:
         SystemExit: If an error occurs while running iperf3.
     """
-    # --forceflush to force iperf3 to write to the pipe after every interval
-    cmd = "iperf3 -c {} -t {} -B {} -p {} -f m --forceflush".format(
-        server_ip,
-        timeout,
-        client_ip,
-        port,
-    )
 
     return subprocess.Popen(
-        shlex.split(cmd),
+        [
+            "iperf3",
+            "--client", # run in client mode
+            server_ip, # connect to this server
+            "--time", # stop after <timeout> seconds
+            str(timeout),
+            "--bind", # iperf should only listen on the port associated with...
+            client_ip, # this ip
+            "--format", # print the speed in
+            "m", # megabits
+        ],
         stdout=None if print_to_console else subprocess.PIPE,
         stderr=None if print_to_console else subprocess.PIPE,
         text=True,

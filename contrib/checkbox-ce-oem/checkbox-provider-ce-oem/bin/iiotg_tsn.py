@@ -449,14 +449,16 @@ def time_based_shaper(interface: str, timeout: int = 10) -> None:
 
     # Add mqprio qdisc with four traffic classes
     cmd = (
-        f"tc qdisc add dev {interface} handle 8001: parent root mqprio num_tc 4 "
+        f"tc qdisc add dev {interface} handle 8001: "
+        "parent root mqprio num_tc 4 "
         "map 0 1 2 3 3 3 3 3 3 3 3 3 3 3 3 3 queues 1@0 1@1 1@2 1@3 hw 0"
     )
     subprocess.run(shlex.split(cmd), timeout=1, check=False)
 
     # Replace parent qdisc with etf offload
     cmd = (
-        f"tc qdisc replace dev {interface} parent 8001:4 etf offload clockid CLOCK_TAI "
+        f"tc qdisc replace dev {interface} "
+        "parent 8001:4 etf offload clockid CLOCK_TAI "
         "delta 500000"
     )
     subprocess.run(shlex.split(cmd), timeout=1, check=False)
@@ -474,7 +476,8 @@ def time_based_shaper(interface: str, timeout: int = 10) -> None:
     # Capture packets with tcpdump and
     # check that they are within the required time interval
     cmd = (
-        f"tcpdump -G {timeout} -Q out -ttt -ni {interface} --time-stamp-precision=nano "
+        f"tcpdump -G {timeout} -Q out -ttt -ni {interface} "
+        "--time-stamp-precision=nano "
         f"-j adapter_unsynced port 7788 -c {timeout * 1000}"
     )
     process = subprocess.Popen(
@@ -513,8 +516,8 @@ def time_based_shaper(interface: str, timeout: int = 10) -> None:
     # raise a SystemExit exception
     if cnt > timeout * 1000 * 0.05:
         raise SystemExit(
-            f"[FAIL] There are {cnt}/{timeout * 1000} (more than 5%) packets not "
-            "within the required time interval (999500 - 1000500)"
+            f"[FAIL] There are {cnt}/{timeout * 1000} (more than 5%) packets "
+            + "not within the required time interval (999500 - 1000500)"
         )
 
     print(
@@ -809,7 +812,7 @@ def iperf3_client(
             server_ip,  # connect to this server
             "--time",  # stop after <timeout> seconds
             str(timeout),
-            "--bind",  # iperf should only listen on the port associated with...
+            "--bind",  # iperf should only listen on the port associated with..
             client_ip,  # this ip
             "--format",  # print the speed in
             "m",  # megabits

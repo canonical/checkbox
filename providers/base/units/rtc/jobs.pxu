@@ -70,11 +70,13 @@ command:
     rtc_path="/sys/class/rtc/{rtc}/since_epoch"
     if ! rtc_time=$(cat "$rtc_path" 2>/dev/null); then
         echo "Warning: Unable to read $rtc_path."
-        if hwclock --systohc --utc --rtc=/dev/{rtc}; then
-            if ! cat "$rtc_path" >/dev/null; then
-                echo "Error: RTC is still not readable after hwclock sync."
-                exit 1
-            fi
+        if ! hwclock --systohc --utc --rtc=/dev/{rtc}; then
+            echo "Error: hwclock sync failed."
+            exit 1
+        fi
+        if ! cat "$rtc_path" >/dev/null; then
+            echo "Error: RTC is still not readable after hwclock sync."
+            exit 1
         fi
     fi
 flags: also-after-suspend

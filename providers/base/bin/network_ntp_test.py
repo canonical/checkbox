@@ -62,7 +62,7 @@ def ManageTimeDaemon(action, stopped_daemon=None):
                     stderr=subprocess.PIPE,
                 )
                 if check.returncode == 0:
-                    logging.info(f"Stopping {daemon}...")
+                    logging.info("Stopping %s..." % daemon)
                     subprocess.run(
                         ["systemctl", "stop", daemon],
                         stdout=subprocess.DEVNULL,
@@ -72,7 +72,7 @@ def ManageTimeDaemon(action, stopped_daemon=None):
             return checked_daemons
         elif action == "start" and stopped_daemon:
             for daemon in stopped_daemon:
-                logging.info(f"Starting {daemon}...")
+                logging.info("Starting %s..." % daemon)
                 subprocess.run(
                     ["systemctl", "start", daemon],
                     stdout=subprocess.DEVNULL,

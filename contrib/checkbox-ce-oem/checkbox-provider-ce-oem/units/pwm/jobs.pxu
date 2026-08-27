@@ -9,8 +9,6 @@ plugin: resource
 user: root
 category_id: pwm
 estimated_duration: 5s
-imports: from com.canonical.plainbox import manifest
-requires: manifest.has_pwm == 'True'
 environ:
     PWM_IGNORE
     PWM_ALLOW

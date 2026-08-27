@@ -71,7 +71,7 @@ def determine_outcome_and_skip_reason(job_state, job_state_map):
     - If any dependency was manually skipped, outcome is OUTCOME_MANUAL_SKIP
     - Else if there are failed manifest expressions, outcome is
     OUTCOME_SKIPPED_MANIFEST
-    - Else if there are FAILED_DEP inhibitors, outcome is
+    - Else if there are FAILED_DEP/NOT_FAILED_DEP inhibitors, outcome is
     OUTCOME_SKIPPED_DEPENDENCY
     - Else if there are failed resource expressions, outcome is
     OUTCOME_SKIPPED_RESOURCE, except if `fail-on-resource` flag is used, in
@@ -106,7 +106,10 @@ def determine_outcome_and_skip_reason(job_state, job_state_map):
             has_failed_manifest = True
             skip_reason["related_manifests"] += inhibitor.related_manifests
 
-        elif inhibitor.cause == InhibitionCause.FAILED_DEP:
+        elif inhibitor.cause in [
+            InhibitionCause.FAILED_DEP,
+            InhibitionCause.NOT_FAILED_DEP,
+        ]:
             has_failed_dep = True
             # Check if the dependency was manually skipped
             if inhibitor.related_job:

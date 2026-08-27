@@ -1,18 +1,18 @@
 id: salvages_skipped_by_dependency
 plugin: shell
-command: true
+command: 'true'
 summary: This job should be skipped since the job it's salvaging is skipped by dependency
 salvages: skipped_by_dependency
 ---
 id: salvages_skipped_by_requirement
 plugin: shell
-command: true
+command: 'true'
 summary: This job should be skipped since the job it's salvaging is skipped by requirement
 salvages: simple_skipped
 ---
 id: salvages_skipped_by_manifest
 plugin: shell
-command: true
+command: 'true'
 summary: This job should be skipped since the job it's salvaging is skipped by requirement
 salvages: skipped_by_manifest
 ---

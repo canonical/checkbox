@@ -354,7 +354,60 @@ class ExcludeTests(unittest.TestCase):
             )
             with self.assertRaises(SystemExit) as ctx:
                 self._load_from(tmp, "project.json")
-        self.assertIn("already defined", str(ctx.exception))
+        self.assertIn("already covered", str(ctx.exception))
+
+    def test_category_overlap_across_include_raises(self):
+        # A category-less base entry matches every category of that
+        # name; a qualified own entry would be silently shadowed.
+        with tempfile.TemporaryDirectory() as tmp:
+            self._write_lists(
+                tmp,
+                {
+                    "base.json": {"excludes": [{"name": "x", "reason": "r1"}]},
+                    "project.json": {
+                        "include": "base.json",
+                        "excludes": [
+                            {
+                                "name": "x",
+                                "category": "1_Utilities",
+                                "reason": "r2",
+                            }
+                        ],
+                    },
+                },
+            )
+            with self.assertRaises(SystemExit) as ctx:
+                self._load_from(tmp, "project.json")
+        self.assertIn("already covered", str(ctx.exception))
+
+    def test_same_name_different_categories_is_allowed(self):
+        # Two different samples sharing a leaf name are two entries.
+        with tempfile.TemporaryDirectory() as tmp:
+            self._write_lists(
+                tmp,
+                {
+                    "base.json": {
+                        "excludes": [
+                            {
+                                "name": "simple",
+                                "category": "7_libNVVM",
+                                "reason": "r1",
+                            }
+                        ]
+                    },
+                    "project.json": {
+                        "include": "base.json",
+                        "excludes": [
+                            {
+                                "name": "simple",
+                                "category": "0_Introduction",
+                                "reason": "r2",
+                            }
+                        ],
+                    },
+                },
+            )
+            self.assertEqual(len(self._load_from(tmp, "project.json")), 2)
 
     def test_include_with_path_separator_raises(self):
         with tempfile.TemporaryDirectory() as tmp:

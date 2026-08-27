@@ -121,8 +121,11 @@ The rules are strict so the effective list is always easy to trace:
   means the shipped default, on every machine.
 - Only **one** include, and the included file must not use `include`
   itself — no chains. The full list is always at most two files.
-- The same `name` + `category` in both files is an **error**; there
-  is no overwrite. Every entry has exactly one definition.
+- An entry that duplicates **or overlaps** one from the included file
+  is an **error**; there is no overwrite. Overlap means the same
+  `name` where either entry has no `category` (a category-less entry
+  covers every category of that name). The same name in two
+  *different* categories is fine — those are two different samples.
 
 `exclude_jobs.jetson.json` itself uses this: it holds only the
 Jetson-specific entries plus `"include": "exclude_jobs.json"`.  Every exclude entry needs a reviewed reason;

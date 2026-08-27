@@ -225,17 +225,23 @@ def _merge_include(path, data):
             "file, or include the other list from your top-level "
             "file.".format(included_path)
         )
-    keys = {
-        (entry["name"], entry.get("category"))
-        for entry in included["excludes"]
-    }
+    base = {}
+    for entry in included["excludes"]:
+        base.setdefault(entry["name"], []).append(entry.get("category"))
     for entry in own:
-        if (entry["name"], entry.get("category")) in keys:
+        # Same name+category is a duplicate; and when either side has
+        # no category it matches every category of that name, so the
+        # other entry would be silently shadowed — also an error.
+        category = entry.get("category")
+        clash = any(
+            other == category or other is None or category is None
+            for other in base.get(entry["name"], [])
+        )
+        if clash:
             raise SystemExit(
-                "{}: entry {!r} is already defined in the included "
-                "file {} (duplicates are not allowed)".format(
-                    path, entry["name"], included_path
-                )
+                "{}: entry {!r} is already covered by the included "
+                "file {} (duplicates and overlaps are not "
+                "allowed)".format(path, entry["name"], included_path)
             )
     return included["excludes"] + own
 

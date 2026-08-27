@@ -13,7 +13,7 @@ salvages: simple_skipped
 id: salvages_skipped_by_manifest
 plugin: shell
 command: 'true'
-summary: This job should be skipped since the job it's salvaging is skipped by requirement
+summary: This job should be skipped since the job it's salvaging is skipped by manifest
 salvages: skipped_by_manifest
 ---
 id: salvages_test_plan

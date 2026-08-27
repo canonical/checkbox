@@ -19,15 +19,15 @@
         },
         {
             "name": "cuDLAErrorReporting",
-            "reason": "Excluded by NVIDIA's Jetson reference runner (cuDLA)"
+            "reason": "Needs the Tegra cuDLA hardware; excluded on Jetson by NVIDIA's reference runner"
         },
         {
             "name": "cuDLAHybridMode",
-            "reason": "Excluded by NVIDIA's Jetson reference runner (cuDLA)"
+            "reason": "Needs the Tegra cuDLA hardware; excluded on Jetson by NVIDIA's reference runner"
         },
         {
             "name": "cuDLALayerwiseStatsHybrid",
-            "reason": "Excluded by NVIDIA's Jetson reference runner (cuDLA)"
+            "reason": "Needs the Tegra cuDLA hardware; excluded on Jetson by NVIDIA's reference runner"
         },
         {
             "name": "EGLStream_CUDA_CrossGPU",

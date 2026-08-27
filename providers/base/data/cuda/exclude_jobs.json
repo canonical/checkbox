@@ -18,18 +18,6 @@
             "reason": "Needs multiple CUDA GPUs"
         },
         {
-            "name": "cuDLAErrorReporting",
-            "reason": "Excluded by NVIDIA's Jetson reference runner (cuDLA)"
-        },
-        {
-            "name": "cuDLAHybridMode",
-            "reason": "Excluded by NVIDIA's Jetson reference runner (cuDLA)"
-        },
-        {
-            "name": "cuDLALayerwiseStatsHybrid",
-            "reason": "Excluded by NVIDIA's Jetson reference runner (cuDLA)"
-        },
-        {
             "name": "EGLStream_CUDA_CrossGPU",
             "reason": "EGL/GLES rendering; hangs or fails on headless systems"
         },

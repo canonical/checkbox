@@ -92,12 +92,13 @@ CUDA_SAMPLES_EXCLUDE_FILE = exclude_jobs.jetson.json
 ```
 
 The shipped default (`exclude_jobs.json`) contains only universal
-excludes: multi-GPU/P2P samples, cuDLA samples, and EGL/GLES samples
-that hang on headless systems.  `exclude_jobs.jetson.json` adds the
-per-CUDA-release exclusions from NVIDIA's Jetson reference runner
-(`run-cuda-samples.py`) — those samples fail on Jetson/L4T but run
-fine on other NVIDIA platforms, so Jetson projects must select that
-list in their launcher.  Every exclude entry needs a reviewed reason;
+excludes: multi-GPU/P2P samples, EGL/GLES samples that hang on
+headless systems, and tools that are not self-contained tests.
+`exclude_jobs.jetson.json` adds the Jetson-specific exclusions from
+NVIDIA's Jetson reference runner (`run-cuda-samples.py`): the cuDLA
+samples and the per-CUDA-release excludes — those fail on Jetson/L4T
+but the per-release ones run fine on other NVIDIA platforms, so
+Jetson projects must select that list in their launcher.  Every exclude entry needs a reviewed reason;
 do not add entries for failures that have not been diagnosed.
 
 ## Rootless

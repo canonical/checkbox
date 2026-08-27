@@ -537,6 +537,14 @@ class CommandTests(unittest.TestCase):
             with self.assertRaises(SystemExit):
                 cuda_samples.run_timeout()
 
+    def test_no_subcommand_is_an_error(self):
+        # add_subparsers(required=True) needs Python 3.7; the manual
+        # check must keep behaving the same way (usage error, exit 2).
+        with patch("sys.stderr", new_callable=io.StringIO):
+            with self.assertRaises(SystemExit) as ctx:
+                cuda_samples.main([])
+        self.assertEqual(ctx.exception.code, 2)
+
     def test_readiness_unbuilt_tree_raises(self):
         with tempfile.TemporaryDirectory() as tmp:
             make_tree(tmp, [("0_Introduction", "deviceQuery")])

@@ -494,7 +494,8 @@ def main(argv=None):
         help="cuda-samples tree root (default: CUDA_SAMPLES_PATH, "
         "then {}, then {})".format(CLASSIC_DEFAULT_ROOT, SNAP_ROOT_GLOB),
     )
-    subparsers = parser.add_subparsers(dest="command", required=True)
+    # required= for add_subparsers needs Python 3.7; enforce below.
+    subparsers = parser.add_subparsers(dest="command")
     subparsers.add_parser(
         "list", help="print one resource record per sample"
     ).set_defaults(func=cmd_list)
@@ -507,6 +508,8 @@ def main(argv=None):
     run_parser.add_argument("name", help="sample name")
     run_parser.set_defaults(func=cmd_run)
     args = parser.parse_args(argv)
+    if not getattr(args, "func", None):
+        parser.error("a subcommand is required: list, readiness or run")
     return args.func(args)
 
 

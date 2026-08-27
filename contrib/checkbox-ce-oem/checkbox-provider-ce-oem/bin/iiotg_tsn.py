@@ -2,7 +2,6 @@
 
 import argparse
 import re
-import shlex
 import subprocess
 import sys
 import time
@@ -195,12 +194,11 @@ def phc2sys(interface: str, timeout: int = 60) -> "subprocess.Popen[str]":
             "--step_threshold=1",
             "--transportSpecific=1",  # see ptp4l()
         ],
-        stdout=subprocess.PIPE,  # Redirect stdout to a pipe.
-        stderr=subprocess.PIPE,  # Redirect stderr to a pipe.
-        text=True,  # Enable text mode, so output can be accessed as text.
+        stdout=subprocess.PIPE,  
+        stderr=subprocess.PIPE,  
+        text=True,
     )
 
-    # Return the process object representing the running phc2sys command.
     return process
 
 
@@ -620,6 +618,7 @@ def credit_based_shaper(
         "sendslope",
         "-900000",  # comes from idleslope - link_speed
         # NOTE: this value is picked specifically for 1Gbps ports
+        # NOTE: it may fail on faster / slower ports
         "idleslope",
         "100000",  # reserve 100Mbps bandwidth
         "offload",
@@ -720,34 +719,55 @@ def traffic_scheduling(
     time.sleep(10)
 
     print("Setting qdisc...", flush=True)
+    # similar to credit/time based shaping
+    # we create a new discipline for the interface
+    # but this time we use `taprio`
     cmd = (
-        f"tc qdisc add dev {interface} parent root handle 100 taprio "
-        "num_tc 4 "
-        "map 0 1 2 3 3 3 3 3 3 3 3 3 3 3 3 3 "
-        "queues 1@0 1@1 1@2 1@3 "
-        "sched-entry S 01 5000000 "
-        "sched-entry S 02 5000000 "
-        "sched-entry S 04 5000000 "
-        "sched-entry S 08 5000000 "
-        "flags 0x2 "
-        "txtime-delay 0"
+        ["tc", "qdisc", "add", "dev", interface]
+        + ["parent", "root", "handle", "100:"]
+        + ["taprio", "num_tc", "4"]
+        + [
+            "map",  # assign each of the 16 prio bands to the traffic classes
+            "0",  # band 0 to class 0
+            "1",  # band 1 to class 1
+            "2",  # band 2 to class 2
+            *(["3"] * (16 - 3)),  # dump all remaining bands to class 3
+        ]
+        # all traffic classes start with exactly 1 queue
+        + ["queues", "1@0", "1@1", "1@2", "1@3"]
+        # the 01, 02, 04, 08 here are used as bit masks
+        # 01 is 0x0001 meaning only queue 0 is open, 0x0010 means queue 1 etc.
+        # 5000000 is in nanoseconds i.e. 5ms
+        # basically each queue is open for 5ms, going from queue 0 through 3
+        # and keeps repeating
+        + ["sched-entry", "S", "01", "5000000"]
+        + ["sched-entry", "S", "02", "5000000"]
+        + ["sched-entry", "S", "04", "5000000"]
+        + ["sched-entry", "S", "08", "5000000"]
+        # https://man7.org/linux/man-pages/man8/tc-taprio.8.html
+        # 0x2 means fully offloading to the hardware
+        + ["flags", "0x2"]
+        # txtime-delay is specific to the full offload mode 0x2
+        # maximum time a packet might take to reach the network card
+        + ["txtime-delay", "0"]
     )
+
     result = subprocess.run(
-        shlex.split(cmd),
+        cmd,
         capture_output=True,
         timeout=1,
-        check=True,
+        check=False,
     )
     if result.returncode:
         raise SystemExit(
-            "[ERROR] Found error while setting qdisc:\n"
+            "[ERROR] Failed to set qdisc:\n"
             + result.stderr.decode()
         )
     time.sleep(5)
 
     print(
         "Setting which hardware transmit queue",
-        "each iperf3 instance using via net_prio cgroups...",
+        "each iperf3 instance will use via net_prio cgroups...",
         flush=True,
     )
 
@@ -828,6 +848,7 @@ def traffic_scheduling(
                 "[FAIL] Sent bytes is not increasing in every queue!\n"
                 + "100:1 to 100:4"
             )
+    
     print("[PASS] Sent bytes is increasing in every queue!")
 
 

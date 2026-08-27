@@ -139,48 +139,38 @@ def find_binary(root, category, name):
     return None
 
 
-def load_excludes():
-    """Return the exclude entries from the exclude-jobs JSON file.
+def _data_dir_path(name, context):
+    """Resolve a bare list name in the provider data dir, or fail."""
+    data_dir = os.environ.get("PLAINBOX_PROVIDER_DATA")
+    if not data_dir:
+        raise SystemExit(
+            "{}={!r} is a bare name but PLAINBOX_PROVIDER_DATA is "
+            "not set".format(context, name)
+        )
+    return os.path.join(data_dir, "cuda", name)
 
-    The file defaults to $PLAINBOX_PROVIDER_DATA/cuda/exclude_jobs.json
-    and can be overridden (e.g. per project) via
-    CUDA_SAMPLES_EXCLUDE_FILE — either an absolute path, or the bare
-    name of a list shipped in the provider data dir (e.g.
-    exclude_jobs.jetson.json).  An explicitly configured file must
-    exist; a missing default just means no excludes.
-    """
-    path = os.environ.get("CUDA_SAMPLES_EXCLUDE_FILE")
-    if path and os.sep not in path:
-        data_dir = os.environ.get("PLAINBOX_PROVIDER_DATA")
-        if not data_dir:
-            raise SystemExit(
-                "CUDA_SAMPLES_EXCLUDE_FILE={!r} is a bare name but "
-                "PLAINBOX_PROVIDER_DATA is not set".format(path)
-            )
-        path = os.path.join(data_dir, "cuda", path)
-    if not path:
-        data_dir = os.environ.get("PLAINBOX_PROVIDER_DATA")
-        if not data_dir:
-            print(
-                "PLAINBOX_PROVIDER_DATA not set: no exclude list loaded",
-                file=sys.stderr,
-            )
-            return []
-        path = os.path.join(data_dir, "cuda", "exclude_jobs.json")
-        if not os.path.exists(path):
-            return []
+
+def _read_exclude_file(path):
+    """Parse and validate one exclude-jobs JSON file into its dict."""
     try:
         with open(path) as stream:
             data = json.load(stream)
     except (OSError, ValueError) as exc:
         raise SystemExit("Cannot read exclude file {}: {}".format(path, exc))
-    excludes = data.get("excludes") if isinstance(data, dict) else None
-    if not isinstance(excludes, list):
+    if not isinstance(data, dict) or not isinstance(
+        data.get("excludes"), list
+    ):
         raise SystemExit(
             "{}: expected an object with an 'excludes' list "
             "(see exclude_jobs.schema.json)".format(path)
         )
-    for entry in excludes:
+    unknown = set(data) - {"$schema", "excludes", "include"}
+    if unknown:
+        raise SystemExit(
+            "{}: unknown top-level keys {} (allowed: excludes, "
+            "include)".format(path, sorted(unknown))
+        )
+    for entry in data["excludes"]:
         if not isinstance(entry, dict):
             raise SystemExit(
                 "{}: every exclude must be an object "
@@ -206,7 +196,76 @@ def load_excludes():
                 "{}: 'category' must be a non-empty string "
                 "(bad entry: {!r})".format(path, entry)
             )
-    return excludes
+    return data
+
+
+def _merge_include(path, data):
+    """Return the file's entries with its single include merged in.
+
+    The contract is deliberately small: 'include' is ONE bare file
+    name, resolved only in the provider data dir; the included file
+    must not include anything itself; a name+category present in both
+    files is an error (no overwrite semantics).
+    """
+    own = data["excludes"]
+    include = data.get("include")
+    if include is None:
+        return own
+    if not isinstance(include, str) or not include or os.sep in include:
+        raise SystemExit(
+            "{}: 'include' must be the bare name of a list in the "
+            "provider data dir (got {!r})".format(path, include)
+        )
+    included_path = _data_dir_path(include, "{}: include".format(path))
+    included = _read_exclude_file(included_path)
+    if "include" in included:
+        raise SystemExit(
+            "{}: nested include is not supported ('include' found in "
+            "the included file). Put the entries directly in this "
+            "file, or include the other list from your top-level "
+            "file.".format(included_path)
+        )
+    keys = {
+        (entry["name"], entry.get("category"))
+        for entry in included["excludes"]
+    }
+    for entry in own:
+        if (entry["name"], entry.get("category")) in keys:
+            raise SystemExit(
+                "{}: entry {!r} is already defined in the included "
+                "file {} (duplicates are not allowed)".format(
+                    path, entry["name"], included_path
+                )
+            )
+    return included["excludes"] + own
+
+
+def load_excludes():
+    """Return the exclude entries from the exclude-jobs JSON file.
+
+    The file defaults to $PLAINBOX_PROVIDER_DATA/cuda/exclude_jobs.json
+    and can be overridden (e.g. per project) via
+    CUDA_SAMPLES_EXCLUDE_FILE — either an absolute path, or the bare
+    name of a list shipped in the provider data dir (e.g.
+    exclude_jobs.jetson.json).  An explicitly configured file must
+    exist; a missing default just means no excludes.  A file may pull
+    in one shipped base list via its 'include' key.
+    """
+    path = os.environ.get("CUDA_SAMPLES_EXCLUDE_FILE")
+    if path and os.sep not in path:
+        path = _data_dir_path(path, "CUDA_SAMPLES_EXCLUDE_FILE")
+    if not path:
+        data_dir = os.environ.get("PLAINBOX_PROVIDER_DATA")
+        if not data_dir:
+            print(
+                "PLAINBOX_PROVIDER_DATA not set: no exclude list loaded",
+                file=sys.stderr,
+            )
+            return []
+        path = os.path.join(data_dir, "cuda", "exclude_jobs.json")
+        if not os.path.exists(path):
+            return []
+    return _merge_include(path, _read_exclude_file(path))
 
 
 def exclude_reason(excludes, category, name):

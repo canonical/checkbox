@@ -1,22 +1,7 @@
 {
     "$schema": "exclude_jobs.schema.json",
+    "include": "exclude_jobs.json",
     "excludes": [
-        {
-            "name": "streamOrderedAllocationP2P",
-            "reason": "Needs multiple CUDA GPUs with P2P support"
-        },
-        {
-            "name": "conjugateGradientMultiDeviceCG",
-            "reason": "Needs multiple CUDA GPUs with P2P support"
-        },
-        {
-            "name": "simpleCUFFT_MGPU",
-            "reason": "Needs multiple CUDA GPUs"
-        },
-        {
-            "name": "simpleCUFFT_2d_MGPU",
-            "reason": "Needs multiple CUDA GPUs"
-        },
         {
             "name": "cuDLAErrorReporting",
             "reason": "Needs the Tegra cuDLA hardware; excluded on Jetson by NVIDIA's reference runner"
@@ -28,34 +13,6 @@
         {
             "name": "cuDLALayerwiseStatsHybrid",
             "reason": "Needs the Tegra cuDLA hardware; excluded on Jetson by NVIDIA's reference runner"
-        },
-        {
-            "name": "EGLStream_CUDA_CrossGPU",
-            "reason": "EGL/GLES rendering; hangs or fails on headless systems"
-        },
-        {
-            "name": "EGLStream_CUDA_Interop",
-            "reason": "EGL/GLES rendering; hangs or fails on headless systems"
-        },
-        {
-            "name": "EGLSync_CUDAEvent_Interop",
-            "reason": "EGL/GLES rendering; hangs or fails on headless systems"
-        },
-        {
-            "name": "fluidsGLES",
-            "reason": "EGL/GLES rendering; hangs or fails on headless systems"
-        },
-        {
-            "name": "nbody_opengles",
-            "reason": "EGL/GLES rendering; hangs or fails on headless systems"
-        },
-        {
-            "name": "simpleGLES",
-            "reason": "EGL/GLES rendering; hangs or fails on headless systems"
-        },
-        {
-            "name": "simpleGLES_EGLOutput",
-            "reason": "EGL/GLES rendering; hangs or fails on headless systems"
         },
         {
             "name": "matrixMul_nvrtc",
@@ -95,11 +52,6 @@
         {
             "name": "nvJPEG_encoder",
             "reason": "Fails on Jetson/L4T since CUDA 13.2 (NVIDIA Jetson reference runner exclude); to be re-integrated in a future BSP update"
-        },
-        {
-            "name": "ptxgen",
-            "category": "7_libNVVM",
-            "reason": "Requires an input .ll/.bc file argument; not a self-contained test (prints usage and exits non-zero)"
         }
     ]
 }

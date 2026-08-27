@@ -295,6 +295,104 @@ class ExcludeTests(unittest.TestCase):
             with self.assertRaises(SystemExit):
                 cuda_samples.load_excludes()
 
+    def _write_lists(self, data_dir, files):
+        os.makedirs(os.path.join(data_dir, "cuda"), exist_ok=True)
+        for name, payload in files.items():
+            with open(os.path.join(data_dir, "cuda", name), "w") as stream:
+                json.dump(payload, stream)
+
+    def _load_from(self, data_dir, name):
+        env = {
+            "PLAINBOX_PROVIDER_DATA": data_dir,
+            "CUDA_SAMPLES_EXCLUDE_FILE": name,
+        }
+        with patch.dict(os.environ, env, clear=True):
+            return cuda_samples.load_excludes()
+
+    def test_include_merges_base_list(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            self._write_lists(
+                tmp,
+                {
+                    "base.json": {"excludes": [{"name": "a", "reason": "r1"}]},
+                    "project.json": {
+                        "include": "base.json",
+                        "excludes": [{"name": "b", "reason": "r2"}],
+                    },
+                },
+            )
+            names = [e["name"] for e in self._load_from(tmp, "project.json")]
+        self.assertEqual(names, ["a", "b"])
+
+    def test_nested_include_raises(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            self._write_lists(
+                tmp,
+                {
+                    "base.json": {"include": "x.json", "excludes": []},
+                    "project.json": {
+                        "include": "base.json",
+                        "excludes": [],
+                    },
+                },
+            )
+            with self.assertRaises(SystemExit) as ctx:
+                self._load_from(tmp, "project.json")
+        self.assertIn("nested include", str(ctx.exception))
+
+    def test_duplicate_across_include_raises(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            self._write_lists(
+                tmp,
+                {
+                    "base.json": {"excludes": [{"name": "a", "reason": "r1"}]},
+                    "project.json": {
+                        "include": "base.json",
+                        "excludes": [{"name": "a", "reason": "r2"}],
+                    },
+                },
+            )
+            with self.assertRaises(SystemExit) as ctx:
+                self._load_from(tmp, "project.json")
+        self.assertIn("already defined", str(ctx.exception))
+
+    def test_include_with_path_separator_raises(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            self._write_lists(
+                tmp,
+                {
+                    "project.json": {
+                        "include": "../evil.json",
+                        "excludes": [],
+                    }
+                },
+            )
+            with self.assertRaises(SystemExit) as ctx:
+                self._load_from(tmp, "project.json")
+        self.assertIn("bare name", str(ctx.exception))
+
+    def test_unknown_top_level_key_raises(self):
+        # Catches typos like "inclde" instead of silently ignoring.
+        with tempfile.TemporaryDirectory() as tmp:
+            self._write_lists(
+                tmp, {"project.json": {"inclde": "x", "excludes": []}}
+            )
+            with self.assertRaises(SystemExit) as ctx:
+                self._load_from(tmp, "project.json")
+        self.assertIn("unknown top-level keys", str(ctx.exception))
+
+    def test_shipped_jetson_list_uses_include(self):
+        data_dir = os.path.join(
+            os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
+            "data",
+        )
+        with open(
+            os.path.join(data_dir, "cuda", "exclude_jobs.jetson.json")
+        ) as stream:
+            self.assertEqual(
+                json.load(stream).get("include"), "exclude_jobs.json"
+            )
+
 
 class VersionTests(unittest.TestCase):
     def test_parse_tag(self):

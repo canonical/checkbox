@@ -98,7 +98,34 @@ headless systems, and tools that are not self-contained tests.
 NVIDIA's Jetson reference runner (`run-cuda-samples.py`): the cuDLA
 samples and the per-CUDA-release excludes — those fail on Jetson/L4T
 but the per-release ones run fine on other NVIDIA platforms, so
-Jetson projects must select that list in their launcher.  Every exclude entry needs a reviewed reason;
+Jetson projects must select that list in their launcher.
+
+### Starting from a shipped list: `include`
+
+A list can start from ONE shipped base list instead of copying its
+entries, with the top-level `include` key:
+
+```json
+{
+    "include": "exclude_jobs.json",
+    "excludes": [
+        {"name": "myProjectSample", "reason": "why it cannot run here"}
+    ]
+}
+```
+
+The rules are strict so the effective list is always easy to trace:
+
+- `include` takes a **bare file name** (no path), found only in the
+  provider's `data/cuda/` directory — `exclude_jobs.json` always
+  means the shipped default, on every machine.
+- Only **one** include, and the included file must not use `include`
+  itself — no chains. The full list is always at most two files.
+- The same `name` + `category` in both files is an **error**; there
+  is no overwrite. Every entry has exactly one definition.
+
+`exclude_jobs.jetson.json` itself uses this: it holds only the
+Jetson-specific entries plus `"include": "exclude_jobs.json"`.  Every exclude entry needs a reviewed reason;
 do not add entries for failures that have not been diagnosed.
 
 ## Rootless

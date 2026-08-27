@@ -7,6 +7,11 @@
     "required": ["excludes"],
     "properties": {
         "$schema": {"type": "string"},
+        "include": {
+            "type": "string",
+            "pattern": "^[^/\\\\]+$",
+            "description": "Optional: bare file name of ONE other shipped list to start from (e.g. exclude_jobs.json), resolved only in the provider's data/cuda directory. The included file must not use include itself (no chains), and an entry with the same name and category in both files is an error - there is no overwrite."
+        },
         "excludes": {
             "type": "array",
             "items": {

@@ -476,7 +476,7 @@ def cmd_readiness(args):
     return 0
 
 
-def make_sandbox(root, category, name):
+def make_sandbox(root, category, name, binary=None):
     """Create a disposable run directory mirroring the tree layout.
 
     Samples read their inputs relative to the working directory
@@ -485,6 +485,13 @@ def make_sandbox(root, category, name):
     never be modified by a test run.  Copy the sample's own directory
     into a temporary tree with the same nesting and symlink Common
     beside it (inputs only, read-only is fine).
+
+    An out-of-source cmake build (cmake -B build) keeps runtime
+    sidecars — driver-API kernel .fatbin/.ptx files and the nvrtc
+    header staging dirs — beside the binary under build/, not in the
+    sample's source directory, and sdkFindFilePath looks them up
+    relative to the working directory.  Overlay the binary's own
+    directory into the sandbox so those samples find their files.
 
     Returns (sandbox_root, run_dir); the caller removes sandbox_root.
     """
@@ -495,6 +502,20 @@ def make_sandbox(root, category, name):
         shutil.copytree(source_dir, run_dir)
     else:
         os.makedirs(run_dir)
+    if binary:
+        bin_dir = os.path.dirname(binary)
+        if os.path.realpath(bin_dir) != os.path.realpath(source_dir):
+            for entry in sorted(os.listdir(bin_dir)):
+                if entry == "CMakeFiles":
+                    continue
+                src = os.path.join(bin_dir, entry)
+                dst = os.path.join(run_dir, entry)
+                if os.path.exists(dst):
+                    continue
+                if os.path.isdir(src):
+                    shutil.copytree(src, dst)
+                else:
+                    shutil.copy2(src, dst)
     common = os.path.join(root, "Common")
     if os.path.isdir(common):
         os.symlink(common, os.path.join(sandbox, "Common"))
@@ -513,7 +534,7 @@ def cmd_run(args):
             )
         )
     timeout = run_timeout()
-    sandbox, run_dir = make_sandbox(root, args.category, args.name)
+    sandbox, run_dir = make_sandbox(root, args.category, args.name, binary)
     print("** Executing {} (timeout {:g}s)".format(binary, timeout))
     sys.stdout.flush()
     try:

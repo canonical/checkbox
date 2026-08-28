@@ -683,6 +683,71 @@ class CommandTests(unittest.TestCase):
             finally:
                 shutil.rmtree(sandbox)
 
+    def test_make_sandbox_overlays_out_of_source_sidecars(self):
+        # An out-of-source cmake build keeps runtime sidecar files
+        # (kernel .fatbin/.ptx, nvrtc header dirs) beside the binary
+        # under build/; sdkFindFilePath resolves them relative to the
+        # working directory, so the sandbox must carry them over.
+        import shutil
+
+        with tempfile.TemporaryDirectory() as tmp:
+            source = os.path.join(tmp, "Samples", "0_Introduction", "mmDrv")
+            os.makedirs(source)
+            with open(os.path.join(source, "mmDrv.cpp"), "w") as f:
+                f.write("int main;")
+            bin_dir = os.path.join(
+                tmp, "build", "Samples", "0_Introduction", "mmDrv"
+            )
+            os.makedirs(os.path.join(bin_dir, "CMakeFiles"))
+            os.makedirs(os.path.join(bin_dir, "cooperative_groups"))
+            binary = os.path.join(bin_dir, "mmDrv")
+            for name in ("mmDrv", "mm_kernel64.fatbin"):
+                with open(os.path.join(bin_dir, name), "w") as f:
+                    f.write("x")
+            os.chmod(binary, 0o755)
+            sandbox, run_dir = cuda_samples.make_sandbox(
+                tmp, "0_Introduction", "mmDrv", binary
+            )
+            try:
+                # Source file, sidecar file, and sidecar dir are all
+                # present; the cmake build machinery is not.
+                for expected in (
+                    "mmDrv.cpp",
+                    "mm_kernel64.fatbin",
+                    "cooperative_groups",
+                ):
+                    self.assertTrue(
+                        os.path.exists(os.path.join(run_dir, expected)),
+                        expected,
+                    )
+                self.assertFalse(
+                    os.path.exists(os.path.join(run_dir, "CMakeFiles"))
+                )
+            finally:
+                shutil.rmtree(sandbox)
+
+    def test_make_sandbox_in_source_binary_needs_no_overlay(self):
+        # Make-era trees build the binary inside the sample source
+        # dir; the overlay must be a no-op there (same directory).
+        import shutil
+
+        with tempfile.TemporaryDirectory() as tmp:
+            source = os.path.join(tmp, "Samples", "0_Introduction", "vecAdd")
+            os.makedirs(source)
+            binary = os.path.join(source, "vecAdd")
+            with open(binary, "w") as f:
+                f.write("x")
+            os.chmod(binary, 0o755)
+            sandbox, run_dir = cuda_samples.make_sandbox(
+                tmp, "0_Introduction", "vecAdd", binary
+            )
+            try:
+                self.assertTrue(
+                    os.path.isfile(os.path.join(run_dir, "vecAdd"))
+                )
+            finally:
+                shutil.rmtree(sandbox)
+
     def test_run_timeout_env_must_be_numeric(self):
         with patch.dict(os.environ, {"CUDA_SAMPLES_TIMEOUT": "fast"}):
             with self.assertRaises(SystemExit):

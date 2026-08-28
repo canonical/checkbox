@@ -119,12 +119,42 @@ class UnifiedRunner(IJobRunner):
         self._stdin = stdin
         self._running_jobs_pid = None
         self._extra_env = extra_env
+        self._systemd_runner_prepared = False
+
+    def prepare_system_based_runner(self):
+        """
+        Patches to the system that only apply when using the systemd runner
+        """
+        if self._systemd_runner_prepared:
+            return
+        else:
+            # only apply the patches once
+            self._systemd_runner_prepared = True
+        if not os.geteuid():
+            # Be lenient here, the user may be experimenting and none of these
+            # are make or break, they are all QoL patches
+            return
+        try:
+            # Make Checkbox immune to the OOM Killer
+            # this is only applied when using the systemd based runner because
+            # the oom_score_adj is inherited by children (applying this to the
+            # subprocess based runner would make all tests immune to OOM as
+            # well)
+            with open("/proc/self/oom_score_adj", "w") as f:
+                f.write("-1000")
+        except PermissionError:
+            logger.warning(
+                "Unable to set OOMScoreAdjust, memory stress tests may crash "
+                "the Checkbox Agent"
+            )
 
     def run_job(
         self, job, job_state, environ=None, ui=None, as_systemd_unit=False
     ):
         logger.info(_("Running %r"), job)
         self._job_runner_ui_delegate.ui = ui
+        if as_systemd_unit:
+            self.prepare_system_based_runner()
 
         if isinstance(job, InvalidJob):
             self._job_runner_ui_delegate.on_begin("", dict())

@@ -522,6 +522,29 @@ def make_sandbox(root, category, name, binary=None):
     return sandbox, run_dir
 
 
+def sample_env(root):
+    """Return the environment for a sample process.
+
+    A snap-shipped tree bundles the CUDA toolkit runtime libraries
+    its binaries were built against (usr/lib/host-gpu/cuda-runtime
+    beside the tree).  On a host without an installed toolkit (e.g.
+    Ubuntu Core) dynamically linked samples (CUBLAS, cuSolver, nvrtc,
+    ...) cannot resolve them any other way.  Append — never prepend —
+    the bundled dir, so an existing loader path (the checkbox snap's
+    runtime, a host toolkit) always wins.
+    """
+    env = os.environ.copy()
+    runtime = os.path.join(
+        os.path.dirname(root), "usr", "lib", "host-gpu", "cuda-runtime"
+    )
+    if os.path.isdir(runtime):
+        current = env.get("LD_LIBRARY_PATH")
+        env["LD_LIBRARY_PATH"] = (
+            current + ":" + runtime if current else runtime
+        )
+    return env
+
+
 def cmd_run(args):
     root = resolve_root(args.path)
     binary = find_binary(root, args.category, args.name)
@@ -544,7 +567,10 @@ def cmd_run(args):
         # forever.
         try:
             proc = subprocess.Popen(
-                [binary], cwd=run_dir, start_new_session=True
+                [binary],
+                cwd=run_dir,
+                start_new_session=True,
+                env=sample_env(root),
             )
         except OSError as exc:
             raise SystemExit("Cannot execute {}: {}".format(binary, exc))

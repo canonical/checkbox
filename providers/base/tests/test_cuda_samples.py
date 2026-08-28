@@ -748,6 +748,34 @@ class CommandTests(unittest.TestCase):
             finally:
                 shutil.rmtree(sandbox)
 
+    def test_sample_env_appends_bundled_cuda_runtime(self):
+        # A snap tree ships its toolkit runtime libs beside the tree;
+        # they are APPENDED so an existing loader path always wins.
+        with tempfile.TemporaryDirectory() as tmp:
+            root = os.path.join(tmp, "cuda-samples")
+            runtime = os.path.join(
+                tmp, "usr", "lib", "host-gpu", "cuda-runtime"
+            )
+            os.makedirs(root)
+            os.makedirs(runtime)
+            with patch.dict(os.environ, {"LD_LIBRARY_PATH": "/existing"}):
+                env = cuda_samples.sample_env(root)
+            self.assertEqual(env["LD_LIBRARY_PATH"], "/existing:" + runtime)
+            with patch.dict(os.environ, clear=False) as _:
+                os.environ.pop("LD_LIBRARY_PATH", None)
+                env = cuda_samples.sample_env(root)
+            self.assertEqual(env["LD_LIBRARY_PATH"], runtime)
+
+    def test_sample_env_without_bundled_runtime_is_untouched(self):
+        # A plain classic tree (e.g. /opt/nvidia/cuda-samples) has no
+        # bundled runtime dir; the environment must pass through.
+        with tempfile.TemporaryDirectory() as tmp:
+            root = os.path.join(tmp, "cuda-samples")
+            os.makedirs(root)
+            with patch.dict(os.environ, {"LD_LIBRARY_PATH": "/existing"}):
+                env = cuda_samples.sample_env(root)
+                self.assertEqual(env["LD_LIBRARY_PATH"], "/existing")
+
     def test_run_timeout_env_must_be_numeric(self):
         with patch.dict(os.environ, {"CUDA_SAMPLES_TIMEOUT": "fast"}):
             with self.assertRaises(SystemExit):

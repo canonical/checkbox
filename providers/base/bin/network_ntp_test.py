@@ -104,7 +104,7 @@ def SyncTime(server):
     that syncs time faster than the slewed method that ntpdate uses by default,
     meaning we'll see something meaningful faster.
     """
-    cmd = "ntpdate -b " + server
+    cmd = "plz-run ntpdate -b " + server
     logging.debug("using %s" % server)
     sync = Popen(cmd, shell=True, stdout=PIPE, stderr=PIPE)
     result = sync.communicate()

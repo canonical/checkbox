@@ -130,7 +130,7 @@ class UnifiedRunner(IJobRunner):
         else:
             # only apply the patches once
             self._systemd_runner_prepared = True
-        if not os.geteuid():
+        if os.geteuid() != 0:
             # Be lenient here, the user may be experimenting and none of these
             # are make or break, they are all QoL patches
             return

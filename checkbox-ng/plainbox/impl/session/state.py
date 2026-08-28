@@ -197,7 +197,7 @@ class SessionMetaData:
             "features", "systemd_based_job_runner"
         )
         if systemd_based_job_runner is None:
-            systemd_based_job_runner = os.getenv("SNAP")
+            systemd_based_job_runner = bool(os.getenv("SNAP"))
         if systemd_based_job_runner:
             if shutil.which("plz-run"):
                 logger.info("Using systemd-based runner")

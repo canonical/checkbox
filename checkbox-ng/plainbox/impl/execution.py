@@ -121,7 +121,7 @@ class UnifiedRunner(IJobRunner):
         self._extra_env = extra_env
         self._systemd_runner_prepared = False
 
-    def prepare_system_based_runner(self):
+    def prepare_systemd_based_runner(self):
         """
         Patches to the system that only apply when using the systemd runner
         """
@@ -142,7 +142,7 @@ class UnifiedRunner(IJobRunner):
             # well)
             with open("/proc/self/oom_score_adj", "w") as f:
                 f.write("-1000")
-        except PermissionError:
+        except OSError:
             logger.warning(
                 "Unable to set OOMScoreAdjust, memory stress tests may crash "
                 "the Checkbox Agent"
@@ -154,7 +154,7 @@ class UnifiedRunner(IJobRunner):
         logger.info(_("Running %r"), job)
         self._job_runner_ui_delegate.ui = ui
         if as_systemd_unit:
-            self.prepare_system_based_runner()
+            self.prepare_systemd_based_runner()
 
         if isinstance(job, InvalidJob):
             self._job_runner_ui_delegate.on_begin("", dict())

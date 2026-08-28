@@ -25,15 +25,17 @@ from codec_base import BaseCodecProject
 from codec_platforms import create_scenario_project
 from gst_utils import (
     VIDEO_CODEC_TESTING_DATA,
-    SAMPLE_2_FOLDER,
     GST_LAUNCH_BIN,
     GStreamerEncodePlugins,
     GStreamerTransformActions,
     MetadataValidator,
+    get_codec_short_name,
     compare_psnr,
     delete_file,
     execute_command,
-    get_big_bug_bunny_golden_sample,
+    get_test_file_name_by_params,
+    manage_test_file_by_name,
+    manage_test_file_by_params,
 )
 
 logging.basicConfig(level=logging.INFO)
@@ -67,8 +69,11 @@ class GenericTransformRotateAndFlipProject(BaseCodecProject):
         }
         # This sample video file will be consumed by any gstreamer piple as
         # input video.
-        self._golden_sample = get_big_bug_bunny_golden_sample(
-            width=self._width, height=self._height, framerate=self._framerate
+        golden_file = get_test_file_name_by_params(
+            width=self._width, height=self._height, framerate=self._framerate, plugin_name=args.encoder_plugin
+        )
+        self._golden_sample = os.path.join(
+            VIDEO_CODEC_TESTING_DATA, golden_file
         )
         self._pipeline_builders = {
             GStreamerEncodePlugins.V4L2H264ENC.value: (
@@ -77,18 +82,16 @@ class GenericTransformRotateAndFlipProject(BaseCodecProject):
         }
 
     @property
-    def psnr_reference_file(self) -> str:
+    def psnr_reference_file(self, file_name=str) -> str:
         """
         A golden reference which has been transformed in advance. It's used to
         be the compared reference file for PSNR.
         """
-        golden_reference = "big_bug_bunny_{}x{}_{}fps_{}.mp4".format(
-            self._width, self._height, self._framerate, self._action
-        )
 
         full_path = os.path.join(
-            VIDEO_CODEC_TESTING_DATA, SAMPLE_2_FOLDER, golden_reference
+            VIDEO_CODEC_TESTING_DATA, file_name
         )
+        logging.info("Looking for golden PSNR reference file at '%s'", full_path)
         if not os.path.exists(full_path):
             raise SystemExit(
                 "Error: Golden PSNR reference '{}' doesn't exist".format(
@@ -192,43 +195,57 @@ def register_arguments():
 
 def main() -> None:
     args = register_arguments()
-    # Platforms with their own transform pipeline provide a
-    # create_transform_rotate_and_flip_project in their codec_<family>.py
-    # module; everyone else uses the generic v4l2convert pipeline.
-    p = create_scenario_project(
-        args.platform,
-        "create_transform_rotate_and_flip_project",
-        GenericTransformRotateAndFlipProject,
-        args,
-    )
-    logging.info("Step 1: Generating artifact...")
-    cmd = p.build_pipeline()
-    # execute command
-    execute_command(cmd=cmd)
-    logging.info("\nStep 2: Checking metadata...")
-    # Assign the expected width and height for validation
-    # If you are verifying rotate 90 or 270 degree, the height and width
-    # should be exchanged.
-    expeted_width = args.width
-    expeted_height = args.height
-    if args.action in [
-        GStreamerTransformActions.ROTATE_90,
-        GStreamerTransformActions.ROTATE_270,
-    ]:
-        expeted_width = args.height
-        expeted_height = args.width
-    mv = MetadataValidator(file_path=p.artifact_file)
-    mv.validate("width", expeted_width).validate(
-        "height", expeted_height
-    ).validate("frame_rate", args.framerate).validate(
-        "codec", args.encoder_plugin
-    ).is_valid()
-    logging.info("\nStep 3: Comparing PSNR...")
-    compare_psnr(
-        golden_reference_file=p.psnr_reference_file,
-        artifact_file=p.artifact_file,
-    )
-    delete_file(file_path=p.artifact_file)
+    with manage_test_file_by_params(
+        args.width, args.height, args.framerate, args.encoder_plugin
+    ):
+        # Platforms with their own transform pipeline provide a
+        # create_transform_rotate_and_flip_project in their codec_<family>.py
+        # module; everyone else uses the generic v4l2convert pipeline.
+        p = create_scenario_project(
+            args.platform,
+            "create_transform_rotate_and_flip_project",
+            GenericTransformRotateAndFlipProject,
+            args,
+        )
+        logging.info("Step 1: Generating artifact...")
+        cmd = p.build_pipeline()
+        # execute command
+        execute_command(cmd=cmd)
+        logging.info("\nStep 2: Checking metadata...")
+        # Assign the expected width and height for validation
+        # If you are verifying rotate 90 or 270 degree, the height and width
+        # should be exchanged.
+        expected_width = args.width
+        expected_height = args.height
+        if args.action in [
+            GStreamerTransformActions.ROTATE_90,
+            GStreamerTransformActions.ROTATE_270,
+        ]:
+            expected_width = args.height
+            expected_height = args.width
+        mv = MetadataValidator(file_path=p.artifact_file)
+        mv.validate("width", expected_width).validate(
+            "height", expected_height
+        ).validate("frame_rate", args.framerate).validate(
+            "codec", args.encoder_plugin
+        ).is_valid()
+
+        # For example. the golden reference file is named as 1080p_60fps_h264_rotate_180.mp4
+        reference_file_name = '{}p_{}fps_{}_{}.mp4'.format(
+            expected_height,
+            args.framerate,
+            get_codec_short_name(args.encoder_plugin),
+            args.action
+        )
+        with manage_test_file_by_name(
+            file_name=reference_file_name
+        ):
+            logging.info("\nStep 3: Comparing PSNR...")
+            compare_psnr(
+                golden_reference_file=p.psnr_reference_file(file_name=reference_file_name),
+                artifact_file=p.artifact_file,
+            )
+        delete_file(file_path=p.artifact_file)
 
 
 if __name__ == "__main__":

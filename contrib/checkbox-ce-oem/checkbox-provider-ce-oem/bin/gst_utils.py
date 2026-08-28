@@ -17,12 +17,11 @@ GST_DISCOVERER = os.getenv("GST_DISCOVERER", "gst-discoverer-1.0")
 PLAINBOX_SESSION_SHARE = os.getenv("PLAINBOX_SESSION_SHARE", "/var/tmp")
 VIDEO_CODEC_TESTING_DATA = os.getenv("VIDEO_CODEC_TESTING_DATA")
 if not VIDEO_CODEC_TESTING_DATA:
-    VIDEO_CODEC_TESTING_DATA = os.path.join(os.path.expanduser("~"), "video")
+    VIDEO_CODEC_TESTING_DATA = os.path.join(os.path.expanduser("~"), "checkbox-video")
 
 if not os.path.exists(VIDEO_CODEC_TESTING_DATA):
     os.makedirs(VIDEO_CODEC_TESTING_DATA, exist_ok=True)
 # Folder stores the golden samples
-SAMPLE_2_FOLDER = "sample_2_big_bug_bunny"
 
 
 class GStreamerEncodePlugins(Enum):
@@ -207,38 +206,6 @@ def generate_artifact_name(extension: str = "mp4") -> str:
     return os.path.join(PLAINBOX_SESSION_SHARE, n)
 
 
-def get_big_bug_bunny_golden_sample(
-    width: int = 3840,
-    height: int = 2160,
-    framerate: int = 60,
-    codec: str = "h264",
-    container: str = "mp4",
-) -> str:
-    """
-    Idealy, we can consume a h264 mp4 file then encode by any other codecs and
-    mux it with a specific muxer such as mp4mux into mp4 container.
-    Therefore, we only need to adjust the width, height and framerate for
-    getting golden sample.
-
-    If you need a golden sample which doesn't exist in our sample pool, please
-    contribute it and get it as your requirement.
-    """
-    golden_sample = "big_bug_bunny_{}x{}_{}fps_{}.{}".format(
-        width, height, framerate, codec, container
-    )
-
-    full_path = os.path.join(
-        VIDEO_CODEC_TESTING_DATA, SAMPLE_2_FOLDER, golden_sample
-    )
-    logging.debug("Golden Sample: '{}'".format(full_path))
-    if not os.path.exists(full_path):
-        raise SystemExit(
-            "Error: Golden sample '{}' doesn't exist".format(full_path)
-        )
-
-    return full_path
-
-
 @contextlib.contextmanager
 def manage_test_file_by_name(
     file_name: str, target_dir: str = VIDEO_CODEC_TESTING_DATA
@@ -276,6 +243,7 @@ def manage_test_file_by_name(
 
 
 def get_resolution_string(width: int, height: int) -> str:
+    # TODO: 4096x2176
     if width == 3840 and height == 2160:
         return "4k"
     elif width == 2560 and height == 1440:
@@ -284,15 +252,31 @@ def get_resolution_string(width: int, height: int) -> str:
         return "{}p".format(height)
 
 
+def get_codec_short_name(plugin_name: str) -> str:
+    if "264" in plugin_name:
+        return "h264"
+    elif "265" in plugin_name:
+        return "h265"
+    elif "vp8" in plugin_name:
+        return "vp8"
+    elif "vp9" in plugin_name:
+        return "vp9"
+    elif "jpg" in plugin_name or "jpeg" in plugin_name:
+        return "jpg"
+    else:
+        return ""
+
+
 def get_test_file_name_by_params(
     width: int, height: int, framerate: int, plugin_name: str
 ) -> str:
-    if "264" in plugin_name or "265" in plugin_name:
+    core_codec = get_codec_short_name(plugin_name).lower()
+    if core_codec in ["h264", "h265"]:
         ext = "mp4"
-        core_codec = "h265" if "265" in plugin_name else "h264"
-    elif "vp8" in plugin_name or "vp9" in plugin_name:
+    elif core_codec in ["vp8", "vp9"]:
         ext = "webm"
-        core_codec = "vp9" if "vp9" in plugin_name else "vp8"
+    elif core_codec in ["jpg", "jpeg"]:
+        ext = "jpg"
     else:
         ext = "mp4"
         core_codec = "h264"

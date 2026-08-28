@@ -25,7 +25,6 @@ import os
 from codec_base import BaseCodecProject
 from gst_utils import (
     VIDEO_CODEC_TESTING_DATA,
-    SAMPLE_2_FOLDER,
     GST_LAUNCH_BIN,
     GStreamerMuxerType,
     GStreamerEncodePlugins,
@@ -109,16 +108,6 @@ class GenioProject(BaseCodecProject):
                 )
         return self._artifact_file
 
-    @property
-    def psnr_reference_file(self) -> str:
-        if self._codec == GStreamerEncodePlugins.V4L2JPEGENC.value:
-            return os.path.join(
-                VIDEO_CODEC_TESTING_DATA,
-                SAMPLE_2_FOLDER,
-                "big_bug_bunny_{}x{}.jpg".format(self._width, self._height),
-            )
-        else:
-            return self._golden_sample
 
     def _264_265_pipeline_builder(self) -> str:
         """

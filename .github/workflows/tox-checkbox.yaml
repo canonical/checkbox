@@ -15,6 +15,7 @@ on:
       - providers/resource/**
       - providers/sru/**
       - providers/iiotg/**
+      - providers/tpm2/**
       - .github/workflows/tox-checkbox.yaml
   pull_request:
     paths:
@@ -28,6 +29,7 @@ on:
       - providers/sru/**
       - providers/genio/**
       - providers/iiotg/**
+      - providers/tpm2/**
       - .github/workflows/tox-checkbox.yaml
   workflow_dispatch:
 
@@ -75,6 +77,7 @@ jobs:
               providers/resource \
               providers/genio \
               providers/iiotg \
+              providers/tpm2 \
               providers/sru; do
             if changed $path; then
               echo -n '{ "path":' >> to_output

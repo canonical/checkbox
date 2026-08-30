@@ -8,7 +8,7 @@ nested_part:
 
 id: ce-oem-monitor-manual
 unit: test plan
-_name: Built-in monitor or panel auto tests
+_name: Built-in monitor or panel manual tests
 _description: Manual built-in monitor or panel tests
 bootstrap_include:
     ce-oem-monitor/backlight_panel_list

@@ -32,12 +32,12 @@ environ:
   - QCOM_INFERENCE_OCI_IMAGE
 command: |
     docker run --rm \
-    --device=${QCOM_ACCEL1:-'/dev/accel/accel1'} \
-    --device=${QCOM_ACCEL2:-'/dev/accel/accel2'} \
+    --device="${QCOM_ACCEL1:-/dev/accel/accel1}" \
+    --device="${QCOM_ACCEL2:-/dev/accel/accel2}" \
     --network host \
     --ulimit nofile=1048576 \
     -e OMP_NUM_THREADS=8 \
-    ${QCOM_INFERENCE_OCI_IMAGE:-'ghcr.io/quic/cloud_ai_inference_ubuntu24:1.21.6.0'} \
+    "${QCOM_INFERENCE_OCI_IMAGE:-ghcr.io/quic/cloud_ai_inference_ubuntu24:1.21.6.0}" \
     qaic-runner -t /opt/qti-aic/test-data/aic100/v2/1nsp/1nsp-conv-hmx/ -a 16 -n 5000 -d 0
 estimated_duration: 60s
 summary: Verify the Qualcomm Cloud AI NPU driver functionality

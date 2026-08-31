@@ -95,9 +95,12 @@ estimated_duration: 40
 command: 
     if [ -f "/sys/class/rtc/{rtc}/wakealarm" ]; then 
         timeout 60 rtcwake -d {rtc} -v -m on -s 30
-        if [ $? -eq 124 ]; then
+        rtcwake_status=$?
+        if [ "$rtcwake_status" -eq 124 ]; then
             echo "Error: rtcwake timed out!"
             exit 1
+        elif [ "$rtcwake_status" -ne 0 ]; then
+            exit "$rtcwake_status"
         fi
     else 
         echo "{rtc} does not support wakealarm"

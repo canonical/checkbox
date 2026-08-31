@@ -20,7 +20,7 @@
 """MediaTek Genio platform pipelines for the video-codec scenarios."""
 
 import argparse
-import os
+import logging
 
 from codec_base import BaseCodecProject
 from gst_utils import (
@@ -31,6 +31,8 @@ from gst_utils import (
     generate_artifact_name,
     get_test_file_path_by_params,
 )
+
+logger = logging.getLogger(__name__)
 
 
 def create_encoder_psnr_project(args: argparse.Namespace):
@@ -113,6 +115,7 @@ class GenioProject(BaseCodecProject):
         """
         Build gstreamer pipeline for H264 and H265 encoder
         """
+        logger.info("Building H264/H265 pipeline for codec: %s", self._codec)
         base_pipeline = (
             "{} filesrc location={} ! decodebin ! videoconvert !"
             " video/x-raw,format={} ! {}"
@@ -145,13 +148,17 @@ class GenioProject(BaseCodecProject):
                 )
             )
 
+        logger.info("Final Pipeline: %s", final_pipeline)
+
         return final_pipeline
 
     def _v4l2jpegenc_pipeline_builder(self) -> str:
         """
         Build gstreamer pipeline for JPEG encoder
+        https://genio.mediatek.com/doc/iot-yocto/latest/sw/yocto/app-dev/image/image-common.html#image-codec
         """
-        if self._platform == "genio-350":
+        logger.info("Building JPEG pipeline for codec: %s", self._codec)
+        if "350" in self._platform:
             raise SystemExit(
                 "Genio 350 platform doesn't support v4l2jpegenc codec"
             )
@@ -167,4 +174,5 @@ class GenioProject(BaseCodecProject):
             self._codec,
             self.artifact_file,
         )
+        logger.info("Final Pipeline: %s", final_pipeline)
         return final_pipeline

@@ -34,7 +34,13 @@ from gst_utils import (
     manage_test_file_by_params,
 )
 
-logging.basicConfig(level=logging.INFO)
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(levelname)-8s - %(module)-10s: %(funcName)s "
+    + "%(lineno)-4d - %(message)s",
+)
+
+logger = logging.getLogger(__name__)
 
 
 class GenericTransformResizeProject(BaseCodecProject):
@@ -67,24 +73,6 @@ class GenericTransformResizeProject(BaseCodecProject):
                 self._resize_pipeline_builder
             ),
         }
-
-    @property
-    def psnr_reference_file(self) -> str:
-        """
-        A golden reference which has been transformed in advance. It's used to
-        be the compared reference file for PSNR.
-        """
-        golden_reference = get_test_file_path_by_params(
-            self._width_to, self._height_to, self._framerate, self._codec
-        )
-        if not os.path.exists(golden_reference):
-            raise SystemExit(
-                "Error: Golden PSNR reference '{}' doesn't exist".format(
-                    golden_reference
-                )
-            )
-
-        return golden_reference
 
     def _resize_pipeline_builder(self) -> str:
         """
@@ -177,12 +165,16 @@ def register_arguments():
 
 def main() -> None:
     args = register_arguments()
+    logger.info("============ Getting the 'From' file ============")
     with manage_test_file_by_params(
         args.width_from, args.height_from, args.framerate, args.encoder_plugin
     ):
+        logger.info("============ Getting the 'To' file ============")
         with manage_test_file_by_params(
             args.width_to, args.height_to, args.framerate, args.encoder_plugin
-        ):
+        ) as to_file:
+            logger.info(
+                "============ Start the transform resize process ============")
             # Platforms with their own transform pipeline provide a
             # create_transform_resize_project in their codec_<family>.py
             # module; everyone else uses the generic v4l2convert
@@ -206,7 +198,7 @@ def main() -> None:
             ).is_valid()
             logging.info("\nStep 3: Comparing PSNR...")
             compare_psnr(
-                golden_reference_file=p.psnr_reference_file,
+                golden_reference_file=to_file,
                 artifact_file=p.artifact_file,
             )
             delete_file(file_path=p.artifact_file)

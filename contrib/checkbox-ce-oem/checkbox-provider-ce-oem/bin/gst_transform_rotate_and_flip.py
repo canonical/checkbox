@@ -38,7 +38,13 @@ from gst_utils import (
     manage_test_file_by_params,
 )
 
-logging.basicConfig(level=logging.INFO)
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(levelname)-8s - %(module)-10s: %(funcName)s "
+    + "%(lineno)-4d - %(message)s",
+)
+
+logger = logging.getLogger(__name__)
 
 
 class GenericTransformRotateAndFlipProject(BaseCodecProject):
@@ -81,25 +87,6 @@ class GenericTransformRotateAndFlipProject(BaseCodecProject):
             ),
         }
 
-    @property
-    def psnr_reference_file(self, file_name=str) -> str:
-        """
-        A golden reference which has been transformed in advance. It's used to
-        be the compared reference file for PSNR.
-        """
-
-        full_path = os.path.join(
-            VIDEO_CODEC_TESTING_DATA, file_name
-        )
-        logging.info("Looking for golden PSNR reference file at '%s'", full_path)
-        if not os.path.exists(full_path):
-            raise SystemExit(
-                "Error: Golden PSNR reference '{}' doesn't exist".format(
-                    full_path
-                )
-            )
-
-        return full_path
 
     def _transform_pipeline_builder(self) -> str:
         """
@@ -231,18 +218,20 @@ def main() -> None:
         ).is_valid()
 
         # For example. the golden reference file is named as 1080p_60fps_h264_rotate_180.mp4
-        reference_file_name = '{}p_{}fps_{}_{}.mp4'.format(
-            expected_height,
+        reference_file_name = '{}x{}_{}fps_{}_{}.mp4'.format(
+            args.width,
+            args.height,
             args.framerate,
             get_codec_short_name(args.encoder_plugin),
             args.action
         )
         with manage_test_file_by_name(
             file_name=reference_file_name
-        ):
+        ) as reference_file_path:
             logging.info("\nStep 3: Comparing PSNR...")
             compare_psnr(
-                golden_reference_file=p.psnr_reference_file(file_name=reference_file_name),
+                # golden_reference_file=p.psnr_reference_file(file_name=reference_file_name),
+                golden_reference_file=reference_file_path,
                 artifact_file=p.artifact_file,
             )
         delete_file(file_path=p.artifact_file)

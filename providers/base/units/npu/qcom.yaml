@@ -11,7 +11,7 @@ requires:
 command: module_loaded_test.py qaic -n
 estimated_duration: 5s
 summary: Test this machine have the Qualcomm Cloud AI NPU driver loaded or not
-description: |
+purpose: |
   The An Qualcomm Cloud AI NPU driver should be loaded and could be validated by
   the outcome of lsmod automatically.
 ---
@@ -41,5 +41,5 @@ command: |
     qaic-runner -t /opt/qti-aic/test-data/aic100/v2/1nsp/1nsp-conv-hmx/ -a 16 -n 5000 -d 0
 estimated_duration: 60s
 summary: Verify the Qualcomm Cloud AI NPU driver functionality
-description: |
+purpose: |
     Using the offical cloud_ai_inference_ubuntu OCI container for verification

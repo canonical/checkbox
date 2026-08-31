@@ -10,10 +10,10 @@ requires:
   - manifest.has_qualcomm_cloud_ai_npu == 'True'
 command: module_loaded_test.py qaic -n
 estimated_duration: 5s
-summary: Test this machine have the Qualcomm Cloud AI NPU driver loaded or not
+summary: Test whether this machine has the Qualcomm Cloud AI NPU driver loaded
 purpose: |
-  The An Qualcomm Cloud AI NPU driver should be loaded and could be validated by
-  the outcome of lsmod automatically.
+  The Qualcomm Cloud AI NPU driver should be loaded; this can be validated
+  automatically from the output of lsmod.
 ---
 unit: job
 plugin: shell

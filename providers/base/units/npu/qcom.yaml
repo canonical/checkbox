@@ -1,0 +1,45 @@
+unit: job
+plugin: shell
+category_id: qcom_npu
+id: npu/qualcomm_cloud_ai_driver_detect
+flags:
+  - also-after-suspend
+imports:
+  - from com.canonical.plainbox import manifest
+requires:
+  - manifest.has_qualcomm_cloud_ai_npu == 'True'
+command: module_loaded_test.py qaic -n
+estimated_duration: 5s
+summary: Test this machine have the Qualcomm Cloud AI NPU driver loaded or not
+description: |
+  The An Qualcomm Cloud AI NPU driver should be loaded and could be validated by
+  the outcome of lsmod automatically.
+---
+unit: job
+plugin: shell
+category_id: qcom_npu
+id: npu/qualcomm_cloud_ai_driver_test
+user: root
+flags:
+  - also-after-suspend
+depends:
+  - npu/qualcomm_cloud_ai_driver_detect
+requires:
+  - executable.name == 'docker'
+environ:
+  - QCOM_ACCEL1
+  - QCOM_ACCEL2
+  - QCOM_INFERENCE_OCI_IMAGE
+command: |
+    docker run --rm \
+    --device=${QCOM_ACCEL1:-'/dev/accel/accel1'} \
+    --device=${QCOM_ACCEL2:-'/dev/accel/accel2'} \
+    --network host \
+    --ulimit nofile=1048576 \
+    -e OMP_NUM_THREADS=8 \
+    ${QCOM_INFERENCE_OCI_IMAGE:-'ghcr.io/quic/cloud_ai_inference_ubuntu24:1.21.6.0'} \
+    qaic-runner -t /opt/qti-aic/test-data/aic100/v2/1nsp/1nsp-conv-hmx/ -a 16 -n 5000 -d 0
+estimated_duration: 60s
+summary: Verify the Qualcomm Cloud AI NPU driver functionality
+description: |
+    Using the offical cloud_ai_inference_ubuntu OCI container for verification

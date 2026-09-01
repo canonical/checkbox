@@ -339,6 +339,9 @@ nested_part:
     stress-warmboot-coldboot-automated
     stress-pm-graph
 certification_status_overrides:
-    apply blocker to com.canonical.certification::warm-boot-loop-.*
-    apply blocker to com.canonical.certification::cold-boot-loop-.*
+    apply blocker to com.canonical.certification::(warm|cold)-boot-loop-reboot-.*
+    apply blocker to com.canonical.certification::(warm|cold)-boot-loop-.*-fwts-critical-only
+    apply blocker to com.canonical.certification::(warm|cold)-.*-device-check
+    apply blocker to com.canonical.certification::(warm|cold)-.*-service-check
+    apply blocker to com.canonical.certification::(warm|cold)-.*-renderer-check
     apply blocker to com.canonical.certification::ethernet/iperf3_.*

@@ -219,7 +219,8 @@ def main() -> None:
             "codec", args.encoder_plugin
         ).is_valid()
 
-        # For example. the golden reference file is named as 1080p_60fps_h264_rotate_180.mp4
+        # For example, the golden reference file is named as:
+        # 1080p_60fps_h264_rotate_180.mp4
         reference_file_name = "{}x{}_{}fps_{}_{}.mp4".format(
             args.width,
             args.height,
@@ -232,7 +233,6 @@ def main() -> None:
         ) as reference_file_path:
             logging.info("\nStep 3: Comparing PSNR...")
             compare_psnr(
-                # golden_reference_file=p.psnr_reference_file(file_name=reference_file_name),
                 golden_reference_file=reference_file_path,
                 artifact_file=p.artifact_file,
             )

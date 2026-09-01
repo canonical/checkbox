@@ -27,6 +27,13 @@ include:
   - stub/user-interact-verify
 ---
 unit: test plan
+id: basic-manual-one-per-kind
+name: Basic Manual One Per Kind
+include:
+  - basic/manual
+  - basic/user-interact-verify
+---
+unit: test plan
 id: basic-session-resume-manual
 name: Basic Manual (for Session Resume Scenario)
 include:

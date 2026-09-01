@@ -136,6 +136,9 @@ class MainLoopStage(CheckboxUiStage):
                             " session"
                         ),
                     )
+                    result = result_builder.get_result()
+                    ui.job_cannot_start(job, job_state, result)
+                    ui.finished(job, job_state, result)
                     return result_builder
                 if job_state.can_start():
                     ui.notify_about_purpose(job)

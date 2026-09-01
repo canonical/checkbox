@@ -20,6 +20,33 @@ command: 'echo foo: $foo'
 environ:
   - foo
 ---
+id: basic/manual
+summary: A simple manual job
+purpose: |
+  This test checks that the manual plugin works fine
+steps: |
+  1. Add a comment
+  2. Set the result as passed
+verification: |
+  Check that in the report the result is passed and the comment is displayed
+plugin: manual
+estimated_duration: '30'
+---
+id: basic/user-interact-verify
+summary: A simple user interaction and verification job
+purpose: |
+  This test checks that the user-interact-verify plugin works fine
+steps: |
+  1. Read this description
+  2. Ensure that the command has not been started yet
+  3. Press the test button
+  4. Look at the output and determine the outcome of the test
+verification: |
+  The command should have printed "Please select 'pass'"
+plugin: user-interact-verify
+command: echo "Please select 'pass'"
+estimated_duration: '25'
+---
 id: config-environ-source
 flags:
   - simple

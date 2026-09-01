@@ -592,7 +592,8 @@ class RemoteSessionAssistant:
 
             def cant_start_builder(*args, **kwargs):
                 comments = (
-                    "Unable to start inteactive job in non-interactive session"
+                    "Unable to start interactive job in non-interactive"
+                    "session"
                 )
                 result_builder = JobResultBuilder(
                     outcome=IJobResult.OUTCOME_MANUAL_SKIP,

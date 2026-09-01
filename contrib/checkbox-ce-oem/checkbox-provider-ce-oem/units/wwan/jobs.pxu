@@ -19,12 +19,12 @@ _purpose:
   both parts empty), the job simply pings over WWAN_NET_IF.
 plugin: shell
 command:
-  BEGIN_CONNECTION_TEST_TS=$(date '+%Y-%m-%d %H:%M:%S')
+  BEGIN_TEST_TS=$(date '+%Y-%m-%d %H:%M:%S')
   usb_hotspot_connection_at_command.py
   RETVAL=$?
   if [ $RETVAL -ne 0 ]; then
-    echo "==== Service units logs ===="
-    journalctl -q -u "snap.network-manager.networkmanager.service" --no-pager --since "$BEGIN_CONNECTION_TEST_TS" -o cat
+    echo "==== journalctl since test start ===="
+    journalctl -q --no-pager --since "$BEGIN_TEST_TS" -o cat
     exit $RETVAL
   fi
 environ: LD_LIBRARY_PATH WWAN_CONTROL_IF WWAN_NET_IF WWAN_APN WWAN_SETUPTIME WWAN_AT_COMMAND_JSON
@@ -51,12 +51,12 @@ _purpose:
   WWAN reset/recovery testing.
 plugin: shell
 command:
-  BEGIN_RESET_TEST_TS=$(date '+%Y-%m-%d %H:%M:%S')
+  BEGIN_TEST_TS=$(date '+%Y-%m-%d %H:%M:%S')
   usb_hotspot_connection_at_command.py --action reset-recovery
   RETVAL=$?
   if [ $RETVAL -ne 0 ]; then
-    echo "==== Service units logs ===="
-    journalctl -q -u "snap.network-manager.networkmanager.service" --no-pager --since "$BEGIN_RESET_TEST_TS" -o cat
+    echo "==== journalctl since test start ===="
+    journalctl -q --no-pager --since "$BEGIN_TEST_TS" -o cat
     exit $RETVAL
   fi
 environ: LD_LIBRARY_PATH WWAN_CONTROL_IF WWAN_RESET_WAIT WWAN_RESET_COPS_TIMEOUT WWAN_RESET_DENIED_TIMEOUT WWAN_RESET_RADIO_CYCLE_WAIT

@@ -26,6 +26,8 @@ _description: Checks if the system has the necessary GStreamer binaries installe
 estimated_duration: 2s
 category_id: video-codec
 plugin: shell
+imports: from com.canonical.plainbox import manifest
+requires: manifest.has_video_codec == 'True'
 environ: GST_LAUNCH_BIN GST_DISCOVERER
 command:
     for tool in "${GST_LAUNCH_BIN:-gst-launch-1.0}" "${GST_DISCOVERER:-gst-discoverer-1.0}"; do

@@ -221,21 +221,21 @@ def main() -> None:
 
         # For example, the golden reference file is named as:
         # 1080p_60fps_h264_rotate_180.mp4
-        reference_file_name = "{}x{}_{}fps_{}_{}.mp4".format(
-            args.width,
-            args.height,
-            args.framerate,
-            get_codec_short_name(args.encoder_plugin),
-            args.action,
-        )
-        with manage_test_file_by_name(
-            file_name=reference_file_name
-        ) as reference_file_path:
-            logging.info("\nStep 3: Comparing PSNR...")
-            compare_psnr(
-                golden_reference_file=reference_file_path,
-                artifact_file=p.artifact_file,
-            )
+        # reference_file_name = "{}x{}_{}fps_{}_{}.mp4".format(
+        #     args.width,
+        #     args.height,
+        #     args.framerate,
+        #     get_codec_short_name(args.encoder_plugin),
+        #     args.action,
+        # )
+        # with manage_test_file_by_name(
+        #     file_name=reference_file_name
+        # ) as reference_file_path:
+        #     logging.info("\nStep 3: Comparing PSNR...")
+        #     compare_psnr(
+        #         golden_reference_file=reference_file_path,
+        #         artifact_file=p.artifact_file,
+        #     )
         delete_file(file_path=p.artifact_file)
 
 

@@ -113,6 +113,11 @@ class RenesasProject(BaseCodecProject):
             framerate=framerate,
             color_space=color_space,
         )
+        # This sample video file will be consumed by any gstreamer piple as
+        # input video.
+        self._golden_sample = get_test_file_path_by_params(
+            self._width, self._height, self._framerate, codec
+        )
         self._codec_parser_map = {
             GStreamerEncodePlugins.OMXH264ENC.value: "h264parse",
             GStreamerEncodePlugins.OMXH265ENC.value: "h265parse",
@@ -131,9 +136,6 @@ class RenesasProject(BaseCodecProject):
         Build gstreamer pipeline for omxh264enc
         """
         encode_parser = self._codec_parser_map.get(self._codec)
-        self._golden_sample = get_test_file_path_by_params(
-            self._width, self._height, self._framerate, "h264"
-        )
         if "h264" in self._codec:
             decoder = GStreamerDecodePlugins.OMXH264DEC.value
         elif "h265" in self._codec:

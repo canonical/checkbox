@@ -107,6 +107,11 @@ class NxpIMX8mProject(BaseCodecProject):
             framerate=framerate,
             color_space=color_space,
         )
+        # This sample video file will be consumed by any gstreamer piple as
+        # input video.
+        self._golden_sample = get_test_file_path_by_params(
+            width, height, framerate, codec
+        )
         self._pipeline_builders = {
             GStreamerEncodePlugins.V4L2H264ENC.value: (
                 self._h264_pipeline_builder
@@ -132,11 +137,6 @@ class NxpIMX8mProject(BaseCodecProject):
         """
         Build gstreamer pipeline for H264 encoder
         """
-        # This sample video file will be consumed by any gstreamer piple as
-        # input video.
-        self._golden_sample = get_test_file_path_by_params(
-            self._width, self._height, self._framerate, "h264"
-        )
         pipeline = (
             "{} filesrc location={} ! qtdemux ! decodebin !"
             " imxvideoconvert_g2d ! videoconvert ! video/x-raw,format={} !"
@@ -156,11 +156,6 @@ class NxpIMX8mProject(BaseCodecProject):
         """
         Build gstreamer pipeline for H264 encoder
         """
-        # This sample video file will be consumed by any gstreamer piple as
-        # input video.
-        self._golden_sample = get_test_file_path_by_params(
-            self._width, self._height, self._framerate, "h265"
-        )
         pipeline = (
             "{} filesrc location={} ! qtdemux ! decodebin !"
             " imxvideoconvert_g2d ! videoconvert ! video/x-raw,format={} !"
@@ -178,11 +173,6 @@ class NxpIMX8mProject(BaseCodecProject):
         """
         Build gstreamer pipeline for H264 encoder
         """
-        # This sample video file will be consumed by any gstreamer piple as
-        # input video.
-        self._golden_sample = get_test_file_path_by_params(
-            self._width, self._height, self._framerate, "vp8"
-        )
         pipeline = (
             "{} filesrc location={} ! matroskademux ! decodebin !"
             " imxvideoconvert_g2d ! videoconvert ! video/x-raw,format={} !"

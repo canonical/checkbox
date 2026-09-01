@@ -66,7 +66,7 @@ class DragonwingProject(BaseCodecProject):
         # This sample video file will be consumed by any gstreamer piple as
         # input video.
         self._golden_sample = get_test_file_path_by_params(
-            self._width, self._height, self._framerate, "h264"
+            self._width, self._height, self._framerate, codec
         )
         self._pipeline_builders = {
             GStreamerEncodePlugins.V4L2H264ENC.value: (

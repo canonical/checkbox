@@ -29,12 +29,9 @@ from gst_utils import (
     GStreamerEncodePlugins,
     GStreamerTransformActions,
     MetadataValidator,
-    get_codec_short_name,
-    compare_psnr,
     delete_file,
     execute_command,
     get_test_file_name_by_params,
-    manage_test_file_by_name,
     manage_test_file_by_params,
 )
 

@@ -26,7 +26,6 @@ from gst_utils import (
     GST_LAUNCH_BIN,
     GStreamerEncodePlugins,
     MetadataValidator,
-    compare_psnr,
     delete_file,
     execute_command,
     get_test_file_path_by_params,

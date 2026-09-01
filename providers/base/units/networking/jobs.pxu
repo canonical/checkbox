@@ -70,10 +70,9 @@ plugin: shell
 category_id: com.canonical.plainbox::networking
 id: networking/ntp
 flags: also-after-suspend
-requires:
-    (package.name == 'ntpdate' or package.name == 'ntpsec-ntpdate')
+requires: package.name == 'chrony'
 user: root
-command: network_ntp_test.py
+command: network_ntp_chrony_test.py
 _purpose: Test to see if we can sync local clock to an NTP server
 _summary: Test NTP server synchronization capability.
 

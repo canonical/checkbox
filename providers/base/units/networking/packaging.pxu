@@ -4,13 +4,8 @@ Depends: net-tools, ethtool
 
 unit: packaging meta-data
 os-id: ubuntu
-os-version-id: < 22.04
-Depends: ntpdate
-
-unit: packaging meta-data
-os-id: ubuntu
-os-version-id: >= 22.04
-Depends: ntpsec-ntpdate
+os-version-id: >= 25.10
+Depends: chrony
 
 unit: packaging meta-data
 os-id: debian

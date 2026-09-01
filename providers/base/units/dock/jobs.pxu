@@ -652,10 +652,9 @@ id: dock/networking-ntp
 category_id: dock-network
 plugin: user-interact-verify
 depends: dock/cold-plug
-requires:
-    (package.name == 'ntpdate' or package.name == 'ntpsec-ntpdate')
+requires: package.name == 'chrony'
 user: root
-command: network_ntp_test.py
+command: network_ntp_chrony_test.py
 estimated_duration: 10.00
 _summary: NTP sync test using dock's Ethernet connectivity
 _purpose:
@@ -2681,9 +2680,9 @@ plugin: user-interact-verify
 imports: from com.canonical.plainbox import manifest
 requires:
     manifest.has_dock_ethernet_adapter == 'True'
-    (package.name == 'ntpdate' or package.name == 'ntpsec-ntpdate')
+    package.name == 'chrony'
 user: root
-command: network_ntp_test.py
+command: network_ntp_chrony_test.py
 estimated_duration: 10.00
 _summary: NTP sync test using dock's Ethernet connectivity
 _purpose:

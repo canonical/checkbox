@@ -240,6 +240,7 @@ template-resource: device
 template-filter: device.category == 'NETWORK' and device.mac != 'UNKNOWN'
 id: ethernet/wol_S5_{interface}
 template-id: ethernet/wol_S5_interface
+before: suspend/suspend_advanced_auto
 imports: from com.canonical.plainbox import manifest
 requires:
  manifest.has_ethernet_adapter == 'True'
@@ -297,6 +298,7 @@ template-resource: device
 template-filter: device.category == 'NETWORK' and device.mac != 'UNKNOWN' and device.interface != 'UNKNOWN'
 id: ethernet/wol_S3_{interface}
 template-id: ethernet/wol_S3_interface
+depends: suspend/suspend_advanced_auto
 _summary: Wake on LAN (WOL) test from S3 - {interface}
 _purpose:
  Check that another system can wake the System Under Test (SUT) up from S3 using the Ethernet port {interface}'s WOL function.

@@ -23,54 +23,53 @@ functionality.
 import contextlib
 import gettext
 import ipaddress
+import itertools
 import json
 import logging
 import os
 import select
-import socket
-import time
 import signal
+import socket
 import sys
-import itertools
-
+import time
 from collections import namedtuple
 from contextlib import suppress
 from tempfile import SpooledTemporaryFile
 
-from plainbox.abc import IJobResult
-from plainbox.impl.color import Colorizer
-from plainbox.impl.config import Configuration
-from plainbox.impl.session.state import SessionMetaData
-from plainbox.impl.result_utils import pretty_skip_reason
-from plainbox.impl.session.resume import (
-    IncompatibleJobError,
-    CorruptedSessionError,
-)
-from plainbox.impl.session.remote_assistant import (
-    RemoteSessionAssistant,
-    RemoteSessionStates,
-)
-from plainbox.vendor import rpyc
+from tqdm import tqdm
+
+from checkbox_ng.launcher.run import NormalUI, ReRunJob
+from checkbox_ng.launcher.stages import MainLoopStage, ReportsStage
 from checkbox_ng.resume_menu import ResumeMenu
 from checkbox_ng.urwid_ui import (
-    TestPlanBrowser,
     CategoryBrowser,
+    InterruptDialogAnswer,
     ManifestBrowser,
     ReRunBrowser,
+    ResumeInstead,
+    TestPlanBrowser,
     interrupt_dialog,
     resume_dialog,
-    ResumeInstead,
-    InterruptDialogAnswer,
 )
 from checkbox_ng.utils import (
     generate_resume_candidate_description,
     newline_join,
     request_comment,
 )
-from checkbox_ng.launcher.run import NormalUI, ReRunJob
-from checkbox_ng.launcher.stages import MainLoopStage
-from checkbox_ng.launcher.stages import ReportsStage
-from tqdm import tqdm
+from plainbox.abc import IJobResult
+from plainbox.impl.color import Colorizer
+from plainbox.impl.config import Configuration
+from plainbox.impl.result_utils import pretty_skip_reason
+from plainbox.impl.session.remote_assistant import (
+    RemoteSessionAssistant,
+    RemoteSessionStates,
+)
+from plainbox.impl.session.resume import (
+    CorruptedSessionError,
+    IncompatibleJobError,
+)
+from plainbox.impl.session.state import SessionMetaData
+from plainbox.vendor import rpyc
 
 _ = gettext.gettext
 _logger = logging.getLogger("controller")
@@ -1051,7 +1050,9 @@ class RemoteController(ReportsStage, MainLoopStage):
             SimpleUI.horiz_line()
             next_job = False
             while next_job is False:
-                for interaction in self.sa.run_job(job["id"]):
+                for interaction in self.sa.run_job(
+                    job["id"], self.is_interactive
+                ):
                     # interaction is a netref, cache attributes here
                     kind = interaction.kind
                     message = interaction.message

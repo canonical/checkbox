@@ -11,6 +11,7 @@ All units follow :ref:`rfc822`.
     :maxdepth: 2
     
     job.rst
+    setup_job.rst
     test-plan.rst
     category.rst
     resource.rst

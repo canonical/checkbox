@@ -42,16 +42,16 @@ class TestRetry(TestCase):
             f()
 
     @patch("time.sleep")
-    @patch("sys.stdout", new_callable=StringIO)
-    def test_decorator_max_attempts(self, mock_stdout, mock_sleep):
+    @patch("sys.stderr", new_callable=StringIO)
+    def test_decorator_max_attempts(self, mock_stderr, mock_sleep):
         @retry(max_attempts=7, delay=10)
         def f():
             return 1 / 0
 
         with self.assertRaises(ZeroDivisionError):
             f()
-        self.assertIn("Attempt 7 failed", mock_stdout.getvalue())
-        self.assertNotIn("Attempt 8 failed", mock_stdout.getvalue())
+        self.assertIn("Attempt 7 failed", mock_stderr.getvalue())
+        self.assertNotIn("Attempt 8 failed", mock_stderr.getvalue())
 
     def test_decorator_wrong_max_attempts(self):
         @retry(-1, 10)

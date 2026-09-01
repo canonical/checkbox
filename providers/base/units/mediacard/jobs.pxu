@@ -33,6 +33,7 @@ _summary: Test Multimedia Card (MMC) insertion + read/write + removal.
 plugin: user-interact
 category_id: com.canonical.plainbox::mediacard
 id: mediacard/sdhc-storage-manual
+group: peripherals_manual
 flags: also-after-suspend
 estimated_duration: 30.0
 command:

@@ -18,11 +18,14 @@
 # https://github.com/python/cpython/commit/6fdfcec5b11f44f27aae3d53ddeb004150ae1f61
 # Therefore, please don't add new test cases of assertLog.
 
+import shlex
+import subprocess
 import sys
 import unittest
-from unittest.mock import MagicMock, patch
+from unittest.mock import MagicMock, call, patch
 from pathlib import Path
 import json
+import typing as t
 
 sys.modules["gi"] = MagicMock()
 sys.modules["gi.repository"] = MagicMock()
@@ -403,7 +406,7 @@ class GstPipeLineTests(unittest.TestCase):
                    "object.serial": 29
                  },
                  "params": {
-                     "Route": [{
+                     "EnumRoute": [{
                          "name": "hdmi_demo_output",
                          "available": "yes",
                          "description": "hdmi demo output",
@@ -475,7 +478,7 @@ class MonitorActivePortTests(unittest.TestCase):
                            "object.serial": 29
                          },
                          "params": {
-                             "Route": [{
+                             "EnumRoute": [{
                                  "name": "hdmi_demo_output",
                                  "available": "yes",
                                  "direction": "Output",
@@ -518,7 +521,7 @@ class MonitorActivePortTests(unittest.TestCase):
                           "object.serial": 29
                         },
                         "params": {
-                            "Route": [{
+                            "EnumRoute": [{
                                 "name": "hdmi_after_output",
                                 "available": "yes",
                                 "direction": "Output",
@@ -536,7 +539,7 @@ class MonitorActivePortTests(unittest.TestCase):
         mock_checkout.return_value = self.before_device
         self.assertEqual(
             PipewireTestError.NO_CHANGE_DETECTED,
-            pt.monitor_active_port_change(2, "sink"),
+            pt.monitor_active_port_change(2, "sinks"),
         )
 
     @patch("subprocess.check_output")
@@ -546,7 +549,7 @@ class MonitorActivePortTests(unittest.TestCase):
         mock_checkout.side_effect = [self.before_device, self.after_device]
         self.assertEqual(
             PipewireTestError.NO_ERROR,
-            pt.monitor_active_port_change(2, "sink"),
+            pt.monitor_active_port_change(2, "sinks"),
         )
 
 
@@ -600,7 +603,376 @@ class GoThroughPortTests(unittest.TestCase):
 
         mock_checkout.return_value = self.device
         mock_input.side_effect = ["yes", "yes"]
-        self.assertEqual(None, pt.go_through_ports("echo test", "sink"))
+        self.assertEqual(None, pt.go_through_ports("echo test", "sinks"))
+
+
+class IterAudioSinksTests(unittest.TestCase):
+    def _fake_sp_check_output(self, *args, **_) -> str:
+        if args[0] == "pw-dump Device":
+            with (TEST_DATA_DIR / "pw_dump_device_happy_path.txt").open() as f:
+                return f.read()
+        elif args[0] == "pw-dump Node":
+            with (TEST_DATA_DIR / "pw_dump_node_happy_path.txt").open() as f:
+                return f.read()
+        else:
+            raise RuntimeError("Unexpected use of this mock")
+
+    @patch("builtins.input")
+    @patch("subprocess.check_call")
+    @patch("subprocess.check_output")
+    @patch("subprocess.run")
+    def test_happy_path(
+        self,
+        mock_run: MagicMock,
+        mock_check_output: MagicMock,
+        mock_check_call: MagicMock,
+        mock_input: MagicMock,
+    ):
+        pt = PipewireTest()
+
+        mock_check_output.side_effect = self._fake_sp_check_output
+
+        input_seq = ("0", "0", "1", "2", "1", "q")
+        mock_input.side_effect = input_seq
+        mock_check_call.return_value = 0  # only used by wpctl set-default
+
+        # actual cmd here doesn't matter, it just needs to be called
+        cmd = shlex.split("speaker-test -c 2 -l 1 -t wav")
+        pt.iter_audio_sinks(cmd)
+        mock_run.assert_has_calls(
+            [
+                call(cmd, timeout=60, check=True),
+            ]
+            * (len(input_seq) - 2)  # remove the q and invalid '2'
+        )
+
+    @patch("builtins.input")
+    @patch("subprocess.check_call")
+    @patch("subprocess.check_output")
+    @patch("subprocess.run")
+    def test_pressing_q_too_early(
+        self,
+        _: MagicMock,
+        mock_check_output: MagicMock,
+        mock_check_call: MagicMock,
+        mock_input: MagicMock,
+    ):
+        pt = PipewireTest()
+
+        mock_check_output.side_effect = self._fake_sp_check_output
+
+        # the test data has 2 devices
+        # quitting after just 1 should return non-zero
+        input_seq = ("0", "q")
+        mock_input.side_effect = input_seq
+        mock_check_call.return_value = 0  # only used by wpctl set-default
+
+        with self.assertRaises(SystemExit) as cm:
+            pt.iter_audio_sinks(shlex.split("speaker-test -c 2 -l 1 -t wav"))
+
+        self.assertEqual(
+            cm.exception.args[0],
+            "[ ERR ] Only 1 audio sinks were tested, but expected 2",
+        )
+
+    @patch("builtins.input")
+    @patch("subprocess.check_call")
+    @patch("subprocess.check_output")
+    @patch("subprocess.run")
+    def test_no_device(
+        self,
+        _: MagicMock,
+        mock_check_output: MagicMock,
+        mock_check_call: MagicMock,
+        mock_input: MagicMock,
+    ):
+        pw_dump_node_dummy = """
+[
+  {
+    "id": 28,
+    "type": "PipeWire:Interface:Node",
+    "version": 3,
+    "permissions": [ "r", "w", "x", "m" ],
+    "info": {
+      "max-input-ports": 0,
+      "max-output-ports": 0,
+      "change-mask": [ "input-ports", "output-ports", 
+      "state", "props", "params" ],
+      "n-input-ports": 0,
+      "n-output-ports": 0,
+      "state": "suspended",
+      "error": null,
+      "props": {
+        "factory.name": "support.node.driver",
+        "node.name": "Dummy-Driver",
+        "node.group": "pipewire.dummy",
+        "priority.driver": 20000,
+        "factory.id": 10,
+        "clock.quantum-limit": 8192,
+        "node.driver": true,
+        "object.id": 28,
+        "object.serial": 28
+      },
+      "params": {
+      }
+    }
+  },
+  {
+    "id": 29,
+    "type": "PipeWire:Interface:Node",
+    "version": 3,
+    "permissions": [ "r", "w", "x", "m" ],
+    "info": {
+      "max-input-ports": 0,
+      "max-output-ports": 0,
+      "change-mask": [ "input-ports", "output-ports", 
+      "state", "props", "params" ],
+      "n-input-ports": 0,
+      "n-output-ports": 0,
+      "state": "suspended",
+      "error": null,
+      "props": {
+        "factory.name": "support.node.driver",
+        "node.name": "Freewheel-Driver",
+        "priority.driver": 19000,
+        "node.group": "pipewire.freewheel",
+        "node.freewheel": true,
+        "factory.id": 10,
+        "clock.quantum-limit": 8192,
+        "node.driver": true,
+        "object.id": 29,
+        "object.serial": 29
+      },
+      "params": {
+      }
+    }
+  }
+]
+        """
+
+        def fake_sp_check_output(*args, **_) -> str:
+            if args[0] == "pw-dump Device":
+                return ""
+            elif args[0] == "pw-dump Node":
+                return pw_dump_node_dummy
+            else:
+                raise RuntimeError("Unexpected use of this mock")
+
+        pt = PipewireTest()
+        mock_check_output.side_effect = fake_sp_check_output
+
+        input_seq = ("0", "q")
+        mock_input.side_effect = input_seq
+        mock_check_call.return_value = 0
+        with self.assertRaises(SystemExit) as cm:
+            pt.iter_audio_sinks(shlex.split("speaker-test -c 2 -l 1 -t wav"))
+
+        self.assertEqual(
+            cm.exception.args[0], "No audio sinks are available for this test"
+        )
+
+    @patch("checkbox_support.scripts.pipewire_utils.print")
+    @patch("builtins.input")
+    @patch("subprocess.check_call")
+    @patch("subprocess.check_output")
+    @patch("subprocess.run")
+    def test_no_matching_device(
+        self,
+        _: MagicMock,
+        mock_check_output: MagicMock,
+        mock_check_call: MagicMock,
+        mock_input: MagicMock,
+        mock_print: MagicMock,
+    ):
+        pt = PipewireTest()
+
+        mock_check_output.side_effect = self._fake_sp_check_output
+
+        # the test data has 2 devices
+        # quitting after just 1 should return non-zero
+        input_seq = ("0", "1", "q")
+        mock_input.side_effect = input_seq
+        mock_check_call.return_value = 0
+
+        original = pt._get_pw_dump
+
+        def fake_pw_dump_rv(p_type: 't.Literal["Device", "Node"]'):
+            if p_type == "Device":
+                return []
+            else:
+                return original(p_type)
+
+        pt._get_pw_dump = fake_pw_dump_rv
+        with self.assertRaises(SystemExit) as cm:
+            pt.iter_audio_sinks(shlex.split("speaker-test -c 2 -l 1 -t wav"))
+
+        self.assertEqual(
+            cm.exception.args[0], "No audio sinks are available for this test"
+        )
+
+        count = 0
+        for mock_call in mock_print.call_args_list:
+            # mock_call[0] is args
+            # mock_call[1] is kwargs
+            if (
+                mock_call[0][0] == "Could not find device"
+                and mock_call[1]["file"] == sys.stderr
+            ):
+                count += 1
+        self.assertNotEqual(count, 0)
+
+    @patch("subprocess.check_call")
+    @patch("subprocess.check_output")
+    def test_enum_route_not_a_list(
+        self,
+        mock_check_output: MagicMock,
+        mock_check_call: MagicMock,
+    ):
+        pt = PipewireTest()
+
+        mock_check_output.side_effect = self._fake_sp_check_output
+        mock_check_call.return_value = 0
+
+        original = pt._get_pw_dump
+
+        def fake_pw_dump_rv(p_type: 't.Literal["Device", "Node"]'):
+            result = original(p_type)
+            if p_type == "Device":
+                for dev in result:
+                    if dev["info"]["params"].get("EnumRoute") is not None:
+                        dev["info"]["params"]["EnumRoute"] = None
+                        break
+            return result
+
+        pt._get_pw_dump = fake_pw_dump_rv
+        with self.assertRaises(TypeError):
+            pt.iter_audio_sinks(shlex.split("speaker-test -c 2 -l 1 -t wav"))
+
+    @patch("checkbox_support.scripts.pipewire_utils.print")
+    @patch("builtins.input")
+    @patch("subprocess.check_call")
+    @patch("subprocess.check_output")
+    @patch("subprocess.run")
+    def test_non_output_route_is_skipped(
+        self,
+        _: MagicMock,
+        mock_check_output: MagicMock,
+        mock_check_call: MagicMock,
+        mock_input: MagicMock,
+        mock_print: MagicMock,
+    ):
+        pt = PipewireTest()
+
+        mock_check_output.side_effect = self._fake_sp_check_output
+        mock_check_call.return_value = 0
+
+        original = pt._get_pw_dump
+
+        def fake_pw_dump_rv(p_type: 't.Literal["Device", "Node"]'):
+            result = original(p_type)
+            if p_type == "Device":
+                for dev in result:
+                    if dev["id"] == 44:
+                        for route in dev["info"]["params"]["EnumRoute"]:
+                            if route["devices"] == [1]:
+                                route["direction"] = "Input"
+                                break
+                        break
+            return result
+
+        pt._get_pw_dump = fake_pw_dump_rv
+        mock_input.side_effect = ("q",)
+        with self.assertRaises(SystemExit):
+            pt.iter_audio_sinks(shlex.split("speaker-test -c 2 -l 1 -t wav"))
+
+        skip_calls = [
+            c
+            for c in mock_print.call_args_list
+            if len(c[0]) >= 2 and c[0][1] == "because it's not a sink"
+        ]
+        self.assertNotEqual(len(skip_calls), 0)
+
+    @patch("builtins.input")
+    @patch("subprocess.check_call")
+    @patch("subprocess.check_output")
+    @patch("subprocess.run")
+    def test_empty_input_triggers_rediscovery(
+        self,
+        mock_run: MagicMock,
+        mock_check_output: MagicMock,
+        mock_check_call: MagicMock,
+        mock_input: MagicMock,
+    ):
+        pt = PipewireTest()
+
+        mock_check_output.side_effect = self._fake_sp_check_output
+        mock_check_call.return_value = 0
+
+        mock_input.side_effect = ("", "q")
+        with self.assertRaises(SystemExit):
+            pt.iter_audio_sinks(shlex.split("speaker-test -c 2 -l 1 -t wav"))
+
+        mock_run.assert_not_called()
+
+    @patch("builtins.input")
+    @patch("subprocess.check_call")
+    @patch("subprocess.check_output")
+    @patch("subprocess.run")
+    def test_negative_index_is_rejected(
+        self,
+        mock_run: MagicMock,
+        mock_check_output: MagicMock,
+        mock_check_call: MagicMock,
+        mock_input: MagicMock,
+    ):
+        pt = PipewireTest()
+
+        mock_check_output.side_effect = self._fake_sp_check_output
+        mock_check_call.return_value = 0
+
+        mock_input.side_effect = ("-1", "q")
+        with self.assertRaises(SystemExit):
+            pt.iter_audio_sinks(shlex.split("speaker-test -c 2 -l 1 -t wav"))
+
+        mock_run.assert_not_called()
+
+    @patch("checkbox_support.scripts.pipewire_utils.input")
+    @patch("subprocess.check_call")
+    @patch("subprocess.check_output")
+    @patch("subprocess.run")
+    def test_speaker_test_cmd_crash_handlers(
+        self,
+        mock_run: MagicMock,
+        mock_check_output: MagicMock,
+        mock_check_call: MagicMock,
+        mock_input: MagicMock,
+    ):
+        pt = PipewireTest()
+
+        mock_check_output.side_effect = self._fake_sp_check_output
+        mock_check_call.return_value = 0
+
+        mock_run.side_effect = subprocess.TimeoutExpired(
+            ["slow-cmd"], 60, "", "too slow"
+        )
+        mock_input.side_effect = ("0", "1", "q")
+        with self.assertRaises(SystemExit) as cm:
+            pt.iter_audio_sinks(shlex.split("speaker-test -c 2 -l 1 -t wav"))
+        self.assertEqual(
+            cm.exception.args[0],
+            "[ ERR ] Some of the speakers failed the test",
+        )
+
+        mock_run.side_effect = subprocess.CalledProcessError(
+            1, ["bad-cmd"], "", "crashed"
+        )
+        mock_input.side_effect = ("0", "1", "q")
+        with self.assertRaises(SystemExit) as cm:
+            pt.iter_audio_sinks(shlex.split("speaker-test -c 2 -l 1 -t wav"))
+        self.assertEqual(
+            cm.exception.args[0],
+            "[ ERR ] Some of the speakers failed the test",
+        )
 
 
 class ShowDefaultDeviceTests(unittest.TestCase):
@@ -901,7 +1273,6 @@ Settings
 
 
 class DefaultDeviceIsRealTests(unittest.TestCase):
-
     @patch("subprocess.check_output")
     def test_happy_path(self, mock_check_output: MagicMock):
 
@@ -1026,15 +1397,15 @@ class ArgsParsingTests(unittest.TestCase):
         self.assertEqual(rv.PIPELINE, "PIPELINE")
         self.assertEqual(rv.device, "device")
 
-        args = ["monitor", "-t", "30", "-m", "mode"]
+        args = ["monitor", "-t", "30", "-m", "sinks"]
         rv = pt._args_parsing(args)
         self.assertEqual(rv.timeout, 30)
-        self.assertEqual(rv.mode, "mode")
+        self.assertEqual(rv.mode, "sinks")
 
-        args = ["through", "-c", "echo", "-m", "mode"]
+        args = ["through", "-c", "echo", "-m", "sources"]
         rv = pt._args_parsing(args)
         self.assertEqual(rv.command, "echo")
-        self.assertEqual(rv.mode, "mode")
+        self.assertEqual(rv.mode, "sources")
 
         args = ["show", "-t", "AUDIO"]
         rv = pt._args_parsing(args)
@@ -1044,6 +1415,10 @@ class ArgsParsingTests(unittest.TestCase):
         rv = pt._args_parsing(args)
         self.assertEqual(rv.status_1, "s1")
         self.assertEqual(rv.status_2, "s2")
+
+        args = ["iter-audio-sinks", "-c", "speaker-test"]
+        rv = pt._args_parsing(args)
+        self.assertEqual(rv.command, "speaker-test")
 
 
 class FunctionSelectTests(unittest.TestCase):
@@ -1083,7 +1458,7 @@ class FunctionSelectTests(unittest.TestCase):
     )
     def test_monitor(self, mock_monitor):
         pt = PipewireTest()
-        args = ["monitor", "-t", "30", "-m", "mode"]
+        args = ["monitor", "-t", "30", "-m", "sinks"]
         rv = pt.function_select(pt._args_parsing(args))
         self.assertEqual(rv, 66)
 
@@ -1093,7 +1468,7 @@ class FunctionSelectTests(unittest.TestCase):
     )
     def test_through(self, mock_through):
         pt = PipewireTest()
-        args = ["through", "-c", "echo", "-m", "mode"]
+        args = ["through", "-c", "echo", "-m", "sinks"]
         rv = pt.function_select(pt._args_parsing(args))
         self.assertEqual(rv, 55)
 

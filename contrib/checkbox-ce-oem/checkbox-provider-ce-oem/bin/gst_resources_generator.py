@@ -125,7 +125,7 @@ class GstResources:
         return returned_dict
 
     def gst_v4l2_video_decoder_md5_checksum_comparison(
-        self, scenario_data: list[dict]
+        self, scenario_data: "list[dict]"
     ) -> None:
         for item in scenario_data:
             self._resource_items.extend(
@@ -142,7 +142,7 @@ class GstResources:
                 ]
             )
 
-    def gst_encoder_psnr(self, scenario_data: list[dict]) -> None:
+    def gst_encoder_psnr(self, scenario_data: "list[dict]") -> None:
         # Iterate through each encoder plugin configuration
         for item in scenario_data:
             encoder_plugin = item.get("encoder_plugin")
@@ -198,7 +198,7 @@ class GstResources:
                 )
 
     def gst_video_decoder_performance_fakesink(
-        self, scenario_data: list[dict]
+        self, scenario_data: "list[dict]"
     ) -> None:
         for item in scenario_data:
             self._resource_items.append(
@@ -220,7 +220,9 @@ class GstResources:
                 }
             )
 
-    def gst_transform_rotate_and_flip(self, scenario_data: list[dict]) -> None:
+    def gst_transform_rotate_and_flip(
+        self, scenario_data: "list[dict]"
+    ) -> None:
         # Iterate through each encoder plugin configuration
         for item in scenario_data:
             encoder_plugin = item.get("encoder_plugin")
@@ -242,7 +244,7 @@ class GstResources:
                 }
                 self._resource_items.append(config)
 
-    def gst_transform_resize(self, scenario_data: list[dict]) -> None:
+    def gst_transform_resize(self, scenario_data: "list[dict]") -> None:
         # Iterate through each encoder plugin configuration
         for item in scenario_data:
             encoder_plugin = item.get("encoder_plugin")

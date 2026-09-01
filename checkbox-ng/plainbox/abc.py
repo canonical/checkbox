@@ -200,14 +200,31 @@ class IJobResult(metaclass=ABCMeta):
     # button.
     OUTCOME_PASS = "pass"
     OUTCOME_FAIL = "fail"
+    # The outcome xfail_pass and xfail_fail are used to separate legitimate
+    # pass OUTCOME_PASS from "fake" pass OUTCOME_XFAIL_PASS and normal failures
+    # OUTCOME_FAIL from miracles.
+    # When a test has outcome OUTCOME_XFAIL_PASS it means that:
+    # 1. the test is an expected failure (xfail = true)
+    # 2. the test failed
+    OUTCOME_XFAIL_PASS = "xfail_pass"
+    # When a test has outcome OUTCOME_XFAIL_FAIL it means that:
+    # 1. the test was expected to fail (xfail = true)
+    # 2. the test actually passed (failed to fail)
+    OUTCOME_XFAIL_FAIL = "xfail_fail"
     # The skip outcome is used when the operator selected a job but then
     # skipped it. This is typically used for a manual job that is tedious or
     # was selected by accident.
-    OUTCOME_SKIP = "skip"
-    # The not supported outcome is used when a job was about to run but a
-    # dependency or resource requirement prevent it from running.  XXX: perhaps
-    # this should be called "not available", not supported has the "unsupported
-    # code" feeling associated with it.
+    OUTCOME_MANUAL_SKIP = "skip"
+    # The skipped outcomes are used when a job was about to run but could not
+    # start for various reasons (dependency failure, resource requirement, or
+    # manifest requirement). These outcomes replace the old OUTCOME_NOT_SUPPORTED
+    # to provide more granular information about why a job was skipped.
+    OUTCOME_SKIPPED_DEPENDENCY = "skipped-dependency"
+    OUTCOME_SKIPPED_RESOURCE = "skipped-resource"
+    OUTCOME_SKIPPED_MANIFEST = "skipped-manifest"
+    # /!\ The not supported outcome is DEPRECATED.
+    # Use OUTCOME_SKIPPED_DEPENDENCY, OUTCOME_SKIPPED_RESOURCE or
+    # OUTCOME_SKIPPED_MANIFEST instead.
     OUTCOME_NOT_SUPPORTED = "not-supported"
     # A temporary state that should be removed later on, used to indicate that
     # job runner is not implemented but the job "ran" so to speak.

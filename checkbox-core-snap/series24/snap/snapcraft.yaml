@@ -72,9 +72,11 @@ apps:
     plugs: &standard [home, network-bind, hardware-observe, bluez, bluetooth-control,
       gpio, modem-manager, mount-observe, network-manager, pulseaudio, serial-port,
       system-observe, tpm, udisks2, account-control, accounts-service,
-      login-session-control, login-session-observe]
+      login-session-control, login-session-observe, checkbox-support]
     environment:
       PYTHONPATH: $SNAP/lib/python3.12/site-packages/:$SNAP/lib64/python3.12/site-packages/:$SNAP/usr/lib/python3/dist-packages:$PYTHONPATH
+      PATH: /snap/bin:$PATH
+      PYTHONUNBUFFERED: "1"
   agent:
     command: bin/checkbox-cli run-agent
     daemon: simple
@@ -84,6 +86,8 @@ apps:
     install-mode: disable
     environment:
       PYTHONPATH: $SNAP/lib/python3.12/site-packages/:$SNAP/lib64/python3.12/site-packages/:$SNAP/usr/lib/python3/dist-packages:$PYTHONPATH
+      PATH: /snap/bin:$PATH
+      PYTHONUNBUFFERED: "1"
 
 package-repositories:
   - type: apt
@@ -121,7 +125,7 @@ parts:
   ################################################################################
   plz-run:
     plugin: go
-    source: https://github.com/Hook25/plz-run.git
+    source: https://github.com/canonical/plz-run.git
     build-snaps:
       - go/latest/stable
   ################################################################################
@@ -291,7 +295,7 @@ parts:
       - PYTHONPYCACHEPREFIX: "/tmp"
     override-build: |
       cd src && autoreconf -i && cd -
-      export PYTHONPATH=$CRAFT_STAGE/lib/python3.12/site-packages:$SNAPCRAFT_STAGE/usr/lib/python3/dist-packages
+      export PYTHONPATH=$CRAFT_STAGE/lib/python3.12/site-packages:$CRAFT_STAGE/usr/lib/python3/dist-packages
       for path in $(find "$CRAFT_STAGE/providers/" -mindepth 1 -maxdepth 1 -type d); do export PROVIDERPATH=$path${PROVIDERPATH:+:$PROVIDERPATH}; done
       python3 manage.py validate
       python3 manage.py build
@@ -311,7 +315,7 @@ parts:
     build-environment:
       - PYTHONPYCACHEPREFIX: "/tmp"
     override-build: |
-      export PYTHONPATH=$CRAFT_STAGE/lib/python3.12/site-packages:$SNAPCRAFT_STAGE/usr/lib/python3/dist-packages
+      export PYTHONPATH=$CRAFT_STAGE/lib/python3.12/site-packages:$CRAFT_STAGE/usr/lib/python3/dist-packages
       for path in $(find "$CRAFT_STAGE/providers/" -mindepth 1 -maxdepth 1 -type d); do export PROVIDERPATH=$path${PROVIDERPATH:+:$PROVIDERPATH}; done
       python3 manage.py validate
       python3 manage.py build
@@ -422,7 +426,7 @@ parts:
     build-environment:
       - PYTHONPYCACHEPREFIX: "/tmp"
     override-build: |
-      export PYTHONPATH=$CRAFT_STAGE/lib/python3.12/site-packages:$SNAPCRAFT_STAGE/usr/lib/python3/dist-packages
+      export PYTHONPATH=$CRAFT_STAGE/lib/python3.12/site-packages:$CRAFT_STAGE/usr/lib/python3/dist-packages
       for path in $(find "$CRAFT_STAGE/providers/" -mindepth 1 -maxdepth 1 -type d); do export PROVIDERPATH=$path${PROVIDERPATH:+:$PROVIDERPATH}; done
       python3 manage.py validate
       python3 manage.py build
@@ -438,7 +442,7 @@ parts:
     build-environment:
       - PYTHONPYCACHEPREFIX: "/tmp"
     override-build: |
-      export PYTHONPATH=$CRAFT_STAGE/lib/python3.12/site-packages:$SNAPCRAFT_STAGE/usr/lib/python3/dist-packages
+      export PYTHONPATH=$CRAFT_STAGE/lib/python3.12/site-packages:$CRAFT_STAGE/usr/lib/python3/dist-packages
       for path in $(find "$CRAFT_STAGE/providers/" -mindepth 1 -maxdepth 1 -type d); do export PROVIDERPATH=$path${PROVIDERPATH:+:$PROVIDERPATH}; done
       python3 manage.py validate
       python3 manage.py build
@@ -454,7 +458,7 @@ parts:
     build-environment:
       - PYTHONPYCACHEPREFIX: "/tmp"
     override-build: |
-      export PYTHONPATH=$CRAFT_STAGE/lib/python3.12/site-packages:$SNAPCRAFT_STAGE/usr/lib/python3/dist-packages
+      export PYTHONPATH=$CRAFT_STAGE/lib/python3.12/site-packages:$CRAFT_STAGE/usr/lib/python3/dist-packages
       for path in $(find "$CRAFT_STAGE/providers/" -mindepth 1 -maxdepth 1 -type d); do export PROVIDERPATH=$path${PROVIDERPATH:+:$PROVIDERPATH}; done
       python3 manage.py validate
       python3 manage.py build
@@ -468,7 +472,7 @@ parts:
     build-environment:
       - PYTHONPYCACHEPREFIX: "/tmp"
     override-build: |
-      export PYTHONPATH=$CRAFT_STAGE/lib/python3.12/site-packages:$SNAPCRAFT_STAGE/usr/lib/python3/dist-packages
+      export PYTHONPATH=$CRAFT_STAGE/lib/python3.12/site-packages:$CRAFT_STAGE/usr/lib/python3/dist-packages
       for path in $(find "$CRAFT_STAGE/providers/" -mindepth 1 -maxdepth 1 -type d); do export PROVIDERPATH=$path${PROVIDERPATH:+:$PROVIDERPATH}; done
       python3 manage.py validate
       python3 manage.py build
@@ -482,7 +486,7 @@ parts:
     build-environment:
       - PYTHONPYCACHEPREFIX: "/tmp"
     override-build: |
-      export PYTHONPATH=$CRAFT_STAGE/lib/python3.12/site-packages:$SNAPCRAFT_STAGE/usr/lib/python3/dist-packages
+      export PYTHONPATH=$CRAFT_STAGE/lib/python3.12/site-packages:$CRAFT_STAGE/usr/lib/python3/dist-packages
       for path in $(find "$CRAFT_STAGE/providers/" -mindepth 1 -maxdepth 1 -type d); do export PROVIDERPATH=$path${PROVIDERPATH:+:$PROVIDERPATH}; done
       python3 manage.py validate
       python3 manage.py build
@@ -496,7 +500,7 @@ parts:
     build-environment:
       - PYTHONPYCACHEPREFIX: "/tmp"
     override-build: |
-      export PYTHONPATH=$CRAFT_STAGE/lib/python3.12/site-packages:$SNAPCRAFT_STAGE/usr/lib/python3/dist-packages
+      export PYTHONPATH=$CRAFT_STAGE/lib/python3.12/site-packages:$CRAFT_STAGE/usr/lib/python3/dist-packages
       for path in $(find "$CRAFT_STAGE/providers/" -mindepth 1 -maxdepth 1 -type d); do export PROVIDERPATH=$path${PROVIDERPATH:+:$PROVIDERPATH}; done
       python3 manage.py validate
       python3 manage.py build
@@ -510,7 +514,7 @@ parts:
     build-environment:
       - PYTHONPYCACHEPREFIX: "/tmp"
     override-build: |
-      export PYTHONPATH=$CRAFT_STAGE/lib/python3.12/site-packages:$SNAPCRAFT_STAGE/usr/lib/python3/dist-packages
+      export PYTHONPATH=$CRAFT_STAGE/lib/python3.12/site-packages:$CRAFT_STAGE/usr/lib/python3/dist-packages
       for path in $(find "$CRAFT_STAGE/providers/" -mindepth 1 -maxdepth 1 -type d); do export PROVIDERPATH=$path${PROVIDERPATH:+:$PROVIDERPATH}; done
       python3 manage.py validate
       python3 manage.py build
@@ -524,7 +528,7 @@ parts:
     build-environment:
       - PYTHONPYCACHEPREFIX: "/tmp"
     override-build: |
-      export PYTHONPATH=$CRAFT_STAGE/lib/python3.12/site-packages:$SNAPCRAFT_STAGE/usr/lib/python3/dist-packages
+      export PYTHONPATH=$CRAFT_STAGE/lib/python3.12/site-packages:$CRAFT_STAGE/usr/lib/python3/dist-packages
       for path in $(find "$CRAFT_STAGE/providers/" -mindepth 1 -maxdepth 1 -type d); do export PROVIDERPATH=$path${PROVIDERPATH:+:$PROVIDERPATH}; done
       python3 manage.py validate
       python3 manage.py build

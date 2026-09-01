@@ -1,0 +1,18 @@
+*.pyc
+*.snap
+__pycache__
+build/mo/*
+dist/*.tar.gz
+parts/
+snap/.snapcraft
+snap/gui/
+stage/
+prime/
+
+# following files are populated by the prepare.sh script and should be ignored
+launchers/checkbox-cli-wrapper
+launchers/shell-wrapper
+launchers/sru
+snap/hooks/install
+snap/hooks/remove
+version.txt

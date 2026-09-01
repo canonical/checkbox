@@ -158,41 +158,90 @@ class TestResolutionFilter(unittest.TestCase):
 
 
 class TestActionFunction(unittest.TestCase):
-    @patch("subprocess.check_output")
+    @patch("shutil.which")
+    @patch("subprocess.run")
     @patch("time.sleep")
-    def test_action_with_path(self, mock_sleep, mock_subprocess):
+    def test_action_with_path(self, mock_sleep, mock_subprocess, mock_which):
         filename = "monitor_1920x1080_normal_"
         path = "/tmp/screenshots"
+        mock_which.return_value = True
         action(filename, path=path)
 
         expected_path_and_filename = "{}/{}.jpg".format(path, filename)
         mock_subprocess.assert_called_once_with(
-            ["gnome-screenshot", "-f", expected_path_and_filename]
+            ["gnome-screenshot", "-f", expected_path_and_filename], timeout=5
         )
         mock_sleep.assert_called_once_with(5)
 
-    @patch("subprocess.check_output")
+    @patch("shutil.which")
+    @patch("subprocess.run")
     @patch("time.sleep")
-    def test_action_without_path(self, mock_sleep, mock_subprocess):
+    def test_action_without_path(
+        self, mock_sleep, mock_subprocess, mock_which
+    ):
         filename = "monitor_1920x1080_normal_"
+        mock_which.return_value = True
         action(filename)
 
         expected_path_and_filename = filename + ".jpg"
         mock_subprocess.assert_called_once_with(
-            ["gnome-screenshot", "-f", expected_path_and_filename]
+            ["gnome-screenshot", "-f", expected_path_and_filename], timeout=5
         )
         mock_sleep.assert_called_once_with(5)
 
-    @patch("subprocess.check_output")
+    @patch("shutil.which")
+    @patch("subprocess.run")
     @patch("time.sleep")
-    def test_action_subprocess_error(self, mock_sleep, mock_subprocess):
+    def test_action_without_gnome_screenshot_installed(
+        self,
+        mock_sleep: MagicMock,
+        mock_subprocess: MagicMock,
+        mock_which: MagicMock,
+    ):
         filename = "monitor_1920x1080_normal_"
-        mock_subprocess.side_effect = subprocess.CalledProcessError(
-            1, "gnome-screenshot"
-        )
+        mock_which.return_value = False
+        action(filename)
 
-        with self.assertRaises(subprocess.CalledProcessError):
-            action(filename)
+        mock_subprocess.assert_not_called()
+        mock_sleep.assert_called_once_with(5)
+
+
+class TestIsSuspendSupport(unittest.TestCase):
+    @patch("randr_cycle.get_manifest")
+    def test_suspend_supported_when_manifest_has_key_true(
+        self, mock_get_manifest
+    ):
+        mock_get_manifest.return_value = {
+            "com.canonical.certification::has_suspend_support": True
+        }
+        mt = MonitorTest()
+        self.assertTrue(mt.is_suspend_support())
+
+    @patch("randr_cycle.get_manifest")
+    def test_suspend_not_supported_when_manifest_has_key_false(
+        self, mock_get_manifest
+    ):
+        mock_get_manifest.return_value = {
+            "com.canonical.certification::has_suspend_support": False
+        }
+        mt = MonitorTest()
+        self.assertFalse(mt.is_suspend_support())
+
+    @patch("randr_cycle.get_manifest")
+    def test_suspend_not_supported_when_manifest_missing_key(
+        self, mock_get_manifest
+    ):
+        mock_get_manifest.return_value = {}
+        mt = MonitorTest()
+        self.assertFalse(mt.is_suspend_support())
+
+    @patch("randr_cycle.get_manifest")
+    def test_suspend_not_supported_when_manifest_has_other_keys(
+        self, mock_get_manifest
+    ):
+        mock_get_manifest.return_value = {"other_key": True}
+        mt = MonitorTest()
+        self.assertFalse(mt.is_suspend_support())
 
 
 class GenScreenshotPath(unittest.TestCase):
@@ -201,9 +250,14 @@ class GenScreenshotPath(unittest.TestCase):
     [screenshot_dir]_[keyword]
     """
 
+    @patch("randr_cycle.get_manifest")
     @patch("os.makedirs")
-    def test_before_suspend_without_keyword(self, mock_mkdir):
-
+    def test_before_suspend_without_keyword(
+        self, mock_mkdir, mock_get_manifest
+    ):
+        mock_get_manifest.return_value = {
+            "com.canonical.certification::has_suspend_support": True
+        }
         mt = MonitorTest()
         with patch("builtins.open", mock_open(read_data="0")) as mock_file:
             self.assertEqual(
@@ -212,9 +266,14 @@ class GenScreenshotPath(unittest.TestCase):
         mock_file.assert_called_with("/sys/power/suspend_stats/success", "r")
         mock_mkdir.assert_called_with("test/xrandr_screens", exist_ok=True)
 
+    @patch("randr_cycle.get_manifest")
     @patch("os.makedirs")
-    def test_after_suspend_without_keyword(self, mock_mkdir):
-
+    def test_after_suspend_without_keyword(
+        self, mock_mkdir, mock_get_manifest
+    ):
+        mock_get_manifest.return_value = {
+            "com.canonical.certification::has_suspend_support": True
+        }
         mt = MonitorTest()
         with patch("builtins.open", mock_open(read_data="1")) as mock_file:
             self.assertEqual(
@@ -226,9 +285,10 @@ class GenScreenshotPath(unittest.TestCase):
             "test/xrandr_screens_after_suspend", exist_ok=True
         )
 
+    @patch("randr_cycle.get_manifest")
     @patch("os.makedirs")
-    def test_with_keyword(self, mock_mkdir):
-
+    def test_with_keyword(self, mock_mkdir, mock_get_manifest):
+        mock_get_manifest.return_value = {}
         mt = MonitorTest()
         self.assertEqual(
             mt.gen_screenshot_path("", "key", "test"),
@@ -243,6 +303,37 @@ class GenScreenshotPath(unittest.TestCase):
         mock_mkdir.assert_called_with(
             "test/1_xrandr_screens_key", exist_ok=True
         )
+
+    @patch("randr_cycle.get_manifest")
+    @patch("os.makedirs")
+    def test_without_suspend_support_and_no_postfix(
+        self, mock_mkdir, mock_get_manifest
+    ):
+        mock_get_manifest.return_value = {}
+        mt = MonitorTest()
+        with patch("builtins.open", mock_open()) as mock_file:
+            self.assertEqual(
+                mt.gen_screenshot_path("", "", "test"),
+                "test/xrandr_screens",
+            )
+        mock_file.assert_not_called()
+        mock_mkdir.assert_called_with("test/xrandr_screens", exist_ok=True)
+
+    @patch("randr_cycle.get_manifest")
+    @patch("os.makedirs")
+    def test_suspend_supported_but_suspend_stats_missing(
+        self, mock_mkdir, mock_get_manifest
+    ):
+        mock_get_manifest.return_value = {
+            "com.canonical.certification::has_suspend_support": True
+        }
+        mt = MonitorTest()
+        with patch("builtins.open", side_effect=FileNotFoundError):
+            self.assertEqual(
+                mt.gen_screenshot_path("", "", "test"),
+                "test/xrandr_screens",
+            )
+        mock_mkdir.assert_called_with("test/xrandr_screens", exist_ok=True)
 
 
 class TestScreenshotTarring(unittest.TestCase):
@@ -447,3 +538,7 @@ class MainTests(unittest.TestCase):
             SystemExit, "Current host is not support: Error"
         ):
             MonitorTest().main()
+
+
+if __name__ == "__main__":
+    unittest.main()

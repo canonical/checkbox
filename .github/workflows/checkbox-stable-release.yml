@@ -24,7 +24,7 @@ jobs:
       contents: write
     steps:
       - name: Checkout checkbox monorepo
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
         with:
           fetch-depth: 0
           persist-credentials: false
@@ -60,7 +60,7 @@ jobs:
           sudo apt update -qq
           sudo apt install -qq -y python3-launchpadlib
       - name: Checkout checkbox monorepo
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
         with:
           persist-credentials: false
       - name: Copy deb packages from testing to stable ppa
@@ -94,6 +94,7 @@ jobs:
           snapcraft promote checkbox20 --from-channel latest/beta --to-channel latest/stable --yes
           snapcraft promote checkbox22 --from-channel latest/beta --to-channel latest/stable --yes
           snapcraft promote checkbox24 --from-channel latest/beta --to-channel latest/stable --yes
+          snapcraft promote checkbox26 --from-channel latest/beta --to-channel latest/stable --yes
 
   checkbox_snap:
     name: Checkbox snap packages
@@ -118,9 +119,11 @@ jobs:
           snapcraft promote checkbox --from-channel uc20/beta --to-channel uc20/stable --yes
           snapcraft promote checkbox --from-channel uc22/beta --to-channel uc22/stable --yes
           snapcraft promote checkbox --from-channel uc24/beta --to-channel uc24/stable --yes
+          snapcraft promote checkbox --from-channel uc26/beta --to-channel uc26/stable --yes
           snapcraft promote checkbox --from-channel 16.04/beta --to-channel 16.04/stable --yes
           snapcraft promote checkbox --from-channel 18.04/beta --to-channel 18.04/stable --yes
           snapcraft promote checkbox --from-channel 20.04/beta --to-channel 20.04/stable --yes
           snapcraft promote checkbox --from-channel 22.04/beta --to-channel 22.04/stable --yes
           snapcraft promote checkbox --from-channel 24.04/beta --to-channel 24.04/stable --yes
+          snapcraft promote checkbox --from-channel 26.04/beta --to-channel 26.04/stable --yes
           snapcraft promote checkbox --from-channel 24.04/beta --to-channel latest/stable --yes

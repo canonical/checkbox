@@ -43,6 +43,7 @@ import sys
 from glob import glob
 from subprocess import check_call, CalledProcessError, STDOUT, check_output
 from tempfile import NamedTemporaryFile
+from itertools import product
 
 _IOC_NRBITS = 8
 _IOC_TYPEBITS = 8
@@ -373,9 +374,47 @@ class CameraTest:
             self.GLib.timeout_add_seconds(10, self._stop_pipeline)
             self._setup_video_gstreamer()
 
-    def _setup_video_gstreamer(self, sink=None):
+    def _get_int_or_int_array(self, gst_struct, fieldname: str) -> "list[int]":
+        """Attempt to get an int or a int array from gst_struct.fieldname
+
+        :param gst_struct: the Gst.Structure to get data from
+        :param fieldname: name of the field like "width"
+        :raises RuntimeError: the field isn't an int or a int array
+        :return: a list[int] with 1 or more elements
         """
-        Setup the gstreamer pipeline to create the video stream
+        # NOTE: This assumes gst_struct.fieldname is an int32
+        # it's possible to get int64 here
+        # but the python binding will panic
+        # so there's nothing we can really do about it
+        # unless we move to python3-gst-1.0
+        ok, raw_val = gst_struct.get_int(fieldname)
+        out = []  # type: list[int]
+        if ok:
+            out.append(int(raw_val))
+        else:
+            ok, raw_values = gst_struct.get_list(fieldname)
+            if not ok:
+                # tried both, neither works => panic!
+                raise RuntimeError(
+                    "Failed to get the {} values! Type is: {}".format(
+                        fieldname, gst_struct.get_field_type(fieldname)
+                    )
+                )
+            for i in range(raw_values.n_values):
+                # get_nth is technically deprecated
+                # but GValueArray as a whole seems deprecated
+                # https://api.pygobject.gnome.org/GObject-2.0/
+                # structure-ValueArray.html
+                val = raw_values.get_nth(i)
+                out.append(int(val))
+        return out
+
+    def _setup_video_gstreamer(self, sink: "str | None" = None):
+        """Setup the gstreamer pipeline to create the video stream
+
+        :param sink: name of the sink element. If not specified, camerabin will
+                     automatically choose something
+        :raises SystemExit: _description_
         """
         webcam = self.Gst.ElementFactory.make("v4l2src")
         webcam.set_property("device", self.device)
@@ -390,16 +429,23 @@ class CameraTest:
             pipeline.set_property("viewfinder-sink", vf_sink)
         pipeline.set_state(self.Gst.State.PAUSED)
         caps = pipeline.get_property("viewfinder-supported-caps")
+
         supported_resolutions = {}
         for i in range(caps.get_size()):
-            key = caps.get_structure(i).get_int("width").value
-            if key not in supported_resolutions.keys():
-                supported_resolutions[key] = set()
-            supported_resolutions[key].add(
-                caps.get_structure(i).get_int("height").value
-            )
+            curr_struct = caps.get_structure(i)
+            widths = self._get_int_or_int_array(curr_struct, "width")
+            heights = self._get_int_or_int_array(curr_struct, "height")
+            # now just put all (width, height) pairs into a dict
+            # so we can stop dealing with gst structures
+            for w, h in product(widths, heights):
+                if w in supported_resolutions:
+                    supported_resolutions[w].add(h)
+                else:
+                    supported_resolutions[w] = {h}
+
         if not supported_resolutions:
             raise SystemExit("No supported resolutions found!")
+
         width = min(
             supported_resolutions.keys(), key=lambda x: abs(x - self._width)
         )
@@ -767,8 +813,8 @@ class CameraTest:
             # more formats, so we ignore it
             if e.errno != errno.EINVAL:
                 print(
-                    "Unable to determine Pixel Formats, this may be a "
-                    "driver issue."
+                    "Unable to determine Pixel Formats,",
+                    "this may be a driver issue.",
                 )
             return supported_pixel_formats
         return supported_pixel_formats

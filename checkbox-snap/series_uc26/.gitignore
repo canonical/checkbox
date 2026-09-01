@@ -1,0 +1,10 @@
+*.pyc
+*.snap
+__pycache__
+build/mo/*
+dist/*.tar.gz
+parts/
+snap/.snapcraft
+snap/gui/
+stage/
+prime/

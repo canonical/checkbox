@@ -65,12 +65,18 @@ def generate_resume_candidate_description(candidate):
 
         Last job was started at:
             {last_job_start_time}
+
+        Are there still jobs to run?
+            {remaining_todo_jobs}
         """)
     app_blob = json.loads(candidate.metadata.app_blob.decode("UTF-8"))
     session_title = candidate.metadata.title or "Unknown"
     tp_id = app_blob.get("testplan_id", "Unknown")
     last_job_id = candidate.metadata.running_job_name or "Unknown"
     last_job_timestamp = candidate.metadata.last_job_start_time or None
+    remaining_todo_jobs = (
+        "Yes" if candidate.metadata.remaining_todo_jobs else "No"
+    )
     if last_job_timestamp:
         dt = datetime.datetime.fromtimestamp(
             last_job_timestamp, datetime.timezone.utc
@@ -83,6 +89,7 @@ def generate_resume_candidate_description(candidate):
         tp_id=tp_id,
         last_job_id=last_job_id,
         last_job_start_time=last_job_start_time,
+        remaining_todo_jobs=remaining_todo_jobs,
     )
 
 

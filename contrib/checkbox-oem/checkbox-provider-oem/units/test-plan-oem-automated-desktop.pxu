@@ -1,0 +1,17 @@
+# Copyright 2026 Canonical Ltd.
+# All rights reserved.
+#
+# Test plans and (optionally) jobs unique to the IoT devices running Ubuntu Desktop.
+#
+
+id: oem-iot-desktop-26-04-automated
+unit: test plan
+_name: OEM-IOT - Automated OEM tests for Ubuntu Desktop 26.04
+_description:
+  Ubuntu Desktop OEM test plan for the IoT devices. This test plan contains
+  all of the automated tests used to validate the IoT devices.
+include:
+nested_part:
+  oem-automated
+certification_status_overrides:
+  apply blocker to .*

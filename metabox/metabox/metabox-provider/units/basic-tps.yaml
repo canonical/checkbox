@@ -27,6 +27,14 @@ include:
   - stub/user-interact-verify
 ---
 unit: test plan
+id: basic-session-resume-manual
+name: Basic Manual (for Session Resume Scenario)
+include:
+  - basic-shell-passing
+  - basic-shell-failing
+  - stub/manual
+---
+unit: test plan
 id: display-manual
 name: Display Manual
 include:
@@ -77,3 +85,33 @@ bootstrap_include:
 include:
   - template_validation_invalid_fields
   - template_validation_missing_parameter
+---
+unit: test plan
+id: tired_test_plan
+name: Test plan that sleeps, terminates only
+include:
+  - sleep_1000s
+  - basic-shell-passing
+---
+unit: test plan
+id: skipping_test_plan
+name: Test plan to test skipping
+bootstrap_include:
+  - requires_skip
+include:
+  - simple_skipped
+  - failing_job
+  - skipped_by_dependency
+  - skipped_by_manifest
+---
+unit: test plan
+id: xfail_testplan
+name: Test plan to test xfail tests
+include:
+  - xfailing_job_failing
+  - xfailing_job_passing
+  - failing_job:
+      xfail: true
+  - basic-shell-failing
+xfail_overrides:
+  - apply true to basic-shell-failing

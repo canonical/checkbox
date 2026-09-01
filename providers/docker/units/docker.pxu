@@ -21,8 +21,11 @@ command:
     echo 'compose_command: docker.compose'
     #A readable&writable path for docker snap
     echo 'root_dir: /var/snap/docker/common'
- else
+ elif command -v docker-compose > /dev/null; then
     echo 'compose_command: docker-compose'
+    echo 'root_dir: /var/lib/docker'
+ else
+    echo 'compose_command: docker compose'
     echo 'root_dir: /var/lib/docker'
  fi
  #avoid escape '{}' in docker inspect

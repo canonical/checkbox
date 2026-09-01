@@ -45,6 +45,7 @@ class TestDmiResource(TestCase):
             "Mini-Tower",
             "Space Saving",
             "Mini PC",
+            "Rack Mount Chassis",
         ]
         category = set(map(dmi_resource.sane_product, products))
         self.assertEqual(category, {"non-portable"})

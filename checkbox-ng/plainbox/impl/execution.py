@@ -39,7 +39,7 @@ import tempfile
 import threading
 import time
 from contextlib import suppress
-from subprocess import check_call, check_output, run
+from subprocess import check_call, run
 
 from plainbox.abc import IJobResult, IJobRunner
 from plainbox.i18n import gettext as _
@@ -55,6 +55,12 @@ from plainbox.impl.runner import (
     IOLogRecordGenerator,
     JobRunnerUIDelegate,
     slugify,
+)
+from plainbox.impl.secure.providers.custom_frontend import (
+    extra_LD_LIBRARY_PATH,
+    extra_PATH,
+    extra_PYTHONPATH,
+    extra_snap_environment,
 )
 from plainbox.impl.secure.sudo_broker import sudo_password_provider
 from plainbox.impl.session.storage import WellKnownDirsHelper
@@ -144,14 +150,14 @@ class UnifiedRunner(IJobRunner):
                 )
             )
             return JobResultBuilder(
-                outcome=IJobResult.OUTCOME_SKIP,
+                outcome=IJobResult.OUTCOME_CRASH,
                 comments=_("Unsupported plugin type: {}".format(job.plugin)),
             ).get_result()
 
         # resource and attachment jobs are always run (even in dry runs)
         if self._dry_run and job.plugin not in ("resource", "attachment"):
             return JobResultBuilder(
-                outcome=IJobResult.OUTCOME_SKIP,
+                outcome=IJobResult.OUTCOME_MANUAL_SKIP,
                 comments=_("Job skipped in dry-run mode"),
             ).get_result()
 
@@ -187,7 +193,9 @@ class UnifiedRunner(IJobRunner):
                 outcome=IJobResult.OUTCOME_FAIL,
                 comments=_("No command to run!"),
             ).get_result()
-        result_builder = self._run_command(job, environ, as_systemd_unit)
+        result_builder = self._run_command(
+            job, environ, as_systemd_unit, xfail=job_state.effective_xfail
+        )
 
         # for user-interact-verify and user-verify jobs the operator chooses
         # the final outcome, so we need to reset the outcome to undecided
@@ -204,7 +212,20 @@ class UnifiedRunner(IJobRunner):
         # this is left here to conform to the interface
         return []
 
-    def _run_command(self, job, environ, as_systemd_unit):
+    @staticmethod
+    def _return_code_to_outcome(return_code, xfail):
+        if return_code == 0:
+            if xfail:
+                return IJobResult.OUTCOME_XFAIL_FAIL
+            return IJobResult.OUTCOME_PASS
+        elif return_code < 0:
+            return IJobResult.OUTCOME_CRASH
+        else:
+            if xfail:
+                return IJobResult.OUTCOME_XFAIL_PASS
+            return IJobResult.OUTCOME_FAIL
+
+    def _run_command(self, job, environ, as_systemd_unit, xfail=False):
         start_time = time.time()
         slug = slugify(job.id)
         output_writer = CommandOutputWriter(
@@ -235,14 +256,8 @@ class UnifiedRunner(IJobRunner):
                 job, environ, ecmd, self._stdin, as_systemd_unit
             )
             io_log_gen.on_new_record.disconnect(writer.write_record)
-        if return_code == 0:
-            outcome = IJobResult.OUTCOME_PASS
-        elif return_code < 0:
-            outcome = IJobResult.OUTCOME_CRASH
-        else:
-            outcome = IJobResult.OUTCOME_FAIL
         return JobResultBuilder(
-            outcome=outcome,
+            outcome=self._return_code_to_outcome(return_code, xfail),
             return_code=return_code,
             io_log_filename=log,
             execution_duration=time.time() - start_time,
@@ -492,7 +507,7 @@ class UnifiedRunner(IJobRunner):
             logger.error("No job is currently running")
             return
         if not target_user:
-            os.kill(self._running_jobs_pid, signal)
+            os.killpg(self._running_jobs_pid, signal)
         else:
             # process used sudo, so sudo is needed to kill it
             in_r, in_w = os.pipe()
@@ -603,17 +618,15 @@ def get_execution_environment(job, environ, session_id, nest_dir):
                 job.provider.locale_dir
             )
     # Use PATH that can lookup checkbox scripts
-    env = add_to_environment(env, "PYTHONPATH", job.provider.extra_PYTHONPATH)
+    env = add_to_environment(env, "PYTHONPATH", extra_PYTHONPATH())
 
     # Inject nest_dir into PATH
-    env = add_to_environment(env, "PATH", [nest_dir] + job.provider.extra_PATH)
+    env = add_to_environment(env, "PATH", [nest_dir] + extra_PATH())
 
-    env = add_to_environment(
-        env, "LD_LIBRARY_PATH", job.provider.extra_LD_LIBRARY_PATH
-    )
+    env = add_to_environment(env, "LD_LIBRARY_PATH", extra_LD_LIBRARY_PATH())
 
     # custom frontend / runtime may define extra envvars in this config file
-    for key, value in job.provider.extra_snap_environment.items():
+    for key, value in extra_snap_environment().items():
         env = add_to_environment(env, key, value)
 
     # Add per-session shared state directory
@@ -629,6 +642,7 @@ def get_execution_environment(job, environ, session_id, nest_dir):
     set_if_not_none("PLAINBOX_PROVIDER_DATA", job.provider.data_dir)
     set_if_not_none("PLAINBOX_PROVIDER_UNITS", job.provider.units_dir)
     set_if_not_none("CHECKBOX_SHARE", job.provider.CHECKBOX_SHARE)
+    set_if_not_none("PYTHONUNBUFFERED", "1")
     if os.getenv("SNAP"):
         set_if_not_none("CHECKBOX_RUNTIME", str(get_checkbox_runtime_path()))
 

@@ -733,6 +733,21 @@ class JobDefinitionFieldValidationTests(UnitWithIdFieldValidationTests):
             Severity.error,
         )
 
+    def test_siblings__override_field_with_hyphen(self):
+        issue_list = self.unit_cls(
+            {
+                "_siblings": (
+                    '[{"id": "bar", "certification-status": "blocker"}]'
+                )
+            },
+            provider=self.provider,
+        ).check()
+        self.assertIssueNotFound(
+            issue_list,
+            self.unit_cls.Meta.fields.siblings,
+            Problem.bad_reference,
+        )
+
 
 class TestJobDefinition(TestCase):
 

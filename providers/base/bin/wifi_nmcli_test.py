@@ -419,7 +419,7 @@ def backup_netplan_files(backup_dir: str, netplan_dir: str):
         os.chown(temp_path, st.st_uid, st.st_gid)
         print("Backed up: {} -> {}".format(yaml_file, temp_path))
 
-    print("Netplan files backed up to: {}", backup_dir)
+    print("Netplan files backed up to:", backup_dir)
 
 
 def restore_netplan_files(backup_dir: str, netplan_dir: str):

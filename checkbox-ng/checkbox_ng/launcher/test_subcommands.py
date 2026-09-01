@@ -32,7 +32,6 @@ from plainbox.impl.unit.template import TemplateUnit
 from checkbox_ng.launcher.subcommands import (
     Run,
     Expand,
-    List,
     Launcher,
     ListBootstrapped,
     IncompatibleJobError,
@@ -43,7 +42,6 @@ from checkbox_ng.launcher.subcommands import (
     get_testplan_id_by_id,
     print_objs,
 )
-from checkbox_ng.urwid_ui import ManifestBrowser
 
 
 class TestSharedFunctions(TestCase):
@@ -430,6 +428,10 @@ class TestLauncher(TestCase):
         failed = Launcher.setup(self_mock)
 
         self.assertTrue(self_mock.sa.start_setup.called)
+        self_mock._save_manifest.assert_called_once_with(interactive=False)
+        self_mock.configuration.get_value.assert_called_once_with(
+            "test selection", "forced"
+        )
         self.assertTrue(self_mock._run_setup_jobs.called)
         self.assertTrue(self_mock.sa.finish_setup.called)
         self.assertEqual(failed, ["failed1"])
@@ -484,7 +486,9 @@ class TestLauncher(TestCase):
 
         args, _ = memory_job_result_mock.call_args_list[-1]
         result_dict, *_ = args
-        self.assertEqual(result_dict["outcome"], IJobResult.OUTCOME_SKIP)
+        self.assertEqual(
+            result_dict["outcome"], IJobResult.OUTCOME_MANUAL_SKIP
+        )
         # given that no comment was in resume_params, the resume procedure asks for it
         self.assertTrue(request_comment_mock.called)
 
@@ -513,7 +517,9 @@ class TestLauncher(TestCase):
 
         args, _ = memory_job_result_mock.call_args_list[-1]
         result_dict, *_ = args
-        self.assertEqual(result_dict["outcome"], IJobResult.OUTCOME_SKIP)
+        self.assertEqual(
+            result_dict["outcome"], IJobResult.OUTCOME_MANUAL_SKIP
+        )
 
     @patch("checkbox_ng.launcher.subcommands.MemoryJobResult")
     @patch("checkbox_ng.launcher.subcommands.newline_join", new=MagicMock())
@@ -1386,6 +1392,27 @@ class TestUtilsFunctions(TestCase):
 
 
 class TestRun(TestCase):
+    def called_once(self, mock):
+        self.assertTrue(mock.called)
+        self.assertEqual(mock.call_count, 1)
+
+    def test_just_run_test_plan_calls_setup(self):
+        self_mock = MagicMock()
+        tp_id = "com.canonical.certification::some-tp"
+        Run.just_run_test_plan(self_mock, tp_id)
+        self.called_once(self_mock.sa.select_test_plan)
+        self.called_once(self_mock.setup)
+        self.called_once(self_mock.sa.bootstrap)
+
+    def test_setup_starts_and_ends_setup_and_runs_jobs(self):
+        self_mock = MagicMock()
+        setup_jobs = ["job1", "job2"]
+        self_mock.sa.start_setup.return_value = setup_jobs
+        Run.setup(self_mock)
+        self.called_once(self_mock.sa.start_setup)
+        self.called_once(self_mock._run_jobs)
+        self.called_once(self_mock.sa.finish_setup)
+
     @patch("checkbox_ng.launcher.subcommands.Explorer")
     def test__get_relevant_units(self, explorer_mock):
         self_mock = MagicMock()

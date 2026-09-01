@@ -1,0 +1,7 @@
+id: oem-iio-sensors-automated
+unit: test plan
+_name: Industrial I/O sensor auto tests
+_description: Automated tests for Industrial I/O sensors in before suspend and post suspend stage
+              # Not nested this test plan for now due to it leads the mismatch job order
+bootstrap_include:
+include:

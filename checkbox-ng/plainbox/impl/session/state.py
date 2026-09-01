@@ -28,7 +28,7 @@ import logging
 import re
 import shutil
 from contextlib import suppress
-from copy import copy
+from pathlib import Path
 
 from plainbox.abc import IJobResult
 from plainbox.i18n import gettext as _
@@ -40,6 +40,7 @@ from plainbox.impl.depmgr import (
 )
 from plainbox.impl.secure.qualifiers import select_units
 from plainbox.impl.session.jobs import JobState, UndesiredJobReadinessInhibitor
+from plainbox.impl.session.storage import WellKnownDirsHelper
 from plainbox.impl.session.system_information import (
     collect as collect_system_information,
 )
@@ -103,6 +104,7 @@ class SessionMetaData:
         app_blob=b"",
         app_id=None,
         custom_joblist=False,
+        remaining_todo_jobs=False,
     ):
         """Initialize a new session state meta-data object."""
         if flags is None:
@@ -115,14 +117,16 @@ class SessionMetaData:
         self._custom_joblist = custom_joblist
         self._rejected_jobs = []
         self._last_job_start_time = None
+        self._remaining_todo_jobs = remaining_todo_jobs
 
     def __repr__(self):
         """Get the representation of the session state meta-data."""
-        return "<{} title:{!r} flags:{!r} running_job_name:{!r}>".format(
+        return "<{} title:{!r} flags:{!r} running_job_name:{!r} remaining_todo_jobs:{!r}>".format(
             self.__class__.__name__,
             self.title,
             self.flags,
             self.running_job_name,
+            self.remaining_todo_jobs,
         )
 
     @property
@@ -165,6 +169,14 @@ class SessionMetaData:
     def title(self, title):
         """set the session title to the given value."""
         self._title = title
+
+    @property
+    def remaining_todo_jobs(self):
+        return self._remaining_todo_jobs
+
+    @remaining_todo_jobs.setter
+    def remaining_todo_jobs(self, remaining_todo_jobs: bool):
+        self._remaining_todo_jobs = remaining_todo_jobs
 
     def update_feature_flags(self, config):
         """
@@ -847,8 +859,39 @@ class SessionState:
         self._metadata = SessionMetaData()
         # If unset, this is loaded via system_information
         self._system_information = None
+        # manifest cache, refreshed on file writes
+        self._manifest = {}
+        self._manifest_last_mod_time = 0
 
         super(SessionState, self).__init__()
+
+    @property
+    def manifest(self):
+        # do not cache this, as it may change during the test run due to both
+        # pre-setup and post boostrap manifest saving
+        manifest_path = Path(WellKnownDirsHelper.manifest_file())
+        if not manifest_path.is_file():
+            return {}
+        last_mod_time = manifest_path.stat().st_mtime
+        if last_mod_time != self._manifest_last_mod_time:
+            with manifest_path.open("r") as f:
+                self._manifest_last_mod_time = last_mod_time
+                self._manifest = json.load(f)
+        return self._manifest
+
+    def save_manifest(self, manifest_answers):
+        manifest = dict()
+        manifest_path = Path(WellKnownDirsHelper.manifest_file())
+        if manifest_path.is_file():
+            with manifest_path.open("r") as f:
+                manifest = json.load(f)
+        manifest.update(manifest_answers)
+        logger.info("Saving manifest to {}".format(manifest_path))
+        with manifest_path.open("w") as f:
+            json.dump(manifest, f, sort_keys=True, indent=2)
+
+        # manifest requiring jobs may now be runnable
+        self._recompute_job_readiness()
 
     def trim_job_list(self, qualifier):
         """
@@ -1187,28 +1230,9 @@ class SessionState:
             if recompute:
                 self._recompute_job_readiness()
 
-    def _add_job_siblings_unit(self, new_job, recompute, via):
-        if new_job.siblings:
-            siblings = new_job.siblings
-            for overrides in siblings:
-                data = {
-                    key: value
-                    for key, value in new_job._data.items()
-                    if not key.endswith("siblings")
-                }
-                data.update(overrides)
-                self._add_job_unit(
-                    JobDefinition(
-                        data,
-                        origin=new_job.origin,
-                        provider=new_job.provider,
-                        controller=new_job.controller,
-                        parameters=new_job.parameters,
-                        field_offset_map=new_job.field_offset_map,
-                    ),
-                    recompute,
-                    via,
-                )
+    def _get_flags_siblings(self, job):
+        siblings = []  # this is exactly what would live in the siblings field
+        # aka a list of overrides
         suspend_siblings = [
             (Suspend.AUTO_FLAG, Suspend.AUTO_JOB_ID, "after-suspend"),
             (
@@ -1218,55 +1242,116 @@ class SessionState:
             ),
         ]
         for suspend_flag, suspend_job_id, suspend_prefix in suspend_siblings:
-            if suspend_flag not in new_job.get_flag_set():
+            if suspend_flag not in job.get_flag_set():
                 continue
-            data = {
-                key: copy(value)
-                for key, value in new_job._data.items()
-                if not key.endswith("siblings")
-            }
-            if isinstance(data["flags"], str):
+            overrides = {}
+            if isinstance(job.flags, str):
                 # LEGACY: pxu compatibility, flags are now a list
-                data["flags"] = data["flags"].replace(Suspend.AUTO_FLAG, "")
-                data["flags"] = data["flags"].replace(Suspend.MANUAL_FLAG, "")
+                overrides["flags"] = job.flags.replace(
+                    Suspend.AUTO_FLAG, ""
+                ).replace(Suspend.MANUAL_FLAG, "")
             else:
+                overrides["flags"] = job.flags.copy()
                 with suppress(ValueError):
-                    data["flags"].remove(Suspend.AUTO_FLAG)
+                    overrides["flags"].remove(Suspend.AUTO_FLAG)
                 with suppress(ValueError):
-                    data["flags"].remove(Suspend.MANUAL_FLAG)
+                    overrides["flags"].remove(Suspend.MANUAL_FLAG)
 
-            data["id"] = "{}-{}".format(suspend_prefix, new_job.partial_id)
-            data["_summary"] = "{} after suspend (S3)".format(new_job.summary)
+            overrides["id"] = "{}-{}".format(suspend_prefix, job.partial_id)
+            overrides["_summary"] = "{} after suspend (S3)".format(job.summary)
 
-            if isinstance(new_job.depends, list) or not new_job.depends:
-                data["depends"] = (new_job.depends or []) + [
-                    new_job.id,
+            if isinstance(job.depends, list) or not job.depends:
+                overrides["depends"] = (job.depends or []) + [
+                    job.id,
                     suspend_job_id,
                 ]
-            elif new_job.depends:
+            elif job.depends:
                 # LEGACY: pxu compatibility, depends is now a list
-                data["depends"] += " {}".format(new_job.id)
-                data["depends"] += " {}".format(suspend_job_id)
+                overrides["depends"] = "{} {} {}".format(
+                    job.depends, job.id, suspend_job_id
+                )
 
-            if isinstance(new_job.after, list) or not new_job.after:
-                data["after"] = (new_job.after or []) + [new_job.id]
-            elif new_job.after:
-                # LEGACY: pxu compatibility, after is now a list
-                data["after"] += " {}".format(new_job.id)
-            if new_job.group:
-                data["group"] = "{}-{}".format(suspend_prefix, new_job.group)
+            if job.group:
+                overrides["group"] = "{}-{}".format(suspend_prefix, job.group)
+            siblings.append(overrides)
+        return siblings
+
+    def _get_job_data_directly_required_suspend(self, job_data):
+        """
+        Get which suspend ids the current job data follows
+
+        :param job_data:
+            job data to inspect
+        :returns:
+            set of suspend job ids that the job data either depends on or comes
+            after
+        """
+        to_r = set()
+
+        def pxu_compatible_in(con):
+            if isinstance(con, list):
+                # yaml path, in works fine here as it "full matches"
+                return con
+            # string in doesn't work well for string because the manual id is
+            # contained in the auto id.
+            # This is not perfect but it is good enough for what we need.
+            return con.split()
+
+        for suspend_id in [Suspend.AUTO_JOB_ID, Suspend.MANUAL_JOB_ID]:
+            if suspend_id in pxu_compatible_in(job_data.get("depends", [])):
+                to_r.add(suspend_id)
+            elif suspend_id in pxu_compatible_in(job_data.get("after", [])):
+                to_r.add(suspend_id)
+        return to_r
+
+    def _add_job_siblings_unit(self, job, recompute, via):
+        job_requiring_suspend = set(
+            self._get_job_data_directly_required_suspend(job._data)
+        )
+        siblings_requiring_suspend = set()
+
+        siblings = job.siblings or []
+        siblings += self._get_flags_siblings(job)
+        for overrides in siblings:
+            data = {
+                key: value
+                for key, value in job._data.items()
+                if not key.endswith("siblings")
+            }
+            data.update(overrides)
             self._add_job_unit(
                 JobDefinition(
                     data,
-                    origin=new_job.origin,
-                    provider=new_job.provider,
-                    controller=new_job.controller,
-                    parameters=new_job.parameters,
-                    field_offset_map=new_job.field_offset_map,
+                    origin=job.origin,
+                    provider=job.provider,
+                    controller=job.controller,
+                    parameters=job.parameters,
+                    field_offset_map=job.field_offset_map,
                 ),
                 recompute,
                 via,
             )
+            siblings_requiring_suspend |= (
+                self._get_job_data_directly_required_suspend(data)
+            )
+        sibling_required_not_job = (
+            siblings_requiring_suspend - job_requiring_suspend
+        )
+        # when a job doesn't require to be after suspend but has a sibling that
+        # wants to be the job is always before suspend
+        if not sibling_required_not_job:
+            return
+        # Note: intentionally avoid accessing before directly as it is a
+        #       cached property
+        before = job._data.get("before", [])
+        if isinstance(before, list):
+            before += list(sibling_required_not_job)
+        else:
+            before += " " + " ".join(sibling_required_not_job)
+        # here change the property, not the _data. Changing the data may lead
+        # (on resume) that the same unit is re-adopted, but given we've mutated
+        # the data, it is different and it crashes Checkbox
+        job.before = before
 
     def remove_unit(self, unit, *, recompute=True):
         """
@@ -1466,14 +1551,19 @@ class SessionState:
             # Generate categories status
             child_status = job_state.result.outcome
             if category not in tmp_result_map:
-                tmp_result_map[category] = IJobResult.OUTCOME_SKIP
+                tmp_result_map[category] = IJobResult.OUTCOME_MANUAL_SKIP
             if child_status in (
                 IJobResult.OUTCOME_FAIL,
                 IJobResult.OUTCOME_CRASH,
+                IJobResult.OUTCOME_XFAIL_FAIL,
             ):
                 tmp_result_map[category] = IJobResult.OUTCOME_FAIL
             elif (
-                child_status == IJobResult.OUTCOME_PASS
+                child_status
+                in (
+                    IJobResult.OUTCOME_PASS,
+                    IJobResult.OUTCOME_XFAIL_PASS,
+                )
                 and tmp_result_map[category] != IJobResult.OUTCOME_FAIL
             ):
                 tmp_result_map[category] = IJobResult.OUTCOME_PASS
@@ -1481,12 +1571,12 @@ class SessionState:
                 IJobResult.OUTCOME_PASS,
                 IJobResult.OUTCOME_FAIL,
             ):
-                tmp_result_map[category] = IJobResult.OUTCOME_SKIP
+                tmp_result_map[category] = IJobResult.OUTCOME_MANUAL_SKIP
         return tmp_result_map
 
     @property
     def resource_global_outcome(self):
-        global_outcome = IJobResult.OUTCOME_SKIP
+        global_outcome = IJobResult.OUTCOME_MANUAL_SKIP
         for job_state in self.job_state_map.values():
             if (
                 job_state.job.plugin != "resource"
@@ -1498,10 +1588,15 @@ class SessionState:
             if child_status in (
                 IJobResult.OUTCOME_FAIL,
                 IJobResult.OUTCOME_CRASH,
+                IJobResult.OUTCOME_XFAIL_FAIL,
             ):
                 global_outcome = IJobResult.OUTCOME_FAIL
             elif (
-                child_status == IJobResult.OUTCOME_PASS
+                child_status
+                in (
+                    IJobResult.OUTCOME_PASS,
+                    IJobResult.OUTCOME_XFAIL_PASS,
+                )
                 and global_outcome != IJobResult.OUTCOME_FAIL
             ):
                 global_outcome = IJobResult.OUTCOME_PASS
@@ -1509,12 +1604,12 @@ class SessionState:
                 IJobResult.OUTCOME_PASS,
                 IJobResult.OUTCOME_FAIL,
             ):
-                global_outcome = IJobResult.OUTCOME_SKIP
+                global_outcome = IJobResult.OUTCOME_MANUAL_SKIP
         return global_outcome
 
     @property
     def attachment_global_outcome(self):
-        global_outcome = IJobResult.OUTCOME_SKIP
+        global_outcome = IJobResult.OUTCOME_MANUAL_SKIP
         for job_state in self.job_state_map.values():
             if (
                 job_state.job.plugin != "attachment"
@@ -1526,10 +1621,15 @@ class SessionState:
             if child_status in (
                 IJobResult.OUTCOME_FAIL,
                 IJobResult.OUTCOME_CRASH,
+                IJobResult.OUTCOME_XFAIL_FAIL,
             ):
                 global_outcome = IJobResult.OUTCOME_FAIL
             elif (
-                child_status == IJobResult.OUTCOME_PASS
+                child_status
+                in (
+                    IJobResult.OUTCOME_PASS,
+                    IJobResult.OUTCOME_XFAIL_PASS,
+                )
                 and global_outcome != IJobResult.OUTCOME_FAIL
             ):
                 global_outcome = IJobResult.OUTCOME_PASS
@@ -1537,7 +1637,7 @@ class SessionState:
                 IJobResult.OUTCOME_PASS,
                 IJobResult.OUTCOME_FAIL,
             ):
-                global_outcome = IJobResult.OUTCOME_SKIP
+                global_outcome = IJobResult.OUTCOME_MANUAL_SKIP
         return global_outcome
 
     def get_certification_status_map(

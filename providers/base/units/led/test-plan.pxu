@@ -154,14 +154,14 @@ bootstrap_include:
     led-indicator/gpio-controller-leds
     led-indicator/sysfs-leds
 
-id: led-indicator-auto
+id: led-indicator-automated
 unit: test plan
 _name: Automated LED indicator tests for IoT
 _description:
     Automated LED indicator tests for IoT devices
 include:
     led_indicator/validate-sysfs-leds-variable
-    led-indicator/sysfs-leds-auto
+    led-indicator/sysfs-leds-automated
 bootstrap_include:
     led-indicator/sysfs-leds
 

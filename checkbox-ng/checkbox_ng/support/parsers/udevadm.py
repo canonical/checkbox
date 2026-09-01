@@ -23,10 +23,11 @@ from __future__ import unicode_literals
 
 from collections import OrderedDict
 import json
-from subprocess import check_output, CalledProcessError
+from subprocess import check_output
 import os
 import re
 import string
+import stat
 
 from checkbox_ng.support.helpers.slugify import slugify
 from checkbox_ng.support.lib.bit import get_bitmask
@@ -138,6 +139,14 @@ def is_small_partition(devname, lsblk=None):
     return False
 
 
+def has_dev_block_node(name):
+    """Return True if name resolves to a user-visible block-device node"""
+    try:
+        return stat.S_ISBLK(os.stat(os.path.join("/dev", name)).st_mode)
+    except (TypeError, OSError):
+        return False
+
+
 class UdevadmDevice(object):
     __slots__ = (
         "_environment",
@@ -213,20 +222,28 @@ class UdevadmDevice(object):
             and "DEVNAME" not in self._environment
         ):
             # Use DEVPATH
+            candidates = []
             devpath = self._environment.get("DEVPATH", "")
+
             # First try to match nvmeXcYnZ (virtual NVMe device)
             match = re.search(r"/(nvme\d+c\d+n\d+)(?:/|$)", devpath)
             if match:
-                return match.group(1)
+                candidates.append(match.group(1))
+
             # Then try to match nvmeXnY (standard namespace device)
             match = re.search(r"/(nvme\d+n\d+)(?:/|$)", devpath)
             if match:
-                return match.group(1)
+                candidates.append(match.group(1))
+
             # Fallback: match nvmeX (controller) and append n1
             match = re.search(r"/nvme/nvme(\d+)(?:/|$)", devpath)
             if match:
                 nvme_num = match.group(1)
-                return "nvme{}n1".format(nvme_num)
+                candidates.append("nvme{}n1".format(nvme_num))
+
+            for candidate in candidates:
+                if has_dev_block_node(candidate):
+                    return candidate
         return None
 
     @property
@@ -312,9 +329,10 @@ class UdevadmDevice(object):
                     r"^(llce){0,1}can[0-9]+$", self._environment["INTERFACE"]
                 ):
                     return "SOCKETCAN"
-            if "ID_MODEL" in self._environment:
-                if self._environment["ID_MODEL"].startswith("XClarity"):
-                    return "BMC_NETWORK"
+            if self._environment.get("ID_MODEL", "").startswith(
+                "XClarity"
+            ) or self._environment.get("ID_NET_NAME", "").startswith("bmc_"):
+                return "BMC_NETWORK"
             if self._stack:
                 parent = self._stack[-1]
                 if "PCI_CLASS" in parent._environment:
@@ -333,6 +351,9 @@ class UdevadmDevice(object):
                             return "INFINIBAND"
             if self.driver and "rndis" in self.driver:
                 return "USB"
+            model = self._environment.get("ID_MODEL", "").lower()
+            if "virtual" in model and "ethernet" in model:
+                return "VIRTUAL_NETWORK"
             return "NETWORK"
 
         if self.bus == "bluetooth":
@@ -1307,13 +1328,16 @@ class UdevadmParser(object):
         if device.major == "94":
             return False
 
-        # Ignore partitions that are either readonly or too small, because
-        # these fail the removable storage tests.
-        if is_readonly_partition(device.name, self.lsblk):
-            return True
+        # Ignore block devices (typically partitions) that are either readonly or
+        # too small (<= 100 MiB), because these fail the removable storage tests.
+        # CDROM devices are exempt: optical media are expected to be readonly and
+        # may legitimately be smaller than 100 MiB.
+        if device.category != "CDROM":
+            if is_readonly_partition(device.name, self.lsblk):
+                return True
 
-        if is_small_partition(device.name, self.lsblk):
-            return True
+            if is_small_partition(device.name, self.lsblk):
+                return True
 
         # Keep /dev/mapper devices (non swap)
         if "/dev/mapper" in device._environment.get("DEVLINKS", ""):
@@ -1367,6 +1391,15 @@ class UdevadmParser(object):
         # as disks (categorization is done elsewhere). Note that the *parent*
         # device will have no category, though it's not ignored per se.
         if device.bus in ("pci", "nvme") and device.driver == "nvme":
+            # Some platforms expose NVMe path objects as DISK devices without
+            # DEVNAME. Keep them only if the derived name resolves to an
+            # actual block device node.
+            if (
+                device.category == "DISK"
+                and "DEVNAME" not in device._environment
+                and device.name is None
+            ):
+                return True
             return False
         # Do not ignore eMMC drives (pad.lv/1522768)
         if (

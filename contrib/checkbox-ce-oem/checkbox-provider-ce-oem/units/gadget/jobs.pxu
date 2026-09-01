@@ -33,7 +33,26 @@ category_id: com.canonical.certification::gadget
 plugin: resource
 environ: GADGET_INTERFACE_FILE
 command:
-    gadget_interface_utils.py --file "$GADGET_INTERFACE_FILE" --action dump
+  if [ -n "$GADGET_INTERFACE_FILE" ]; then
+    resource_wrapper.sh -- gadget_interface_utils.py --file "$GADGET_INTERFACE_FILE" --action dump
+  fi
+
+id: check_snap_interface_resource
+_summary: Check gadget interface resource generation
+_description:
+    Verify gadget interface resource generation command executes directly.
+estimated_duration: 0.02
+imports:
+  from com.canonical.certification import lsb
+  from com.canonical.plainbox import manifest
+requires:
+  manifest.need_gadget_interface_test == 'True'
+  lsb.distributor_id == 'Ubuntu Core'
+category_id: com.canonical.certification::gadget
+plugin: shell
+environ: GADGET_INTERFACE_FILE
+command:
+  gadget_interface_utils.py --file "$GADGET_INTERFACE_FILE" --action dump
 
 unit: template
 template-resource: snap_interface_resource

@@ -144,6 +144,27 @@ copy such constructs when working on a new test plan from scratch
     Note that mandatory jobs will always be run first (along with their
     dependent jobs).
 
+.. option:: setup_include
+
+    A multi-line list of setup job identifiers that should be run before the
+    normal bootstrapping phase begins. Setup jobs are used to prepare the device
+    under test, such as installing dependencies, loading required kernel modules
+    or starting services needed by the rest of the test plan.
+
+    Example::
+
+        setup_include:
+            setup/install_example_tool
+
+    Note that each entry in the ``setup_include`` section must be a valid
+    :doc:`setup_job` unit identifier and cannot be a regular expression
+    pattern. Only setup job units are allowed in this section.
+
+    .. warning::
+
+        If any setup job fails, the whole test run will be aborted after the setup
+        phase and marked as failed.
+
 .. option:: bootstrap_include
 
     A multi-line list of job identifiers that should be run first, before the
@@ -236,7 +257,7 @@ copy such constructs when working on a new test plan from scratch
 
     .. note::
 
-        Categories can also be overriden directly in the :option:`include`
+        Categories can also be overridden directly in the :option:`include`
         section using :ref:`inline overrides<test-plan-inline-overrides>`.
 
 .. option:: certification_status_overrides
@@ -257,7 +278,7 @@ copy such constructs when working on a new test plan from scratch
 
     .. note::
 
-        Certification statuses can also be overriden directly in the
+        Certification statuses can also be overridden directly in the
         :option:`include` section using
         :ref:`inline overrides<test-plan-inline-overrides>`.
 
@@ -280,6 +301,52 @@ copy such constructs when working on a new test plan from scratch
         the following should be used::
 
             apply blocker to .*::.*
+
+        to apply the override to every job of every namespaces.
+
+.. option:: xfail_overrides
+
+    A multi-line list of expected failure override statements.
+
+    Similar to the :option:`test-plan certification_status_overrides`
+    field, this field can be used to mark jobs matching a given regular
+    expression as expected failures (xfail). When a job is marked as
+    xfail, a non-zero exit code is treated as an expected failure (pass)
+    and a zero exit code is treated as an unexpected pass (fail).
+
+    The possible values are ``true`` and ``false``.
+
+    For instance, the following will mark a known-broken test as an
+    expected failure::
+
+        apply true to .*known-broken-test.*
+
+    .. note::
+
+        Expected failure status can also be set directly on a job
+        definition using the ``xfail`` field, or inline in the
+        :option:`include` section using
+        :ref:`inline overrides<test-plan-inline-overrides>`.
+
+    .. note::
+
+        This override mechanism "bubbles up", meaning if it is used in a
+        :ref:`nested part<nested-test-plan>`, all the jobs selected as part of
+        the whole test plan will be impacted, not only the jobs in that
+        specific nested part.
+
+    .. warning::
+
+        If no namespace is provided, Checkbox will add the namespace of the
+        current provider to the regular expression that is provided. This can
+        be a problem if the override has to work across different providers
+        with different namespaces. In that case, instead of using::
+
+            apply true to .*
+
+        the following should be used::
+
+            apply true to .*::.*
 
         to apply the override to every job of every namespaces.
 

@@ -30,6 +30,7 @@ from plainbox.impl.execution import (
     get_execution_command_subshell,
     get_execution_command_systemd_unit,
     get_execution_environment,
+    IJobResult,
 )
 from plainbox.impl.unit.job import InvalidJob
 
@@ -366,12 +367,11 @@ class TestDangerousNsenter(TestCase):
     def call_args_to_string(self, call_arg):
         return " ".join(str(x) for x in call_arg[0][0])
 
-    @mock.patch("plainbox.impl.execution.check_output")
     @mock.patch("plainbox.impl.execution.check_call")
     @mock.patch("plainbox.impl.execution.run")
     @mock.patch("shutil.which")
     def test_dangerous_nsenter_cleanup(
-        self, which_mock, run_mock, check_call_mock, check_output_mock
+        self, which_mock, run_mock, check_call_mock
     ):
         which_mock.return_value = "/bin/plz-run"
         with self.assertRaises(ValueError):
@@ -379,9 +379,7 @@ class TestDangerousNsenter(TestCase):
                 # prepared dangerous nsenter is copied somewhere, made extable
                 # and given caps
                 subprocess_calls = (
-                    run_mock.call_args_list
-                    + check_call_mock.call_args_list
-                    + check_output_mock.call_args_list
+                    run_mock.call_args_list + check_call_mock.call_args_list
                 )
                 subprocess_calls = [
                     self.call_args_to_string(arg) for arg in subprocess_calls
@@ -404,13 +402,10 @@ class TestDangerousNsenter(TestCase):
                 self.assertIn("cap_sys_admin", subprocess_calls_str)
                 run_mock.reset_mock()
                 check_call_mock.reset_mock()
-                check_output_mock.reset_mock()
                 raise ValueError("Ensure decorator always deletes the binary")
 
         subprocess_calls = (
-            run_mock.call_args_list
-            + check_call_mock.call_args_list
-            + check_output_mock.call_args_list
+            run_mock.call_args_list + check_call_mock.call_args_list
         )
         subprocess_calls_str = "\n".join(str(arg) for arg in subprocess_calls)
         self.assertIn("rm", subprocess_calls_str)
@@ -657,3 +652,37 @@ class FakeJobRunnerTests(TestCase):
             mock_parent_run_job.assert_called_once_with(
                 job, job_state, environ, ui, True
             )
+
+    def test__return_code_to_outcome_ok(self):
+        self.assertEqual(
+            UnifiedRunner._return_code_to_outcome(0, xfail=False),
+            IJobResult.OUTCOME_PASS,
+        )
+
+    def test__return_code_to_outcome_ok_xfail_not_ok(self):
+        self.assertEqual(
+            UnifiedRunner._return_code_to_outcome(0, xfail=True),
+            IJobResult.OUTCOME_XFAIL_FAIL,
+        )
+
+    def test__return_code_to_outcome_fail(self):
+        self.assertEqual(
+            UnifiedRunner._return_code_to_outcome(1, xfail=False),
+            IJobResult.OUTCOME_FAIL,
+        )
+
+    def test__return_code_to_outcome_fail_xfail_pass(self):
+        self.assertEqual(
+            UnifiedRunner._return_code_to_outcome(1, xfail=True),
+            IJobResult.OUTCOME_XFAIL_PASS,
+        )
+
+    def test_crash_doesnt_use_xfail(self):
+        self.assertEqual(
+            UnifiedRunner._return_code_to_outcome(-1, xfail=True),
+            UnifiedRunner._return_code_to_outcome(-1, xfail=False),
+        )
+        self.assertEqual(
+            UnifiedRunner._return_code_to_outcome(-1, xfail=True),
+            IJobResult.OUTCOME_CRASH,
+        )

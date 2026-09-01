@@ -29,7 +29,6 @@ import base64
 import binascii
 import copy
 import gzip
-import json
 
 from plainbox.abc import IUnitQualifier
 from plainbox.abc import IJobResult
@@ -999,8 +998,9 @@ class JobResultResumeMixIn:
             str(boom.exception),
             (
                 "Value for key 'outcome' not in allowed set ['crash', 'fail',"
-                " None, 'not-implemented', 'not-supported', 'pass', 'skip', "
-                "'undecided']"
+                " None, 'not-implemented', 'not-supported', 'pass', 'skip',"
+                " 'skipped-dependency', 'skipped-manifest',"
+                " 'skipped-resource', 'undecided', 'xfail_fail', 'xfail_pass']"
             ),
         )
 

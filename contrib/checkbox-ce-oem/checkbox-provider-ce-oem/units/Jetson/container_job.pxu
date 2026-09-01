@@ -1,0 +1,300 @@
+unit: category
+id: jetson-container
+_name: Jetson container tests
+
+unit: category
+id: jetson-core-container
+_name: Jetson core container tests
+
+id: jetson-container/cuda-samples-docker-13.0.0-runtime
+command:
+  # shellcheck disable=SC2002,SC2006,SC2046,SC2086,SC2181
+  set -ex
+  docker run --rm --net=host --runtime nvidia -e DISPLAY=$DISPLAY \
+    -e LD_PRELOAD=/usr/lib/aarch64-linux-gnu/nvidia/libcuda.so \
+    -v /tmp/.X11-unix/:/tmp/.X11-unix -v \
+    /opt/nvidia/cuda-samples/:/opt/nvidia/cuda-samples -v \
+    /opt/nvidia/run-cuda-samples.py:/opt/nvidia/run-cuda-samples.py \
+    nvcr.io/nvidia/cuda:13.0.0-runtime-ubuntu24.04 \
+    bash -c "apt update && apt install -y python3 && /opt/nvidia/run-cuda-samples.py -c 1_Utilities"
+plugin: shell
+category_id: jetson-container
+flags: also-after-suspend
+estimated_duration: 10m
+user: root
+imports:
+ from com.canonical.certification import package
+ from com.canonical.plainbox import manifest
+requires:
+ package.name == 'cuda-toolkit-13-0'
+ package.name == 'nvidia-container-toolkit'
+ manifest.is_Jetson == 'True'
+
+id: jetson-container/cuda-samples-docker-12.6.11-runtime
+_summary: Run the cuda-samples tests 1_Utilities in a docker container
+command:
+  # shellcheck disable=SC2002,SC2006,SC2046,SC2086,SC2181
+  set -ex
+  docker run --rm --net=host --runtime nvidia -e DISPLAY=$DISPLAY \
+    -v /tmp/.X11-unix/:/tmp/.X11-unix -v \
+    /opt/nvidia/cuda-samples/:/opt/nvidia/cuda-samples -v \
+    /opt/nvidia/run-cuda-samples.py:/opt/nvidia/run-cuda-samples.py \
+    nvcr.io/nvidia/l4t-cuda:12.6.11-runtime \
+    bash -c "apt update && apt install -y python3 && /opt/nvidia/run-cuda-samples.py -c 1_Utilities"
+plugin: shell
+category_id: jetson-container
+flags: also-after-suspend
+estimated_duration: 10m
+user: root
+imports: from com.canonical.certification import package
+ from com.canonical.plainbox import manifest
+requires:
+ package.name == 'cuda-toolkit-12-6'
+ package.name == 'nvidia-container-toolkit'
+ manifest.is_Jetson == 'True'
+
+id: jetson-container/tensorrt-samples-docker-10.3.0-runtime
+_summary: Run the tensorrt samples test in a docker container
+command:
+  # shellcheck disable=SC2002,SC2006,SC2046,SC2086,SC2181
+  set -ex
+  docker run --rm --net=host --runtime nvidia -e DISPLAY=$DISPLAY \
+    -v /tmp/.X11-unix/:/tmp/.X11-unix -v \
+    /opt/nvidia/run-tensorrt-samples.py:/opt/nvidia/run-tensorrt-samples.py -v \
+    /usr/src/tensorrt/:/usr/src/tensorrt/ \
+    nvcr.io/nvidia/l4t-tensorrt:r10.3.0-runtime \
+    /opt/nvidia/run-tensorrt-samples.py
+plugin: shell
+category_id: jetson-container
+flags: also-after-suspend
+estimated_duration: 10m
+user: root
+imports: from com.canonical.certification import package
+ from com.canonical.plainbox import manifest
+requires:
+ package.name == 'libnvinfer-samples'
+ package.name == 'nvidia-container-toolkit'
+ manifest.is_Jetson == 'True'
+
+id: jetson-container/dGPU
+_summary: Run DLFW Container Tests with dGPU
+plugin: shell
+category_id: jetson-container
+flags: also-after-suspend
+imports: from com.canonical.certification import package
+ from com.canonical.plainbox import manifest
+requires:
+ package.name == 'nvidia-container-toolkit'
+ package.name == 'nvidia-driver-535-server-open' or package.name == 'nvidia-driver-535-open'
+ manifest.is_Jetson == 'True'
+command:
+  # shellcheck disable=SC2002,SC2006,SC2046,SC2086,SC2181
+  set -ex
+  TEMPDIR=`mktemp -t -d container.XXXXXXXXXX`
+  echo "Moving to working dir $TEMPDIR"
+  cd $TEMPDIR
+  mkdir sh_input && cd sh_input
+  cat <<EOF > run_tensorrt.sh
+  #!/bin/bash
+  echo "OS release,Kernel version"
+  (. /etc/os-release; echo "\${PRETTY_NAME}"; uname -r) | paste -s -d,
+  echo
+  nvidia-smi -q
+  echo
+  exec bash -o pipefail -c "
+  cd /workspace/tensorrt/samples
+  make -j4
+  cd /workspace/tensorrt/bin
+  ./sample_onnx_mnist
+  retstatus=\\\${PIPESTATUS[0]}
+  echo \"Test exited with status code: \\\${retstatus}\" >&2
+  exit \\\${retstatus}
+  "
+  EOF
+  current_month=$(date '+%Y-%m')
+  last_month=$(date -d "$current_month-15 last month" '+%y.%m')
+  echo "Run TensorRT on dGPU"
+  sudo docker run --gpus all --rm -v \
+    $(pwd):/sh_input nvcr.io/nvidia/tensorrt:${last_month}-py3 \
+    bash /sh_input/run_tensorrt.sh
+  echo "Run Pytorch on dGPU"
+  sudo docker run --gpus all --rm \
+    nvcr.io/nvidia/pytorch:${last_month}-py3 deviceQuery
+
+id: jetson-container/iGPU
+_summary: Run DLFW Container Tests with iGPU
+plugin: shell
+category_id: jetson-container
+flags: also-after-suspend
+imports: from com.canonical.certification import package
+ from com.canonical.plainbox import manifest
+requires:
+ package.name == 'nvidia-container-toolkit'
+ package.name == 'linux-nvidia-tegra-igx-tegra-igpu-igx-defaults' or 'igpu-jetson-defaults' in package.name or 'igpu-jetson-nvgpu-defaults' in package.name
+ manifest.is_Jetson == 'True'
+command:
+  # shellcheck disable=SC2002,SC2006,SC2046,SC2086,SC2181
+  set -ex
+  TEMPDIR=`mktemp -t -d container.XXXXXXXXXX`
+  echo "Moving to working dir $TEMPDIR"
+  cd $TEMPDIR
+  mkdir sh_input && cd sh_input
+  cat <<EOF > run_tensorrt.sh
+  #!/bin/bash
+  echo "OS release,Kernel version"
+  (. /etc/os-release; echo "\${PRETTY_NAME}"; uname -r) | paste -s -d,
+  echo
+  nvidia-smi -q
+  echo
+  exec bash -o pipefail -c "
+  if [ -f /workspace/tensorrt/samples/Makefile ]; then
+    cd /workspace/tensorrt/samples
+    make -j4
+    cd /workspace/tensorrt/bin
+    ./sample_onnx_mnist
+  else
+    cd /workspace/tensorrt/oss
+    mkdir -p build
+    cd build
+    cmake .. \
+      -DTRT_LIB_DIR=/usr/lib/aarch64-linux-gnu \
+      -DTRT_OUT_DIR=\\\$(pwd)/out \
+      -DBUILD_SAMPLES=ON \
+      -DBUILD_PARSERS=OFF \
+      -DBUILD_PLUGINS=OFF \
+      -DTRT_PLATFORM_ID=aarch64
+    cmake --build . --parallel \\\$(nproc)
+    echo \"Fetching tensorrt_sample_data URL\"
+    if ! wget -q https://raw.githubusercontent.com/NVIDIA/TensorRT/main/samples/README.md; then
+      echo \"Error: failed to fetch the tensorrt_sample_data URL\"
+      exit 1
+    fi
+    sample_data_url=\\\$(grep -o \"https://github.com/NVIDIA/TensorRT/releases/download/.*zip\" README.md)
+    echo \"sample_data_url:\\\$sample_data_url\"
+    if [ -z \"\\\$sample_data_url\" ]; then
+      echo \"Error: sample_data_url is empty\"
+      exit 1
+    fi
+    echo \"Downloading tensorrt_sample_data\"
+    if ! wget -q \\\$sample_data_url; then
+      echo \"Error: failed to download the tensorrt_sample_data\"
+      exit 1
+    fi
+    unzip tensorrt_sample_data_*.zip -d /workspace/tensorrt/data
+    /workspace/tensorrt/oss/build/out/sample_onnx_mnist
+  fi
+  retstatus=\\\${PIPESTATUS[0]}
+  echo \"Test exited with status code: \\\${retstatus}\" >&2
+  exit \\\${retstatus}
+  "
+  EOF
+  current_month=$(date '+%Y-%m')
+  last_month=$(date -d "$current_month-15 last month" '+%y.%m')
+  container_name=${last_month}-py3
+  PLATFORM=$(cat /sys/class/dmi/id/product_name | grep -o "Orin\|Thor")
+  if [ $PLATFORM == "Orin" ]; then
+    VERSION=$(dpkg-query -W -f='${Version}\n' cuda-toolkit-* | head -n1)
+    if dpkg --compare-versions $VERSION lt 13.0.0-1; then
+      container_name=26.02-py3-igpu
+    fi
+  fi
+  echo "Run TensorRT on iGPU"
+  # Including -v /usr/src/:/workspace as a workaround for
+  sudo docker run --runtime=nvidia --gpus all --rm -v $(pwd):/sh_input \
+    nvcr.io/nvidia/tensorrt:${container_name} bash /sh_input/run_tensorrt.sh
+  echo "Run Pytorch on iGPU"
+  sudo docker run --runtime=nvidia --gpus all --rm \
+    nvcr.io/nvidia/pytorch:${container_name} deviceQuery
+
+id: jetson-core-container/iGPU
+_summary: Run DLFW Container Tests with iGPU
+plugin: shell
+category_id: jetson-core-container
+flags: also-after-suspend
+user: root
+imports:
+ from com.canonical.certification import snap
+ from com.canonical.plainbox import manifest
+requires:
+ snap.name == 'nvidia-tegra-runtime'
+ snap.name == 'multimedia'
+ snap.name == 'docker'
+ manifest.is_Jetson == 'True'
+command:
+  # shellcheck disable=SC2002,SC2006,SC2046,SC2086,SC2181
+  set -ex
+  echo "Make sure graphics-core22 interface is connected"
+  sudo snap connect docker:graphics-core22 nvidia-tegra-runtime:graphics-core22
+  echo "Make sure hardware-observe interface is connected"
+  sudo snap connect nvidia-tegra-runtime:hardware-observe
+  sudo snap run nvidia-tegra-runtime.nvidia-smi
+  echo "Set up nvidia container runtime configuration for docker"
+  NVIDIA_CTK_DIR=/var/snap/docker/current/etc/nvidia-container-runtime
+  if [ -f $NVIDIA_CTK_DIR/config.toml ]
+  then
+  sudo cp $NVIDIA_CTK_DIR/config.toml $NVIDIA_CTK_DIR/config.toml.backup
+  fi
+  sudo cp /snap/checkbox-ce-oem/current/etc/docker-files/config.toml $NVIDIA_CTK_DIR
+  sudo cp /snap/checkbox-ce-oem/current/etc/docker-files/devices.csv $NVIDIA_CTK_DIR
+  sudo cp /snap/checkbox-ce-oem/current/etc/docker-files/drivers.csv $NVIDIA_CTK_DIR
+  sudo snap run --shell docker -c \
+    "nvidia-ctk cdi generate --mode=csv --format=yaml \
+    --csv.file=$NVIDIA_CTK_DIR/devices.csv,$NVIDIA_CTK_DIR/drivers.csv \
+    --output=$NVIDIA_CTK_DIR/nvidia.yaml"
+  sudo cp $NVIDIA_CTK_DIR/nvidia.yaml /var/snap/checkbox-ce-oem/current/etc/docker-files/nvidia-container-runtime/cdi/
+  sudo /snap/docker/current/usr/bin/nvidia-ctk runtime configure --runtime=docker --config=/var/snap/docker/current/config/daemon.json
+  echo "Restart docker services"
+  sudo snap disable docker
+  sudo snap enable docker
+  attempts=0
+  docker_ready="false"
+  echo "Waiting for Docker daemon to start..."
+  set +e
+  while [ $attempts -lt 10 ] ; do
+    sudo docker version
+    if [[ $? -eq 0 ]] ; then
+      docker_ready="true"
+      echo "Docker daemon ready"
+      break
+    else
+      sleep 0.5
+      attempts=$((attempts + 1))
+    fi
+  done
+  set -e
+  if [[ "$docker_ready" == "false" ]]; then
+    echo "Docker daemon did not start!"
+    exit 1
+  fi
+  mkdir -p $HOME/sh_input
+  echo "Moving to working dir $HOME/sh_input"
+  cd $HOME/sh_input
+  # Last line of `Rev` column
+  DOCKER_REV=$(snap list docker | awk 'END{print $3}')
+  cat <<EOF > run_tensorrt.sh
+  #!/bin/bash
+  echo "OS release,Kernel version"
+  (. /etc/os-release; echo "\${PRETTY_NAME}"; uname -r) | paste -s -d,
+  echo
+  /snap/docker/${DOCKER_REV}/graphics/usr/sbin/nvidia-smi -q
+  echo
+  exec bash -o pipefail -c "
+  cd /workspace/tensorrt/samples
+  make -j4
+  cd /workspace/tensorrt/bin
+  ./sample_onnx_mnist
+  retstatus=\\\${PIPESTATUS[0]}
+  echo \"Test exited with status code: \\\${retstatus}\" >&2
+  exit \\\${retstatus}
+  "
+  EOF
+  echo "Run TensorRT on iGPU"
+  sudo docker run --runtime=nvidia --gpus all --rm -v $(pwd):/sh_input \
+    nvcr.io/nvidia/tensorrt:24.11-py3-igpu bash /sh_input/run_tensorrt.sh
+  echo "Run Pytorch on iGPU"
+  sudo docker run --runtime=nvidia --gpus all --rm \
+    nvcr.io/nvidia/pytorch:24.11-py3-igpu deviceQuery
+  if [ -f $NVIDIA_CTK_DIR/config.toml.backup ]
+  then
+  sudo mv $NVIDIA_CTK_DIR/config.toml.backup $NVIDIA_CTK_DIR/config.toml
+  fi

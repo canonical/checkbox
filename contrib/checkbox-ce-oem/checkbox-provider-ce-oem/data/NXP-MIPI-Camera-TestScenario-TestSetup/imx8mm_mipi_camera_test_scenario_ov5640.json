@@ -6,9 +6,7 @@
             "physical_interface": "csi1",
             "v4l2_device_name": "i.MX6S_CSI (platform:32e20000.csi1_bridge)",
             "formats": [
-                "YUY2",
-                "NV12",
-                "RGB"
+                "YUY2"
             ],
             "resolutions": [
                 {
@@ -41,9 +39,7 @@
             "physical_interface": "csi1",
             "v4l2_device_name": "i.MX6S_CSI (platform:32e20000.csi1_bridge)",
             "formats": [
-                "YUY2",
-                "NV12",
-                "RGB"
+                "YUY2"
             ],
             "resolutions": [
                 {

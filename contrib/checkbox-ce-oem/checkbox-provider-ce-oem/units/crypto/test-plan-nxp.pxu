@@ -1,0 +1,10 @@
+id: ce-oem-nxp-ele-automated
+unit: test plan
+_name: NXP ELE tests
+_description: Automated NXP EdgeLock ELE validation using test vectors.
+bootstrap_include:
+    nxp_ele_list_tv_files
+include:
+    ce-oem-nxp-ele/device-node
+    ce-oem-nxp-ele/hsm_run_perf
+    ce-oem-nxp-ele/hsm_run_tv

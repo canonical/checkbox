@@ -70,11 +70,6 @@ _description:
  Refer to https://ubuntu.com/security/oval,
  to scan if all CVEs are fixed well on the target machine.
 
-unit: packaging meta-data
-os-id: ubuntu
-Depends:
-  libopenscap8
-
 plugin: shell
 category_id: com.canonical.plainbox::miscellanea
 id: miscellanea/check_language_packages
@@ -133,6 +128,7 @@ category_id: com.canonical.plainbox::miscellanea
 id: miscellanea/check_windowing_system_{product}
 requires:
  lsb.release >= "22.04"
+ lsb.release < "26.04"
  package.name == "pciutils"
 depends: miscellanea/check-display_{product}
 command: check-windowing-system.sh

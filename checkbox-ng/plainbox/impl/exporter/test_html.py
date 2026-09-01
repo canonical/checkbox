@@ -27,7 +27,7 @@ Test definitions for plainbox.impl.exporter.html module
 """
 
 import io
-from unittest import mock, TestCase
+from unittest import TestCase, mock
 
 try:
     from importlib.resources import files
@@ -93,7 +93,7 @@ class HTMLExporterTests(TestCase):
         )
         self.result_skip = MemoryJobResult(
             {
-                "outcome": IJobResult.OUTCOME_SKIP,
+                "outcome": IJobResult.OUTCOME_MANUAL_SKIP,
                 "execution_duration": 1.0,
                 "comments": "No such device",
             }

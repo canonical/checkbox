@@ -1,0 +1,32 @@
+id: salvages_skipped_by_dependency
+plugin: shell
+command: 'true'
+summary: This job should be skipped since the job it's salvaging is skipped by dependency
+salvages:
+  - skipped_by_dependency
+---
+id: salvages_skipped_by_requirement
+plugin: shell
+command: 'true'
+summary: This job should be skipped since the job it's salvaging is skipped by requirement
+salvages:
+  - simple_skipped
+---
+id: salvages_skipped_by_manifest
+plugin: shell
+command: 'true'
+summary: This job should be skipped since the job it's salvaging is skipped by manifest
+salvages:
+  - skipped_by_manifest
+---
+id: salvages_test_plan
+unit: test plan
+name: Salvages Test Plan
+description: Test plan used in salvages testing
+include:
+  - skipped_by_dependency
+  - simple_skipped
+  - skipped_by_manifest
+  - salvages_skipped_by_dependency
+  - salvages_skipped_by_requirement
+  - salvages_skipped_by_manifest

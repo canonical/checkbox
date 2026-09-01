@@ -19,6 +19,7 @@
 
 import http.client
 import json
+import logging
 import socket
 import time
 
@@ -27,6 +28,12 @@ class AsyncException(Exception):
     def __init__(self, message, abort_message=""):
         self.message = message
         self.abort_message = abort_message
+
+    def __str__(self):
+        message = self.message
+        if self.abort_message:
+            message += "\n\n" + self.abort_message
+        return message
 
 
 class SnapdRequestError(Exception):
@@ -73,14 +80,32 @@ class Snapd:
     _interfaces = "/v2/interfaces"
     _assertions = "/v2/assertions"
 
-    def __init__(self, task_timeout=30, poll_interval=1, verbose=False):
+    def __init__(
+        self, task_timeout=30, poll_interval=1, verbose=False, logger=None
+    ):
         self._task_timeout = task_timeout
         self._poll_interval = poll_interval
         self._verbose = verbose
+        self._logger = self._get_logger(logger, verbose)
+
+    def _get_logger(self, in_logger, verbose):
+        # verbose is here for backward compatibility
+        if in_logger:
+            return in_logger
+        logger = logging.getLogger("snapd")
+        logger.handlers.clear()
+        if verbose:
+            handler = logging.StreamHandler()
+            handler.setFormatter(logging.Formatter("(info) %(message)s"))
+            logger.addHandler(handler)
+            logger.setLevel(logging.INFO)
+        else:
+            logger.addHandler(logging.NullHandler())
+            logger.setLevel(logging.CRITICAL)
+        return logger
 
     def _info(self, msg):
-        if self._verbose:
-            print("(info) {}".format(msg), flush=True)
+        self._logger.info(msg)
 
     def _request(self, method, path, data=None, params=None, decode=True):
         if params:
@@ -115,7 +140,14 @@ class Snapd:
                 return True
             if time.time() > maxtime:
                 abort_result = self._abort_change(change_id)
-                raise AsyncException(status, abort_result)
+                raise AsyncException(
+                    "Task Failed: Timed out waiting for change (timeout: {}s)."
+                    " Final task status: '{}'".format(
+                        self._task_timeout, status
+                    ),
+                    "Aborting task to try to get back the device to normal. "
+                    "Abort result: {}".format(abort_result),
+                )
             for task in self.tasks(change_id):
                 if task["status"] == "Doing":
                     if task["progress"]["label"]:
@@ -139,7 +171,9 @@ class Snapd:
                     self._info(
                         "({}) {}".format(task["status"], task["summary"])
                     )
-                    raise AsyncException(task.get("log"))
+                    raise AsyncException(
+                        "Task failed: Error log: {}".format(task.get("log"))
+                    )
             time.sleep(self._poll_interval)
 
     def _abort_change(self, change_id):

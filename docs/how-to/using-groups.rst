@@ -22,6 +22,37 @@ Key behaviors of groups
 - If these group-level dependencies create a cycle, Checkbox outputs a dependency
   warning and removes the involved jobs from the test plan. 
 
+Viewing current groups
+----------------------
+
+Use ``list-bootstrapped --format json`` to see the groups available in the
+current bootstrapped selection. For example, the following command lists the
+jobs that define both an ``id`` and a ``group`` in the
+``ordering_groups_template`` test plan:
+
+.. code-block:: bash
+
+    checkbox-cli list-bootstrapped --format json ordering_groups_template | jq '.[] | select(has("id") and has("group")) | {id, group}'
+
+Expected output::
+
+    {
+      "id": "setup_order_1",
+      "group": "group_1"
+    }
+    {
+      "id": "teardown_order_1",
+      "group": "group_1"
+    }
+    {
+      "id": "setup_order_2",
+      "group": "group_2"
+    }
+    {
+      "id": "teardown_order_2",
+      "group": "group_2"
+    }
+
 Examples
 --------
 

@@ -69,37 +69,6 @@ class SessionAssistantTests(morris.SignalTestCase):
         """Get some mocked provides for testing."""
         return [self.p1, self.p2, self.p3]
 
-    def test_expected_call_sequence(self, mock_get_providers):
-        """Track the sequence of allowed method calls."""
-        mock_get_providers.return_value = self._get_mock_providers()
-        # SessionAssistant.start_new_session() must now be allowed
-        self.assertIn(
-            self.sa.start_new_session,
-            UsageExpectation.of(self.sa).allowed_calls,
-        )
-
-        # patch system_information to avoid the actual collection of
-        # system_information in tests
-        with mock.patch(
-            "plainbox.impl.session.state.SessionState.system_information"
-        ):
-            # Call SessionAssistant.start_new_session()
-            self.sa.start_new_session("just for testing")
-
-        # SessionAssistant.start_new_session() must no longer allowed
-        self.assertNotIn(
-            self.sa.start_new_session,
-            UsageExpectation.of(self.sa).allowed_calls,
-        )
-        # SessionAssistant.select_test_plan() must now be allowed
-        self.assertIn(
-            self.sa.select_test_plan,
-            UsageExpectation.of(self.sa).allowed_calls,
-        )
-        # Use the manager to tidy up after the tests when normally you wouldnt
-        # be allowed to
-        self.sa._manager.destroy()
-
     @mock.patch(
         "plainbox.impl.session.assistant.UsageExpectation",
         new=mock.MagicMock(),

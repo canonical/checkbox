@@ -35,7 +35,6 @@ from plainbox.impl.unit.category import CategoryUnit
 from plainbox.impl.providers.special import get_exporters
 from plainbox.impl.ctrl import gen_rfc822_records_from_io_log
 from plainbox.impl.session.system_information import (
-    CollectionOutput,
     CollectorOutputs,
 )
 
@@ -85,7 +84,8 @@ class MergeReports:
                     self.job_list.append(JobDefinition(result))
                 elif mode == "dict":
                     self.job_dict[result["id"]] = JobDefinition(result)
-            for result in data["resource-results"]:
+            # backward compatibility, now resource-result are in results
+            for result in data.get("resource-results", []):
                 result["plugin"] = "resource"
                 result["summary"] = result["name"]
                 # 'id' field in json file only contains partial id
@@ -127,6 +127,9 @@ class MergeReports:
         return data["title"]
 
     def _populate_session_state(self, job, state):
+        self.job_list = []
+        self.category_list = []
+
         io_log = [
             IOLogRecord(count, "stdout", line.encode("utf-8"))
             for count, line in enumerate(

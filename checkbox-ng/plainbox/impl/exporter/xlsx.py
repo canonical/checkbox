@@ -647,7 +647,7 @@ class XLSXSessionStateExporter(SessionStateExporterBase):
             ):
                 tmp_result_map[category][
                     "category_status"
-                ] = IJobResult.OUTCOME_SKIP
+                ] = IJobResult.OUTCOME_MANUAL_SKIP
         result_map.update(tmp_result_map)
         return res, 2
 

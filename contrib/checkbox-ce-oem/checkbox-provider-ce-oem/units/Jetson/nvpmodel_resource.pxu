@@ -1,0 +1,37 @@
+id: jetson_nvpmodel_list_core
+estimated_duration: 0.01
+plugin: resource
+command: resource_wrapper.sh -- resource_jetson_nvpmodel_list_core.sh
+_description: Creates resource info for the nvpmodel tests
+
+id: check_jetson_nvpmodel_list_core_resource
+estimated_duration: 0.01
+imports:
+  from com.canonical.plainbox import manifest
+requires:
+  manifest.is_Jetson == 'True'
+plugin: shell
+command: resource_jetson_nvpmodel_list_core.sh
+_description: Verify core nvpmodel resource generation command executes directly
+
+id: jetson_nvpmodel_list
+estimated_duration: 0.01
+plugin: resource
+imports:
+ from com.canonical.certification import executable
+requires:
+ executable.name == 'nvpmodel'
+command: resource_wrapper.sh -- resource_jetson_nvpmodel_list.sh
+_description: Creates resource info for the nvpmodel tests
+
+id: check_jetson_nvpmodel_list_resource
+estimated_duration: 0.01
+plugin: shell
+imports:
+  from com.canonical.certification import executable
+  from com.canonical.plainbox import manifest
+requires:
+  manifest.is_Jetson == 'True'
+  executable.name == 'nvpmodel'
+command: resource_jetson_nvpmodel_list.sh
+_description: Verify nvpmodel resource generation command executes directly

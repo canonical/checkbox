@@ -111,6 +111,13 @@ Following fields may be used by the job unit:
         Certification team can evaluate the test report and investigate the
         reasons behind such an outcome.
 
+.. option:: xfail
+
+    (optional) - Boolean field indicating whether the job is expected to
+    fail. When set to ``true``, a failure of this job is considered expected
+    and should not be treated as an error. The allowed values are ``true``
+    and ``false``. The default value is ``false``.
+
 .. option:: requires
 
     (optional). If specified, the job will only run if the conditions
@@ -330,7 +337,8 @@ Following fields may be used by the job unit:
     .. option:: fail-on-resource
         
         This flag makes Checkbox fail the job if one of the resource
-        requirements evaluates to False.
+        requirements evaluates to False. This does not apply to manifest
+        entries.
 
     .. option:: also-after-suspend
         

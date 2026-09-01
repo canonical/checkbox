@@ -1,0 +1,253 @@
+#!/usr/bin/env python3
+# This file is part of Checkbox.
+#
+# Copyright 2026 Canonical Ltd.
+#
+# Checkbox is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License version 3,
+# as published by the Free Software Foundation.
+#
+# Checkbox is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with Checkbox.  If not, see <http://www.gnu.org/licenses/>.
+
+import argparse
+import glob
+import re
+import subprocess
+import time
+from datetime import datetime, timedelta, timezone
+
+GSETTINGS_POWER = "org.gnome.settings-daemon.plugins.power"
+GSETTINGS_SESSION = "org.gnome.desktop.session"
+LOGGER_TAG = "idle_suspend_test"
+
+SUSPEND_PATTERNS = [
+    r"PM: suspend entry",
+    r"Suspending system",
+    r"Reached target.*[Ss]leep",
+]
+RESUME_PATTERNS = [
+    r"PM: suspend exit",
+    r"PM: resume",
+    r"Finished.*[Rr]esume",
+    r"ACPI: Waking",
+]
+
+AC_ONLINE_GLOBS = [
+    "/sys/class/power_supply/ADP*/online",
+    "/sys/class/power_supply/AC*/online",
+    "/sys/class/power_supply/ACAD*/online",
+]
+
+
+def _find_ac_online_path() -> "str | None":
+    """Return the first sysfs AC online path found, or None."""
+    for pattern in AC_ONLINE_GLOBS:
+        paths = glob.glob(pattern)
+        if paths:
+            return paths[0]
+    return None
+
+
+def check_power_mode(mode: str) -> None:
+    """Verify system is on the expected power mode.
+
+    Raises SystemExit if the requirement is not met.
+    """
+    if not glob.glob("/sys/class/power_supply/*"):
+        # No power supply entries found; assume AC mode.
+        print(
+            "No power supply found under /sys/class/power_supply/; "
+            "Skip power mode verification.",
+            flush=True,
+        )
+        return
+
+    ac_path = _find_ac_online_path()
+    if ac_path is None:
+        raise SystemExit("Cannot determine AC power status.")
+    try:
+        with open(ac_path) as fh:
+            ac_online = fh.read().strip() == "1"
+    except OSError as exc:
+        raise SystemExit("Cannot read power status: {}".format(exc))
+    if mode == "ac" and not ac_online:
+        raise SystemExit("Mode is 'ac' but system is running on battery.")
+    if mode == "battery" and ac_online:
+        raise SystemExit("Mode is 'battery' but system is on AC power.")
+
+
+def log_timestamp() -> datetime:
+    """Log a start timestamp to the system journal via logger.
+
+    Returns the captured naive UTC datetime.
+    """
+    now = datetime.now(timezone.utc)
+    message = "SUSPEND_TEST_START: {}".format(
+        now.strftime("%Y-%m-%dT%H:%M:%SZ")
+    )
+    subprocess.check_output(
+        ["logger", "-t", LOGGER_TAG, message],
+        stderr=subprocess.STDOUT,
+    )
+    return now
+
+
+def get_journal_since(since: datetime) -> str:
+    """Retrieve journal entries since the given naive UTC datetime."""
+    since_str = since.strftime("%Y-%m-%d %H:%M:%S")
+    cmd = ["journalctl", "--since", since_str, "--no-pager", "-o", "short-iso"]
+    try:
+        output = subprocess.check_output(
+            cmd, stderr=subprocess.DEVNULL, universal_newlines=True
+        )
+    except subprocess.CalledProcessError as exc:
+        output = exc.output or ""
+    return output.strip()
+
+
+def _parse_ts(ts_str: str) -> "datetime | None":
+    """Parse a short-iso timestamp string to a naive UTC datetime.
+
+    Returns None on parse failure.
+    """
+    # Python %z directive in strptime expects timezone offsets WITHOUT a colon
+    normalized = re.sub(r"([+-]\d{2}):(\d{2})$", r"\1\2", ts_str)
+    try:
+        dt = datetime.strptime(normalized, "%Y-%m-%dT%H:%M:%S%z")
+    except ValueError:
+        return None
+    return dt.replace(tzinfo=timezone.utc) - (dt.utcoffset() or timedelta())
+
+
+def parse_journal_suspend_times(
+    journal_output: str,
+) -> "tuple[datetime | None, datetime | None]":
+    """Parse journal output for the latest suspend and resume times.
+
+    Returns a tuple (suspend_utc, resume_utc) of naive UTC datetimes.
+    Either value may be None if not found.
+    """
+    suspend_utc = None
+    resume_utc = None
+    # The timezone format is different between ubuntu 22.04 and 24.04.
+    ts_re = re.compile(
+        r"^(\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}[+-]\d{2}:?\d{2})"
+    )
+    for line in journal_output.splitlines():
+        match = ts_re.match(line)
+        if not match:
+            continue
+        ts = _parse_ts(match.group(1))
+        if ts is None:
+            continue
+        for pattern in SUSPEND_PATTERNS:
+            if re.search(pattern, line, re.IGNORECASE):
+                suspend_utc = ts
+                break
+        for pattern in RESUME_PATTERNS:
+            if re.search(pattern, line, re.IGNORECASE):
+                resume_utc = ts
+                break
+    return suspend_utc, resume_utc
+
+
+def build_parser() -> argparse.ArgumentParser:
+    """Return the configured argument parser."""
+    parser = argparse.ArgumentParser(
+        description="Test automatic idle suspend on Ubuntu GNOME."
+    )
+    parser.add_argument(
+        "--mode",
+        choices=["ac", "battery"],
+        required=True,
+        help="Power mode to test: 'ac' or 'battery'.",
+    )
+    parser.add_argument(
+        "--suspend-time",
+        type=int,
+        default=15,
+        help="Automatic suspend delay in minutes (default: 15).",
+    )
+    parser.add_argument(
+        "--extra-percent",
+        type=float,
+        default=10.0,
+        help=("Extra wait percentage beyond suspend time " "(default: 10)."),
+    )
+    return parser
+
+
+def main() -> None:
+    """Main entry point."""
+    parser = build_parser()
+    args = parser.parse_args()
+
+    suspend_seconds = args.suspend_time * 60
+    extra_factor = 1.0 + args.extra_percent / 100.0
+    wait_seconds = suspend_seconds * extra_factor
+    allowed_delta = suspend_seconds * (args.extra_percent / 100.0)
+
+    check_power_mode(args.mode)
+
+    log_start_utc = log_timestamp()
+    print(
+        "Test started at (UTC): {}".format(
+            log_start_utc.strftime("%Y-%m-%dT%H:%M:%SZ")
+        ),
+        flush=True,
+    )
+    print(
+        "Waiting {:.0f}s for system to suspend and "
+        "resume...".format(wait_seconds),
+        flush=True,
+    )
+
+    time.sleep(wait_seconds)
+
+    journal_since = log_start_utc - timedelta(seconds=5)
+    journal_output = get_journal_since(journal_since)
+    suspend_utc, resume_utc = parse_journal_suspend_times(journal_output)
+
+    if suspend_utc is None:
+        raise SystemExit("FAIL: No suspend entry found in journal.")
+    if suspend_utc < log_start_utc:
+        raise SystemExit(
+            "FAIL: Suspend entry ({}) predates test start "
+            "({}).".format(
+                suspend_utc.strftime("%Y-%m-%dT%H:%M:%SZ"),
+                log_start_utc.strftime("%Y-%m-%dT%H:%M:%SZ"),
+            )
+        )
+
+    actual_delta = (suspend_utc - log_start_utc).total_seconds()
+    if abs(actual_delta - suspend_seconds) > allowed_delta:
+        raise SystemExit(
+            "FAIL: Suspend delay {:.1f}s vs expected {}s "
+            "(tolerance {:.1f}s).".format(
+                actual_delta, suspend_seconds, allowed_delta
+            )
+        )
+
+    print("Log at ({})".format(log_start_utc.strftime("%Y-%m-%dT%H:%M:%SZ")))
+    print("Suspend at ({})".format(suspend_utc.strftime("%Y-%m-%dT%H:%M:%SZ")))
+    if resume_utc:
+        print(
+            "Resume at ({})".format(resume_utc.strftime("%Y-%m-%dT%H:%M:%SZ"))
+        )
+    print(
+        "Suspend delay {:.1f}s vs expected {}s "
+        "(tolerance {:.1f}s).".format(
+            actual_delta, suspend_seconds, allowed_delta
+        )
+    )
+    print("PASS: Automatic suspend test passed.")
+
+
+if __name__ == "__main__":
+    main()

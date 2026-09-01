@@ -6,6 +6,7 @@ global-include COPYING LICENSE
 global-include README*
 global-include Vagrantfile
 
+exclude AGENTS.md
 exclude HACKING.md
 exclude .coveragerc
 exclude mk-venv

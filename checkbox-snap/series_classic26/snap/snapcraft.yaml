@@ -1,0 +1,67 @@
+name: checkbox
+summary: Checkbox test runner
+description: |
+  Checkbox is a flexible test automation software.
+  It’s the main tool used in Ubuntu Certification program.
+adopt-info: version-calculator
+grade: stable
+confinement: classic
+
+base: core26
+
+apps:
+  checkbox-cli:
+    command-chain: [bin/wrapper_local]
+    command: bin/checkbox-cli-wrapper
+  test-runner:
+    command-chain: [bin/wrapper_local]
+    command: bin/test-runner
+  sru:
+    command-chain: [bin/wrapper_local]
+    command: bin/sru
+  client-cert-iot-server:
+    command-chain: [bin/wrapper_local]
+    command: bin/client-cert-iot-server
+  odm-certification:
+    command-chain: [bin/wrapper_local]
+    command: bin/odm-certification-app
+  configure:
+    command: bin/configure
+  agent:
+    command-chain: [bin/wrapper_local]
+    command: bin/checkbox-cli-wrapper run-agent
+    daemon: simple
+    restart-condition: always
+    restart-delay: 1s
+  shell:
+    command-chain: [bin/wrapper_local]
+    command: bin/shell-wrapper
+
+passthrough:
+  hooks:
+    configure:
+      command-chain: [bin/wrapper_local]
+
+parts:
+  version-calculator:
+    plugin: dump
+    source: .
+    override-pull: |
+      craftctl default
+      # version.txt created by prepare.sh
+      export version=`cat $CRAFT_PART_SRC/version.txt`
+      [ $version ] || exit 1
+      craftctl set version=$version
+    stage:
+      - version.txt
+  launchers:
+    plugin: dump
+    source: launchers/
+    build-attributes: [no-patchelf]
+    organize:
+      '*': bin/
+  config-variables:
+    plugin: dump
+    source: .
+    build-attributes: [no-patchelf]
+    stage: [config_vars]

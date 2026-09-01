@@ -517,7 +517,7 @@ class RemoteAssistantTests(TestCase):
     def test_abandon_session(self):
         self_mock = mock.MagicMock()
         RemoteSessionAssistant.abandon_session(self_mock)
-        self.assertTrue(self_mock._reset_sa.called)
+        self.assertTrue(self_mock.reset_session.called)
 
     def test_delete_sessions(self):
         self_mock = mock.MagicMock()

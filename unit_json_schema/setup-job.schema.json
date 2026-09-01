@@ -91,6 +91,21 @@
           "items": {
             "type": "string"
           }
+        },
+        "requires_manifest": {
+          "title": "Requires Manifest (Setup Job Unit)",
+          "description": "List of manifest entries the job requires. Each item is either a manifest id (string) or a single-key mapping of a manifest id to its required value.",
+          "type": "array",
+          "items": {
+            "oneOf": [
+              { "type": "string" },
+              {
+                "type": "object",
+                "minProperties": 1,
+                "maxProperties": 1
+              }
+            ]
+          }
         }
       }
     }

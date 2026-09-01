@@ -25,7 +25,6 @@ from argparse import FileType
 from plainbox.i18n import docstring
 from plainbox.i18n import gettext as _
 from plainbox.i18n import gettext_noop as N_
-from plainbox.impl.applogic import get_all_exporter_names
 from plainbox.impl.commands import PlainBoxCommand
 
 

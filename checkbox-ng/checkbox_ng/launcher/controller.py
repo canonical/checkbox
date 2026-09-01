@@ -21,7 +21,6 @@ functionality.
 """
 
 import contextlib
-import getpass
 import gettext
 import ipaddress
 import json
@@ -36,14 +35,13 @@ import itertools
 
 from collections import namedtuple
 from contextlib import suppress
-from functools import partial
 from tempfile import SpooledTemporaryFile
 
 from plainbox.abc import IJobResult
-from plainbox.impl.result import MemoryJobResult
 from plainbox.impl.color import Colorizer
 from plainbox.impl.config import Configuration
 from plainbox.impl.session.state import SessionMetaData
+from plainbox.impl.result_utils import pretty_skip_reason
 from plainbox.impl.session.resume import (
     IncompatibleJobError,
     CorruptedSessionError,
@@ -62,6 +60,7 @@ from checkbox_ng.urwid_ui import (
     interrupt_dialog,
     resume_dialog,
     ResumeInstead,
+    InterruptDialogAnswer,
 )
 from checkbox_ng.utils import (
     generate_resume_candidate_description,
@@ -108,6 +107,9 @@ class SimpleUI(NormalUI, MainLoopStage):
 
     def black_text(text, end="\n"):
         print(SimpleUI.C.BLACK(text), end=end, file=sys.stdout)
+
+    def yellow_text(text, end="\n"):
+        print(SimpleUI.C.YELLOW(text), end=end, file=sys.stderr)
 
     def horiz_line():
         print(SimpleUI.C.WHITE("-" * 80))
@@ -175,6 +177,7 @@ class RemoteController(ReportsStage, MainLoopStage):
         self._override_exporting(self.local_export)
         self._launcher_text = ""
         self._has_anything_failed = False
+        self._clean = ctx.args.clean
         self._target_host = ctx.args.host
         self._normal_user = ""
         self.launcher = Configuration()
@@ -236,8 +239,7 @@ class RemoteController(ReportsStage, MainLoopStage):
             "To solve this, upgrade the agent to the controller version.\n"
             "If you are unsure about the nomenclature or what any of this "
             "means, see:\n"
-            "https://checkbox.readthedocs.io/en/latest/reference/"
-            "glossary.html\n\n"
+            "https://checkbox.readthedocs.io/latest/reference/glossary/\n\n"
             "Error: (Agent version: {}, Controller version {})"
         )
 
@@ -247,8 +249,7 @@ class RemoteController(ReportsStage, MainLoopStage):
             "To solve this, upgrade the controller to the agent version.\n"
             "If you are unsure about the nomenclature or what any of this "
             "means, see:\n"
-            "https://checkbox.readthedocs.io/en/latest/reference/"
-            "glossary.html\n\n"
+            "https://checkbox.readthedocs.io/latest/reference/glossary/\n\n"
             "Error: (Agent version: {}, Controller version {})"
         )
 
@@ -282,10 +283,10 @@ class RemoteController(ReportsStage, MainLoopStage):
         spinner = itertools.cycle("-\\|/")
         #  this tracks the disconnection time
         disconnection_time = 0
-        connection_strategy = self.connection_strategy()
         while True:
             try:
                 if interrupted:
+                    # handling ctrl+c, assumes we are already connected
                     _logger.info("controller: Session interrupted")
                     interrupted = False  # we are handling the interruption ATM
                     # next line can raise exception due to connection being
@@ -294,47 +295,59 @@ class RemoteController(ReportsStage, MainLoopStage):
                     keep_running = self._handle_interrupt()
                     if not keep_running:
                         break
-                conn = rpyc.connect(host, port, config=config, keepalive=True)
-                keep_running = True
-
-                def quitter(msg):
-                    # this will be called when the agent decides to disconnect
-                    # this controller
-                    nonlocal server_msg
-                    nonlocal keep_running
-                    keep_running = False
-                    server_msg = msg
-
-                with contextlib.suppress(AttributeError):
-                    # TODO: REMOTE_API
-                    # when bumping the remote api make this bit obligatory
-                    # i.e. remove the suppressing
-                    conn.root.register_controller_blaster(quitter)
-                self._sa = conn.root.get_sa()
-                self.sa.conn = conn
-                # TODO: REMOTE API RAPI: Remove this API on the next RAPI bump
-                # the check and bailout is not needed if the agent as up to
-                # date as this controller, so after bumping RAPI we can assume
-                # that agent is always passwordless
-                if not self.sa.passwordless_sudo:
-                    raise SystemExit(
-                        _(
-                            "This version of Checkbox requires the agent"
-                            " to be run as root"
-                        )
+                else:
+                    # here we either connecting or re-connecting
+                    conn = rpyc.connect(
+                        host, port, config=config, keepalive=True
                     )
+                    keep_running = True
 
-                self.check_remote_api_match()
+                    def quitter(msg):
+                        # this will be called when the agent decides to disconnect
+                        # this controller
+                        nonlocal server_msg
+                        nonlocal keep_running
+                        keep_running = False
+                        server_msg = msg
 
-                state, payload = self.sa.whats_up()
-                _logger.info("controller: Main dispatch with state: %s", state)
-                if printed_reconnecting and ever_disconnected:
-                    print(
-                        "...\nReconnected (took: {}s)".format(
-                            int(time.time() - disconnection_time)
+                    with contextlib.suppress(AttributeError):
+                        # TODO: REMOTE_API
+                        # when bumping the remote api make this bit obligatory
+                        # i.e. remove the suppressing
+                        conn.root.register_controller_blaster(quitter)
+                    self._sa = conn.root.get_sa()
+                    self.sa.conn = conn
+                    # clean is used to recover from the sa being in a weird
+                    # unrecoverable state
+                    if self._clean:
+                        try:
+                            self._sa.reset_session()
+                        except AttributeError:
+                            # backward compatibility with older agents
+                            # Note: this method is not as good, it doesn't reload
+                            #       the units
+                            self._sa._reset_sa()
+                    # TODO: REMOTE API RAPI: Remove this API on the next RAPI bump
+                    # the check and bailout is not needed if the agent as up to
+                    # date as this controller, so after bumping RAPI we can assume
+                    # that agent is always passwordless
+                    if not self.sa.passwordless_sudo:
+                        raise SystemExit(
+                            _(
+                                "This version of Checkbox requires the agent"
+                                " to be run as root"
+                            )
                         )
-                    )
-                    printed_reconnecting = False
+
+                    self.check_remote_api_match()
+
+                    if printed_reconnecting and ever_disconnected:
+                        print(
+                            "...\nReconnected (took: {}s)".format(
+                                int(time.time() - disconnection_time)
+                            )
+                        )
+                        printed_reconnecting = False
                 keep_running = self.continue_session()
             except EOFError as exc:
                 if keep_running:
@@ -412,6 +425,8 @@ class RemoteController(ReportsStage, MainLoopStage):
         - A job was in progress when the session was abandoned
         - The ongoing test was shell job
         """
+        if self._clean:
+            return False
         try:
             last_abandoned_session = next(self.sa.get_resumable_sessions())
         except StopIteration:
@@ -462,6 +477,7 @@ class RemoteController(ReportsStage, MainLoopStage):
         self.bootstrap_and_continue()
 
     def automatically_start_via_launcher_and_continue(self):
+        SimpleUI.header("Starting new automated session via launcher")
         _ = self.start_session()
         test_plan_unit = self.launcher.get_value("test plan", "unit")
         self.select_test_plan(test_plan_unit)
@@ -469,6 +485,9 @@ class RemoteController(ReportsStage, MainLoopStage):
 
     def resume_last_session_and_continue(self):
         last_abandoned_session = next(self.sa.get_resumable_sessions())
+        SimpleUI.header(
+            "Resuming last session: {}".format(last_abandoned_session.id)
+        )
         return self.resume_by_id(last_abandoned_session.id)
 
     def start_session(self):
@@ -513,6 +532,10 @@ class RemoteController(ReportsStage, MainLoopStage):
 
     def _resume_session(self, resume_params):
         metadata = self.sa.prepare_resume_session(resume_params.session_id)
+        # If there are no more jobs to run, resume. The empty dict is sent
+        # so that the last job result is not modified nor re-run.
+        if not metadata.remaining_todo_jobs:
+            return self.resume_by_id(resume_params.session_id, {})
         if "testplanless" not in metadata.flags:
             app_blob = json.loads(metadata.app_blob.decode("UTF-8"))
             test_plan_id = app_blob["testplan_id"]
@@ -553,13 +576,14 @@ class RemoteController(ReportsStage, MainLoopStage):
                 result_dict["comments"] = newline_join(
                     result_dict["comments"], "Skipped after resuming execution"
                 )
-            result_dict["outcome"] = IJobResult.OUTCOME_SKIP
+            result_dict["outcome"] = IJobResult.OUTCOME_MANUAL_SKIP
         elif resume_params.action == "rerun":
             # if the job outcome is set to none it will be rerun
             result_dict["outcome"] = None
         return self.resume_by_id(resume_params.session_id, result_dict)
 
     def interactively_choose_test_plan_and_continue(self):
+        SimpleUI.header("Starting new interactive session")
         tps = self.start_session()
         _logger.info("controller: Interactively choosing TP.")
         while True:
@@ -572,6 +596,9 @@ class RemoteController(ReportsStage, MainLoopStage):
 
     def setup(self, resume_payload=None):
         setup_jobs = json.loads(self.sa.start_setup_json())
+        self._save_manifest(
+            interactive=not self.launcher.get_value("test selection", "forced")
+        )
         starting_index = 0
         if resume_payload:
             last_running_job = resume_payload["last_job"]
@@ -625,6 +652,7 @@ class RemoteController(ReportsStage, MainLoopStage):
             (
                 candidate.id,
                 generate_resume_candidate_description(candidate),
+                candidate.metadata.remaining_todo_jobs,
             )
             for candidate in resumable_sessions
         ]
@@ -742,6 +770,14 @@ class RemoteController(ReportsStage, MainLoopStage):
         parser.add_argument(
             "-u", "--user", help=_("normal user to run non-root jobs")
         )
+        parser.add_argument(
+            "--clean",
+            action="store_true",
+            help=(
+                "Start a session from a clean slate (reset the agent and "
+                "don't try to resume)"
+            ),
+        )
 
     def _handle_interrupt(self):
         """
@@ -752,19 +788,24 @@ class RemoteController(ReportsStage, MainLoopStage):
             self._sa.terminate()
             return False
         response = interrupt_dialog(self._target_host)
-        if response == "cancel":
+        if response == InterruptDialogAnswer.CANCEL:
             return True
-        elif response == "kill-controller":
+        elif response == InterruptDialogAnswer.KILL_CONTROLLER:
             return False
-        elif response == "kill-agent":
+        elif response == InterruptDialogAnswer.KILL_AGENT:
             self._sa.terminate()
             return False
-        elif response == "abandon":
+        elif response == InterruptDialogAnswer.FINALIZE:
             self._sa.finalize_session()
             return True
-        elif response == "kill-command":
+        elif response == InterruptDialogAnswer.FINALIZE_EXIT:
+            self._sa.finalize_session()
+            return False
+        elif response == InterruptDialogAnswer.KILL_COMMAND:
             self._sa.send_signal(signal.SIGKILL.value)
             return True
+        elif response is None:
+            return False
 
     def finish_session(self, *args):
         print(self.C.header("Results"))
@@ -902,10 +943,20 @@ class RemoteController(ReportsStage, MainLoopStage):
                 self.finish_job()
                 break
 
-    def finish_job(self, result=None):
+    def finish_job(self, result=None, job_state=None):
         _logger.info("controller: Finishing job with a result: %s", result)
-        job_result = self.sa.finish_job(result)
+        if result and hasattr(result, "skip_reason"):
+            skip_reason = result.skip_reason
+            try:
+                skip_reason_str = pretty_skip_reason(skip_reason)
+                SimpleUI.yellow_text(skip_reason_str)
+            except ValueError:
+                # unable to pretty print skip reason, it may be that the job
+                # wasnt skipped at all!
+                pass
+
         SimpleUI.horiz_line()
+        job_result = self.sa.finish_job(result)
         print(_("Outcome") + ": " + SimpleUI.C.result(job_result))
 
     def abandon(self):
@@ -1097,7 +1148,8 @@ class RemoteController(ReportsStage, MainLoopStage):
                             break
                         else:
                             self.finish_job(
-                                interaction.extra._builder.get_result()
+                                interaction.extra._builder.get_result(),
+                                job_state,
                             )
                             next_job = True
                             break

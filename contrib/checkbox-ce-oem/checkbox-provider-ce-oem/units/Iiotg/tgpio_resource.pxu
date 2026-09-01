@@ -1,0 +1,23 @@
+unit: job
+id: iiotg-tgpio/ptp-device-node-info
+plugin: resource
+_summary:  Get the PTP device node
+_description: Get the PTP device node, TGPIO will be used such as /devices/virtual/ptp/ptp*.
+user: root
+command: resource_wrapper.sh -- resource_tgpio_ptp_device_node_info.sh
+estimated_duration: 1s
+flags: preserve-locale
+
+unit: job
+id: iiotg-tgpio/check-ptp-device-node-info-resource
+plugin: shell
+_summary: Check TGPIO PTP device node resource generation
+_description: Verify PTP device node resource generation command executes directly.
+user: root
+imports: from com.canonical.plainbox import manifest
+requires:
+    manifest.is_Iiotg == 'True'
+    manifest.has_iiotg_tgpio == 'True'
+command: resource_tgpio_ptp_device_node_info.sh
+estimated_duration: 1s
+flags: preserve-locale

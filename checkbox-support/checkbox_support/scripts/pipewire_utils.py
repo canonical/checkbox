@@ -22,6 +22,7 @@ import difflib
 import json
 import logging
 import re
+import shlex
 import subprocess
 import sys
 import time
@@ -32,9 +33,9 @@ import gi
 
 gi.require_version("Gst", "1.0")
 gi.require_version("GLib", "2.0")
-from gi.repository import (
-    GLib,  # noqa: E402
-    Gst,  # noqa: E402
+from gi.repository import (  # noqa: E402
+    GLib,  # pyright: ignore[reportMissingModuleSource]
+    Gst,  # pyright: ignore[reportMissingModuleSource]
 )
 
 
@@ -78,7 +79,7 @@ class PipewireTest:
 
     logger = logging.getLogger()
 
-    def _get_pw_type(self, media_class) -> str:
+    def _get_pw_type(self, media_class: str) -> str:
         """
         convert sink to Output and source to Input
 
@@ -96,7 +97,9 @@ class PipewireTest:
             self.logger.info("Media class:[{}] is unknown".format(media_class))
             return "UNKNOWN CLASS"
 
-    def _get_pw_dump(self, p_type) -> dict:
+    def _get_pw_dump(
+        self, p_type: 't.Literal["Device", "Node"]'
+    ) -> "list[dict[str, t.Any]]":
         """
         Use to convert the json output of pw-dump to dict object
 
@@ -113,7 +116,7 @@ class PipewireTest:
             return json.loads(pw_dump)
         except (json.decoder.JSONDecodeError, TypeError):
             self.logger.error("pw-dump {} failed !!!".format(p_type))
-            return {}
+            return []
 
     def generate_pw_media_class(self, media_type, media_class) -> str:
         """
@@ -246,7 +249,8 @@ class PipewireTest:
         Checks whether the sink is available for the given device.
         This function parse output of pw-dump to find the device type
         equals PipeWire:Interface:Device and media.class equals Audio/Device.
-        For pipewire, the active port will be listed under info.params.Route.
+        For pipewire, the active port will be listed under
+            info.params.EnumRoute.
         Therefore, you could check this object to know the state of it.
 
         :param device: device you would like to check
@@ -257,7 +261,7 @@ class PipewireTest:
             for client in clients:
                 mclass = client["info"]["props"].get("media.class")
                 if mclass == "Audio/Device":
-                    for route in client["info"]["params"]["Route"]:
+                    for route in client["info"]["params"]["EnumRoute"]:
                         name = route["name"]
                         available = route["available"]
                         if (
@@ -319,37 +323,40 @@ class PipewireTest:
 
         return PipewireTestError.NO_ERROR
 
-    def _get_audio_config(self, mode) -> set:
+    def _get_audio_config(self, mode: "t.Literal['sinks', 'sources']"):
         """
         Get simple audio configuration
         This function parse output of pw-dump to find the device type
         equals PipeWire:Interface:Device and media.class equals Audio/Device.
-        For pipewire, the active port will be listed under info.params.Route.
+        For pipewire, the active port will be listed under
+            info.params.EnumRoute.
         Therefore, you could check this object to know the state of it.
 
         :param mode: sink or source
         :type mode: str
         """
         clients = self._get_pw_dump("Device")
-        cfg = set()
+        cfg = set()  # type: set[tuple[str, str, str]]
         for client in clients:
-            active_ports = None
+            active_ports = []
             mclass = client["info"]["props"].get("media.class")
             if mclass == "Audio/Device":
-                active_ports = client["info"]["params"]["Route"]
-            if active_ports:
-                for p in active_ports:
-                    if p["direction"] == self._get_pw_type(mode):
-                        cfg.add(
-                            (
-                                "{} #{}".format(mode, client["id"]),
-                                p["name"],
-                                p["available"],
-                            )
+                active_ports = client["info"]["params"]["EnumRoute"]
+
+            for p in active_ports:
+                if p["direction"] == self._get_pw_type(mode):
+                    cfg.add(
+                        (
+                            "{} #{}".format(mode, client["id"]),
+                            p["name"],
+                            p["available"],
                         )
+                    )
         return cfg
 
-    def monitor_active_port_change(self, timeout, mode) -> int:
+    def monitor_active_port_change(
+        self, timeout: int, mode: "t.Literal['sinks', 'sources']"
+    ) -> int:
         """
         Monitoring Audio active port changing
         This script checks if the active port on either sinks
@@ -380,7 +387,9 @@ class PipewireTest:
         self.logger.info("Couldn't detect active port change!")
         return PipewireTestError.NO_CHANGE_DETECTED
 
-    def go_through_ports(self, cmd, mode):
+    def go_through_ports(
+        self, cmd: str, mode: 't.Literal["sinks", "sources"]'
+    ):
         """
         Go through available ports for testing
         This script checks if the ports on either sinks
@@ -395,46 +404,254 @@ class PipewireTest:
         """
         clients = self._get_pw_dump("Device")
         for client in clients:
-            ports = None
+            ports = []
             mclass = client["info"]["props"].get("media.class")
             if mclass == "Audio/Device":
                 ports = client["info"]["params"]["EnumRoute"]
-            if ports:
-                for p in ports:
-                    chosen = None
-                    if p["direction"] == self._get_pw_type(mode) and p[
-                        "available"
-                    ] in [
-                        "yes",
-                        "unknown",
-                    ]:
-                        while chosen != "yes":
-                            self.logger.info(
-                                "Please select [{}] for "
-                                "testing (if selected, "
-                                "please enter 'yes')".format(p["description"])
+                if not isinstance(ports, list):
+                    raise TypeError(
+                        "Expected client['info']['params']['EnumRoute'] "
+                        + "to be a list, but got "
+                        + str(type(ports))
+                    )
+
+            for p in ports:
+                chosen = None
+                if p["direction"] == self._get_pw_type(mode) and p[
+                    "available"
+                ] in [
+                    "yes",
+                    "unknown",
+                ]:
+                    while chosen != "yes":
+                        self.logger.info(
+                            "Please select [{}] for "
+                            "testing (if selected, "
+                            "please enter 'yes')".format(p["description"])
+                        )
+
+                        chosen = input()
+                    checked = None
+                    while checked != "yes":
+                        # check_call will print to stdout for us
+                        subprocess.check_call(cmd, shell=True)
+                        self.logger.info(
+                            "Is working ?  please enter 'yes' to leave"
+                        )
+                        checked = input()
+
+    def iter_audio_sinks(self, cmd: "list[str]"):
+        """
+        Interactively execute the cmd for each audio sink discovered
+        by pipewire
+
+        :param cmd: the command to run, passed directly to subprocess.run()
+        """
+
+        tested_ids = set()  # type: set[int]
+        nothing_failed = True
+
+        N = None  # type: int | None # num audio sinks snapshot
+        while True:
+            # always re-discover audio sinks to allow new sinks
+            audio_sink_ids = list(self._find_available_audio_sinks().items())
+
+            if N is not None and len(audio_sink_ids) < N:
+                # panic when sinks are removed
+                raise SystemExit(
+                    "Some sinks were removed unexpectedly "
+                    + "({} sinks -> {} sinks)".format(N, len(audio_sink_ids))
+                )
+            else:
+                N = len(audio_sink_ids)
+
+            if N == 0:
+                raise SystemExit("No audio sinks are available for this test")
+
+            try:
+                for i, (node_id, node_description) in enumerate(
+                    audio_sink_ids
+                ):
+                    print(
+                        "({}) - '{}' {}".format(
+                            i,
+                            node_description,
+                            "- Tested" if node_id in tested_ids else "",
+                        ),
+                        flush=True,
+                    )
+
+                print(
+                    "Choose an audio sink to test [0-{}],".format(N - 1),
+                    "hit ENTER to rediscover sinks,",
+                    "or type 'q' to quit:",
+                    flush=True,
+                )
+                # do not use the built-in prompt here
+                # for some reason the prompt is always buffered when running
+                # inside the checkbox env, so the test case would look frozen
+                # when it's waiting for inputs
+                choice = input()
+
+                if choice == "q":
+                    if len(tested_ids) == N:
+                        if nothing_failed:
+                            print(
+                                "[ OK ] Quitting with return code 0.",
+                                "All {} audio sinks have been tested".format(
+                                    N
+                                ),
                             )
-
-                            chosen = input()
-                        checked = None
-                        while checked != "yes":
-                            with subprocess.Popen(
-                                cmd,
-                                shell=True,
-                                stdout=subprocess.PIPE,
-                                universal_newlines=True,
-                            ) as p:
-                                while p.poll() is None:
-                                    line = p.stdout.readline().strip()
-                                    self.logger.info(line)
-                                p.kill()
-                            self.logger.info(
-                                "Is working ?  please enter 'yes' to leave"
+                            return
+                        else:
+                            raise SystemExit(
+                                "[ ERR ] Some of the speakers failed the test"
                             )
+                    else:
+                        raise SystemExit(
+                            "[ ERR ] Only {} audio sinks were tested, ".format(
+                                len(tested_ids)
+                            )
+                            + "but expected {}".format(N)
+                        )
+                elif choice == "":
+                    # rediscovery
+                    continue
 
-                            checked = input()
+                idx = int(choice)
+                if idx < 0:
+                    raise IndexError("Negative indices are not allowed")
 
-    def _get_node_description(self, properties) -> str:
+                subprocess.check_call(
+                    ["wpctl", "set-default", str(audio_sink_ids[idx][0])]
+                )
+            except (ValueError, IndexError):
+                # this would loop at input() until a valid index is selected
+                print(
+                    "Please select an index from 0 to", N - 1, file=sys.stderr
+                )
+                continue
+            except subprocess.CalledProcessError as e:
+                print(
+                    "[ ERR ] Failed to set default audio sink:",
+                    e,
+                    file=sys.stderr,
+                )
+                continue
+
+            node_id, node_description = audio_sink_ids[idx]
+
+            TIMEOUT = 60
+            try:
+                print("=" * 80, flush=True)
+                print(
+                    "Testing '{}', id={}, command={}, {}s timeout".format(
+                        node_description, node_id, cmd, TIMEOUT
+                    ),
+                    flush=True,
+                )
+                # don't let this fail, just go to the next sink
+                subprocess.run(cmd, timeout=TIMEOUT, check=True)
+            except subprocess.TimeoutExpired:
+                print(
+                    "[ ERR ]",
+                    cmd,
+                    "did not finish in {}s".format(TIMEOUT),
+                    file=sys.stderr,
+                )
+                nothing_failed = False
+            except subprocess.CalledProcessError as e:
+                print(
+                    "[ ERR ] Failed to run test command:",
+                    e,  # exception already shows the cmd array
+                    file=sys.stderr,
+                )
+                nothing_failed = False
+            finally:
+                tested_ids.add(audio_sink_ids[idx][0])
+                print("=" * 80, flush=True)
+                print(
+                    "Progress: {}/{} audio sinks tested".format(
+                        len(tested_ids), N
+                    )
+                )
+
+    def _find_available_audio_sinks(self) -> "dict[int, str]":
+        """
+        Finds the list of audio "devices" as shown in gnome's control center
+
+        :return: Returns a dict[int, str]
+                 The values are human readable names.
+                 These IDs are the "ID" to use as shown in `wpctl --help`
+                 They match the numbers in `wpctl status`'s audio section
+        """
+        testable_node_ids = {}  # type: dict[int, str]
+        pw_audio_devices = [
+            device
+            for device in self._get_pw_dump("Device")
+            if device["info"]["props"].get("media.class") == "Audio/Device"
+        ]
+        pw_sink_nodes = [
+            node
+            for node in self._get_pw_dump("Node")
+            if node["info"]["props"].get("media.class") == "Audio/Sink"
+        ]
+
+        for node in pw_sink_nodes:
+            # IDs of these "nodes" can be passed to `wpctl set-default`
+            node_id = int(node["id"])
+            device_id = int(node["info"]["props"]["device.id"])
+
+            device = None  # type: dict[str, t.Any] | None
+            for dev in pw_audio_devices:
+                if dev["id"] == device_id:
+                    device = dev
+                    break
+
+            if not device:
+                print("Could not find device", device_id, file=sys.stderr)
+                continue
+
+            # now check if the device has at least 1 available route
+            enum_routes = device["info"]["params"]["EnumRoute"]
+
+            if not isinstance(enum_routes, list):
+                raise TypeError(
+                    "EnumRoute of device {} is not a list, got {}".format(
+                        device_id, type(enum_routes)
+                    )
+                )
+
+            for route in enum_routes:
+                # try to match the device to this node
+                if (
+                    route["devices"][0]  # this is an array with just 1 value
+                    != node["info"]["props"]["card.profile.device"]
+                ):
+                    continue
+                if route["direction"] != "Output":
+                    print(
+                        "Skipping '{}'".format(route["description"]),
+                        "because it's not a sink",
+                    )
+                    continue
+                if route["available"] not in ("yes", "unknown"):
+                    print(
+                        "Skipping '{}'".format(route["description"]),
+                        "because it's unavailable",
+                    )
+                    continue
+
+                # correct direction + at least 1 available route => testable
+                testable_node_ids[node_id] = " - ".join(
+                    [
+                        route["description"],
+                        node["info"]["props"]["node.description"],
+                    ]
+                )
+        return testable_node_ids
+
+    def _get_node_description(self, properties) -> "str | None":
         """
         Get node description from the output of wpctl inspect
 
@@ -490,7 +707,7 @@ class PipewireTest:
         except subprocess.CalledProcessError as e:
             raise RuntimeError("Show default device error {}".format(repr(e)))
 
-    def _sort_wpctl_status(self, lines: list) -> list:
+    def _sort_wpctl_status(self, lines: "list[str]") -> "list[str]":
         """
         This method will sort wpctl status for sub-items under catalog only
 
@@ -533,17 +750,17 @@ class PipewireTest:
         :param status_2: path to second wpctl status
         """
         with open(status_1, "r") as s1, open(status_2, "r") as s2:
-            status_1 = s1.readlines()
-            status_2 = s2.readlines()
-            sorted_status_1 = self._sort_wpctl_status(status_1)
-            sorted_status_2 = self._sort_wpctl_status(status_2)
+            status_1_lines = s1.readlines()
+            status_2_lines = s2.readlines()
+            sorted_status_1 = self._sort_wpctl_status(status_1_lines)
+            sorted_status_2 = self._sort_wpctl_status(status_2_lines)
             delta = difflib.unified_diff(sorted_status_1, sorted_status_2, n=0)
             diff = "".join(delta)
             if diff:
                 self.logger.info("The first status:\n")
-                self.logger.info("".join(status_1))
+                self.logger.info("".join(status_1_lines))
                 self.logger.info("And the second status:\n")
-                self.logger.info("".join(status_2))
+                self.logger.info("".join(status_2_lines))
                 self.logger.info(
                     "Differ in the following lines (after sorting):"
                 )
@@ -735,7 +952,12 @@ class PipewireTest:
             help="Timeout after which the script fails",
         )
         parser_monitor.add_argument(
-            "-m", "--mode", type=str, help="Monitor either sinks or sources"
+            "-m",
+            "--mode",
+            type=str,
+            required=True,
+            help="Monitor either sinks or sources",
+            choices=("sinks", "sources"),
         )
 
         # Add parser for go through function
@@ -750,7 +972,26 @@ class PipewireTest:
             help="command for testing",
         )
         parser_through.add_argument(
-            "-m", "--mode", type=str, help="Either sinks or sources"
+            "-m",
+            "--mode",
+            required=True,
+            type=str,
+            help="Either sinks or sources",
+            choices=("sinks", "sources"),
+        )
+
+        parser_iter_sink = subparsers.add_parser(
+            "iter-audio-sinks", help="Iterate all available audio sinks"
+        )
+        parser_iter_sink.add_argument(
+            "-c",
+            "--command",
+            type=str,
+            required=True,
+            help=(
+                "Command for testing, "
+                + "this command should play audio using the default audio sink"
+            ),
         )
 
         # Add parser for show default device function
@@ -823,6 +1064,8 @@ class PipewireTest:
                 return PipewireTestError.NO_ERROR
             else:
                 return PipewireTestError.NOT_REAL_DEVICE
+        elif args.test_type == "iter-audio-sinks":
+            return self.iter_audio_sinks(shlex.split(args.command))
 
 
 def main():

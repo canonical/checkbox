@@ -72,13 +72,16 @@ id: stress-tests/suspend_cycles_1_reboot1
 imports:
   from com.canonical.certification import sleep
   from com.canonical.certification import rtc
+  from com.canonical.plainbox import manifest
 requires:
   sleep.mem == 'supported'
   rtc.state == 'supported'
+  manifest.has_suspend_support == 'True'
 estimated_duration: 75.0
 environ: PLAINBOX_SESSION_SHARE STRESS_S3_INIT_DELAY STRESS_S3_SLEEP_DELAY STRESS_S3_WAIT_DELAY LD_LIBRARY_PATH RTC_DEVICE_FILE
 user: root
 command:
+   set -o pipefail
    echo "Current boot ID is: $(tr -d - < /proc/sys/kernel/random/boot_id)"
    suspend_trigger.py --wait "${STRESS_S3_INIT_DELAY:-120}" --check-delay "${STRESS_S3_WAIT_DELAY:-45}" --sleep-delay "${STRESS_S3_SLEEP_DELAY:-30}" --rtc-device "${RTC_DEVICE_FILE:-/dev/rtc0}" 2>&1 | tee -a "$PLAINBOX_SESSION_SHARE"/suspend_cycles_with_reboot_total.log
 summary:
@@ -97,14 +100,17 @@ template-id: stress-tests/suspend_cycles_1_rebootsuspend_reboot_id
 imports:
   from com.canonical.certification import sleep
   from com.canonical.certification import rtc
+  from com.canonical.plainbox import manifest
 requires:
   sleep.mem == 'supported'
   rtc.state == 'supported'
+  manifest.has_suspend_support == 'True'
 estimated_duration: 75.0
 environ: PLAINBOX_SESSION_SHARE STRESS_S3_INIT_DELAY STRESS_S3_SLEEP_DELAY STRESS_S3_WAIT_DELAY LD_LIBRARY_PATH RTC_DEVICE_FILE
 after: stress-tests/suspend_cycles_reboot{{suspend_reboot_previous}}
 user: root
 command:
+ set -o pipefail
  echo "Current boot ID is: $(tr -d - < /proc/sys/kernel/random/boot_id)"
  suspend_trigger.py --wait "${STRESS_S3_INIT_DELAY:-120}" --check-delay "${STRESS_S3_WAIT_DELAY:-45}" --sleep-delay "${STRESS_S3_SLEEP_DELAY:-30}" --rtc-device "${RTC_DEVICE_FILE:-/dev/rtc0}" 2>&1 | tee -a "$PLAINBOX_SESSION_SHARE"/suspend_cycles_with_reboot_total.log
 summary:
@@ -121,14 +127,17 @@ template-id: stress-tests/suspend_cycles_suspend_id_rebootsuspend_reboot_id
 imports:
   from com.canonical.certification import sleep
   from com.canonical.certification import rtc
+  from com.canonical.plainbox import manifest
 requires:
   sleep.mem == 'supported'
   rtc.state == 'supported'
+  manifest.has_suspend_support == 'True'
 estimated_duration: 75.0
 environ: PLAINBOX_SESSION_SHARE STRESS_S3_INIT_DELAY STRESS_S3_SLEEP_DELAY STRESS_S3_WAIT_DELAY LD_LIBRARY_PATH RTC_DEVICE_FILE
 after: stress-tests/suspend_cycles_{{suspend_id_previous}}_reboot{{suspend_reboot_id}}
 user: root
 command:
+ set -o pipefail
  echo "Current boot ID is: $(tr -d - < /proc/sys/kernel/random/boot_id)"
  suspend_trigger.py --check-delay "${STRESS_S3_WAIT_DELAY:-45}" --sleep-delay "${STRESS_S3_SLEEP_DELAY:-30}" --rtc-device "${RTC_DEVICE_FILE:-/dev/rtc0}" 2>&1 | tee -a "$PLAINBOX_SESSION_SHARE"/suspend_cycles_with_reboot_total.log
 summary:
@@ -147,9 +156,11 @@ template-id: stress-tests/suspend_cycles_rebootsuspend_reboot_id
 imports:
   from com.canonical.certification import sleep
   from com.canonical.certification import rtc
+  from com.canonical.plainbox import manifest
 requires:
   sleep.mem == 'supported'
   rtc.state == 'supported'
+  manifest.has_suspend_support == 'True'
 estimated_duration: 30.0
 user: root
 command:
@@ -168,7 +179,11 @@ plugin: shell
 category_id: stress-tests/suspend
 id: stress-tests/suspend-{s3_iterations}-cycles-with-reboot-{reboot_iterations}-log-check
 template-id: stress-tests/suspend-s3_iterations-cycles-with-reboot-reboot_iterations-log-check
-requires: cpuinfo.platform in ("i386", "x86_64")
+imports:
+  from com.canonical.plainbox import manifest
+requires:
+  cpuinfo.platform in ("i386", "x86_64")
+  manifest.has_suspend_support == 'True'
 estimated_duration: 1.0
 command: [ -e "$PLAINBOX_SESSION_SHARE"/suspend_cycles_with_reboot_total.log ] && sleep_test_log_check.py -v --ignore-warning -t all "$PLAINBOX_SESSION_SHARE"/suspend_cycles_with_reboot_total.log
 after: stress-tests/suspend_cycles_reboot{reboot_iterations}
@@ -184,7 +199,11 @@ plugin: shell
 category_id: stress-tests/suspend
 id: stress-tests/suspend-{s3_iterations}-cycles-with-reboot-{reboot_iterations}-time-check
 template-id: stress-tests/suspend-s3_iterations-cycles-with-reboot-reboot_iterations-time-check
-requires: cpuinfo.platform in ("i386", "x86_64")
+imports:
+  from com.canonical.plainbox import manifest
+requires:
+  cpuinfo.platform in ("i386", "x86_64")
+  manifest.has_suspend_support == 'True'
 estimated_duration: 1.0
 command: [ -e "$PLAINBOX_SESSION_SHARE"/suspend_cycles_with_reboot_total.log ] && sleep_time_check.py "$PLAINBOX_SESSION_SHARE"/suspend_cycles_with_reboot_total.log --s {sleep_threshold} --r {resume_threshold}
 after: stress-tests/suspend_cycles_reboot{reboot_iterations}
@@ -200,6 +219,10 @@ plugin: attachment
 category_id: stress-tests/suspend
 id: stress-tests/suspend-{s3_iterations}-cycles-with-reboot-{reboot_iterations}-log-attach
 template-id: stress-tests/suspend-s3_iterations-cycles-with-reboot-reboot_iterations-log-attach
+imports:
+  from com.canonical.plainbox import manifest
+requires:
+  manifest.has_suspend_support == 'True'
 estimated_duration: 1.0
 command: [ -e "$PLAINBOX_SESSION_SHARE"/suspend_cycles_with_reboot_total.log ] && cat "$PLAINBOX_SESSION_SHARE"/suspend_cycles_with_reboot_total.log
 _summary:

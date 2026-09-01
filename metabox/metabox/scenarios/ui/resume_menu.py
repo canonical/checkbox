@@ -116,7 +116,7 @@ class ResumeMenuMarkSkip(Scenario):
         Expect("Skipped Jobs"),
         Expect("Finish"),
         Send("f"),
-        Expect(_re("(☐|job skipped).*User-interact")),
+        Expect(_re("(☐|job manually skipped).*User-interact")),
     ]
 
 

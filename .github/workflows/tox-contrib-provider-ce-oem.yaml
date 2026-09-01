@@ -22,19 +22,15 @@ jobs:
         working-directory: contrib/checkbox-ce-oem/checkbox-provider-ce-oem
     strategy:
       matrix:
-        python: ["3.5", "3.6", "3.8", "3.10"]
+        python: ["3.8", "3.10"]
         include:
-          - python: "3.5"
-            tox_env_name: "py35"
-          - python: "3.6"
-            tox_env_name: "py36"
           - python: "3.8"
             tox_env_name: "py38"
           - python: "3.10"
             tox_env_name: "py310"
     runs-on: ${{ (matrix.python == '3.5' || matrix.python == '3.6') && fromJson('["self-hosted", "focal"]') || 'ubuntu-latest' }}
     steps:
-      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
         with:
           persist-credentials: false
       # Python 3.5 setup was failing because of a CERTIFICATE_VERIFY_FAILED
@@ -47,7 +43,7 @@ jobs:
           curl --fail --silent --show-error https://pypi.org
           curl --fail --silent --show-error https://files.pythonhosted.org
       - name: Setup Python
-        uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97
         with:
           python-version: ${{ matrix.python }}
         env:
@@ -66,7 +62,7 @@ jobs:
       - name: Run tox
         run: tox -e${{ matrix.tox_env_name }}
       - name: Upload coverage reports to Codecov
-        uses: codecov/codecov-action@57e3a136b779b570ffcdbf80b3bdc90e7fab3de2
+        uses: codecov/codecov-action@e79a6962e0d4c0c17b229090214935d2e33f8354
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           flags: contrib-provider-ce-oem

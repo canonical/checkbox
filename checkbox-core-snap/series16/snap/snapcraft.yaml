@@ -64,9 +64,11 @@ apps:
     plugs: &standard [home, network-bind, hardware-observe, bluez, bluetooth-control,
       gpio, modem-manager, mount-observe, network-manager, pulseaudio, serial-port,
       system-observe, tpm, udisks2, account-control, accounts-service,
-      login-session-control, login-session-observe]
+      login-session-control, login-session-observe, checkbox-support]
     environment:
       PYTHONPATH: $SNAP/lib/python3.5/site-packages/:$SNAP/lib64/python3.5/site-packages/:$SNAP/usr/lib/python3/dist-packages:$PYTHONPATH
+      PATH: /snap/bin:$PATH
+      PYTHONUNBUFFERED: "1"
   agent:
     command: bin/checkbox-cli run-agent
     daemon: simple
@@ -76,6 +78,8 @@ apps:
     install-mode: disable
     environment:
       PYTHONPATH: $SNAP/lib/python3.5/site-packages/:$SNAP/lib64/python3.5/site-packages/:$SNAP/usr/lib/python3/dist-packages:$PYTHONPATH
+      PATH: /snap/bin:$PATH
+      PYTHONUNBUFFERED: "1"
 
 package-repositories:
   - type: apt
@@ -113,7 +117,7 @@ parts:
 ################################################################################
   plz-run:
     plugin: go
-    source: https://github.com/Hook25/plz-run.git
+    source: https://github.com/canonical/plz-run.git
     source-type: git
 ################################################################################
 # statically linked nsenter as plz-run launches nsenter outside of the namespace

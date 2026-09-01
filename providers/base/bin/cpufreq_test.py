@@ -465,7 +465,7 @@ class CpuFreqTest:
         for core in online_cores:
             affinity = [int(core)]
             affinity_dict = dict(affinity=affinity)
-            worker = multiprocessing.Process(
+            worker = multiprocessing.get_context("fork").Process(
                 target=run_worker_process,
                 args=(result_queue,),
                 kwargs=affinity_dict,

@@ -19,7 +19,11 @@
 # along with Checkbox. If not, see <http://www.gnu.org/licenses/>.
 
 
+from contextlib import suppress
+import shutil
+
 from checkbox_support.dbus.gnome_monitor import MutterDisplayMode as Mode
+from checkbox_support.manifest import get_manifest
 from checkbox_support.helpers import display_info
 from collections import namedtuple
 from fractions import Fraction
@@ -136,10 +140,32 @@ def action(filename, **kwargs):
     else:
         path_and_filename = "{}.jpg".format(filename)
     time.sleep(5)
-    subprocess.check_output(["gnome-screenshot", "-f", path_and_filename])
+    if shutil.which("gnome-screenshot"):
+        # gnome-screenshot no longer works on 26.04+
+        # until we find an alternative, ignore screenshot errors for now
+
+        # also make sure this doesn't hang forever
+        with suppress(subprocess.TimeoutExpired):
+            subprocess.run(
+                ["gnome-screenshot", "-f", path_and_filename], timeout=5
+            )
+    else:
+        print(
+            "gnome-screenshot is not installed. Not taking any screenshots.",
+            "This is expected for 26.04 onwards",
+        )
 
 
 class MonitorTest:
+    def is_suspend_support(self) -> bool:
+        """
+        Using has_suspend_support in the manifest
+        to check whether suspend is supported
+        """
+        key = "com.canonical.certification::has_suspend_support"
+        manifest = get_manifest()
+        return key in manifest.keys() and manifest[key]
+
     def gen_screenshot_path(
         self, prefix: str, postfix: str, screenshot_dir: str
     ) -> str:
@@ -160,12 +186,15 @@ class MonitorTest:
 
         if postfix and postfix != "":
             path = path + "_" + postfix
-        else:
+        elif self.is_suspend_support():
             # check the status is before or after suspend
-            with open("/sys/power/suspend_stats/success", "r") as s:
-                suspend_count = s.readline().strip("\n")
-                if suspend_count != "0":
-                    path = "{}_after_suspend".format(path)
+            try:
+                with open("/sys/power/suspend_stats/success", "r") as s:
+                    suspend_count = s.readline().strip("\n")
+                    if suspend_count != "0":
+                        path = "{}_after_suspend".format(path)
+            except (IOError, OSError):
+                pass
         os.makedirs(path, exist_ok=True)
 
         return path
@@ -174,7 +203,7 @@ class MonitorTest:
         """
         Tar up the screenshots for uploading.
 
-        :param path: the dictionary for screenshot
+        :param  path: the dictionary for screenshot
         """
         try:
             with tarfile.open(path + ".tgz", "w:gz") as screen_tar:
@@ -223,7 +252,7 @@ class MonitorTest:
             default=os.getenv("HOME", "~"),
             help=(
                 "Specify a directory to store screenshots in. "
-                "(default: %(default)s)"
+                + "(default: %(default)s)"
             ),
         )
 

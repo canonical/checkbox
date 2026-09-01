@@ -1,0 +1,5 @@
+unit: manifest entry
+id: has_rz_drp_ai
+_name: Does platform support Renesas RZ DRP-AI?
+_prompt: RZ specific?
+value-type: bool

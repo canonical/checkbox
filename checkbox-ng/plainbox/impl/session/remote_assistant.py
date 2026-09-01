@@ -16,41 +16,41 @@
 # You should have received a copy of the GNU General Public License
 # along with Checkbox.  If not, see <http://www.gnu.org/licenses/>.
 import fnmatch
+import gettext
 import io
 import json
-import gettext
 import logging
 import os
 import pwd
 import time
-import itertools
-from functools import wraps
 from collections import namedtuple
 from contextlib import suppress
 from enum import Enum
+from functools import wraps
 from tempfile import SpooledTemporaryFile
-from threading import Thread, Lock
-from enum import Enum
+from threading import Lock, Thread
 
-from plainbox.impl.config import Configuration
-from plainbox.impl.execution import UnifiedRunner
-from plainbox.impl.session.state import SessionMetaData
-from plainbox.impl.session.assistant import SessionAssistant
-from plainbox.impl.session.assistant import SA_RESTARTABLE
-from plainbox.impl.session.jobs import InhibitionCause
-from plainbox.impl.session.storage import WellKnownDirsHelper
-from plainbox.impl.secure.sudo_broker import is_passwordless_sudo
-from plainbox.impl.result import JobResultBuilder
-from plainbox.impl.result import MemoryJobResult
-from plainbox.abc import IJobResult
+import psutil
 
 from checkbox_ng.config import load_configs
 from checkbox_ng.launcher.run import SilentUI
-from checkbox_ng.user_utils import check_user_exists
-from checkbox_ng.user_utils import guess_normal_user
-
-
-import psutil
+from checkbox_ng.user_utils import check_user_exists, guess_normal_user
+from plainbox.abc import IJobResult
+from plainbox.impl.config import Configuration
+from plainbox.impl.execution import UnifiedRunner
+from plainbox.impl.providers.v1 import (
+    reload_all_providers as reload_all_insecure_providers,
+)
+from plainbox.impl.result import JobResultBuilder, MemoryJobResult
+from plainbox.impl.result_utils import determine_outcome_and_skip_reason
+from plainbox.impl.result_utils import pretty_skip_reason
+from plainbox.impl.secure.providers.v1 import (
+    reload_all_providers as reload_all_secure_providers,
+)
+from plainbox.impl.secure.sudo_broker import is_passwordless_sudo
+from plainbox.impl.session.assistant import SessionAssistant
+from plainbox.impl.session.state import SessionMetaData
+from plainbox.impl.session.storage import WellKnownDirsHelper
 
 _ = gettext.gettext
 
@@ -210,12 +210,18 @@ class RemoteSessionAssistant:
         self._pipe_to_subproc = open(self._input_piping[0])
         self._sa = None  # type: SessionAssistant
         self._state = RemoteSessionStates.Idle
-        self._reset_sa()
+        self.reset_session()
         self._currently_running_job = None
 
-    def _reset_sa(self):
+    def reset_session(self):
         _logger.info("Resetting RSA")
         self._state = RemoteSessionStates.Idle
+
+        if self._sa:
+            reload_all_secure_providers()
+            reload_all_insecure_providers()
+            del self._sa
+
         self._sa = SessionAssistant()
         self._be = None
         self._session_id = ""
@@ -377,7 +383,7 @@ class RemoteSessionAssistant:
 
     @allowed_when(RemoteSessionStates.Idle)
     def start_session(self, configuration):
-        self._reset_sa()
+        self.reset_session()
         _logger.info("start_session: %r", configuration)
         session_title = "remote"
         session_desc = "remote session"
@@ -557,27 +563,21 @@ class RemoteSessionAssistant:
         job_state = self._sa.get_job_state(job_id)
 
         if not job_state.can_start():
-            outcome = IJobResult.OUTCOME_NOT_SUPPORTED
-            for inhibitor in job_state.readiness_inhibitor_list:
-                if (
-                    inhibitor.cause == InhibitionCause.FAILED_RESOURCE
-                    and "fail-on-resource" in job.get_flag_set()
-                ):
-                    outcome = IJobResult.OUTCOME_FAIL
-                    break
-                elif inhibitor.cause != InhibitionCause.FAILED_DEP:
-                    continue
-                related_job_state = self._sa._context.state.job_state_map[
-                    inhibitor.related_job.id
-                ]
-                if related_job_state.result.outcome == IJobResult.OUTCOME_SKIP:
-                    outcome = IJobResult.OUTCOME_SKIP
+            outcome, skip_reason = determine_outcome_and_skip_reason(
+                job_state, self._sa._context.state.job_state_map
+            )
 
             def cant_start_builder(*args, **kwargs):
+                try:
+                    comments = pretty_skip_reason(skip_reason)
+                except (ValueError, TypeError):
+                    comments = job_state.get_readiness_description()
                 result_builder = JobResultBuilder(
                     outcome=outcome,
-                    comments=job_state.get_readiness_description(),
+                    comments=comments,
                 )
+                if skip_reason:
+                    result_builder.skip_reason = skip_reason
                 return result_builder
 
             self._be = BackgroundExecutor(self, job_id, cant_start_builder)
@@ -609,7 +609,7 @@ class RemoteSessionAssistant:
 
                 def skipped_builder(*args, **kwargs):
                     result_builder = JobResultBuilder(
-                        outcome=IJobResult.OUTCOME_SKIP
+                        outcome=IJobResult.OUTCOME_MANUAL_SKIP
                     )
                     if self._current_comments != "":
                         result_builder.comments = self._current_comments
@@ -857,6 +857,10 @@ class RemoteSessionAssistant:
     ):
         if not last_job_id:
             return
+        # If there are no more jobs to run, it means the last job already has
+        # a result, and does not need to be updated
+        if not self._sa._metadata.remaining_todo_jobs:
+            return
         if result_interactively_decided:
             result_dict = result_interactively_decided
         else:
@@ -1007,10 +1011,10 @@ class RemoteSessionAssistant:
 
     def finalize_session(self):
         self._sa.finalize_session()
-        self._reset_sa()
+        self.reset_session()
 
     def abandon_session(self):
-        self._reset_sa()
+        self.reset_session()
 
     def transmit_input(self, text):
         if not text:

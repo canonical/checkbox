@@ -157,19 +157,13 @@ nested_part:
     after-suspend-power-management-precheck-cert-manual
     info-attachment-cert-full
 
-id: power-management-precheck-base-26-04-automated
+id: power-management-base-26-04-automated
 unit: test plan
-_name: Power Management Precheck for 26.04 (Automated)
-_description: Automated tests for power-management-precheck
-include:
-nested_part:
-    power-management-precheck-cert-automated
-    after-suspend-power-management-precheck-cert-automated
-
-id: power-base-26-04-automated
-unit: test plan
-_name: Power for 26.04 (Automated)
-_description: Automated tests for power
+_name: Power Management for 26.04 (Automated)
+_description: Automated tests for power management
 include:
 nested_part:
     power-cert-automated
+    power-management-amd-specific-automated
+    power-management-precheck-cert-automated
+    after-suspend-power-management-precheck-cert-automated

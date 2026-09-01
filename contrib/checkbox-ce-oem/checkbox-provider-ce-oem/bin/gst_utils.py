@@ -8,7 +8,7 @@ import contextlib
 
 from abc import ABC, abstractmethod
 from enum import Enum
-from typing import Any
+from typing import Any, Optional
 
 from checkbox_support.scripts.psnr import get_average_psnr
 
@@ -22,6 +22,8 @@ if not VIDEO_CODEC_TESTING_DATA:
 if not os.path.exists(VIDEO_CODEC_TESTING_DATA):
     os.makedirs(VIDEO_CODEC_TESTING_DATA, exist_ok=True)
 # Folder stores the golden samples
+
+logger = logging.getLogger(__name__)
 
 
 class GStreamerEncodePlugins(Enum):
@@ -66,6 +68,7 @@ class GStreamerMuxerType(Enum):
     MP4MUX = "mp4"
     AVIMUX = "avi"
     MATROSKAMUX = "mkv"
+    QTMUX = "mov"
 
     @classmethod
     def get_extension(cls, mux_type: str = "MP4MUX"):
@@ -242,15 +245,19 @@ def manage_test_file_by_name(
             delete_file(file_path)
 
 
-def get_resolution_string(width: int, height: int) -> str:
-    # TODO: 4096x2176
-    if width == 3840 and height == 2160:
-        return "4k"
-    elif width == 2560 and height == 1440:
-        return "2k"
-    else:
-        return "{}p".format(height)
-
+def file_name_placeholder(
+        width: int,
+        height: int,
+        codec_short_name: str,
+        ext: str,
+        framerate: Optional[int] = None,
+) -> str:
+    file_name = "{}x{}_{}fps_{}.{}".format(width, height, framerate, codec_short_name, ext)
+    # For non video files, such as jpg
+    if framerate is None:
+        file_name = "{}x{}_{}.{}".format(width, height, codec_short_name, ext)
+    logging.debug("Generated file name: %s", file_name)
+    return file_name
 
 def get_codec_short_name(plugin_name: str) -> str:
     if "264" in plugin_name:
@@ -275,14 +282,18 @@ def get_test_file_name_by_params(
         ext = "mp4"
     elif core_codec in ["vp8", "vp9"]:
         ext = "webm"
-    elif core_codec in ["jpg", "jpeg"]:
-        ext = "jpg"
     else:
         ext = "mp4"
         core_codec = "h264"
 
-    resolution_str = get_resolution_string(width, height)
-    return "{}_{}fps_{}.{}".format(resolution_str, framerate, core_codec, ext)
+    file_name = file_name_placeholder(
+        width=width,
+        height=height,
+        codec_short_name=core_codec,
+        ext=ext,
+        framerate=framerate
+    )
+    return file_name
 
 
 @contextlib.contextmanager

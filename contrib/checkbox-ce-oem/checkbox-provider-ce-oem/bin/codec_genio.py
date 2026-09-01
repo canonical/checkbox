@@ -21,6 +21,7 @@
 
 import argparse
 import logging
+import os
 
 from codec_base import BaseCodecProject
 from gst_utils import (
@@ -28,6 +29,7 @@ from gst_utils import (
     GST_LAUNCH_BIN,
     GStreamerMuxerType,
     GStreamerEncodePlugins,
+    file_name_placeholder,
     generate_artifact_name,
     get_test_file_path_by_params,
 )
@@ -80,11 +82,19 @@ class GenioProject(BaseCodecProject):
             GStreamerEncodePlugins.V4L2H265ENC.value: "h265parse",
         }
         # This sample video file will be consumed by any gstreamer piple as
-        # input video. Genio always encodes from the h264 sample, like the
-        # other platforms that decode then re-encode.
-        self._golden_sample = get_test_file_path_by_params(
-            self._width, self._height, self._framerate, "h264"
+        # input video.
+        file_name = get_test_file_path_by_params(
+            width, height, framerate, codec
         )
+        # For v4l2jpegenc / v4l2jpegdec, using the MJPEG sample video.
+        # https://genio.mediatek.com/doc/iot-yocto/latest/sw/yocto/app-dev/image/image-common.html#motion-jpeg-video
+        if codec == GStreamerEncodePlugins.V4L2JPEGENC.value:
+            file_name = os.path.join(VIDEO_CODEC_TESTING_DATA, file_name_placeholder(
+                width=width, height=height, framerate=framerate, codec_short_name="mjpeg", ext="mov"
+            ))
+
+        self._golden_sample = file_name
+
         self._pipeline_builders = {
             GStreamerEncodePlugins.V4L2H264ENC.value: (
                 self._264_265_pipeline_builder
@@ -100,14 +110,11 @@ class GenioProject(BaseCodecProject):
     @property
     def artifact_file(self) -> str:
         if not self._artifact_file:
-            if self._codec == GStreamerEncodePlugins.V4L2JPEGENC.value:
-                self._artifact_file = generate_artifact_name(extension="jpg")
-            else:
-                self._artifact_file = generate_artifact_name(
-                    extension=GStreamerMuxerType.get_extension(
-                        mux_type=self._mux.upper()
-                    )
+            self._artifact_file = generate_artifact_name(
+                extension=GStreamerMuxerType.get_extension(
+                    mux_type=self._mux.upper()
                 )
+            )
         return self._artifact_file
 
 
@@ -154,7 +161,7 @@ class GenioProject(BaseCodecProject):
 
     def _v4l2jpegenc_pipeline_builder(self) -> str:
         """
-        Build gstreamer pipeline for JPEG encoder
+        Build gstreamer pipeline for JPEG encoder.
         https://genio.mediatek.com/doc/iot-yocto/latest/sw/yocto/app-dev/image/image-common.html#image-codec
         """
         logger.info("Building JPEG pipeline for codec: %s", self._codec)
@@ -162,15 +169,17 @@ class GenioProject(BaseCodecProject):
             raise SystemExit(
                 "Genio 350 platform doesn't support v4l2jpegenc codec"
             )
-        # Capture the first frame and save it as jpg file
         final_pipeline = (
-            "{} filesrc location={} ! decodebin ! videorate !"
-            " video/x-raw,framerate=1/1 ! videoconvert ! "
-            "video/x-raw,format={} ! {} ! filesink location={}"
+            "{} filesrc location={} ! decodebin ! videoconvert ! "
+            "video/x-raw,format={},width={},height={},framerate={}/1"
+            " ! {} ! qtmux ! filesink location={}"
         ).format(
             GST_LAUNCH_BIN,
             self._golden_sample,
             self._color_space,
+            self._width,
+            self._height,
+            self._framerate,
             self._codec,
             self.artifact_file,
         )

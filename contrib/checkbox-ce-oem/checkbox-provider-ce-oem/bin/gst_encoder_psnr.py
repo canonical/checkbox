@@ -19,6 +19,7 @@
 
 import argparse
 import logging
+from os import name
 
 from codec_base import BaseCodecProject
 from codec_platforms import create_scenario_project
@@ -31,10 +32,16 @@ from gst_utils import (
     execute_command,
     generate_artifact_name,
     get_test_file_path_by_params,
-    manage_test_file_by_params,
+    manage_test_file_by_name,
 )
 
-logging.basicConfig(level=logging.INFO)
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(levelname)-8s - %(module)-10s: %(funcName)s "
+    + "%(lineno)-4d - %(message)s",
+)
+
+logger = logging.getLogger(__name__)
 
 
 def register_arguments():
@@ -164,18 +171,15 @@ class GenericEncoderProject(BaseCodecProject):
 
 def main() -> None:
     args = register_arguments()
-    with manage_test_file_by_params(
-        args.width, args.height, args.framerate, args.encoder_plugin
+    p = create_scenario_project(
+        args.platform,
+        "create_encoder_psnr_project",
+        GenericEncoderProject,
+        args,
+    )
+    with manage_test_file_by_name(
+        file_name=p.psnr_reference_file.split("/")[-1]
     ):
-        # Platforms with their own encoder pipeline provide a
-        # create_encoder_psnr_project in their codec_<family>.py module;
-        # everyone else uses the generic reference pipeline.
-        p = create_scenario_project(
-            args.platform,
-            "create_encoder_psnr_project",
-            GenericEncoderProject,
-            args,
-        )
         logging.info("Step 1: Generating artifact...")
         cmd = p.build_pipeline()
         # execute command

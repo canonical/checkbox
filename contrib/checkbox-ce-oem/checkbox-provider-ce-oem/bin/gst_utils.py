@@ -17,7 +17,9 @@ GST_DISCOVERER = os.getenv("GST_DISCOVERER", "gst-discoverer-1.0")
 PLAINBOX_SESSION_SHARE = os.getenv("PLAINBOX_SESSION_SHARE", "/var/tmp")
 VIDEO_CODEC_TESTING_DATA = os.getenv("VIDEO_CODEC_TESTING_DATA")
 if not VIDEO_CODEC_TESTING_DATA:
-    VIDEO_CODEC_TESTING_DATA = os.path.join(os.path.expanduser("~"), "checkbox-video")
+    VIDEO_CODEC_TESTING_DATA = os.path.join(
+        os.path.expanduser("~"), "checkbox-video"
+    )
 
 if not os.path.exists(VIDEO_CODEC_TESTING_DATA):
     os.makedirs(VIDEO_CODEC_TESTING_DATA, exist_ok=True)
@@ -246,18 +248,21 @@ def manage_test_file_by_name(
 
 
 def file_name_placeholder(
-        width: int,
-        height: int,
-        codec_short_name: str,
-        ext: str,
-        framerate: Optional[int] = None,
+    width: int,
+    height: int,
+    codec_short_name: str,
+    ext: str,
+    framerate: Optional[int] = None,
 ) -> str:
-    file_name = "{}x{}_{}fps_{}.{}".format(width, height, framerate, codec_short_name, ext)
+    file_name = "{}x{}_{}fps_{}.{}".format(
+        width, height, framerate, codec_short_name, ext
+    )
     # For non video files, such as jpg
     if framerate is None:
         file_name = "{}x{}_{}.{}".format(width, height, codec_short_name, ext)
     logging.debug("Generated file name: %s", file_name)
     return file_name
+
 
 def get_codec_short_name(plugin_name: str) -> str:
     if "264" in plugin_name:
@@ -291,7 +296,7 @@ def get_test_file_name_by_params(
         height=height,
         codec_short_name=core_codec,
         ext=ext,
-        framerate=framerate
+        framerate=framerate,
     )
     return file_name
 

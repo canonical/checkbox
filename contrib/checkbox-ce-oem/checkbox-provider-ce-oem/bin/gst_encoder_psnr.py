@@ -19,7 +19,6 @@
 
 import argparse
 import logging
-from os import name
 
 from codec_base import BaseCodecProject
 from codec_platforms import create_scenario_project

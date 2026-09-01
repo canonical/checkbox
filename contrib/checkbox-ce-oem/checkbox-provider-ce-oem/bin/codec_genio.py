@@ -89,9 +89,16 @@ class GenioProject(BaseCodecProject):
         # For v4l2jpegenc / v4l2jpegdec, using the MJPEG sample video.
         # https://genio.mediatek.com/doc/iot-yocto/latest/sw/yocto/app-dev/image/image-common.html#motion-jpeg-video
         if codec == GStreamerEncodePlugins.V4L2JPEGENC.value:
-            file_name = os.path.join(VIDEO_CODEC_TESTING_DATA, file_name_placeholder(
-                width=width, height=height, framerate=framerate, codec_short_name="mjpeg", ext="mov"
-            ))
+            file_name = os.path.join(
+                VIDEO_CODEC_TESTING_DATA,
+                file_name_placeholder(
+                    width=width,
+                    height=height,
+                    framerate=framerate,
+                    codec_short_name="mjpeg",
+                    ext="mov",
+                ),
+            )
 
         self._golden_sample = file_name
 
@@ -116,7 +123,6 @@ class GenioProject(BaseCodecProject):
                 )
             )
         return self._artifact_file
-
 
     def _264_265_pipeline_builder(self) -> str:
         """

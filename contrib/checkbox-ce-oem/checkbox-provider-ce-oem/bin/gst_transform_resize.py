@@ -19,7 +19,6 @@
 
 import argparse
 import logging
-import os
 
 from codec_base import BaseCodecProject
 from codec_platforms import create_scenario_project
@@ -174,7 +173,8 @@ def main() -> None:
             args.width_to, args.height_to, args.framerate, args.encoder_plugin
         ) as to_file:
             logger.info(
-                "============ Start the transform resize process ============")
+                "============ Start the transform resize process ============"
+            )
             # Platforms with their own transform pipeline provide a
             # create_transform_resize_project in their codec_<family>.py
             # module; everyone else uses the generic v4l2convert

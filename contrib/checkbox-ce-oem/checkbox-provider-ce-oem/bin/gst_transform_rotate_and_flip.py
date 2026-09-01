@@ -76,7 +76,10 @@ class GenericTransformRotateAndFlipProject(BaseCodecProject):
         # This sample video file will be consumed by any gstreamer piple as
         # input video.
         golden_file = get_test_file_name_by_params(
-            width=self._width, height=self._height, framerate=self._framerate, plugin_name=args.encoder_plugin
+            width=self._width,
+            height=self._height,
+            framerate=self._framerate,
+            plugin_name=args.encoder_plugin,
         )
         self._golden_sample = os.path.join(
             VIDEO_CODEC_TESTING_DATA, golden_file
@@ -86,7 +89,6 @@ class GenericTransformRotateAndFlipProject(BaseCodecProject):
                 self._transform_pipeline_builder
             ),
         }
-
 
     def _transform_pipeline_builder(self) -> str:
         """
@@ -218,12 +220,12 @@ def main() -> None:
         ).is_valid()
 
         # For example. the golden reference file is named as 1080p_60fps_h264_rotate_180.mp4
-        reference_file_name = '{}x{}_{}fps_{}_{}.mp4'.format(
+        reference_file_name = "{}x{}_{}fps_{}_{}.mp4".format(
             args.width,
             args.height,
             args.framerate,
             get_codec_short_name(args.encoder_plugin),
-            args.action
+            args.action,
         )
         with manage_test_file_by_name(
             file_name=reference_file_name

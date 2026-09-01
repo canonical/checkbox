@@ -2,22 +2,22 @@
   "gst_video_decoder_performance_fakesink": [
     {
       "decoder_plugin": "v4l2h264dec",
-      "golden_sample_file": "1080p_60fps_h264.mp4",
+      "golden_sample_file": "1920x1080_60fps_h264.mp4",
       "minimum_fps": 45
     },
     {
       "decoder_plugin": "v4l2h265dec",
-      "golden_sample_file": "1080p_60fps_h265.mp4",
+      "golden_sample_file": "1920x1080_60fps_h265.mp4",
       "minimum_fps": 45
     },
     {
       "decoder_plugin": "v4l2vp8dec",
-      "golden_sample_file": "1080p_60fps_vp8.webm",
+      "golden_sample_file": "1920x1080_60fps_vp8.webm",
       "minimum_fps": 45
     },
     {
       "decoder_plugin": "v4l2vp9dec",
-      "golden_sample_file": "1080p_60fps_vp9.webm",
+      "golden_sample_file": "1920x1080_60fps_vp9.webm",
       "minimum_fps": 45
     }
   ],

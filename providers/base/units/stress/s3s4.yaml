@@ -3,19 +3,17 @@
 
 # Written by:
 # Sylvain Pineau <sylvain.pineau@canonical.com>
+
 unit: category
 id: stress-tests/suspend
 name: Suspend (S3) Stress Test
-summary: Conduct a Suspend (S3) Stress Test.
 ---
 unit: category
 id: stress-tests/hibernate
 name: Hibernate (S4) Stress Test
-summary: Perform stress testing on the hibernate functionality.
 ---
 id: stress_s3_iterations
 category_id: stress-tests/suspend
-description: Resource job meant to be used in the S3 stress templates
 plugin: resource
 environ:
   - STRESS_S3_ITERATIONS
@@ -30,7 +28,6 @@ purpose: Resource job meant to be used in the S3 stress templates
 ---
 id: stress_s4_iterations
 category_id: stress-tests/suspend
-description: Resource job meant to be used in the S4 stress templates
 plugin: resource
 environ:
   - STRESS_S4_ITERATIONS

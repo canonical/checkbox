@@ -942,18 +942,28 @@ class RemoteController(ReportsStage, MainLoopStage):
                 self.finish_job()
                 break
 
+    def _pretty_skip_log(self, result):
+        if not result:
+            return
+        with suppress(ValueError, AttributeError):
+            # this only applies to automated skips on a recent enough
+            # checkbox agent
+            SimpleUI.yellow_text(pretty_skip_reason(result.skip_reason))
+        if (
+            result.outcome == IJobResult.OUTCOME_MANUAL_SKIP
+            and result.comments
+            and not self.is_interactive
+        ):
+            # Display manual skip in non interactive sessions because the
+            # comment is checkbox complaining about trying to run a manual
+            # test in a non-interactive session
+            SimpleUI.yellow_text(
+                "Job cannot be started because:\n- {}".format(result.comments)
+            )
+
     def finish_job(self, result=None, job_state=None):
         _logger.info("controller: Finishing job with a result: %s", result)
-        if result and hasattr(result, "skip_reason"):
-            skip_reason = result.skip_reason
-            try:
-                skip_reason_str = pretty_skip_reason(skip_reason)
-                SimpleUI.yellow_text(skip_reason_str)
-            except ValueError:
-                # unable to pretty print skip reason, it may be that the job
-                # wasnt skipped at all!
-                pass
-
+        self._pretty_skip_log(result)
         SimpleUI.horiz_line()
         job_result = self.sa.finish_job(result)
         print(_("Outcome") + ": " + SimpleUI.C.result(job_result))

@@ -51,7 +51,7 @@ estimated_duration: 1s
 ---
 id: stress_suspend_reboot_iterations
 category_id: stress-tests/suspend
-summary: This resource generates suspend_reboot iteration numbers for 
+summary: This resource generates suspend_reboot iteration numbers for
   suspend-{n}-cycles-with-reboot-{k}-{log/time}-check jobs
 plugin: resource
 environ:
@@ -79,7 +79,7 @@ requires:
   - sleep.mem == 'supported'
   - rtc.state == 'supported'
   - manifest.has_suspend_support == 'True'
-estimated_duration: '75.0'
+estimated_duration: "75.0"
 environ:
   - PLAINBOX_SESSION_SHARE
   - STRESS_S3_INIT_DELAY
@@ -111,7 +111,7 @@ requires:
   - sleep.mem == 'supported'
   - rtc.state == 'supported'
   - manifest.has_suspend_support == 'True'
-estimated_duration: '75.0'
+estimated_duration: "75.0"
 environ:
   - PLAINBOX_SESSION_SHARE
   - STRESS_S3_INIT_DELAY
@@ -144,7 +144,7 @@ requires:
   - sleep.mem == 'supported'
   - rtc.state == 'supported'
   - manifest.has_suspend_support == 'True'
-estimated_duration: '75.0'
+estimated_duration: "75.0"
 environ:
   - PLAINBOX_SESSION_SHARE
   - STRESS_S3_INIT_DELAY
@@ -177,7 +177,7 @@ requires:
   - sleep.mem == 'supported'
   - rtc.state == 'supported'
   - manifest.has_suspend_support == 'True'
-estimated_duration: '30.0'
+estimated_duration: "30.0"
 user: root
 command: reboot
 flags:
@@ -199,13 +199,15 @@ imports:
 requires:
   - cpuinfo.platform in ("i386", "x86_64")
   - manifest.has_suspend_support == 'True'
-estimated_duration: '1.0'
-command: '[ -e "$PLAINBOX_SESSION_SHARE"/suspend_cycles_with_reboot_total.log ] && sleep_test_log_check.py -v --ignore-warning
+estimated_duration: "1.0"
+command:
+  '[ -e "$PLAINBOX_SESSION_SHARE"/suspend_cycles_with_reboot_total.log ] && sleep_test_log_check.py -v --ignore-warning
   -t all "$PLAINBOX_SESSION_SHARE"/suspend_cycles_with_reboot_total.log'
 after:
   - stress-tests/suspend_cycles_reboot{reboot_iterations}
 summary: Verify the suspend/resume cycle logs for errors using FWTS.
-purpose: To automatically verify the log of the {s3_iterations} suspend/resume cycles with {reboot_iterations} reboots 
+purpose:
+  To automatically verify the log of the {s3_iterations} suspend/resume cycles with {reboot_iterations} reboots
   for any errors that might be identified by the FWTS (Firmware Test Suite).
 ---
 unit: template
@@ -220,8 +222,9 @@ imports:
 requires:
   - cpuinfo.platform in ("i386", "x86_64")
   - manifest.has_suspend_support == 'True'
-estimated_duration: '1.0'
-command: '[ -e "$PLAINBOX_SESSION_SHARE"/suspend_cycles_with_reboot_total.log ] && sleep_time_check.py "$PLAINBOX_SESSION_SHARE"/suspend_cycles_with_reboot_total.log
+estimated_duration: "1.0"
+command:
+  '[ -e "$PLAINBOX_SESSION_SHARE"/suspend_cycles_with_reboot_total.log ] && sleep_time_check.py "$PLAINBOX_SESSION_SHARE"/suspend_cycles_with_reboot_total.log
   --s {sleep_threshold} --r {resume_threshold}'
 after:
   - stress-tests/suspend_cycles_reboot{reboot_iterations}
@@ -239,6 +242,6 @@ imports:
   - from com.canonical.plainbox import manifest
 requires:
   - manifest.has_suspend_support == 'True'
-estimated_duration: '1.0'
+estimated_duration: "1.0"
 command: '[ -e "$PLAINBOX_SESSION_SHARE"/suspend_cycles_with_reboot_total.log ] && cat "$PLAINBOX_SESSION_SHARE"/suspend_cycles_with_reboot_total.log'
 summary: Attach the suspend {s3_iterations} cycles with reboot {reboot_iterations} total log.

@@ -59,7 +59,7 @@ imports:
 requires:
   - sleep.mem == 'supported'
   - rtc.state == 'supported'
-estimated_duration: '2400.0'
+estimated_duration: "2400.0"
 environ:
   - PLAINBOX_SESSION_SHARE
   - STRESS_S3_SLEEP_DELAY
@@ -94,8 +94,9 @@ after:
   - stress-tests/suspend_{s3_iterations}_cycles
 requires:
   - cpuinfo.platform in ("i386", "x86_64")
-estimated_duration: '1.0'
-command: '[ -e "$PLAINBOX_SESSION_SHARE"/suspend_{s3_iterations}_cycles.log ] && sleep_test_log_check.py -v --ignore-warning
+estimated_duration: "1.0"
+command:
+  '[ -e "$PLAINBOX_SESSION_SHARE"/suspend_{s3_iterations}_cycles.log ] && sleep_test_log_check.py -v --ignore-warning
   -t all "$PLAINBOX_SESSION_SHARE"/suspend_{s3_iterations}_cycles.log'
 purpose: Automated check of the {s3_iterations} cycles suspend log for errors detected by fwts.
 summary: Perform an automated check for errors in the suspend log across multiple cycles.
@@ -109,7 +110,7 @@ flags:
 category_id: stress-tests/suspend
 id: stress-tests/suspend-{s3_iterations}-cycles-log-attach
 template-id: stress-tests/suspend-s3_iterations-cycles-log-attach
-estimated_duration: '1.0'
+estimated_duration: "1.0"
 after:
   - stress-tests/suspend_{s3_iterations}_cycles
 requires:
@@ -134,7 +135,7 @@ imports:
 requires:
   - sleep.disk == 'supported'
   - rtc.state == 'supported'
-estimated_duration: '5400.00'
+estimated_duration: "5400.00"
 environ:
   - PLAINBOX_SESSION_SHARE
   - STRESS_S4_SLEEP_DELAY
@@ -160,8 +161,9 @@ after:
   - stress-tests/hibernate_{s4_iterations}_cycles
 requires:
   - cpuinfo.platform in ("i386", "x86_64")
-estimated_duration: '1.0'
-command: '[ -e "$PLAINBOX_SESSION_SHARE"/hibernate_{s4_iterations}_cycles.log ] && sleep_test_log_check.py -v --ignore-warning
+estimated_duration: "1.0"
+command:
+  '[ -e "$PLAINBOX_SESSION_SHARE"/hibernate_{s4_iterations}_cycles.log ] && sleep_test_log_check.py -v --ignore-warning
   -t all "$PLAINBOX_SESSION_SHARE"/hibernate_{s4_iterations}_cycles.log'
 purpose: Automated check of the {s4_iterations} cycles hibernate log for errors detected by fwts.
 summary: Automated log check for hibernate error detection.
@@ -175,7 +177,7 @@ flags:
 category_id: stress-tests/hibernate
 id: stress-tests/hibernate-{s4_iterations}-cycles-log-attach
 template-id: stress-tests/hibernate-s4_iterations-cycles-log-attach
-estimated_duration: '1.0'
+estimated_duration: "1.0"
 after:
   - stress-tests/hibernate_{s4_iterations}_cycles
 requires:

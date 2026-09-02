@@ -46,8 +46,7 @@ $$
 
 To define the dependency relationship between these jobs, we first need the base case:
 
-- `suspend_cycles_1_reboot1`: A simple job unit, no template involved.
-  - This is $S_{1,1}$ from the flow graph above
+- `suspend_cycles_1_reboot1`: A simple job unit, no template involved. This is $S_{1,1}$ from the flow graph above
 
 Now we can consider jobs with a single variable $k$
 - `suspend_cycles_1_reboot{2...K}`: template jobs
@@ -91,16 +90,23 @@ $$
 which has the following dependency relationships:
 
 1. Later suspend checks in the same reboot cycle should run after the previous suspend checks:
-    $$
-    \text{For all}\, k=1\dots K, n=2\dots N\\
-    S_{n, k} \text{ runs after } S_{n-1, k}
-    $$
+
+$$
+\begin{gather*}
+  \text{For all}\, k=1\dots K, n=2\dots N\\
+  S_{n, k} \text{ runs after } S_{n-1, k}
+\end{gather*}
+$$
+
 2. All jobs in the current boot must run after the jobs in the previous boot.
-    $$
-    \text{For all}\, k=1\dots K-1\\
-    R_k \text{ runs after } S_{N, k}\\
-    S_{1, k+1} \text{ runs after } R_k
-    $$
+
+$$
+\begin{gather*}
+  \text{For all}\, k=1\dots K-1\\
+  R_k \text{ runs after } S_{N, k}\\
+  S_{1, k+1} \text{ runs after } R_k  
+\end{gather*} 
+$$
 
 ## Summary
 

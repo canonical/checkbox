@@ -8,36 +8,33 @@ executed at the end of a suspend and reboot jobs.
 ## Definition of the test case name
 
 - **suspend\_cycles\_{n}\_reboot{k} :**
-  - Indicates the execution of a suspend operation, n is the suspend index of\
-    the k<sup>th</sup> round of reboot.
-  - For example: S<sub>k</sub>n
+  - Indicates the execution of a suspend operation. $n$ is the suspend index of the $k$th reboot.
+  - For example: $S_{n,k}$
 - **suspend\_cycles\_reboot{k}:**
   - Indicate the execution of a reboot operation, k is the the reboot index.
-  - For example: R<sub>k</sub>
+  - For example: $R_k$
 
 ## Example
 
-If doing 5 suspends per reboot round for 3 rounds (N = 5, K = 3), it means:
+If we are doing 5 suspends per reboot for 3 reboots (N = 5, K = 3), it means we have these jobs:
 
-- `n`: numbers of suspend  in each reboot
-- `k`: numbers of reboot
-
-- suspend\_cycles\_1\_reboot1:
-  - S<sub>A</sub>1
-- suspend\_cycles_1\_reboot{{suspend\_reboot\_id}}:
-  - S<sub>k</sub>1 (`k`: from A to C)
-- suspend\_cycles\_{{suspend\_id}}\_reboot{{suspend\_reboot\_id}}:
-  - S<sub>k</sub>n (`n`: from 2 to 5, `k`: from A to C)
-- suspend\_cycles\_reboot{{suspend\_reboot\_id}}:
-  - R<sub>k</sub> (`k`: from A to C)
+- `suspend_cycles_1_reboot1`: $S_{1,1}$
+- `suspend_cycles_1_reboot{{suspend_reboot_id}}`: $S_{k,1}$, where $k = 1,2,3$
+- `suspend_cycles_{{suspend_id}}_reboot{{suspend_reboot_id}}`: $S_{n, k}$, where $n = 2,3,4,5$ and $k=2,3$
+- suspend\_cycles\_reboot{{suspend\_reboot\_id}}: $R_k$, where $k=1,2,3$ 
 
 The flow will be the following:
 
-S<sub>A</sub>1 &rarr; S<sub>A</sub>2 &rarr; S<sub>A</sub>3 &rarr; S<sub>A</sub>4 &rarr; S<sub>A</sub>5 &rarr; R<sub>A</sub>
-
-&rarr; S<sub>B</sub>1 &rarr; S<sub>B</sub>2 &rarr; S<sub>B</sub>3 &rarr; S<sub>B</sub>4 &rarr; S<sub>B</sub>5 &rarr; R<sub>B</sub>
-
-&rarr; S<sub>C</sub>1 &rarr; S<sub>C</sub>2 &rarr; S<sub>C</sub>3 &rarr; S<sub>C</sub>4 &rarr; S<sub>C</sub>5 &rarr; R<sub>C</sub>
+$$
+\begin{matrix}
+  \text{Start} \rightarrow& S_{1,1} &\rightarrow& S_{2,1} &\rightarrow& S_{3,1} &\rightarrow& S_{4,1}
+&\rightarrow& S_{5,1} &\rightarrow& R_1\\
+  &S_{1,2} &\rightarrow& S_{2,2} &\rightarrow& S_{3,2} &\rightarrow& S_{4,2}
+&\rightarrow& S_{5,2} &\rightarrow& R_2\\
+  &S_{1,3} &\rightarrow& S_{2,3} &\rightarrow& S_{3,3} &\rightarrow& S_{4,3}
+&\rightarrow& S_{5,3} &\rightarrow& R_3 & \rightarrow \text{End}\\
+\end{matrix}
+$$
 
 ## Relation between template and resource jobs
 

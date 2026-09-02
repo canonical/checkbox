@@ -69,11 +69,11 @@ environ:
 user: root
 command: |
   if type -P fwts >/dev/null; then
-   echo "Calling fwts"
-   checkbox-support-fwts_test -l "$PLAINBOX_SESSION_SHARE"/hibernate_30_cycles.log -f none -s s4 --s4-device-check --s4-device-check-delay=45 --s4-sleep-delay=120 --s4-multiple=30
+    echo "Calling fwts"
+    checkbox-support-fwts_test -l "$PLAINBOX_SESSION_SHARE"/hibernate_30_cycles.log -f none -s s4 --s4-device-check --s4-device-check-delay=45 --s4-sleep-delay=120 --s4-multiple=30
   else
-   echo "Calling sleep_test.py"
-   set -o pipefail; sleep_test.py -s disk -i 30 -w 120 | tee "$PLAINBOX_SESSION_SHARE"/hibernate_30_cycles.log
+    echo "Calling sleep_test.py"
+    set -o pipefail; sleep_test.py -s disk -i 30 -w 120 | tee "$PLAINBOX_SESSION_SHARE"/hibernate_30_cycles.log
   fi
 purpose: This is an automated stress test that will force the system to hibernate/resume for 30 cycles
 summary: Conduct an automated stress test to force 30 hibernate/resume cycles on the system.
@@ -239,11 +239,11 @@ environ:
 user: root
 command: |
   if type -P fwts >/dev/null; then
-   echo "Calling fwts"
-   checkbox-support-fwts_test -l "$PLAINBOX_SESSION_SHARE"/hibernate_250_cycles.log -s s4 --s4-device-check --s4-device-check-delay=45 --s4-sleep-delay=120 --s4-multiple=250
+    echo "Calling fwts"
+    checkbox-support-fwts_test -l "$PLAINBOX_SESSION_SHARE"/hibernate_250_cycles.log -s s4 --s4-device-check --s4-device-check-delay=45 --s4-sleep-delay=120 --s4-multiple=250
   else
-   echo "Calling sleep_test.py"
-   set -o pipefail; sleep_test.py -s disk -i 250 -w 120 | tee "$PLAINBOX_SESSION_SHARE"/hibernate_250_cycles.log
+    echo "Calling sleep_test.py"
+    set -o pipefail; sleep_test.py -s disk -i 250 -w 120 | tee "$PLAINBOX_SESSION_SHARE"/hibernate_250_cycles.log
   fi
 purpose: This is an automated stress test that will force the system to hibernate/resume for 250 cycles
 summary: Run an automated stress test for system hibernate/resume cycles.
@@ -267,11 +267,11 @@ environ:
 user: root
 command: |
   if type -P fwts >/dev/null; then
-   echo "Calling fwts"
-   set -o pipefail; checkbox-support-fwts_test -l "$PLAINBOX_SESSION_SHARE"/suspend_250_cycles.log -s s3 --s3-device-check --s3-device-check-delay=45 --s3-sleep-delay=30 --s3-multiple=250 | tee "$PLAINBOX_SESSION_SHARE"/suspend_250_cycles_times.log
+    echo "Calling fwts"
+    set -o pipefail; checkbox-support-fwts_test -l "$PLAINBOX_SESSION_SHARE"/suspend_250_cycles.log -s s3 --s3-device-check --s3-device-check-delay=45 --s3-sleep-delay=30 --s3-multiple=250 | tee "$PLAINBOX_SESSION_SHARE"/suspend_250_cycles_times.log
   else
-   echo "Calling sleep_test.py"
-   set -o pipefail; sleep_test.py -p -s mem -i 250 | tee "$PLAINBOX_SESSION_SHARE"/suspend_250_cycles.log
+    echo "Calling sleep_test.py"
+    set -o pipefail; sleep_test.py -p -s mem -i 250 | tee "$PLAINBOX_SESSION_SHARE"/suspend_250_cycles.log
   fi
 purpose: This is an automated stress test that will force the system to suspend/resume for 250 cycles.
 summary: Automated stress test for system suspend/resume for 250 cycles.
@@ -698,7 +698,7 @@ user: root
 summary: Attach pm-graph logs (s2idle)
 command: |
   if [ -d "$PLAINBOX_SESSION_SHARE"/s2idle_pm-graph ]; then
-      tar Jcf "$PLAINBOX_SESSION_SHARE"/s2idle_pm-graph_30.tar.xz "$PLAINBOX_SESSION_SHARE"/s2idle_pm-graph && cat "$PLAINBOX_SESSION_SHARE"/s2idle_pm-graph_30.tar.xz
+    tar Jcf "$PLAINBOX_SESSION_SHARE"/s2idle_pm-graph_30.tar.xz "$PLAINBOX_SESSION_SHARE"/s2idle_pm-graph && cat "$PLAINBOX_SESSION_SHARE"/s2idle_pm-graph_30.tar.xz
   fi
 ---
 plugin: shell
@@ -713,9 +713,9 @@ user: root
 summary: Resume from suspend by using Intel pm-graph
 command: |
   if [ ! -f /proc/driver/nvidia/suspend ]; then
-      sleepgraph -m mem -rtcwake 60 -sync -gzip -multi 30 30 -skiphtml -o "$PLAINBOX_SESSION_SHARE"/s3_pm-graph/suspend-"$(date -d today +%Y-%m-%d-%H%M)"
+    sleepgraph -m mem -rtcwake 60 -sync -gzip -multi 30 30 -skiphtml -o "$PLAINBOX_SESSION_SHARE"/s3_pm-graph/suspend-"$(date -d today +%Y-%m-%d-%H%M)"
   else
-      echo "The platform has Nvidia driver loaded, which is not capable of running sleepgraph. Exiting..."
+    echo "The platform has Nvidia driver loaded, which is not capable of running sleepgraph. Exiting..."
   fi
 ---
 plugin: attachment
@@ -731,7 +731,7 @@ user: root
 summary: Attach pm-graph logs (s3)
 command: |
   if [ -d "$PLAINBOX_SESSION_SHARE"/s3_pm-graph ]; then
-      tar Jcf "$PLAINBOX_SESSION_SHARE"/s3_pm-graph_30.tar.xz "$PLAINBOX_SESSION_SHARE"/s3_pm-graph && cat "$PLAINBOX_SESSION_SHARE"/s3_pm-graph_30.tar.xz
+    tar Jcf "$PLAINBOX_SESSION_SHARE"/s3_pm-graph_30.tar.xz "$PLAINBOX_SESSION_SHARE"/s3_pm-graph && cat "$PLAINBOX_SESSION_SHARE"/s3_pm-graph_30.tar.xz
   fi
 ---
 unit: job
@@ -753,22 +753,22 @@ command: |
   read -t 20 -r PSK || PSK=${WPA_N_PSK}
   [ -n "${NUM}" ] && [ -n "${SSID}" ] && [ -n "${PSK}" ]
   for n in $(nmcli -t -f TYPE,UUID c | grep -oP "(?<=^802-11-wireless:).*"); do
-      nmcli c delete "${n}"
+    nmcli c delete "${n}"
   done
   nmcli d wifi connect "${SSID}" password "${PSK}"
   UUID=$(nmcli -t -f TYPE,UUID c | grep -oP "(?<=^802-11-wireless:).*")
   i=1
   while [ ! $i -gt "$NUM" ]
   do
-      echo "Connect/Disconnect Round ${i}"
-      nmcli c up uuid "${UUID}"
-      sleep 5
-      if nmcli | grep ^wl | grep -q disconnected; then
-          exit 1
-      fi
-      nmcli c down uuid "${UUID}"
-      sleep 3
-      i=$((i+1))
+    echo "Connect/Disconnect Round ${i}"
+    nmcli c up uuid "${UUID}"
+    sleep 5
+    if nmcli | grep ^wl | grep -q disconnected; then
+        exit 1
+    fi
+    nmcli c down uuid "${UUID}"
+    sleep 3
+    i=$((i+1))
   done
 environ:
   - WPA_N_SSID

@@ -132,8 +132,8 @@ class MainLoopStage(CheckboxUiStage):
                     result_builder = JobResultBuilder(
                         outcome=IJobResult.OUTCOME_MANUAL_SKIP,
                         comments=_(
-                            "Trying to run interactive job in a silent"
-                            " session"
+                            "Unable to start interactive job in "
+                            "non-interactive session"
                         ),
                     )
                     result = result_builder.get_result()

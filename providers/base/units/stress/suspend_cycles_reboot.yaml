@@ -159,7 +159,7 @@ command: |
   set -o pipefail
   echo "Current boot ID is: $(tr -d - < /proc/sys/kernel/random/boot_id)"
   suspend_trigger.py --check-delay "${STRESS_S3_WAIT_DELAY:-45}" --sleep-delay "${STRESS_S3_SLEEP_DELAY:-30}" --rtc-device "${RTC_DEVICE_FILE:-/dev/rtc0}" 2>&1 | tee -a "$PLAINBOX_SESSION_SHARE"/suspend_cycles_with_reboot_total.log
-summary: Suspend and resume device for testing its capability to handle multiple cycles of suspend and reboot.
+summary: Suspend and resume device (suspend cycle {{suspend_id}}, reboot cycle {{suspend_reboot_id}})
 ---
 unit: template
 template-resource: stress_suspend_reboot_cycles_iterations

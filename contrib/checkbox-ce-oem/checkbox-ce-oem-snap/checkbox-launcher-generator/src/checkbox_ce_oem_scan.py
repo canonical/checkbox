@@ -521,6 +521,48 @@ def get_nested_plans(
     return result
 
 
+# Fixed display/filter order — independent of how nested_part lists them.
+_MANUAL_AUTO_STRESS_SUFFIXES = ("manual", "automated", "stress")
+
+
+def select_manual_auto_stress(
+    plan_full_id: str,
+    sub_plans: "list[tuple[str, str]]",
+) -> "tuple[list[tuple[str, str]], str | None]":
+    """Filter *sub_plans* down to the manual/automated/stress nested plans.
+
+    *plan_full_id* is the top-level plan's own full id. *sub_plans* is the
+    ``[(full_id, plan_id), ...]`` list returned by :func:`get_nested_plans`.
+    Other nested plans (e.g. a ``-rt`` variant) are ignored.
+
+    Returns ``(filtered, default_full_id)`` where:
+
+    - ``filtered`` is empty (with ``default_full_id`` ``None``) unless at
+      least one of the manual/automated/stress trio is present in
+      *sub_plans*. Otherwise it lists *plan_full_id* itself followed by
+      the matched trio entries, always ordered base → manual → automated
+      → stress regardless of input order.
+    - ``default_full_id`` is *plan_full_id* (running the base plan
+      exercises the whole trio, so it is the recommended default for
+      unattended/CI runs), or ``None`` when *filtered* is empty.
+    """
+    by_suffix: dict[str, tuple[str, str]] = {}
+    for full_id, plan_id in sub_plans:
+        for suffix in _MANUAL_AUTO_STRESS_SUFFIXES:
+            if plan_id.endswith(f"-{suffix}"):
+                by_suffix[suffix] = (full_id, plan_id)
+                break
+    if not by_suffix:
+        return [], None
+    base_entry = (plan_full_id, plan_full_id.split("::")[-1])
+    filtered = [base_entry] + [
+        by_suffix[suffix]
+        for suffix in _MANUAL_AUTO_STRESS_SUFFIXES
+        if suffix in by_suffix
+    ]
+    return filtered, plan_full_id
+
+
 def _matches(pattern: str, job_id: str) -> bool:
     """Return True if the checkbox glob *pattern* matches *job_id*.
 

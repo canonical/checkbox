@@ -260,6 +260,40 @@ class TestWriteLauncher(unittest.TestCase):
             gl.write_launcher("ns::ce-oem-test", [], out)
             self.assertNotIn("[manifest]", out.read_text())
 
+    def test_default_forced_yes_and_silent_ui(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            out = Path(tmp) / "ce-oem-test"
+            gl.write_launcher("ns::ce-oem-test", self._items(), out)
+            text = out.read_text()
+            self.assertIn("forced = yes", text)
+            self.assertIn("type = silent", text)
+            self.assertNotIn("filter =", text)
+
+    def test_filter_plans_written_with_forced_no_and_interactive_ui(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            out = Path(tmp) / "ce-oem-test"
+            gl.write_launcher(
+                "ns::ce-oem-test-automated",
+                self._items(),
+                out,
+                filter_plans=[
+                    "ns::ce-oem-test-manual",
+                    "ns::ce-oem-test-automated",
+                    "ns::ce-oem-test-stress",
+                ],
+                forced=False,
+            )
+            text = out.read_text()
+            self.assertIn("unit = ns::ce-oem-test-automated", text)
+            self.assertIn(
+                "filter = ns::ce-oem-test-manual\n"
+                "         ns::ce-oem-test-automated\n"
+                "         ns::ce-oem-test-stress",
+                text,
+            )
+            self.assertIn("forced = no", text)
+            self.assertIn("type = interactive", text)
+
 
 class TestParseExistingLauncher(unittest.TestCase):
     _SAMPLE = textwrap.dedent("""\
@@ -653,6 +687,101 @@ class TestEnsureRightFocusSelectable(unittest.TestCase):
         screen._ensure_right_focus_selectable()  # must not raise
 
         self.assertEqual(walker._focus_idx, 0)
+
+
+class TestSaveMergesManualAutoStress(unittest.TestCase):
+    """`_save` must write a single merged launcher (filter + forced=no,
+    defaulting to the base plan) when sub_plans contains a manual/
+    automated/stress trio, and fall back to a single plain launcher
+    otherwise."""
+
+    def _make_screen(self, output_dir, sub_plans):
+        screen = gl.LauncherEditorScreen.__new__(gl.LauncherEditorScreen)
+        screen.plan_full_id = "ns::ce-oem-iot-ubuntucore-26"
+        screen.items = []
+        screen.output_dir = output_dir
+        screen.sub_plans = sub_plans
+        screen._saved_paths = []
+        screen._status_text = _FakeText()
+        screen._status_text.set_text = lambda *a, **k: None
+        return screen
+
+    def _call_save(self, screen):
+        # _save() ends its success path with `raise urwid.ExitMainLoop()`;
+        # ensure the stub urwid module has that attribute, then swallow it.
+        if not hasattr(gl.urwid, "ExitMainLoop"):
+            gl.urwid.ExitMainLoop = type("ExitMainLoop", (Exception,), {})
+        try:
+            screen._save()
+        except gl.urwid.ExitMainLoop:
+            pass
+
+    def test_writes_single_merged_launcher(self):
+        sub_plans = [
+            (
+                "ns::ce-oem-iot-ubuntucore-26-manual",
+                "ce-oem-iot-ubuntucore-26-manual",
+            ),
+            (
+                "ns::ce-oem-iot-ubuntucore-26-automated",
+                "ce-oem-iot-ubuntucore-26-automated",
+            ),
+            (
+                "ns::ce-oem-iot-ubuntucore-26-stress",
+                "ce-oem-iot-ubuntucore-26-stress",
+            ),
+            ("ns::ce-oem-iot-ubuntucore-26-rt", "ce-oem-iot-ubuntucore-26-rt"),
+        ]
+        with tempfile.TemporaryDirectory() as tmp:
+            out_dir = Path(tmp)
+            screen = self._make_screen(out_dir, sub_plans)
+            self._call_save(screen)
+
+            self.assertEqual(len(screen._saved_paths), 1)
+            out = out_dir / "ce-oem-iot-ubuntucore-26-launcher"
+            self.assertEqual(screen._saved_paths[0], out)
+            text = out.read_text()
+            self.assertIn("unit = ns::ce-oem-iot-ubuntucore-26", text)
+            self.assertIn(
+                "filter = ns::ce-oem-iot-ubuntucore-26\n"
+                "         ns::ce-oem-iot-ubuntucore-26-manual\n"
+                "         ns::ce-oem-iot-ubuntucore-26-automated\n"
+                "         ns::ce-oem-iot-ubuntucore-26-stress",
+                text,
+            )
+            self.assertIn("forced = no", text)
+            self.assertIn("type = interactive", text)
+            filter_block = text.split("filter = ")[1].split("forced =")[0]
+            self.assertNotIn("-rt", filter_block)
+
+    def test_no_sub_plans_writes_plain_launcher(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            out_dir = Path(tmp)
+            screen = self._make_screen(out_dir, [])
+            self._call_save(screen)
+
+            self.assertEqual(len(screen._saved_paths), 1)
+            out = out_dir / "ce-oem-iot-ubuntucore-26-launcher"
+            text = out.read_text()
+            self.assertIn("unit = ns::ce-oem-iot-ubuntucore-26", text)
+            self.assertIn("forced = yes", text)
+            self.assertNotIn("filter =", text)
+            self.assertIn("type = silent", text)
+
+    def test_no_matching_sub_plans_writes_plain_launcher(self):
+        sub_plans = [
+            ("ns::ce-oem-iot-ubuntucore-26-rt", "ce-oem-iot-ubuntucore-26-rt")
+        ]
+        with tempfile.TemporaryDirectory() as tmp:
+            out_dir = Path(tmp)
+            screen = self._make_screen(out_dir, sub_plans)
+            self._call_save(screen)
+
+            out = out_dir / "ce-oem-iot-ubuntucore-26-launcher"
+            text = out.read_text()
+            self.assertIn("unit = ns::ce-oem-iot-ubuntucore-26", text)
+            self.assertIn("forced = yes", text)
+            self.assertNotIn("filter =", text)
 
 
 if __name__ == "__main__":

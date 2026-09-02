@@ -132,10 +132,13 @@ class MainLoopStage(CheckboxUiStage):
                     result_builder = JobResultBuilder(
                         outcome=IJobResult.OUTCOME_MANUAL_SKIP,
                         comments=_(
-                            "Trying to run interactive job in a silent"
-                            " session"
+                            "Unable to start interactive job in "
+                            "non-interactive session"
                         ),
                     )
+                    result = result_builder.get_result()
+                    ui.job_cannot_start(job, job_state, result)
+                    ui.finished(job, job_state, result)
                     return result_builder
                 if job_state.can_start():
                     ui.notify_about_purpose(job)

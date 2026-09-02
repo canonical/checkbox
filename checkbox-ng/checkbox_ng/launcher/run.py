@@ -220,8 +220,13 @@ class NormalUI(IJobRunnerUI):
             except ValueError:
                 pass  # unable to pretty print skip reason
         print(_("Job cannot be started because:"))
-        for inhibitor in job_state.readiness_inhibitor_list:
-            print(" - {}".format(self.C.YELLOW(inhibitor)))
+        if job_state.readiness_inhibitor_list:
+            for inhibitor in job_state.readiness_inhibitor_list:
+                print(" - {}".format(self.C.YELLOW(inhibitor)))
+        else:
+            # this is for tests that were skipped because interactive in a
+            # non-interactive session
+            print("-", self.C.RED(result.comments))
 
     def finished(self, job, job_state, result):
         self._print_result_outcome(result)

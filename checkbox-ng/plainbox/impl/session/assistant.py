@@ -1172,7 +1172,11 @@ class SessionAssistant:
             JobState class for details.
         """
         UsageExpectation.of(self).enforce(self.get_job_state)
-        # XXX: job_state_map is a bit low level, can we avoid that?
+        UsageExpectation.of(self).allow(
+            self.get_job_state,
+            self.use_job_result,
+            "update the result of a job given its state",
+        )
         return self._context.state.job_state_map[job_id]
 
     @raises(KeyError, UnexpectedMethodCall)

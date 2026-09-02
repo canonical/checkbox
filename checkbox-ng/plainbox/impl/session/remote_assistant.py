@@ -42,8 +42,10 @@ from plainbox.impl.providers.v1 import (
     reload_all_providers as reload_all_insecure_providers,
 )
 from plainbox.impl.result import JobResultBuilder, MemoryJobResult
-from plainbox.impl.result_utils import determine_outcome_and_skip_reason
-from plainbox.impl.result_utils import pretty_skip_reason
+from plainbox.impl.result_utils import (
+    determine_outcome_and_skip_reason,
+    pretty_skip_reason,
+)
 from plainbox.impl.secure.providers.v1 import (
     reload_all_providers as reload_all_secure_providers,
 )
@@ -195,7 +197,7 @@ class RemoteSessionAssistant:
     object but JSON encoded.
     """
 
-    REMOTE_API_VERSION = 15
+    REMOTE_API_VERSION = 16
 
     def __init__(self, cmd_callback):
         _logger.debug("__init__()")
@@ -548,7 +550,7 @@ class RemoteSessionAssistant:
     @allowed_when(
         RemoteSessionStates.SettingUp, RemoteSessionStates.TestsSelected
     )
-    def run_job(self, job_id):
+    def run_job(self, job_id, interactive_session):
         """
         Depending on the type of the job, run_job can yield different number
         of Interaction instances.
@@ -578,6 +580,25 @@ class RemoteSessionAssistant:
                 )
                 if skip_reason:
                     result_builder.skip_reason = skip_reason
+                return result_builder
+
+            self._be = BackgroundExecutor(self, job_id, cant_start_builder)
+            yield from self.interact(Interaction("skip", None, self._be))
+
+        if (
+            job.plugin in ["manual", "user-interact-verify", "user-interact"]
+            and not interactive_session
+        ):
+
+            def cant_start_builder(*args, **kwargs):
+                comments = (
+                    "Unable to start interactive job in non-interactive "
+                    "session"
+                )
+                result_builder = JobResultBuilder(
+                    outcome=IJobResult.OUTCOME_MANUAL_SKIP,
+                    comments=comments,
+                )
                 return result_builder
 
             self._be = BackgroundExecutor(self, job_id, cant_start_builder)

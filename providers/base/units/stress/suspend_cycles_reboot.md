@@ -1,11 +1,13 @@
 # Flow of the suspend-cycles-stress-test test plan
 
-This description will focus on the suspend cycles and reboot process.
+This doc describes the execution flow of the `suspend-cycles-stress-test` test plan, specifically the `suspend_cycles_{n}_reboot{k}` and `suspend_cycles_reboot{k}`
+jobs.
 
-The remaining work log check, suspend time check, and log attachments will be
-executed at the end of a suspend and reboot jobs.
+The remaining jobs in the test plan (`suspend-{n}-cycles-with-reboot-{k}-log-check`,
+`-time-check`, and `-log-attach`) run once at the end, after all
+suspend and reboot jobs have completed.
 
-## Definition of the test case name
+## Test case name definition
 
 Let $N$ be the total number of suspends per reboot and $K$ be the total number of reboots. Then the following test case will be generated for all $n=1,\dots,N$ and $k=1,\dots,K$
 

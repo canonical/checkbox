@@ -182,7 +182,6 @@ user: root
 command: reboot
 flags:
   - noreturn
-  - autorestart
 after:
   - stress-tests/suspend_cycles_{{s3_iterations}}_reboot{{suspend_reboot_id}}
 summary: Reboot device during stress test (reboot cycle {{suspend_reboot_id}}).

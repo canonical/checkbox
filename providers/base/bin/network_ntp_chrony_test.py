@@ -7,7 +7,7 @@ past using chrony's manual time input, and verifies that chrony can restore
 the correct time from its configured NTP sources. It uses the system's chrony
 configuration instead of contacting a hard-coded NTP server.
 
-The original chrony service state is restored after the test.
+The chrony service must already be running before the test starts.
 
 Copyright (C) 2026 Canonical Ltd.
 
@@ -30,74 +30,75 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 import argparse
 import logging
 import os
-import subprocess
+import subprocess as sp
 import sys
+import time
 
 DEFAULT_TIMEOUT = 60
 TIME_SKEW_SECONDS = 60 * 60  # 1 hour
 
-
-def run_command(command, timeout=None, check=True):
-    """Run a command and raise an error when it fails."""
-    logging.debug("Running: %s", " ".join(command))
-    result = subprocess.run(
-        command,
-        stdout=subprocess.PIPE,
-        stderr=subprocess.PIPE,
-        universal_newlines=True,
-        timeout=timeout,
-    )
-    if check and result.returncode:
-        error = result.stderr.strip() or result.stdout.strip()
-        raise RuntimeError("{}: {}".format(" ".join(command), error))
-    return result
+logger = logging.getLogger(__name__)
 
 
-def is_chrony_active():
+def is_chrony_active() -> bool:
     """Return whether the chrony service is currently active."""
-    result = run_command(
-        ["systemctl", "is-active", "--quiet", "chrony.service"],
-        check=False,
-    )
+    result = sp.run(["systemctl", "is-active", "--quiet", "chrony.service"])
     return result.returncode == 0
 
 
-def skew_time(current_time):
+def skew_time(current_time: float) -> None:
     """Skew the system time by one hour into the past."""
     skewed_time = current_time - TIME_SKEW_SECONDS
-    formatted_skewed_time = run_command(
-        [
-            "date",
-            "--date=@{}".format(skewed_time),
-            "+%Y-%m-%d %H:%M:%S",
-        ]
-    ).stdout.strip()
+    formatted_skewed_time = time.strftime(
+        "%Y-%m-%d %H:%M:%S", time.localtime(skewed_time)
+    )
 
-    run_command(["chronyc", "manual", "on"])
+    # Enables use of the settime command
+    sp.check_output(["chronyc", "manual", "on"], stderr=sp.STDOUT, text=True)
     try:
-        run_command(["chronyc", "settime", formatted_skewed_time])
-        run_command(["chronyc", "-a", "makestep"])
+        # Set the system time to the skewed value
+        sp.check_output(
+            ["chronyc", "settime", formatted_skewed_time],
+            stderr=sp.STDOUT,
+            text=True,
+        )
+        sp.check_output(
+            ["chronyc", "-a", "makestep"], stderr=sp.STDOUT, text=True
+        )
     finally:
-        run_command(["chronyc", "manual", "reset"])
-        run_command(["chronyc", "manual", "off"])
+        try:
+            # Reset the manual time adjustment
+            sp.check_output(
+                ["chronyc", "manual", "reset"], stderr=sp.STDOUT, text=True
+            )
+        finally:
+            # Disables use of the settime command
+            sp.check_output(
+                ["chronyc", "manual", "off"], stderr=sp.STDOUT, text=True
+            )
 
 
-def sync_with_chrony(timeout):
+def sync_with_chrony(timeout: int) -> None:
     """Synchronize the system clock with chrony."""
     # Re-enable the configured NTP sources.
-    run_command(["chronyc", "online"])
+    sp.check_output(["chronyc", "online"], stderr=sp.STDOUT, text=True)
     # Step the clock if the next update has an offset over 0.1 seconds.
-    run_command(["chronyc", "makestep", "0.1", "1"])
+    sp.check_output(
+        ["chronyc", "makestep", "0.1", "1"], stderr=sp.STDOUT, text=True
+    )
     # Request one good measurement, with at most four attempts per source.
-    run_command(["chronyc", "burst", "1/4"])
+    sp.check_output(["chronyc", "burst", "1/4"], stderr=sp.STDOUT, text=True)
     # Check once per second, for up to timeout attempts, until synchronized.
-    run_command(
+    logger.info("Waiting up to %s seconds for synchronization", timeout)
+    sp.check_output(
         ["chronyc", "waitsync", str(timeout), "0.1", "0.0", "1"],
+        stderr=sp.STDOUT,
+        text=True,
         timeout=timeout,
     )
 
 
-def parse_args(argv=None):
+def parse_args(argv=None) -> argparse.Namespace:
     parser = argparse.ArgumentParser(
         description="Synchronize the local clock using chrony"
     )
@@ -117,7 +118,7 @@ def parse_args(argv=None):
     return parser.parse_args(argv)
 
 
-def main(argv=None):
+def main(argv=None) -> int:
     args = parse_args(argv)
     logging.basicConfig(
         format="%(asctime)s %(levelname)s %(message)s",
@@ -126,52 +127,47 @@ def main(argv=None):
     )
 
     if os.geteuid() != 0:
-        logging.error("You must run this script as root")
+        logger.error("You must run this script as root")
+        return 1
+
+    if not is_chrony_active():
+        logger.error("Chrony service is not active")
         return 1
 
     try:
-        # Preserve the service state so the test does not change the system.
-        was_active = is_chrony_active()
-        if not was_active:
-            run_command(["systemctl", "start", "chrony.service"])
+        # Record the correct time before deliberately changing the clock.
+        current_time = time.time()
+        current_datetime = time.strftime(
+            "%Y-%m-%d %H:%M:%S", time.localtime(current_time)
+        )
+        logger.info("Current system date and time: %s", current_datetime)
 
-        try:
-            # Record the correct time before deliberately changing the clock.
-            current_time = int(run_command(["date", "+%s"]).stdout.strip())
-            current_datetime = run_command(
-                ["date", "+%Y-%m-%d %H:%M:%S"]
-            ).stdout.strip()
-            logging.info("Current system date and time: %s", current_datetime)
+        # Move the clock back one hour and apply the change.
+        skew_time(current_time)
+        skewed_datetime = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
+        logger.info("Skewed system date and time: %s", skewed_datetime)
 
-            # Move the clock back one hour and apply the change.
-            skew_time(current_time)
+        # Synchronize from NTP and confirm the clock returned to real time.
+        sync_with_chrony(args.timeout)
 
-            skewed_datetime = run_command(
-                ["date", "+%Y-%m-%d %H:%M:%S"]
-            ).stdout.strip()
-            logging.info("Skewed system date and time: %s", skewed_datetime)
-
-            # Synchronize from NTP and confirm the clock returned to real time.
-            sync_with_chrony(args.timeout)
-
-            synchronized_time = int(
-                run_command(["date", "+%s"]).stdout.strip()
-            )
-            if synchronized_time < current_time:
-                raise RuntimeError("Failed to synchronize the system time")
-            synchronized_datetime = run_command(
-                ["date", "+%Y-%m-%d %H:%M:%S"]
-            ).stdout.strip()
-            logging.info(
-                "Synchronized system date and time: %s",
-                synchronized_datetime,
-            )
-        finally:
-            # Restore the service state found before the test.
-            if not was_active:
-                run_command(["systemctl", "stop", "chrony.service"])
-    except (OSError, RuntimeError, subprocess.TimeoutExpired) as error:
-        logging.error("Time synchronization failed: %s", error)
+        # Verify that the system time is now correct.
+        synchronized_time = time.time()
+        if synchronized_time < current_time:
+            raise RuntimeError("Failed to synchronize the system time")
+        synchronized_datetime = time.strftime(
+            "%Y-%m-%d %H:%M:%S", time.localtime(synchronized_time)
+        )
+        logger.info(
+            "Synchronized system date and time: %s", synchronized_datetime
+        )
+    except sp.CalledProcessError as error:
+        logger.error(
+            "Time synchronization failed: %s",
+            error.output.strip() if error.output else error,
+        )
+        return 1
+    except (OSError, RuntimeError, sp.SubprocessError) as error:
+        logger.error("Time synchronization failed: %s", error)
         return 1
 
     return 0

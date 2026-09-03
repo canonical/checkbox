@@ -8,6 +8,7 @@ import sys
 
 from typing import List, Dict
 
+from checkbox_ng.support.lib.dmi import DmiDevice
 from checkbox_ng.support.release_info import get_release_info
 from checkbox_ng.support.parsers.meminfo import MeminfoParser
 from checkbox_ng.support.parsers.udevadm import parse_udevadm_output
@@ -150,6 +151,19 @@ def get_uname():
     }
 
 
+def get_chassis_info(chassis_path="/sys/class/dmi/id/chassis_type") -> dict:
+    try:
+        chassis_type = Path(chassis_path).read_text().strip()
+    except (PermissionError, FileNotFoundError) as e:
+        print(
+            "Failed to read chassis type. Error: {}".format(e),
+            file=sys.stderr,
+        )
+        return {"type": "Unknown"}
+    device = DmiDevice({"chassis_type": chassis_type}, "CHASSIS")
+    return {"type": device.product}
+
+
 def parse_args(argv=None):
     parser = argparse.ArgumentParser(
         description="Collect device information as JSON"
@@ -175,6 +189,9 @@ def parse_args(argv=None):
     subparsers.add_parser(
         "bios", help="Return BIOS information provided by /sys/class/dmi/id/"
     )
+    subparsers.add_parser(
+        "chassis", help="Return normalized chassis information"
+    )
     subparsers.add_parser("memory", help="Return memory information")
     subparsers.add_parser(
         "snaps", help="Return information about installed Snaps"
@@ -192,6 +209,7 @@ def main(argv=None):
         "devices": get_devices,
         "debian_packages": get_debian_packages,
         "bios": get_bios_info,
+        "chassis": get_chassis_info,
         "memory": get_meminfo,
         "snaps": get_snap_packages,
         "uname": get_uname,

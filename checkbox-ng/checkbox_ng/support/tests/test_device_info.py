@@ -107,6 +107,26 @@ class TestDeviceInfoCLI(TestCase):
             },
         )
 
+    def test_get_chassis_info(self):
+        """Test behavior when the chassis type is available."""
+        with patch(
+            "checkbox_ng.support.device_info.Path.read_text",
+            return_value="10\n",
+        ):
+            result = device_info.get_chassis_info()
+
+        self.assertEqual(result, {"type": "Notebook"})
+
+    def test_get_chassis_info_missing(self):
+        """Test behavior when the chassis type file is missing."""
+        with patch(
+            "checkbox_ng.support.device_info.Path.read_text",
+            side_effect=FileNotFoundError,
+        ):
+            result = device_info.get_chassis_info()
+
+        self.assertEqual(result, {"type": "Unknown"})
+
     @patch("checkbox_ng.support.device_info.get_debian_packages")
     @patch("checkbox_ng.support.device_info.get_devices")
     @patch("checkbox_ng.support.device_info.get_release_info")

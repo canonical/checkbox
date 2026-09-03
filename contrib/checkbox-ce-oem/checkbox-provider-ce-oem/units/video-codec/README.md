@@ -262,6 +262,8 @@ Currently only genio declares the scenario (using the default).
 
 - `GST_LAUNCH_BIN`: Override for `gst-launch-1.0` (e.g. a snap alias)
 - `GST_DISCOVERER`: Override for `gst-discoverer-1.0`
+- `GST_CODEC_EXECUTION_TIMEOUT`: Timeout in seconds for each GStreamer
+  subprocess execution. Defaults to `300` seconds if unset.
 - `USER_DEFINED_GST_LD_LIBRARY_PATH` / `USER_DEFINED_GST_PLUGIN_PATH`:
   Library/plugin paths appended when the GStreamer binary is not a snap
 
@@ -271,6 +273,7 @@ Currently only genio declares the scenario (using the default).
 # Basic setup for a Genio 1200 board
 VIDEO_CODEC_JSON_CONFIG_NAME=genio-1200
 VIDEO_CODEC_TESTING_DATA=/home/user/video
+GST_CODEC_EXECUTION_TIMEOUT=300
 
 # Using the GStreamer stack from a snap
 GST_LAUNCH_BIN=/snap/bin/gst-launch-1.0

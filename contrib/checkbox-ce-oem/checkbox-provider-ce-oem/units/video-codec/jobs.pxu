@@ -51,7 +51,7 @@ imports: from com.canonical.plainbox import manifest
 requires: manifest.has_video_codec == 'True'
 flags: also-after-suspend
 depends: ce-oem-video-codec/readiness
-environ: GST_LAUNCH_BIN
+environ: GST_LAUNCH_BIN GST_CODEC_EXECUTION_TIMEOUT
 command:
     gst_video_decoder_md5_checksum_comparison.py -dp {{decoder_plugin}} -cs {{color_space}} -gp {{golden_sample_file}} -gmp {{golden_md5_checkum_file}} -p "{{ platform }}"
 
@@ -72,7 +72,7 @@ imports: from com.canonical.plainbox import manifest
 requires: manifest.has_video_codec == 'True'
 flags: also-after-suspend
 depends: ce-oem-video-codec/readiness
-environ: GST_LAUNCH_BIN
+environ: GST_LAUNCH_BIN GST_CODEC_EXECUTION_TIMEOUT
 _steps:
     1. Plug a headset/earphone to the device
     2. Adjust the audio sink to be headset via Gnome Settings or command
@@ -101,7 +101,7 @@ imports: from com.canonical.plainbox import manifest
 requires: manifest.has_video_codec == 'True'
 flags: also-after-suspend
 depends: ce-oem-video-codec/readiness
-environ: GST_LAUNCH_BIN
+environ: GST_LAUNCH_BIN GST_CODEC_EXECUTION_TIMEOUT
 command:
     gst_video_decoder_performance.py -gp {{golden_sample_file}} -dp {{decoder_plugin}} -mf {{minimum_fps}} -p "{{ platform }}"
 
@@ -123,7 +123,7 @@ imports: from com.canonical.plainbox import manifest
 requires: manifest.has_video_codec == 'True'
 flags: also-after-suspend
 depends: ce-oem-video-codec/readiness
-environ: GST_LAUNCH_BIN, PLAINBOX_SESSION_SHARE, VIDEO_CODEC_TESTING_DATA, GST_DISCOVERER
+environ: GST_LAUNCH_BIN, PLAINBOX_SESSION_SHARE, VIDEO_CODEC_TESTING_DATA, GST_DISCOVERER, GST_CODEC_EXECUTION_TIMEOUT
 command:
     gst_encoder_psnr.py -p "{{ platform }}" -ep "{{ encoder_plugin }}" -cs "{{ color_space }}" -wi {{ width }} -hi {{ height }} -f {{ framerate }} -m "{{ mux }}"
 
@@ -144,7 +144,7 @@ imports: from com.canonical.plainbox import manifest
 requires: manifest.has_video_codec == 'True'
 flags: also-after-suspend
 depends: ce-oem-video-codec/readiness
-environ: GST_LAUNCH_BIN, PLAINBOX_SESSION_SHARE, VIDEO_CODEC_TESTING_DATA
+environ: GST_LAUNCH_BIN, PLAINBOX_SESSION_SHARE, VIDEO_CODEC_TESTING_DATA, GST_CODEC_EXECUTION_TIMEOUT
 command:
     gst_transform_rotate_and_flip.py -p "{{ platform }}" -ep "{{ encoder_plugin }}" -wi "{{ width }}" -hi "{{ height }}" -f "{{ framerate }}" -a "{{ action }}"
 
@@ -165,6 +165,6 @@ imports: from com.canonical.plainbox import manifest
 requires: manifest.has_video_codec == 'True'
 flags: also-after-suspend
 depends: ce-oem-video-codec/readiness
-environ: GST_LAUNCH_BIN, PLAINBOX_SESSION_SHARE, VIDEO_CODEC_TESTING_DATA
+environ: GST_LAUNCH_BIN, PLAINBOX_SESSION_SHARE, VIDEO_CODEC_TESTING_DATA, GST_CODEC_EXECUTION_TIMEOUT
 command:
     gst_transform_resize.py -p "{{ platform }}" -ep "{{ encoder_plugin }}" -wf "{{ width_from }}" -hf "{{ height_from }}" -wt "{{ width_to }}" -ht "{{ height_to }}" -f "{{ framerate }}"

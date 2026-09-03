@@ -8,21 +8,27 @@ import contextlib
 
 from abc import ABC, abstractmethod
 from enum import Enum
-from typing import Any
+from typing import Any, Optional
 
 from checkbox_support.scripts.psnr import get_average_psnr
 
+GST_CODEC_EXECUTION_TIMEOUT = int(
+    os.getenv("GST_CODEC_EXECUTION_TIMEOUT", "300")
+)
 GST_LAUNCH_BIN = os.getenv("GST_LAUNCH_BIN", "gst-launch-1.0")
 GST_DISCOVERER = os.getenv("GST_DISCOVERER", "gst-discoverer-1.0")
 PLAINBOX_SESSION_SHARE = os.getenv("PLAINBOX_SESSION_SHARE", "/var/tmp")
 VIDEO_CODEC_TESTING_DATA = os.getenv("VIDEO_CODEC_TESTING_DATA")
 if not VIDEO_CODEC_TESTING_DATA:
-    VIDEO_CODEC_TESTING_DATA = os.path.join(os.path.expanduser("~"), "video")
+    VIDEO_CODEC_TESTING_DATA = os.path.join(
+        os.path.expanduser("~"), "checkbox-video"
+    )
 
 if not os.path.exists(VIDEO_CODEC_TESTING_DATA):
     os.makedirs(VIDEO_CODEC_TESTING_DATA, exist_ok=True)
 # Folder stores the golden samples
-SAMPLE_2_FOLDER = "sample_2_big_bug_bunny"
+
+logger = logging.getLogger(__name__)
 
 
 class GStreamerEncodePlugins(Enum):
@@ -37,6 +43,17 @@ class GStreamerEncodePlugins(Enum):
 class GStreamerDecodePlugins(Enum):
     OMXH264DEC = "omxh264dec"
     OMXH265DEC = "omxh265dec"
+
+
+class GStreamerTransformActions(Enum):
+    ROTATE_90 = "rotate_90"
+    ROTATE_180 = "rotate_180"
+    ROTATE_270 = "rotate_270"
+    VERTICAL_FLIP = "vertical_flip"
+    HORIZONTAL_FLIP = "horizontal_flip"
+
+    def __str__(self):
+        return self.value
 
 
 class GStreamerMuxerType(Enum):
@@ -56,6 +73,7 @@ class GStreamerMuxerType(Enum):
     MP4MUX = "mp4"
     AVIMUX = "avi"
     MATROSKAMUX = "mkv"
+    QTMUX = "mov"
 
     @classmethod
     def get_extension(cls, mux_type: str = "MP4MUX"):
@@ -87,12 +105,14 @@ def _identify_gst_bin_from_snap(bin_name: str) -> bool:
                 bin_name
             )
         )
-    if ret.stdout.decode("utf-8").strip().startswith == "/snap/":
+    if ret.stdout.decode("utf-8").strip().startswith("/snap/"):
         return True
     return False
 
 
-def execute_command(cmd: str = "", timeout: int = 300) -> str:
+def execute_command(
+    cmd: str = "", timeout: int = GST_CODEC_EXECUTION_TIMEOUT
+) -> str:
     """
     Executes the GStreamer command and extracts the specific data from the
     output. The specific data is the value of last-message which is exposed by
@@ -196,38 +216,6 @@ def generate_artifact_name(extension: str = "mp4") -> str:
     return os.path.join(PLAINBOX_SESSION_SHARE, n)
 
 
-def get_big_bug_bunny_golden_sample(
-    width: int = 3840,
-    height: int = 2160,
-    framerate: int = 60,
-    codec: str = "h264",
-    container: str = "mp4",
-) -> str:
-    """
-    Idealy, we can consume a h264 mp4 file then encode by any other codecs and
-    mux it with a specific muxer such as mp4mux into mp4 container.
-    Therefore, we only need to adjust the width, height and framerate for
-    getting golden sample.
-
-    If you need a golden sample which doesn't exist in our sample pool, please
-    contribute it and get it as your requirement.
-    """
-    golden_sample = "big_bug_bunny_{}x{}_{}fps_{}.{}".format(
-        width, height, framerate, codec, container
-    )
-
-    full_path = os.path.join(
-        VIDEO_CODEC_TESTING_DATA, SAMPLE_2_FOLDER, golden_sample
-    )
-    logging.debug("Golden Sample: '{}'".format(full_path))
-    if not os.path.exists(full_path):
-        raise SystemExit(
-            "Error: Golden sample '{}' doesn't exist".format(full_path)
-        )
-
-    return full_path
-
-
 @contextlib.contextmanager
 def manage_test_file_by_name(
     file_name: str, target_dir: str = VIDEO_CODEC_TESTING_DATA
@@ -264,30 +252,58 @@ def manage_test_file_by_name(
             delete_file(file_path)
 
 
-def get_resolution_string(width: int, height: int) -> str:
-    if width == 3840 and height == 2160:
-        return "4k"
-    elif width == 2560 and height == 1440:
-        return "2k"
+def file_name_placeholder(
+    width: int,
+    height: int,
+    codec_short_name: str,
+    ext: str,
+    framerate: Optional[int] = None,
+) -> str:
+    file_name = "{}x{}_{}fps_{}.{}".format(
+        width, height, framerate, codec_short_name, ext
+    )
+    # For non video files, such as jpg
+    if framerate is None:
+        file_name = "{}x{}_{}.{}".format(width, height, codec_short_name, ext)
+    logging.debug("Generated file name: %s", file_name)
+    return file_name
+
+
+def get_codec_short_name(plugin_name: str) -> str:
+    if "264" in plugin_name:
+        return "h264"
+    elif "265" in plugin_name:
+        return "h265"
+    elif "vp8" in plugin_name:
+        return "vp8"
+    elif "vp9" in plugin_name:
+        return "vp9"
+    elif "jpg" in plugin_name or "jpeg" in plugin_name:
+        return "jpg"
     else:
-        return "{}p".format(height)
+        return ""
 
 
 def get_test_file_name_by_params(
     width: int, height: int, framerate: int, plugin_name: str
 ) -> str:
-    if "264" in plugin_name or "265" in plugin_name:
+    core_codec = get_codec_short_name(plugin_name).lower()
+    if core_codec in ["h264", "h265"]:
         ext = "mp4"
-        core_codec = "h265" if "265" in plugin_name else "h264"
-    elif "vp8" in plugin_name or "vp9" in plugin_name:
+    elif core_codec in ["vp8", "vp9"]:
         ext = "webm"
-        core_codec = "vp9" if "vp9" in plugin_name else "vp8"
     else:
         ext = "mp4"
         core_codec = "h264"
 
-    resolution_str = get_resolution_string(width, height)
-    return "{}_{}fps_{}.{}".format(resolution_str, framerate, core_codec, ext)
+    file_name = file_name_placeholder(
+        width=width,
+        height=height,
+        codec_short_name=core_codec,
+        ext=ext,
+        framerate=framerate,
+    )
+    return file_name
 
 
 @contextlib.contextmanager

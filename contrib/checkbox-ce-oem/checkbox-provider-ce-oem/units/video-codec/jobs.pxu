@@ -1,5 +1,5 @@
 id: video_codec_resource
-_summary: Generates mappings for all Vedio Codec Scenarios
+_summary: Generates mappings for all Video Codec Scenarios
 _description: Generate resource for all Video Codec scenarios.
 estimated_duration: 0.02
 category_id: video-codec
@@ -20,14 +20,28 @@ environ: VIDEO_CODEC_JSON_CONFIG_NAME VIDEO_CODEC_TESTING_DATA PLAINBOX_PROVIDER
 command:
     gst_resources_generator.py "$VIDEO_CODEC_JSON_CONFIG_NAME" -gtdp "$VIDEO_CODEC_TESTING_DATA"
 
+id: ce-oem-video-codec/readiness
+_summary: Verify installation of the GStreamer tools
+_description: Checks if the system has the necessary GStreamer binaries installed to proceed with video codec testing.
+estimated_duration: 2s
+category_id: video-codec
+plugin: shell
+imports: from com.canonical.plainbox import manifest
+requires: manifest.has_video_codec == 'True'
+environ: GST_LAUNCH_BIN GST_DISCOVERER
+command:
+    for tool in "${GST_LAUNCH_BIN:-gst-launch-1.0}" "${GST_DISCOVERER:-gst-discoverer-1.0}"; do
+        command -v "$tool" || { echo "Error: $tool not found"; exit 1; }
+    done
+
 unit: template
 template-engine: jinja2
 template-resource: video_codec_resource
-template-filter: video_codec_resource.scenario == "gst_v4l2_video_decoder_md5_checksum_comparison"
+template-filter: video_codec_resource.scenario == "gst_video_decoder_md5_checksum_comparison"
 template-unit: job
-template-id: ce-oem-video-codec/gst_v4l2_video_decoder_md5_checksum_comparison
+template-id: ce-oem-video-codec/gst_video_decoder_md5_checksum_comparison
 _template-summary: To check if the MD5 checksum is same as golden reference under specific decoder
-id: ce-oem-video-codec/{{ scenario }}-{{ decoder_plugin }}-{{ width }}x{{ height }}-{{ color_space }}
+id: ce-oem-video-codec/{{ name }}{# gst_video_decoder_md5_checksum_comparison #}
 _summary: MD5 checksum comparison {{ width }}x{{ height }}-{{ decoder_plugin }}-{{ color_space }}
 _description: Compare the MD5 checksum to golden reference by decoding the {{ width }}x{{ height }}-{{ decoder_plugin }}-{{ color_space }} video via gstreamer
 plugin: shell
@@ -36,9 +50,10 @@ estimated_duration: 1s
 imports: from com.canonical.plainbox import manifest
 requires: manifest.has_video_codec == 'True'
 flags: also-after-suspend
-environ: GST_LAUNCH_BIN
+depends: ce-oem-video-codec/readiness
+environ: GST_LAUNCH_BIN GST_CODEC_EXECUTION_TIMEOUT
 command:
-    gst_v4l2_video_decoder_md5_checksum_comparison.py -dp {{decoder_plugin}} -cs {{color_space}} -gp {{golden_sample_file}} -gmp {{golden_md5_checkum_file}}
+    gst_video_decoder_md5_checksum_comparison.py -dp {{decoder_plugin}} -cs {{color_space}} -gp {{golden_sample_file}} -gmp {{golden_md5_checkum_file}} -p "{{ platform }}"
 
 unit: template
 template-engine: jinja2
@@ -47,15 +62,17 @@ template-filter: video_codec_resource.scenario == "gst_v4l2_audio_video_synchron
 template-unit: job
 template-id: ce-oem-video-codec/gst_v4l2_audio_video_synchronization
 _template-summary: To check if the relative timing of audio and video is synchronized
-id: ce-oem-video-codec/{{ scenario }}-{{ decoder_plugin }}-{{ golden_sample_file_name }}-{{ video_sink }}
+id: ce-oem-video-codec/{{ name }}{# gst_v4l2_audio_video_synchronization #}
 _summary: AV-Sync test of decoder {{ decoder_plugin }} with {{ golden_sample_file_name }} file
 _purpose: To check if the relative timing of audio and video of {{ golden_sample_file_name }} file is synchronized under a specific {{ decoder_plugin }} decoder
 plugin: user-interact-verify
 category_id: video-codec
 estimated_duration: 30s
 imports: from com.canonical.plainbox import manifest
+requires: manifest.has_video_codec == 'True'
 flags: also-after-suspend
-environ: GST_LAUNCH_BIN
+depends: ce-oem-video-codec/readiness
+environ: GST_LAUNCH_BIN GST_CODEC_EXECUTION_TIMEOUT
 _steps:
     1. Plug a headset/earphone to the device
     2. Adjust the audio sink to be headset via Gnome Settings or command
@@ -65,7 +82,7 @@ _verification:
     1. Do you hear the beep sound and see the video be displayed?
     2. Is the timing of audio and video synchronized?
 command:
-    gst_v4l2_audio_video_synchronization.py -dp {{decoder_plugin}} -gp {{golden_sample_file}} -vs {{video_sink}} -cp "{{capssetter_pipeline}}"
+    gst_v4l2_audio_video_synchronization.py -dp {{decoder_plugin}} -gp {{golden_sample_file}} -vs {{video_sink}} -cp "{{capssetter_pipeline}}" -p "{{ platform }}"
 
 unit: template
 template-engine: jinja2
@@ -74,37 +91,39 @@ template-filter: video_codec_resource.scenario == "gst_video_decoder_performance
 template-unit: job
 template-id: ce-oem-video-codec/gst_video_decoder_performance_fakesink
 _template-summary: To check if the performance of decoder doesn't violate Pass Criteria
-id: ce-oem-video-codec/{{ scenario }}-{{ decoder_plugin }}
-_summary: Performance test of decoder {{ decoder_plugin }} - fakesink
+id: ce-oem-video-codec/{{ name }}{# gst_video_decoder_performance_fakesink #}
+_summary: Performance test of decoder - {{ name }}
 _description: Test if while the sink is fakesink, the decoder's performance, {{ decoder_plugin }}, doesn't violate the Pass Criteria. (1) There are no frame losses (2) Average FPS not fall below the specification's definition
 plugin: shell
-user: root
 category_id: video-codec
 estimated_duration: 1s
 imports: from com.canonical.plainbox import manifest
 requires: manifest.has_video_codec == 'True'
 flags: also-after-suspend
-environ: GST_LAUNCH_BIN, PERFORMANCE_PYTHON_MODULE_PATH, PERFORMANCE_FUNCTION_NAME PLATFORM_NAME
+depends: ce-oem-video-codec/readiness
+environ: GST_LAUNCH_BIN GST_CODEC_EXECUTION_TIMEOUT
 command:
-    gst_video_decoder_performance.py -gp {{golden_sample_file}} -dp {{decoder_plugin}} -mf {{minimum_fps}} -pmt "{{performance_target}}" -p "$PLATFORM_NAME"
+    gst_video_decoder_performance.py -gp {{golden_sample_file}} -dp {{decoder_plugin}} -mf {{minimum_fps}} -p "{{ platform }}"
 
 unit: template
 template-engine: jinja2
 template-resource: video_codec_resource
 template-filter:
     video_codec_resource.scenario == "gst_encoder_psnr"
-    ( video_codec_resource.platform == "genio-350" or video_codec_resource.platform == "genio-510" or video_codec_resource.platform == "genio-700" or video_codec_resource.platform == "genio-1200" )
 template-unit: job
-template-id: ce-oem-video-codec/genio-gst_encoder_psnr
-_template-summary: Verify the PSNR ratio meets requirement for specific encoder on Genio platform
-id: ce-oem-video-codec/{{ scenario }}-{{ encoder_plugin }}-{{ width }}x{{ height }}@{{ framerate }}fps-{{ color_space }}-{{ mux }}
-_summary: Encoder PSNR - Genio - {{ encoder_plugin }}-{{ width }}x{{ height }}@{{ framerate }}fps-{{ color_space }}-{{ mux }}
-_description: Test if the PSNR value of an artifact which is generated from {{ encoder_plugin }} encoder reaches the acceptable threshold on Genio platform
+template-id: ce-oem-video-codec/gst_encoder_psnr
+_template-summary: Verify the PSNR ratio meets requirement for specific encoder
+id: ce-oem-video-codec/{{ name }}{# gst_encoder_psnr #}
+_summary: Encoder PSNR - {{ name }}
+_description: Test if the PSNR value of an artifact which is generated from {{ encoder_plugin }} encoder reaches the acceptable threshold
 plugin: shell
 category_id: video-codec
 estimated_duration: 60s
+imports: from com.canonical.plainbox import manifest
+requires: manifest.has_video_codec == 'True'
 flags: also-after-suspend
-environ: GST_LAUNCH_BIN, PLAINBOX_SESSION_SHARE, VIDEO_CODEC_TESTING_DATA, GST_DISCOVERER
+depends: ce-oem-video-codec/readiness
+environ: GST_LAUNCH_BIN, PLAINBOX_SESSION_SHARE, VIDEO_CODEC_TESTING_DATA, GST_DISCOVERER, GST_CODEC_EXECUTION_TIMEOUT
 command:
     gst_encoder_psnr.py -p "{{ platform }}" -ep "{{ encoder_plugin }}" -cs "{{ color_space }}" -wi {{ width }} -hi {{ height }} -f {{ framerate }} -m "{{ mux }}"
 
@@ -113,11 +132,10 @@ template-engine: jinja2
 template-resource: video_codec_resource
 template-filter:
     video_codec_resource.scenario == "gst_transform_rotate_and_flip"
-    ( video_codec_resource.platform == "genio-350" or video_codec_resource.platform == "genio-510" or video_codec_resource.platform == "genio-700" or video_codec_resource.platform == "genio-1200" )
 template-unit: job
 template-id: ce-oem-video-codec/gst_transform_rotate_and_flip
 _template-summary: Check if the rotation or flip operations are functional
-id: ce-oem-video-codec/{{ scenario }}-{{ encoder_plugin }}_{{ action }}_{{ width }}x{{ height }}_{{ framerate }}fps
+id: ce-oem-video-codec/{{ name }}{# gst_transform_rotate_and_flip #}
 _summary: Perform {{ action }} - {{ width }}x{{ height }}_{{ framerate }}fps file
 plugin: shell
 category_id: video-codec
@@ -125,7 +143,8 @@ estimated_duration: 60s
 imports: from com.canonical.plainbox import manifest
 requires: manifest.has_video_codec == 'True'
 flags: also-after-suspend
-environ: GST_LAUNCH_BIN, PLAINBOX_SESSION_SHARE, VIDEO_CODEC_TESTING_DATA
+depends: ce-oem-video-codec/readiness
+environ: GST_LAUNCH_BIN, PLAINBOX_SESSION_SHARE, VIDEO_CODEC_TESTING_DATA, GST_CODEC_EXECUTION_TIMEOUT
 command:
     gst_transform_rotate_and_flip.py -p "{{ platform }}" -ep "{{ encoder_plugin }}" -wi "{{ width }}" -hi "{{ height }}" -f "{{ framerate }}" -a "{{ action }}"
 
@@ -134,11 +153,10 @@ template-engine: jinja2
 template-resource: video_codec_resource
 template-filter:
     video_codec_resource.scenario == "gst_transform_resize"
-    ( video_codec_resource.platform == "genio-350" or video_codec_resource.platform == "genio-510" or video_codec_resource.platform == "genio-700" or video_codec_resource.platform == "genio-1200" )
 template-unit: job
-template-id: ce-oem-video-codec/genio-gst_transform_resize
+template-id: ce-oem-video-codec/gst_transform_resize
 _template-summary: Check if the resize (scale up or down) are functional
-id: ce-oem-video-codec/{{ scenario }}-{{ encoder_plugin }}_from_{{ width_from }}x{{ height_from }}_{{ framerate }}fps_to_{{ width_to }}x{{ height_to }}
+id: ce-oem-video-codec/{{ name }}{# gst_transform_resize #}
 _summary: Perform resize - from {{ width_from }}x{{ height_from }} to {{ width_to }}x{{ height_to }} file
 plugin: shell
 category_id: video-codec
@@ -146,66 +164,7 @@ estimated_duration: 60s
 imports: from com.canonical.plainbox import manifest
 requires: manifest.has_video_codec == 'True'
 flags: also-after-suspend
-environ: GST_LAUNCH_BIN, PLAINBOX_SESSION_SHARE, VIDEO_CODEC_TESTING_DATA
+depends: ce-oem-video-codec/readiness
+environ: GST_LAUNCH_BIN, PLAINBOX_SESSION_SHARE, VIDEO_CODEC_TESTING_DATA, GST_CODEC_EXECUTION_TIMEOUT
 command:
     gst_transform_resize.py -p "{{ platform }}" -ep "{{ encoder_plugin }}" -wf "{{ width_from }}" -hf "{{ height_from }}" -wt "{{ width_to }}" -ht "{{ height_to }}" -f "{{ framerate }}"
-
-unit: template
-template-engine: jinja2
-template-resource: video_codec_resource
-template-filter:
-    video_codec_resource.scenario == "gst_encoder_psnr"
-    video_codec_resource.platform == "carmel"
-template-unit: job
-template-id: ce-oem-video-codec/carmel-gst_encoder_psnr
-_template-summary: Verify the PSNR ratio meets requirement for specific encoder on Carmel
-id: ce-oem-video-codec/carmel-{{ scenario }}-{{ encoder_plugin }}-{{ width }}x{{ height }}@{{ framerate }}fps
-_summary: Encoder PSNR - Carmel - {{ encoder_plugin }}-{{ width }}x{{ height }}@{{ framerate }}fps
-_description: Test if the PSNR value of an artifact which is generated from {{ encoder_plugin }} encoder reaches the acceptable threshold on Carmel platform
-plugin: shell
-user: root
-category_id: video-codec
-estimated_duration: 60s
-environ: GST_LAUNCH_BIN, PLAINBOX_SESSION_SHARE, VIDEO_CODEC_TESTING_DATA, GST_DISCOVERER
-command:
-    gst_encoder_psnr.py -p "{{ platform }}" -ep "{{ encoder_plugin }}" -wi {{ width }} -hi {{ height }} -f "{{ framerate }}"
-
-unit: template
-template-engine: jinja2
-template-resource: video_codec_resource
-template-filter:
-    video_codec_resource.scenario == "gst_encoder_psnr"
-    video_codec_resource.platform in ["nxp-imx8mp", "nxp-imx8mm"]
-template-unit: job
-template-id: ce-oem-video-codec/imx-gst_encoder_psnr
-_template-summary: Verify the PSNR ratio for specific encoder on NXP i.MX8M platform
-id: ce-oem-video-codec/imx8-{{ scenario }}-{{ encoder_plugin }}-{{ width }}x{{ height }}@{{ framerate }}fps-{{ color_space }}
-_summary: Encoder PSNR - iMX8 - {{ encoder_plugin }}-{{ width }}x{{ height }}@{{ framerate }}fps-{{ color_space }}
-_description: Test if the PSNR value of an artifact which is generated from {{ encoder_plugin }} encoder reaches the acceptable threshold on NXP i.MX8M platform
-plugin: shell
-user: root
-category_id: video-codec
-estimated_duration: 60s
-environ: GST_LAUNCH_BIN, PLAINBOX_SESSION_SHARE, VIDEO_CODEC_TESTING_DATA, GST_DISCOVERER
-command:
-    gst_encoder_psnr.py -p "{{ platform }}" -ep "{{ encoder_plugin }}" -cs "{{ color_space }}" -wi {{ width }} -hi {{ height }} -f "{{ framerate }}"
-
-unit: template
-template-engine: jinja2
-template-resource: video_codec_resource
-template-filter:
-    video_codec_resource.scenario == "gst_encoder_psnr"
-    video_codec_resource.platform in ["rzg2l", "rzg3e", "rzv2l", "rzv2h", "rzv2n"]
-template-unit: job
-template-id: ce-oem-video-codec/renesas-gst_encoder_psnr
-_template-summary: Verify the PSNR ratio for specific encoder on Renesas platform
-id: ce-oem-video-codec/renesas-{{ scenario }}-{{ encoder_plugin }}-{{ width }}x{{ height }}@{{ framerate }}fps-{{ color_space }}
-_summary: Encoder PSNR - Renesas - {{ encoder_plugin }}-{{ width }}x{{ height }}@{{ framerate }}fps-{{ color_space }}
-_description: Test if the PSNR value of an artifact which is generated from {{ encoder_plugin }} encoder reaches the acceptable threshold on Renesas platform
-plugin: shell
-user: root
-category_id: video-codec
-estimated_duration: 60s
-environ: GST_LAUNCH_BIN, PLAINBOX_SESSION_SHARE, VIDEO_CODEC_TESTING_DATA, GST_DISCOVERER
-command:
-    gst_encoder_psnr.py -p "{{ platform }}" -ep "{{ encoder_plugin }}" -cs "{{ color_space }}" -wi {{ width }} -hi {{ height }} -f "{{ framerate }}"

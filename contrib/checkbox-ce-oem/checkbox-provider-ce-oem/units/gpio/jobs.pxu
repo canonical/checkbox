@@ -140,9 +140,9 @@ command:
 
 
 id: ce-oem-gpiod-gpio/check-simple-resource
-_summary: Check Generating libgpiod GPIO lines for simple GPIO tests
+_summary: Check libgpiod GPIO line resource generation for simple GPIO tests
 _purpose:
-    Check ce-oem-gpiod-gpio/simple-resource job executes successfully
+    Check that ce-oem-gpiod-gpio/simple-resource executes successfully.
 estimated_duration: 0.02
 category_id: com.canonical.certification::gpio
 plugin: shell

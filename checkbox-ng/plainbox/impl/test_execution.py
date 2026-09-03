@@ -23,6 +23,7 @@ from unittest import TestCase, mock
 
 from plainbox.impl.execution import (
     FakeJobRunner,
+    IJobResult,
     MountingStrategy,
     UnifiedRunner,
     add_to_environment,
@@ -30,7 +31,6 @@ from plainbox.impl.execution import (
     get_execution_command_subshell,
     get_execution_command_systemd_unit,
     get_execution_environment,
-    IJobResult,
 )
 from plainbox.impl.unit.job import InvalidJob
 
@@ -326,6 +326,57 @@ class UnifiedRunnerTests(TestCase):
                 self_mock, job_mock, {}, mock.Mock(), as_systemd_unit=True
             )
         self.assertEqual(str(e.exception), "systemd")
+
+    @mock.patch("os.geteuid")
+    def test_prepare_systemd_based_runner_already_prepared(self, mock_geteuid):
+        self_mock = mock.MagicMock()
+        self_mock._systemd_runner_prepared = True
+
+        UnifiedRunner.prepare_systemd_based_runner(self_mock)
+
+        self.assertFalse(mock_geteuid.called)
+
+    @mock.patch("builtins.open", new_callable=mock.mock_open)
+    @mock.patch("os.geteuid")
+    def test_prepare_systemd_based_runner_not_root(
+        self, mock_geteuid, mock_open
+    ):
+        self_mock = mock.MagicMock()
+        self_mock._systemd_runner_prepared = False
+        mock_geteuid.return_value = 1000
+
+        UnifiedRunner.prepare_systemd_based_runner(self_mock)
+
+        self.assertTrue(mock_geteuid.called)
+        self.assertFalse(mock_open.called)
+
+    @mock.patch("builtins.open", new_callable=mock.mock_open)
+    @mock.patch("os.geteuid")
+    def test_prepare_systemd_based_runner_writes_oom_score(
+        self, mock_geteuid, mock_open
+    ):
+        self_mock = mock.MagicMock()
+        self_mock._systemd_runner_prepared = False
+        mock_geteuid.return_value = 0
+
+        UnifiedRunner.prepare_systemd_based_runner(self_mock)
+
+        self.assertTrue(mock_open.called)
+
+    @mock.patch("plainbox.impl.execution.logger")
+    @mock.patch("plainbox.impl.execution.open")
+    @mock.patch("os.geteuid")
+    def test_prepare_systemd_based_runner_write_failure_warns(
+        self, mock_geteuid, mock_open, mock_logger
+    ):
+        self_mock = mock.MagicMock()
+        self_mock._systemd_runner_prepared = False
+        mock_geteuid.return_value = 0
+        mock_open.side_effect = OSError("Permission denied")
+
+        UnifiedRunner.prepare_systemd_based_runner(self_mock)
+
+        self.assertTrue(mock_logger.warning.called)
 
     @mock.patch("os.getcwd")
     def test_get_proper_job_cwd_preserve_cwd(self, os_cwd_mock):

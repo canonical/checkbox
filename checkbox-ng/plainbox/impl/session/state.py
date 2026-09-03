@@ -25,6 +25,7 @@ Session State Handling.
 import collections
 import json
 import logging
+import os
 import re
 import shutil
 from contextlib import suppress
@@ -46,7 +47,6 @@ from plainbox.impl.session.system_information import (
 )
 from plainbox.impl.unit.job import JobDefinition
 from plainbox.impl.unit.testplan import TestPlanUnitSupport
-from plainbox.impl.unit.unit import on_ubuntucore
 from plainbox.impl.unit.unit_with_id import UnitWithId
 from plainbox.suspend_consts import Suspend
 from plainbox.vendor import morris
@@ -197,19 +197,19 @@ class SessionMetaData:
             "features", "systemd_based_job_runner"
         )
         if systemd_based_job_runner is None:
-            systemd_based_job_runner = on_ubuntucore()
+            systemd_based_job_runner = bool(os.getenv("SNAP"))
         if systemd_based_job_runner:
             if shutil.which("plz-run"):
                 logger.info("Using systemd-based runner")
                 self._flags.add(self.FLAG_FEATURE_SYSTEMD_BASED_JOB_RUNNER)
             else:
                 logger.error(
-                    "Experimental systemd-based runner was requested but "
+                    "Systemd-based runner was requested but "
                     "required dependency plz-run is not installed"
                 )
-                logger.error("Falling back to shell based runner")
+                logger.error("Falling back to legacy shell based runner")
         else:
-            logger.info("Using subprocess-based runner")
+            logger.info("Using legacy subprocess-based runner")
 
     @property
     def flags(self):

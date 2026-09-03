@@ -136,6 +136,32 @@ command:
             set -- "$@" --allow-named
             ;;
     esac
+    resource_wrapper.sh -- gpio_test_subprocess.py resource simple "$@" --format text
+
+
+id: ce-oem-gpiod-gpio/check-simple-resource
+_summary: Check Generating libgpiod GPIO lines for simple GPIO tests
+_purpose:
+    Check ce-oem-gpiod-gpio/simple-resource job executes successfully
+estimated_duration: 0.02
+category_id: com.canonical.certification::gpio
+plugin: shell
+user: root
+imports: from com.canonical.plainbox import manifest
+requires: manifest.has_gpiod_gpio == 'True'
+environ:
+    GPIOD_GPIO_IGNORE
+    GPIOD_GPIO_ALLOW_NAMED
+command:
+    set --
+    if [ -n "$GPIOD_GPIO_IGNORE" ]; then
+        set -- "$@" --ignore "$GPIOD_GPIO_IGNORE"
+    fi
+    case "$GPIOD_GPIO_ALLOW_NAMED" in
+        1|true|True|yes|Yes)
+            set -- "$@" --allow-named
+            ;;
+    esac
     gpio_test_subprocess.py resource simple "$@" --format text
 
 

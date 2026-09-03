@@ -353,7 +353,6 @@ class TestClinfoTest(unittest.TestCase):
         )
 
         result = clinfo_test.cmd_test(
-
             validation_json_path="",
             platform="platform",
             platform_number=0,

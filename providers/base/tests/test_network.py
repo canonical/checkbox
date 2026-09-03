@@ -83,6 +83,63 @@ class IPerfPerfomanceTestTests(unittest.TestCase):
         self.assertEqual(test.num_threads, 5)
         self.assertListEqual(test._results, [])
 
+    def test_expected_max_speed_no_override_uses_iface_max_speed(self):
+        test = self.make_iperf_test()
+        test.iface.max_speed = 1000
+        self.assertEqual(test.expected_max_speed, 1000)
+
+    def make_iperf_test_with_named_interface(self, **overrides):
+        """Like make_iperf_test(), but Interface() returns a Mock whose
+        .interface attribute reflects the name it was constructed with, so
+        that INTERFACE_SPEED_OVERRIDE matching can be exercised."""
+        kwargs = dict(
+            interface="eth0",
+            target="192.168.1.1",
+            fail_threshold=40,
+            cpu_load_fail_threshold=100,
+            iperf3=True,
+            num_threads=2,
+            reverse=False,
+        )
+        kwargs.update(overrides)
+
+        def interface_side_effect(name):
+            iface = Mock()
+            iface.interface = name
+            iface.max_speed = 1000
+            return iface
+
+        with patch("network.Interface") as mock_interface:
+            mock_interface.side_effect = interface_side_effect
+            return network.IPerfPerformanceTest(**kwargs)
+
+    def test_expected_max_speed_uses_override(self):
+        test = self.make_iperf_test_with_named_interface(
+            interface_speed_override="eth0:2000,eth1:5000"
+        )
+        # eth0 is overridden to 2000, ignoring the ethtool-reported 1000.
+        self.assertEqual(test.expected_max_speed, 2000)
+
+    def test_expected_max_speed_override_other_iface_ignored(self):
+        test = self.make_iperf_test_with_named_interface(
+            interface_speed_override="eth1:5000"
+        )
+        # The override only applies to eth1, so eth0 keeps ethtool's 1000.
+        self.assertEqual(test.expected_max_speed, 1000)
+
+    def test_run_uses_override_for_pass_fail(self):
+        test = self.make_iperf_test_with_named_interface(
+            num_threads=1,
+            iperf3=False,
+            fail_threshold=40,
+            interface_speed_override="eth0:10000",
+        )
+        # 900 Mbits/sec is 90% of ethtool's 1000, which would pass a 40%
+        # threshold, but only 9% of the 10000 override, which should fail.
+        with patch("network.check_output", return_value="900 Mbits/sec"):
+            result = test.run()
+        self.assertEqual(result, 30)
+
     def test_run_one_thread_success(self):
         test = self.make_iperf_test()
         with patch("network.check_output", return_value="100 Mbits/sec"):

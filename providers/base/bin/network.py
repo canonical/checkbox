@@ -77,6 +77,7 @@ class IPerfPerformanceTest:
         run_time: "int | None" = None,
         scan_timeout: int = 3600,
         iface_timeout: int = 120,
+        interface_speed_override: str = "",
     ):
         self.iface = Interface(interface)
         self.interface = interface
@@ -92,8 +93,25 @@ class IPerfPerformanceTest:
         self.iface_timeout = iface_timeout
         self.reverse = reverse
 
+        # If INTERFACE_SPEED_OVERRIDE specifies a value for this interface,
+        # use it instead of the speed reported by ethtool/mii-tool.
+        self._max_speed_override = None  # type: int | None
+        if interface_speed_override:
+            for override_iface, speed in parse_interface_speed_override(
+                interface_speed_override
+            ):
+                if override_iface.interface == self.interface:
+                    self._max_speed_override = speed
+                    break
+
         self._results = []  # type: list[str]
         self._results_lock = threading.Lock()
+
+    @property
+    def expected_max_speed(self):
+        if self._max_speed_override is not None:
+            return self._max_speed_override
+        return self.iface.max_speed
 
     def run_one_thread(self, cmd: str, port_num: int):
         """Run a single test thread, storing the output in self.results[]."""
@@ -272,7 +290,7 @@ class IPerfPerformanceTest:
 
     def run(self):
         # if max_speed is 0, assume it's wifi and move on
-        if self.iface.max_speed == 0:
+        if self.expected_max_speed == 0:
             logger.warning(
                 "No max speed detected, assuming Wireless device "
                 + "and continuing with test."
@@ -309,7 +327,7 @@ class IPerfPerformanceTest:
         # but there are still big differences in per-thread CPU load.
         # Boost the theoretical exact split a bit so that one thread can take
         # up a little slack if another falls behind.
-        thread_bit_rate = int(self.iface.max_speed / threads) + 1000
+        thread_bit_rate = int(self.expected_max_speed / threads) + 1000
         logger.debug("thread_bit_rate is {}".format(thread_bit_rate))
 
         # If we set run_time, use that instead to build the command.
@@ -363,7 +381,7 @@ class IPerfPerformanceTest:
         throughput = self.summarize_speeds()
         invalid_speed = False
         try:
-            percent = throughput / int(self.iface.max_speed) * 100
+            percent = throughput / int(self.expected_max_speed) * 100
         except (ZeroDivisionError, TypeError):
             # Catches a condition where the interface functions fine but
             # ethtool fails to properly report max speed. In this case
@@ -383,7 +401,7 @@ class IPerfPerformanceTest:
         # have exited above if it did.
         logger.info(
             "{:03.2f}% of theoretical max {} Mb/s".format(
-                percent, int(self.iface.max_speed)
+                percent, int(self.expected_max_speed)
             )
         )
 
@@ -407,7 +425,7 @@ class IPerfPerformanceTest:
                 logger.error("  Transfer speed: {} Mb/s".format(throughput))
                 logger.error(
                     "  {:03.2f}% of theoretical max {} Mb/s\n".format(
-                        percent, int(self.iface.max_speed)
+                        percent, int(self.expected_max_speed)
                     )
                 )
             if cpu_load > self.cpu_load_fail_threshold:
@@ -705,6 +723,9 @@ def run_test(args: Namespace, test_target: str):
             args.iperf3,
             args.num_threads,
             args.reverse,
+            interface_speed_override=os.environ.get(
+                "INTERFACE_SPEED_OVERRIDE", ""
+            ),
         )
         if args.datasize:
             iperf_benchmark.data_size = args.datasize

@@ -379,6 +379,17 @@ class IPerfPerformanceTest:
             t[thread_num].join()
 
         throughput = self.summarize_speeds()
+        if self._max_speed_override is not None:
+            logger.warning("!" * 60)
+            logger.warning(
+                (
+                    "INTERFACE_SPEED_OVERRIDE is used for {}: the "
+                    "expected maximum speed of {} Mb/s " 
+                    "is NOT the maximum speed reported by "
+                    "the kernel!"
+                ).format(self.interface, self.expected_max_speed)
+            )
+            logger.warning("!" * 60)
         invalid_speed = False
         try:
             percent = throughput / int(self.expected_max_speed) * 100

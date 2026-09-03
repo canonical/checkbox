@@ -140,6 +140,34 @@ class IPerfPerfomanceTestTests(unittest.TestCase):
             result = test.run()
         self.assertEqual(result, 30)
 
+    @patch("network.logger")
+    def test_run_warns_when_override_in_effect(self, mock_logger):
+        test = self.make_iperf_test_with_named_interface(
+            num_threads=1,
+            iperf3=False,
+            interface_speed_override="eth0:10000",
+        )
+        with patch("network.check_output", return_value="9000 Mbits/sec"):
+            test.run()
+        warnings = [
+            call.args[0] for call in mock_logger.warning.call_args_list
+        ]
+        self.assertTrue(any("INTERFACE_SPEED_OVERRIDE" in w for w in warnings))
+
+    @patch("network.logger")
+    def test_run_no_warning_without_override(self, mock_logger):
+        test = self.make_iperf_test_with_named_interface(
+            num_threads=1, iperf3=False
+        )
+        with patch("network.check_output", return_value="900 Mbits/sec"):
+            test.run()
+        warnings = [
+            call.args[0] for call in mock_logger.warning.call_args_list
+        ]
+        self.assertFalse(
+            any("INTERFACE_SPEED_OVERRIDE" in w for w in warnings)
+        )
+
     def test_run_one_thread_success(self):
         test = self.make_iperf_test()
         with patch("network.check_output", return_value="100 Mbits/sec"):

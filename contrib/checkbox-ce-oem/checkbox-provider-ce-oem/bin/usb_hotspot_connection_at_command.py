@@ -817,6 +817,8 @@ def main():
         logging.error("An unexpected error occurred during execution: %s", e)
         sys.exit(1)
 
+    sys.exit(0 if ping_ok else 1)
+
 
 if __name__ == "__main__":
     main()

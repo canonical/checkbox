@@ -289,9 +289,11 @@ unit: test plan
 _name: Automated stress-ng tests
 _description: Automated stress-ng tests for Snappy Ubuntu Core devices
 include:
+    stress/store_and_disable_watchdog
     stress/stress-ng-test-for-stressor-stressor-user
     stress/stress-ng-test-for-stressor-stressor-root
     disk/disk_stress_ng_name
+    stress/restore_watchdog
 bootstrap_include:
     device
     stress_ng_stressors

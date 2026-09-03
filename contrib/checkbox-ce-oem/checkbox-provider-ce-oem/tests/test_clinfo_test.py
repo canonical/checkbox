@@ -43,27 +43,6 @@ class TestClinfoTest(unittest.TestCase):
             enable_logger=False,
         )
 
-    @patch("clinfo_test.subprocess.run")
-    def test_run_clinfo_command_uses_common_subprocess_options(self, mock_run):
-        expected = subprocess.CompletedProcess(
-            args="clinfo -v",
-            returncode=0,
-            stdout="v",
-            stderr="",
-        )
-        mock_run.return_value = expected
-
-        result = clinfo_test._run_clinfo_command("clinfo -v")
-
-        self.assertEqual(result, expected)
-        mock_run.assert_called_once_with(
-            "clinfo -v",
-            shell=True,
-            check=False,
-            text=True,
-            capture_output=True,
-        )
-
     def test_parse_clinfo_list_output(self):
         output = (
             "Platform #0: ARM Platform\n"

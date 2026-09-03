@@ -21,7 +21,6 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """
 
-from argparse import ArgumentParser, Namespace, RawTextHelpFormatter
 import datetime
 import fcntl
 import ipaddress
@@ -33,21 +32,22 @@ import shlex
 import socket
 import struct
 import subprocess
+import sys
 import tempfile
 import threading
+import time
+import typing as t
+from argparse import ArgumentParser, Namespace, RawTextHelpFormatter
+from contextlib import contextmanager, suppress
+from pathlib import Path
 from subprocess import (
+    DEVNULL,
+    STDOUT,
     CalledProcessError,
     check_call,
     check_output,
-    STDOUT,
-    DEVNULL,
 )
 from subprocess import run as sp_run
-from contextlib import contextmanager, suppress
-from pathlib import Path
-import sys
-import time
-import typing as t
 
 ETH_P_IBOE = 0x8915
 SIOCGIFNETMASK = 0x891B

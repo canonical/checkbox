@@ -793,30 +793,29 @@ def main():
     if setup_cmds and not run_setup_commands(setup_cmds):
         sys.exit(1)
 
-    modem = None
-    if connect_steps:
-        if not control_if:
-            logging.error("Environment variable WWAN_CONTROL_IF is not set")
-            sys.exit(1)
-        apn = os.environ.get("WWAN_APN", "")
-        if not apn:
-            logging.error("Environment variable WWAN_APN is not set")
-            sys.exit(1)
-        env = {"WWAN_APN": apn, "WWAN_NET_IF": iface}
+    if connect_steps and not control_if:
+        logging.error("Environment variable WWAN_CONTROL_IF is not set")
+        sys.exit(1)
 
-        modem = ModemAtController(control_if)
-        modem.open()
-        if not modem.run_connect_steps(connect_steps, env):
-            modem.close()
-            sys.exit(1)
+    apn = os.environ.get("WWAN_APN", "")
+    if connect_steps and not apn:
+        logging.error("Environment variable WWAN_APN is not set")
+        sys.exit(1)
+
+    env = {"WWAN_APN": apn, "WWAN_NET_IF": iface}
+    ping_ok = False
 
     try:
-        ping_ok = run_ping(iface, modem)
-    finally:
-        if modem is not None:
-            modem.close()
-
-    sys.exit(0 if ping_ok else 1)
+        if connect_steps:
+            with ModemAtController(control_if) as modem:
+                if not modem.run_connect_steps(connect_steps, env):
+                    sys.exit(1)
+                ping_ok = run_ping(iface, modem)
+        else:
+            ping_ok = run_ping(iface, None)
+    except Exception as e:
+        logging.error("An unexpected error occurred during execution: %s", e)
+        sys.exit(1)
 
 
 if __name__ == "__main__":

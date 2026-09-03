@@ -179,6 +179,8 @@ class RemoteController(ReportsStage, MainLoopStage):
         self._clean = ctx.args.clean
         self._target_host = ctx.args.host
         self._normal_user = ""
+        # Set by start_session, used to auto-resume
+        self._session_id = None
         self.launcher = Configuration()
         if ctx.args.launcher:
             expanded_path = os.path.expanduser(ctx.args.launcher)
@@ -416,52 +418,22 @@ class RemoteController(ReportsStage, MainLoopStage):
 
     def should_start_via_autoresume(self) -> bool:
         """
-        Determines if the controller should automatically resume a previously
-        abandoned session.
+        Determines if the controller should automatically resume
 
-        A session is automatically resumed if:
-        - A testplan was selected before abandoning
-        - A job was in progress when the session was abandoned
-        - The ongoing test was shell job
+        The controller automatically resumes only sessions that it was running,
+        as in, sessions where the agent/dut crashed but the controller remained
+        alive
         """
         if self._clean:
+            return False
+        if self._session_id is None:
             return False
         try:
             last_abandoned_session = next(self.sa.get_resumable_sessions())
         except StopIteration:
             # no session to resume
             return False
-        # Resume the session if the last session was abandoned during the setup
-        if (
-            SessionMetaData.FLAG_SETTING_UP
-            in last_abandoned_session.metadata.flags
-        ):
-            return True
-        # resume session in agent to be able to peek at the latest job run
-        # info
-        # FIXME: IncompatibleJobError is raised if the resume candidate is
-        #        invalid, this is a workaround till get_resumable_sessions is
-        #        fixed
-        with contextlib.suppress(IncompatibleJobError), contextlib.suppress(
-            CorruptedSessionError
-        ), self._resumed_session(last_abandoned_session.id) as metadata:
-            app_blob = json.loads(metadata.app_blob.decode("UTF-8"))
-
-            if not app_blob.get("testplan_id"):
-                return False
-
-            self.sa.select_test_plan(app_blob["testplan_id"])
-            self.sa.bootstrap()
-
-            if not metadata.running_job_name:
-                return False
-
-            job_state = self.sa.get_job_state(metadata.running_job_name)
-            if job_state.job.plugin != "shell":
-                return False
-            return True
-        # last resumable session is incompatible
-        return False
+        return self._session_id != last_abandoned_session.id
 
     def bootstrap_and_continue(self, resume_payload=None):
         self.bootstrap(resume_payload=resume_payload)
@@ -500,6 +472,7 @@ class RemoteController(ReportsStage, MainLoopStage):
             tps = json.loads(tps)
             if self.sa.sideloaded_providers:
                 _logger.warning("Agent is using sideloaded providers")
+            self._session_id = self.sa.get_session_id()
         except RuntimeError as exc:
             raise SystemExit(exc.args[0]) from exc
         return tps
@@ -517,6 +490,7 @@ class RemoteController(ReportsStage, MainLoopStage):
 
     def resume_by_id(self, session_id, result_dict={}):
         self.sa.resume_by_id(session_id, result_dict)
+        self._session_id = session_id
         # resume_by_id will get us to a resumable state, lets see how to
         # continue
         self.continue_session()

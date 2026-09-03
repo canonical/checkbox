@@ -1,10 +1,10 @@
 {
     "SIM7672G-LNGV": {
         "setup": [
-            "echo 521 > /sys/class/gpio/export || true",
-            "echo 522 > /sys/class/gpio/export || true",
-            "echo 523 > /sys/class/gpio/export || true",
-            "echo 617 > /sys/class/gpio/export || true",
+            "echo 521 > /sys/class/gpio/export",
+            "echo 522 > /sys/class/gpio/export",
+            "echo 523 > /sys/class/gpio/export",
+            "echo 617 > /sys/class/gpio/export",
             "echo out > /sys/class/gpio/gpio521/direction",
             "echo out > /sys/class/gpio/gpio522/direction",
             "echo out > /sys/class/gpio/gpio523/direction",

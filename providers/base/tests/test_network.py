@@ -191,15 +191,15 @@ class IPerfPerfomanceTestTests(unittest.TestCase):
         self.assertEqual(result, 1)
         self.assertListEqual(test._results, [])
 
-    @patch("logging.warning")
-    def test_run_one_thread_unable_to_connect_high_speed_port(self, mock_warn):
+    @patch("network.logger")
+    def test_run_one_thread_unable_to_connect_high_speed_port(self, mock_log):
         test = self.make_iperf_test()
         exc = CalledProcessError(1, "cmd")
         exc.output = "unable to connect to server"
         with patch("network.check_output", side_effect=exc):
             result = test.run_one_thread("iperf3 -c host", 5202)
         self.assertEqual(result, 1)
-        self.assertTrue(mock_warn.called)
+        self.assertTrue(mock_log.warning.called)
 
     def test_run_one_thread_unknown_error(self):
         test = self.make_iperf_test()
@@ -533,16 +533,16 @@ class NetworkTests(unittest.TestCase):
             ["ip", "link", "set", "dev", "test_if", "up"]
         )
 
-    @patch("logging.error")
+    @patch("network.logger")
     @patch("network.Interface")
-    def test_check_is_underspeed(self, mock_intf, mock_logging):
+    def test_check_is_underspeed(self, mock_intf, mock_logger):
         mock_intf.return_value = Mock(
             status="up", link_speed=100, max_speed=1000
         )
 
         self.assertTrue(network.check_underspeed("test_if"))
         mock_intf.assert_called_with("test_if")
-        self.assertEqual(mock_logging.call_count, 4)
+        self.assertEqual(mock_logger.error.call_count, 4)
 
     @patch("network.Interface")
     def test_check_is_not_underspeed(self, mock_intf):
@@ -977,11 +977,11 @@ class NetworkTests(unittest.TestCase):
         args = Namespace()
         self.assertIsNone(network.interface_test(args))
 
-    @patch("logging.error")
+    @patch("network.logger")
     @patch("network.make_target_list")
     @patch("network.get_test_parameters")
     def test_interface_test_no_target_list(
-        self, mock_get_test_params, mock_mk_targets, mock_logging
+        self, mock_get_test_params, mock_mk_targets, mock_logger
     ):
         mock_mk_targets.return_value = []
         args = Namespace(test_type="iperf", interface="eth0")
@@ -989,7 +989,7 @@ class NetworkTests(unittest.TestCase):
         with self.assertRaises(SystemExit) as context:
             network.interface_test(args)
         self.assertEqual(context.exception.code, 1)
-        self.assertEqual(mock_logging.call_count, 7)
+        self.assertEqual(mock_logger.error.call_count, 7)
 
     @patch("network.get_test_parameters")
     def test_interface_test_type_neither_iperf_nor_stress(
@@ -1310,13 +1310,13 @@ class InterfaceClassTest(unittest.TestCase):
 
         self.assertEqual(self.obj_intf._read_data("operstate"), "up")
 
-    @patch("logging.warning")
+    @patch("network.logger")
     @patch("pathlib.Path.read_text")
-    def test_read_data_oserror_returns_none(self, mock_read_text, mock_warn):
+    def test_read_data_oserror_returns_none(self, mock_read_text, mock_logger):
         mock_read_text.side_effect = OSError
 
         self.assertIsNone(self.obj_intf._read_data("operstate"))
-        self.assertEqual(mock_warn.call_count, 1)
+        self.assertEqual(mock_logger.warning.call_count, 1)
 
     @patch("network.fcntl.ioctl")
     def test_ipaddress_success(self, mock_ioctl):

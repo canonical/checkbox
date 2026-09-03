@@ -84,7 +84,6 @@ id: networking/ntp-chrony
 flags: also-after-suspend
 requires:
     lsb.release >= '25.10'
-    package.name == 'chrony'
 user: root
 command: network_ntp_chrony_test.py
 _purpose: Test to see if we can sync local clock to an NTP server

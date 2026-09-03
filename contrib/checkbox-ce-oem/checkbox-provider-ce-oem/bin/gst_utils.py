@@ -12,7 +12,9 @@ from typing import Any, Optional
 
 from checkbox_support.scripts.psnr import get_average_psnr
 
-GST_CODEC_EXECUTION_TIMEOUT = int(os.getenv("GST_CODEC_EXECUTION_TIMEOUT", "300"))
+GST_CODEC_EXECUTION_TIMEOUT = int(
+    os.getenv("GST_CODEC_EXECUTION_TIMEOUT", "300")
+)
 GST_LAUNCH_BIN = os.getenv("GST_LAUNCH_BIN", "gst-launch-1.0")
 GST_DISCOVERER = os.getenv("GST_DISCOVERER", "gst-discoverer-1.0")
 PLAINBOX_SESSION_SHARE = os.getenv("PLAINBOX_SESSION_SHARE", "/var/tmp")
@@ -108,7 +110,9 @@ def _identify_gst_bin_from_snap(bin_name: str) -> bool:
     return False
 
 
-def execute_command(cmd: str = "", timeout: int = GST_CODEC_EXECUTION_TIMEOUT) -> str:
+def execute_command(
+    cmd: str = "", timeout: int = GST_CODEC_EXECUTION_TIMEOUT
+) -> str:
     """
     Executes the GStreamer command and extracts the specific data from the
     output. The specific data is the value of last-message which is exposed by

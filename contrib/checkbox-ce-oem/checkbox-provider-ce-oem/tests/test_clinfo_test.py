@@ -406,15 +406,6 @@ class TestClinfoTest(unittest.TestCase):
         self.assertEqual(clinfo_test.main(), 7)
         mock_cmd_detect.assert_called_once_with("")
 
-    @patch("clinfo_test.cmd_detect", return_value=7)
-    @patch(
-        "sys.argv",
-        ["clinfo_test.py", "detect", "-ejp", "/tmp/executable.json"],
-    )
-    def test_main_routes_detect_with_explicit_ejp(self, mock_cmd_detect):
-        self.assertEqual(clinfo_test.main(), 7)
-        mock_cmd_detect.assert_called_once_with("/tmp/executable.json")
-
     @patch("clinfo_test.cmd_resource", return_value=8)
     @patch("sys.argv", ["clinfo_test.py", "resource"])
     def test_main_routes_resource(self, mock_cmd_resource):

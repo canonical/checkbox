@@ -73,9 +73,7 @@ class ClinfoRecord(TypedDict):
 ValidationSet = Dict[str, str]
 
 
-def _resolve_clinfo_command(
-    enable_logger: bool = False
-) -> Optional[str]:
+def _resolve_clinfo_command(enable_logger: bool = False) -> Optional[str]:
     """Resolve clinfo command from JSON config or system PATH.
 
     Returns:

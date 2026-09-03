@@ -27,19 +27,18 @@ import clinfo_test
 
 class TestClinfoTest(unittest.TestCase):
     @patch(
-        "clinfo_test.resolve_executable_commands",
+        "clinfo_test.resolve_configured_commands",
         return_value={"clinfo": "cmd"},
     )
     def test_resolve_clinfo_command_delegates_to_general_utils(
         self,
         mock_resolve,
     ):
-        result = clinfo_test._resolve_clinfo_command("/tmp/executable.json")
+        result = clinfo_test._resolve_clinfo_command(enable_logger=False)
 
         self.assertEqual(result, "cmd")
         mock_resolve.assert_called_once_with(
-            default_commands=["clinfo"],
-            executable_json_path="/tmp/executable.json",
+            default_commands=[clinfo_test.EXECUTABLE_CMD],
             enable_logger=False,
         )
 
@@ -174,7 +173,7 @@ class TestClinfoTest(unittest.TestCase):
             stderr="",
         )
 
-        self.assertEqual(clinfo_test.cmd_detect(""), 9)
+        self.assertEqual(clinfo_test.cmd_detect(), 9)
 
     @patch("clinfo_test._resolve_clinfo_command", return_value="clinfo")
     @patch("clinfo_test._run_clinfo_command")
@@ -194,7 +193,7 @@ class TestClinfoTest(unittest.TestCase):
             ),
         ]
 
-        self.assertEqual(clinfo_test.cmd_detect(""), 1)
+        self.assertEqual(clinfo_test.cmd_detect(), 1)
 
     @patch("clinfo_test._resolve_clinfo_command", return_value="clinfo")
     @patch("clinfo_test._run_clinfo_command")
@@ -218,7 +217,7 @@ class TestClinfoTest(unittest.TestCase):
             ),
         ]
 
-        self.assertEqual(clinfo_test.cmd_detect(""), 1)
+        self.assertEqual(clinfo_test.cmd_detect(), 1)
 
     @patch("clinfo_test._resolve_clinfo_command", return_value="clinfo")
     @patch("clinfo_test._run_clinfo_command")
@@ -241,7 +240,7 @@ class TestClinfoTest(unittest.TestCase):
             ),
         ]
 
-        self.assertEqual(clinfo_test.cmd_detect(""), 0)
+        self.assertEqual(clinfo_test.cmd_detect(), 0)
 
     @patch("clinfo_test._resolve_clinfo_command", return_value="clinfo")
     @patch("clinfo_test._run_clinfo_command")
@@ -268,7 +267,9 @@ class TestClinfoTest(unittest.TestCase):
             "clinfo_test.parse_ignored_set",
             return_value={("NVIDIA CUDA", "DevB")},
         ):
-            result = clinfo_test.cmd_resource("", "/tmp/validation.json")
+            result = clinfo_test.cmd_resource(
+                validation_json_path="/tmp/validation.json",
+            )
 
         output = mock_stdout.getvalue()
         self.assertEqual(result, 0)
@@ -295,7 +296,9 @@ class TestClinfoTest(unittest.TestCase):
             stderr="",
         )
 
-        result = clinfo_test.cmd_resource("", "/tmp/validation.json")
+        result = clinfo_test.cmd_resource(
+            validation_json_path="/tmp/validation.json",
+        )
 
         self.assertEqual(result, 1)
         mock_parse_ignored_set.assert_not_called()
@@ -320,12 +323,11 @@ class TestClinfoTest(unittest.TestCase):
         )
 
         result = clinfo_test.cmd_test(
-            "",
-            "",
-            "platform",
-            0,
-            "device",
-            0,
+            validation_json_path="",
+            platform="platform",
+            platform_number=0,
+            device="device",
+            device_number=0,
         )
 
         self.assertEqual(result, 1)
@@ -351,12 +353,12 @@ class TestClinfoTest(unittest.TestCase):
         )
 
         result = clinfo_test.cmd_test(
-            "",
-            "",
-            "platform",
-            0,
-            "device",
-            0,
+
+            validation_json_path="",
+            platform="platform",
+            platform_number=0,
+            device="device",
+            device_number=0,
         )
 
         self.assertEqual(result, 1)
@@ -390,12 +392,11 @@ class TestClinfoTest(unittest.TestCase):
         mock_run.side_effect = side_effect
 
         result = clinfo_test.cmd_test(
-            "",
-            "",
-            "platform",
-            2,
-            "device",
-            3,
+            validation_json_path="",
+            platform="platform",
+            platform_number=2,
+            device="device",
+            device_number=3,
         )
 
         self.assertEqual(result, 0)
@@ -404,13 +405,13 @@ class TestClinfoTest(unittest.TestCase):
     @patch("sys.argv", ["clinfo_test.py", "detect"])
     def test_main_routes_detect(self, mock_cmd_detect):
         self.assertEqual(clinfo_test.main(), 7)
-        mock_cmd_detect.assert_called_once_with("")
+        mock_cmd_detect.assert_called_once_with()
 
     @patch("clinfo_test.cmd_resource", return_value=8)
     @patch("sys.argv", ["clinfo_test.py", "resource"])
     def test_main_routes_resource(self, mock_cmd_resource):
         self.assertEqual(clinfo_test.main(), 8)
-        mock_cmd_resource.assert_called_once_with("", "")
+        mock_cmd_resource.assert_called_once_with("")
 
     @patch("clinfo_test.cmd_test", return_value=9)
     @patch(
@@ -430,7 +431,7 @@ class TestClinfoTest(unittest.TestCase):
     )
     def test_main_routes_test(self, mock_cmd_test):
         self.assertEqual(clinfo_test.main(), 9)
-        mock_cmd_test.assert_called_once_with("", "", "p", "1", "d", "2")
+        mock_cmd_test.assert_called_once_with("", "p", "1", "d", "2")
 
     @patch("clinfo_test.logger")
     @patch("sys.argv", ["clinfo_test.py", "detect", "--debug"])

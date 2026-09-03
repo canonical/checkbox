@@ -384,7 +384,7 @@ class IPerfPerformanceTest:
             logger.warning(
                 (
                     "INTERFACE_SPEED_OVERRIDE is used for {}: the "
-                    "expected maximum speed of {} Mb/s " 
+                    "expected maximum speed of {} Mb/s "
                     "is NOT the maximum speed reported by "
                     "the kernel!"
                 ).format(self.interface, self.expected_max_speed)

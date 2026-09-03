@@ -71,4 +71,3 @@ requires:
   manifest.has_wwan_module == 'True'
   manifest.has_sim_card == 'True'
   manifest.has_wwan_hotspot == 'True'
-depends: ce-oem-wwan/usb-hotspot-auto

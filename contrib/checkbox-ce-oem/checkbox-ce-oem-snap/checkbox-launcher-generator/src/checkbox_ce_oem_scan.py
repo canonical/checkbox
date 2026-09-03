@@ -547,9 +547,10 @@ def select_manual_auto_stress(
       unattended/CI runs), or ``None`` when *filtered* is empty.
     """
     by_suffix: dict[str, tuple[str, str]] = {}
+    base_id = plan_full_id.split("::")[-1]
     for full_id, plan_id in sub_plans:
         for suffix in _MANUAL_AUTO_STRESS_SUFFIXES:
-            if plan_id.endswith(f"-{suffix}"):
+            if plan_id == f"{base_id}-{suffix}":
                 by_suffix[suffix] = (full_id, plan_id)
                 break
     if not by_suffix:

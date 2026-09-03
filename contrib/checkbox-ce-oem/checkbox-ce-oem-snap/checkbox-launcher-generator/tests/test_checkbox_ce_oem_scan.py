@@ -558,6 +558,19 @@ class TestSelectManualAutoStress(unittest.TestCase):
         )
         self.assertEqual(default_full_id, "ns::p")
 
+    def test_ignores_same_suffix_from_other_base_plan(self):
+        sub_plans = [
+            ("ns::p-manual", "p-manual"),
+            ("ns::after-suspend-p-manual", "after-suspend-p-manual"),
+        ]
+        filtered, default_full_id = gl.select_manual_auto_stress(
+            "ns::p", sub_plans
+        )
+        self.assertEqual(
+            filtered, [("ns::p", "p"), ("ns::p-manual", "p-manual")]
+        )
+        self.assertEqual(default_full_id, "ns::p")
+
     def test_no_matching_plans_returns_empty(self):
         sub_plans = [("ns::p-rt", "p-rt")]
         filtered, default_full_id = gl.select_manual_auto_stress(

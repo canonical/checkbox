@@ -207,11 +207,11 @@ filter` / `unit` / `forced` mechanism (see `checkbox-ng`'s
 
 ```ini
 [test plan]
+unit = com.canonical.contrib::ce-oem-iot-ubuntucore-26
 filter = com.canonical.contrib::ce-oem-iot-ubuntucore-26
          com.canonical.contrib::ce-oem-iot-ubuntucore-26-manual
          com.canonical.contrib::ce-oem-iot-ubuntucore-26-automated
          com.canonical.contrib::ce-oem-iot-ubuntucore-26-stress
-unit = com.canonical.contrib::ce-oem-iot-ubuntucore-26
 forced = no
 
 [ui]

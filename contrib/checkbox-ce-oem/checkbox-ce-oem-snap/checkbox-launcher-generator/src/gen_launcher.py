@@ -1155,9 +1155,10 @@ def main(argv: list[str] | None = None) -> int:  # pragma: no cover
         sub_plans = get_nested_plans(full_id, cache)
         filtered_mas, _ = select_manual_auto_stress(full_id, sub_plans)
         if filtered_mas:
-            names = ", ".join(pid for _, pid in filtered_mas)
+            nested_mas = filtered_mas[1:]
+            names = ", ".join(pid for _, pid in nested_mas)
             print(
-                f"  {len(filtered_mas)} nested plans ({names}) will be"
+                f"  {len(nested_mas)} nested plans ({names}) will be"
                 " merged into one launcher (default: base plan)"
             )
 

@@ -55,6 +55,7 @@ SIOCGIFNETMASK = 0x891B
 
 logger = logging.getLogger(__name__)
 
+
 class IPerfPerformanceTest:
     """Measures performance of interface using iperf client
     and target. Calculated speed is measured against theoretical
@@ -797,8 +798,44 @@ def make_target_list(iface: str, test_targets: str, log_warnings: bool):
     return return_list
 
 
+def parse_interface_speed_override(
+    config_str: str,
+) -> "list[tuple[Interface, int]]":
+    """Parses the INTERFACE_SPEED_OVERRIDE env var
+    This allows the user to manually override the expected maximum speed of an
+    interface, instead of allowing the script to use the result from ethtool
+
+    WARNING: This should only be used if there's a real hardware limitation!
+
+    :param config_str: the value of INTERFACE_SPEED_OVERRIDE. They should look
+        like interface:speed_in_Mbs
+        Example: INTERFACE_SPEED_OVERRIDE=enp1s1:2000,enp2s1:5000 means
+                 enp1s1 is only expected to reach 2000Mbps and
+                 enp2s1 is only expected to reach 5000Mbps
+    """
+    iface_speed_pair_strs = config_str.strip().split(",")
+    if not iface_speed_pair_strs:
+        return []
+
+    overrides = []  # type: list[tuple[Interface, int]]
+    for pair_str in iface_speed_pair_strs:
+        words = pair_str.split(":")
+        if len(words) != 2:
+            raise SystemExit(
+                "Invalid override string, got {}".format(pair_str)
+            )
+
+        try:
+            iface, speed = Interface(words[0]), int(words[1])
+            overrides.append((iface, speed))
+        except ValueError:
+            raise SystemExit("Failed to parse speed, got {}".format(words[1]))
+
+    return overrides
+
+
 # Wait until the specified interface comes up, or until iface_timeout.
-def wait_for_iface_up(iface, timeout):
+def wait_for_iface_up(iface: str, timeout: int):
     deadline = time.time() + timeout
 
     net_if = Interface(iface)

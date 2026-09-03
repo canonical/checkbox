@@ -38,7 +38,7 @@ import subprocess
 import sys
 from typing import Dict, List, Optional, Set, Tuple, TypedDict
 
-from general_utils import load_json_file, resolve_executable_commands
+from general_utils import load_json_file, resolve_configured_commands
 
 EXECUTABLE_CMD = "clinfo"
 PLATFORM_PATTERN = re.compile(r"^\s*Platform\s+#(\d+):\s*(.+?)\s*$")
@@ -74,16 +74,15 @@ ValidationSet = Dict[str, str]
 
 
 def _resolve_clinfo_command(
-    clinfo_executable_json_path: str, enable_logger: bool = False
+    enable_logger: bool = False
 ) -> Optional[str]:
     """Resolve clinfo command from JSON config or system PATH.
 
     Returns:
         Command string if successful, None if failed.
     """
-    resolved_commands = resolve_executable_commands(
+    resolved_commands = resolve_configured_commands(
         default_commands=[EXECUTABLE_CMD],
-        executable_json_path=clinfo_executable_json_path,
         enable_logger=enable_logger,
     )
     return resolved_commands.get(EXECUTABLE_CMD)
@@ -222,8 +221,8 @@ def load_validation_set(
     return validation_set
 
 
-def cmd_detect(clinfo_executable_json_path: str) -> int:
-    command = _resolve_clinfo_command(clinfo_executable_json_path)
+def cmd_detect() -> int:
+    command = _resolve_clinfo_command()
 
     version_result = _run_clinfo_command(command + " -v", capture_output=False)
     if version_result.returncode != 0:
@@ -266,10 +265,9 @@ def cmd_detect(clinfo_executable_json_path: str) -> int:
 
 
 def cmd_resource(
-    clinfo_executable_json_path: str,
     validation_json_path: str,
 ) -> int:
-    command = _resolve_clinfo_command(clinfo_executable_json_path)
+    command = _resolve_clinfo_command()
 
     list_result = _run_clinfo_command(command + " -l")
     if list_result.returncode != 0:
@@ -299,7 +297,6 @@ def cmd_resource(
 
 
 def cmd_test(
-    clinfo_executable_json_path: str,
     validation_json_path: str,
     platform: str,
     platform_number: int,
@@ -307,7 +304,7 @@ def cmd_test(
     device_number: int,
 ) -> int:
     """Validate selected OpenCL device properties."""
-    command = _resolve_clinfo_command(clinfo_executable_json_path)
+    command = _resolve_clinfo_command()
 
     validation_set = load_validation_set(
         validation_json_path,
@@ -385,12 +382,6 @@ def build_parser() -> argparse.ArgumentParser:
 
     common_parser = argparse.ArgumentParser(add_help=False)
     common_parser.add_argument(
-        "-ejp",
-        "--executable-json-path",
-        default="",
-        help="path to JSON file describing the customized executable",
-    )
-    common_parser.add_argument(
         "--debug",
         action="store_true",
         help="enable debug logging",
@@ -451,15 +442,13 @@ def main() -> int:
         logger.setLevel(logging.DEBUG)
 
     if args.action == "detect":
-        return cmd_detect(args.executable_json_path)
+        return cmd_detect()
     if args.action == "resource":
         return cmd_resource(
-            args.executable_json_path,
             args.validation_json_path,
         )
     if args.action == "test":
         return cmd_test(
-            args.executable_json_path,
             args.validation_json_path,
             args.platform,
             args.platform_number,

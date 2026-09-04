@@ -1,106 +1,117 @@
 # Flow of the suspend-cycles-stress-test test plan
 
-This description will focus on the suspend cycles and reboot process.
+This doc describes the execution flow of the `suspend-cycles-stress-test` test plan, specifically the `suspend_cycles_{n}_reboot{k}` and `suspend_cycles_reboot{k}`
+jobs.
 
-The remaining work log check, suspend time check, and log attachments will be
-executed at the end of a suspend and reboot jobs.
+The remaining jobs in the test plan (`suspend-{n}-cycles-with-reboot-{k}-log-check`,
+`-time-check`, and `-log-attach`) run once at the end, after all
+suspend and reboot jobs have completed.
 
-## Definition of the test case name
+## Test case name definition
 
-- **suspend\_cycles\_{n}\_reboot{k} :**
-  - Indicates the execution of a suspend operation, n is the suspend index of\
-    the k<sup>th</sup> round of reboot.
-  - For example: S<sub>k</sub>n
-- **suspend\_cycles\_reboot{k}:**
-  - Indicate the execution of a reboot operation, k is the the reboot index.
-  - For example: R<sub>k</sub>
+Let $N$ be the total number of suspends per reboot and $K$ be the total number of reboots. Then the following test case will be generated for all $n=1,\dots,N$ and $k=1,\dots,K$
+
+- **`suspend_cycles_{n}_reboot{k}`**
+  - Indicates the execution of a suspend operation. $n$ is the suspend index of the $k$th reboot.
+  - Let $S_{n,k}$ denote this job
+- **`suspend_cycles_reboot{k}`**
+  - Indicate the execution of a reboot operation, $k$ is the the reboot index.
+  - Let $R_k$ denote this job
+
+The value of $N$ and $K$ can be controlled by `STRESS_S3_ITERATIONS` and `STRESS_SUSPEND_REBOOT_ITERATIONS` respectively.
 
 ## Example
 
-If doing 5 suspends per reboot round for 3 rounds (N = 5, K = 3), it means:
+If we are doing 5 suspends per reboot for 3 reboots ($N = 5, K = 3$), it means we have these jobs:
 
-- `n`: numbers of suspend  in each reboot
-- `k`: numbers of reboot
+- `suspend_cycles_1_reboot1`: $S_{1,1}$
+- `suspend_cycles_1_reboot{{suspend_reboot_id}}`: $S_{k,1}$, where $k = 1,2,3$
+- `suspend_cycles_{{suspend_id}}_reboot{{suspend_reboot_id}}`: $S_{n, k}$, where $n = 2,3,4,5$ and $k=2,3$
+- suspend_cycles_reboot{{suspend_reboot_id}}: $R_k$, where $k=1,2,3$ 
 
-- suspend\_cycles\_1\_reboot1:
-  - S<sub>A</sub>1
-- suspend\_cycles_1\_reboot{{suspend\_reboot\_id}}:
-  - S<sub>k</sub>1 (`k`: from A to C)
-- suspend\_cycles\_{{suspend\_id}}\_reboot{{suspend\_reboot\_id}}:
-  - S<sub>k</sub>n (`n`: from 2 to 5, `k`: from A to C)
-- suspend\_cycles\_reboot{{suspend\_reboot\_id}}:
-  - R<sub>k</sub> (`k`: from A to C)
+The execution flow will look like the following:
 
-The flow will be the following:
-
-S<sub>A</sub>1 &rarr; S<sub>A</sub>2 &rarr; S<sub>A</sub>3 &rarr; S<sub>A</sub>4 &rarr; S<sub>A</sub>5 &rarr; R<sub>A</sub>
-
-&rarr; S<sub>B</sub>1 &rarr; S<sub>B</sub>2 &rarr; S<sub>B</sub>3 &rarr; S<sub>B</sub>4 &rarr; S<sub>B</sub>5 &rarr; R<sub>B</sub>
-
-&rarr; S<sub>C</sub>1 &rarr; S<sub>C</sub>2 &rarr; S<sub>C</sub>3 &rarr; S<sub>C</sub>4 &rarr; S<sub>C</sub>5 &rarr; R<sub>C</sub>
+$$
+\begin{matrix}
+  \text{Start} &\rightarrow& S_{1,1} &\rightarrow& S_{2,1} &\rightarrow& S_{3,1} &\rightarrow& S_{4,1}
+&\rightarrow& S_{5,1} &\rightarrow& R_1\\
+  &\hookrightarrow&S_{1,2} &\rightarrow& S_{2,2} &\rightarrow& S_{3,2} &\rightarrow& S_{4,2}
+&\rightarrow& S_{5,2} &\rightarrow& R_2\\
+  &\hookrightarrow&S_{1,3} &\rightarrow& S_{2,3} &\rightarrow& S_{3,3} &\rightarrow& S_{4,3}
+&\rightarrow& S_{5,3} &\rightarrow& R_3 & \rightarrow& \text{End}\\
+\end{matrix}
+$$
 
 ## Relation between template and resource jobs
 
-- suspend\_cycles\_1\_reboot1: job
-  - For example: S<sub>A</sub>1
-- suspend\_cycles\_1\_reboot{2...k}: template job
-  - For example: S<sub>B</sub>1, S<sub>C</sub>1
-  - After job:
-    - suspend\_cycles\_reboot{{suspend\_reboot\_previous}}
-      - For example: R<sub>A</sub>,  R<sub>B</sub>
-  - Resource job:
-    - stress\_s3\_cycles\_iterations\_1
-      - Output:
-        - suspend\_reboot\_id: reboot index
-          - For example: B, C
-        - suspend\_reboot\_previous: previous reboot index
-          - For example: A, B
-- suspend\_cycles\_{2…n}\_reboot{1...k}: template job
-  - For example:
-    - S<sub>A</sub>2, S<sub>A</sub>3, S<sub>A</sub>4, S<sub>A</sub>5
-    - S<sub>B</sub>2, S<sub>B</sub>3, S<sub>B</sub>4, S<sub>B</sub>5
-    - S<sub>C</sub>2, S<sub>C</sub>3, S<sub>C</sub>4, S<sub>C</sub>5
-  - After job:
-    - suspend\_cycles\_{{suspend\_id\_previous}}\_reboot{{suspend\_reboot\_id}}
-      - For example:
-        - S<sub>A</sub>1, S<sub>A</sub>2, S<sub>A</sub>3, S<sub>A</sub>4
-        - S<sub>B</sub>1, S<sub>B</sub>2, S<sub>B</sub>3, S<sub>B</sub>4
-        - S<sub>B</sub>1, S<sub>C</sub>2, S<sub>C</sub>3, S<sub>C</sub>4
-  - Resource job:
-    - stress\_s3\_cycles\_iterations\_multiple
-      - Output:
-        - suspend\_id: suspend index
-          - For example: 2, 3, 4, 5
-        - suspend\_id\_previous: previous suspend index
-          - For example: 1, 2, 3, 4
-        - suspend\_reboot\_id: reboot index
-          - For example: A, B, C
-- suspend\_cycles\_reboot{1...k}: template job
-  - For example: R<sub>A</sub>, R<sub>B</sub>, R<sub>C</sub>
-  - After job:
-    - suspend\_cycles\_{{s3\_iterations}}\_reboot{{suspend\_reboot\_id}}
-      - For example: S<sub>A</sub>5, S<sub>B</sub>5, S<sub>C</sub>5
-  - Resource job:
-    - stress\_suspend\_reboot\_cycles\_iterations
-      - Output:
-        - s3\_iterations: numbers of suspend  in each reboo
-          - For example: 5
-        - suspend\_reboot\_id: reboot index
-          - For example: A, B, C
+To define the dependency relationship between these jobs, we first need the base case:
 
-Or, as a table:
+- `suspend_cycles_1_reboot1`: A simple job unit, no template involved. This is $S_{1,1}$ from the flow graph above
 
-| Name of Job or Template Job | S<sub>A</sub>1 |          S<sub>k</sub>1           |                                                S<sub>k</sub>n                                                 |                 R<sub>k</sub>                  |
-| --------------------------- |:--------------:|:---------------------------------:|:-------------------------------------------------------------------------------------------------------------:|:----------------------------------------------:|
-| Resource Job               |      None      | stress\_s3\_cycles\_iterations\_1 |                                   stress\_s3\_cycles\_iterations\_multiple                                    |  stress\_suspend\_reboot\_cycles\_iterations   |
-| Generated Job               | S<sub>A</sub>1 |  S<sub>B</sub>1, S<sub>C</sub>1   | S<sub>A</sub>2, ..., S<sub>A</sub>5; S<sub>B</sub>2, ..., S<sub>B</sub>5; S<sub>C</sub>2, ..., S<sub>C</sub>5 |  R<sub>A</sub>, R<sub>B</sub>, R<sub>C</sub>   |
-| After Job                   |      None      |   R<sub>A</sub>,  R<sub>B</sub>   | S<sub>A</sub>1, ..., S<sub>A</sub>4; S<sub>B</sub>1, ..., S<sub>B</sub>4; S<sub>C</sub>1, ..., S<sub>C</sub>4 | S<sub>A</sub>5, S<sub>B</sub>5, S<sub>C</sub>5 |
+Now we can consider jobs with a single variable $k$
+- `suspend_cycles_1_reboot{2...K}`: template jobs
+  - For example: $S_{1,2}$, $S_{1,3}$
+  - They need to run after `suspend_cycles_reboot{{suspend_reboot_previous}}`
+    - For example: $R_1$, $R_2$
 
-### Test case link flow
+To generate $k = 2,\dots,K$, we use the resource job `stress_s3_cycles_iterations_1`. It gives us 2 values 
+  - `suspend_reboot_id`: current reboot index, $k$
+  - `suspend_reboot_previous`: previous reboot index, $k-1$
 
-|    S<sub>A</sub>1  & S<sub>k</sub>1    |                                     S<sub>k</sub>n                                      |    R<sub>k</sub>     |
-|:--------------------------------------:|:---------------------------------------------------------------------------------------:|:--------------------:|
-|             S<sub>A</sub>1             | &rarr; S<sub>A</sub>2 &rarr; S<sub>A</sub>3 &rarr; S<sub>A</sub>4 &rarr; S<sub>A</sub>5 | &rarr; R<sub>A</sub> |
-| ( R<sub>A</sub> )&rarr; S<sub>B</sub>1 | &rarr; S<sub>B</sub>2 &rarr; S<sub>B</sub>3 &rarr; S<sub>B</sub>4 &rarr; S<sub>B</sub>5 | &rarr; R<sub>B</sub> |
-| ( R<sub>B</sub> )&rarr; S<sub>C</sub>1 | &rarr; S<sub>C</sub>2 &rarr; S<sub>C</sub>3 &rarr; S<sub>C</sub>4 &rarr; S<sub>C</sub>5 | &rarr; R<sub>C</sub> |
-<!-- markdownlint-enbale MD033 -->
+The reboot jobs $R_k$ uses `stress_suspend_reboot_cycles_iterations`.
+  - `suspend_reboot_id`, same $k$ as above
+
+
+### Jobs with 2 variables
+
+So far we have successfully generated the "initial" jobs for each reboot cycle $S_{1, 1\dots K}$ and the reboot jobs $R_{1\dots K}$. For each cycle $k$, we need to generate $S_{n, k}$ for $n=2,\dots,N$. To do this, we use another resource job `stress_s3_cycles_iterations_multiple`, which generates these values:
+  - `suspend_id`: suspend index, $n$
+  - `suspend_id_previous`: previous suspend index, $n-1$
+  - `suspend_reboot_id`: reboot index $k$ from before 
+
+Let's consider a concrete example. Using $N=5, K=3$ from before, we already have:
+
+$$
+\begin{matrix}
+  S_{1,1} & S_{1,2}& S_{1,3}
+\end{matrix}
+$$
+
+Using `stress_s3_cycles_iterations_multiple`, we can generate:
+
+$$
+\begin{matrix}
+S_{2,1}& S_{3,1}& S_{4,1}& S_{5,1}\\
+S_{2,2}& S_{3,2}& S_{4,2}& S_{5,2}\\
+S_{2,3}& S_{3,3}& S_{4,3}& S_{5,3}
+\end{matrix}
+$$
+
+which has the following dependency relationships:
+
+1. Later suspend checks in the same reboot cycle should run after the previous suspend checks:
+
+$$
+\begin{gather*}
+  \text{For all}\, k=1\dots K, n=2\dots N\\
+  S_{n, k} \text{ runs after } S_{n-1, k}
+\end{gather*}
+$$
+
+2. All jobs in the current boot must run after the jobs in the previous boot.
+
+$$
+\begin{gather*}
+  \text{For all}\, k=1\dots K-1\\
+  R_k \text{ runs after } S_{N, k}\\
+  S_{1, k+1} \text{ runs after } R_k  
+\end{gather*} 
+$$
+
+## Summary
+
+| Job/Template ID | $S_{1,1}$ |    $S_{1,k}$    |                       $S_{n,k}$                       |   $R_k$   |
+| --------------------------- |:---------:|:---------------:|:------------------------------------------------------:|:---------:|
+| Resource Job               |      None      | `stress_s3_cycles_iterations_1` |                                   `stress_s3_cycles_iterations_multiple`                                    |  `stress_suspend_reboot_cycles_iterations`   |
+| Generated Job               | $S_{1,1}$ |  $S_{1,2}$, $S_{1,3}$   | $S_{2,1}$, ..., $S_{5,1}$; $S_{2,2}$, ..., $S_{5,2}$; $S_{2,3}$, ..., $S_{5,3}$ |  $R_1$, $R_2$, $R_3$   |
+| After Job                   |      None      |   $R_1$, $R_2$   | $S_{1,1}$, ..., $S_{4,1}$; $S_{1,2}$, ..., $S_{4,2}$; $S_{1,3}$, ..., $S_{4,3}$ | $S_{5,1}$, $S_{5,2}$, $S_{5,3}$ |

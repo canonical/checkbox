@@ -5,7 +5,7 @@ How Checkbox runs jobs
 
 Checkbox does more than start the command in a job definition. Before running
 it, Checkbox prepares an execution context with the required working directory,
-user and environment. It then starts the command reading its output
+user and environment. It then starts the command, reading its output
 and exit code.
 
 Checkbox has two ways to create this execution context: the legacy
@@ -141,5 +141,11 @@ Comparing the runners
      - Undefined behaviour - Mostly inherited from Checkbox
      - Normal ``snap run`` behaviour
 
+Defaults
+--------
+
+The systemd-based runner is the default runner for snaps. The legacy
+subprocess-based runner can be re-enabled by setting the feature flag
+``systemd_based_job_runner`` to ``False``
 
 .. _plz-run: https://github.com/canonical/plz-run

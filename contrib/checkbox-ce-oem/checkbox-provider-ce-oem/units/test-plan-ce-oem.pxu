@@ -57,6 +57,8 @@ nested_part:
     ce-oem-power-manual
     ce-oem-i2c-manual
     ce-oem-monitor-manual
+    ce-oem-hdmi-rx-specific-manual
+    ce-oem-hdmi-rx-v4l2-manual
 certification_status_overrides:
     apply blocker to .*
 

@@ -96,7 +96,7 @@ PIPELINE_CASES = {
             "v4l2h264dec capture-io-mode=4 output-io-mode=4 ! "
             "video/x-raw,format=NV12 ! videoscale ! {processing_caps} ! "
             "queue ! tee name=split split. ! queue ! "
-            'qtivcomposer name=mixer '
+            "qtivcomposer name=mixer "
             'sink_1::dimensions="<{processing_width},{processing_height}>" '
             "sink_1::alpha=0.5 ! queue ! "
             "video/x-raw,format=NV12,"
@@ -126,7 +126,7 @@ PIPELINE_CASES = {
             "v4l2h264dec capture-io-mode=4 output-io-mode=4 ! "
             "video/x-raw,format=NV12 ! videoscale ! {processing_caps} ! "
             "queue ! tee name=split split. ! queue ! "
-            'qtivcomposer name=mixer '
+            "qtivcomposer name=mixer "
             'sink_1::dimensions="<{processing_width},{processing_height}>" '
             "! queue ! "
             "video/x-raw,format=NV12,"
@@ -208,7 +208,7 @@ PIPELINE_CASES = {
             "v4l2h264dec capture-io-mode=4 output-io-mode=4 ! "
             "video/x-raw,format=NV12 ! videoscale ! {processing_caps} ! "
             "queue ! tee name=split split. ! queue ! "
-            'qtivcomposer name=mixer '
+            "qtivcomposer name=mixer "
             'sink_1::dimensions="<{processing_width},{processing_height}>" '
             "sink_1::alpha=0.5 ! queue ! "
             "v4l2h264enc capture-io-mode=4 output-io-mode=5 ! "

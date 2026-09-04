@@ -146,6 +146,7 @@ Defaults
 
 The systemd-based runner is the default runner for snaps. The legacy
 subprocess-based runner can be re-enabled by setting the feature flag
-``systemd_based_job_runner`` to ``False``
+:ref:`systemd_based_job_runner <configuration-systemd-based-job-runner>` to
+``False``.
 
 .. _plz-run: https://github.com/canonical/plz-run

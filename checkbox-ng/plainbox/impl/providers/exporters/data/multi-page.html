@@ -373,7 +373,7 @@
                     {%- else %}
                     <td style='width:10%'></td>
                     {%- endif %}
-                    <td style='width:10%'>{{ (job_state.result.execution_duration | default(0)) | round(1) }}s</td>
+                    <td style='width:10%'>{{ (job_state.result.execution_duration | default(0, true)) | round(1) }}s</td>
                     {%- if job_state.result.io_log_as_flat_text != "" %}
                     <td style='width:10%'><a href="#{{ managerloop.index }}-{{ mainloop.index }}-{{ loop.index }}-log">I/O log</a></td>
                     {%- else %}

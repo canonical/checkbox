@@ -14,7 +14,7 @@ command:
     export GST_DEBUG=2
     export GST_PLUGIN_PATH=/usr/lib/aarch64-linux-gnu/gstreamer-1.0/
     mkdir -p "$PLAINBOX_SESSION_SHARE/video"
-    timeout -s2 --preserve-status 10s gst-launch-1.0 -f -v filesrc location="$GST_TEST_DATA/video/480p_30fps_h264.mp4" \
+    timeout -s2 --preserve-status 10s gst-launch-1.0 -f -v filesrc location="$GST_TEST_DATA/video/640x480_30fps_h264.mp4" \
     ! qtdemux ! h264parse ! v4l2h264dec capture-io-mode=4 output-io-mode=4 \
     ! video/x-raw, format=NV12 ! fakesink sync=true
 
@@ -34,7 +34,7 @@ command:
     export GST_DEBUG=2
     export GST_PLUGIN_PATH=/usr/lib/aarch64-linux-gnu/gstreamer-1.0/
     mkdir -p "$PLAINBOX_SESSION_SHARE/video"
-    timeout -s2 --preserve-status 10s gst-launch-1.0 -f -v filesrc location="$GST_TEST_DATA/video/720p_30fps_h264.mp4" \
+    timeout -s2 --preserve-status 10s gst-launch-1.0 -f -v filesrc location="$GST_TEST_DATA/video/1280x720_30fps_h264.mp4" \
     ! qtdemux ! h264parse ! v4l2h264dec capture-io-mode=4 output-io-mode=4 \
     ! video/x-raw, format=NV12 ! fakesink sync=true
 
@@ -54,7 +54,7 @@ command:
     export GST_DEBUG=2
     export GST_PLUGIN_PATH=/usr/lib/aarch64-linux-gnu/gstreamer-1.0/
     mkdir -p "$PLAINBOX_SESSION_SHARE/video"
-    timeout -s2 --preserve-status 10s gst-launch-1.0 -f -v filesrc location="$GST_TEST_DATA/video/1080p_30fps_h264.mp4" \
+    timeout -s2 --preserve-status 10s gst-launch-1.0 -f -v filesrc location="$GST_TEST_DATA/video/1920x1080_30fps_h264.mp4" \
     ! qtdemux ! h264parse ! v4l2h264dec capture-io-mode=4 output-io-mode=4 \
     ! video/x-raw, format=NV12 ! fakesink sync=true
 
@@ -74,7 +74,7 @@ command:
     export GST_DEBUG=2
     export GST_PLUGIN_PATH=/usr/lib/aarch64-linux-gnu/gstreamer-1.0/
     mkdir -p "$PLAINBOX_SESSION_SHARE/video"
-    timeout -s2 --preserve-status 10s gst-launch-1.0 -f -v filesrc location="$GST_TEST_DATA/video/4k_30fps_h264.mp4" \
+    timeout -s2 --preserve-status 10s gst-launch-1.0 -f -v filesrc location="$GST_TEST_DATA/video/4096x2160_30fps_h264.mp4" \
     ! qtdemux ! h264parse ! v4l2h264dec capture-io-mode=4 output-io-mode=4 \
     ! video/x-raw, format=NV12 ! fakesink sync=true
 
@@ -113,7 +113,7 @@ command:
     export GST_DEBUG=2
     export GST_PLUGIN_PATH=/usr/lib/aarch64-linux-gnu/gstreamer-1.0/
     mkdir -p "$PLAINBOX_SESSION_SHARE/video"
-    timeout -s2 --preserve-status 10s gst-launch-1.0 -f -v filesrc location="$GST_TEST_DATA/video/480p_30fps_h265.mp4" \
+    timeout -s2 --preserve-status 10s gst-launch-1.0 -f -v filesrc location="$GST_TEST_DATA/video/640x480_30fps_h265.mp4" \
     ! qtdemux ! h265parse ! v4l2h265dec capture-io-mode=4 output-io-mode=4 \
     ! video/x-raw, format=NV12 ! fakesink sync=true
 
@@ -133,7 +133,7 @@ command:
     export GST_DEBUG=2
     export GST_PLUGIN_PATH=/usr/lib/aarch64-linux-gnu/gstreamer-1.0/
     mkdir -p "$PLAINBOX_SESSION_SHARE/video"
-    timeout -s2 --preserve-status 10s gst-launch-1.0 -f -v filesrc location="$GST_TEST_DATA/video/720p_30fps_h265.mp4" \
+    timeout -s2 --preserve-status 10s gst-launch-1.0 -f -v filesrc location="$GST_TEST_DATA/video/1280x720_30fps_h265.mp4" \
     ! qtdemux ! h265parse ! v4l2h265dec capture-io-mode=4 output-io-mode=4 \
     ! video/x-raw, format=NV12 ! fakesink sync=true
 
@@ -153,7 +153,7 @@ command:
     export GST_DEBUG=2
     export GST_PLUGIN_PATH=/usr/lib/aarch64-linux-gnu/gstreamer-1.0/
     mkdir -p "$PLAINBOX_SESSION_SHARE/video"
-    timeout -s2 --preserve-status 10s gst-launch-1.0 -f -v filesrc location="$GST_TEST_DATA/video/1080p_30fps_h265.mp4" \
+    timeout -s2 --preserve-status 10s gst-launch-1.0 -f -v filesrc location="$GST_TEST_DATA/video/1920x1080_30fps_h265.mp4" \
     ! qtdemux ! h265parse ! v4l2h265dec capture-io-mode=4 output-io-mode=4 \
     ! video/x-raw, format=NV12 ! fakesink sync=true
 
@@ -173,7 +173,7 @@ command:
     export GST_DEBUG=2
     export GST_PLUGIN_PATH=/usr/lib/aarch64-linux-gnu/gstreamer-1.0/
     mkdir -p "$PLAINBOX_SESSION_SHARE/video"
-    timeout -s2 --preserve-status 10s gst-launch-1.0 -f -v filesrc location="$GST_TEST_DATA/video/4k_30fps_h265.mp4" \
+    timeout -s2 --preserve-status 10s gst-launch-1.0 -f -v filesrc location="$GST_TEST_DATA/video/4096x2160_30fps_h265.mp4" \
     ! qtdemux ! h265parse ! v4l2h265dec capture-io-mode=4 output-io-mode=4 \
     ! video/x-raw, format=NV12 ! fakesink sync=true
 
@@ -212,7 +212,7 @@ command:
     export GST_DEBUG=2
     export GST_PLUGIN_PATH=/usr/lib/aarch64-linux-gnu/gstreamer-1.0/
     mkdir -p "$PLAINBOX_SESSION_SHARE/video"
-    timeout -s2 --preserve-status 10s gst-launch-1.0 -f -v filesrc location="$GST_TEST_DATA/video/4k_30fps_vp9.webm" \
+    timeout -s2 --preserve-status 10s gst-launch-1.0 -f -v filesrc location="$GST_TEST_DATA/video/4096x2160_30fps_vp9.webm" \
     ! matroskademux ! v4l2vp9dec capture-io-mode=4 output-io-mode=4 \
     ! video/x-raw, format=NV12 ! fakesink sync=true
 
@@ -232,7 +232,7 @@ command:
     export GST_DEBUG=2
     export GST_PLUGIN_PATH=/usr/lib/aarch64-linux-gnu/gstreamer-1.0/
     mkdir -p "$PLAINBOX_SESSION_SHARE/video"
-    timeout -s2 --preserve-status 10s gst-launch-1.0 -f -v filesrc location="$GST_TEST_DATA/video/2160p_30fps_vp9.webm" \
+    timeout -s2 --preserve-status 10s gst-launch-1.0 -f -v filesrc location="$GST_TEST_DATA/video/3840x2160_30fps_vp9.webm" \
     ! matroskademux ! v4l2vp9dec capture-io-mode=4 output-io-mode=4 \
     ! video/x-raw, format=NV12 ! fakesink sync=true
 

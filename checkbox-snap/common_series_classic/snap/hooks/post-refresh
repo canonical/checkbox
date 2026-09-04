@@ -1,0 +1,22 @@
+#!/bin/sh
+
+set -e
+
+# Re-run the same provider launcher discovery as the install hook so that
+# symlinks stay up to date if a different/newer checkbox runtime snap
+# (checkbox16..checkbox26) was installed or refreshed after this snap.
+# There is no snapd hook API to create a "snap alias" programmatically,
+# so (re)install a plain wrapper script that calls "snap run" directly.
+cat <<'EOF' > /usr/local/bin/checkbox-cli
+#!/bin/sh
+exec snap run checkbox.checkbox-cli "$@"
+EOF
+chmod +x /usr/local/bin/checkbox-cli
+
+for provider_bin in /snap/checkbox[0-9]*/current/providers/*/bin; do
+    [ -d "$provider_bin" ] || continue
+    for launcher in "$provider_bin"/*; do
+        [ -f "$launcher" ] && [ -x "$launcher" ] || continue
+        ln -sf "$launcher" "/usr/local/bin/$(basename "$launcher")"
+    done
+done

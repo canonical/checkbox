@@ -5,7 +5,7 @@
 QIM AI/ML jobs are now fully driven by the Python runner:
 
 - Runner: `bin/dragonwing_qim_ai_ml_test.py`
-- Job file: `units/dragonwing/qim-ai-ml.pxu`
+- Job files: `units/dragonwing/qim-ai-ml_jobs.pxu` (jobs) and `units/dragonwing/qim-ai-ml_test-plan.pxu` (test plans)
 - Total AIML jobs: 14
 	- 7 interactive (`plugin: user-interact-verify`)
 	- 7 automated (`plugin: shell`)

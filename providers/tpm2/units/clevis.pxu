@@ -60,7 +60,7 @@ command:
  echo "+ Generate a random string"
  rand=$(cat /dev/urandom | tr -dc 'a-zA-Z0-9' | head -c32768)
  echo "+ Encrypt and decrypt the string using the TPM"
- result=$(echo -n $rand | clevis-encrypt-tpm2 '{{"hash": "{pcr_bank}", "key":"rsa", "pcr_bank":"{pcr_bank}","pcr_ids":"0,1"}}' | clevis-decrypt-tpm2)
+ result=$(echo -n $rand | clevis-encrypt-tpm2 '{{"key":"rsa", "pcr_bank":"{pcr_bank}","pcr_ids":"0,1"}}' | clevis-decrypt-tpm2)
  echo "+ Compare with the original string"
  [[ $result == $rand ]]
 
@@ -96,6 +96,6 @@ command:
  echo "+ Generate a random string"
  rand=$(cat /dev/urandom | tr -dc 'a-zA-Z0-9' | head -c32768)
  echo "+ Encrypt and decrypt the string using the TPM"
- result=$(echo -n $rand | clevis-encrypt-tpm2 '{{"hash": "{pcr_bank}", "key":"ecc", "pcr_bank":"{pcr_bank}","pcr_ids":"0,1"}}' | clevis-decrypt-tpm2)
+ result=$(echo -n $rand | clevis-encrypt-tpm2 '{{"key":"ecc", "pcr_bank":"{pcr_bank}","pcr_ids":"0,1"}}' | clevis-decrypt-tpm2)
  echo "+ Compare with the original string"
  [[ $result == $rand ]]

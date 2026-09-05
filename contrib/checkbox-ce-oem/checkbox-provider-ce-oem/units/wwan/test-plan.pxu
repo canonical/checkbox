@@ -1,0 +1,7 @@
+id: ce-oem-wwan-automated
+unit: test plan
+_name: CE-OEM Automated wwan tests
+_description: CE-OEM Automated wwan tests for devices
+include:
+    ce-oem-wwan/usb-hotspot-auto
+    ce-oem-wwan/usb-hotspot-recovery-auto

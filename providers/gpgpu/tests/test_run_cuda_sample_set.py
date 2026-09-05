@@ -33,7 +33,7 @@ global clone_counter
 clone_counter = 0
 
 
-def dummy_clone(orig_dir, test_set):
+def dummy_clone(orig_dir, test_set, samples_dir_name="Samples"):
     global clone_counter
 
     def wrapper(*args, **kwargs) -> subprocess.CompletedProcess:
@@ -43,26 +43,28 @@ def dummy_clone(orig_dir, test_set):
         clone_counter = clone_counter + 1
         # Create a temporary directory to simulate the workspace
         test_set_dir_to_keep = (
-            orig_dir / test_set / "Samples" / "5_Domain_Specific"
+            orig_dir / test_set / samples_dir_name / "5_Domain_Specific"
         )
-        test_set_dir_to_keep_2 = orig_dir / test_set / "Samples" / "3_Dummy"
+        test_set_dir_to_keep_2 = (
+            orig_dir / test_set / samples_dir_name / "3_Dummy"
+        )
         test_set_dir_to_keep_5 = (
             orig_dir
             / test_set
-            / "Samples"
+            / samples_dir_name
             / "8_Platform_Specific"
             / "Tegra"
             / "cudaNvSciBufMultiplanar"
         )
 
         test_set_dir_to_keep_7 = (
-            orig_dir / test_set / "Samples" / "7_libNVVM" / "ptxgen"
+            orig_dir / test_set / samples_dir_name / "7_libNVVM" / "ptxgen"
         )
 
         test_set_dir_to_keep_4 = (
             orig_dir
             / test_set
-            / "Samples"
+            / samples_dir_name
             / "2_Concepts_and_Techniques"
             / "EGLStream_CUDA_Interop"
         )
@@ -70,13 +72,17 @@ def dummy_clone(orig_dir, test_set):
             orig_dir
             / test_set
             / "build"
-            / "Samples"
+            / samples_dir_name
             / "2_Concepts_and_Techniques"
             / "EGLStream_CUDA_Interop"
         )
 
-        test_set_dir_to_keep_3 = orig_dir / test_set / "Samples" / "Common"
-        test_set_dir_to_trash = orig_dir / test_set / "Samples" / "0_Utilities"
+        test_set_dir_to_keep_3 = (
+            orig_dir / test_set / samples_dir_name / "Common"
+        )
+        test_set_dir_to_trash = (
+            orig_dir / test_set / samples_dir_name / "0_Utilities"
+        )
 
         test_set_dir_to_keep.mkdir(parents=True, exist_ok=True)
         test_set_dir_to_keep_2.mkdir(parents=True, exist_ok=True)
@@ -130,6 +136,21 @@ class TestCudaSamples(unittest.TestCase):
             )
 
         run_cuda_sample_set.cleanup_temporary_files(".", str(test_set))
+
+        test_set = "5"
+        clone_counter = 0
+        cuda_samples_version = 13.3
+        mock_subprocess_run.side_effect = dummy_clone(
+            orig_dir, test_set, "cpp"
+        )
+        run_cuda_sample_set.clone_and_build(
+            orig_dir, test_set, cuda_samples_version
+        )
+        run_cuda_sample_set.cleanup_temporary_files(".", str(test_set))
+
+        cuda_samples_version = 12.8
+        clone_counter = 0
+        mock_subprocess_run.side_effect = dummy_clone(orig_dir, test_set)
         run_cuda_sample_set.clone_and_build(
             orig_dir, test_set, cuda_samples_version
         )
@@ -163,6 +184,14 @@ class TestCudaSamples(unittest.TestCase):
             orig_dir, test_set, cuda_samples_version
         )
         run_cuda_sample_set.cleanup_temporary_files(".", str(test_set))
+
+    def test_get_samples_dir_name(self):
+        self.assertEqual(
+            run_cuda_sample_set.get_samples_dir_name("13.2"), "Samples"
+        )
+        self.assertEqual(
+            run_cuda_sample_set.get_samples_dir_name("13.3"), "cpp"
+        )
 
     def test_remove_add_subdirectory_line(self):
         filepath = "test.txt"
@@ -200,7 +229,7 @@ class TestCudaSamples(unittest.TestCase):
             orig_dir
             / "3"
             / "build"
-            / "Samples"
+            / "cpp"
             / "5_Domain_Specific"
             / "truc"
             / "bin"
@@ -226,7 +255,9 @@ class TestCudaSamples(unittest.TestCase):
         os.chmod(str(Path(exe_dir / "test2")), 0o755)
         os.chmod(str(Path(exe_dir / "test1")), 0o755)
 
-        total, skipped = run_cuda_sample_set.run_tests("./", "3", ["test1"])
+        total, skipped = run_cuda_sample_set.run_tests(
+            "./", "3", "13.3", ["test1"]
+        )
         self.assertEqual(total, 3)
         self.assertEqual(skipped, 1)
         run_cuda_sample_set.cleanup_temporary_files("./", str(3))
@@ -255,7 +286,8 @@ class TestCudaSamples(unittest.TestCase):
             "File exist patched.", cmd=""
         ),
     )
-    def test_main(self, mock_run, mock_clone, mock_args):
+    @mock.patch("run_cuda_sample_set.copy_and_set_permissions")
+    def test_main(self, mock_copy, mock_run, mock_clone, mock_args):
         with self.assertRaises(FileExistsError):
             run_cuda_sample_set.main()
         mock_clone.side_effect = None

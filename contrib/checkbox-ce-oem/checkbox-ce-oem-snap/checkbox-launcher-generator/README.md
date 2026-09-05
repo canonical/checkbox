@@ -98,17 +98,21 @@ The script is also executable directly:
      right panes and navigate the job list; the description area updates
      immediately regardless of which key was used to switch.
 
-3. **Save** — press `s` to write the launcher files and exit, `b`/`Esc` to
+3. **Save** — press `s` to write the launcher file and exit, `b`/`Esc` to
    go back to the plan picker, or `q` to quit without saving.
 
-   When the selected top-level plan has a `nested_part`, pressing `s`
-   writes **one launcher per nested plan** (e.g.
-   `ce-oem-iot-ubuntucore-26-crypto-launcher`,
-   `ce-oem-iot-ubuntucore-26-gpio-launcher`, …).  Each launcher's
-   `[test plan] unit` is set to the corresponding nested plan ID.  The
-   manifest and environment values filled in the editor are shared across
-   all generated launchers.  The number of launchers to be written is
-   shown in the editor title bar.
+   When the selected top-level plan's direct `nested_part` includes a
+   manual/automated/stress trio (ids ending in `-manual`, `-automated`,
+   `-stress` — other nested plans, e.g. an `-rt` variant, are ignored),
+   pressing `s` writes a **single** launcher whose `[test plan]` section
+   lists the top-level plan plus all three via `filter`, sets
+   `forced = no` so the user is prompted to pick one at run time, and
+   defaults `unit` to the **top-level plan itself** (running it exercises
+   the whole trio).  See [Manual / automated / stress
+   selection](#manual--automated--stress-selection) below.  Otherwise a
+   single plain launcher is written for the selected plan, with
+   `forced = yes`.  Either way the manifest and environment values filled
+   in the editor are written to that one file.
 
 ### Key bindings
 
@@ -190,6 +194,47 @@ order (`checkbox-ce-oem` first, then `checkboxNN` snaps).
 Manifest entries whose bare id starts with `_` (e.g. `_internal_flag`)
 are internal/derived and are excluded from the editor and the written
 launcher file — there is nothing for the user to fill in for them.
+
+## Manual / automated / stress selection
+
+Some top-level plans (e.g. `ce-oem-iot-ubuntucore-26`) nest three
+sub-plans covering manual tests, automated tests, and stress tests
+(ids ending in `-manual`, `-automated`, `-stress`).  Instead of writing
+one launcher per sub-plan, `gen_launcher.py` writes a **single**
+launcher for these, using the checkbox launcher's built-in `[test plan]
+filter` / `unit` / `forced` mechanism (see `checkbox-ng`'s
+`plainbox/impl/config.py`):
+
+```ini
+[test plan]
+unit = com.canonical.contrib::ce-oem-iot-ubuntucore-26
+filter = com.canonical.contrib::ce-oem-iot-ubuntucore-26
+         com.canonical.contrib::ce-oem-iot-ubuntucore-26-manual
+         com.canonical.contrib::ce-oem-iot-ubuntucore-26-automated
+         com.canonical.contrib::ce-oem-iot-ubuntucore-26-stress
+forced = no
+
+[ui]
+type = interactive
+```
+
+- `filter` constrains the interactive test-plan picker to the top-level
+  plan plus those three sub-plans — any other nested plan (e.g. an
+  `-rt` variant) is left out.
+- `unit` defaults the picker's initial selection to the **top-level
+  plan itself** (running it exercises the whole manual/automated/stress
+  trio, so it is the recommended default for unattended/CI runs).
+- `forced = no` lets the user change the selection at run time; note
+  this requires `[ui] type = interactive` (checkbox only shows the
+  test-plan picker in an interactive session — see `is_interactive` in
+  `checkbox_ng/launcher/subcommands.py`), which `gen_launcher.py` sets
+  automatically whenever `forced = no`.
+- If none of the three sub-plans are found (or the plan has no
+  `nested_part` at all), a single plain launcher is written instead,
+  with `forced = yes` and `type = silent` as before.
+
+This logic lives in `select_manual_auto_stress()` in
+`checkbox_ce_oem_scan.py`.
 
 ## Output format
 
@@ -295,14 +340,14 @@ expansion without any file I/O.
 python3 -m unittest test_checkbox_ce_oem_scan test_gen_launcher -v
 ```
 
-101 unit tests total, split across two files:
+110 unit tests total, split across two files:
 
 - `test_checkbox_ce_oem_scan.py` — the data layer (PXU parsing, cache
   schema, plan expansion, glob matching, manifest/environ extraction,
   reserved-environ-var filtering, default repo-root discovery, hidden
   manifest filtering, multi-root scanning, top-level plan discovery,
-  cache version invalidation, `dump_inventory_json`, and the standalone
-  CLI's `main()`).
+  manual/automated/stress selection, cache version invalidation,
+  `dump_inventory_json`, and the standalone CLI's `main()`).
 - `test_gen_launcher.py` — the TUI layer (launcher file format,
   existing-launcher import, `ItemRow` edit-mode state transitions, job
   purpose/description formatting, and right-pane focus-switching, `Tab`

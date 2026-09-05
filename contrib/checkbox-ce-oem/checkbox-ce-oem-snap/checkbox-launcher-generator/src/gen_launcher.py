@@ -25,6 +25,7 @@ from checkbox_ce_oem_scan import (
     load_expansion_cache,
     load_or_build_cache,
     save_expansion_cache,
+    select_manual_auto_stress,
 )
 
 # §2 Item dataclass
@@ -140,6 +141,9 @@ def write_launcher(
     plan_full_id: str,
     items: list[Item],
     output_path: Path,
+    *,
+    filter_plans: "list[str] | None" = None,
+    forced: bool = True,
 ) -> Path:
     """Write a checkbox launcher ini file to *output_path*.
 
@@ -150,6 +154,19 @@ def write_launcher(
     the file can be edited by hand later.  The ``[manifest]`` and
     ``[environment]`` sections are omitted entirely when no relevant items
     exist.
+
+    *plan_full_id* is used as ``[test plan] unit`` — the test plan
+    selected/run by default. When *filter_plans* is given (a list of full
+    test plan ids), a ``[test plan] filter`` line is written listing them
+    one per line (indented to align under the first id, matching the
+    hand-written launcher style used elsewhere), constraining interactive
+    test-plan selection to just those ids; pass ``forced=False`` alongside
+    it so the launcher actually prompts the user to pick between them
+    instead of always running *plan_full_id*.
+
+    ``[ui] type`` is written as ``interactive`` when ``forced=False`` (the
+    test-plan picker prompt only appears in an interactive session) and as
+    ``silent`` when ``forced=True`` (the default, unattended behaviour).
     """
     lines = [
         "#!/usr/bin/env checkbox-cli-wrapper",
@@ -160,10 +177,18 @@ def write_launcher(
         "",
         "[test plan]",
         f"unit = {plan_full_id}",
-        "forced = yes",
+    ]
+    if filter_plans:
+        indent = " " * len("filter = ")
+        filter_lines = [f"filter = {filter_plans[0]}"] + [
+            f"{indent}{fid}" for fid in filter_plans[1:]
+        ]
+        lines += filter_lines
+    lines += [
+        f"forced = {'yes' if forced else 'no'}",
         "",
         "[ui]",
-        "type = silent",
+        f"type = {'silent' if forced else 'interactive'}",
     ]
 
     manifest_items = [i for i in items if i.kind == "manifest"]
@@ -671,9 +696,14 @@ class LauncherEditorScreen:
     Press ``q`` to quit without saving.
     Press ``b``/``Esc`` to go back to the plan picker.
 
-    When *sub_plans* is provided, pressing ``s`` writes one launcher per
-    sub-plan (each with a different ``[test plan] unit``).  Otherwise a
-    single launcher is written for *plan_full_id*.
+    When *sub_plans* is provided and contains a manual/automated/stress
+    trio (see ``select_manual_auto_stress``), pressing ``s`` writes a
+    single launcher whose ``[test plan]`` section lists *plan_full_id*
+    plus all three via ``filter`` (with ``forced = no``, so the user is
+    prompted to pick one at run time) and defaults ``unit`` to
+    *plan_full_id* itself (running the base plan exercises the whole
+    trio).  Otherwise a single launcher is written for *plan_full_id*
+    with ``forced = yes``.
     """
 
     _BINDINGS = (
@@ -748,8 +778,10 @@ class LauncherEditorScreen:
         )
 
         plan_id = self.plan_full_id.split("::")[-1]
-        n = len(self.sub_plans)
-        suffix = f"  ({n} launchers)" if n else ""
+        filtered_mas, _ = select_manual_auto_stress(
+            self.plan_full_id, self.sub_plans
+        )
+        suffix = "  (manual/auto/stress)" if filtered_mas else ""
         self._title_text = urwid.Text(
             f"Launcher Generator \u2014 {plan_id}{suffix}", wrap="clip"
         )
@@ -889,21 +921,24 @@ class LauncherEditorScreen:
 
     def _save(self):
         try:
-            if self.sub_plans:
-                for sub_full_id, sub_id in self.sub_plans:
-                    out = self.output_dir / f"{sub_id}-launcher"
-                    write_launcher(sub_full_id, self.items, out)
-                    self._saved_paths.append(out)
-                self._status_text.set_text(
-                    f"Saved {len(self._saved_paths)} launchers"
-                    f" to {self.output_dir}"
+            plan_id = self.plan_full_id.split("::")[-1]
+            out = self.output_dir / f"{plan_id}-launcher"
+            filtered_mas, default_full_id = select_manual_auto_stress(
+                self.plan_full_id, self.sub_plans
+            )
+            if filtered_mas:
+                unit = default_full_id or filtered_mas[0][0]
+                write_launcher(
+                    unit,
+                    self.items,
+                    out,
+                    filter_plans=[fid for fid, _ in filtered_mas],
+                    forced=False,
                 )
             else:
-                plan_id = self.plan_full_id.split("::")[-1]
-                out = self.output_dir / f"{plan_id}-launcher"
                 write_launcher(self.plan_full_id, self.items, out)
-                self._saved_paths.append(out)
-                self._status_text.set_text(f"Saved to {out}")
+            self._saved_paths.append(out)
+            self._status_text.set_text(f"Saved to {out}")
             raise urwid.ExitMainLoop()
         except OSError as exc:
             self._status_text.set_text(f" ERROR writing file: {exc}")
@@ -1118,10 +1153,13 @@ def main(argv: list[str] | None = None) -> int:  # pragma: no cover
 
         # ── resolve nested plans ──────────────────────────────────
         sub_plans = get_nested_plans(full_id, cache)
-        n_sub = len(sub_plans)
-        if n_sub:
+        filtered_mas, _ = select_manual_auto_stress(full_id, sub_plans)
+        if filtered_mas:
+            nested_mas = filtered_mas[1:]
+            names = ", ".join(pid for _, pid in nested_mas)
             print(
-                f"  {n_sub} nested plans → {n_sub} launchers will be written"
+                f"  {len(nested_mas)} nested plans ({names}) will be"
+                " merged into one launcher (default: base plan)"
             )
 
         # ── editor ────────────────────────────────────────────────

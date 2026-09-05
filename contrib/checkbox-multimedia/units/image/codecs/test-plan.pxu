@@ -1,0 +1,42 @@
+unit: test plan
+id: multimedia-codecs
+_name: Multimedia codec tests
+include:
+nested_part:
+  multimedia-codecs-vaapi-av1
+  multimedia-codecs-vaapi-h264
+  multimedia-codecs-vaapi-h265
+  multimedia-codecs-vaapi-vp8
+  multimedia-codecs-vaapi-vp9
+  multimedia-codecs-vaapi-jpeg
+  multimedia-codecs-vaapi-mpeg2
+  multimedia-codecs-vaapi-mpeg4
+  multimedia-codecs-vaapi-vc1
+
+unit: test plan
+id: multimedia-codecs-vaapi
+_name: VA-API codec conformance tests
+include:
+nested_part:
+  multimedia-codecs-vaapi-av1
+  multimedia-codecs-vaapi-h264
+  multimedia-codecs-vaapi-h265
+  multimedia-codecs-vaapi-jpeg
+  multimedia-codecs-vaapi-mpeg2
+  multimedia-codecs-vaapi-mpeg4
+  multimedia-codecs-vaapi-vc1
+  multimedia-codecs-vaapi-vp8
+  multimedia-codecs-vaapi-vp9
+
+unit: test plan
+id: multimedia-codecs-vaapi-encode
+_name: VA-API encoder conformance tests
+include:
+nested_part:
+  multimedia-codecs-vaapi-av1-encode
+  multimedia-codecs-vaapi-h264-encode
+  multimedia-codecs-vaapi-h265-encode
+  multimedia-codecs-vaapi-jpeg-encode
+  multimedia-codecs-vaapi-mpeg4-encode
+  multimedia-codecs-vaapi-vp8-encode
+  multimedia-codecs-vaapi-vp9-encode

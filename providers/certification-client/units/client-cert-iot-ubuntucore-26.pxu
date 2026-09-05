@@ -213,6 +213,8 @@ exclude:
   miscellanea/grub_file_check
   networking/ntp
   after-suspend-networking/ntp
+  networking/ntp-chrony
+  after-suspend-networking/ntp-chrony
   suspend/audio_before_suspend
   suspend/audio_after_suspend_auto
 

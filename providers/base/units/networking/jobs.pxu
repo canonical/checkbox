@@ -71,9 +71,21 @@ category_id: com.canonical.plainbox::networking
 id: networking/ntp
 flags: also-after-suspend
 requires:
+    lsb.release < '25.10'
     (package.name == 'ntpdate' or package.name == 'ntpsec-ntpdate')
 user: root
 command: network_ntp_test.py
+_purpose: Test to see if we can sync local clock to an NTP server
+_summary: Test NTP server synchronization capability.
+
+plugin: shell
+category_id: com.canonical.plainbox::networking
+id: networking/ntp-chrony
+flags: also-after-suspend
+requires:
+    lsb.release >= '25.10'
+user: root
+command: network_ntp_chrony_test.py
 _purpose: Test to see if we can sync local clock to an NTP server
 _summary: Test NTP server synchronization capability.
 

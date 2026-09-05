@@ -653,10 +653,30 @@ category_id: dock-network
 plugin: user-interact-verify
 depends: dock/cold-plug
 requires:
+    lsb.release < '25.10'
     (package.name == 'ntpdate' or package.name == 'ntpsec-ntpdate')
 user: root
 command: network_ntp_test.py
 estimated_duration: 10.00
+_summary: NTP sync test using dock's Ethernet connectivity
+_purpose:
+    Test to see if we can sync local clock to an NTP server
+_steps:
+    1. Make sure the dock is connected to network using an Ethernet cable
+    2. Make sure the laptop itself is not connected to any Ethernet cable
+    3. Launch the test
+_verification:
+    Was the test able to synchronize system time using the Ethernet connection?
+
+id: dock/networking-ntp-chrony
+category_id: dock-network
+plugin: user-interact-verify
+depends: dock/cold-plug
+requires:
+    lsb.release >= '25.10'
+user: root
+command: network_ntp_chrony_test.py
+estimated_duration: 60.00
 _summary: NTP sync test using dock's Ethernet connectivity
 _purpose:
     Test to see if we can sync local clock to an NTP server
@@ -2681,6 +2701,7 @@ plugin: user-interact-verify
 imports: from com.canonical.plainbox import manifest
 requires:
     manifest.has_dock_ethernet_adapter == 'True'
+    lsb.release < '25.10'
     (package.name == 'ntpdate' or package.name == 'ntpsec-ntpdate')
 user: root
 command: network_ntp_test.py
@@ -2700,6 +2721,35 @@ _siblings:
      {"id": "dock/all-suspend-networking-ntp", "depends": "dock/all-suspend-ethernet-detect dock/all-suspend"},
      {"id": "dock/all-suspend-hotplug-networking-ntp", "depends": "dock/all-suspend-hotplug-ethernet-detect dock/all-suspend-hotplug"},
      {"id": "dock/all-poweroff-networking-ntp", "depends": "dock/all-poweroff-ethernet-detect dock/all-poweroff"}]
+
+id: dock/all-init-networking-ntp-chrony
+category_id: dock-network
+depends:
+    dock/all-init
+    dock/all-init-ethernet-detect
+plugin: user-interact-verify
+imports: from com.canonical.plainbox import manifest
+requires:
+    manifest.has_dock_ethernet_adapter == 'True'
+    lsb.release >= '25.10'
+user: root
+command: network_ntp_chrony_test.py
+estimated_duration: 60.00
+_summary: NTP sync test using dock's Ethernet connectivity
+_purpose:
+    Test to see if we can sync local clock to an NTP server
+_steps:
+    1. Make sure the dock is connected to network using an Ethernet cable.
+    2. Make sure the laptop itself is not connected to any network.
+    3. Launch the test.
+_verification:
+    Was the test able to synchronize system time using the Ethernet connection?
+_siblings:
+    [{"id": "dock/all-reboot-networking-ntp-chrony", "depends": "dock/all-reboot-ethernet-detect dock/all-reboot"},
+     {"id": "dock/all-hotplug-networking-ntp-chrony", "depends": "dock/all-hotplug-ethernet-detect dock/all-hotplug"},
+     {"id": "dock/all-suspend-networking-ntp-chrony", "depends": "dock/all-suspend-ethernet-detect dock/all-suspend"},
+     {"id": "dock/all-suspend-hotplug-networking-ntp-chrony", "depends": "dock/all-suspend-hotplug-ethernet-detect dock/all-suspend-hotplug"},
+     {"id": "dock/all-poweroff-networking-ntp-chrony", "depends": "dock/all-poweroff-ethernet-detect dock/all-poweroff"}]
 
 
 id: dock/all-init-thunderbolt3-storage-manual

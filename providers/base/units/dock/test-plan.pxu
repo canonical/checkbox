@@ -10,6 +10,7 @@ include:
   dock/all-init-ethernet-detect                           certification-status=blocker
   dock/all-init-networking-gateway-ping                   certification-status=blocker
   dock/all-init-networking-ntp                            certification-status=blocker
+  dock/all-init-networking-ntp-chrony                     certification-status=blocker
   dock/all-init-thunderbolt3-storage-manual               certification-status=blocker
   dock/all-init-usb-c-storage-manual                      certification-status=blocker
   dock/all-init-usb3-storage-manual                       certification-status=blocker
@@ -30,6 +31,7 @@ include:
   dock/all-reboot-ethernet-detect                           certification-status=blocker
   dock/all-reboot-networking-gateway-ping                   certification-status=blocker
   dock/all-reboot-networking-ntp                            certification-status=blocker
+  dock/all-reboot-networking-ntp-chrony                     certification-status=blocker
   dock/all-reboot-thunderbolt3-storage-manual               certification-status=blocker
   dock/all-reboot-usb-c-storage-manual                      certification-status=blocker
   dock/all-reboot-usb3-storage-manual                       certification-status=blocker
@@ -50,6 +52,7 @@ include:
   dock/all-hotplug-ethernet-detect                           certification-status=blocker
   dock/all-hotplug-networking-gateway-ping                   certification-status=blocker
   dock/all-hotplug-networking-ntp                            certification-status=blocker
+  dock/all-hotplug-networking-ntp-chrony                     certification-status=blocker
   dock/all-hotplug-thunderbolt3-storage-manual               certification-status=blocker
   dock/all-hotplug-usb-c-storage-manual                      certification-status=blocker
   dock/all-hotplug-usb3-storage-manual                       certification-status=blocker
@@ -70,6 +73,7 @@ include:
   dock/all-suspend-ethernet-detect                           certification-status=blocker
   dock/all-suspend-networking-gateway-ping                   certification-status=blocker
   dock/all-suspend-networking-ntp                            certification-status=blocker
+  dock/all-suspend-networking-ntp-chrony                     certification-status=blocker
   dock/all-suspend-thunderbolt3-storage-manual               certification-status=blocker
   dock/all-suspend-usb-c-storage-manual                      certification-status=blocker
   dock/all-suspend-usb3-storage-manual                       certification-status=blocker
@@ -90,6 +94,7 @@ include:
   dock/all-suspend-hotplug-ethernet-detect                           certification-status=blocker
   dock/all-suspend-hotplug-networking-gateway-ping                   certification-status=blocker
   dock/all-suspend-hotplug-networking-ntp                            certification-status=blocker
+  dock/all-suspend-hotplug-networking-ntp-chrony                     certification-status=blocker
   dock/all-suspend-hotplug-thunderbolt3-storage-manual               certification-status=blocker
   dock/all-suspend-hotplug-usb-c-storage-manual                      certification-status=blocker
   dock/all-suspend-hotplug-usb3-storage-manual                       certification-status=blocker
@@ -110,6 +115,7 @@ include:
   dock/all-poweroff-ethernet-detect                           certification-status=blocker
   dock/all-poweroff-networking-gateway-ping                   certification-status=blocker
   dock/all-poweroff-networking-ntp                            certification-status=blocker
+  dock/all-poweroff-networking-ntp-chrony                     certification-status=blocker
   dock/all-poweroff-thunderbolt3-storage-manual               certification-status=blocker
   dock/all-poweroff-usb-c-storage-manual                      certification-status=blocker
   dock/all-poweroff-usb3-storage-manual                       certification-status=blocker
@@ -161,6 +167,7 @@ include:
   dock/audio-external-lineout
   dock/networking-gateway-ping          certification-status=blocker
   dock/networking-ntp                   certification-status=blocker
+  dock/networking-ntp-chrony            certification-status=blocker
   dock/mac-address-passthrough
   dock/usb-HID                          certification-status=blocker
   dock/usb-insert                       certification-status=blocker
@@ -323,6 +330,7 @@ include:
   dock/audio-alsa-record-playback-external      certification-status=blocker
   dock/networking-gateway-ping          certification-status=blocker
   dock/networking-ntp                   certification-status=blocker
+  dock/networking-ntp-chrony            certification-status=blocker
   dock/usb-HID                          certification-status=blocker
   dock/usb-insert                       certification-status=blocker
   dock/usb-storage-automated            certification-status=blocker

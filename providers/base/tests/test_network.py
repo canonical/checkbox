@@ -83,6 +83,91 @@ class IPerfPerfomanceTestTests(unittest.TestCase):
         self.assertEqual(test.num_threads, 5)
         self.assertListEqual(test._results, [])
 
+    def test_expected_max_speed_no_override_uses_iface_max_speed(self):
+        test = self.make_iperf_test()
+        test.iface.max_speed = 1000
+        self.assertEqual(test.expected_max_speed, 1000)
+
+    def make_iperf_test_with_named_interface(self, **overrides):
+        """Like make_iperf_test(), but Interface() returns a Mock whose
+        .interface attribute reflects the name it was constructed with, so
+        that INTERFACE_SPEED_OVERRIDE matching can be exercised."""
+        kwargs = dict(
+            interface="eth0",
+            target="192.168.1.1",
+            fail_threshold=40,
+            cpu_load_fail_threshold=100,
+            iperf3=True,
+            num_threads=2,
+            reverse=False,
+        )
+        kwargs.update(overrides)
+
+        def interface_side_effect(name):
+            iface = Mock()
+            iface.interface = name
+            iface.max_speed = 1000
+            return iface
+
+        with patch("network.Interface") as mock_interface:
+            mock_interface.side_effect = interface_side_effect
+            return network.IPerfPerformanceTest(**kwargs)
+
+    def test_expected_max_speed_uses_override(self):
+        test = self.make_iperf_test_with_named_interface(
+            interface_speed_override="eth0:2000,eth1:5000"
+        )
+        # eth0 is overridden to 2000, ignoring the ethtool-reported 1000.
+        self.assertEqual(test.expected_max_speed, 2000)
+
+    def test_expected_max_speed_override_other_iface_ignored(self):
+        test = self.make_iperf_test_with_named_interface(
+            interface_speed_override="eth1:5000"
+        )
+        # The override only applies to eth1, so eth0 keeps ethtool's 1000.
+        self.assertEqual(test.expected_max_speed, 1000)
+
+    def test_run_uses_override_for_pass_fail(self):
+        test = self.make_iperf_test_with_named_interface(
+            num_threads=1,
+            iperf3=False,
+            fail_threshold=40,
+            interface_speed_override="eth0:10000",
+        )
+        # 900 Mbits/sec is 90% of ethtool's 1000, which would pass a 40%
+        # threshold, but only 9% of the 10000 override, which should fail.
+        with patch("network.check_output", return_value="900 Mbits/sec"):
+            result = test.run()
+        self.assertEqual(result, 30)
+
+    @patch("network.logger")
+    def test_run_warns_when_override_in_effect(self, mock_logger):
+        test = self.make_iperf_test_with_named_interface(
+            num_threads=1,
+            iperf3=False,
+            interface_speed_override="eth0:10000",
+        )
+        with patch("network.check_output", return_value="9000 Mbits/sec"):
+            test.run()
+        warnings = [
+            call.args[0] for call in mock_logger.warning.call_args_list
+        ]
+        self.assertTrue(any("INTERFACE_SPEED_OVERRIDE" in w for w in warnings))
+
+    @patch("network.logger")
+    def test_run_no_warning_without_override(self, mock_logger):
+        test = self.make_iperf_test_with_named_interface(
+            num_threads=1, iperf3=False
+        )
+        with patch("network.check_output", return_value="900 Mbits/sec"):
+            test.run()
+        warnings = [
+            call.args[0] for call in mock_logger.warning.call_args_list
+        ]
+        self.assertFalse(
+            any("INTERFACE_SPEED_OVERRIDE" in w for w in warnings)
+        )
+
     def test_run_one_thread_success(self):
         test = self.make_iperf_test()
         with patch("network.check_output", return_value="100 Mbits/sec"):
@@ -106,15 +191,15 @@ class IPerfPerfomanceTestTests(unittest.TestCase):
         self.assertEqual(result, 1)
         self.assertListEqual(test._results, [])
 
-    @patch("logging.warning")
-    def test_run_one_thread_unable_to_connect_high_speed_port(self, mock_warn):
+    @patch("network.logger")
+    def test_run_one_thread_unable_to_connect_high_speed_port(self, mock_log):
         test = self.make_iperf_test()
         exc = CalledProcessError(1, "cmd")
         exc.output = "unable to connect to server"
         with patch("network.check_output", side_effect=exc):
             result = test.run_one_thread("iperf3 -c host", 5202)
         self.assertEqual(result, 1)
-        self.assertTrue(mock_warn.called)
+        self.assertTrue(mock_log.warning.called)
 
     def test_run_one_thread_unknown_error(self):
         test = self.make_iperf_test()
@@ -448,16 +533,16 @@ class NetworkTests(unittest.TestCase):
             ["ip", "link", "set", "dev", "test_if", "up"]
         )
 
-    @patch("logging.error")
+    @patch("network.logger")
     @patch("network.Interface")
-    def test_check_is_underspeed(self, mock_intf, mock_logging):
+    def test_check_is_underspeed(self, mock_intf, mock_logger):
         mock_intf.return_value = Mock(
             status="up", link_speed=100, max_speed=1000
         )
 
         self.assertTrue(network.check_underspeed("test_if"))
         mock_intf.assert_called_with("test_if")
-        self.assertEqual(mock_logging.call_count, 4)
+        self.assertEqual(mock_logger.error.call_count, 4)
 
     @patch("network.Interface")
     def test_check_is_not_underspeed(self, mock_intf):
@@ -892,11 +977,11 @@ class NetworkTests(unittest.TestCase):
         args = Namespace()
         self.assertIsNone(network.interface_test(args))
 
-    @patch("logging.error")
+    @patch("network.logger")
     @patch("network.make_target_list")
     @patch("network.get_test_parameters")
     def test_interface_test_no_target_list(
-        self, mock_get_test_params, mock_mk_targets, mock_logging
+        self, mock_get_test_params, mock_mk_targets, mock_logger
     ):
         mock_mk_targets.return_value = []
         args = Namespace(test_type="iperf", interface="eth0")
@@ -904,7 +989,7 @@ class NetworkTests(unittest.TestCase):
         with self.assertRaises(SystemExit) as context:
             network.interface_test(args)
         self.assertEqual(context.exception.code, 1)
-        self.assertEqual(mock_logging.call_count, 7)
+        self.assertEqual(mock_logger.error.call_count, 7)
 
     @patch("network.get_test_parameters")
     def test_interface_test_type_neither_iperf_nor_stress(
@@ -1225,13 +1310,13 @@ class InterfaceClassTest(unittest.TestCase):
 
         self.assertEqual(self.obj_intf._read_data("operstate"), "up")
 
-    @patch("logging.warning")
+    @patch("network.logger")
     @patch("pathlib.Path.read_text")
-    def test_read_data_oserror_returns_none(self, mock_read_text, mock_warn):
+    def test_read_data_oserror_returns_none(self, mock_read_text, mock_logger):
         mock_read_text.side_effect = OSError
 
         self.assertIsNone(self.obj_intf._read_data("operstate"))
-        self.assertEqual(mock_warn.call_count, 1)
+        self.assertEqual(mock_logger.warning.call_count, 1)
 
     @patch("network.fcntl.ioctl")
     def test_ipaddress_success(self, mock_ioctl):

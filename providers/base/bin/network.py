@@ -360,9 +360,9 @@ class IPerfPerformanceTest:
 
         # Handle threading -- start Python threads (even if just one is
         # used), then use join() to wait for them all to complete....
-        t = []
+        t = [] # type: list[threading.Thread]
         self._results.clear()
-        for thread_num in range(0, python_threads):
+        for thread_num in range(python_threads):
             if self.iperf3 and len(core_list) > 0:
                 core = core_list[thread_num % len(core_list)]
                 full_cmd = cmd + " -A {}".format(core)
@@ -375,7 +375,7 @@ class IPerfPerformanceTest:
                 )
             )
             t[thread_num].start()
-        for thread_num in range(0, python_threads):
+        for thread_num in range(python_threads):
             t[thread_num].join()
 
         throughput = self.summarize_speeds()

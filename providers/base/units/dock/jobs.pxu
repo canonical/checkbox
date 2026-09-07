@@ -674,6 +674,7 @@ plugin: user-interact-verify
 depends: dock/cold-plug
 requires:
     lsb.release >= '25.10'
+    environment.CHECKBOX_OS_IS_UBUNTUCORE != "1"
 user: root
 command: network_ntp_chrony_test.py
 estimated_duration: 60.00
@@ -2732,6 +2733,7 @@ imports: from com.canonical.plainbox import manifest
 requires:
     manifest.has_dock_ethernet_adapter == 'True'
     lsb.release >= '25.10'
+    environment.CHECKBOX_OS_IS_UBUNTUCORE != "1"
 user: root
 command: network_ntp_chrony_test.py
 estimated_duration: 60.00

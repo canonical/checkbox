@@ -84,10 +84,11 @@ id: networking/ntp-chrony
 flags: also-after-suspend
 requires:
     lsb.release >= '25.10'
+    environment.CHECKBOX_OS_IS_UBUNTUCORE != "1"
 user: root
 command: network_ntp_chrony_test.py
-_purpose: Test to see if we can sync local clock to an NTP server
-_summary: Test NTP server synchronization capability.
+_purpose: Test to see if we can sync local clock to an NTP server with chrony
+_summary: Test NTP server synchronization capability with chrony.
 
 plugin: shell
 category_id: com.canonical.plainbox::networking

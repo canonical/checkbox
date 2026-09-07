@@ -1108,8 +1108,12 @@ def interface_test(args: Namespace):
             args.dont_toggle_ifaces,
             args.iface_timeout,
         ):
-            logger.debug(
+            logger.info(
                 "Start Iperf testing with %s iperf server", test_targets_list
+            )
+            logger.info(
+                "Checkbox output may be interrupted for a long time, "
+                + "but it will come back once the tests are done"
             )
             start_time = datetime.datetime.now()
             first_loop = True

@@ -112,14 +112,6 @@ class TestBuildCapabilities(unittest.TestCase):
         for variant in ("aes", "aes128", "aes192", "aes256"):
             self.assertNotIn(variant, caps["symmetric"])
 
-    @patch(
-        "tpm2_capabilities.subprocess.check_output",
-        side_effect=FileNotFoundError,
-    )
-    def test_missing_tpm2_tools_raises(self, _out):
-        with self.assertRaises(SystemExit):
-            tpm2_capabilities.build_capabilities()
-
 
 class TestParseArgs(unittest.TestCase):
     def test_resource_flag(self):
@@ -156,6 +148,14 @@ class TestParseArgs(unittest.TestCase):
 
 
 class TestMain(unittest.TestCase):
+    @patch(
+        "tpm2_capabilities.subprocess.check_output",
+        side_effect=FileNotFoundError,
+    )
+    def test_missing_tpm2_tools_raises(self, _out):
+        with self.assertRaises(SystemExit):
+            tpm2_capabilities.main()
+
     @patch(
         "tpm2_capabilities.subprocess.check_call",
         side_effect=_fake_check_call_all_ok,

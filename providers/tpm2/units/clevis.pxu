@@ -22,11 +22,16 @@ plugin: shell
 imports: from com.canonical.plainbox import manifest
 requires:
  manifest.has_tpm2_chip == 'True'
- executable.name == 'clevis-encrypt-tpm2'
 _summary: clevis encrypt/decrypt precheck
 depends: tpm2/detect
 flags: simple
-command: true
+command:
+  if ! command -v clevis-encrypt-tpm2 &> /dev/null; then
+      echo "Error: 'clevis-encrypt-tpm2' is not installed or not available in PATH." >&2
+      exit 1
+  fi
+  echo "'clevis-encrypt-tpm2' is available."
+  exit 0
 
 unit: template
 template-resource: tpm2_pcr_banks

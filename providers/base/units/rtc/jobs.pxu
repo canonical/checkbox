@@ -46,19 +46,7 @@ plugin: shell
 user: root
 category_id: rtc_category
 estimated_duration: 5
-command:
-    rtc_path="/sys/class/rtc/{rtc}/since_epoch"
-    if ! cat "$rtc_path" >/dev/null; then
-        echo "Warning: Unable to read $rtc_path."
-        if ! hwclock --systohc --utc --rtc=/dev/{rtc}; then
-            echo "Error: hwclock sync failed."
-            exit 1
-        fi
-        if ! cat "$rtc_path" >/dev/null; then
-            echo "Error: RTC is still not readable after hwclock sync."
-            exit 1
-        fi
-    fi
+command: rtc_test.py read --rtc {rtc}
 flags: also-after-suspend
 
 unit: template
@@ -72,20 +60,7 @@ plugin: shell
 user: root
 category_id: rtc_category
 estimated_duration: 40
-command: 
-    if [ -f "/sys/class/rtc/{rtc}/wakealarm" ]; then 
-        timeout 60 rtcwake -d {rtc} -v -m on -s 30
-        rtcwake_status=$?
-        if [ "$rtcwake_status" -eq 124 ]; then
-            echo "Error: rtcwake timed out!"
-            exit 1
-        elif [ "$rtcwake_status" -ne 0 ]; then
-            exit "$rtcwake_status"
-        fi
-    else 
-        echo "{rtc} does not support wakealarm"
-        exit 1 
-    fi
+command: rtc_test.py alarm --rtc {rtc} --seconds 30 --timeout 60
 flags: also-after-suspend
 
 unit: template
@@ -100,17 +75,5 @@ user: root
 category_id: rtc_category
 estimated_duration: 5
 environ:
-command: 
-    rtc_time=$(cat "/sys/class/rtc/{rtc}/since_epoch")
-    sys_time=$(date +"%s")
-    result=$(("$sys_time" - "$rtc_time"))
-    if [[ "$result" -le "5" ]]; then
-        echo "{rtc} Clock synchronized with System Clock"
-        echo "RTC clock= $rtc_time"
-    else
-        echo "{rtc} Clock not synchronized with System Clock"
-        echo "System clock= $sys_time"
-        echo "RTC clock= $rtc_time"
-        exit 1
-    fi
+command: rtc_test.py clock --rtc {rtc} --tolerance 5
 flags: also-after-suspend

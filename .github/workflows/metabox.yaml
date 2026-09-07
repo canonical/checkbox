@@ -39,7 +39,7 @@ jobs:
       fail-fast: false
       matrix:
         # Version of Ubuntu
-        os: [16.04, 18.04, 20.04, 22.04, 24.04]
+        os: [16.04]
         # Checkbox mode to test
         mode: [local, remote]
     defaults:
@@ -47,7 +47,7 @@ jobs:
         working-directory: metabox
     needs: metabox_run_required
     # use 20.04 as we need xenial containers support => cgroup v1
-    runs-on: ${{ matrix.os == '16.04' && fromJson('["self-hosted", "focal"]') || 'ubuntu-latest' }}
+    runs-on: [self-hosted, focal]
     env:
       # Workaround to get loguru colored output
       # See https://github.com/Delgan/loguru/issues/604
@@ -60,7 +60,7 @@ jobs:
       - name: Setup LXD
         uses: canonical/setup-lxd@8c6a87bfb56aa48f3fb9b830baa18562d8bfd4ee
         with:
-          channel: ${{ matrix.os == '16.04' && '5.21/stable' || 'latest/stable' }}
+          channel: 5.21/stable
       - name: Add ZFS storage
         run: |
           lxc storage list

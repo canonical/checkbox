@@ -1,0 +1,322 @@
+plugin: user-interact-verify
+category_id: dragonwing-qim
+id: dragonwing-qim-ai-ml/image-classification-LiteRT
+flags: also-after-suspend
+environ:
+  QIM_TEST_DATA_DIR
+  TEST_VIDEO_FILE
+  USER_DEFINED_GST_PLUGIN_PATH
+  USER_DEFINED_GST_LD_LIBRARY_PATH
+imports: from com.canonical.plainbox import manifest
+requires:
+    manifest.is_dragonwing_series == 'True'
+_summary: Perform image classification use case with LiteRT runtime - user-interact-verify
+_description:
+  Perform image classification use case with LiteRT runtime. Checkbox will print the gst-launch pipeline used for testing and generate an output video for review.
+estimated_duration: 30s
+command:
+  set -x
+  dragonwing_qim_ai_ml_test.py run --runtime litert --scenario image-classification --test-data-dir "$QIM_TEST_DATA_DIR" --video-path "$TEST_VIDEO_FILE"
+_verification:
+  Check the generated image-classification-LiteRT.mp4. No abnormal symptoms should be observed.
+
+plugin: user-interact-verify
+category_id: dragonwing-qim
+id: dragonwing-qim-ai-ml/object-detection-LiteRT
+flags: also-after-suspend
+environ:
+  QIM_TEST_DATA_DIR
+  TEST_VIDEO_FILE
+  USER_DEFINED_GST_PLUGIN_PATH
+  USER_DEFINED_GST_LD_LIBRARY_PATH
+imports: from com.canonical.plainbox import manifest
+requires:
+    manifest.is_dragonwing_series == 'True'
+_summary: Perform object detection use case with LiteRT runtime - user-interact-verify
+_description:
+  Perform object detection use case with LiteRT runtime. Checkbox will print the gst-launch pipeline used for testing and generate an output video for review.
+estimated_duration: 30s
+command:
+  set -x
+  dragonwing_qim_ai_ml_test.py run --runtime litert --scenario object-detection --test-data-dir "$QIM_TEST_DATA_DIR" --video-path "$TEST_VIDEO_FILE"
+_verification:
+  Check the generated object-detection-LiteRT.mp4. No abnormal symptoms should be observed.
+
+plugin: user-interact-verify
+category_id: dragonwing-qim
+id: dragonwing-qim-ai-ml/image-segmentation-LiteRT
+flags: also-after-suspend
+environ:
+  QIM_TEST_DATA_DIR
+  TEST_VIDEO_FILE
+  USER_DEFINED_GST_PLUGIN_PATH
+  USER_DEFINED_GST_LD_LIBRARY_PATH
+imports: from com.canonical.plainbox import manifest
+requires:
+    manifest.is_dragonwing_series == 'True'
+_summary: Perform image-segmentation use case with LiteRT runtime - user-interact-verify
+_description:
+  Perform image-segmentation use case with LiteRT runtime. Checkbox will print the gst-launch pipeline used for testing and generate an output video for review.
+estimated_duration: 30s
+command:
+  set -x
+  dragonwing_qim_ai_ml_test.py run --runtime litert --scenario image-segmentation --test-data-dir "$QIM_TEST_DATA_DIR" --video-path "$TEST_VIDEO_FILE"
+_verification:
+  Check the generated image-segmentation-LiteRT.mp4. No abnormal symptoms should be observed.
+
+plugin: user-interact-verify
+category_id: dragonwing-qim
+id: dragonwing-qim-ai-ml/pose-detection-LiteRT
+flags: also-after-suspend
+environ:
+  QIM_TEST_DATA_DIR
+  TEST_VIDEO_FILE
+  USER_DEFINED_GST_PLUGIN_PATH
+  USER_DEFINED_GST_LD_LIBRARY_PATH
+imports: from com.canonical.plainbox import manifest
+requires:
+    manifest.is_dragonwing_series == 'True'
+_summary: Perform pose-detection use case with LiteRT runtime - user-interact-verify
+_description:
+  Perform pose-detection use case with LiteRT runtime. Checkbox will print the gst-launch pipeline used for testing and generate an output video for review.
+estimated_duration: 30s
+command:
+  set -x
+  dragonwing_qim_ai_ml_test.py run --runtime litert --scenario pose-detection --test-data-dir "$QIM_TEST_DATA_DIR" --video-path "$TEST_VIDEO_FILE"
+_verification:
+  Check the generated pose-detection-LiteRT.mp4. No abnormal symptoms should be observed.
+
+plugin: user-interact-verify
+category_id: dragonwing-qim
+id: dragonwing-qim-ai-ml/image-classification-SNPE
+flags: also-after-suspend
+environ:
+  QIM_TEST_DATA_DIR
+  TEST_VIDEO_FILE
+  USER_DEFINED_GST_PLUGIN_PATH
+  USER_DEFINED_GST_LD_LIBRARY_PATH
+imports: from com.canonical.plainbox import manifest
+requires:
+    manifest.is_dragonwing_series == 'True'
+_summary: Perform image classification use case with SNPE runtime - user-interact-verify
+_description:
+  Perform image classification use case with SNPE runtime. Checkbox will print the gst-launch pipeline used for testing and generate an output video for review.
+estimated_duration: 30s
+command:
+  set -x
+  dragonwing_qim_ai_ml_test.py run --runtime snpe --scenario image-classification --test-data-dir "$QIM_TEST_DATA_DIR" --video-path "$TEST_VIDEO_FILE"
+_verification:
+  Check the generated image-classification-SNPE.mp4. No abnormal symptoms should be observed.
+
+plugin: user-interact-verify
+category_id: dragonwing-qim
+id: dragonwing-qim-ai-ml/object-detection-SNPE
+flags: also-after-suspend
+environ:
+  QIM_TEST_DATA_DIR
+  TEST_VIDEO_FILE
+  USER_DEFINED_GST_PLUGIN_PATH
+  USER_DEFINED_GST_LD_LIBRARY_PATH
+imports: from com.canonical.plainbox import manifest
+requires:
+    manifest.is_dragonwing_series == 'True'
+_summary: Perform object detection use case with SNPE runtime - user-interact-verify
+_description:
+  Perform object detection use case with SNPE runtime. Checkbox will print the gst-launch pipeline used for testing and generate an output video for review.
+estimated_duration: 30s
+command:
+  set -x
+  dragonwing_qim_ai_ml_test.py run --runtime snpe --scenario object-detection --test-data-dir "$QIM_TEST_DATA_DIR" --video-path "$TEST_VIDEO_FILE"
+_verification:
+  Check the generated object-detection-SNPE.mp4. No abnormal symptoms should be observed.
+
+plugin: user-interact-verify
+category_id: dragonwing-qim
+id: dragonwing-qim-ai-ml/image-segmentation-SNPE
+flags: also-after-suspend
+environ:
+  QIM_TEST_DATA_DIR
+  TEST_VIDEO_FILE
+  USER_DEFINED_GST_PLUGIN_PATH
+  USER_DEFINED_GST_LD_LIBRARY_PATH
+imports: from com.canonical.plainbox import manifest
+requires:
+    manifest.is_dragonwing_series == 'True'
+_summary: Perform image-segmentation use case with SNPE runtime - user-interact-verify
+_description:
+  Perform image-segmentation use case with SNPE runtime. Checkbox will print the gst-launch pipeline used for testing and generate an output video for review.
+estimated_duration: 30s
+command:
+  set -x
+  dragonwing_qim_ai_ml_test.py run --runtime snpe --scenario image-segmentation --test-data-dir "$QIM_TEST_DATA_DIR" --video-path "$TEST_VIDEO_FILE"
+_verification:
+  Check the generated image-segmentation-SNPE.mp4. No abnormal symptoms should be observed.
+
+
+plugin: shell
+category_id: dragonwing-qim
+imports:
+  from com.canonical.certification import executable
+  from com.canonical.plainbox import manifest
+requires:
+  manifest.is_dragonwing_series == 'True'
+  executable.name == 'gst-launch-1.0'
+id: dragonwing-qim-ai-ml/image-classification-LiteRT-automated
+flags: also-after-suspend
+environ:
+  QIM_TEST_DATA_DIR
+  TEST_VIDEO_FILE
+  USER_DEFINED_GST_PLUGIN_PATH
+  USER_DEFINED_GST_LD_LIBRARY_PATH
+_summary: Perform image classification use case with LiteRT runtime
+_description:
+  Perform image classification use case with LiteRT runtime and check the output video clips
+command:
+  set -x
+  dragonwing_qim_ai_ml_test.py run --runtime litert --scenario image-classification --timeout 20 --test-data-dir "$QIM_TEST_DATA_DIR" --video-path "$TEST_VIDEO_FILE"
+_verification:
+  check the output image-classification-LiteRT.mp4, no abnormal symptoms are observed
+
+plugin: shell
+category_id: dragonwing-qim
+imports:
+  from com.canonical.certification import executable
+  from com.canonical.plainbox import manifest
+requires:
+  manifest.is_dragonwing_series == 'True'
+  executable.name == 'gst-launch-1.0'
+id: dragonwing-qim-ai-ml/object-detection-LiteRT-automated
+flags: also-after-suspend
+environ:
+  QIM_TEST_DATA_DIR
+  TEST_VIDEO_FILE
+  USER_DEFINED_GST_PLUGIN_PATH
+  USER_DEFINED_GST_LD_LIBRARY_PATH
+_summary: Perform object detection use case with LiteRT runtime
+_description:
+  Perform object detection use case with LiteRT runtime and check the output video clips
+command:
+  set -x
+  dragonwing_qim_ai_ml_test.py run --runtime litert --scenario object-detection --timeout 20 --test-data-dir "$QIM_TEST_DATA_DIR" --video-path "$TEST_VIDEO_FILE"
+_verification:
+  check the output object-detection-LiteRT.mp4, no abnormal symptoms are observed
+
+plugin: shell
+category_id: dragonwing-qim
+imports:
+  from com.canonical.certification import executable
+  from com.canonical.plainbox import manifest
+requires:
+  manifest.is_dragonwing_series == 'True'
+  executable.name == 'gst-launch-1.0'
+id: dragonwing-qim-ai-ml/image-segmentation-LiteRT-automated
+flags: also-after-suspend
+environ:
+  QIM_TEST_DATA_DIR
+  TEST_VIDEO_FILE
+  USER_DEFINED_GST_PLUGIN_PATH
+  USER_DEFINED_GST_LD_LIBRARY_PATH
+_summary: Perform image-segmentation use case with LiteRT runtime
+_description:
+  Perform image-segmentation use case with LiteRT runtime and check the output video clips
+command:
+  set -x
+  dragonwing_qim_ai_ml_test.py run --runtime litert --scenario image-segmentation --timeout 20 --test-data-dir "$QIM_TEST_DATA_DIR" --video-path "$TEST_VIDEO_FILE"
+_verification:
+  check the output image-segmentation-LiteRT.mp4, no abnormal symptoms are observed
+
+plugin: shell
+category_id: dragonwing-qim
+imports:
+  from com.canonical.certification import executable
+  from com.canonical.plainbox import manifest
+requires:
+  manifest.is_dragonwing_series == 'True'
+  executable.name == 'gst-launch-1.0'
+id: dragonwing-qim-ai-ml/pose-detection-LiteRT-automated
+flags: also-after-suspend
+environ:
+  QIM_TEST_DATA_DIR
+  TEST_VIDEO_FILE
+  USER_DEFINED_GST_PLUGIN_PATH
+  USER_DEFINED_GST_LD_LIBRARY_PATH
+_summary: Perform pose-detection use case with LiteRT runtime
+_description:
+  Perform pose-detection use case with LiteRT runtime and check the output video clips
+command:
+  set -x
+  dragonwing_qim_ai_ml_test.py run --runtime litert --scenario pose-detection --timeout 20 --test-data-dir "$QIM_TEST_DATA_DIR" --video-path "$TEST_VIDEO_FILE"
+_verification:
+  check the output pose-detection-LiteRT.mp4, no abnormal symptoms are observed
+
+plugin: shell
+category_id: dragonwing-qim
+imports:
+  from com.canonical.certification import executable
+  from com.canonical.plainbox import manifest
+requires:
+  manifest.is_dragonwing_series == 'True'
+  executable.name == 'gst-launch-1.0'
+id: dragonwing-qim-ai-ml/image-classification-SNPE-automated
+flags: also-after-suspend
+environ:
+  QIM_TEST_DATA_DIR
+  TEST_VIDEO_FILE
+  USER_DEFINED_GST_PLUGIN_PATH
+  USER_DEFINED_GST_LD_LIBRARY_PATH
+_summary: Perform image classification use case with SNPE runtime
+_description:
+  Perform image classification use case with SNPE runtime and check the output video clips
+command:
+  set -x
+  dragonwing_qim_ai_ml_test.py run --runtime snpe --scenario image-classification --timeout 20 --test-data-dir "$QIM_TEST_DATA_DIR" --video-path "$TEST_VIDEO_FILE"
+_verification:
+  check the output image-classification-SNPE.mp4, no abnormal symptoms are observed
+
+plugin: shell
+category_id: dragonwing-qim
+imports:
+  from com.canonical.certification import executable
+  from com.canonical.plainbox import manifest
+requires:
+  manifest.is_dragonwing_series == 'True'
+  executable.name == 'gst-launch-1.0'
+id: dragonwing-qim-ai-ml/object-detection-SNPE-automated
+flags: also-after-suspend
+environ:
+  QIM_TEST_DATA_DIR
+  TEST_VIDEO_FILE
+  USER_DEFINED_GST_PLUGIN_PATH
+  USER_DEFINED_GST_LD_LIBRARY_PATH
+_summary: Perform object detection use case with SNPE runtime
+_description:
+  Perform object detection use case with SNPE runtime and check the output video clips
+command:
+  set -x
+  dragonwing_qim_ai_ml_test.py run --runtime snpe --scenario object-detection --timeout 20 --test-data-dir "$QIM_TEST_DATA_DIR" --video-path "$TEST_VIDEO_FILE"
+_verification:
+  check the output object-detection-SNPE.mp4, no abnormal symptoms are observed
+
+plugin: shell
+category_id: dragonwing-qim
+imports:
+  from com.canonical.certification import executable
+  from com.canonical.plainbox import manifest
+requires:
+  manifest.is_dragonwing_series == 'True'
+  executable.name == 'gst-launch-1.0'
+id: dragonwing-qim-ai-ml/image-segmentation-SNPE-automated
+flags: also-after-suspend
+environ:
+  QIM_TEST_DATA_DIR
+  TEST_VIDEO_FILE
+  USER_DEFINED_GST_PLUGIN_PATH
+  USER_DEFINED_GST_LD_LIBRARY_PATH
+_summary: Perform image-segmentation use case with SNPE runtime
+_description:
+  Perform image-segmentation use case with SNPE runtime and check the output video clips
+command:
+  set -x
+  dragonwing_qim_ai_ml_test.py run --runtime snpe --scenario image-segmentation --timeout 20 --test-data-dir "$QIM_TEST_DATA_DIR" --video-path "$TEST_VIDEO_FILE"
+_verification:
+  check the output image-segmentation-SNPE.mp4, no abnormal symptoms are observed

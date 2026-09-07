@@ -1,0 +1,5 @@
+unit: manifest entry
+id: has_genio_hdmi_rx
+_name: HDMI RX (Input)
+_prompt: Genio specific?
+value-type: bool

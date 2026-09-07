@@ -1,0 +1,6 @@
+id: rz-drp-ai-automated
+unit: test plan
+_name: Renesas RZ DRP AI tests
+_description: Automated tests for Renesas RZ DRP AI
+include:
+    rz-drp-ai/inference

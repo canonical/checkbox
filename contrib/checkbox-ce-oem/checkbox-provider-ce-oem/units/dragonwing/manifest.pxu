@@ -1,0 +1,5 @@
+unit: manifest entry
+id: is_dragonwing_series
+_name: Is Dragonwing platform?
+_prompt: Dragonwing specific?
+value-type: bool

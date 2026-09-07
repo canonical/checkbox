@@ -77,6 +77,8 @@ include:
     after-suspend-keys/power-button             certification-status=blocker
     after-suspend-keys/power-button-event       certification-status=blocker
     after-suspend-keys/fn-lock                  certification-status=non-blocker
+    keys/power-button-suspend                   certification-status=blocker
+    keys/sleep                                  certification-status=blocker
 
 id: after-suspend-keys-cert-automated
 unit: test plan

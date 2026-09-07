@@ -16,7 +16,7 @@
 # You should have received a copy of the GNU General Public License
 # along with Checkbox.  If not, see <http://www.gnu.org/licenses/>.
 
-"""Shared utilities for host Vulkan test helpers."""
+"""Shared utilities for host GPU test helpers."""
 
 import os
 import shutil
@@ -24,8 +24,8 @@ import subprocess
 import sysconfig
 
 
-class VulkanDetectionError(Exception):
-    """Raised when a GPU/Vulkan detection step fails."""
+class HostGPUDetectionError(Exception):
+    """Raised when a host GPU detection step fails."""
 
 
 def get_arch_triple():
@@ -38,11 +38,11 @@ def get_arch_triple():
 
 def find_plz_run():
     """Return the path to plz-run from PATH.
-    Raises VulkanDetectionError if plz-run is not found.
+    Raises HostGPUDetectionError if plz-run is not found.
     """
     path = shutil.which("plz-run")
     if path is None:
-        raise VulkanDetectionError("plz-run not found in PATH")
+        raise HostGPUDetectionError("plz-run not found in PATH")
     return path
 
 
@@ -69,7 +69,7 @@ def prime_selected_vendor():
     """Return the GPU vendor chosen by prime-select.
 
     Returns one of the keys in _PRIME_VENDOR_ICD_PREFIXES.
-    Raises VulkanDetectionError if prime-select is not installed, fails,
+    Raises HostGPUDetectionError if prime-select is not installed, fails,
     or returns an unrecognised value (e.g. 'on-demand').
     """
     try:
@@ -83,9 +83,9 @@ def prime_selected_vendor():
             .lower()
         )
     except (OSError, subprocess.CalledProcessError) as e:
-        raise VulkanDetectionError("prime-select query failed") from e
+        raise HostGPUDetectionError("prime-select query failed") from e
     if output not in _PRIME_VENDOR_ICD_PREFIXES:
-        raise VulkanDetectionError(
+        raise HostGPUDetectionError(
             "prime-select returned unrecognised value: {!r}".format(output)
         )
     return output
@@ -96,7 +96,7 @@ def _run_vulkaninfo(plz_run, arch_triple):
 
     vulkaninfo is executed inside a new mount/user namespace (via plz-run)
     so that it uses the host ICD stack instead of snap-bundled libraries.
-    Raises VulkanDetectionError if vulkaninfo fails.
+    Raises HostGPUDetectionError if vulkaninfo fails.
     """
     ld_library_path = "/usr/lib/{arch}:/usr/lib".format(arch=arch_triple)
     try:
@@ -117,7 +117,7 @@ def _run_vulkaninfo(plz_run, arch_triple):
             stderr=subprocess.STDOUT,
         )
     except subprocess.CalledProcessError as e:
-        raise VulkanDetectionError("vulkaninfo failed") from e
+        raise HostGPUDetectionError("vulkaninfo failed") from e
 
 
 def _vendor_prefixes_from_vulkaninfo(output):
@@ -127,7 +127,7 @@ def _vendor_prefixes_from_vulkaninfo(output):
     Matches on the vendorID field which is unambiguous across driver versions
     and device names.  The field is right-padded with spaces for alignment,
     so each line is stripped before matching.
-    Raises VulkanDetectionError if no known vendor is found.
+    Raises HostGPUDetectionError if no known vendor is found.
     """
     for line in output.splitlines():
         stripped = line.strip()
@@ -136,7 +136,7 @@ def _vendor_prefixes_from_vulkaninfo(output):
         for vid, prefixes in _PCI_VENDOR_ICD_PREFIXES.items():
             if vid in stripped:
                 return prefixes
-    raise VulkanDetectionError(
+    raise HostGPUDetectionError(
         "no known GPU vendor found in vulkaninfo output"
     )
 
@@ -146,14 +146,14 @@ def active_vendor_prefixes():
 
     Tries prime-select first (authoritative on PRIME multi-GPU systems),
     then falls back to vulkaninfo via plz-run.
-    Raises VulkanDetectionError if no method identifies the vendor.
+    Raises HostGPUDetectionError if no method identifies the vendor.
     """
     # prime-select is only present on NVIDIA hybrid systems;
     # absence or unrecognised output is normal — fall through.
     try:
         vendor = prime_selected_vendor()
         return _PRIME_VENDOR_ICD_PREFIXES[vendor]
-    except VulkanDetectionError:
+    except HostGPUDetectionError:
         pass
 
     plz_run = find_plz_run()
@@ -176,7 +176,7 @@ def find_host_icd_filenames(vendor_prefixes=None):
     try:
         entries = sorted(os.listdir(icd_dir))
     except OSError as e:
-        raise VulkanDetectionError(
+        raise HostGPUDetectionError(
             "cannot read Vulkan ICD directory {}".format(icd_dir)
         ) from e
     result = []
@@ -197,7 +197,7 @@ def check_host_gpu(plz_run, arch_triple):
     """Return True if a physical GPU is available via host Vulkan drivers."""
     try:
         output = _run_vulkaninfo(plz_run, arch_triple)
-    except VulkanDetectionError:
+    except HostGPUDetectionError:
         return False
     return any(
         t in output

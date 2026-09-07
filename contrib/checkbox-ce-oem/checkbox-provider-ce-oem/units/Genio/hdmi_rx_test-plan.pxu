@@ -1,0 +1,27 @@
+id: genio-hdmi-rx-full
+unit: test plan
+_name: Genio HDMI RX tests
+_description: Full Genio HDMI RX tests for devices
+include:
+nested_part:
+    genio-hdmi-rx-manual
+    genio-hdmi-rx-automated
+
+id: genio-hdmi-rx-manual
+unit: test plan
+_name: Genio HDMI RX manual tests
+_description: Manual Genio HDMI RX tests for devices
+include:
+    genio-hdmi-rx/module-detect
+    genio-hdmi-rx/plug-event-detect
+    genio-hdmi-rx/check-hdmi-cable-connection
+    genio-hdmi-rx/check-video-info
+    genio-hdmi-rx/check-audio-info
+    genio-hdmi-rx/disable-then-enable-hdmi
+    genio-hdmi-rx/unplug-event-detect
+
+id: genio-hdmi-rx-automated
+unit: test plan
+_name: Genio HDMI RX auto tests
+_description: Automated Genio HDMI RX tests for devices
+include:

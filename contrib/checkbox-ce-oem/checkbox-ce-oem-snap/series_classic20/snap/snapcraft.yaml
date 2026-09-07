@@ -26,6 +26,9 @@ apps:
   test-runner:
     command-chain: [bin/wrapper_local]
     command: bin/test-runner
+  launcher-generator:
+    command-chain: [bin/wrapper_local]
+    command: bin/gen_launcher.py
 
 passthrough:
   hooks:
@@ -124,6 +127,16 @@ parts:
     build-attributes: [no-patchelf]
     organize:
       '*': bin/
+  launcher-generator:
+    plugin: dump
+    source: checkbox-launcher-generator/src/
+    build-attributes: [no-patchelf]
+    organize:
+      gen_launcher.py: bin/gen_launcher.py
+      checkbox_ce_oem_scan.py: bin/checkbox_ce_oem_scan.py
+    stage:
+       - bin/gen_launcher.py
+       - bin/checkbox_ce_oem_scan.py
   config-variables:
     plugin: dump
     source: config/

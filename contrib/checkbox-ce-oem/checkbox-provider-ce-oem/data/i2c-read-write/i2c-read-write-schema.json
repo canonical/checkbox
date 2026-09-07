@@ -1,0 +1,184 @@
+{
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "title": "I2C Read/Write Scenario Schema",
+    "description": "Top-level object maps scenario names to scenario definitions.",
+    "type": "object",
+    "minProperties": 1,
+    "additionalProperties": {
+        "type": "object",
+        "description": "A single scenario object identified by its top-level key.",
+        "properties": {
+            "steps": {
+                "description": "Ordered list of I2C operations to execute for this scenario.",
+                "type": "array",
+                "minItems": 1,
+                "items": {
+                    "oneOf": [
+                        {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/commonStep"
+                                },
+                                {
+                                    "properties": {
+                                        "operation": {
+                                            "description": "Write operation step.",
+                                            "enum": [
+                                                "write"
+                                            ]
+                                        },
+                                        "data": {
+                                            "description": "Static byte payload to write.",
+                                            "$ref": "#/definitions/byteArrayNonEmpty"
+                                        },
+                                        "data_from_variable": {
+                                            "description": "Variable name containing bytes read from a previous step.",
+                                            "$ref": "#/definitions/variableName"
+                                        }
+                                    },
+                                    "oneOf": [
+                                        {
+                                            "required": [
+                                                "data"
+                                            ],
+                                            "not": {
+                                                "required": [
+                                                    "data_from_variable"
+                                                ]
+                                            }
+                                        },
+                                        {
+                                            "required": [
+                                                "data_from_variable"
+                                            ],
+                                            "not": {
+                                                "required": [
+                                                    "data"
+                                                ]
+                                            }
+                                        }
+                                    ]
+                                }
+                            ]
+                        },
+                        {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/commonStep"
+                                },
+                                {
+                                    "properties": {
+                                        "operation": {
+                                            "description": "Read operation step.",
+                                            "enum": [
+                                                "read"
+                                            ]
+                                        },
+                                        "read_length": {
+                                            "description": "Number of bytes to read.",
+                                            "type": "integer",
+                                            "minimum": 1
+                                        },
+                                        "expected_output": {
+                                            "description": "Expected bytes for read verification.",
+                                            "$ref": "#/definitions/byteArrayNonEmpty"
+                                        },
+                                        "save_to_variable": {
+                                            "description": "Variable name used to store bytes read in this step.",
+                                            "$ref": "#/definitions/variableName"
+                                        }
+                                    },
+                                    "required": [
+                                        "read_length"
+                                    ]
+                                }
+                            ]
+                        }
+                    ]
+                }
+            }
+        },
+        "required": [
+            "steps"
+        ],
+        "additionalProperties": false
+    },
+    "definitions": {
+        "hexByte": {
+            "description": "Hex byte string, for example 0x0a or 0xFF.",
+            "type": "string",
+            "pattern": "^0[xX][0-9a-fA-F]{1,2}$"
+        },
+        "chipAddress": {
+            "description": "I2C chip address as hex string (runtime enforces 7-bit range).",
+            "type": "string",
+            "pattern": "^0[xX][0-9a-fA-F]{1,2}$"
+        },
+        "byteArray": {
+            "description": "Array of hex-byte strings.",
+            "type": "array",
+            "items": {
+                "$ref": "#/definitions/hexByte"
+            }
+        },
+        "byteArrayNonEmpty": {
+            "description": "Non-empty array of hex-byte strings.",
+            "allOf": [
+                {
+                    "$ref": "#/definitions/byteArray"
+                },
+                {
+                    "minItems": 1
+                }
+            ]
+        },
+        "variableName": {
+            "description": "Non-empty variable name used to pass data between steps.",
+            "type": "string",
+            "minLength": 1
+        },
+        "commonStep": {
+            "type": "object",
+            "properties": {
+                "description": {
+                    "description": "Human-readable step description used in logs.",
+                    "type": "string",
+                    "minLength": 1
+                },
+                "operation": {
+                    "description": "Step operation type.",
+                    "type": "string",
+                    "enum": [
+                        "write",
+                        "read"
+                    ]
+                },
+                "i2c_bus": {
+                    "description": "Target I2C bus number.",
+                    "type": "integer",
+                    "minimum": 0
+                },
+                "chip_address": {
+                    "description": "Target I2C chip address in hex format.",
+                    "$ref": "#/definitions/chipAddress"
+                },
+                "reg_address": {
+                    "description": "Optional register/pointer bytes sent before data read/write.",
+                    "$ref": "#/definitions/byteArrayNonEmpty"
+                },
+                "delay_ms": {
+                    "description": "Optional delay in milliseconds after this step.",
+                    "type": "integer",
+                    "minimum": 0
+                }
+            },
+            "required": [
+                "description",
+                "operation",
+                "i2c_bus",
+                "chip_address"
+            ],
+            "additionalProperties": false
+        }
+    }
+}

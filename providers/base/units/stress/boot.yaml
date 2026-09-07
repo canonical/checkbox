@@ -1,0 +1,474 @@
+# Copyright 2026 Canonical Ltd.
+# All rights reserved.
+
+# Written by:
+# Jonathan Cave <jonathan.cave@canonical.com>
+# Zhongning Li <zhongning.li@canonical.com>
+
+unit: category
+id: stress-tests/cold-boot
+name: Cold-boot Stress Test
+---
+unit: category
+id: stress-tests/warm-boot
+name: Warm-boot Stress Test
+---
+id: reboot-run-generator
+category_id: com.canonical.plainbox::stress
+purpose: |
+  Generate a set of IDs corresponding to number of iterations required in the
+  reboots tests.
+plugin: resource
+environ:
+  - STRESS_BOOT_ITERATIONS
+command: |
+  ITERATIONS=${STRESS_BOOT_ITERATIONS:-2}
+  for i in $(seq 2 "$ITERATIONS"); do
+    echo "reboot_id: $i"
+    echo "reboot_id_previous: $((i - 1))"
+    echo
+  done
+estimated_duration: 1s
+flags:
+  - preserve-locale
+summary: Generate an ID for each reboot iteration
+---
+id: init-boot-loop-data
+category_id: com.canonical.plainbox::stress
+summary: Generate the baseline data set to test against
+purpose: |
+  This creates baseline data sets which will be considered the master
+  copies and all further tests will be compared against these. Baseline data
+  includes network status, SSID, and USB device.
+unit: job
+plugin: shell
+imports:
+  - from com.canonical.plainbox import manifest
+requires:
+  - manifest._ignore_reboot_loop_tests == 'False'
+command: reboot_check_test.py -d "$PLAINBOX_SESSION_SHARE"/before_reboot
+environ:
+  - LD_LIBRARY_PATH
+user: root
+estimated_duration: 1s
+flags:
+  - preserve-locale
+---
+id: cold-boot-loop-reboot-1
+category_id: stress-tests/cold-boot
+summary: Perform cold reboot 1
+unit: job
+plugin: shell
+requires:
+  - rtc.state == 'supported'
+  - rtc.wakealarm == 'supported'
+environ:
+  - STRESS_BOOT_WAKEUP_DELAY
+  - RTC_DEVICE_FILE
+command: |
+  rtcwake -v -d "${RTC_DEVICE_FILE:-rtc0}" --mode no -s "${STRESS_BOOT_WAKEUP_DELAY:-120}"
+  sleep 5
+  rtcwake -v -d "${RTC_DEVICE_FILE:-rtc0}" -m show
+  sleep 5
+  dbus-send --system --print-reply --dest=org.freedesktop.login1 /org/freedesktop/login1 "org.freedesktop.login1.Manager.PowerOff" boolean:true
+user: root
+flags:
+  - preserve-locale
+  - noreturn
+estimated_duration: "180.0"
+depends:
+  - init-boot-loop-data
+---
+id: cold-boot-loop-reboot-{reboot_id}
+template-id: cold-boot-loop-reboot-reboot_id
+category_id: stress-tests/cold-boot
+summary: Perform cold reboot {reboot_id}
+unit: template
+template-resource: reboot-run-generator
+template-unit: job
+plugin: shell
+requires:
+  - rtc.state == 'supported'
+  - rtc.wakealarm == 'supported'
+environ:
+  - STRESS_BOOT_WAKEUP_DELAY
+  - STRESS_BOOT_WAIT_DELAY
+  - RTC_DEVICE_FILE
+command: |
+  sleep "${{STRESS_BOOT_WAIT_DELAY:-120}}"
+  rtcwake -v -d "${{RTC_DEVICE_FILE:-rtc0}}" --mode no -s "${{STRESS_BOOT_WAKEUP_DELAY:-120}}"
+  sleep 5
+  rtcwake -v -d "${{RTC_DEVICE_FILE:-rtc0}}" -m show
+  sleep 5
+  dbus-send --system --print-reply --dest=org.freedesktop.login1 /org/freedesktop/login1 "org.freedesktop.login1.Manager.PowerOff" boolean:true
+user: root
+flags:
+  - preserve-locale
+  - noreturn
+estimated_duration: "180.0"
+after:
+  - cold-boot-loop-{reboot_id_previous}-fwts-critical-only
+  - cold-boot-loop-{reboot_id_previous}-fwts-all
+  - cold-boot-loop-{reboot_id_previous}-device-check
+  - cold-boot-loop-{reboot_id_previous}-service-check
+  - cold-boot-loop-{reboot_id_previous}-hardware-renderer-check
+depends:
+  - init-boot-loop-data
+---
+id: cold-boot-loop-1-fwts-critical-only
+category_id: stress-tests/cold-boot
+summary: Cold boot 1 FWTS test (only fail at critical errors)
+unit: job
+plugin: shell
+environ:
+  - LD_LIBRARY_PATH
+command: >-
+  mkdir -p "$PLAINBOX_SESSION_SHARE"/cold_reboot_cycle-1
+
+  checkbox-support-fwts_test
+  -t klog
+  -t oops
+  -f critical
+  -l "$PLAINBOX_SESSION_SHARE"/cold_reboot_cycle-1/fwts-critical-only.log
+siblings:
+  - id: cold-boot-loop-1-fwts-all
+    summary: Cold boot 1 FWTS test (all levels)
+    # since we are only checking klog and oops
+    # it's safe to do duplicate work and run fwts again
+    command: >-
+      mkdir -p "$PLAINBOX_SESSION_SHARE"/cold_reboot_cycle-1
+
+      checkbox-support-fwts_test 
+      -t klog 
+      -t oops
+      -f low
+      -l "$PLAINBOX_SESSION_SHARE"/cold_reboot_cycle-1/fwts-all.log
+  - id: cold-boot-loop-1-hardware-renderer-check
+    summary: Cold boot 1 hardware renderer check
+    command: reboot_check_test.py -g
+  - id: cold-boot-loop-1-service-check
+    summary: Cold boot 1 failed services check
+    command: reboot_check_test.py -s
+  - id: cold-boot-loop-1-device-check
+    summary: Cold boot 1 device difference check
+    command: >-
+      reboot_check_test.py 
+      -c "$PLAINBOX_SESSION_SHARE"/before_reboot
+      -d "$PLAINBOX_SESSION_SHARE"/cold_reboot_cycle-1
+user: root
+flags:
+  - preserve-locale
+estimated_duration: "1.0"
+depends:
+  - cold-boot-loop-reboot-1
+---
+id: cold-boot-loop-{reboot_id}-fwts-critical-only
+template-id: cold-boot-loop-reboot_id-fwts-critical-only
+category_id: stress-tests/cold-boot
+summary: Cold boot {reboot_id} FWTS test (only fail at critical errors)
+unit: template
+template-resource: reboot-run-generator
+template-unit: job
+plugin: shell
+environ:
+  - LD_LIBRARY_PATH
+command: >-
+  mkdir -p "$PLAINBOX_SESSION_SHARE"/cold_reboot_cycle-{reboot_id}
+
+  checkbox-support-fwts_test
+  -t klog
+  -t oops
+  -f critical
+  -l "$PLAINBOX_SESSION_SHARE"/cold_reboot_cycle-{reboot_id}/fwts-critical-only.log
+user: root
+flags:
+  - preserve-locale
+estimated_duration: "1.0"
+depends:
+  - cold-boot-loop-reboot-{reboot_id}
+---
+id: cold-boot-loop-{reboot_id}-fwts-all
+template-id: cold-boot-loop-reboot_id-fwts-all
+category_id: stress-tests/cold-boot
+summary: Cold boot {reboot_id} FWTS test (all levels)
+unit: template
+template-resource: reboot-run-generator
+template-unit: job
+plugin: shell
+environ:
+  - LD_LIBRARY_PATH
+command: >-
+  mkdir -p "$PLAINBOX_SESSION_SHARE"/cold_reboot_cycle-{reboot_id}
+
+  checkbox-support-fwts_test
+  -t klog
+  -t oops
+  -f low 
+  -l "$PLAINBOX_SESSION_SHARE"/cold_reboot_cycle-{reboot_id}/fwts-all.log
+user: root
+flags:
+  - preserve-locale
+estimated_duration: "1.0"
+depends:
+  - cold-boot-loop-reboot-{reboot_id}
+---
+id: cold-boot-loop-{reboot_id}-device-check
+template-id: cold-boot-loop-reboot_id-device-check
+category_id: stress-tests/cold-boot
+summary: Cold boot {reboot_id} device difference check
+unit: template
+template-resource: reboot-run-generator
+template-unit: job
+plugin: shell
+environ:
+  - LD_LIBRARY_PATH
+command: >-
+  reboot_check_test.py 
+  -c "$PLAINBOX_SESSION_SHARE"/before_reboot
+  -d "$PLAINBOX_SESSION_SHARE"/cold_reboot_cycle-{reboot_id}
+user: root
+flags:
+  - preserve-locale
+estimated_duration: "1.0"
+depends:
+  - cold-boot-loop-reboot-{reboot_id}
+---
+id: cold-boot-loop-{reboot_id}-service-check
+template-id: cold-boot-loop-reboot_id-service-check
+category_id: stress-tests/cold-boot
+summary: Cold boot {reboot_id} failed services check
+unit: template
+template-resource: reboot-run-generator
+template-unit: job
+plugin: shell
+environ:
+  - LD_LIBRARY_PATH
+command: >-
+  reboot_check_test.py -s
+user: root
+flags:
+  - preserve-locale
+estimated_duration: "1.0"
+depends:
+  - cold-boot-loop-reboot-{reboot_id}
+---
+id: cold-boot-loop-{reboot_id}-hardware-renderer-check
+template-id: cold-boot-loop-hardware-renderer-check-reboot_id
+category_id: stress-tests/cold-boot
+summary: Cold boot {reboot_id} hardware renderer check
+unit: template
+template-resource: reboot-run-generator
+template-unit: job
+plugin: shell
+environ:
+  - LD_LIBRARY_PATH
+command: >-
+  reboot_check_test.py -g
+user: root
+flags:
+  - preserve-locale
+estimated_duration: "1.0"
+depends:
+  - cold-boot-loop-reboot-{reboot_id}
+---
+id: warm-boot-loop-reboot-1
+category_id: stress-tests/warm-boot
+summary: Perform warm reboot 1
+purpose: Perform warm reboot of the system boot. Specifically, this is how the device will request a reboot.
+unit: job
+plugin: shell
+command: reboot
+user: root
+flags:
+  - preserve-locale
+  - noreturn
+estimated_duration: 60s
+depends:
+  - init-boot-loop-data
+---
+id: warm-boot-loop-reboot-{reboot_id}
+template-id: warm-boot-loop-reboot-reboot_id
+category_id: stress-tests/warm-boot
+summary: Perform warm reboot {reboot_id}
+purpose: Perform warm reboot after a configurable delay.
+unit: template
+template-resource: reboot-run-generator
+template-unit: job
+plugin: shell
+environ:
+  - STRESS_BOOT_WAIT_DELAY
+command: |
+  delay=${{STRESS_BOOT_WAIT_DELAY:-120}}
+  echo Sleeping "${{delay}}s" before rebooting
+  sleep "$delay"
+  reboot
+user: root
+flags:
+  - preserve-locale
+  - noreturn
+estimated_duration: "60.0"
+after:
+  - warm-boot-loop-{reboot_id_previous}-fwts-critical-only
+  - warm-boot-loop-{reboot_id_previous}-fwts-all
+  - warm-boot-loop-{reboot_id_previous}-device-check
+  - warm-boot-loop-{reboot_id_previous}-service-check
+  - warm-boot-loop-{reboot_id_previous}-hardware-renderer-check
+depends:
+  - init-boot-loop-data
+---
+id: warm-boot-loop-1-fwts-critical-only
+category_id: stress-tests/warm-boot
+summary: Warm boot 1 FWTS test (only fail at critical errors)
+purpose: Compare data after warm boot with baseline data set
+unit: job
+plugin: shell
+environ:
+  - LD_LIBRARY_PATH
+command: >-
+  mkdir -p "$PLAINBOX_SESSION_SHARE"/warm_reboot_cycle-1
+
+  checkbox-support-fwts_test
+  -t klog
+  -t oops
+  -f critical
+  -l "$PLAINBOX_SESSION_SHARE"/warm_reboot_cycle-1/fwts-critical-only.log
+siblings:
+  - id: warm-boot-loop-1-fwts-all
+    summary: Warm boot 1 FWTS test (all levels)
+    command: >-
+      mkdir -p "$PLAINBOX_SESSION_SHARE"/warm_reboot_cycle-1
+
+      checkbox-support-fwts_test
+      -t klog
+      -t oops
+      -f low 
+      -l "$PLAINBOX_SESSION_SHARE"/warm_reboot_cycle-1/fwts-all.log
+  - id: warm-boot-loop-1-hardware-renderer-check
+    summary: Warm boot 1 hardware renderer check
+    command: reboot_check_test.py -g
+  - id: warm-boot-loop-1-service-check
+    summary: Warm boot 1 failed services check
+    command: reboot_check_test.py -s
+  - id: warm-boot-loop-1-device-check
+    summary: Warm boot 1 device difference check
+    command: >-
+      reboot_check_test.py 
+      -c "$PLAINBOX_SESSION_SHARE"/before_reboot
+      -d "$PLAINBOX_SESSION_SHARE"/warm_reboot_cycle-1
+user: root
+flags:
+  - preserve-locale
+estimated_duration: "1.0"
+depends:
+  - warm-boot-loop-reboot-1
+---
+id: warm-boot-loop-{reboot_id}-fwts-critical-only
+template-id: warm-boot-loop-reboot_id-fwts-critical-only
+category_id: stress-tests/warm-boot
+summary: Warm boot {reboot_id} FWTS test (only fail at critical errors)
+purpose: Compare data after a warm boot with baseline data set
+unit: template
+template-resource: reboot-run-generator
+template-unit: job
+plugin: shell
+environ:
+  - LD_LIBRARY_PATH
+command: >-
+  mkdir -p "$PLAINBOX_SESSION_SHARE"/warm_reboot_cycle-{reboot_id}
+
+  checkbox-support-fwts_test
+  -t klog
+  -t oops
+  -f critical
+  -l "$PLAINBOX_SESSION_SHARE"/warm_reboot_cycle-{reboot_id}/fwts-critical-only.log
+user: root
+flags:
+  - preserve-locale
+estimated_duration: "1.0"
+depends:
+  - warm-boot-loop-reboot-{reboot_id}
+---
+id: warm-boot-loop-{reboot_id}-fwts-all
+template-id: warm-boot-loop-reboot_id-fwts-all
+category_id: stress-tests/warm-boot
+summary: Warm boot {reboot_id} FWTS test (all levels)
+purpose: Compare data after a warm boot with baseline data set
+unit: template
+template-resource: reboot-run-generator
+template-unit: job
+plugin: shell
+environ:
+  - LD_LIBRARY_PATH
+command: >-
+  mkdir -p "$PLAINBOX_SESSION_SHARE"/warm_reboot_cycle-{reboot_id}
+
+  checkbox-support-fwts_test
+  -t klog
+  -t oops
+  -f low 
+  -l "$PLAINBOX_SESSION_SHARE"/warm_reboot_cycle-{reboot_id}/fwts-all.log
+user: root
+flags:
+  - preserve-locale
+estimated_duration: "1.0"
+depends:
+  - warm-boot-loop-reboot-{reboot_id}
+---
+id: warm-boot-loop-{reboot_id}-device-check
+template-id: warm-boot-loop-reboot_id-device-check
+category_id: stress-tests/warm-boot
+summary: Warm boot {reboot_id} device difference check
+unit: template
+template-resource: reboot-run-generator
+template-unit: job
+plugin: shell
+environ:
+  - LD_LIBRARY_PATH
+command: >-
+  reboot_check_test.py 
+  -c "$PLAINBOX_SESSION_SHARE"/before_reboot
+  -d "$PLAINBOX_SESSION_SHARE"/warm_reboot_cycle-{reboot_id}
+user: root
+flags:
+  - preserve-locale
+estimated_duration: "1.0"
+depends:
+  - warm-boot-loop-reboot-{reboot_id}
+---
+id: warm-boot-loop-{reboot_id}-service-check
+template-id: warm-boot-loop-reboot_id-service-check
+category_id: stress-tests/warm-boot
+summary: Warm boot {reboot_id} failed services check
+unit: template
+template-resource: reboot-run-generator
+template-unit: job
+plugin: shell
+environ:
+  - LD_LIBRARY_PATH
+command: >-
+  reboot_check_test.py -s
+user: root
+flags:
+  - preserve-locale
+estimated_duration: "1.0"
+depends:
+  - warm-boot-loop-reboot-{reboot_id}
+---
+id: warm-boot-loop-{reboot_id}-hardware-renderer-check
+template-id: warm-boot-loop-hardware-renderer-check-reboot_id
+category_id: stress-tests/warm-boot
+summary: Warm boot {reboot_id} hardware renderer check
+unit: template
+template-resource: reboot-run-generator
+template-unit: job
+plugin: shell
+environ:
+  - LD_LIBRARY_PATH
+command: >-
+  reboot_check_test.py -g
+user: root
+flags:
+  - preserve-locale
+estimated_duration: "1.0"
+depends:
+  - warm-boot-loop-reboot-{reboot_id}

@@ -1,6 +1,7 @@
 plugin: shell
 category_id: com.canonical.plainbox::fingerprint
 id: fingerprint/detect
+group: fingerprint_basic
 flags: also-after-suspend
 user: root
 command: fprintd-list "${SUDO_USER:-$NORMAL_USER}"
@@ -12,6 +13,7 @@ requires: manifest.has_fingerprint_reader == 'True'
 plugin: user-interact
 category_id: com.canonical.plainbox::fingerprint
 id: fingerprint/enroll
+group: fingerprint_basic
 flags: also-after-suspend
 depends: fingerprint/detect
 user: root
@@ -38,6 +40,7 @@ requires:
 plugin: user-interact
 category_id: com.canonical.plainbox::fingerprint
 id: fingerprint/verify-no-match
+group: fingerprint_basic
 flags: also-after-suspend
 depends: fingerprint/enroll
 user: root
@@ -61,6 +64,7 @@ requires:
 plugin: user-interact
 category_id: com.canonical.plainbox::fingerprint
 id: fingerprint/verify-match
+group: fingerprint_basic
 flags: also-after-suspend
 depends: fingerprint/verify-no-match
 user: root
@@ -90,6 +94,7 @@ requires:
 plugin: user-interact-verify
 category_id: com.canonical.plainbox::fingerprint
 id: fingerprint/unlock
+group: fingerprint_basic
 flags: also-after-suspend
 depends: fingerprint/verify-match
 user: root
@@ -114,6 +119,7 @@ requires:
 plugin: shell
 category_id: com.canonical.plainbox::fingerprint
 id: fingerprint/delete
+group: fingerprint_basic
 flags: also-after-suspend
 after: fingerprint/unlock
 user: root

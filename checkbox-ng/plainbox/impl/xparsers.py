@@ -605,12 +605,19 @@ class IncludeStmt(Node):
                 "Include is a non-single value map, got: {}".format(include)
             )
         key, overrides = next(iter(include.items()))
+
+        def _override_value(v):
+            # this is a boolean override in yaml, which is parsed as a bool
+            if isinstance(v, bool):
+                return str(v).lower()
+            return v
+
         overrides = [
             OverrideExpression(
                 lineno,
                 0,
                 Text(lineno, 0, override[0]),
-                Text(lineno, 0, override[1]),
+                Text(lineno, 0, _override_value(override[1])),
             )
             for override in overrides.items()
         ]

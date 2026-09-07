@@ -8,27 +8,21 @@ _description:
 user: root
 estimated_duration: 2s
 flags: preserve-locale
-command:
-    KEYWORDS="hardware-transmit
-              hardware-receive
-              hardware-raw-clock"
-    for iface in /sys/class/net/*; do
-        iface=${iface##*/}
-        supported=true
-        if [[ $iface == e* ]]; then
-            output=$(ethtool -T "$iface")
-            for keyword in $KEYWORDS; do
-                if ! grep -q "$keyword" <<< "$output"; then
-                    supported=false
-                    break
-                fi
-            done
-            if [[ $supported == true ]]; then
-                echo "eth-interface: $iface"
-                echo
-            fi
-        fi
-    done
+command: resource_wrapper.sh -- resource_ptp_devices.sh
+
+unit: job
+category_id: ptp
+id: ce-oem-ptp/check-ptp-devices-resource
+plugin: shell
+_summary: Check PTP device resource generation
+_description:
+    Check all ethernet devices and list PTP-supported devices directly.
+user: root
+estimated_duration: 2s
+flags: preserve-locale
+imports: from com.canonical.plainbox import manifest
+requires: manifest.has_ptp == 'True'
+command: resource_ptp_devices.sh
 
 unit: template
 template-resource: ce-oem-ptp/ptp-devices
@@ -48,8 +42,8 @@ estimated_duration: 2s
 imports: from com.canonical.plainbox import manifest
 requires: manifest.has_ptp == 'True'
 command:
-    PTP_ID=$(ethtool -T {eth-interface} | grep "PTP Hardware Clock:" | cut -d' ' -f4)
-    if [ "$PTP_ID" = "none" ]; then
+    PTP_ID=$(ethtool -T {eth-interface} | grep -E "PTP Hardware Clock:|Hardware timestamp provider index:" | grep -oE '[0-9]+$')
+    if [ -z "$PTP_ID" ]; then
         echo "Device {eth-interface} does not support hardware PTP."
         exit 1
     else
@@ -83,16 +77,28 @@ estimated_duration: 32s
 imports: from com.canonical.plainbox import manifest
 requires: manifest.has_ptp == 'True'
 depends: ce-oem-ptp/verify-PTP-support-for-{eth-interface}
+environ: PTP4L_PTP_MINOR_VERSION
 command:
     output_file='/var/tmp/ptp4l_output.txt'
     echo "Executing ptp4l for 30s"
     # Add --tx_timstamp_timeout=5 due to the patch of ptp4l increace from 1 to 5ms.
     # https://www.mail-archive.com/linuxptp-devel@lists.sourceforge.net/msg05015.html
     # And this patch has been merged into the versoin later then V2.0
-    (set -x; timeout 30s ptp4l -i {eth-interface} -m -s --network_transport=L2 --tx_timestamp_timeout=5 | tee $output_file)
+    ptp4l_args="-i {eth-interface} -m -s --network_transport=L2 --tx_timestamp_timeout=5 --transportSpecific=1"
+    if [ -n "$PTP4L_PTP_MINOR_VERSION" ]; then
+        ptp4l_version=$(ptp4l -v 2>&1 | grep -oP '\d+' | head -n 1)
+        if [[ "$ptp4l_version" -ge 4 ]]; then
+            ptp4l_args="$ptp4l_args --ptp_minor_version=$PTP4L_PTP_MINOR_VERSION"
+        else
+            echo "ptp4l version $ptp4l_version does not support --ptp_minor_version, skipping this option."
+        fi
+    fi
+    # shellcheck disable=SC2086
+    (set -x; timeout 30s ptp4l $ptp4l_args | tee "$output_file")
     rms_data=$(tail -5 $output_file | awk '/rms/{{print $3}}')
     if [[ -z $rms_data ]]; then
         echo "ERROR: unable to get rms value from the output file"
+        echo "HINT: Make sure the ptp4l grandmaster is using a large enough --logSyncInterval"
         exit 1
     fi
     echo
@@ -125,10 +131,10 @@ _steps:
     1. Connect an Ethernet cable from another device's Ethernet interface which supports ptp
        which supports ptp directly to the {eth-interface} Ethernet interface of our DUT.
     2. On the Host (another device), execute the command:
-       $ sudo ./ptp4l -i <if_name_on_host> -m --step_threshold=1 --logAnnounceInterval=0 --logSyncInterval=-3 --network_transport=L2
+       $ sudo ./ptp4l -i <if_name_on_host> -m --step_threshold=1 --logAnnounceInterval=0 --logSyncInterval=-3 --network_transport=L2 --transportSpecific=1
     3. Wait for the system to announce it is the Grand Master.
     4. On the DUT, run the command:
-       $ sudo ./ptp4l -i {eth-interface} -m -s --network_transport=L2 --tx_timestamp_timeout=5
+       $ sudo ./ptp4l -i {eth-interface} -m -s --network_transport=L2 --tx_timestamp_timeout=5 --transportSpecific=1
     5. The DUT should announce it has selected a foreign master (Host)
     6. Clock readings will appear on the DUT.  When the "rms" value remains below 100ns,
        the DUT has successfully synchronized to the clock on the Host.

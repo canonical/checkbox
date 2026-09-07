@@ -1,0 +1,10 @@
+#!/usr/bin/env bash
+
+# Fail visibly: a Xilinx plan on a non-Xilinx device-tree model is a
+# setup problem, not an empty result.
+if ! grep -qiE 'xilinx|zynq|kria|zcu|versal' /proc/device-tree/model 2>/dev/null; then
+    echo "device-tree model is not a known Xilinx platform" >&2
+    exit 1
+fi
+perl -ne 's/ /-/g;s/(.*?)([A-Z]?)\W+$/\L$1\U$2/; print "name: $_\n"' /proc/device-tree/model
+perl -ne 's/.*?\s(\S+).*/$1/i; print "short_name: \L$_\n\n"' /proc/device-tree/model

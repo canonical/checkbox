@@ -1,0 +1,22 @@
+id: genio-thermal-full
+unit: test plan
+_name: Genio Thermal tests
+_description: Full Genio Thermal tests for devices
+include:
+nested_part:
+    genio-thermal-manual
+    genio-thermal-automated
+
+id: genio-thermal-manual
+unit: test plan
+_name: Genio Thermal manual tests
+_description: Manual Genio Thermal tests for devices
+include:
+
+id: genio-thermal-automated
+unit: test plan
+_name: Genio Thermal auto tests
+_description: Automated Genio Thermal tests for devices
+include:
+    genio-thermal/simulate-overheating
+    genio-thermal/post-simulate-overheating

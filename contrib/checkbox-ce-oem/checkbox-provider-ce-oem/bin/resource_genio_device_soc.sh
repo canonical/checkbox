@@ -1,0 +1,19 @@
+#!/usr/bin/env bash
+
+if [[ ! -e /proc/device-tree/compatible ]]; then
+    echo "Missing /proc/device-tree/compatible" >&2
+    exit 1
+fi
+output=$(tr -d '\0' < /proc/device-tree/compatible)
+# Set comma as delimiter
+IFS=','
+read -r -a output_arr <<< "$output"
+# Set dash as delimiter
+IFS='-'
+read -r -a s <<< "${output_arr[1]}"
+if [[ ${s[0]} != mt* ]]; then
+    echo "Invalid SoC prefix: ${s[0]}" >&2
+    exit 1
+fi
+echo "SoC: ${s[0]}"
+echo

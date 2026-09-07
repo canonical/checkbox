@@ -20,6 +20,33 @@ command: 'echo foo: $foo'
 environ:
   - foo
 ---
+id: basic/manual
+summary: A simple manual job
+purpose: |
+  This test checks that the manual plugin works fine
+steps: |
+  1. Add a comment
+  2. Set the result as passed
+verification: |
+  Check that in the report the result is passed and the comment is displayed
+plugin: manual
+estimated_duration: '30'
+---
+id: basic/user-interact-verify
+summary: A simple user interaction and verification job
+purpose: |
+  This test checks that the user-interact-verify plugin works fine
+steps: |
+  1. Read this description
+  2. Ensure that the command has not been started yet
+  3. Press the test button
+  4. Look at the output and determine the outcome of the test
+verification: |
+  The command should have printed "Please select 'pass'"
+plugin: user-interact-verify
+command: echo "Please select 'pass'"
+estimated_duration: '25'
+---
 id: config-environ-source
 flags:
   - simple
@@ -311,3 +338,72 @@ command: |
 summary: Tests that generated units are validated and reported when params are missing
 flags:
   - simple
+---
+id: requires_skip
+summary: Returns nothing to test skipping
+plugin: resource
+command: |
+  true
+---
+id: simple_skipped
+flags:
+  - simple
+summary: This job is skipped
+requires:
+  - requires_skip.missing == "missing value"
+command: |
+  false
+---
+id: failing_job
+flags:
+  - simple
+summary: This job always fails
+command: |
+  false
+---
+id: skipped_by_dependency
+flags:
+  - simple
+summary: This job is skipped due to failed dependency
+depends:
+  - failing_job
+command: |
+  true
+---
+id: skipped_by_manifest
+flags:
+  - simple
+summary: This job is skipped due to unmet manifest
+imports:
+  - from com.canonical.plainbox import manifest
+requires:
+  - manifest.skipping_test_manifest == 'True'
+command: |
+  true
+---
+unit: manifest entry
+id: skipping_test_manifest
+name: Manifest entry for testing skip due to unmet manifest
+value-type: bool
+---
+id: xfailing_job_passing
+flags:
+  - simple
+summary: This job always xfails (passes)
+purpose: |
+  This job fails, but it is marked as an expected failure, so it actually
+  "fake" passes
+xfail: true
+command: |
+  false
+---
+id: xfailing_job_failing
+flags:
+  - simple
+summary: This job always fails (xfail fail)
+purpose: |
+  This job passes, but it is marked as an expected failure, so it actually
+  fails (xfail fail) as it failed to fail
+xfail: true
+command: |
+  true

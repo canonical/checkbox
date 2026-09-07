@@ -132,10 +132,13 @@ class MainLoopStage(CheckboxUiStage):
                     result_builder = JobResultBuilder(
                         outcome=IJobResult.OUTCOME_MANUAL_SKIP,
                         comments=_(
-                            "Trying to run interactive job in a silent"
-                            " session"
+                            "Unable to start interactive job in "
+                            "non-interactive session"
                         ),
                     )
+                    result = result_builder.get_result()
+                    ui.job_cannot_start(job, job_state, result)
+                    ui.finished(job, job_state, result)
                     return result_builder
                 if job_state.can_start():
                     ui.notify_about_purpose(job)
@@ -661,18 +664,14 @@ class ReportsStage(CheckboxUiStage):
                 options = "secure_id={}".format(secure_id)
             else:
                 options = ""
+            c3_url = "https://certification.canonical.com"
             if transport_cfg.get("staging", False):
-                url = (
-                    "https://certification.staging.canonical.com/"
-                    "api/v1/submission/{}/".format(secure_id)
-                )
+                c3_url = "https://certification.staging.canonical.com"
             elif os.getenv("C3_URL"):
-                url = "{}/{}/".format(os.getenv("C3_URL"), secure_id)
-            else:
-                url = (
-                    "https://certification.canonical.com/"
-                    "api/v1/submission/{}/".format(secure_id)
-                )
+                c3_url = os.getenv("C3_URL", "").rstrip("/")
+            url = "{}/api/v2/submissions/upload/?secure_id={}".format(
+                c3_url, secure_id
+            )
             self.transports[transport] = cls(url, options)
 
     def _export_results(self):

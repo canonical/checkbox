@@ -24,17 +24,13 @@ plainbox.impl.secure.test_qualifiers
 Test definitions for plainbox.impl.secure.qualifiers module
 """
 
-from contextlib import contextmanager
-from io import TextIOWrapper
 from itertools import permutations
 from unittest import TestCase
 import operator
 
 from plainbox.abc import IUnitQualifier
 from plainbox.impl.job import JobDefinition
-from plainbox.impl.secure.origin import FileTextSource
 from plainbox.impl.secure.origin import Origin
-from plainbox.impl.secure.origin import UnknownTextSource
 from plainbox.impl.secure.qualifiers import CompositeQualifier
 from plainbox.impl.secure.qualifiers import FieldQualifier
 from plainbox.impl.secure.qualifiers import IMatcher

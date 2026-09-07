@@ -17,7 +17,6 @@
 # along with Checkbox.  If not, see <http://www.gnu.org/licenses/>.
 
 from unittest import TestCase, mock
-from functools import partial
 
 from checkbox_ng.launcher.merge_submissions import MergeSubmissions
 

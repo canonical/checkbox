@@ -1,0 +1,7 @@
+id: oem-rtc-automated
+unit: test plan
+_name: Multiple RTC auto tests
+_description: Automated multiple RTC tests
+bootstrap_include:
+include:
+nested_part:

@@ -96,7 +96,9 @@ class SubmissionServiceTransportTests(TestCase):
         with self.assertRaises(TransportError):
             result = transport.send(dummy_data)
             self.assertIsNotNone(result)
-        requests.post.assert_called_with(self.invalid_url, data=dummy_data)
+        requests.post.assert_called_with(
+            self.invalid_url, files={"file": dummy_data}
+        )
 
     @mock.patch("checkbox_ng.certification.logger")
     def test_valid_url_cant_connect(self, mock_logger):
@@ -108,7 +110,9 @@ class SubmissionServiceTransportTests(TestCase):
         with self.assertRaises(TransportError):
             result = transport.send(dummy_data)
             self.assertIsNotNone(result)
-        requests.post.assert_called_with(self.unreachable_url, data=dummy_data)
+        requests.post.assert_called_with(
+            self.unreachable_url, files={"file": dummy_data}
+        )
 
     def test_send_success(self):
         transport = SubmissionServiceTransport(

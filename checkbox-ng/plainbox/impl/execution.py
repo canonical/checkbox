@@ -39,7 +39,7 @@ import tempfile
 import threading
 import time
 from contextlib import suppress
-from subprocess import check_call, check_output, run
+from subprocess import check_call, run
 
 from plainbox.abc import IJobResult, IJobRunner
 from plainbox.i18n import gettext as _
@@ -119,12 +119,42 @@ class UnifiedRunner(IJobRunner):
         self._stdin = stdin
         self._running_jobs_pid = None
         self._extra_env = extra_env
+        self._systemd_runner_prepared = False
+
+    def prepare_systemd_based_runner(self):
+        """
+        Patches to the system that only apply when using the systemd runner
+        """
+        if self._systemd_runner_prepared:
+            return
+        else:
+            # only apply the patches once
+            self._systemd_runner_prepared = True
+        if os.geteuid() != 0:
+            # Be lenient here, the user may be experimenting and none of these
+            # are make or break, they are all QoL patches
+            return
+        try:
+            # Make Checkbox immune to the OOM Killer
+            # this is only applied when using the systemd based runner because
+            # the oom_score_adj is inherited by children (applying this to the
+            # subprocess based runner would make all tests immune to OOM as
+            # well)
+            with open("/proc/self/oom_score_adj", "w") as f:
+                f.write("-1000")
+        except OSError:
+            logger.warning(
+                "Unable to set OOMScoreAdjust, memory stress tests may crash "
+                "the Checkbox Agent"
+            )
 
     def run_job(
         self, job, job_state, environ=None, ui=None, as_systemd_unit=False
     ):
         logger.info(_("Running %r"), job)
         self._job_runner_ui_delegate.ui = ui
+        if as_systemd_unit:
+            self.prepare_systemd_based_runner()
 
         if isinstance(job, InvalidJob):
             self._job_runner_ui_delegate.on_begin("", dict())
@@ -193,7 +223,9 @@ class UnifiedRunner(IJobRunner):
                 outcome=IJobResult.OUTCOME_FAIL,
                 comments=_("No command to run!"),
             ).get_result()
-        result_builder = self._run_command(job, environ, as_systemd_unit)
+        result_builder = self._run_command(
+            job, environ, as_systemd_unit, xfail=job_state.effective_xfail
+        )
 
         # for user-interact-verify and user-verify jobs the operator chooses
         # the final outcome, so we need to reset the outcome to undecided
@@ -210,7 +242,20 @@ class UnifiedRunner(IJobRunner):
         # this is left here to conform to the interface
         return []
 
-    def _run_command(self, job, environ, as_systemd_unit):
+    @staticmethod
+    def _return_code_to_outcome(return_code, xfail):
+        if return_code == 0:
+            if xfail:
+                return IJobResult.OUTCOME_XFAIL_FAIL
+            return IJobResult.OUTCOME_PASS
+        elif return_code < 0:
+            return IJobResult.OUTCOME_CRASH
+        else:
+            if xfail:
+                return IJobResult.OUTCOME_XFAIL_PASS
+            return IJobResult.OUTCOME_FAIL
+
+    def _run_command(self, job, environ, as_systemd_unit, xfail=False):
         start_time = time.time()
         slug = slugify(job.id)
         output_writer = CommandOutputWriter(
@@ -241,14 +286,8 @@ class UnifiedRunner(IJobRunner):
                 job, environ, ecmd, self._stdin, as_systemd_unit
             )
             io_log_gen.on_new_record.disconnect(writer.write_record)
-        if return_code == 0:
-            outcome = IJobResult.OUTCOME_PASS
-        elif return_code < 0:
-            outcome = IJobResult.OUTCOME_CRASH
-        else:
-            outcome = IJobResult.OUTCOME_FAIL
         return JobResultBuilder(
-            outcome=outcome,
+            outcome=self._return_code_to_outcome(return_code, xfail),
             return_code=return_code,
             io_log_filename=log,
             execution_duration=time.time() - start_time,
@@ -633,6 +672,7 @@ def get_execution_environment(job, environ, session_id, nest_dir):
     set_if_not_none("PLAINBOX_PROVIDER_DATA", job.provider.data_dir)
     set_if_not_none("PLAINBOX_PROVIDER_UNITS", job.provider.units_dir)
     set_if_not_none("CHECKBOX_SHARE", job.provider.CHECKBOX_SHARE)
+    set_if_not_none("PYTHONUNBUFFERED", "1")
     if os.getenv("SNAP"):
         set_if_not_none("CHECKBOX_RUNTIME", str(get_checkbox_runtime_path()))
 

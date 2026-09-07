@@ -1,0 +1,44 @@
+unit: template
+template-resource: jetson_tensorrt_samples_list
+template-unit: job
+category_id: jetson-gpu
+flags: also-after-suspend
+template-id: jetson-gpu/tensorrt-samples-name
+id: jetson-gpu/tensorrt-samples-{name}
+user: root
+plugin: shell
+imports: from com.canonical.certification import package
+ from com.canonical.plainbox import manifest
+requires:
+# executable.name == '/opt/nvidia/run-tensorrt-samples.py'
+ package.name == 'libnvinfer-samples' or package.name == 'tensorrt'
+ manifest.is_Jetson == 'True'
+command: /opt/nvidia/run-tensorrt-samples.py -t {path}
+_template-summary:
+ Run tensorrt samples tests
+_summary:
+ Run the tensorrt samples test {name}
+_description:
+ Run the tensorrt samples test {name}
+
+unit: template
+template-resource: jetson_tensorrt_samples_list_core
+template-unit: job
+category_id: jetson-core-gpu
+flags: also-after-suspend
+template-id: jetson-core-gpu/tensorrt-samples-name
+id: jetson-core-gpu/tensorrt-samples-{name}
+user: root
+plugin: shell
+imports: from com.canonical.certification import executable
+ from com.canonical.plainbox import manifest
+requires:
+ executable.name == 'tensorrt-samples'
+ manifest.is_Jetson == 'True'
+command: sudo tensorrt-samples {name}
+_template-summary:
+ Run tensorrt samples tests on core
+_summary:
+ Run the tensorrt-samples test {name} on core
+_description:
+ Run the tensorrt-samples test {name} on core

@@ -392,6 +392,12 @@ class JobState(pod.POD):
         type=str,
     )
 
+    effective_xfail = OverridableJobField(
+        job_field="xfail",
+        doc="the effective xfail status of this job",
+        type=bool,
+    )
+
     effective_auto_retry = OverridableJobField(
         job_field="auto_retry",
         doc="the ability to automatically retry this job if it fails",

@@ -1,0 +1,30 @@
+id: dragonwing-watchdog/trigger-system-reset
+category_id: dragonwing-watchdog
+imports:
+  from com.canonical.plainbox import manifest
+requires:
+  manifest.is_dragonwing_series == 'True'
+  manifest.has_dragonwing_gunyah_hypervisor_watchdog == 'True'
+_summary: Check if the watchdog can trigger system reset
+command:
+  sync
+  sleep 5
+  echo 1 > /proc/sys/kernel/sysrq
+  echo 0 > /proc/sys/kernel/panic
+  echo c > /proc/sysrq-trigger
+flags: preserve-locale noreturn autorestart
+user: root
+plugin: shell
+
+id: dragonwing-watchdog/trigger-system-reset-post-check
+imports:
+  from com.canonical.plainbox import manifest
+requires:
+  manifest.is_dragonwing_series == 'True'
+  manifest.has_dragonwing_gunyah_hypervisor_watchdog == 'True'
+depends: dragonwing-watchdog/trigger-system-reset
+category_id: dragonwing-watchdog
+_summary: Check service status after triggering watchdog system reset
+plugin: shell
+command: 
+  dragonwing_failed_service_check.sh

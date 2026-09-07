@@ -21,6 +21,7 @@ import argparse
 import ctypes
 import os
 import socket
+import subprocess
 import struct
 import sys
 import textwrap
@@ -173,20 +174,53 @@ def echo_test(args):
     print("\nPASSED")
 
 
+def get_can_interface_count():
+    result = subprocess.run(
+        ["ip", "-o", "link", "show", "type", "can"],
+        check=True,
+        capture_output=True,
+        text=True,
+    )
+    return len([line for line in result.stdout.splitlines() if line.strip()])
+
+
+def check_interfaces(args):
+    try:
+        detected_can_num = get_can_interface_count()
+    except (OSError, subprocess.CalledProcessError):
+        raise SystemExit("ERROR: Failed to detect CAN interfaces")
+
+    if detected_can_num == 0:
+        raise SystemExit("No CAN interfaces found on this platform")
+
+    if args.expected_count is not None:
+        if detected_can_num != args.expected_count:
+            raise SystemExit(
+                "Expected {} CAN interfaces, found {}".format(
+                    args.expected_count, detected_can_num
+                )
+            )
+
+
 def main():
     parser = argparse.ArgumentParser(
         formatter_class=argparse.RawDescriptionHelpFormatter,
         description="SocketCAN Tests",
         epilog=textwrap.dedent("""
         Examples:
+            socketcan_test.py --check-interfaces
+            socketcan_test.py --check-interfaces --expected-count 2
             socketcan_test.py can0 123
             socketcan_test.py can0 212 --remote
             socketcan_test.py can0 FA123 --effid
             socketcan_test.py can0 E407DB --effid --fdmode""").lstrip(),
     )
-    parser.add_argument("interface", type=str, help="Interface name e.g. can0")
+    parser.add_argument(
+        "interface", nargs="?", type=str, help="Interface name e.g. can0"
+    )
     parser.add_argument(
         "can_id",
+        nargs="?",
         type=str,
         help=textwrap.dedent("""
         CAN ID of source in Hex, max of 11 bits using Standard Frame
@@ -206,10 +240,26 @@ def main():
         action="store_true",
         help="Attempt to send 64 bytes of data i.e. FD mode",
     )
-    parser.set_defaults(func=echo_test)
+    parser.add_argument(
+        "--check-interfaces",
+        action="store_true",
+        help="Check whether CAN interfaces exist on the platform",
+    )
+    parser.add_argument(
+        "--expected-count",
+        type=int,
+        help="Expected number of CAN interfaces",
+    )
 
     args = parser.parse_args()
-    args.func(args)
+    if args.check_interfaces:
+        check_interfaces(args)
+        return
+
+    if args.interface is None or args.can_id is None:
+        parser.error("the following arguments are required: interface, can_id")
+
+    echo_test(args)
 
 
 if __name__ == "__main__":

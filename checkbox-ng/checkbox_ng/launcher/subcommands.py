@@ -122,18 +122,15 @@ class Submit:
         transport_cls = None
         mode = "rb"
         options_string = "secure_id={0}".format(ctx.args.secure_id)
-        url = (
-            "https://certification.canonical.com/"
-            "api/v1/submission/{}/".format(ctx.args.secure_id)
-        )
         submission_file = ctx.args.submission
+        c3_url = "https://certification.canonical.com"
         if ctx.args.staging:
-            url = (
-                "https://certification.staging.canonical.com/"
-                "api/v1/submission/{}/".format(ctx.args.secure_id)
-            )
+            c3_url = "https://certification.staging.canonical.com"
         elif os.getenv("C3_URL"):
-            url = "{}/{}/".format(os.getenv("C3_URL"), ctx.args.secure_id)
+            c3_url = os.getenv("C3_URL", "").rstrip("/")
+        url = "{}/api/v2/submissions/upload/?secure_id={}".format(
+            c3_url, ctx.args.secure_id
+        )
         from checkbox_ng.certification import SubmissionServiceTransport
 
         transport_cls = SubmissionServiceTransport
@@ -711,9 +708,7 @@ class Launcher(MainLoopStage, ReportsStage):
             except FileNotFoundError:
                 pass
         self.sa.update_app_blob(json.dumps(app_blob).encode("UTF-8"))
-        failed_setups = self.setup()
-        if failed_setups:
-            raise SystemExit("Failed to prepare the machine")
+        self.setup()
         self.bootstrap()
 
     def _delete_old_sessions(self, ids):
@@ -1216,8 +1211,14 @@ class Run(MainLoopStage):
         except KeyboardInterrupt:
             return 1
 
+    def setup(self):
+        setup_jobs = self.sa.start_setup()
+        self._run_jobs(setup_jobs)
+        self.sa.finish_setup()
+
     def just_run_test_plan(self, tp_id):
         self.sa.select_test_plan(tp_id)
+        self.setup()
         self.sa.bootstrap()
         print(self.C.header(_("Running Selected Test Plan")))
         self._run_jobs(self.sa.get_dynamic_todo_list())

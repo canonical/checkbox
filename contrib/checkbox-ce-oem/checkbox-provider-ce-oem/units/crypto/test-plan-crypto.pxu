@@ -23,7 +23,7 @@ include:
     ce-oem-crypto/cryptsetup_benchmark
     ce-oem-crypto/af_alg_hash_crc64_test
     ce-oem-crypto/af_alg_hash_sha256_test
-    ce-oem-crypto/af_alg_aead_gcm_aes_test
+    # ce-oem-crypto/af_alg_aead_gcm_aes_test - CVE-2026-31431
     ce-oem-crypto/af_alg_skcipher_cbc_aes_test
     ce-oem-crypto/af_alg_rng_stdrng_test
 
@@ -52,6 +52,6 @@ include:
     after-suspend-ce-oem-crypto/cryptsetup_benchmark
     after-suspend-ce-oem-crypto/af_alg_hash_crc64_test
     after-suspend-ce-oem-crypto/af_alg_hash_sha256_test
-    after-suspend-ce-oem-crypto/af_alg_aead_gcm_aes_test
+    # after-suspend-ce-oem-crypto/af_alg_aead_gcm_aes_test - CVE-2026-31431
     after-suspend-ce-oem-crypto/af_alg_skcipher_cbc_aes_test
     after-suspend-ce-oem-crypto/af_alg_rng_stdrng_test

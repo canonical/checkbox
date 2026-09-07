@@ -21,57 +21,55 @@ functionality.
 """
 
 import contextlib
-import getpass
 import gettext
 import ipaddress
+import itertools
 import json
 import logging
 import os
 import select
-import socket
-import time
 import signal
+import socket
 import sys
-import itertools
-
+import time
 from collections import namedtuple
 from contextlib import suppress
-from functools import partial
 from tempfile import SpooledTemporaryFile
 
-from plainbox.abc import IJobResult
-from plainbox.impl.result import MemoryJobResult
-from plainbox.impl.color import Colorizer
-from plainbox.impl.config import Configuration
-from plainbox.impl.session.state import SessionMetaData
-from plainbox.impl.session.resume import (
-    IncompatibleJobError,
-    CorruptedSessionError,
-)
-from plainbox.impl.session.remote_assistant import (
-    RemoteSessionAssistant,
-    RemoteSessionStates,
-)
-from plainbox.vendor import rpyc
+from tqdm import tqdm
+
+from checkbox_ng.launcher.run import NormalUI, ReRunJob
+from checkbox_ng.launcher.stages import MainLoopStage, ReportsStage
 from checkbox_ng.resume_menu import ResumeMenu
 from checkbox_ng.urwid_ui import (
-    TestPlanBrowser,
     CategoryBrowser,
+    InterruptDialogAnswer,
     ManifestBrowser,
     ReRunBrowser,
+    ResumeInstead,
+    TestPlanBrowser,
     interrupt_dialog,
     resume_dialog,
-    ResumeInstead,
 )
 from checkbox_ng.utils import (
     generate_resume_candidate_description,
     newline_join,
     request_comment,
 )
-from checkbox_ng.launcher.run import NormalUI, ReRunJob
-from checkbox_ng.launcher.stages import MainLoopStage
-from checkbox_ng.launcher.stages import ReportsStage
-from tqdm import tqdm
+from plainbox.abc import IJobResult
+from plainbox.impl.color import Colorizer
+from plainbox.impl.config import Configuration
+from plainbox.impl.result_utils import pretty_skip_reason
+from plainbox.impl.session.remote_assistant import (
+    RemoteSessionAssistant,
+    RemoteSessionStates,
+)
+from plainbox.impl.session.resume import (
+    CorruptedSessionError,
+    IncompatibleJobError,
+)
+from plainbox.impl.session.state import SessionMetaData
+from plainbox.vendor import rpyc
 
 _ = gettext.gettext
 _logger = logging.getLogger("controller")
@@ -178,6 +176,7 @@ class RemoteController(ReportsStage, MainLoopStage):
         self._override_exporting(self.local_export)
         self._launcher_text = ""
         self._has_anything_failed = False
+        self._clean = ctx.args.clean
         self._target_host = ctx.args.host
         self._normal_user = ""
         self.launcher = Configuration()
@@ -283,7 +282,6 @@ class RemoteController(ReportsStage, MainLoopStage):
         spinner = itertools.cycle("-\\|/")
         #  this tracks the disconnection time
         disconnection_time = 0
-        connection_strategy = self.connection_strategy()
         while True:
             try:
                 if interrupted:
@@ -318,6 +316,16 @@ class RemoteController(ReportsStage, MainLoopStage):
                         conn.root.register_controller_blaster(quitter)
                     self._sa = conn.root.get_sa()
                     self.sa.conn = conn
+                    # clean is used to recover from the sa being in a weird
+                    # unrecoverable state
+                    if self._clean:
+                        try:
+                            self._sa.reset_session()
+                        except AttributeError:
+                            # backward compatibility with older agents
+                            # Note: this method is not as good, it doesn't reload
+                            #       the units
+                            self._sa._reset_sa()
                     # TODO: REMOTE API RAPI: Remove this API on the next RAPI bump
                     # the check and bailout is not needed if the agent as up to
                     # date as this controller, so after bumping RAPI we can assume
@@ -416,6 +424,8 @@ class RemoteController(ReportsStage, MainLoopStage):
         - A job was in progress when the session was abandoned
         - The ongoing test was shell job
         """
+        if self._clean:
+            return False
         try:
             last_abandoned_session = next(self.sa.get_resumable_sessions())
         except StopIteration:
@@ -466,6 +476,7 @@ class RemoteController(ReportsStage, MainLoopStage):
         self.bootstrap_and_continue()
 
     def automatically_start_via_launcher_and_continue(self):
+        SimpleUI.header("Starting new automated session via launcher")
         _ = self.start_session()
         test_plan_unit = self.launcher.get_value("test plan", "unit")
         self.select_test_plan(test_plan_unit)
@@ -473,6 +484,9 @@ class RemoteController(ReportsStage, MainLoopStage):
 
     def resume_last_session_and_continue(self):
         last_abandoned_session = next(self.sa.get_resumable_sessions())
+        SimpleUI.header(
+            "Resuming last session: {}".format(last_abandoned_session.id)
+        )
         return self.resume_by_id(last_abandoned_session.id)
 
     def start_session(self):
@@ -568,6 +582,7 @@ class RemoteController(ReportsStage, MainLoopStage):
         return self.resume_by_id(resume_params.session_id, result_dict)
 
     def interactively_choose_test_plan_and_continue(self):
+        SimpleUI.header("Starting new interactive session")
         tps = self.start_session()
         _logger.info("controller: Interactively choosing TP.")
         while True:
@@ -754,6 +769,14 @@ class RemoteController(ReportsStage, MainLoopStage):
         parser.add_argument(
             "-u", "--user", help=_("normal user to run non-root jobs")
         )
+        parser.add_argument(
+            "--clean",
+            action="store_true",
+            help=(
+                "Start a session from a clean slate (reset the agent and "
+                "don't try to resume)"
+            ),
+        )
 
     def _handle_interrupt(self):
         """
@@ -764,19 +787,24 @@ class RemoteController(ReportsStage, MainLoopStage):
             self._sa.terminate()
             return False
         response = interrupt_dialog(self._target_host)
-        if response == "cancel":
+        if response == InterruptDialogAnswer.CANCEL:
             return True
-        elif response == "kill-controller":
+        elif response == InterruptDialogAnswer.KILL_CONTROLLER:
             return False
-        elif response == "kill-agent":
+        elif response == InterruptDialogAnswer.KILL_AGENT:
             self._sa.terminate()
             return False
-        elif response == "abandon":
+        elif response == InterruptDialogAnswer.FINALIZE:
             self._sa.finalize_session()
             return True
-        elif response == "kill-command":
+        elif response == InterruptDialogAnswer.FINALIZE_EXIT:
+            self._sa.finalize_session()
+            return False
+        elif response == InterruptDialogAnswer.KILL_COMMAND:
             self._sa.send_signal(signal.SIGKILL.value)
             return True
+        elif response is None:
+            return False
 
     def finish_session(self, *args):
         print(self.C.header("Results"))
@@ -914,18 +942,30 @@ class RemoteController(ReportsStage, MainLoopStage):
                 self.finish_job()
                 break
 
+    def _pretty_skip_log(self, result):
+        if not result:
+            return
+        with suppress(ValueError, AttributeError):
+            # this only applies to automated skips on a recent enough
+            # checkbox agent
+            SimpleUI.yellow_text(pretty_skip_reason(result.skip_reason))
+        if (
+            result.outcome == IJobResult.OUTCOME_MANUAL_SKIP
+            and result.comments
+            and not self.is_interactive
+        ):
+            # Display manual skip in non interactive sessions because the
+            # comment is checkbox complaining about trying to run a manual
+            # test in a non-interactive session
+            SimpleUI.yellow_text(
+                "Job cannot be started because:\n- {}".format(result.comments)
+            )
+
     def finish_job(self, result=None, job_state=None):
         _logger.info("controller: Finishing job with a result: %s", result)
-        job_result = self.sa.finish_job(result)
-        if (
-            job_state
-            and result
-            and result.outcome == IJobResult.OUTCOME_NOT_SUPPORTED
-        ):
-            print(_("Job cannot be started because:"))
-            for inhibitor in job_state.readiness_inhibitor_list:
-                SimpleUI.yellow_text(" - {}".format(inhibitor))
+        self._pretty_skip_log(result)
         SimpleUI.horiz_line()
+        job_result = self.sa.finish_job(result)
         print(_("Outcome") + ": " + SimpleUI.C.result(job_result))
 
     def abandon(self):
@@ -1020,7 +1060,9 @@ class RemoteController(ReportsStage, MainLoopStage):
             SimpleUI.horiz_line()
             next_job = False
             while next_job is False:
-                for interaction in self.sa.run_job(job["id"]):
+                for interaction in self.sa.run_job(
+                    job["id"], self.is_interactive
+                ):
                     # interaction is a netref, cache attributes here
                     kind = interaction.kind
                     message = interaction.message

@@ -159,7 +159,6 @@ nested_part:
   networking-base-26-04-automated
   misc-client-base-26-04-automated
   acpi-base-26-04-automated
-  power-management-precheck-base-26-04-automated
   snappy-snap-base-26-04-automated
   kernel-snap-automated
   ubuntucore-automated
@@ -181,7 +180,7 @@ nested_part:
   usb-c-base-26-04-automated
   usb-dwc3-base-26-04-automated
   before-after-suspend-reference-base-26-04-automated
-  power-base-26-04-automated
+  power-management-base-26-04-automated
   tpm-base-26-04-automated
   after-suspend-audio-automated
   after-suspend-bluez-automated

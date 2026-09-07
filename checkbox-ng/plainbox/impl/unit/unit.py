@@ -953,11 +953,8 @@ class Unit(metaclass=UnitType):
         """
         Compute the value for :attr:`checksum`.
         """
-        # Ideally we'd use simplejson.dumps() with sorted keys to get
-        # predictable serialization but that's another dependency. To get
-        # something simple that is equally reliable, just sort all the keys
-        # manually and ask standard json to serialize that..
-        sorted_data = collections.OrderedDict(sorted(self._data.items()))
+        data = self._data.copy()
+
         # Define a helper function to convert symbols to strings for the
         # purpose of computing the checksum's canonical representation.
 
@@ -969,24 +966,27 @@ class Unit(metaclass=UnitType):
         # add a namespace iformation to the data, so same units located
         # in different providers won't clash
         if self._provider and self._provider.namespace:
-            sorted_data["namespace"] = self._provider.namespace
+            data["namespace"] = self._provider.namespace
         # Compute the canonical form which is arbitrarily defined as sorted
         # json text with default indent and separator settings.
         canonical_form = json.dumps(
-            sorted_data, indent=None, separators=(",", ":"), default=default_fn
+            data,
+            indent=None,
+            separators=(",", ":"),
+            default=default_fn,
+            sort_keys=True,
         )
         text = canonical_form.encode("UTF-8")
         # Parametric units also get a copy of their parameters stored as an
         # additional piece of data
         if self.is_parametric:
-            sorted_parameters = collections.OrderedDict(
-                sorted(self.parameters.items())
-            )
+            parameters = self.parameters.copy()
             canonical_parameters = json.dumps(
-                sorted_parameters,
+                parameters,
                 indent=None,
                 separators=(",", ":"),
                 default=default_fn,
+                sort_keys=True,
             )
             text += canonical_parameters.encode("UTF-8")
         # Compute the sha256 hash of the UTF-8 encoding of the canonical form

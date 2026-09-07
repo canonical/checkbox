@@ -31,6 +31,31 @@ from plainbox.abc import IJobResult
 from plainbox.impl.session.jobs import InhibitionCause
 
 
+def pretty_skip_reason(skip_reason):
+    """
+    Returns a pretty string to explain why a job was skipped
+
+    This takes into consideration precedence
+    """
+    skip_reason = skip_reason or {}
+    if skip_reason.get("related_manifests"):
+        return (
+            "Job cannot be started because of unmet manifest:\n- "
+            + "\n- ".join(skip_reason["related_manifests"])
+        )
+    elif skip_reason.get("related_dependencies"):
+        return (
+            "Job cannot be started because of failed dependency:\n- "
+            + "\n- ".join(skip_reason["related_dependencies"])
+        )
+    elif skip_reason.get("related_resources"):
+        return (
+            "Job cannot be started because of unmet resource:\n- "
+            + "\n- ".join(skip_reason["related_resources"])
+        )
+    raise ValueError("Unable to explain skip reason")
+
+
 def determine_outcome_and_skip_reason(job_state, job_state_map):
     """
     Determine the correct outcome and skip_reason for a job that cannot start.
@@ -46,7 +71,7 @@ def determine_outcome_and_skip_reason(job_state, job_state_map):
     - If any dependency was manually skipped, outcome is OUTCOME_MANUAL_SKIP
     - Else if there are failed manifest expressions, outcome is
     OUTCOME_SKIPPED_MANIFEST
-    - Else if there are FAILED_DEP inhibitors, outcome is
+    - Else if there are FAILED_DEP/NOT_FAILED_DEP inhibitors, outcome is
     OUTCOME_SKIPPED_DEPENDENCY
     - Else if there are failed resource expressions, outcome is
     OUTCOME_SKIPPED_RESOURCE, except if `fail-on-resource` flag is used, in
@@ -81,7 +106,10 @@ def determine_outcome_and_skip_reason(job_state, job_state_map):
             has_failed_manifest = True
             skip_reason["related_manifests"] += inhibitor.related_manifests
 
-        elif inhibitor.cause == InhibitionCause.FAILED_DEP:
+        elif inhibitor.cause in [
+            InhibitionCause.FAILED_DEP,
+            InhibitionCause.NOT_FAILED_DEP,
+        ]:
             has_failed_dep = True
             # Check if the dependency was manually skipped
             if inhibitor.related_job:

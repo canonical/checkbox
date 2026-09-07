@@ -1,11 +1,12 @@
 #!/usr/bin/env python3
 """
-Copyright (C) 2012-2015 Canonical Ltd.
+Copyright (C) 2012-2026 Canonical Ltd.
 
 Authors
   Jeff Marcom <jeff.marcom@canonical.com>
   Daniel Manrique <roadmr@ubuntu.com>
   Jeff Lane <jeff@ubuntu.com>
+  Zhongning Li <zhongning.li@canonical.com>
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License version 3,
@@ -20,7 +21,7 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """
 
-from argparse import ArgumentParser, RawTextHelpFormatter
+from argparse import ArgumentParser, Namespace, RawTextHelpFormatter
 import datetime
 import fcntl
 import ipaddress
@@ -46,32 +47,34 @@ from contextlib import contextmanager, suppress
 from pathlib import Path
 import sys
 import time
+import typing as t
 
-# Global results[] variable to pass results from multiple threads....
-results = []
+ETH_P_IBOE = 0x8915
+SIOCGIFNETMASK = 0x891B
 
 
-class IPerfPerformanceTest(object):
+class IPerfPerformanceTest:
     """Measures performance of interface using iperf client
-    and target. Calculated speed is measured against theorectical
+    and target. Calculated speed is measured against theoretical
     throughput of selected interface"""
 
     def __init__(
         self,
-        interface,
-        target,
-        fail_threshold,
-        cpu_load_fail_threshold,
-        iperf3,
-        num_threads,
-        reverse,
-        protocol="tcp",
-        data_size="1",
-        run_time=None,
-        scan_timeout=3600,
-        iface_timeout=120,
+        interface: str,
+        target: str,
+        fail_threshold: float,
+        cpu_load_fail_threshold: float,
+        iperf3: str,
+        num_threads: int,
+        reverse: bool,
+        # the following are never used anywhere
+        # so their types are basically guesswork
+        protocol: "t.Literal['tcp', 'udp']" = "tcp",
+        data_size: int = 1,
+        run_time: "int | None" = None,
+        scan_timeout: int = 3600,
+        iface_timeout: int = 120,
     ):
-
         self.iface = Interface(interface)
         self.interface = interface
         self.target = target
@@ -86,9 +89,11 @@ class IPerfPerformanceTest(object):
         self.iface_timeout = iface_timeout
         self.reverse = reverse
 
-    def run_one_thread(self, cmd, port_num):
-        """Run a single test thread, storing the output in the global results[]
-        variable."""
+        self._results = []  # type: list[str]
+        self._results_lock = threading.Lock()
+
+    def run_one_thread(self, cmd: str, port_num: int):
+        """Run a single test thread, storing the output in self.results[]."""
         cmd = cmd + " -p {}".format(port_num)
         logging.debug("Executing command {}".format(cmd))
         logging.info("Connecting to port {} on server....".format(port_num))
@@ -102,7 +107,9 @@ class IPerfPerformanceTest(object):
             if iperf_exception.returncode != 124:
                 # timeout command will return 124 if iperf timed out, so any
                 # other return value means something did fail
-                if "unable to connect to server" in iperf_exception.output:
+                if "unable to connect to server" in str(
+                    iperf_exception.output
+                ):
                     logging.error(
                         "Unable to connect to server on port {}".format(
                             port_num
@@ -131,14 +138,15 @@ class IPerfPerformanceTest(object):
                 # a partial (but usable) result.
                 logging.warning("iperf timed out - this should be OK")
                 iperf_return = iperf_exception.output
-        results.append(iperf_return)
+        with self._results_lock:
+            self._results.append(iperf_return)
 
     def summarize_speeds(self):
-        """Search the global results[] variable, computing the throughput for
-        each thread and returning the total throughput for all threads."""
+        """Search self.results[], computing the throughput for each thread
+        and returning the total throughput for all threads."""
         total_throughput = 0
         n = 0
-        for run in results:
+        for run in self._results:
             logging.debug(run)
             # iperf3 provides "sender" and "receiver" summaries; remove them
             run = re.sub(r".*(sender|receiver)", "", run)
@@ -170,7 +178,7 @@ class IPerfPerformanceTest(object):
         sum_cpu = 0.0
         avg_cpu = 0.0
         n = 0
-        for thread_results in results:
+        for thread_results in self._results:
             # "CPU Utilization" line present only in iperf3 output
             new_cpu = re.findall(
                 r"CPU Utilization.*local/sender\s([\w\.]+)", thread_results
@@ -186,12 +194,17 @@ class IPerfPerformanceTest(object):
                 avg_cpu = sum_cpu / n
         return avg_cpu
 
-    def find_numa(self, device):
-        """Return the NUMA node of the specified network device."""
-        filename = "/sys/class/net/" + device + "/device/numa_node"
+    def find_numa(self, device: str):
+        """
+        Return the NUMA node of the specified network device.
+
+        :param device: device name like eno1
+        :return: node int, from /sys/class/net/<device>/device/numa_node
+                 returns -1 if unsupported
+        """
+        filename = Path("/sys/class/net/") / device / "device" / "numa_node"
         try:
-            with open(filename, "r") as file:
-                node_num = int(file.read())
+            node_num = int(filename.read_text().strip())
         except FileNotFoundError:
             node_num = -1
         # Some systems (that don't support NUMA?) produce a node_num of -1.
@@ -200,18 +213,20 @@ class IPerfPerformanceTest(object):
         if node_num == -1:
             logging.warning(
                 "WARNING: Could not find the NUMA node "
-                "associated with {}!".format(device)
+                + "associated with {}!".format(device)
             )
         else:
             logging.info("NUMA node of {} is {}....".format(device, node_num))
         return node_num
 
-    def extract_core_list(self, line):
-        """Extract a list of CPU cores from a line of the form:
-        NUMA node# CPU(s):    a-b[,c-d[,...]]"""
+    def extract_core_list(self, line: str):
+        """
+        Extract a list of CPU cores from a line of the form:
+        NUMA node# CPU(s):    a-b[,c-d[,...]]
+        """
         colon = line.find(":")
         cpu_list = line[colon + 1 :]
-        core_list = []
+        core_list = []  # type: list[int]
         for core_range in cpu_list.split(","):
             # Skip it if the CPU list for the NUMA node is empty....
             core_range = core_range.strip()
@@ -235,7 +250,7 @@ class IPerfPerformanceTest(object):
         logging.debug("Will use CPU cores: {}....".format(core_list))
         return core_list
 
-    def find_cores(self, numa_node):
+    def find_cores(self, numa_node: int) -> "list[int]":
         """Return a list of CPU cores tied to the specified NUMA node."""
         numa_return = check_output(
             "lscpu", universal_newlines=True, stderr=STDOUT
@@ -243,9 +258,7 @@ class IPerfPerformanceTest(object):
         # Note: If numa_node = -1, the below will never find a match, so
         # core_list will remain empty, and later in the script, the -A option
         # to iperf3 will be dropped.
-        expression = "NUMA node.*" + str(numa_node) + ".*CPU"
-
-        regex = re.compile(expression)
+        regex = re.compile("NUMA node.*{}.*CPU".format(numa_node))
         core_list = []
         if numa_return:
             for i in numa_return:
@@ -259,7 +272,7 @@ class IPerfPerformanceTest(object):
         if self.iface.max_speed == 0:
             logging.warning(
                 "No max speed detected, assuming Wireless device "
-                "and continuing with test."
+                + "and continuing with test."
             )
 
         threads = self.num_threads
@@ -274,17 +287,18 @@ class IPerfPerformanceTest(object):
         # for running iperf -- but only one; within that thread, iperf 2's
         # own multi-threading handles that detail.)
         if self.iperf3:
-            self.executable = "iperf3 -V"
+            executable = "iperf3 -V"
             start_port = 5201
             iperf_threads = 1
             python_threads = threads
             node = self.find_numa(self.interface)
             core_list = self.find_cores(node)
         else:
-            self.executable = "iperf"
+            executable = "iperf"
             start_port = 5001
             iperf_threads = threads
             python_threads = 1
+            core_list = []
 
         # IN THEORY, limiting the per-thread bit rate should help spread the
         # load across all the threads and prevent huge discrepancies in CPU
@@ -298,7 +312,7 @@ class IPerfPerformanceTest(object):
         # If we set run_time, use that instead to build the command.
         if self.run_time is not None:
             cmd = "{} -b {}M -c {} -t {} -i 1 -f m -P {}".format(
-                self.executable,
+                executable,
                 thread_bit_rate,
                 self.target,
                 self.run_time,
@@ -313,10 +327,10 @@ class IPerfPerformanceTest(object):
             # or 1080 seconds per Gigabit. This will allow for a long period of
             # time without timeout to catch devices that slow down, and also
             # not prematurely end iperf on low-bandwidth devices.
-            self.timeout = 1080 * int(self.data_size)
+            timeout = 1080 * int(self.data_size)
             cmd = "timeout -k 1 {} {} -b {}M -c {} -n {}G -i 1 -f m -P {}".format(  # noqa: E501
-                self.timeout,
-                self.executable,
+                timeout,
+                executable,
                 thread_bit_rate,
                 self.target,
                 self.data_size,
@@ -326,7 +340,7 @@ class IPerfPerformanceTest(object):
         # Handle threading -- start Python threads (even if just one is
         # used), then use join() to wait for them all to complete....
         t = []
-        results.clear()
+        self._results.clear()
         for thread_num in range(0, python_threads):
             if self.iperf3 and len(core_list) > 0:
                 core = core_list[thread_num % len(core_list)]
@@ -445,7 +459,6 @@ class IPerfPerformanceTest(object):
 
 
 class StressPerformanceTest:
-
     def __init__(self, interface, target, iperf3):
         self.interface = interface
         self.target = target
@@ -495,26 +508,29 @@ class Interface(socket.socket):
     Simple class that provides network interface information.
     """
 
-    def __init__(self, interface):
+    def __init__(self, interface: str):
 
         super(Interface, self).__init__(socket.AF_INET, socket.IPPROTO_ICMP)
 
         self.interface = interface
+        self.dev_path = Path("/sys/class/net") / interface
 
-        self.dev_path = os.path.join("/sys/class/net", self.interface)
+        if not self.dev_path.exists():
+            raise FileNotFoundError("Not such interface: " + interface)
 
-    def _read_data(self, type):
+    def _read_data(self, attribute: str):
         try:
-            return open(os.path.join(self.dev_path, type)).read().strip()
+            # use .read_text to have file automatically close itself
+            return (self.dev_path / attribute).read_text().strip()
         except OSError:
-            logging.warning("%s: Attribute not found", type)
+            logging.warning("%s: Attribute not found", attribute)
 
     @property
     def ipaddress(self):
         freq = struct.pack("256s", self.interface[:15].encode())
 
         try:
-            nic_data = fcntl.ioctl(self.fileno(), 0x8915, freq)
+            nic_data = fcntl.ioctl(self.fileno(), ETH_P_IBOE, freq)
         except IOError:
             logging.error("No IP address for %s", self.interface)
             return None
@@ -525,7 +541,7 @@ class Interface(socket.socket):
         freq = struct.pack("256s", self.interface.encode())
 
         try:
-            mask_data = fcntl.ioctl(self.fileno(), 0x891B, freq)
+            mask_data = fcntl.ioctl(self.fileno(), SIOCGIFNETMASK, freq)
         except IOError:
             logging.error("No netmask for %s", self.interface)
             return None
@@ -533,7 +549,10 @@ class Interface(socket.socket):
 
     @property
     def link_speed(self):
-        return int(self._read_data("speed"))
+        raw = self._read_data("speed")
+        if raw is None:
+            raise ValueError("Speed value not found for " + self.interface)
+        return int(raw)
 
     @property
     def max_speed(self):
@@ -618,7 +637,7 @@ def get_test_parameters(args, environ):
     # - If command-line args were given, they take precedence
     # - Next come environment variables, if set.
 
-    params = {"test_target_iperf": None}
+    params = {"test_target_iperf": ""}
 
     # See if we have environment variables
     for key in params.keys():
@@ -654,7 +673,7 @@ def can_ping(the_interface, test_target):
     return working_interface
 
 
-def run_test(args, test_target):
+def run_test(args: Namespace, test_target: str):
     # Ensure that interface is fully up by waiting until it can
     # ping the test server
     logging.info("Testing {} against {}".format(args.interface, test_target))
@@ -714,7 +733,7 @@ def run_test(args, test_target):
     return error_number
 
 
-def make_target_list(iface, test_targets, log_warnings):
+def make_target_list(iface: str, test_targets: str, log_warnings: bool):
     """Convert comma-separated string of test targets into a list form.
 
     Converts test target list in string form into Python list form, omitting
@@ -804,7 +823,7 @@ def get_network_ifaces():
         ):
             continue
         logging.debug("Retrieve the network attribute for %s interface", iface)
-        network_if = Interface(iface)
+        network_if = Interface(iface.name)
         network_info[iface.name] = {
             "status": network_if.status,
             "phys_switch_id": network_if.phys_switch_id,
@@ -847,14 +866,11 @@ def check_underspeed(iface):
         and network_if.max_speed != 0
     ):
         logging.error(
-            "Detected link speed ({}) is lower than detected max "
-            "speed ({})".format(network_if.link_speed, network_if.max_speed)
+            "Detected link speed ({}) is lower ".format(network_if.link_speed)
+            + "than detected max speed ({})".format(network_if.max_speed)
         )
         logging.error("Check your device configuration and try again.")
-        logging.error(
-            "If you want to override and test despite this "
-            "under-speed link, use"
-        )
+        logging.error("If you want to test despite this under-speed link, use")
         logging.error("the --underspeed-ok option.")
         return True
     return False
@@ -935,8 +951,8 @@ def interface_test_initialize(
     target_dev, underspeed_ok, dont_toggle_ifaces, recover_timeout
 ):
     tempfile_route = tempfile.TemporaryFile()
+    network_info = get_network_ifaces()
     try:
-        network_info = get_network_ifaces()
         # Back up routing table, since network down/up process
         # tends to trash it....
         logging.debug("Backup routing table")
@@ -950,7 +966,6 @@ def interface_test_initialize(
             not dont_toggle_ifaces,
             recover_timeout,
         )
-
         yield
 
     finally:
@@ -977,8 +992,8 @@ def interface_test_initialize(
             raise CalledProcessError(3, "restore network failed")
 
 
-def interface_test(args):
-    if not ("test_type" in vars(args)):
+def interface_test(args: Namespace):
+    if not hasattr(args, "test_type"):
         return
 
     # Get the actual test data from one of two possible sources
@@ -989,25 +1004,27 @@ def interface_test(args):
         test_targets_list = make_target_list(
             args.interface, test_targets, True
         )
+    else:
+        test_targets = ""
+        test_targets_list = []
 
     # Validate that we got reasonable values
-    if not test_targets_list or "example.com" in test_targets:
+    if not test_targets_list:
         # Default values found in config file
         logging.error("Valid target server has not been supplied.")
         logging.error(
-            "Configuration settings can be configured 3 different " "ways:"
+            "Configuration settings can be configured 3 different ways:"
         )
         logging.error(
-            "1- If calling the script directly, pass the --target " "option"
+            "1- If calling the script directly, pass the --target option"
         )
         logging.error("2- Define the TEST_TARGET_IPERF environment variable")
         logging.error(
-            "3- If running the test via checkbox/plainbox, define " "the "
+            "3- If running the test via checkbox/plainbox, define the "
         )
         logging.error("target in /etc/xdg/canonical-certification.conf")
         logging.error(
-            "Please run this script with -h to see more details on "
-            "how to configure"
+            "Please run with -h to see more details on how to configure"
         )
         sys.exit(1)
 
@@ -1056,10 +1073,10 @@ def interface_test(args):
         return 3
 
 
-def interface_info(args):
+def interface_info(args: Namespace):
 
     info_set = ""
-    if "all" in vars(args):
+    if hasattr(args, "all"):
         info_set = args.all
 
     for key, value in vars(args).items():
@@ -1304,7 +1321,7 @@ TEST_TARGET_IPERF = iperf-server.example.com
         and not args.iperf3
     ):
         parser.error(
-            "--cpu-load-fail-threshold can only be set with " "--iperf3."
+            "--cpu-load-fail-threshold can only be set with --iperf3."
         )
 
     if args.debug:

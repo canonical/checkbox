@@ -116,16 +116,42 @@ def get_igpu_vram_size():
     return get_igpu_vram_size_from_kernel_log(vram_output)
 
 
+def get_kexec_crash_size():
+    # In Ubuntu 26.04: the default kernel command line contains:
+    #   crashkernel=2G-4G:320M,4G-32G:512M,32G-64G:1024M,
+    #               64G-128G:2048M,128G-:4096M
+    kexec_crash_load_path = "/sys/kernel/kexec_crash_loaded"
+    kexec_crash_size_path = "/sys/kernel/kexec_crash_size"
+
+    try:
+        with open(kexec_crash_load_path, "r") as f:
+            # kexec crash kernel is only loaded if kexec_crash_loaded = 1.
+            if f.read().strip() != "1":
+                print("No kexec crash kernel loaded")
+                return 0
+        with open(kexec_crash_size_path, "r") as f:
+            kexec_crash_size = HumanReadableBytes(int(f.read().strip()))
+    except (FileNotFoundError, ValueError):
+        print("No kexec crash size found")
+        return 0
+
+    print("Detected kexec crash size: {}\n".format(kexec_crash_size))
+    return kexec_crash_size
+
+
 def get_adjusted_memory_difference(
-    installed_memory, visible_memory, igpu_vram
+    installed_memory, visible_memory, reserved_memory
 ):
     # Calculate the difference between installed and visible memory, and
-    # subtract the iGPU VRAM. Since the previous version did not accounted
-    # for negative differences, we will trim the result to 0 if its negative.
+    # subtract the preserved memory:
+    #  - iGPU VRAM
+    #  - kernel crash dump capture memory (kexec_crash_size)
+    # Since the previous version did not accounted for negative differences,
+    # we will trim the result to 0 if its negative.
     difference = installed_memory - visible_memory
     if difference <= 0:
         return 0
-    return difference - min(igpu_vram, difference)
+    return difference - min(reserved_memory, difference)
 
 
 def get_threshold(installed_memory):
@@ -142,15 +168,18 @@ def get_threshold(installed_memory):
         return 10
 
 
-def compare_memory(installed_memory, visible_memory, igpu_vram):
+def compare_memory(
+    installed_memory, visible_memory, igpu_vram, kexec_crash_size
+):
     installed_memory = HumanReadableBytes(installed_memory)
     visible_memory = HumanReadableBytes(visible_memory)
     igpu_vram = HumanReadableBytes(igpu_vram)
+    kexec_crash_size = HumanReadableBytes(kexec_crash_size)
     threshold = get_threshold(installed_memory)
 
     difference = HumanReadableBytes(
         get_adjusted_memory_difference(
-            installed_memory, visible_memory, igpu_vram
+            installed_memory, visible_memory, igpu_vram + kexec_crash_size
         )
     )
     try:
@@ -174,6 +203,12 @@ def compare_memory(installed_memory, visible_memory, igpu_vram):
         print("\tlshw reports:\t{}".format(installed_memory))
         if igpu_vram:
             print("\tiGPU VRAM compensation:\t{}".format(igpu_vram))
+        if kexec_crash_size:
+            print(
+                "\tkexec crash memory compensation:\t{}".format(
+                    kexec_crash_size
+                )
+            )
         print(
             "\nPASS: Meminfo reports %s less than lshw, a "
             "difference of %.2f%%. This is less than the "
@@ -192,6 +227,13 @@ def compare_memory(installed_memory, visible_memory, igpu_vram):
                 "\tiGPU VRAM compensation:\t{}".format(igpu_vram),
                 file=sys.stderr,
             )
+        if kexec_crash_size:
+            print(
+                "\tkexec crash memory compensation:\t{}".format(
+                    kexec_crash_size
+                ),
+                file=sys.stderr,
+            )
         print(
             "\nFAIL: Meminfo reports %d less than lshw, "
             "a difference of %.2f%%. Only a variance of %d%% in reported "
@@ -208,8 +250,11 @@ def main():
     installed_memory = get_installed_memory_size()
     visible_memory = get_visible_memory_size()
     igpu_vram = get_igpu_vram_size()
+    kexec_crash_size = get_kexec_crash_size()
 
-    return compare_memory(installed_memory, visible_memory, igpu_vram)
+    return compare_memory(
+        installed_memory, visible_memory, igpu_vram, kexec_crash_size
+    )
 
 
 if __name__ == "__main__":

@@ -23,7 +23,7 @@ from __future__ import unicode_literals
 
 from collections import OrderedDict
 import json
-from subprocess import check_output, CalledProcessError
+from subprocess import check_output
 import os
 import re
 import string
@@ -329,9 +329,10 @@ class UdevadmDevice(object):
                     r"^(llce){0,1}can[0-9]+$", self._environment["INTERFACE"]
                 ):
                     return "SOCKETCAN"
-            if "ID_MODEL" in self._environment:
-                if self._environment["ID_MODEL"].startswith("XClarity"):
-                    return "BMC_NETWORK"
+            if self._environment.get("ID_MODEL", "").startswith(
+                "XClarity"
+            ) or self._environment.get("ID_NET_NAME", "").startswith("bmc_"):
+                return "BMC_NETWORK"
             if self._stack:
                 parent = self._stack[-1]
                 if "PCI_CLASS" in parent._environment:
@@ -350,6 +351,9 @@ class UdevadmDevice(object):
                             return "INFINIBAND"
             if self.driver and "rndis" in self.driver:
                 return "USB"
+            model = self._environment.get("ID_MODEL", "").lower()
+            if "virtual" in model and "ethernet" in model:
+                return "VIRTUAL_NETWORK"
             return "NETWORK"
 
         if self.bus == "bluetooth":
@@ -1324,13 +1328,16 @@ class UdevadmParser(object):
         if device.major == "94":
             return False
 
-        # Ignore partitions that are either readonly or too small, because
-        # these fail the removable storage tests.
-        if is_readonly_partition(device.name, self.lsblk):
-            return True
+        # Ignore block devices (typically partitions) that are either readonly or
+        # too small (<= 100 MiB), because these fail the removable storage tests.
+        # CDROM devices are exempt: optical media are expected to be readonly and
+        # may legitimately be smaller than 100 MiB.
+        if device.category != "CDROM":
+            if is_readonly_partition(device.name, self.lsblk):
+                return True
 
-        if is_small_partition(device.name, self.lsblk):
-            return True
+            if is_small_partition(device.name, self.lsblk):
+                return True
 
         # Keep /dev/mapper devices (non swap)
         if "/dev/mapper" in device._environment.get("DEVLINKS", ""):

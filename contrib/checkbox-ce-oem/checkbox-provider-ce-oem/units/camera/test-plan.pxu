@@ -4,8 +4,8 @@ _name: MIPI Camera tests
 _description: Full tests for MIPI Camera
 include:
 nested_part:
-    mipi-camera-manual
-    mipi-camera-automated
+    ce-oem-mipi-camera-manual
+    ce-oem-mipi-camera-automated
 
 id: ce-oem-mipi-camera-manual
 unit: test plan
@@ -21,6 +21,7 @@ _description: Automated tests for MIPI Camera in before suspend and post suspend
 bootstrap_include:
     mipi_camera_resource
 include:
+    check_mipi_camera_resource
     ce-oem-mipi-camera/readiness
     ce-oem-mipi-camera/capture-image-scenario
     ce-oem-mipi-camera/record-video-scenario

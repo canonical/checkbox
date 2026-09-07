@@ -26,22 +26,21 @@ Test definitions for plainbox.provider_manager module
 
 import os
 import shutil
+import subprocess
 import tarfile
 import tempfile
 import textwrap
-import subprocess
-
 from unittest import TestCase
-from unittest.mock import patch, MagicMock
+from unittest.mock import MagicMock, patch
 
 from plainbox.impl.secure.providers.v1 import Provider1Definition
 from plainbox.provider_manager import (
     InstallCommand,
     ManageCommand,
     ProviderManagerTool,
-    manage_py_extension,
     TestCommand,
     create_subprocess_test,
+    manage_py_extension,
 )
 from plainbox.testing_utils.io import TestIO
 

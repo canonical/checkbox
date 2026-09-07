@@ -137,6 +137,23 @@ estimated_duration: 2s
 flags: preserve-locale
 environ: RPMSG_RP_FIRMWARE_MAPPING RPMSG_RP_FIRMWARE_PATH
 command:
+    resource_wrapper.sh -- rpmsg_reload_firmware_resource.py --path "$RPMSG_RP_FIRMWARE_PATH" --mapping "$RPMSG_RP_FIRMWARE_MAPPING"
+
+unit: job
+category_id: rpmsg
+id: ce-oem-rpmsg/check-rp-firmware-mapping-resource
+plugin: shell
+_summary: Check RPMSG firmware mapping resource generation
+_description:
+    Verify RPMSG firmware mapping resource generation command executes directly.
+estimated_duration: 2s
+requires:
+    manifest.has_rpmsg == 'True'
+    manifest.has_rpmsg_firmware_load == 'True'
+imports: from com.canonical.plainbox import manifest
+flags: preserve-locale
+environ: RPMSG_RP_FIRMWARE_MAPPING RPMSG_RP_FIRMWARE_PATH
+command:
     rpmsg_reload_firmware_resource.py --path "$RPMSG_RP_FIRMWARE_PATH" --mapping "$RPMSG_RP_FIRMWARE_MAPPING"
 
 unit: template

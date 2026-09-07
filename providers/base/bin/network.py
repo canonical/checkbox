@@ -360,7 +360,7 @@ class IPerfPerformanceTest:
 
         # Handle threading -- start Python threads (even if just one is
         # used), then use join() to wait for them all to complete....
-        t = [] # type: list[threading.Thread]
+        t = []  # type: list[threading.Thread]
         self._results.clear()
         for thread_num in range(python_threads):
             if self.iperf3 and len(core_list) > 0:
@@ -1396,9 +1396,17 @@ TEST_TARGET_IPERF = iperf-server.example.com
         )
 
     if args.debug:
-        logging.basicConfig(level=logging.DEBUG)
+        logging.basicConfig(
+            level=logging.DEBUG,
+            # explicitly hide the logger's name
+            # because all of them will say "__main__"
+            format="%(asctime)s - %(levelname)s - %(message)s",
+        )
     else:
-        logging.basicConfig(level=logging.INFO)
+        logging.basicConfig(
+            level=logging.INFO,
+            format="%(asctime)s - %(levelname)s - %(message)s",
+        )
 
     if "func" not in args:
         parser.print_help()

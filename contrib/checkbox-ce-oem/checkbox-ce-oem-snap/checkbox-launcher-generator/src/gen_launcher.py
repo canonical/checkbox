@@ -411,6 +411,7 @@ class PlanPickerScreen:
 # §7  ItemRow widget
 
 _KEY_COL_W = 54  # characters reserved for the key column
+_VALUE_COL_W = 80  # max characters shown for the value before truncating
 _KIND_LABEL = {"manifest": "M", "environ": "E"}
 # When an ItemRow is focused every named attr must be remapped so the full
 # row width (including the key and value spans) turns light cyan.
@@ -517,11 +518,18 @@ class ItemRow(urwid.WidgetWrap):
             key = "\u2026" + key[-(_KEY_COL_W - 1) :]  # noqa: E203
         return [("key", f"[{label}] " + key.ljust(_KEY_COL_W) + " = ")]
 
-    def _display_widget(self) -> urwid.Widget:
+    def _display_value(self) -> str:
         val = self.item.value
+        if len(val) > _VALUE_COL_W:
+            val = "\u2026" + val[-(_VALUE_COL_W - 1) :]  # noqa: E203
+        return val
+
+    def _display_widget(self) -> urwid.Widget:
+        val = self._display_value()
         val_markup = ("value_set", val) if val else ("value_empty", "")
         return urwid.AttrMap(
-            urwid.Text(self._key_caption() + [val_markup]),
+            # wrap="clip" so long values never cause multi-row entries
+            urwid.Text(self._key_caption() + [val_markup], wrap="clip"),
             None,
             focus_map=_ITEM_FOCUS_MAP,
         )
@@ -532,7 +540,9 @@ class ItemRow(urwid.WidgetWrap):
                 self._key_caption(), self.item.value
             )
             return urwid.AttrMap(self._edit, "focus")
-        self._edit = urwid.Edit(self._key_caption(), self.item.value)
+        self._edit = urwid.Edit(
+            self._key_caption(), self.item.value, wrap="clip"
+        )
         self._edit.set_edit_pos(len(self.item.value))
         return urwid.AttrMap(self._edit, "focus")
 

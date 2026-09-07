@@ -32,9 +32,19 @@ def _can_read(path):
 def cmd_list(args):
     """Resource job: emit one record per RTC device found."""
     for rtc in find_rtc_devices():
-        print("rtc: {}".format(rtc))
+        print(f"rtc: {rtc}")
         print()
     return 0
+
+
+def cmd_battery(args):
+    """Disable any pending wakealarm, then power off with a wake scheduled in N seconds."""
+    rtc = args.rtc
+    subprocess.run(["rtcwake", "-v", "-d", rtc, "-m", "disable"], check=False)
+    result = subprocess.run(
+        ["rtcwake", "-v", "-d", rtc, "-m", "off", "-s", str(args.seconds)]
+    )
+    return result.returncode
 
 
 def cmd_number(args):
@@ -49,8 +59,8 @@ def cmd_number(args):
             expected = 1
 
     found = find_rtc_devices()
-    print("TOTAL_RTC_NUM: {}".format(expected))
-    print("Number of RTC devices found in sysfs: {}".format(len(found)))
+    print(f"TOTAL_RTC_NUM: {expected}")
+    print(f"Number of RTC devices found in sysfs: {len(found)}")
 
     if len(found) != expected:
         print("RTC number mismatch")
@@ -62,14 +72,14 @@ def cmd_number(args):
 def cmd_read(args):
     """Check /sys/class/rtc/<rtc>/since_epoch is readable; sync via hwclock if not."""
     rtc = args.rtc
-    since_epoch_path = "/sys/class/rtc/{}/since_epoch".format(rtc)
+    since_epoch_path = f"/sys/class/rtc/{rtc}/since_epoch"
 
     if _can_read(since_epoch_path):
         return 0
 
-    print("Warning: Unable to read {}.".format(since_epoch_path))
+    print(f"Warning: Unable to read {since_epoch_path}.")
 
-    hwclock_cmd = ["hwclock", "--systohc", "--utc", "--rtc=/dev/{}".format(rtc)]
+    hwclock_cmd = ["hwclock", "--systohc", "--utc", f"--rtc=/dev/{rtc}"]
     result = subprocess.run(hwclock_cmd)
     if result.returncode != 0:
         print("Error: hwclock sync failed.")
@@ -85,20 +95,20 @@ def cmd_read(args):
 def cmd_alarm(args):
     """Check that the RTC's wakealarm works via rtcwake, with a timeout guard."""
     rtc = args.rtc
-    wakealarm_path = "/sys/class/rtc/{}/wakealarm".format(rtc)
+    wakealarm_path = f"/sys/class/rtc/{rtc}/wakealarm"
 
     if not os.path.isfile(wakealarm_path):
-        print("{} does not support wakealarm".format(rtc))
+        print(f"{rtc} does not support wakealarm")
         return 1
 
-    cmd = ["rtcwake", "-d", rtc, "-v", "-m", "on", "-s", str(args.seconds)]
+    cmd = ["rtcwake", "-v", "-d", rtc, "-m", "on", "-s", str(args.seconds)]
     try:
         subprocess.run(cmd, timeout=args.timeout, check=True)
     except subprocess.TimeoutExpired:
         print("Error: rtcwake timed out!")
         return 1
     except subprocess.CalledProcessError as exc:
-        print("Error: rtcwake failed with exit code {}".format(exc.returncode))
+        print(f"Error: rtcwake failed with exit code {exc.returncode}")
         return 1
 
     return 0
@@ -107,7 +117,7 @@ def cmd_alarm(args):
 def cmd_clock(args):
     """Check that the RTC clock is synchronized with the system clock."""
     rtc = args.rtc
-    since_epoch_path = "/sys/class/rtc/{}/since_epoch".format(rtc)
+    since_epoch_path = f"/sys/class/rtc/{rtc}/since_epoch"
 
     with open(since_epoch_path) as f:
         rtc_time = int(f.read().strip())
@@ -115,27 +125,14 @@ def cmd_clock(args):
     diff = sys_time - rtc_time
 
     if diff <= args.tolerance:
-        print("{} Clock synchronized with System Clock".format(rtc))
-        print("RTC clock= {}".format(rtc_time))
+        print(f"{rtc} Clock synchronized with System Clock")
+        print(f"RTC clock= {rtc_time}")
         return 0
 
-    print("{} Clock not synchronized with System Clock".format(rtc))
-    print("System clock= {}".format(sys_time))
-    print("RTC clock= {}".format(rtc_time))
+    print(f"{rtc} Clock not synchronized with System Clock")
+    print(f"System clock= {sys_time}")
+    print(f"RTC clock= {rtc_time}")
     return 1
-
-
-def cmd_battery(args):
-    """Disable any pending wakealarm, then power off with a wake scheduled
-    in N seconds. On success this powers the machine off, so the process
-    will not return control to the caller (mirrors the job's `noreturn`
-    flag)."""
-    rtc = args.rtc
-    subprocess.run(["rtcwake", "-v", "-d", rtc, "-m", "disable"], check=False)
-    result = subprocess.run(
-        ["rtcwake", "-v", "-d", rtc, "-m", "off", "-s", str(args.seconds)]
-    )
-    return result.returncode
 
 
 def build_parser():

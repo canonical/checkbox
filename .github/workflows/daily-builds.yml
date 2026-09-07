@@ -10,7 +10,6 @@ on:
 
 jobs:
   snap-cross-build-upload-daily:
-    needs: check_for_commits
     uses: ./.github/workflows/checkbox-daily-cross-builds.yaml
     secrets:
       SNAPCRAFT7_CREDS: ${{ secrets.SNAPCRAFT7_CREDS }}

@@ -41,7 +41,12 @@ def read_json_file(path):
 def get_sensor_list(platform):
     """Get sensor list and supported rate"""
     path = os.path.expandvars(
-        "$PLAINBOX_PROVIDER_DATA/sensor/supported_sensors.json"
+        os.path.join(
+            "$PLAINBOX_PROVIDER_DATA",
+            "Dragonwing",
+            "qcom_sensing_hub",
+            "supported_sensors.json",
+        )
     )
     sensor_list = read_json_file(path)
 

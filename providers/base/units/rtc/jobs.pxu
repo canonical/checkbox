@@ -7,9 +7,7 @@ _steps:
 _verification:
  RTC can wake up the system successfully.
 environ: RTC_DEVICE_FILE
-command:
- rtcwake -v -d "${RTC_DEVICE_FILE:-rtc0}" -m disable
- rtcwake -v -d "${RTC_DEVICE_FILE:-rtc0}" -m off -s 30
+command: rtc_test.py battery --rtc "${RTC_DEVICE_FILE:-rtc0}" --seconds 30
 plugin: user-interact
 user: root
 category_id: rtc_category
@@ -24,22 +22,9 @@ plugin: shell
 user: root
 estimated_duration: 1.0
 category_id: rtc_category
-command:
-    if [ -z "$TOTAL_RTC_NUM" ]; then
-        echo "TOTAL_RTC_NUM not defined, defaulting to 1"
-        TOTAL_RTC_NUM=1; 
-    fi
-    SYSFS_RTC_NUM=$(find /dev/ -name "rtc[0-9]" | wc -l)
-    echo "TOTAL_RTC_NUM: $TOTAL_RTC_NUM"
-    echo "Number of RTC devices found in sysfs: $SYSFS_RTC_NUM"
-    if [ "$SYSFS_RTC_NUM" != "$TOTAL_RTC_NUM" ]; then
-        echo "RTC number mismatch"
-        exit 1
-    else
-        echo "RTC number matched"
-    fi
+command: rtc_test.py number
 flags: also-after-suspend
-environ:  TOTAL_RTC_NUM
+environ: TOTAL_RTC_NUM
 
 id: rtc_list
 _summary: Generates a RTC list for the platform
@@ -49,12 +34,7 @@ plugin: resource
 user: root
 estimated_duration: 1.0
 category_id: rtc_category
-command:
-    rtcs=$(find /dev/ -name "rtc[0-9]"| awk -F "/" '{print $3}')
-    for c in ${rtcs}; do
-        echo "rtc: ${c}"
-        echo ""
-    done
+command: rtc_test.py list
 
 unit: template
 template-resource: rtc_list

@@ -192,6 +192,40 @@ class TestIndustrialIOSensorTest(unittest.TestCase):
             "test_sensor_name", "pressure", iio_sensor_test.NODE_MAPPING
         )
 
+    def test_node_mapping_keys_match_type_choices(self):
+        """
+        NODE_MAPPING's keys must match the --type argparse choices
+        exactly, since check_sensor() looks up nodes[sensor_type]
+        directly. A mismatch (e.g. "humidity" vs "humidityrelative")
+        would raise an uncaught KeyError at runtime for that sensor
+        type instead of the intended ValueError/FileNotFoundError.
+        """
+        for expected_type in ("pressure", "accelerometer", "adc"):
+            sys.argv = [
+                "iio_sensor_test.py",
+                "test",
+                "-t",
+                expected_type,
+                "-n",
+                "x",
+            ]
+            args = iio_sensor_test.register_arguments()
+            self.assertEqual(args.type, expected_type)
+        # "humidityrelative" is the odd one out: it's the --type
+        # choice, but historically NODE_MAPPING used the key
+        # "humidity" instead, causing a KeyError at runtime.
+        sys.argv = [
+            "iio_sensor_test.py",
+            "test",
+            "-t",
+            "humidityrelative",
+            "-n",
+            "x",
+        ]
+        args = iio_sensor_test.register_arguments()
+        self.assertEqual(args.type, "humidityrelative")
+        self.assertIn("humidityrelative", iio_sensor_test.NODE_MAPPING)
+
     @patch("iio_sensor_test._validate_adc_node_count")
     @patch("iio_sensor_test._check_device")
     @patch("iio_sensor_test.check_sensor")

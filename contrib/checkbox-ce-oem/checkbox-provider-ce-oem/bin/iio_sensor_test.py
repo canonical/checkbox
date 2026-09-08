@@ -40,7 +40,7 @@ NODE_MAPPING = {
         "in_accel_z_calibbias",
         "in_accel_z_raw",
     ],
-    "humidity": [
+    "humidityrelative": [
         "in_humidityrelative_integration_time",
         "in_humidityrelative_scale",
         "in_humidityrelative_raw",

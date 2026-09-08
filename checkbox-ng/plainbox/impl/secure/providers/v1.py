@@ -100,8 +100,6 @@ class ProviderContentPlugIn(PlugIn):
         check=True,
         context=None
     ):
-        # Python3.5 compatibility, black would put a trailing comma ^^
-        # but that is not supported in python3.5. Leave fmt off for now
         # fmt: on
         start_time = now()
         try:
@@ -919,8 +917,6 @@ class Provider1(IProvider1):
         context=None,
         sideloaded=False
     ):
-        # Python3.5 compatibility, black would put a trailing comma ^^
-        # but that is not supported in python3.5. Leave fmt off for now
         # fmt: on
         """
         Initialize a provider with a set of meta-data and directories.
@@ -1038,8 +1034,6 @@ class Provider1(IProvider1):
         context=None,
         sideloaded=False
     ):
-        # Python3.5 compatibility, black would put a trailing comma ^^
-        # but that is not supported in python3.5. Leave fmt off for now
         # fmt: on
         """
         Initialize a provider from Provider1Definition object
@@ -1856,8 +1850,6 @@ class Provider1PlugIn(PlugIn):
         check=None,
         context=None
     ):
-        # Python3.5 compatibility, black would put a trailing comma ^^
-        # but that is not supported in python3.5. Leave fmt off for now
         # fmt: on
         """
         Initialize the plug-in with the specified name and external object

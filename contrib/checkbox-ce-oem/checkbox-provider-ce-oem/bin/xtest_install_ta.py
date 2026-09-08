@@ -43,9 +43,10 @@ def install_ta(xtest, path):
 
 
 def main():
-    xtest = look_up_app("xtest", os.environ.get("XTEST"))
-    # xtest is returned as "<snap_name>.xtest"
-    snap_name = xtest.rsplit(".", 1)[0]
+    # XTEST is a required environ for this job and always points to the
+    # xtest snap's own name, so it can be used directly as the snap name.
+    snap_name = os.environ["XTEST"]
+    xtest = look_up_app("xtest", snap_name)
     ta_path = find_ta_path(snap_name)
     install_ta(xtest, ta_path)
 

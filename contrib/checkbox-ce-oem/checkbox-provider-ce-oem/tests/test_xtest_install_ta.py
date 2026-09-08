@@ -37,10 +37,11 @@ class TestFindTaPath(unittest.TestCase):
 
 class TestMain(unittest.TestCase):
 
+    @patch.dict("xtest_install_ta.os.environ", {"XTEST": "hon-x-test"})
     @patch("xtest_install_ta.install_ta")
     @patch("xtest_install_ta.find_ta_path")
     @patch("xtest_install_ta.look_up_app")
-    def test_main_uses_snap_from_xtest_app(
+    def test_main_uses_snap_from_xtest_env(
         self, mock_look_up_app, mock_find_ta_path, mock_install_ta
     ):
         mock_look_up_app.return_value = "hon-x-test.xtest"
@@ -50,6 +51,7 @@ class TestMain(unittest.TestCase):
 
         xtest_install_ta.main()
 
+        mock_look_up_app.assert_called_once_with("xtest", "hon-x-test")
         mock_find_ta_path.assert_called_once_with("hon-x-test")
         mock_install_ta.assert_called_once_with(
             "hon-x-test.xtest",

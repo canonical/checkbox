@@ -12,8 +12,7 @@ but with small adjustments can be used for the former. Also, this guide will
 build the `series22` snap, adjust the commands to build any other.
 
 In order to build the snap you are going to need the following:
-1. **snapcraft:** Installed via `snap install snapcraft --classic` or 
-`snap install snapcraft --classic --channel=4.x` for series16
+1. **snapcraft:** Installed via `snap install snapcraft --classic`
 2. **python3:** Installed via `apt` or any other packaging solution
 3. **setuptools_scm:** Installed via pip
 4. **rsync:** Installed via apt or any other packaging solution
@@ -83,9 +82,6 @@ Let's begin by creating the container and installing the needed packages.
 (jammy)> apt update
 (jammy)> apt install python3-setuptools-scm git snapd
 # Install snapcraft.
-# Note: For series16 you will need snapcraft4.x, to install
-#       it use run: 
-#       snap install snapcraft --classic --channel=4.x
 (jammy)> snap install snapcraft --classic
 # Now clone the checkbox repository
 (jammy)> git clone https://github.com/canonical/checkbox
@@ -147,5 +143,4 @@ you need to run `prepare.sh` again.
 
 **Reset to the snapshot:** This is also necessary sometimes, you can find the
 command above! 
-
 

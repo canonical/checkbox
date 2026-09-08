@@ -27,7 +27,7 @@ STATE_FILE_NAME = "stress-ng-watchdog-original-usec"
 def get_watchdog_usec() -> str:
     """Return the RuntimeWatchdogUSec value reported by systemd."""
     # stdout=PIPE + universal_newlines instead of capture_output/text:
-    # this provider must stay Python 3.5 compatible (tox py35 env).
+    # this provider must stay Python 3.6 compatible (tox py36 env).
     result = subprocess.run(
         ["systemctl", "show", "-p", "RuntimeWatchdogUSec", "--value"],
         stdout=subprocess.PIPE,

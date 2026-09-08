@@ -33,7 +33,7 @@ _description:
 include:
  usb/detect                                 certification-status=blocker
  usb/storage-detect
- usb/storage-preinserted-.*
+ usb/storage-preinserted-symlink_uuid
 
 id: after-suspend-usb-cert-automated
 unit: test plan
@@ -43,7 +43,7 @@ _description:
 include:
  after-suspend-usb/detect                                 certification-status=blocker
  after-suspend-usb/storage-detect
- after-suspend-usb/storage-preinserted-.*
+ after-suspend-usb/storage-preinserted-symlink_uuid
 
 id: usb3-cert-full
 unit: test plan
@@ -411,9 +411,9 @@ nested_part:
     after-suspend-usb3-cert-automated
 certification_status_overrides:
     apply blocker to com.canonical.certification::usb/storage-detect
-    apply blocker to com.canonical.certification::usb/storage-preinserted-.*
+    apply blocker to com.canonical.certification::usb/storage-preinserted-symlink_uuid
     apply blocker to com.canonical.certification::after-suspend-usb/storage-detect
-    apply blocker to com.canonical.certification::after-suspend-usb/storage-preinserted-.*
+    apply blocker to com.canonical.certification::after-suspend-usb/storage-preinserted-symlink_uuid
 
 id: usb-c-base-26-04-manual
 unit: test plan

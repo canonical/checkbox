@@ -49,7 +49,9 @@ def launch_xtest(test_suite, test_id):
         )
         return 2
     elif optee_fw < "4.0":
-        ta_path = find_ta_path()
+        # test_utility is returned as "<snap_name>.xtest"
+        snap_name = test_utility.rsplit(".", 1)[0]
+        ta_path = find_ta_path(snap_name)
         install_ta(test_utility, ta_path)
 
     ret = _run_command(

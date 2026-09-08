@@ -260,6 +260,36 @@ class TestWriteLauncher(unittest.TestCase):
             gl.write_launcher("ns::ce-oem-test", [], out)
             self.assertNotIn("[manifest]", out.read_text())
 
+    def test_empty_environ_omitted(self):
+        items = self._items() + [
+            gl.Item(
+                kind="environ",
+                key="UNSET_VAR",
+                bare_key="UNSET_VAR",
+                value="",
+            )
+        ]
+        with tempfile.TemporaryDirectory() as tmp:
+            out = Path(tmp) / "ce-oem-test"
+            gl.write_launcher("ns::ce-oem-test", items, out)
+            text = out.read_text()
+            self.assertIn("MYVAR = hello", text)
+            self.assertNotIn("UNSET_VAR", text)
+
+    def test_no_environment_section_when_all_empty(self):
+        items = [
+            gl.Item(
+                kind="environ",
+                key="UNSET_VAR",
+                bare_key="UNSET_VAR",
+                value="",
+            )
+        ]
+        with tempfile.TemporaryDirectory() as tmp:
+            out = Path(tmp) / "ce-oem-test"
+            gl.write_launcher("ns::ce-oem-test", items, out)
+            self.assertNotIn("[environment]", out.read_text())
+
     def test_default_forced_yes_and_silent_ui(self):
         with tempfile.TemporaryDirectory() as tmp:
             out = Path(tmp) / "ce-oem-test"

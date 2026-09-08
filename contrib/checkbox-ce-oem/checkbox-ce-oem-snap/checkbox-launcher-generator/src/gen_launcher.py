@@ -150,10 +150,11 @@ def write_launcher(
     The file starts with ``#!/usr/bin/env checkbox-cli-wrapper`` so it can
     be executed directly on a system where checkbox is installed.
 
-    Empty ``Item.value`` fields are written as ``key = `` (blank value) so
-    the file can be edited by hand later.  The ``[manifest]`` and
-    ``[environment]`` sections are omitted entirely when no relevant items
-    exist.
+    Empty manifest ``Item.value`` fields are written as ``key = false`` so
+    the file can be edited by hand later.  Environment items with an empty
+    value are omitted entirely, since unset environment variables have no
+    meaningful default to write. The ``[manifest]`` and ``[environment]``
+    sections are themselves omitted when no relevant items exist.
 
     *plan_full_id* is used as ``[test plan] unit`` — the test plan
     selected/run by default. When *filter_plans* is given (a list of full
@@ -192,7 +193,7 @@ def write_launcher(
     ]
 
     manifest_items = [i for i in items if i.kind == "manifest"]
-    environ_items = [i for i in items if i.kind == "environ"]
+    environ_items = [i for i in items if i.kind == "environ" and i.value]
 
     if manifest_items:
         lines += ["", "[manifest]"]

@@ -8,16 +8,14 @@ try:
     from importlib.resources import files
 
     def read_file_as_str(name: str):
-        resource_path = "parsers/tests/v4l2_compliance_data/{}.txt".format(
-            name
-        )
+        resource_path = f"parsers/tests/v4l2_compliance_data/{name}.txt"
         ref = files("checkbox_ng.support")
         file_ref = ref.joinpath(resource_path)
         with file_ref.open("r") as f:
             return f.read()
 
 except ImportError:
-    # 3.5 fallback
+    # 3.6 fallback
     from pkg_resources import resource_filename
 
     def read_file_as_str(name: str):

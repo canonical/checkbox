@@ -24,7 +24,7 @@
 
 import os
 import time
-from enum import Enum
+from enum import Enum, auto
 from collections import OrderedDict
 
 from gettext import gettext as _
@@ -825,12 +825,12 @@ class TestPlanBrowser:
 
 
 class InterruptDialogAnswer(Enum):
-    CANCEL = 0  # auto() doesn't exist in python3.5
-    KILL_COMMAND = 1
-    KILL_CONTROLLER = 2
-    KILL_AGENT = 3
-    FINALIZE = 4
-    FINALIZE_EXIT = 5
+    CANCEL = auto()
+    KILL_COMMAND = auto()
+    KILL_CONTROLLER = auto()
+    KILL_AGENT = auto()
+    FINALIZE = auto()
+    FINALIZE_EXIT = auto()
 
 
 def interrupt_dialog(host):

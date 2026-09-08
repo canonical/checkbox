@@ -854,17 +854,16 @@ def dangerous_nsenter(path):
         run(get_plz_run(["rm", path]))
 
 
-# TODO: use enum.auto once python3.5 support is dropped
 class MountingStrategy(enum.Enum):
     # mount is not needed in this context
-    DONT_MOUNT = 0
+    DONT_MOUNT = enum.auto()
     # mount is needed but not permission is required
-    MOUNT_ROOT = 1
+    MOUNT_ROOT = enum.auto()
     # mount is needed and permission has to be aquired via dangerous nsenter
-    MOUNT_DANGEROUS_NSENTER = 2
+    MOUNT_DANGEROUS_NSENTER = enum.auto()
     # mount is needed and permission has to be aquired via ambient capabilities
     # this is the preferred option when available and needed
-    MOUNT_AMBIENT_CAPABILITIES = 3
+    MOUNT_AMBIENT_CAPABILITIES = enum.auto()
 
     @classmethod
     def from_user_core(cls, job_user, on_core, snap_base):

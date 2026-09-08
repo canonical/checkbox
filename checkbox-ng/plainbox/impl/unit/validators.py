@@ -287,10 +287,7 @@ class CorrectFieldValueValidator(FieldValidatorBase):
             perform its check.
         """
         super().__init__(message)
-        if sys.version_info[:2] >= (3, 5):
-            has_two_args = len(inspect.signature(correct_fn).parameters) == 2
-        else:
-            has_two_args = len(inspect.getargspec(correct_fn).args) == 2
+        has_two_args = len(inspect.signature(correct_fn).parameters) == 2
         self.correct_fn = correct_fn
         self.correct_fn_needs_unit = has_two_args
         self.kind = kind or self.default_kind

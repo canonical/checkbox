@@ -279,11 +279,9 @@ getters = {
     ast.Tuple: ListGetter,  # such as: (1, 2, 3)
     ast.UnaryOp: ConstantGetter.from_unary_op,  # such as: not True
     ast.Name: NamedConstant,  # such as: DESKTOP_PC_PRODUCT
+    ast.Constant: ConstantGetter,  # such as: "name"
 }
 getters.update(legacy_getters)
-with contextlib.suppress(AttributeError):
-    # new in python 3.6, all lemmas will be parsed from the legacy getters
-    getters[ast.Constant] = ConstantGetter  # such as: "name"
 
 
 def getter_from_ast(parsed_ast):

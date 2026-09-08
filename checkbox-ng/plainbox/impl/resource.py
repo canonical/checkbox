@@ -394,6 +394,7 @@ class ResourceNodeVisitor(ast.NodeVisitor):
         ast.boolop,  # this allows ast.And, ast.Or
         # Allowed expression context (ast.expr_context)
         ast.Load,  # allow all loads
+        ast.Constant,
     )
     if sys.version_info[0] == 3 and sys.version_info[1] < 8:
         # legacy lemmas, replaced with ast.Constant
@@ -401,11 +402,6 @@ class ResourceNodeVisitor(ast.NodeVisitor):
             ast.Num,  # numbers
             ast.Str,  # strings
         )
-    try:
-        # new in python3.6, use legacy lemmas on 3.5
-        _allowed_node_cls_list += (ast.Constant,)
-    except AttributeError:
-        ...
 
     def __init__(self):
         """

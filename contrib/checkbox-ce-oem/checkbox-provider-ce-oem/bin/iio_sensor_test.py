@@ -142,14 +142,16 @@ def _update_adc_nodes_mapping(nodes_mapping, input_num):
                          (0 to input_num-1).
 
     Returns:
-        dict: The updated nodes_mapping dictionary.
+        dict: A new dictionary with the 'adc' key updated. The input
+              nodes_mapping is not modified.
     """
     new_adc_nodes = []
     for i in range(input_num):
         new_adc_nodes.append("in_voltage{}_raw".format(i))
     new_adc_nodes.append("in_voltage_scale")
-    nodes_mapping["adc"] = new_adc_nodes
-    return nodes_mapping
+    updated_mapping = dict(nodes_mapping)
+    updated_mapping["adc"] = new_adc_nodes
+    return updated_mapping
 
 
 def _validate_adc_node_count(device_path, expected_num):
@@ -173,13 +175,13 @@ def _validate_adc_node_count(device_path, expected_num):
         )
 
 
-def check_sensor(name, type, nodes):
+def check_sensor(name, sensor_type, nodes):
     """
     Validate the sysfs of industrial I/O accelerometer sensor
 
     Args:
         name (str): The expected name of sensor
-        type (str): The expected type of sensor
+        sensor_type (str): The expected type of sensor
 
     Raises:
         ValueError: The reading of sensor is not expected format
@@ -187,7 +189,7 @@ def check_sensor(name, type, nodes):
     readings = []
     iio_node = _check_device(name)
 
-    for sub_node in nodes[type]:
+    for sub_node in nodes[sensor_type]:
         tmp_node = iio_node.joinpath(sub_node)
         try:
             _check_node(tmp_node)
@@ -198,9 +200,11 @@ def check_sensor(name, type, nodes):
             logging.error(str(e))
 
     if readings and _check_reading(readings):
-        logging.info("The %s sensor test passed", type)
+        logging.info("The %s sensor test passed", sensor_type)
     else:
-        raise ValueError("ERROR: The {} value is not valid.".format(type))
+        raise ValueError(
+            "ERROR: The {} value is not valid.".format(sensor_type)
+        )
 
 
 def validate_iio_sensor(args):
@@ -229,7 +233,6 @@ def dump_sensor_resource(args):
         args (Namespace): The arguments includes type and index of sensor
     """
     output = ""
-    resource_text = "name: {}\ntype: {}\ninput_num: {}\n\n"
     #  Fallback logic for existing checkbox config
     if "|" in args.mapping:
         mapping = args.mapping.split("|")
@@ -239,10 +242,12 @@ def dump_sensor_resource(args):
         parts = sensor.split(":")
         if len(parts) == 2:
             name, sensor_type = parts
-            output += resource_text.format(name, sensor_type, None)
+            output += "name: {}\ntype: {}\n\n".format(name, sensor_type)
         else:
             name, sensor_type, input_num = parts
-            output += resource_text.format(name, sensor_type, input_num)
+            output += "name: {}\ntype: {}\ninput_num: {}\n\n".format(
+                name, sensor_type, input_num
+            )
     print(output, end="")
 
 

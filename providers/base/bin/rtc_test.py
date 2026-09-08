@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # This file is part of Checkbox.
 #
-# Copyright 2025 Canonical Ltd.
+# Copyright 2026 Canonical Ltd.
 #
 # Checkbox is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License version 3,

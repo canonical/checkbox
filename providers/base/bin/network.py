@@ -831,7 +831,7 @@ def make_target_list(iface: str, test_targets: str, log_warnings: bool):
 
 
 def parse_interface_speed_override(
-    config_str: str,
+    interface_speed_override_env_str: str,
 ) -> "list[tuple[Interface, int]]":
     """Parses the INTERFACE_SPEED_OVERRIDE env var
     This allows the user to manually override the expected maximum speed of an
@@ -845,7 +845,7 @@ def parse_interface_speed_override(
                  enp1s1 is only expected to reach 2000Mbps and
                  enp2s1 is only expected to reach 5000Mbps
     """
-    iface_speed_pair_strs = config_str.strip().split(",")
+    iface_speed_pair_strs = interface_speed_override_env_str.strip().split(",")
     if not iface_speed_pair_strs:
         return []
 

@@ -199,9 +199,9 @@ requires:
   - cpuinfo.platform in ("i386", "x86_64")
   - manifest.has_suspend_support == 'True'
 estimated_duration: "1.0"
-command:
-  '[ -e "$PLAINBOX_SESSION_SHARE"/suspend_cycles_with_reboot_total.log ] && sleep_test_log_check.py -v --ignore-warning
-  -t all "$PLAINBOX_SESSION_SHARE"/suspend_cycles_with_reboot_total.log'
+command: >-
+  [ -e "$PLAINBOX_SESSION_SHARE"/suspend_cycles_with_reboot_total.log ] && sleep_test_log_check.py -v --ignore-warning
+  -t all "$PLAINBOX_SESSION_SHARE"/suspend_cycles_with_reboot_total.log
 after:
   - stress-tests/suspend_cycles_reboot{reboot_iterations}
 summary: Verify the suspend/resume cycle logs for errors using FWTS.
@@ -222,9 +222,9 @@ requires:
   - cpuinfo.platform in ("i386", "x86_64")
   - manifest.has_suspend_support == 'True'
 estimated_duration: "1.0"
-command:
-  '[ -e "$PLAINBOX_SESSION_SHARE"/suspend_cycles_with_reboot_total.log ] && sleep_time_check.py "$PLAINBOX_SESSION_SHARE"/suspend_cycles_with_reboot_total.log
-  --s {sleep_threshold} --r {resume_threshold}'
+command: >-
+  [ -e "$PLAINBOX_SESSION_SHARE"/suspend_cycles_with_reboot_total.log ] && sleep_time_check.py "$PLAINBOX_SESSION_SHARE"/suspend_cycles_with_reboot_total.log
+  --s {sleep_threshold} --r {resume_threshold}
 after:
   - stress-tests/suspend_cycles_reboot{reboot_iterations}
 summary: Automated check of suspend/resume cycles with reboot for time validation.

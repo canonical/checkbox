@@ -150,7 +150,7 @@ class IPerfPerfomanceTestTests(unittest.TestCase):
         with patch("network.check_output", return_value="9000 Mbits/sec"):
             test.run()
         warnings = [
-            call.args[0] for call in mock_logger.warning.call_args_list
+            wcall[0][0] for wcall in mock_logger.warning.call_args_list
         ]
         self.assertTrue(any("INTERFACE_SPEED_OVERRIDE" in w for w in warnings))
 
@@ -162,7 +162,7 @@ class IPerfPerfomanceTestTests(unittest.TestCase):
         with patch("network.check_output", return_value="900 Mbits/sec"):
             test.run()
         warnings = [
-            call.args[0] for call in mock_logger.warning.call_args_list
+            wcall[0][0] for wcall in mock_logger.warning.call_args_list
         ]
         self.assertFalse(
             any("INTERFACE_SPEED_OVERRIDE" in w for w in warnings)

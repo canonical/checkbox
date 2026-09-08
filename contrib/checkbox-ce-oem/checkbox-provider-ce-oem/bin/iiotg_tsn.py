@@ -2,7 +2,7 @@
 
 import argparse
 import re
-import subprocess
+import subprocess as sp
 import sys
 import time
 from collections import deque
@@ -27,7 +27,7 @@ def clear_qdisc_settings(interface: str) -> None:
     # Build the tc command to delete the root qdisc settings
 
     # Run the tc command with a timeout of 1 second
-    subprocess.run(
+    sp.run(
         ["tc", "qdisc", "del", "dev", interface, "root"],
         capture_output=True,
         timeout=1,
@@ -50,7 +50,7 @@ def clear_qdisc_settings_before_and_after(interface: str):
         None
 
     Raises:
-        subprocess.CalledProcessError: If the tc command fails to delete
+        sp.CalledProcessError: If the tc command fails to delete
         the root qdisc settings.
     """
 
@@ -70,7 +70,7 @@ def ptp4l(
     timeout: int = 0,
     server_mode: bool = False,
     print_to_console: bool = False,
-) -> "subprocess.Popen[str]":
+) -> "sp.Popen[str]":
     """Spawn a ptp4l process
 
     Args:
@@ -80,7 +80,7 @@ def ptp4l(
             in seconds.
 
     Returns:
-        subprocess.Popen: A process object representing \
+        sp.Popen: A process object representing \
         the running ptp4l command.
     """
 
@@ -90,7 +90,7 @@ def ptp4l(
 
     if cfg:
         print("Using ptp4l config file at", cfg, flush=True)
-        process = subprocess.Popen(
+        process = sp.Popen(
             # caller is responsible for making sure config file is valid
             # i.e. options are recognized by ptp4l
             [
@@ -103,8 +103,8 @@ def ptp4l(
                 cfg,
                 "-m",
             ],
-            stdout=None if print_to_console else subprocess.PIPE,
-            stderr=None if print_to_console else subprocess.PIPE,
+            stdout=None if print_to_console else sp.PIPE,
+            stderr=None if print_to_console else sp.PIPE,
             text=True,
         )
     else:
@@ -154,10 +154,10 @@ def ptp4l(
             )
             print("=" * 80)
 
-        process = subprocess.Popen(
+        process = sp.Popen(
             default_cmd,
-            stdout=None if print_to_console else subprocess.PIPE,
-            stderr=None if print_to_console else subprocess.PIPE,
+            stdout=None if print_to_console else sp.PIPE,
+            stderr=None if print_to_console else sp.PIPE,
             text=True,
         )
 
@@ -165,7 +165,7 @@ def ptp4l(
     return process
 
 
-def phc2sys(interface: str, timeout: int = 60) -> "subprocess.Popen[str]":
+def phc2sys(interface: str, timeout: int = 60) -> "sp.Popen[str]":
     """Run phc2sys command to sync system clock to physical hardware clock.
 
     Args:
@@ -174,11 +174,11 @@ def phc2sys(interface: str, timeout: int = 60) -> "subprocess.Popen[str]":
         in seconds. Defaults to 60 seconds.
 
     Returns:
-        subprocess.Popen: A process object representing the
+        sp.Popen: A process object representing the
         running phc2sys command.
     """
 
-    process = subprocess.Popen(
+    process = sp.Popen(
         [
             "timeout",
             str(timeout),
@@ -194,8 +194,8 @@ def phc2sys(interface: str, timeout: int = 60) -> "subprocess.Popen[str]":
             "--step_threshold=1",
             "--transportSpecific=1",  # see ptp4l()
         ],
-        stdout=subprocess.PIPE,  
-        stderr=subprocess.PIPE,  
+        stdout=sp.PIPE,
+        stderr=sp.PIPE,
         text=True,
     )
 
@@ -222,7 +222,7 @@ def server_mode(
         ValueError: If the number of interfaces and server_ips is not the same.
     """
 
-    processes = []  # type: list[subprocess.Popen[str]]
+    processes = []  # type: list[sp.Popen[str]]
 
     # Iterate over each interface and run ptp4l as master
     for interface in interfaces:
@@ -240,7 +240,7 @@ def server_mode(
         # Run iperf3 as a server in each port specified and each CPU
         for port, cpu in zip(range(5201, 5204), range(1, 4)):
             # Run iperf3 server
-            process = subprocess.Popen(
+            process = sp.Popen(
                 ["iperf3", "-s", "-B", ip, "-p", str(port), "-A", str(cpu)],
                 text=True,
             )
@@ -270,7 +270,7 @@ def time_sync_ptp4l(
     timeout: int = 60,
 ) -> None:
     """
-    Test ptp4l by running it as a subprocess and checking its output.
+    Test ptp4l by running it as a sp and checking its output.
 
     Args:
         interface (str): The network interface to run ptp4l on.
@@ -296,7 +296,7 @@ def time_sync_ptp4l(
             "[ERROR] timeout should be at least 30 seconds "
             + f"for a successful time sync (got {timeout})"
         )
-    # Run ptp4l as a subprocess and get its output
+    # Run ptp4l as a sp and get its output
     process = ptp4l(interface=interface, cfg=cfg, timeout=timeout)
     # discard the ones already printed to stdout
     last_10_lines = deque(maxlen=10)  # type: deque[str]
@@ -355,7 +355,7 @@ def time_sync_phc2sys(
     timeout: int = 60,
 ) -> None:
     """
-    Test phc2sys by running it as a subprocess and checking its output.
+    Test phc2sys by running it as a sp and checking its output.
 
     Args:
         interface (str): The network interface to run phc2sys on.
@@ -463,7 +463,7 @@ def time_based_shaper(interface: str, timeout: int = 10) -> None:
         # disable hw offloading
         + ["hw", "0"]
     )
-    subprocess.run(cmd, timeout=1, check=False)
+    sp.run(cmd, timeout=1, check=False)
 
     # configure Earliest TxTime First
     # https://man7.org/linux/man-pages/man8/tc-etf.8.html
@@ -474,19 +474,17 @@ def time_based_shaper(interface: str, timeout: int = 10) -> None:
         + ["parent", "8001:4"]
         + ["etf", "offload", "clockid", "CLOCK_TAI", "delta", "500000"]
     )
-    subprocess.run(cmd, timeout=1, check=False)
+    sp.run(cmd, timeout=1, check=False)
 
     # show the current qdisc settings
-    subprocess.run(
-        ["tc", "qdisc", "show", "dev", interface], timeout=1, check=False
-    )
+    sp.run(["tc", "qdisc", "show", "dev", interface], timeout=1, check=False)
 
     # spawn udp_tai. To get this command, compile from
     # https://gist.github.com/tomli380576/73529ee1449106eaa7d289ef0253c9ed
-    process_udp_tai = subprocess.Popen(
+    process_udp_tai = sp.Popen(
         ["udp_tai", "-c", "3", "-i", interface]
         + ["-P", "1000000", "-p", "90", "-d", "600000"],
-        stdout=subprocess.PIPE,
+        stdout=sp.PIPE,
         text=True,
     )
 
@@ -509,10 +507,10 @@ def time_based_shaper(interface: str, timeout: int = 10) -> None:
         "-c",  # stop after this many packets
         str(timeout * 1000),
     ]
-    tcp_dump_proc = subprocess.Popen(cmd, stdout=subprocess.PIPE, text=True)
+    tcp_dump_proc = sp.Popen(cmd, stdout=sp.PIPE, text=True)
     try:
         stdout, stderr = tcp_dump_proc.communicate(timeout=timeout * 2)
-    except subprocess.TimeoutExpired:
+    except sp.TimeoutExpired:
         tcp_dump_proc.kill()
         raise SystemExit(f"Reached timeout {timeout * 2}s")
     finally:
@@ -569,7 +567,7 @@ def credit_based_shaper(
         "through interface",
         interface,
     )
-    subprocess.run(["ping", "-I", interface, "-c", "5", server_ip], check=True)
+    sp.run(["ping", "-I", interface, "-c", "5", server_ip], check=True)
 
     # this is mostly the same as time based shaper
     # except it uses a different handle
@@ -593,10 +591,10 @@ def credit_based_shaper(
         # disable hw offloading
         + ["hw", "0"]
     )
-    subprocess.run(cmd, timeout=1, check=False)
+    sp.run(cmd, timeout=1, check=False)
 
     # Show the current qdisc settings
-    subprocess.run(
+    sp.run(
         ["tc", "-g", "class", "show", "dev", interface], timeout=1, check=False
     )
 
@@ -625,12 +623,10 @@ def credit_based_shaper(
         "1",  # enable hardware offload
     ]
 
-    subprocess.run(cmd, timeout=1, check=False)
+    sp.run(cmd, timeout=1, check=False)
 
     # Show the current qdisc settings
-    subprocess.run(
-        ["tc", "qdisc", "show", "dev", interface], timeout=1, check=False
-    )
+    sp.run(["tc", "qdisc", "show", "dev", interface], timeout=1, check=False)
 
     # Wait for 5 seconds before running iperf3 to measure the upload speed
     time.sleep(5)
@@ -752,7 +748,7 @@ def traffic_scheduling(
         + ["txtime-delay", "0"]
     )
 
-    result = subprocess.run(
+    result = sp.run(
         cmd,
         capture_output=True,
         timeout=1,
@@ -760,8 +756,7 @@ def traffic_scheduling(
     )
     if result.returncode:
         raise SystemExit(
-            "[ERROR] Failed to set qdisc:\n"
-            + result.stderr.decode()
+            "[ERROR] Failed to set qdisc:\n" + result.stderr.decode()
         )
     time.sleep(5)
 
@@ -774,7 +769,7 @@ def traffic_scheduling(
     # Create and mount /sys/fs/cgroup/net_prio
     sys_fs_cgroup_net_prio = Path("/sys/fs/cgroup/net_prio")
     sys_fs_cgroup_net_prio.mkdir(exist_ok=True)
-    mount_result = subprocess.run(
+    mount_result = sp.run(
         [
             "mount",
             "-t",
@@ -818,7 +813,7 @@ def traffic_scheduling(
             f.write(pid)
 
     print("Showing qdisc settings after running iperf3...", flush=True)
-    before = subprocess.run(
+    before = sp.run(
         ["tc", "-s", "qdisc", "show", "dev", interface],
         check=True,
         capture_output=True,
@@ -831,7 +826,7 @@ def traffic_scheduling(
     time.sleep(timeout - 15)
 
     print("After", timeout - 15, "seconds...", flush=True)
-    after = subprocess.run(
+    after = sp.run(
         ["tc", "-s", "qdisc", "show", "dev", interface],
         check=True,
         capture_output=True,
@@ -848,7 +843,7 @@ def traffic_scheduling(
                 "[FAIL] Sent bytes is not increasing in every queue!\n"
                 + "100:1 to 100:4"
             )
-    
+
     print("[PASS] Sent bytes is increasing in every queue!")
 
 
@@ -858,7 +853,7 @@ def iperf3_client(
     timeout: int = 60,
     port: int = 5201,
     print_to_console: bool = False,
-) -> "subprocess.Popen[str]":
+) -> "sp.Popen[str]":
     """
     Run iperf3 client to measure the upload speed
     from the client to the server.
@@ -875,7 +870,7 @@ def iperf3_client(
         SystemExit: If an error occurs while running iperf3.
     """
 
-    return subprocess.Popen(
+    return sp.Popen(
         [
             "iperf3",
             "--client",  # run in client mode
@@ -887,14 +882,14 @@ def iperf3_client(
             "--format",  # print the speed in
             "m",  # megabits
         ],
-        stdout=None if print_to_console else subprocess.PIPE,
-        stderr=None if print_to_console else subprocess.PIPE,
+        stdout=None if print_to_console else sp.PIPE,
+        stderr=None if print_to_console else sp.PIPE,
         text=True,
     )
 
 
 def get_interface_ip(interface: str):
-    result = subprocess.run(
+    result = sp.run(
         ["ip", "-4", "-o", "addr", "show", "dev", interface],
         check=True,
         capture_output=True,

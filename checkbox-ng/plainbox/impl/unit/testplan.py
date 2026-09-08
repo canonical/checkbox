@@ -74,10 +74,9 @@ class NoBaseIncludeValidator(FieldValidatorBase):
     """
 
     def check_in_context(self, parent, unit, field, context):
-        for issue in self._check_test_plan_in_context(
+        yield from self._check_test_plan_in_context(
             parent, unit, field, context
-        ):
-            yield issue
+        )
 
     def _check_test_plan_in_context(self, parent, unit, field, context):
         included_job_id = []
@@ -160,7 +159,7 @@ class TestPlanUnit(UnitWithId):
         return self.name
 
     def __repr__(self):
-        return "<TestPlanUnit id:{!r} name:{!r}>".format(self.id, self.name)
+        return f"<TestPlanUnit id:{self.id!r} name:{self.name!r}>"
 
     @cached_property
     def name(self):
@@ -604,13 +603,13 @@ class TestPlanUnit(UnitWithId):
     def qualify_pattern(self, pattern):
         """qualify bare pattern (without ^ and $)"""
         if pattern.startswith("^") and pattern.endswith("$"):
-            return "^{}$".format(self.qualify_id(pattern[1:-1]))
+            return f"^{self.qualify_id(pattern[1:-1])}$"
         elif pattern.startswith("^"):
-            return "^{}$".format(self.qualify_id(pattern[1:]))
+            return f"^{self.qualify_id(pattern[1:])}$"
         elif pattern.endswith("$"):
-            return "^{}$".format(self.qualify_id(pattern[:-1]))
+            return f"^{self.qualify_id(pattern[:-1])}$"
         else:
-            return "^{}$".format(self.qualify_id(pattern))
+            return f"^{self.qualify_id(pattern)}$"
 
     class Meta:
 

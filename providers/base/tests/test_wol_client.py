@@ -181,7 +181,7 @@ class TestGetIPAddress(unittest.TestCase):
         def ioctl_side_effect(fd, request, arg):
             if request == 0x8915:
                 return b"\x00" * 20 + mock_ip + b"\x00" * (256 - 24)
-            raise IOError("Invalid request")
+            raise OSError("Invalid request")
 
         mock_ioctl.side_effect = ioctl_side_effect
 
@@ -200,7 +200,7 @@ class TestGetIPAddress(unittest.TestCase):
 
         def ioctl_side_effect(fd, request, arg):
             if request == 0x8915:
-                raise IOError("IP address retrieval failed")
+                raise OSError("IP address retrieval failed")
 
         mock_ioctl.side_effect = ioctl_side_effect
 
@@ -224,7 +224,7 @@ class TestGetMACAddress(unittest.TestCase):
             if request == 0x8927:
                 return b"\x00" * 18 + mock_mac + b"\x00" * (256 - 24)
 
-            raise IOError("Invalid request")
+            raise OSError("Invalid request")
 
         mock_ioctl.side_effect = ioctl_side_effect
 
@@ -243,7 +243,7 @@ class TestGetMACAddress(unittest.TestCase):
 
         def ioctl_side_effect(fd, request, arg):
             if request == 0x8927:
-                raise IOError("MAC address retrieval failed")
+                raise OSError("MAC address retrieval failed")
 
         mock_ioctl.side_effect = ioctl_side_effect
 

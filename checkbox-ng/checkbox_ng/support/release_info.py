@@ -4,9 +4,9 @@ from contextlib import suppress
 
 def get_release_file_content():
     with suppress(FileNotFoundError):
-        with open("/var/lib/snapd/hostfs/etc/os-release", "r") as fp:
+        with open("/var/lib/snapd/hostfs/etc/os-release") as fp:
             return fp.read()
-    with open("/etc/os-release", "r") as fp:
+    with open("/etc/os-release") as fp:
         return fp.read()
 
 

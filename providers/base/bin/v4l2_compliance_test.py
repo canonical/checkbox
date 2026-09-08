@@ -77,7 +77,7 @@ def main():
         codename = get_release_info()["codename"]
         if codename in ("jammy", "bionic"):
             # temp workaround for 22.04 & 18.04
-            ioctls_to_check = BLOCKERS - set(["VIDIOC_REQBUFS"])
+            ioctls_to_check = BLOCKERS - {"VIDIOC_REQBUFS"}
         else:
             ioctls_to_check = BLOCKERS
     elif args.ioctl_selection == "non-blockers":
@@ -98,11 +98,11 @@ def main():
             ioctl for ioctl in ioctls_to_check if ioctl in details[result_type]
         ]
         if not results[result_type]:
-            print("No {} IOCTLs detected".format(result_type))
+            print(f"No {result_type} IOCTLs detected")
         else:
-            print("{} IOCTLs:".format(result_type))
+            print(f"{result_type} IOCTLs:")
             for item in results[result_type]:
-                print(" - {}".format(item))
+                print(f" - {item}")
 
     if results["failed"]:
         raise SystemExit(

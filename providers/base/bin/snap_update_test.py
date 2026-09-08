@@ -89,28 +89,24 @@ class SnapInfo:
                 revisions[channel] = info["revision"]
 
         self.stable_revision = revisions.get(
-            "{}stable".format(self.tracking_prefix), ""
+            f"{self.tracking_prefix}stable", ""
         )
         self.candidate_revision = revisions.get(
-            "{}candidate".format(self.tracking_prefix), ""
+            f"{self.tracking_prefix}candidate", ""
         )
-        self.beta_revision = revisions.get(
-            "{}beta".format(self.tracking_prefix), ""
-        )
-        self.edge_revision = revisions.get(
-            "{}edge".format(self.tracking_prefix), ""
-        )
+        self.beta_revision = revisions.get(f"{self.tracking_prefix}beta", "")
+        self.edge_revision = revisions.get(f"{self.tracking_prefix}edge", "")
 
     def print_as_resource(self):
-        print("name: {}".format(self.name))
-        print("type: {}".format(self.type))
-        print("tracking: {}".format(self.tracking_channel))
-        print("base_rev: {}".format(self.base_revision))
-        print("stable_rev: {}".format(self.stable_revision))
-        print("candidate_rev: {}".format(self.candidate_revision))
-        print("beta_rev: {}".format(self.beta_revision))
-        print("edge_rev: {}".format(self.edge_revision))
-        print("original_installed_rev: {}".format(self.installed_revision))
+        print(f"name: {self.name}")
+        print(f"type: {self.type}")
+        print(f"tracking: {self.tracking_channel}")
+        print(f"base_rev: {self.base_revision}")
+        print(f"stable_rev: {self.stable_revision}")
+        print(f"candidate_rev: {self.candidate_revision}")
+        print(f"beta_rev: {self.beta_revision}")
+        print(f"edge_rev: {self.edge_revision}")
+        print(f"original_installed_rev: {self.installed_revision}")
         print()
 
 
@@ -126,7 +122,7 @@ def save_change_info(path, data):
 
 def load_change_info(path):
     try:
-        with open(path, "r") as file:
+        with open(path) as file:
             data = json.load(file)
     except FileNotFoundError:
         error_msg = "File not found: {}. Did the previous job run as expected?"
@@ -177,7 +173,7 @@ class SnapRefreshRevert:
                 result_filename = os.path.join(
                     checkbox_session_dir, "__result"
                 )
-                with open(result_filename, "wt") as result_f:
+                with open(result_filename, "w") as result_f:
                     json.dump(result, result_f)
             raise
         data["change_id"] = response["change"]
@@ -209,7 +205,7 @@ class SnapRefreshRevert:
                 result_filename = os.path.join(
                     checkbox_session_dir, "__result"
                 )
-                with open(result_filename, "wt") as result_f:
+                with open(result_filename, "w") as result_f:
                     json.dump(result, result_f)
             raise
         data["change_id"] = response["change"]
@@ -225,7 +221,7 @@ class SnapRefreshRevert:
         while True:
             result = self.snapd.change(str(change_id))
             if result == "Done":
-                print("{} snap {} complete".format(self.name, type))
+                print(f"{self.name} snap {type} complete")
                 return
             elif result == "Error":
                 tasks = self.snapd.tasks(str(change_id))
@@ -237,10 +233,8 @@ class SnapRefreshRevert:
                     )
                     if task.get("log"):
                         for log in task["log"]:
-                            print("\t {}".format(log))
-                raise SystemExit(
-                    "Error during snap {} {}.".format(self.name, type)
-                )
+                            print(f"\t {log}")
+                raise SystemExit(f"Error during snap {self.name} {type}.")
 
             current_time = time.time()
             if current_time - start_time >= self.timeout:
@@ -249,9 +243,7 @@ class SnapRefreshRevert:
                         self.name, type, self.timeout
                     )
                 )
-            print(
-                "Waiting for {} snap {} to be done...".format(self.name, type)
-            )
+            print(f"Waiting for {self.name} snap {type} to be done...")
             print("Trying again in 10 seconds...")
             time.sleep(10)
 
@@ -266,7 +258,7 @@ class SnapRefreshRevert:
         data = load_change_info(self.path)
         id = data["change_id"]
         self.wait_for_snap_change(id, type)
-        print("Checking {} status for snap {}...".format(type, self.name))
+        print(f"Checking {type} status for snap {self.name}...")
 
         current_rev = self.snapd.list(self.name)["revision"]
         if type == "refresh":

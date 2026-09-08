@@ -111,7 +111,7 @@ def get_bios_info() -> dict:
             bios_data[key] = value
         except (PermissionError, FileNotFoundError) as e:
             print(
-                "Failed to read bios {}. Error: {}".format(key, e),
+                f"Failed to read bios {key}. Error: {e}",
                 file=sys.stderr,
             )
     if Path("/sys/firmware/efi").is_dir():
@@ -156,7 +156,7 @@ def get_chassis_info(chassis_path="/sys/class/dmi/id/chassis_type") -> dict:
         chassis_type = Path(chassis_path).read_text().strip()
     except (PermissionError, FileNotFoundError) as e:
         print(
-            "Failed to read chassis type. Error: {}".format(e),
+            f"Failed to read chassis type. Error: {e}",
             file=sys.stderr,
         )
         return {"type": "Unknown"}

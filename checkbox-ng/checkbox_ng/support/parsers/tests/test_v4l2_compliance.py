@@ -21,7 +21,7 @@ except ImportError:
     from pkg_resources import resource_filename
 
     def read_file_as_str(name: str):
-        resource = "parsers/tests/v4l2_compliance_data/{}.txt".format(name)
+        resource = f"parsers/tests/v4l2_compliance_data/{name}.txt"
         filename = resource_filename("checkbox_ng.support", resource)
         with open(filename) as f:
             return f.read()

@@ -73,7 +73,7 @@ class TestCmdRunTest(unittest.TestCase):
         self.assertEqual(
             mock_run.call_args[0][0],
             [
-                "{}/test".format(self.SNAP),
+                f"{self.SNAP}/test",
                 "--no-confinement",
                 "--no-fork",
                 self.FILTER_PATTERN,

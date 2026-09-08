@@ -161,17 +161,17 @@ class TestJobDefinitionDefinition(TestCase):
         job1 = JobDefinition({})
         self.assertEqual(job1.get_environ_settings(), set())
         job2 = JobDefinition({"environ": "a b c"})
-        self.assertEqual(job2.get_environ_settings(), set(["a", "b", "c"]))
+        self.assertEqual(job2.get_environ_settings(), {"a", "b", "c"})
         job3 = JobDefinition({"environ": "a,b,c"})
-        self.assertEqual(job3.get_environ_settings(), set(["a", "b", "c"]))
+        self.assertEqual(job3.get_environ_settings(), {"a", "b", "c"})
 
     def test_get_flag_set(self):
         job1 = JobDefinition({})
         self.assertEqual(job1.get_flag_set(), set())
         job2 = JobDefinition({"flags": "a b c"})
-        self.assertEqual(job2.get_flag_set(), set(["a", "b", "c"]))
+        self.assertEqual(job2.get_flag_set(), {"a", "b", "c"})
         job3 = JobDefinition({"flags": "a,b,c"})
-        self.assertEqual(job3.get_flag_set(), set(["a", "b", "c"]))
+        self.assertEqual(job3.get_flag_set(), {"a", "b", "c"})
 
 
 class JobDefinitionParsingTests(TestCaseWithParameters):
@@ -901,7 +901,7 @@ class TestJobDefinition(TestCase):
         job = JobDefinition(
             {"id": "id", "plugin": "plugin", "depends": "word"}
         )
-        expected = set(["word"])
+        expected = {"word"}
         observed = job.get_direct_dependencies()
         self.assertEqual(expected, observed)
 
@@ -915,7 +915,7 @@ class TestJobDefinition(TestCase):
         job = JobDefinition(
             {"id": "id", "plugin": "plugin", "depends": '"quoted word"'}
         )
-        expected = set(["quoted word"])
+        expected = {"quoted word"}
         observed = job.get_direct_dependencies()
         self.assertEqual(expected, observed)
 
@@ -923,7 +923,7 @@ class TestJobDefinition(TestCase):
         job = JobDefinition(
             {"id": "id", "plugin": "plugin", "environ": "word"}
         )
-        expected = set(["word"])
+        expected = {"word"}
         observed = job.get_environ_settings()
         self.assertEqual(expected, observed)
 
@@ -937,7 +937,7 @@ class TestJobDefinition(TestCase):
         job = JobDefinition(
             {"id": "id", "plugin": "plugin", "requires": "foo.bar == 10"}
         )
-        expected = set(["foo"])
+        expected = {"foo"}
         observed = job.get_resource_dependencies()
         self.assertEqual(expected, observed)
 
@@ -949,7 +949,7 @@ class TestJobDefinition(TestCase):
                 "requires": ("foo.bar == 10\n" "froz.bot == 10\n"),
             }
         )
-        expected = set(["foo", "froz"])
+        expected = {"foo", "froz"}
         observed = job.get_resource_dependencies()
         self.assertEqual(expected, observed)
 

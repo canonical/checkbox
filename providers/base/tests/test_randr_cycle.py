@@ -167,7 +167,7 @@ class TestActionFunction(unittest.TestCase):
         mock_which.return_value = True
         action(filename, path=path)
 
-        expected_path_and_filename = "{}/{}.jpg".format(path, filename)
+        expected_path_and_filename = f"{path}/{filename}.jpg"
         mock_subprocess.assert_called_once_with(
             ["gnome-screenshot", "-f", expected_path_and_filename], timeout=5
         )

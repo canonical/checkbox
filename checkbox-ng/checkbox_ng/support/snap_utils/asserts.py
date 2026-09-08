@@ -60,9 +60,9 @@ def model_to_resource(model_assertion):
             val = model_assertion.get(key)
             if val:
                 if "=" in val:
-                    snap, track = [x.strip() for x in val.split("=")]
+                    snap, track = (x.strip() for x in val.split("="))
                     resource[key] = snap
-                    resource["{}_track".format(key)] = track
+                    resource[f"{key}_track"] = track
                 else:
                     resource[key] = val
 

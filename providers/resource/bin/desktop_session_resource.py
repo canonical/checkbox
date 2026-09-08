@@ -14,7 +14,7 @@ def resources():
     Return whether there's a Desktop session and its type.
     """
     is_desktop_session = os.getenv("XDG_CURRENT_DESKTOP") is not None
-    print("desktop_session: {}".format(is_desktop_session))
+    print(f"desktop_session: {is_desktop_session}")
     print("session_type: {}".format(os.getenv("XDG_SESSION_TYPE")))
 
 

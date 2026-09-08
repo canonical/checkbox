@@ -21,7 +21,7 @@
 import argparse
 
 GOVERNORS = ["userspace", "powersave", "performance", "simple_ondemand"]
-print("Expected Governors: {}".format(GOVERNORS))
+print(f"Expected Governors: {GOVERNORS}")
 
 
 def test_sysfs_attrs_read(soc):

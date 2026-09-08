@@ -270,7 +270,7 @@ class TestFindHostIcdFilenames(unittest.TestCase):
         ]
         with patch("os.listdir", return_value=files):
             result = host_utils.find_host_icd_filenames()
-        self.assertIn("{}/intel_icd.json".format(self.ICD_DIR), result)
+        self.assertIn(f"{self.ICD_DIR}/intel_icd.json", result)
         self.assertNotIn("gfxstream", result)
         self.assertNotIn("virtio", result)
 

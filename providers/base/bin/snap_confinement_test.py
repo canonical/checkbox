@@ -208,9 +208,7 @@ class SnapsConfinementVerifier:
             value = target_snap.get(attr)
             if value is None:
                 has_error = True
-                logging.error(
-                    "Snap '{}' not found in the snap data.".format(attr)
-                )
+                logging.error(f"Snap '{attr}' not found in the snap data.")
                 continue
             return_dict.update({attr: value})
         return has_error, return_dict

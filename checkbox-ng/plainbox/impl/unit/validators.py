@@ -557,7 +557,7 @@ class ShellProgramValidator(FieldValidatorBase):
                             unit,
                             field,
                             Problem.syntax_error,
-                            "{}, near {!r}".format(exc, token),
+                            f"{exc}, near {token!r}",
                             offset=lex.lineno - 1,
                         )
                     else:
@@ -614,7 +614,7 @@ class UniqueValueValidator(FieldValidatorBase):
 
     def check_in_context(self, parent, unit, field, context):
         value_map = context.compute_shared(
-            "field_value_map[{}]".format(field),
+            f"field_value_map[{field}]",
             compute_value_map,
             context,
             field,

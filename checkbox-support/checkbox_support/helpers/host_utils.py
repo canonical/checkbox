@@ -86,7 +86,7 @@ def prime_selected_vendor():
         raise HostGPUDetectionError("prime-select query failed") from e
     if output not in _PRIME_VENDOR_ICD_PREFIXES:
         raise HostGPUDetectionError(
-            "prime-select returned unrecognised value: {!r}".format(output)
+            f"prime-select returned unrecognised value: {output!r}"
         )
     return output
 
@@ -98,7 +98,7 @@ def _run_vulkaninfo(plz_run, arch_triple):
     so that it uses the host ICD stack instead of snap-bundled libraries.
     Raises HostGPUDetectionError if vulkaninfo fails.
     """
-    ld_library_path = "/usr/lib/{arch}:/usr/lib".format(arch=arch_triple)
+    ld_library_path = f"/usr/lib/{arch_triple}:/usr/lib"
     try:
         return subprocess.check_output(
             [
@@ -108,7 +108,7 @@ def _run_vulkaninfo(plz_run, arch_triple):
                 "-g",
                 "root",
                 "-E",
-                "LD_LIBRARY_PATH={}".format(ld_library_path),
+                f"LD_LIBRARY_PATH={ld_library_path}",
                 "--",
                 "/usr/bin/vulkaninfo",
                 "--summary",
@@ -177,7 +177,7 @@ def find_host_icd_filenames(vendor_prefixes=None):
         entries = sorted(os.listdir(icd_dir))
     except OSError as e:
         raise HostGPUDetectionError(
-            "cannot read Vulkan ICD directory {}".format(icd_dir)
+            f"cannot read Vulkan ICD directory {icd_dir}"
         ) from e
     result = []
     for name in entries:

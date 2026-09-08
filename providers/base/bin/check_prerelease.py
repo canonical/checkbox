@@ -79,7 +79,7 @@ def verify_apt_cache_showpkg(kernel_release: str):
     :returns:
         True if OK, False if not
     """
-    command = "apt-cache showpkg linux-image-{}".format(kernel_release)
+    command = f"apt-cache showpkg linux-image-{kernel_release}"
     aptinfo = get_apt_cache_information(command)
     # Exclude kernels that come from obvious PPAs....
     retval = True
@@ -89,7 +89,7 @@ def verify_apt_cache_showpkg(kernel_release: str):
 
     # Exclude kernels that don't come from the specific Ubuntu repository
     target_repo = os.environ.get("KERNEL_REPO", "main")
-    if "{}_binary".format(target_repo) not in aptinfo:
+    if f"{target_repo}_binary" not in aptinfo:
         logging.error(
             "* Kernel does not come from the {} Ubuntu repository!".format(
                 target_repo
@@ -106,7 +106,7 @@ def verify_apt_cache_show(kernel_release: str):
     :returns:
         True if OK, False if not
     """
-    command = "apt-cache show linux-image-{}".format(kernel_release)
+    command = f"apt-cache show linux-image-{kernel_release}"
     aptinfo = get_apt_cache_information(command)
     retval = True
 
@@ -148,7 +148,7 @@ def check_kernel_status():
         True if OK, False if not
     """
     kernel_release = platform.release()
-    logging.info("* Kernel release is {}".format(kernel_release))
+    logging.info(f"* Kernel release is {kernel_release}")
 
     is_valid_kernel = True
     is_valid_kernel &= verify_apt_cache_showpkg(kernel_release)
@@ -176,13 +176,13 @@ def check_os_status():
     # installations. Such installations should fail this test.
     if "(development branch)" in lsbinfo:
         print("* OS is reported as a development branch:")
-        print("* {}".format(lsbinfo))
+        print(f"* {lsbinfo}")
         retval = False
     print("")
 
     if "LTS" not in lsbinfo:
         print("* OS is a non-LTS version:")
-        print("* {}".format(lsbinfo))
+        print(f"* {lsbinfo}")
         retval = False
 
     return retval

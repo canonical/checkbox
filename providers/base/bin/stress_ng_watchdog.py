@@ -68,9 +68,9 @@ def disable() -> int:
     reload_systemd()
     current = get_watchdog_usec()
     if current != "0":
-        print("RuntimeWatchdogUSec is '{}', expected '0'".format(current))
+        print(f"RuntimeWatchdogUSec is '{current}', expected '0'")
         return 1
-    print("Runtime watchdog disabled (original setting: {})".format(original))
+    print(f"Runtime watchdog disabled (original setting: {original})")
     return 0
 
 

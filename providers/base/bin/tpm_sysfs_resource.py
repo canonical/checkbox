@@ -38,7 +38,7 @@ def main():
     for tpm_id in sorted(os.listdir(sysfs_root)):
         if sysfs_root == sysfs_root_misc and not tpm_id.startswith("tpm"):
             continue
-        print("x-sysfs-device-name: {}".format(tpm_id))
+        print(f"x-sysfs-device-name: {tpm_id}")
         tpm_dirname = os.path.join(sysfs_root, tpm_id, "device")
         for tpm_attr in sorted(os.listdir(tpm_dirname)):
             tpm_filename = os.path.join(tpm_dirname, tpm_attr)
@@ -46,15 +46,15 @@ def main():
                 continue
             if not os.access(tpm_filename, os.R_OK):
                 continue
-            with open(tpm_filename, "rt", encoding="utf-8") as stream:
+            with open(tpm_filename, encoding="utf-8") as stream:
                 tpm_data = stream.read()
             tpm_data = tpm_data.rstrip()
             if "\n" in tpm_data:
-                print("{}:".format(tpm_attr))
+                print(f"{tpm_attr}:")
                 for tpm_data_chunk in tpm_data.splitlines():
-                    print(" {}".format(tpm_data_chunk))
+                    print(f" {tpm_data_chunk}")
             else:
-                print("{}: {}".format(tpm_attr, tpm_data))
+                print(f"{tpm_attr}: {tpm_data}")
         print()
 
 

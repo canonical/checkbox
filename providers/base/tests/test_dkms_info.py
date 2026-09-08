@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# encoding: utf-8
 # Copyright 2015 Canonical Ltd.
 # Written by:
 #   Shawn Wang <shawn.wang@canonical.com>

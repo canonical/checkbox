@@ -142,7 +142,7 @@ class Resource:
 
     def __repr__(self):
         data = object.__getattribute__(self, "_data")
-        return "Resource({!r})".format(data)
+        return f"Resource({data!r})"
 
     def __eq__(self, other):
         if not isinstance(other, Resource):
@@ -268,7 +268,7 @@ class ResourceProgram:
                     resource_map[resource_id]
                     for resource_id in expression.resource_id_list
                 ],
-                resource_map=resource_map
+                resource_map=resource_map,
             )
             if not result:
                 raise ExpressionFailedError(expression)
@@ -295,7 +295,7 @@ class CodeNotAllowed(ResourceProgramError):
         self.node = node
 
     def __repr__(self):
-        return "CodeNotAllowed({!r})".format(self.node)
+        return f"CodeNotAllowed({self.node!r})"
 
     def __str__(self):
         return _("this kind of python code is not allowed: {}").format(
@@ -482,7 +482,7 @@ class ResourceNodeVisitor(ast.NodeVisitor):
         visit_xxx() method here. Only needed to all the _check_node() method.
         """
         self._check_node(node)
-        return super(ResourceNodeVisitor, self).generic_visit(node)
+        return super().generic_visit(node)
 
     def _check_node(self, node):
         """
@@ -582,7 +582,7 @@ class ResourceExpression:
         return self._text
 
     def __repr__(self):
-        return "<ResourceExpression text:{!r}>".format(self._text)
+        return f"<ResourceExpression text:{self._text!r}>"
 
     def __eq__(self, other):
         if isinstance(other, ResourceExpression):
@@ -612,7 +612,7 @@ class ResourceExpression:
         """
         return [
             (
-                "{}::{}".format(self._implicit_namespace, resource_id)
+                f"{self._implicit_namespace}::{resource_id}"
                 if "::" not in resource_id and self._implicit_namespace
                 else resource_id
             )
@@ -779,7 +779,7 @@ class ResourceExpression:
         else:
             return [
                 (
-                    "{}::{}".format(self._implicit_namespace, manifest_id)
+                    f"{self._implicit_namespace}::{manifest_id}"
                     if "::" not in manifest_id and self._implicit_namespace
                     else manifest_id
                 )
@@ -853,4 +853,4 @@ def parse_imports_stmt(imports):
                     ).format(line)
                 )
             effective_id = parts[5]
-        yield ("{}::{}".format(namespace, job_id), effective_id)
+        yield (f"{namespace}::{job_id}", effective_id)

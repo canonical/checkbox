@@ -49,8 +49,8 @@ def main():
 
     LoggingConfiguration.set(args.log_level, args.log_filename, args.append)
     logging.debug("Invoking username: %s", username)
-    logging.debug("Arguments: {0!r}".format(args))
-    logging.debug("Extra Arguments: {0!r}".format(extra_args))
+    logging.debug(f"Arguments: {args!r}")
+    logging.debug(f"Extra Arguments: {extra_args!r}")
 
     dry_run = os.environ.get("PM_TEST_DRY_RUN", False)
     if dry_run:
@@ -69,14 +69,14 @@ def main():
         if args.silent:
             logging.info(message)
         else:
-            title = "{0} test".format(args.pm_operation.capitalize())
+            title = f"{args.pm_operation.capitalize()} test"
             MessageDialog(title, message, Gtk.MessageType.ERROR).run()
         operation.teardown()
         result = {
             "outcome": "fail",
             "comments": message,
         }
-        with open(os.path.join(args.log_dir, "__result"), "wt") as f:
+        with open(os.path.join(args.log_dir, "__result"), "w") as f:
             json.dump(result, f)
         env = os.environ.copy()
         # remove following envvars
@@ -114,7 +114,7 @@ class PowerManagementOperation:
         if self.args.check_hardware_list:
             if not os.path.exists(self.hw_list_start):
                 # create baseline list once per session
-                with open(self.hw_list_start, "wt") as f:
+                with open(self.hw_list_start, "w") as f:
                     f.write(self.get_hw_list())
 
         # Enable autologin and sudo on first cycle
@@ -132,7 +132,7 @@ class PowerManagementOperation:
         Run a power management iteration
         """
         logging.info(
-            "{0} operations remaining: {1}".format(
+            "{} operations remaining: {}".format(
                 self.args.pm_operation, self.args.repetitions
             )
         )
@@ -141,7 +141,7 @@ class PowerManagementOperation:
             now = datetime.now()
             pm_time = now - pm_timestamp
             logging.info(
-                "{0} time: {1}".format(
+                "{} time: {}".format(
                     self.args.pm_operation.capitalize(), pm_time
                 )
             )
@@ -172,22 +172,20 @@ class PowerManagementOperation:
         # A small sleep time is added to reboot and poweroff
         # so that script has time to return a value
         # (useful when running it as an automated test)
-        command_str = "sleep {0}; {1}".format(
+        command_str = "sleep {}; {}".format(
             self.SLEEP_TIME, self.args.pm_operation
         )
         if self.extra_args:
-            command_str += " {0}".format(" ".join(self.extra_args))
+            command_str += " {}".format(" ".join(self.extra_args))
 
         if self.args.pm_operation != "reboot":
             WakeUpAlarm.set(seconds=self.args.wakeup)
 
-        logging.info(
-            "Executing new {0!r} operation...".format(self.args.pm_operation)
-        )
-        logging.debug("Executing: {0!r}...".format(command_str))
+        logging.info(f"Executing new {self.args.pm_operation!r} operation...")
+        logging.debug(f"Executing: {command_str!r}...")
         if self.dry_run:
             print("\n\nRUNNING IN DRY-RUN MODE")
-            print("Normally the program would run: {}".format(command_str))
+            print(f"Normally the program would run: {command_str}")
             print("Waiting for Enter instead")
             input()
         else:
@@ -210,8 +208,7 @@ class PowerManagementOperation:
             )
             if self.args.log_dir:
                 command_tpl = (
-                    "--log={}/fwts.log ".format(self.args.log_dir)
-                    + command_tpl
+                    f"--log={self.args.log_dir}/fwts.log " + command_tpl
                 )
             command_tpl = "{} " + command_tpl
         else:
@@ -222,10 +219,10 @@ class PowerManagementOperation:
             )
         command_str = command_tpl.format(script_path, cycles_count)
         logging.info("Running suspend/resume cycles")
-        logging.debug("Executing: {0!r}...".format(command_str))
+        logging.debug(f"Executing: {command_str!r}...")
         if self.dry_run:
             print("\n\nRUNNING IN DRY-RUN MODE")
-            print("Normally the program would run: {}".format(command_str))
+            print(f"Normally the program would run: {command_str}")
             print("Waiting for Enter instead")
             input()
         else:
@@ -239,7 +236,7 @@ class PowerManagementOperation:
                     )
                 )
             except subprocess.CalledProcessError as e:
-                logging.error("Error while running {0}:".format(e.cmd))
+                logging.error(f"Error while running {e.cmd}:")
                 logging.error(e.output)
 
     def summary(self):
@@ -280,7 +277,7 @@ class PowerManagementOperation:
         )
         logging.info(time_message)
 
-        message = "{0} test complete".format(
+        message = "{} test complete".format(
             self.args.pm_operation.capitalize()
         )
         if self.args.suspends_before_reboot:
@@ -290,7 +287,7 @@ class PowerManagementOperation:
             problems = ""
             fwts_log_path = os.path.join(self.args.log_dir, "fwts.log")
             try:
-                with open(fwts_log_path, "rt") as fwts_log:
+                with open(fwts_log_path) as fwts_log:
                     magic_line_s3 = "Completed S3 cycle(s) \n"
                     magic_line_s2idle = "Completed s2idle cycle(s) \n"
                     lines = fwts_log.readlines()
@@ -305,20 +302,20 @@ class PowerManagementOperation:
                             )
                         )
             except FileNotFoundError:
-                problems = "Error opening {}".format(fwts_log_path)
+                problems = f"Error opening {fwts_log_path}"
             if problems:
                 result = {
                     "outcome": "fail" if problems else "pass",
                     "comments": problems,
                 }
                 result_filename = os.path.join(self.args.log_dir, "__result")
-                with open(result_filename, "wt") as result_f:
+                with open(result_filename, "w") as result_f:
                     json.dump(result, result_f)
 
         if self.args.silent:
             logging.info(message)
         else:
-            title = "{0} test".format(self.args.pm_operation.capitalize())
+            title = f"{self.args.pm_operation.capitalize()} test"
             MessageDialog(title, message).run()
         if self.args.checkbox_respawn_cmd:
             try:
@@ -335,7 +332,7 @@ class PowerManagementOperation:
             # x-terminal-emulator command does not work on Wayland
             # Run the checkbox_respawn_cmd via subprocess.run instead
             except subprocess.CalledProcessError:
-                with open(self.args.checkbox_respawn_cmd, "rt") as respawn_f:
+                with open(self.args.checkbox_respawn_cmd) as respawn_f:
                     for respawn_cmd in respawn_f:
                         subprocess.run(respawn_cmd, shell=True)
 
@@ -365,7 +362,7 @@ class PowerManagementOperation:
             return ""
 
     def check_hw_list(self):
-        with open(self.hw_list_start, "rt") as f:
+        with open(self.hw_list_start) as f:
             before = set(f.read().split("\n"))
         after = set(self.get_hw_list().split("\n"))
         if after != before:
@@ -374,12 +371,12 @@ class PowerManagementOperation:
             if only_before:
                 message += "\nHardware lost after pm operation:"
                 for item in sorted(list(only_before)):
-                    message += "\n\t{}".format(item)
+                    message += f"\n\t{item}"
             only_after = after - before
             if only_after:
                 message += "\nNew hardware found after pm operation:"
                 for item in sorted(list(only_after)):
-                    message += "\n\t{}".format(item)
+                    message += f"\n\t{item}"
             raise TestFailed(message)
 
 
@@ -424,7 +421,7 @@ class WakeUpAlarm:
                     wakeup_time_stored_str = alarm_file2.read()
                 if not re.match(r"\d+", wakeup_time_stored_str):
                     logging.error(
-                        "Invalid wakeup time format: {0!r}".format(
+                        "Invalid wakeup time format: {!r}".format(
                             wakeup_time_stored_str
                         )
                     )
@@ -433,7 +430,7 @@ class WakeUpAlarm:
             wakeup_time_stored = int(wakeup_time_stored_str)
             try:
                 logging.debug(
-                    "Wakeup timestamp: {0} ({1})".format(
+                    "Wakeup timestamp: {} ({})".format(
                         wakeup_time_stored,
                         datetime.fromtimestamp(wakeup_time_stored).strftime(
                             "%c"
@@ -456,12 +453,9 @@ class WakeUpAlarm:
                 [separator_regex.split(line.rstrip()) for line in rtc_file]
             )
             logging.debug(
-                "RTC data:\n{0}".format(
+                "RTC data:\n{}".format(
                     "\n".join(
-                        [
-                            "- {0}: {1}".format(*pair)
-                            for pair in rtc_data.items()
-                        ]
+                        ["- {}: {}".format(*pair) for pair in rtc_data.items()]
                     )
                 )
             )
@@ -470,7 +464,7 @@ class WakeUpAlarm:
             # by looking into the alarm_IRQ and alrm_date field
             if rtc_data["alarm_IRQ"] != "yes":
                 logging.error(
-                    "alarm_IRQ not set properly: {0}".format(
+                    "alarm_IRQ not set properly: {}".format(
                         rtc_data["alarm_IRQ"]
                     )
                 )
@@ -478,7 +472,7 @@ class WakeUpAlarm:
 
             if "*" in rtc_data["alrm_date"]:
                 logging.error(
-                    "alrm_date not set properly: {0}".format(
+                    "alrm_date not set properly: {}".format(
                         rtc_data["alrm_date"]
                     )
                 )
@@ -504,7 +498,7 @@ class Command:
         """
         Execute shell command and return output and status
         """
-        logging.debug("Executing: {0!r}...".format(self.command_str))
+        logging.debug(f"Executing: {self.command_str!r}...")
 
         self.process = subprocess.Popen(
             self.command_str,
@@ -520,17 +514,16 @@ class Command:
         if self.verbose:
             stdout, stderr = result
             message = [
-                "Output:\n"
-                "- returncode:\n{0}".format(self.process.returncode)
+                "Output:\n" "- returncode:\n{}".format(self.process.returncode)
             ]
             if stdout:
                 if type(stdout) is bytes:
                     stdout = stdout.decode("utf-8", "ignore")
-                message.append("- stdout:\n{0}".format(stdout))
+                message.append(f"- stdout:\n{stdout}")
             if stderr:
                 if type(stderr) is bytes:
                     stderr = stderr.decode("utf-8", "ignore")
-                message.append("- stderr:\n{0}".format(stderr))
+                message.append(f"- stderr:\n{stderr}")
             logging.debug("\n".join(message))
 
             self.stdout = stdout
@@ -554,27 +547,25 @@ class CountdownDialog(Gtk.Dialog):
         iterations_count,
     ):
         self.pm_operation = pm_operation
-        title = "{0} test".format(pm_operation.capitalize())
+        title = f"{pm_operation.capitalize()} test"
 
         buttons = (
             Gtk.STOCK_CANCEL,
             Gtk.ResponseType.CANCEL,
         )
-        super(CountdownDialog, self).__init__(title=title, buttons=buttons)
+        super().__init__(title=title, buttons=buttons)
         self.set_default_response(Gtk.ResponseType.CANCEL)
         self.set_resizable(False)
         self.set_position(Gtk.WindowPosition.CENTER)
 
         progress_bar = Gtk.ProgressBar()
         progress_bar.set_fraction(iterations / float(iterations_count))
-        progress_bar.set_text("{0}/{1}".format(iterations, iterations_count))
+        progress_bar.set_text(f"{iterations}/{iterations_count}")
         progress_bar.set_show_text(True)
         self.vbox.pack_start(progress_bar, True, True, 0)
 
         operation_event = {
-            "template": (
-                "Next {0} in {{time}} seconds...".format(self.pm_operation)
-            ),
+            "template": (f"Next {self.pm_operation} in {{time}} seconds..."),
             "timeout": pm_delay,
         }
         hardware_info_event = {
@@ -616,7 +607,7 @@ class CountdownDialog(Gtk.Dialog):
         Set label text and run dialog
         """
         self.schedule_next_event()
-        response = super(CountdownDialog, self).run()
+        response = super().run()
         self.destroy()
         self.show()
 
@@ -823,7 +814,7 @@ autologin-user-timeout=0
         index = 0
         while True:
             index += 1
-            backup_filename = self.config_filename + ".bak.{0}".format(index)
+            backup_filename = self.config_filename + f".bak.{index}"
             yield backup_filename
 
 
@@ -887,9 +878,7 @@ Hidden=false
         # Generate desktop filename
         # based on environment variables
         username = self.user
-        default_config_directory = os.path.expanduser(
-            "~{0}/.config".format(username)
-        )
+        default_config_directory = os.path.expanduser(f"~{username}/.config")
         config_directory = os.getenv(
             "XDG_CONFIG_HOME", default_config_directory
         )
@@ -902,21 +891,19 @@ Hidden=false
                 os.chown(config_directory, int(user_id), int(group_id))
                 os.chown(autostart_directory, int(user_id), int(group_id))
 
-        basename = "{0}.desktop".format(os.path.basename(__file__))
+        basename = f"{os.path.basename(__file__)}.desktop"
         self.desktop_filename = os.path.join(autostart_directory, basename)
 
     def write(self):
         """
         Write autostart file to execute the script on startup
         """
-        logging.debug(
-            "Writing desktop file ({0!r})...".format(self.desktop_filename)
-        )
+        logging.debug(f"Writing desktop file ({self.desktop_filename!r})...")
         snap_name = os.getenv("SNAP_NAME")
         if snap_name:
-            script = "/snap/bin/{}.pm-test".format(snap_name)
+            script = f"/snap/bin/{snap_name}.pm-test"
         else:
-            script = "/usr/bin/python3 {}".format(os.path.realpath(__file__))
+            script = f"/usr/bin/python3 {os.path.realpath(__file__)}"
         contents = self.TEMPLATE.format(
             script=script,
             repetitions=self.args.repetitions - 1,
@@ -952,9 +939,7 @@ Hidden=false
         """
         if os.path.exists(self.desktop_filename):
             logging.debug(
-                "Removing desktop file ({0!r})...".format(
-                    self.desktop_filename
-                )
+                f"Removing desktop file ({self.desktop_filename!r})..."
             )
             os.remove(self.desktop_filename)
 
@@ -1106,7 +1091,7 @@ class MyArgumentParser:
             choices=log_levels,
             help=(
                 "Log level. "
-                "One of {0} or {1} (%(default)s by default)".format(
+                "One of {} or {} (%(default)s by default)".format(
                     ", ".join(log_levels[:-1]), log_levels[-1]
                 )
             ),
@@ -1122,7 +1107,7 @@ class MyArgumentParser:
             choices=pm_operations,
             help=(
                 "Power management operation to be performed "
-                "(one of {0} or {1!r})".format(
+                "(one of {} or {!r})".format(
                     ", ".join(map(repr, pm_operations[:-1])), pm_operations[-1]
                 )
             ),
@@ -1218,7 +1203,7 @@ class MyArgumentParser:
         # and the times it was repeated (repetitions)
         args.log_filename = os.path.join(
             args.log_dir,
-            "{0}.{1}.{2}.log".format(
+            "{}.{}.{}.log".format(
                 os.path.splitext(os.path.basename(__file__))[0],
                 args.pm_operation,
                 args.total,

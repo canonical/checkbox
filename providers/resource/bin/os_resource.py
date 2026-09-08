@@ -25,7 +25,7 @@ import sys
 def main():
     release_info = get_release_info()
     for key, value in release_info.items():
-        print("%s: %s" % (key, value))
+        print(f"{key}: {value}")
 
 
 if __name__ == "__main__":

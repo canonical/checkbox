@@ -67,7 +67,7 @@ class ActionUI:
             try:
                 print(self.C.BLUE(self.prompt))
                 print(long_hint)
-                choice = input("[{}]: ".format(self.C.BLUE(short_hint)))
+                choice = input(f"[{self.C.BLUE(short_hint)}]: ")
             except EOFError:
                 return None
             else:
@@ -222,7 +222,7 @@ class NormalUI(IJobRunnerUI):
         print(_("Job cannot be started because:"))
         if job_state.readiness_inhibitor_list:
             for inhibitor in job_state.readiness_inhibitor_list:
-                print(" - {}".format(self.C.YELLOW(inhibitor)))
+                print(f" - {self.C.YELLOW(inhibitor)}")
         else:
             # this is for tests that were skipped because interactive in a
             # non-interactive session

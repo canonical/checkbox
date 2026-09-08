@@ -95,7 +95,7 @@ def test_lxd_gpu(args):
         )
 
         logging.info("Passing GPU %s through to %s", args.pci, instance.name)
-        instance.add_device("gpu", "gpu", options=["pci={}".format(args.pci)])
+        instance.add_device("gpu", "gpu", options=[f"pci={args.pci}"])
 
         logging.info("Waiting for %s to be up", instance.name)
         instance.wait_until_running()
@@ -126,28 +126,28 @@ def test_lxdvm_gpu(args):
             logging.info(
                 "Setting user-provided QEMU options: %s", args.qemuopts
             )
-            instance.set_config("raw.qemu={}".format(args.qemuopts))
+            instance.set_config(f"raw.qemu={args.qemuopts}")
 
         if args.vmcpus:
             logging.info(
                 "Setting a custom CPU limit for the VM: %d CPUs",
                 args.vmcpus,
             )
-            instance.set_config("limits.cpu {}".format(args.vmcpus))
+            instance.set_config(f"limits.cpu {args.vmcpus}")
 
         if args.vmram:
             logging.info(
                 "Setting a custom memory limit for the VM: %d MB",
                 args.vmram,
             )
-            instance.set_config("limits.memory {}MB".format(args.vmram))
+            instance.set_config(f"limits.memory {args.vmram}MB")
 
         instance.start()
 
         instance.wait_until_running(allow_degraded=True)
 
         logging.info("Passing GPU %s through to %s", args.pci, instance.name)
-        instance.add_device("gpu", "gpu", options=["pci={}".format(args.pci)])
+        instance.add_device("gpu", "gpu", options=[f"pci={args.pci}"])
 
         logging.info("Waiting for %s to be up", instance.name)
         instance.wait_until_running(allow_degraded=True)

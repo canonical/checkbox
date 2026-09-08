@@ -100,26 +100,24 @@ class ObexFTPTest:
 
     def send(self):
         logging.info("[ Send test ]".center(80, "="))
-        logging.info("Using {} as a test file".format(self._filename))
-        logging.info("Sending {} to {}".format(self._file, self._btaddr))
+        logging.info(f"Using {self._filename} as a test file")
+        logging.info(f"Sending {self._file} to {self._btaddr}")
         return self._run_command(
             ["obexput", "-b", self._btaddr, self._file], "Sending.*?done"
         )
 
     def browse(self):
         logging.info("[ Browse test ]".center(80, "="))
-        logging.info("Checking {} for {}".format(self._btaddr, self._file))
-        logging.info("Will check for a filesize of {}".format(self._filesize))
+        logging.info(f"Checking {self._btaddr} for {self._file}")
+        logging.info(f"Will check for a filesize of {self._filesize}")
         return self._run_command(
             ["obexftp", "-b", self._btaddr, "-l"],
-            '{}.*?size="{}"'.format(self._filename, self._filesize),
+            f'{self._filename}.*?size="{self._filesize}"',
         )
 
     def remove(self):
         logging.info("[ Remove test ]".center(80, "="))
-        logging.info(
-            "Removing {} from {}".format(self._filename, self._btaddr)
-        )
+        logging.info(f"Removing {self._filename} from {self._btaddr}")
         return self._run_command(
             ["obexrm", "-b", self._btaddr, self._filename], "Sending.*?done"
         )
@@ -127,9 +125,7 @@ class ObexFTPTest:
     def get(self):
         with TemporaryDirectory() as tmpdirname:
             logging.info("[ Get test ]".center(80, "="))
-            logging.info(
-                "Getting file {} from {}".format(self._filename, self._btaddr)
-            )
+            logging.info(f"Getting file {self._filename} from {self._btaddr}")
             # Dont trust "get" returncode, it's always 0...
             return self._run_command(
                 ["obexget", "-b", self._btaddr, self._filename],

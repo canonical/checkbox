@@ -73,7 +73,7 @@ def reboot_to_firmware_check():
             with open(osis_var) as fh:
                 try:
                     fw_info = fh.read()
-                except IOError:
+                except OSError:
                     logging.error("FAIL: I/O error reading EFI data")
                     return 1
             if ord(fw_info[4]) & 1:
@@ -105,7 +105,7 @@ def secure_boot_check():
             with open(sb_var) as fh:
                 try:
                     sb_info = fh.read()
-                except IOError:
+                except OSError:
                     logging.error("FAIL: I/O error reading EFI data")
                     return 1
             if ord(sb_info[4]) == 1:

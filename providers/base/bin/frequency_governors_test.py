@@ -11,7 +11,7 @@ import logging
 from subprocess import check_output, check_call, CalledProcessError
 
 
-class CPUScalingTest(object):
+class CPUScalingTest:
 
     def __init__(self):
         self.speedUpTolerance = 10.0  # percent
@@ -99,7 +99,7 @@ class CPUScalingTest(object):
                         return rf
             return None
 
-        logging.debug("Setting %s to %s" % (setFile, value))
+        logging.debug(f"Setting {setFile} to {value}")
         path = None
         if not skip:
             if automatch:
@@ -108,7 +108,7 @@ class CPUScalingTest(object):
                 path = os.path.join(self.cpufreqDirectory, setFile)
 
             try:
-                check_call('echo "%s" > %s' % (value, path), shell=True)
+                check_call(f'echo "{value}" > {path}', shell=True)
             except CalledProcessError as exception:
                 logging.exception("Command failed:")
                 logging.exception(exception)
@@ -124,7 +124,9 @@ class CPUScalingTest(object):
         line = parameterFile.readline()
         if not line or line.strip() != str(value):
             logging.error(
-                "Error: could not verify that %s was set to %s" % (path, value)
+                "Error: could not verify that {} was set to {}".format(
+                    path, value
+                )
             )
             if line:
                 logging.error("Actual Value: %s" % line)
@@ -156,14 +158,12 @@ class CPUScalingTest(object):
             return False
 
     def setParameterWithSelector(self, switch, setFile, readFile, value):
-        logging.debug("Setting %s with %s to %s" % (setFile, switch, value))
+        logging.debug(f"Setting {setFile} with {switch} to {value}")
         # Try the command for all CPUs
         skip = True
         if self.checkSelectorExecutable():
             try:
-                check_call(
-                    "cpufreq-selector -%s %s" % (switch, value), shell=True
-                )
+                check_call(f"cpufreq-selector -{switch} {value}", shell=True)
             except CalledProcessError as exception:
                 logging.exception("Note: command failed: %s" % exception.cmd)
                 skip = False
@@ -199,7 +199,7 @@ class CPUScalingTest(object):
                 return None
             value = line.strip()
             return value
-        except IOError as exception:
+        except OSError as exception:
             logging.exception("Error: could not open %s" % parameterFilePath)
             logging.exception(exception)
 
@@ -357,7 +357,7 @@ class CPUScalingTest(object):
         logging.debug("Getting CPU flags")
         self.cpuFlags = None
         try:
-            cpuinfo_file = open("/proc/cpuinfo", "r")
+            cpuinfo_file = open("/proc/cpuinfo")
             cpuinfo = cpuinfo_file.read().split("\n")
             cpuinfo_file.close()
 

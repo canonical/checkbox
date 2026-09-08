@@ -195,7 +195,7 @@ class DmiDevice:
             return "Unknown"
 
         for name in "name", "version":
-            attribute = "%s_%s" % (self.category.lower(), name)
+            attribute = f"{self.category.lower()}_{name}"
             product = self._attributes.get(attribute)
             if product and product not in self._product_blacklist:
                 return product
@@ -205,7 +205,7 @@ class DmiDevice:
     @property
     def vendor(self):
         for name in "manufacturer", "vendor":
-            attribute = "%s_%s" % (self.category.lower(), name)
+            attribute = f"{self.category.lower()}_{name}"
             vendor = self._attributes.get(attribute)
             if vendor and vendor not in self._vendor_blacklist:
                 return vendor
@@ -268,9 +268,7 @@ class DmiDevice:
         but with the prefix ("self.category.lower()_") removed.
         """
         # Note a dict comprehension is not used out of fear of python 2.x.
-        return dict(
-            [
-                (k.replace("%s_" % self.category.lower(), "", 1), v)
-                for k, v in self._attributes.items()
-            ]
-        )
+        return {
+            k.replace("%s_" % self.category.lower(), "", 1): v
+            for k, v in self._attributes.items()
+        }

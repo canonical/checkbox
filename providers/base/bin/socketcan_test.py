@@ -109,7 +109,7 @@ class CANSocket:
 
 def echo_test(args):
     # ID conversion and size check
-    print("Using source ID: {}".format(args.can_id))
+    print(f"Using source ID: {args.can_id}")
     can_id_i = int(args.can_id, 16)
     if can_id_i > 2047 and not args.effid:
         raise SystemExit("ERROR: CAN ID to high for SFF")
@@ -127,7 +127,7 @@ def echo_test(args):
     if args.fdmode:
         data_size = 64
     data_b = os.urandom(data_size)
-    print("Sending data: {}".format(data_b.hex()))
+    print(f"Sending data: {data_b.hex()}")
 
     recv_id_i = None
     recv_data_b = None
@@ -135,7 +135,7 @@ def echo_test(args):
     def receive():
         nonlocal recv_id_i
         nonlocal recv_data_b
-        print("Opening read socket on {}".format(args.interface))
+        print(f"Opening read socket on {args.interface}")
         with CANSocket(
             args.interface, fdmode=args.fdmode, loopback=loopback
         ) as recv_s:
@@ -146,7 +146,7 @@ def echo_test(args):
     recv_t.start()
     time.sleep(1)
 
-    print("Opening send socket on {}".format(args.interface))
+    print(f"Opening send socket on {args.interface}")
     # Open socket, will raise OSError on failure
     with CANSocket(
         args.interface, fdmode=args.fdmode, loopback=loopback
@@ -166,8 +166,8 @@ def echo_test(args):
         raise SystemExit("ERROR: Timeout waiting to receive data")
 
     print("Received packet")
-    print("  ID  : {:x}".format(recv_id_i))
-    print("  Data: {}".format(recv_data_b.hex()))
+    print(f"  ID  : {recv_id_i:x}")
+    print(f"  Data: {recv_data_b.hex()}")
     if recv_id_i != can_id_i or recv_data_b != data_b:
         raise SystemExit("ERROR: ID/Data received does not match sent")
 

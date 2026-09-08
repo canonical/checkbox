@@ -390,9 +390,9 @@ class SessionDeviceContext:
                 for unit in state.unit_list
                 if isinstance(unit, UnitWithId)
             }
-            self._already_added_checksums = set(
-                [unit.checksum for unit in self.unit_list]
-            )
+            self._already_added_checksums = {
+                unit.checksum for unit in self.unit_list
+            }
 
         self._test_plan_list = []
         # Connect SessionState's signals to fire our signals. This
@@ -863,7 +863,7 @@ class SessionState:
         self._manifest = {}
         self._manifest_last_mod_time = 0
 
-        super(SessionState, self).__init__()
+        super().__init__()
 
     @property
     def manifest(self):
@@ -886,7 +886,7 @@ class SessionState:
             with manifest_path.open("r") as f:
                 manifest = json.load(f)
         manifest.update(manifest_answers)
-        logger.info("Saving manifest to {}".format(manifest_path))
+        logger.info(f"Saving manifest to {manifest_path}")
         with manifest_path.open("w") as f:
             json.dump(manifest, f, sort_keys=True, indent=2)
 
@@ -1257,8 +1257,8 @@ class SessionState:
                 with suppress(ValueError):
                     overrides["flags"].remove(Suspend.MANUAL_FLAG)
 
-            overrides["id"] = "{}-{}".format(suspend_prefix, job.partial_id)
-            overrides["_summary"] = "{} after suspend (S3)".format(job.summary)
+            overrides["id"] = f"{suspend_prefix}-{job.partial_id}"
+            overrides["_summary"] = f"{job.summary} after suspend (S3)"
 
             if isinstance(job.depends, list) or not job.depends:
                 overrides["depends"] = (job.depends or []) + [
@@ -1272,7 +1272,7 @@ class SessionState:
                 )
 
             if job.group:
-                overrides["group"] = "{}-{}".format(suspend_prefix, job.group)
+                overrides["group"] = f"{suspend_prefix}-{job.group}"
             siblings.append(overrides)
         return siblings
 

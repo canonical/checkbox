@@ -16,10 +16,6 @@
 # You should have received a copy of the GNU General Public License
 # along with Checkbox.  If not, see <http://www.gnu.org/licenses/>.
 
-from __future__ import absolute_import
-from __future__ import division
-from __future__ import print_function
-from __future__ import unicode_literals
 
 from io import StringIO
 from unittest import TestCase
@@ -186,7 +182,7 @@ class TestLenovoSystemX(TestCase):
     def parse(self):
         resource = "parsers/tests/dmidecode_data/LENOVO_SYSTEMX.txt"
         filename = resource_filename("checkbox_ng.support", resource)
-        with open(filename, "rt", encoding="UTF-8") as stream:
+        with open(filename, encoding="UTF-8") as stream:
             parser = DmidecodeParser(stream)
             result = DmiResult()
             parser.run(result)

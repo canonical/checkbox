@@ -70,25 +70,23 @@ def save_connections(keyfile_list):
         return
 
     for f in keyfile_list:
-        print("Save connection {}".format(f))
+        print(f"Save connection {f}")
 
         if not os.path.exists(f):
-            print("  No stored connection found at {}".format(f))
+            print(f"  No stored connection found at {f}")
             continue
 
-        print("  Found file {}".format(f))
+        print(f"  Found file {f}")
         basedir = Path(f).parent.relative_to("/")
         backup_loc = SAVE_DIR / basedir
 
         os.makedirs(backup_loc, exist_ok=True)
         save_f = shutil.copy(f, backup_loc)
-        print("  Saved copy at {}".format(save_f))
+        print(f"  Saved copy at {save_f}")
 
 
 def restore_connections():
-    saved_list = glob.glob(
-        "{}/**/*.nmconnection".format(SAVE_DIR), recursive=True
-    )
+    saved_list = glob.glob(f"{SAVE_DIR}/**/*.nmconnection", recursive=True)
     if len(saved_list) == 0:
         print("No stored 802.11 connections found")
         return
@@ -96,7 +94,7 @@ def restore_connections():
         f_path = Path(f)
         save_f = f_path.relative_to(SAVE_DIR)
         dest_path = Path("/") / save_f
-        print("Restore connection {}".format(save_f))
+        print(f"Restore connection {save_f}")
         shutil.move(f, dest_path)
 
 

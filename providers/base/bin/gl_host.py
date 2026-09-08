@@ -55,13 +55,11 @@ def _has_drm_gpu():
     try:
         entries = sorted(os.listdir("/sys/class/drm"))
     except OSError as exc:
-        raise OpenGLError(
-            "Could not read /sys/class/drm: {}".format(exc)
-        ) from exc
+        raise OpenGLError(f"Could not read /sys/class/drm: {exc}") from exc
     for entry in entries:
         if not entry.startswith("card") or not entry[4:].isdigit():
             continue
-        vendor_path = "/sys/class/drm/{}/device/vendor".format(entry)
+        vendor_path = f"/sys/class/drm/{entry}/device/vendor"
         try:
             with open(vendor_path) as f:
                 vid = f.read().strip().lower()
@@ -80,7 +78,7 @@ def cmd_resource():
 
 def cmd_validate_install():
     arch_triple = get_arch_triple()
-    host_egl = "/usr/lib/{}/libEGL.so.1".format(arch_triple)
+    host_egl = f"/usr/lib/{arch_triple}/libEGL.so.1"
     if not os.path.isfile(host_egl):
         raise OpenGLError(
             "Host EGL library not found at {}. "
@@ -97,7 +95,7 @@ def cmd_run_test(test_args):
     work_dir = os.path.expanduser("~/.opengl-cts")
     os.makedirs(work_dir, exist_ok=True)
 
-    host_lib = "/usr/lib/{}:/usr/lib".format(arch_triple)
+    host_lib = f"/usr/lib/{arch_triple}:/usr/lib"
     result = subprocess.run(
         [
             plz_run,
@@ -108,16 +106,16 @@ def cmd_run_test(test_args):
             "-E",
             "WAYLAND_DISPLAY=",
             "-E",
-            "LD_LIBRARY_PATH={}".format(host_lib),
+            f"LD_LIBRARY_PATH={host_lib}",
             "-E",
-            "SNAP={}".format(snap),
+            f"SNAP={snap}",
             "--",
-            "{}/usr/bin/glcts".format(snap),
+            f"{snap}/usr/bin/glcts",
             "--deqp-surface-type=fbo",
         ]
         + test_args
-        + ["--deqp-log-filename={}/TestResults.qpa".format(work_dir)],
-        cwd="{}/usr/share/opengl-cts".format(snap),
+        + [f"--deqp-log-filename={work_dir}/TestResults.qpa"],
+        cwd=f"{snap}/usr/share/opengl-cts",
     )
     return result.returncode
 

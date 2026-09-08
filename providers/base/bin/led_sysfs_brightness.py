@@ -8,24 +8,22 @@ import sys
 
 
 def led_brightness_write(led, brightness):
-    print("{} brightness -> {}".format(led, brightness), flush=True)
+    print(f"{led} brightness -> {brightness}", flush=True)
     # test led devices exist
-    if not os.path.exists("/sys/class/leds/{}/brightness".format(led)):
-        raise SystemExit("External LED {} not exist".format(led))
+    if not os.path.exists(f"/sys/class/leds/{led}/brightness"):
+        raise SystemExit(f"External LED {led} not exist")
 
-    with open("/sys/class/leds/{}/brightness".format(led), "wt") as f:
-        f.write("{}\n".format(brightness))
+    with open(f"/sys/class/leds/{led}/brightness", "w") as f:
+        f.write(f"{brightness}\n")
 
 
 def led_arrays(model_name):
     led_data = os.path.expandvars(
-        "$PLAINBOX_PROVIDER_DATA/led-brightness.{}.in".format(model_name)
+        f"$PLAINBOX_PROVIDER_DATA/led-brightness.{model_name}.in"
     )
     if not os.path.exists(led_data):
-        raise SystemExit(
-            "ERROR: no led information found at: {}".format(led_data)
-        )
-    with open(led_data, "r") as f:
+        raise SystemExit(f"ERROR: no led information found at: {led_data}")
+    with open(led_data) as f:
         for line in f:
             if line.startswith("#"):
                 continue

@@ -70,7 +70,7 @@ def is_passwordless_sudo():
                 print(exc.output)
             except AttributeError:
                 pass
-            raise SystemExit("Checkbox is unable to run sudo: {}".format(exc))
+            raise SystemExit(f"Checkbox is unable to run sudo: {exc}")
         return True
     try:
         check_output(check_passwordless_sudo_cmd, stderr=STDOUT)

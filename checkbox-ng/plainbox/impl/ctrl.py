@@ -473,8 +473,7 @@ def gen_rfc822_records_from_io_log(job, result):
     source = JobOutputTextSource(job)
     try:
         # Parse rfc822 records from the subsequent lines
-        for record in gen_rfc822_records(line_gen, source=source):
-            yield record
+        yield from gen_rfc822_records(line_gen, source=source)
     except RFC822SyntaxError as exc:
         # When this exception happens we will _still_ store all the
         # preceding records. This is worth testing

@@ -90,7 +90,7 @@ def get_providers(*, only_secure: bool = False) -> "List[Provider1]":
         return std_providers
 
     def qualified_name(provider):
-        return "{}:{}".format(provider.namespace, provider.name)
+        return f"{provider.namespace}:{provider.name}"
 
     sideload_path = os.path.expandvars(
         os.path.join("/var", "tmp", "checkbox-providers")

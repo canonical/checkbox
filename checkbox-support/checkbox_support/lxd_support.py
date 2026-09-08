@@ -56,7 +56,7 @@ try:
     import distro
 
     if distro.id() == "ubuntu-core":
-        HOST_RELEASE = "{}.04".format(distro.version())
+        HOST_RELEASE = f"{distro.version()}.04"
     else:
         HOST_RELEASE = distro.version()
 except ImportError:
@@ -95,7 +95,7 @@ class LXD:
         self.release = release or HOST_RELEASE
 
         timestamp = datetime.now(tz=timezone.utc).strftime("%Y%m%d%H%M%S")
-        self.name = "{}-{}".format(name, timestamp)
+        self.name = f"{name}-{timestamp}"
 
     @cached_property
     def template(self) -> Optional[str]:
@@ -136,7 +136,7 @@ class LXD:
     ):
         """Runs a command on the host or instance."""
         if on_guest:
-            cmd = "lxc exec {} -- {}".format(self.name, cmd)
+            cmd = f"lxc exec {self.name} -- {cmd}"
         stderr_pipe = subprocess.STDOUT if log_stderr else subprocess.DEVNULL
         try:
             logger.debug("Command: %s", cmd)
@@ -184,10 +184,10 @@ class LXD:
     def cleanup(self):
         """Cleans up instance."""
         self.run(
-            "lxc image delete {}".format(self.image_alias.hex),
+            f"lxc image delete {self.image_alias.hex}",
             ignore_errors=True,
         )
-        self.run("lxc delete --force {}".format(self.name), ignore_errors=True)
+        self.run(f"lxc delete --force {self.name}", ignore_errors=True)
 
     def launch(self, options: Optional[List[str]] = None):
         """Sets up and creates the instance."""
@@ -198,18 +198,18 @@ class LXD:
 
     def stop(self, force: bool = False):
         """Stops LXD instance."""
-        cmd = "lxc stop {}".format(self.name)
+        cmd = f"lxc stop {self.name}"
         if force:
             cmd += " --force"
         self.run(cmd)
 
     def start(self):
         """Starts LXD instance."""
-        self.run("lxc start {}".format(self.name))
+        self.run(f"lxc start {self.name}")
 
     def restart(self):
         """Restarts LXD instance."""
-        self.run("lxc restart {}".format(self.name))
+        self.run(f"lxc restart {self.name}")
 
     @retry(10, 10)
     def wait_until_running(self, allow_degraded: bool = False):
@@ -241,7 +241,7 @@ class LXD:
         config_str: str,
     ):
         """Sets a config option for the LXD instance."""
-        self.run("lxc config set {} {}".format(self.name, config_str))
+        self.run(f"lxc config set {self.name} {config_str}")
 
     def __enter__(self):
         self.init_lxd()
@@ -281,7 +281,7 @@ class LXDVM(LXD):
         self.run(" ".join(cmd))
 
         logger.debug("Starting virtual machine")
-        self.run("lxc start {}".format(self.name))
+        self.run(f"lxc start {self.name}")
 
     def add_device(self, device: str, device_type: str, options=None):
         # Hot plugging is only supported on containers

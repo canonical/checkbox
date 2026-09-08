@@ -219,7 +219,7 @@ class CpuIdleTest:
 
         try:
             # Find all state directories
-            state_dirs = glob.glob("{}/*".format(cpu_path))
+            state_dirs = glob.glob(f"{cpu_path}/*")
 
             for state_dir in state_dirs:
                 state_name = os.path.basename(state_dir)
@@ -235,17 +235,17 @@ class CpuIdleTest:
                     # Read state name
                     name_file = os.path.join(state_dir, "name")
                     try:
-                        with open(name_file, "r") as f:
+                        with open(name_file) as f:
                             state_name_str = f.read().strip()
-                    except (IOError, OSError):
-                        state_name_str = "state{}".format(state_num)
+                    except OSError:
+                        state_name_str = f"state{state_num}"
 
                     # Read usage count
                     usage_file = os.path.join(state_dir, "usage")
                     try:
-                        with open(usage_file, "r") as f:
+                        with open(usage_file) as f:
                             usage_count = int(f.read().strip())
-                    except (IOError, OSError, ValueError):
+                    except (OSError, ValueError):
                         usage_count = 0
 
                     states[state_num] = IdleState(
@@ -254,9 +254,9 @@ class CpuIdleTest:
                         usage_count=usage_count,
                     )
 
-        except (IOError, OSError) as e:
+        except OSError as e:
             self.logger.error(
-                "Error reading CPU idle states from {}: {}".format(cpu_path, e)
+                f"Error reading CPU idle states from {cpu_path}: {e}"
             )
 
         return states
@@ -267,11 +267,11 @@ class CpuIdleTest:
 
         # Get number of CPUs
         cpu_count = self.get_cpu_count()
-        self.logger.info("Found {} CPUs in system".format(cpu_count))
+        self.logger.info(f"Found {cpu_count} CPUs in system")
 
         # Check each CPU for cpuidle support
         for cpu_id in range(cpu_count):
-            cpu_path = "{}/cpu{}/cpuidle".format(self.PROCESSOR_PATH, cpu_id)
+            cpu_path = f"{self.PROCESSOR_PATH}/cpu{cpu_id}/cpuidle"
 
             if os.path.exists(cpu_path):
                 states = self.get_cpuidle_states(cpu_path)
@@ -289,10 +289,10 @@ class CpuIdleTest:
                         )
                     )
                 else:
-                    msg = "CPU {}: No idle states found".format(cpu_id)
+                    msg = f"CPU {cpu_id}: No idle states found"
                     self.logger.warning(msg)
             else:
-                self.logger.debug("CPU {}: No cpuidle support".format(cpu_id))
+                self.logger.debug(f"CPU {cpu_id}: No cpuidle support")
 
         return cpus
 
@@ -445,7 +445,7 @@ class CpuIdleTest:
         if states_with_notes:
             # These states pass but with a note
             self.logger.info(
-                "CPU {}: NOTE - ".format(cpu_info.cpu_id)
+                f"CPU {cpu_info.cpu_id}: NOTE - "
                 + "States with existing usage (not tested): {}".format(
                     ", ".join(states_with_notes),
                 )
@@ -453,7 +453,7 @@ class CpuIdleTest:
 
         if not failed_states and not states_with_notes:
             # All states were used
-            used_names = ["{}".format(state.name) for state in used_states]
+            used_names = [f"{state.name}" for state in used_states]
             self.logger.info(
                 "CPU {}: SUCCESS - All states reached: {}".format(
                     cpu_info.cpu_id, ", ".join(used_names)
@@ -497,7 +497,7 @@ class CpuIdleTest:
         if not self.cpus:
             self.logger.error("ERROR: No CPUs with cpuidle support found")
             return False
-        msg = "Testing {} CPUs with cpuidle support".format(len(self.cpus))
+        msg = f"Testing {len(self.cpus)} CPUs with cpuidle support"
         self.logger.info(msg)
 
         # Test each CPU
@@ -507,7 +507,7 @@ class CpuIdleTest:
                 if self.test_cpu_idle_states(cpu_info, i, len(self.cpus)):
                     success_count += 1
             except Exception as e:
-                msg = "ERROR testing CPU {}: {}".format(cpu_info.cpu_id, e)
+                msg = f"ERROR testing CPU {cpu_info.cpu_id}: {e}"
                 self.logger.error(msg)
 
         # Final report
@@ -569,7 +569,7 @@ Examples:
         print("\nTest interrupted by user")
         sys.exit(1)
     except Exception as e:
-        print("ERROR: {}".format(e))
+        print(f"ERROR: {e}")
         sys.exit(1)
 
 

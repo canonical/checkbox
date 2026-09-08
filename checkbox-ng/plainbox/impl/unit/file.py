@@ -95,7 +95,7 @@ class FileUnit(Unit):
         return self.path
 
     def __repr__(self):
-        return "<FileUnit path:{!r}, role:{!r}>".format(self.path, self.role)
+        return f"<FileUnit path:{self.path!r}, role:{self.role!r}>"
 
     @property
     def path(self):

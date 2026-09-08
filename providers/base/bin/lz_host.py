@@ -54,7 +54,7 @@ def check_host_gpu(plz_run, arch_triple):
     if not render_nodes:
         logging.error("No render device nodes found in /dev/dri")
         return False
-    loader = "/usr/lib/{}/libze_loader.so.1".format(arch_triple)
+    loader = f"/usr/lib/{arch_triple}/libze_loader.so.1"
     if not os.path.isfile(loader):
         logging.error("Host Level Zero loader not found at %s", loader)
         return False
@@ -81,7 +81,7 @@ def cmd_resource():
 
 def cmd_validate_install():
     arch_triple = get_arch_triple()
-    host_ze = "/usr/lib/{}/libze_loader.so.1".format(arch_triple)
+    host_ze = f"/usr/lib/{arch_triple}/libze_loader.so.1"
     if os.path.isfile(host_ze):
         logging.info("Host Level Zero loader found at %s", host_ze)
         print("ze_loader_available: True")
@@ -96,7 +96,7 @@ def cmd_validate_install():
 def cmd_run_test(test_args):
     snap = "/snap/level-zero-tests/current"
     result = subprocess.run(
-        ["{}/test".format(snap), "--no-confinement"] + test_args,
+        [f"{snap}/test", "--no-confinement"] + test_args,
         env=dict(os.environ, SNAP=snap),
     )
     return result.returncode

@@ -121,7 +121,7 @@ class Submit:
     def invoked(self, ctx):
         transport_cls = None
         mode = "rb"
-        options_string = "secure_id={0}".format(ctx.args.secure_id)
+        options_string = f"secure_id={ctx.args.secure_id}"
         submission_file = ctx.args.submission
         c3_url = "https://certification.canonical.com"
         if ctx.args.staging:
@@ -278,7 +278,7 @@ class Launcher(MainLoopStage, ReportsStage):
             if "submission_files" in self.configuration.get_value(
                 "launcher", "stock_reports"
             ):
-                print("Reports will be saved to: {}".format(self.base_dir))
+                print(f"Reports will be saved to: {self.base_dir}")
             # we initialize the nb of attempts for all the selected jobs...
             for job_id in self.sa.get_dynamic_todo_list():
                 job_state = self.sa.get_job_state(job_id)
@@ -331,7 +331,7 @@ class Launcher(MainLoopStage, ReportsStage):
             # NOTE: This implies that any snap wishing to include a
             # Checkbox snap to be autostarted creates a snapcraft
             # app called "checkbox-cli"
-            respawn_cmd = ["/snap/bin/{}.checkbox-cli".format(snap_name)]
+            respawn_cmd = [f"/snap/bin/{snap_name}.checkbox-cli"]
         else:
             respawn_cmd = [sys.argv[0]]  # entry-point to checkbox
         respawn_cmd.append("launcher")
@@ -620,9 +620,7 @@ class Launcher(MainLoopStage, ReportsStage):
                 # if we don't call use_job_result it means we'll rerun the job
                 return
             else:
-                raise ValueError(
-                    "Unsupported outcome for resume {}".format(outcome)
-                )
+                raise ValueError(f"Unsupported outcome for resume {outcome}")
             result = MemoryJobResult(result_dict)
             self.sa.use_job_result(last_job, result)
         if self.sa.setting_up():
@@ -662,7 +660,7 @@ class Launcher(MainLoopStage, ReportsStage):
         title = title or self.configuration.get_value("launcher", "app_id")
         app_version = self.configuration.get_value("launcher", "app_version")
         if app_version:
-            title += " {}".format(app_version)
+            title += f" {app_version}"
         runner_kwargs = {
             "normal_user_provider": self.get_normal_user,
             "password_provider": sudo_password_provider.get_sudo_password,
@@ -703,7 +701,7 @@ class Launcher(MainLoopStage, ReportsStage):
         app_blob = {"testplan_id": tp_id, "description": description}
         if self.ctx.args.launcher:
             try:
-                with open(self.ctx.args.launcher, "r") as f:
+                with open(self.ctx.args.launcher) as f:
                     app_blob["launcher"] = f.read()
             except FileNotFoundError:
                 pass
@@ -802,7 +800,7 @@ class Launcher(MainLoopStage, ReportsStage):
             result_path = os.path.join(session_share, "__result")
             if os.path.exists(result_path):
                 try:
-                    with open(result_path, "rt") as f:
+                    with open(result_path) as f:
                         result_dict = json.load(f)
                         # the only really important field in the result is
                         # 'outcome' so let's make sure it doesn't contain
@@ -1284,7 +1282,7 @@ class Run(MainLoopStage):
             # NOTE: This implies that any snap wishing to include a
             # Checkbox snap to be autostarted creates a snapcraft
             # app called "checkbox-cli"
-            respawn_cmd = "/snap/bin/{}.checkbox-cli".format(snap_name)
+            respawn_cmd = f"/snap/bin/{snap_name}.checkbox-cli"
         else:
             respawn_cmd = sys.argv[0]  # entry-point to checkbox
         respawn_cmd += " --resume {}"  # interpolate with session_id
@@ -1313,11 +1311,9 @@ class List:
             "--format",
             type=str,
             help=_(
-                (
-                    "output format, as passed to print function. "
-                    "Use '?' to list possible values. "
-                    "Use 'json' to print all objects as a json"
-                )
+                "output format, as passed to print function. "
+                "Use '?' to list possible values. "
+                "Use 'json' to print all objects as a json"
             ),
         )
 
@@ -1441,7 +1437,7 @@ class Expand:
         #       it may be inaccurate (overinclusive) when manifests are aliased
         return filter(
             lambda manifest_unit: any(
-                "manifest.{}".format(manifest_unit.partial_id) in require
+                f"manifest.{manifest_unit.partial_id}" in require
                 for require in job_requires
             ),
             manifest_units,
@@ -1449,7 +1445,7 @@ class Expand:
 
     def invoked(self, ctx):
         self.ctx = ctx
-        session_title = "checkbox-expand-{}".format(ctx.args.TEST_PLAN)
+        session_title = f"checkbox-expand-{ctx.args.TEST_PLAN}"
         self.sa.start_new_session(session_title)
         tps = self.sa.get_test_plans()
         testplan_id = get_testplan_id_by_id(
@@ -1557,11 +1553,9 @@ class ListBootstrapped:
             type=str,
             default="{full_id}\n",
             help=_(
-                (
-                    "output format, as passed to print function. "
-                    "Use '?' to list possible values. "
-                    "Use 'json' to print all objects as a json"
-                )
+                "output format, as passed to print function. "
+                "Use '?' to list possible values. "
+                "Use 'json' to print all objects as a json"
             ),
         )
         parser.add_argument(
@@ -1727,11 +1721,11 @@ def print_objs(group, sa, show_attrs=False, filter_fun=None, json_repr=False):
             if filter_fun and not filter_fun(obj):
                 return
             # Display the object name and group
-            print("{}{} {!r}".format(indent, obj.group, obj.name))
+            print(f"{indent}{obj.group} {obj.name!r}")
             indent += "  "
             if show_attrs:
                 for key, value in obj.attrs.items():
-                    print("{}{:15}: {!r}".format(indent, key, value))
+                    print(f"{indent}{key:15}: {value!r}")
         if obj.children:
             if group is None:
                 print("{}{}".format(indent, _("children")))
@@ -1795,10 +1789,10 @@ class Show:
             try:
                 print("origin:", obj.attrs["origin"])
                 path, line_range = obj.attrs["origin"].rsplit(":", maxsplit=1)
-                start_index, end_index = [
+                start_index, end_index = (
                     int(i) for i in line_range.split("-")
-                ]
-                with open(path, "rt", encoding="utf-8") as pxu:
+                )
+                with open(path, encoding="utf-8") as pxu:
                     # origin uses human-like numbering (starts with 1), so we need
                     # to substract 1. The range in origin is inclusive,
                     # so the end_index is right
@@ -1817,4 +1811,4 @@ class Show:
         else:
             # provider and service does not have origin
             for k, v in obj.attrs.items():
-                print("{}: {}".format(k, v))
+                print(f"{k}: {v}")

@@ -169,7 +169,7 @@ class UnifiedRunnerTests(TestCase):
         mock_get_checkbox_runtime_path.return_value = Path("")
 
         def shutil_which(x):
-            return "/bin/{}".format(x)
+            return f"/bin/{x}"
 
         mock_shutil_which.side_effect = shutil_which
 

@@ -1,41 +1,52 @@
 """Constants."""
+
 from enum import IntEnum, Enum
 
 
 # for scanner
 class ScannerMode(IntEnum):
     """Used to determine which packets should be parsed by the scanner."""
+
     MODE_NONE = 0
     MODE_IBEACON = 1
     MODE_EDDYSTONE = 2
     MODE_ESTIMOTE = 4
     MODE_CJMONITOR = 8
     MODE_EXPOSURE_NOTIFICATION = 16
-    MODE_ALL = MODE_IBEACON | MODE_EDDYSTONE | MODE_ESTIMOTE | MODE_CJMONITOR  | MODE_EXPOSURE_NOTIFICATION
+    MODE_ALL = (
+        MODE_IBEACON
+        | MODE_EDDYSTONE
+        | MODE_ESTIMOTE
+        | MODE_CJMONITOR
+        | MODE_EXPOSURE_NOTIFICATION
+    )
 
 
 # hci le scan parameters
 class ScanType(IntEnum):
     """Determines which type of scan should be executed."""
+
     PASSIVE = 0x00
     ACTIVE = 0x01
 
 
 class ScanFilter(IntEnum):
     """Determines if only white-listed MAC addresses will be filtered or not"""
+
     ALL = 0x00
     WHITELIST_ONLY = 0x01
 
 
 class BluetoothAddressType(IntEnum):
     """Determines the scanner MAC-address"""
+
     PUBLIC = 0x00  # with device MAC-address
     RANDOM = 0x01  # with a random MAC-address
 
 
 class MetaEventReportTypeEnum(Enum):
     LE_ADVERTISING_REPORT = 0x02
-    LE_EXT_ADVERTISING_REPORT = 0x0d
+    LE_EXT_ADVERTISING_REPORT = 0x0D
 
 
 # used for window and interval (i.e. 0x10 * 0.625 = 10ms, 10ms / 0.625 = 0x10)
@@ -43,7 +54,7 @@ MS_FRACTION_DIVIDER = 0.625
 
 HCI_EVENT_PKT = 0x04
 HCI_MAX_EVENT_PKT_SIZE = 260
-LE_META_EVENT = 0x3e
+LE_META_EVENT = 0x3E
 
 OGF_LE_CTL = 0x08
 OCF_LE_READ_LOCAL_SUPPORTED_FEATURES = 0x0003
@@ -61,7 +72,7 @@ EVT_CMD_COMPLETE = 0x0E
 
 class MetaEventReportTypeEnum(Enum):
     LE_ADVERTISING_REPORT = 0x02
-    LE_EXT_ADVERTISING_REPORT = 0x0d
+    LE_EXT_ADVERTISING_REPORT = 0x0D
 
 
 # for Generic Access Profile parsing
@@ -102,10 +113,10 @@ EDDYSTONE_TLD_ENCODINGS = {
     0x07: ".com",
     0x08: ".org",
     0x09: ".edu",
-    0x0a: ".net",
-    0x0b: ".info",
-    0x0c: ".biz",
-    0x0d: ".gov",
+    0x0A: ".net",
+    0x0B: ".info",
+    0x0C: ".biz",
+    0x0D: ".gov",
 }
 
 # for iBeacons
@@ -124,9 +135,9 @@ ESTIMOTE_TELEMETRY_SUBFRAME_A = 0
 ESTIMOTE_TELEMETRY_SUBFRAME_B = 1
 
 # for Control-J Monitor
-CJ_SERVICE_UUID = b"\x1A\x18\x00\x18"
+CJ_SERVICE_UUID = b"\x1a\x18\x00\x18"
 CJ_MANUFACTURER_ID = b"\x72\x04"
-CJ_TEMPHUM_TYPE = 0x10fe
+CJ_TEMPHUM_TYPE = 0x10FE
 
 # for COVID-19 Exposure Notifications
 # see https://blog.google/documents/70/Exposure_Notification_-_Bluetooth_Specification_v1.2.2.pdf

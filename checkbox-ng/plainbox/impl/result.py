@@ -1,4 +1,3 @@
-# encoding: utf-8
 # This file is part of Checkbox.
 #
 # Copyright 2012-2015 Canonical Ltd.
@@ -388,7 +387,7 @@ class _JobResultBase(IJobResult):
             " ".join(
                 [self.__class__.__name__]
                 + [
-                    "{}:{!r}".format(key, self._data[key])
+                    f"{key}:{self._data[key]!r}"
                     for key in sorted(self._data.keys())
                 ]
             )
@@ -657,7 +656,7 @@ class DiskJobResult(_JobResultBase):
             filename,
             lineno,
         )
-        return super(DiskJobResult, self).io_log
+        return super().io_log
 
 
 class IOLogRecordWriter:

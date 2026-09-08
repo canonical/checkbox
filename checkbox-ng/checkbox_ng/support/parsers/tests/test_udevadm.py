@@ -42,25 +42,25 @@ from checkbox_ng.support.parsers.udevadm import (
 from checkbox_ng.support.parsers.udevadm import parse_udevadm_output
 
 
-class UdevadmDataMixIn(object):
+class UdevadmDataMixIn:
     """
     Mix in with a helper method to load sample udevadm data
     """
 
     def get_text(self, name):
-        resource = "parsers/tests/udevadm_data/{}.txt".format(name)
+        resource = f"parsers/tests/udevadm_data/{name}.txt"
         filename = resource_filename("checkbox_ng.support", resource)
-        with open(filename, "rt", encoding="UTF-8") as stream:
+        with open(filename, encoding="UTF-8") as stream:
             return stream.read()
 
     def get_lsblk(self, name):
-        resource = "parsers/tests/udevadm_data/{}.lsblk.json".format(name)
+        resource = f"parsers/tests/udevadm_data/{name}.lsblk.json"
         filename = resource_filename("checkbox_ng.support", resource)
         try:
-            with open(filename, "rt", encoding="UTF-8") as f:
+            with open(filename, encoding="UTF-8") as f:
                 data = json.load(f)
                 return data
-        except (IOError, OSError):
+        except OSError:
             return None
 
 
@@ -1547,27 +1547,27 @@ class TestUdevadmParser(TestCase, UdevadmDataMixIn):
                 self.assertEqual(
                     devices[indices[0]].product,
                     device[0],
-                    "Bad product name for {}".format(device[0]),
+                    f"Bad product name for {device[0]}",
                 )
             self.assertEqual(
                 devices[indices[0]].category,
                 device[1],
-                "Bad category for {}".format(device[0]),
+                f"Bad category for {device[0]}",
             )
             self.assertEqual(
                 devices[indices[0]].bus,
                 device[2],
-                "Bad bus for {}".format(device[0]),
+                f"Bad bus for {device[0]}",
             )
             self.assertEqual(
                 devices[indices[0]].vendor_id,
                 device[3],
-                "Bad vendor_id for {}".format(device[0]),
+                f"Bad vendor_id for {device[0]}",
             )
             self.assertEqual(
                 devices[indices[0]].product_id,
                 device[4],
-                "Bad product_id for {}".format(device[0]),
+                f"Bad product_id for {device[0]}",
             )
 
 

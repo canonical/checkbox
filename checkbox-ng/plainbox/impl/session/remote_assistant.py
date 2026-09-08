@@ -316,7 +316,7 @@ class RemoteSessionAssistant:
                 "XDG_CURRENT_DESKTOP"
             ),
             "XDG_SESSION_TYPE": self._set_envvar_from_proc("XDG_SESSION_TYPE"),
-            "XDG_RUNTIME_DIR": "/run/user/{}".format(uid),
+            "XDG_RUNTIME_DIR": f"/run/user/{uid}",
             "DBUS_SESSION_BUS_ADDRESS": "unix:path=/run/user/{}/bus".format(
                 uid
             ),
@@ -373,9 +373,9 @@ class RemoteSessionAssistant:
         # the following or a transient value inherited from another snap, which
         # will not work.
         uid = pwd.getpwnam(self._normal_user).pw_uid
-        extra_env["XDG_RUNTIME_DIR"] = "/run/user/{}".format(uid)
+        extra_env["XDG_RUNTIME_DIR"] = f"/run/user/{uid}"
         extra_env["DBUS_SESSION_BUS_ADDRESS"] = (
-            "unix:path=/run/user/{}/bus".format(uid)
+            f"unix:path=/run/user/{uid}/bus"
         )
         return extra_env
 
@@ -413,7 +413,7 @@ class RemoteSessionAssistant:
         if self._normal_user:
             if not check_user_exists(self._normal_user):
                 raise RuntimeError(
-                    "User '{}' doesn't exist!".format(self._normal_user)
+                    f"User '{self._normal_user}' doesn't exist!"
                 )
         else:
             self._normal_user = guess_normal_user()
@@ -891,7 +891,7 @@ class RemoteSessionAssistant:
             )
             result_path = os.path.join(session_share, "__result")
             try:
-                with open(result_path, "rt") as f:
+                with open(result_path) as f:
                     result_dict = json.load(f)
                 # the only really important field in the result is
                 # 'outcome' so let's make sure it doesn't contain

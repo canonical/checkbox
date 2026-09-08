@@ -35,7 +35,7 @@ class TestSysfsScanner(unittest.TestCase):
         try:
             try_read_node("/fake/path")
         except Exception as e:
-            self.fail("try_read_node raised {} unexpectedly!".format(e))
+            self.fail(f"try_read_node raised {e} unexpectedly!")
 
     @patch("os.walk")
     @patch("os.access")

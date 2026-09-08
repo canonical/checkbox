@@ -87,7 +87,7 @@ class UnsupportedGrammar(ValueError):
         base_str = " ".join(self.args)
         extra = self.dump_parsed_ast()
         if extra:
-            return "{}\nRaised by lemma:\n{}".format(base_str, extra)
+            return f"{base_str}\nRaised by lemma:\n{extra}"
         return base_str
 
 
@@ -165,7 +165,7 @@ class CallGetter(NamespacedGetter):
 
     def __str__(self):
         args = ",".join(str(x) for x in self.args)
-        return "{}({})".format(self.function_name, args)
+        return f"{self.function_name}({args})"
 
 
 class AttributeGetter(NamespacedGetter):
@@ -181,7 +181,7 @@ class AttributeGetter(NamespacedGetter):
             return None
 
     def __str__(self):
-        return "{}.{}".format(self.namespace, self.variable)
+        return f"{self.namespace}.{self.variable}"
 
 
 class ConstantGetter(ValueGetter):
@@ -229,7 +229,7 @@ class NamedConstant(ConstantGetter):
             raise NameError from KeyError
 
     def __str__(self):
-        return "{} ({})".format(self.name, self.value)
+        return f"{self.name} ({self.value})"
 
 
 class ListGetter(ConstantGetter):
@@ -246,7 +246,7 @@ class ListGetter(ConstantGetter):
 
     def __str__(self):
         to_r = ", ".join(str(x) for x in self.value)
-        return "[{}]".format(to_r)
+        return f"[{to_r}]"
 
 
 legacy_getters = {}
@@ -324,7 +324,7 @@ class Operator:
             return cls(*cls.ast_to_operator[type(parsed_ast)])
         except KeyError as e:
             raise UnsupportedGrammar(
-                "Unsupported operator {}".format(ast.dump(parsed_ast))
+                f"Unsupported operator {ast.dump(parsed_ast)}"
             ) from e
 
     def __call__(self, *args, **kwargs):
@@ -509,13 +509,9 @@ class Namespace:
             return self.namespace[key]
         except KeyError as e:
             with contextlib.suppress(KeyError):
-                return self.namespace[
-                    "{}::{}".format(self.implicit_namespace, key)
-                ]
+                return self.namespace[f"{self.implicit_namespace}::{key}"]
             with contextlib.suppress(KeyError):
-                return self.namespace[
-                    "{}::{}".format(self.DEFAULT_NAMESPACE, key)
-                ]
+                return self.namespace[f"{self.DEFAULT_NAMESPACE}::{key}"]
             raise UnknownResource from e
 
     def __setitem__(self, key, value):
@@ -530,7 +526,7 @@ class Namespace:
             self.namespace[implicit_namespaced_name] = value
             return
 
-        builtin_namespaced_name = "{}::{}".format(self.DEFAULT_NAMESPACE, key)
+        builtin_namespaced_name = f"{self.DEFAULT_NAMESPACE}::{key}"
         if builtin_namespaced_name in self:
             self.namespace[builtin_namespaced_name] = value
             return
@@ -597,9 +593,7 @@ def _prepare_filter(ast_item: ast.AST, namespace, constraint_class):
     parsed_expr ~= 'a.v > 1'
     output_namespace = {'a' : (x for x in input_namespace['a'] if x['v'] > 1) }
     """
-    raise NotImplementedError(
-        "Unsupported ast item: {}".format(ast.dump(ast_item))
-    )
+    raise NotImplementedError(f"Unsupported ast item: {ast.dump(ast_item)}")
 
 
 @_prepare_filter.register(ast.BoolOp)

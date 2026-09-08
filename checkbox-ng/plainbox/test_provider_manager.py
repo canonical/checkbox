@@ -249,9 +249,7 @@ class ProviderManagerToolTests(TestCase):
         """
         verify that ``install --layout=flat`` works
         """
-        self.tool.main(
-            ["install", "--prefix=/foo", "--root={}".format(self.tmpdir)]
-        )
+        self.tool.main(["install", "--prefix=/foo", f"--root={self.tmpdir}"])
         self.assert_common_flat_install()
         self.assertFileContent(
             self.tmpdir
@@ -276,9 +274,7 @@ class ProviderManagerToolTests(TestCase):
         are missing
         """
         shutil.rmtree(os.path.join(self.tmpdir, "jobs"))
-        self.tool.main(
-            ["install", "--prefix=/foo", "--root={}".format(self.tmpdir)]
-        )
+        self.tool.main(["install", "--prefix=/foo", f"--root={self.tmpdir}"])
         self.assert_common_flat_install()
         self.assertFalse(
             os.path.exists(
@@ -363,7 +359,7 @@ class ProviderManagerToolTests(TestCase):
                 "install",
                 "--prefix=/foo",
                 "--layout=unix",
-                "--root={}".format(self.tmpdir),
+                f"--root={self.tmpdir}",
             ]
         )
         self.assert_common_unix_install()
@@ -502,7 +498,7 @@ class ProviderManagerToolTests(TestCase):
             "\n"
         ).format(self.tmpdir)
         os.makedirs(os.path.dirname(filename))
-        with open(filename, "wt") as stream:
+        with open(filename, "w") as stream:
             stream.write("should have been overwritten")
         self.tool.main(["develop", "--force"])
         self.assertFileContent(filename, content)
@@ -518,7 +514,7 @@ class ProviderManagerToolTests(TestCase):
         filename = os.path.join(provider_path, "com.example.test.provider")
         mock_path_entry.return_value = provider_path
         os.makedirs(os.path.dirname(filename))
-        with open(filename, "wt") as stream:
+        with open(filename, "w") as stream:
             stream.write("should have been removed")
         self.tool.main(["develop", "--uninstall"])
         self.assertFalse(os.path.exists(filename))
@@ -541,7 +537,7 @@ class ProviderManagerToolTests(TestCase):
         verify that ``validate -N`` shows information about missing fields
         """
         filename = os.path.join(self.tmpdir, "jobs", "broken.pxu")
-        with open(filename, "wt", encoding="UTF-8") as stream:
+        with open(filename, "w", encoding="UTF-8") as stream:
             print("id: broken", file=stream)
             print("plugin: shell", file=stream)
         with TestIO() as test_io:
@@ -560,7 +556,7 @@ class ProviderManagerToolTests(TestCase):
         field values
         """
         filename = os.path.join(self.tmpdir, "jobs", "broken.pxu")
-        with open(filename, "wt", encoding="UTF-8") as stream:
+        with open(filename, "w", encoding="UTF-8") as stream:
             print("id: broken", file=stream)
             print("plugin: magic", file=stream)
         with TestIO() as test_io:
@@ -580,7 +576,7 @@ class ProviderManagerToolTests(TestCase):
         values
         """
         filename = os.path.join(self.tmpdir, "jobs", "broken.pxu")
-        with open(filename, "wt", encoding="UTF-8") as stream:
+        with open(filename, "w", encoding="UTF-8") as stream:
             print("id: broken", file=stream)
             print("plugin: manual", file=stream)
             print("description: broken job definition", file=stream)
@@ -600,7 +596,7 @@ class ProviderManagerToolTests(TestCase):
         verify that ``validate -N`` shows information about deprecated fields
         """
         filename = os.path.join(self.tmpdir, "jobs", "broken.pxu")
-        with open(filename, "wt", encoding="UTF-8") as stream:
+        with open(filename, "w", encoding="UTF-8") as stream:
             print("name: broken", file=stream)
             print("plugin: manual", file=stream)
             print("description: broken job definition", file=stream)
@@ -653,7 +649,7 @@ class ProviderManagerToolTests(TestCase):
     def _create_definition(self, tmpdir):
         os.mkdir(os.path.join(tmpdir, "jobs"))
         filename = os.path.join(tmpdir, "jobs", "jobs.pxu")
-        with open(filename, "wt", encoding="UTF-8") as stream:
+        with open(filename, "w", encoding="UTF-8") as stream:
             print("id: dummy", file=stream)
             print("plugin: shell", file=stream)
             print("command: true", file=stream)
@@ -663,7 +659,7 @@ class ProviderManagerToolTests(TestCase):
             print("_description: This job is dummy", file=stream)
         os.mkdir(os.path.join(tmpdir, "units"))
         filename = os.path.join(tmpdir, "units", "testplans.pxu")
-        with open(filename, "wt", encoding="UTF-8") as stream:
+        with open(filename, "w", encoding="UTF-8") as stream:
             print("unit: test plan", file=stream)
             print("id: test", file=stream)
             print("_name: Dummy Tests", file=stream)
@@ -672,17 +668,17 @@ class ProviderManagerToolTests(TestCase):
             print("include: dummy", file=stream)
         os.mkdir(os.path.join(tmpdir, "data"))
         filename = os.path.join(tmpdir, "data", "test.dat")
-        with open(filename, "wt", encoding="UTF-8") as stream:
+        with open(filename, "w", encoding="UTF-8") as stream:
             print("data", file=stream)
         os.mkdir(os.path.join(tmpdir, "bin"))
         filename = os.path.join(tmpdir, "bin", "test.sh")
-        with open(filename, "wt", encoding="UTF-8") as stream:
+        with open(filename, "w", encoding="UTF-8") as stream:
             print("#!/bin/sh", file=stream)
             print(":", file=stream)
         os.chmod(filename, 0o755)
         os.mkdir(os.path.join(tmpdir, "src"))
         filename = os.path.join(tmpdir, "src", "hello.c")
-        with open(filename, "wt", encoding="UTF-8") as stream:
+        with open(filename, "w", encoding="UTF-8") as stream:
             print("int main() { return 0; }", file=stream)
         definition = Provider1Definition()
         definition.location = tmpdir
@@ -705,10 +701,10 @@ class ProviderManagerToolTests(TestCase):
             expected text of the file
         """
         if os.path.isfile(filename):
-            with open(filename, "rt", encoding="UTF-8") as stream:
+            with open(filename, encoding="UTF-8") as stream:
                 self.assertEqual(stream.read(), content)
         else:
-            self.fail("The file {} didn't exist".format(filename))
+            self.fail(f"The file {filename} didn't exist")
 
     def assertTarballContent(self, tarball, member, content):
         """
@@ -734,7 +730,7 @@ class ProviderManagerToolTests(TestCase):
             with tempfile.TemporaryDirectory() as temp:
                 tarfile_extract(tar, member, temp)
                 extracted = os.path.join(temp, member)
-                with open(extracted, "rt", encoding="UTF-8") as stream:
+                with open(extracted, encoding="UTF-8") as stream:
                     self.assertEqual(stream.read(), content)
 
     def assertNoTarballContent(self, tarball, member):

@@ -55,7 +55,7 @@ class SuspendStats:
         debugfs = "/sys/kernel/debug/suspend_stats"
         content = {}
 
-        with open(debugfs, "r") as d:
+        with open(debugfs) as d:
             for p in filter(None, (line.strip() for line in d.readlines())):
                 if p != "failures:" and ":" in p:
                     kv = p.split(":")
@@ -86,7 +86,7 @@ class SuspendStats:
 
         """
         for c, v in self.contents.items():
-            print("{}:{}".format(c, v))
+            print(f"{c}:{v}")
 
     def is_after_suspend(self) -> bool:
         """

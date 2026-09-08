@@ -209,7 +209,7 @@ class Collector(metaclass=CollectorMeta):
                 stderr=STDOUT,
             )
         except CalledProcessError as e:
-            return "Failed to collect with error: {}".format(e)
+            return f"Failed to collect with error: {e}"
 
     def collect_outputs(self) -> "(OutputSuccess|OutputFailure)":
         """

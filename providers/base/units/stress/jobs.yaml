@@ -121,7 +121,7 @@ siblings:
         --checkbox-respawn-cmd $PLAINBOX_SESSION_SHARE/__respawn_checkbox \
         --fwts \
         --log-level=debug \
-        --log-dir=$PLAINBOX_SESSION_SHARE
+        --log-dir=$PLAINBOX_SESSION_SHARE \
         --suspends-before-reboot=30 -r 3 --silent --check-hardware-list
     description:
       This is an automated stress test that will run a sequence of '30 suspend/resume cycles and one
@@ -477,9 +477,11 @@ id: stress/reboot_30_check
 estimated_duration: "1.0"
 depends:
   - stress/reboot_30
-command:
-  pm_log_check.py --log-level=notset "$PLAINBOX_SESSION_SHARE"/pm_test.reboot.30.log
-  "$PLAINBOX_SESSION_SHARE"/pm_log_check_reboot.30.log
+command: |
+  pm_log_check.py \
+    --log-level=notset \
+    "$PLAINBOX_SESSION_SHARE"/pm_test.reboot.30.log \
+    "$PLAINBOX_SESSION_SHARE"/pm_log_check_reboot.30.log
 purpose: Check logs for the stress reboot (30 cycles) test case
 summary: Analyze logs for the stress reboot test with 30 cycles.
 ---
@@ -500,9 +502,11 @@ id: stress/reboot_10_check
 estimated_duration: "1.0"
 depends:
   - stress/reboot_10
-command:
-  pm_log_check.py --log-level=notset "$PLAINBOX_SESSION_SHARE"/pm_test.reboot.10.log
-  "$PLAINBOX_SESSION_SHARE"/pm_log_check_reboot.10.log
+command: |
+  pm_log_check.py \
+    --log-level=notset \
+    "$PLAINBOX_SESSION_SHARE"/pm_test.reboot.10.log \
+    "$PLAINBOX_SESSION_SHARE"/pm_log_check_reboot.10.log
 purpose: Check logs for the stress reboot (10 cycles) test case
 summary: Validate logs for the stress reboot test over 10 cycles.
 ---
@@ -546,9 +550,11 @@ id: stress/poweroff_10_check
 estimated_duration: "1.0"
 depends:
   - stress/poweroff_10
-command:
-  pm_log_check.py --log-level=notset "$PLAINBOX_SESSION_SHARE"/pm_test.poweroff.10.log
-  "$PLAINBOX_SESSION_SHARE"/pm_log_check_poweroff.10.log
+command: |
+  pm_log_check.py \
+    --log-level=notset \
+    "$PLAINBOX_SESSION_SHARE"/pm_test.poweroff.10.log \
+    "$PLAINBOX_SESSION_SHARE"/pm_log_check_poweroff.10.log
 purpose: Check logs for the stress poweroff (10 cycles) test case
 summary: Validate the log files for the stress poweroff (10 cycles) test.
 ---
@@ -569,9 +575,11 @@ id: stress/reboot_check
 estimated_duration: "1.0"
 depends:
   - stress/reboot
-command:
-  pm_log_check.py --log-level=notset "$PLAINBOX_SESSION_SHARE"/pm_test.reboot.100.log
-  "$PLAINBOX_SESSION_SHARE"/pm_log_check_reboot.100.log
+command: |
+  pm_log_check.py \
+    --log-level=notset \
+    "$PLAINBOX_SESSION_SHARE"/pm_test.reboot.100.log \
+    "$PLAINBOX_SESSION_SHARE"/pm_log_check_reboot.100.log
 purpose: Check logs for the stress reboot (100 cycles) test case
 summary: Analyze logs for the stress reboot test over 100 cycles.
 ---
@@ -592,9 +600,11 @@ id: stress/poweroff_check
 estimated_duration: "1.0"
 depends:
   - stress/poweroff
-command:
-  pm_log_check.py --log-level=notset "$PLAINBOX_SESSION_SHARE"/pm_test.poweroff.100.log
-  "$PLAINBOX_SESSION_SHARE"/pm_log_check_poweroff.100.log
+command: |
+  pm_log_check.py \
+    --log-level=notset \
+    "$PLAINBOX_SESSION_SHARE"/pm_test.poweroff.100.log \
+    "$PLAINBOX_SESSION_SHARE"/pm_log_check_poweroff.100.log
 purpose: Check logs for the stress poweroff (100 cycles) test case
 summary: Verify logs for the stress poweroff test over 100 cycles.
 ---

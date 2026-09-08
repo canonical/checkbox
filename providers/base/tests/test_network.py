@@ -12,16 +12,16 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-import unittest
 import socket
 import subprocess
 import threading
-from unittest.mock import patch, mock_open, Mock, call
-from contextlib import redirect_stdout, redirect_stderr
+import unittest
+from argparse import Namespace
+from contextlib import redirect_stderr, redirect_stdout
 from io import StringIO
 from pathlib import Path
 from subprocess import CalledProcessError
-from argparse import Namespace
+from unittest.mock import Mock, mock_open, patch
 
 import network
 

@@ -120,7 +120,7 @@ class FileTextSourceTests(TestCase):
         """
         self.assertEqual(
             repr(self.src),
-            "{}({!r})".format(self._CLS.__name__, self._FILENAME),
+            f"{self._CLS.__name__}({self._FILENAME!r})",
         )
 
     def test_eq(self):

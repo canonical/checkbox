@@ -139,7 +139,7 @@ def get_release_to_test():
         import distro
 
         if distro.id() == "ubuntu-core":
-            return "{}.04".format(distro.version())
+            return f"{distro.version()}.04"
         return distro.version()
     except (ImportError, CalledProcessError):
         import lsb_release
@@ -165,7 +165,7 @@ def get_codename_to_test():
         lsb_release.get_distro_information()["CODENAME"]
 
 
-class QemuRunner(object):
+class QemuRunner:
     def __init__(self, arch):
         self.arch = arch
         self.config = QEMU_ARCH_CONFIG[arch]
@@ -238,7 +238,7 @@ class QemuRunner(object):
         return params
 
 
-class KVMTest(object):
+class KVMTest:
 
     def __init__(self, image=None, timeout=500, debug_file=None):
         self.image = image
@@ -273,18 +273,18 @@ class KVMTest(object):
 
         def _construct_filename(alt_pattern=None, initial_url=None):
             if self.qemu_config["cloudimg_type"] == CLOUD_IMAGE_TYPE_TAR:
-                cloud_iso = "%s-server-cloudimg-%s.tar.gz" % (
+                cloud_iso = "{}-server-cloudimg-{}.tar.gz".format(
                     self.release,
                     self.qemu_config["cloudimg_arch"],
                 )
             elif alt_pattern == "modern":
                 # LP 1635345 - yakkety and beyond have a new naming scheme
-                cloud_iso = "%s-server-cloudimg-%s.img" % (
+                cloud_iso = "{}-server-cloudimg-{}.img".format(
                     self.release,
                     self.qemu_config["cloudimg_arch"],
                 )
             elif self.qemu_config["cloudimg_type"] == CLOUD_IMAGE_TYPE_DISK:
-                cloud_iso = "%s-server-cloudimg-%s-disk1.img" % (
+                cloud_iso = "{}-server-cloudimg-{}-disk1.img".format(
                     self.release,
                     self.qemu_config["cloudimg_arch"],
                 )
@@ -306,8 +306,8 @@ class KVMTest(object):
             try:
                 ret = requests.head(url)
             except OSError as e:
-                logging.error("Unable to connect to {}".format(url))
-                logging.error(" * Message: {}".format(e.with_traceback(None)))
+                logging.error(f"Unable to connect to {url}")
+                logging.error(f" * Message: {e.with_traceback(None)}")
                 return False
 
             if ret.status_code != 200:
@@ -392,13 +392,12 @@ class KVMTest(object):
             full_url, cloud_iso = self.get_image_name_and_url()
         else:
             full_url, cloud_iso = self.get_image_name_and_url(image_url)
-        logging.debug("Acquiring cloud image from: {}".format(full_url))
+        logging.debug(f"Acquiring cloud image from: {full_url}")
 
         # Attempt download
         try:
             urllib.request.urlretrieve(full_url, cloud_iso)
         except (
-            IOError,
             OSError,
             urllib.error.HTTPError,
             urllib.error.URLError,
@@ -425,7 +424,7 @@ class KVMTest(object):
         the config data defined in config.iso
         """
 
-        logging.debug("Attempting boot for:{}".format(data_disk))
+        logging.debug(f"Attempting boot for:{data_disk}")
 
         qemu = QemuRunner(self.arch)
 
@@ -458,8 +457,8 @@ class KVMTest(object):
         # Open VM STDERR/STDOUT log file for writing
         try:
             file = open(self.debug_file, "w")
-        except IOError:
-            logging.error("Failed creating file:{}".format(self.debug_file))
+        except OSError:
+            logging.error(f"Failed creating file:{self.debug_file}")
             return False
 
         # Start Virtual machine
@@ -479,7 +478,7 @@ class KVMTest(object):
         """
         for file in ["user-data", "meta-data"]:
             logging.debug("Creating cloud %s", file)
-            with open(file, "wt") as data_file:
+            with open(file, "w") as data_file:
                 os.fchmod(data_file.fileno(), 0o777)
                 data_file.write(vars()[file.replace("-", "_")])
 
@@ -569,7 +568,7 @@ class KVMTest(object):
                 status = 1
                 while self.elapsed_time <= self.timeout:
                     # Check log every 30 seconds to see if the VM boots
-                    with open(self.debug_file, "r") as debug_file:
+                    with open(self.debug_file) as debug_file:
                         status = self.log_check(debug_file.read())
                         if status == 0:
                             logging.info("Booted successfully.")
@@ -582,7 +581,7 @@ class KVMTest(object):
                     # Finally, if we didn't get the Success message by now try
                     # one more time and return 1 if we still haven't booted
                     if status != 0:
-                        with open(self.debug_file, "r") as debug_file:
+                        with open(self.debug_file) as debug_file:
                             stream = debug_file.read()
                             status = self.log_check(stream)
                             if status == 0:
@@ -595,12 +594,12 @@ class KVMTest(object):
             elif not self.image:
                 logging.error("Could not find downloaded image")
             else:
-                logging.error("Could not find: {}".format(self.image))
+                logging.error(f"Could not find: {self.image}")
 
         return status
 
 
-class RunCommand(object):
+class RunCommand:
     """
     Runs a command and can return all needed info:
     * stdout
@@ -630,7 +629,7 @@ class RunCommand(object):
         self.returncode = proc.returncode
 
 
-class LXDTest(object):
+class LXDTest:
 
     def __init__(self, template=None, rootfs=None):
         self.rootfs_url = rootfs
@@ -650,15 +649,15 @@ class LXDTest(object):
                     task.cmd, task.returncode
                 )
             )
-            logging.error(" STDOUT: {}".format(task.stdout))
-            logging.error(" STDERR: {}".format(task.stderr))
+            logging.error(f" STDOUT: {task.stdout}")
+            logging.error(f" STDERR: {task.stderr}")
             return False
         else:
-            logging.debug("Command {}:".format(task.cmd))
+            logging.debug(f"Command {task.cmd}:")
             if task.stdout != "":
-                logging.debug(" STDOUT: {}".format(task.stdout))
+                logging.debug(f" STDOUT: {task.stdout}")
             elif task.stderr != "":
-                logging.debug(" STDERR: {}".format(task.stderr))
+                logging.debug(f" STDERR: {task.stderr}")
             else:
                 logging.debug(" Command returned no output")
             return True
@@ -746,7 +745,7 @@ class LXDTest(object):
                     "Error encountered while attempting to "
                     "import images from default remote."
                 )
-                logging.error("Retrying up to {} times.".format(retry))
+                logging.error(f"Retrying up to {retry} times.")
                 result = self.run_command(cmd)
                 retry -= 1
         return result
@@ -756,13 +755,10 @@ class LXDTest(object):
         Downloads LXD files for same release as host machine
         """
         # TODO: Clean this up to use a non-internet simplestream on MAAS server
-        logging.debug(
-            "Attempting download of {} from {}".format(filename, url)
-        )
+        logging.debug(f"Attempting download of {filename} from {url}")
         try:
             urllib.request.urlretrieve(url, filename)
         except (
-            IOError,
             OSError,
             urllib.error.HTTPError,
             urllib.error.URLError,
@@ -777,7 +773,7 @@ class LXDTest(object):
             return False
 
         if not os.path.isfile(filename):
-            logging.warn("Can not find {}".format(filename))
+            logging.warn(f"Can not find {filename}")
             return False
 
         return filename
@@ -787,8 +783,8 @@ class LXDTest(object):
         Clean up test files an containers created
         """
         logging.debug("Cleaning up images and containers created during test")
-        self.run_command("lxc image delete {}".format(self.image_alias))
-        self.run_command("lxc delete --force {}".format(self.name))
+        self.run_command(f"lxc image delete {self.image_alias}")
+        self.run_command(f"lxc delete --force {self.name}")
 
     def start(self):
         """
@@ -801,9 +797,7 @@ class LXDTest(object):
 
         # Create container
         logging.debug("Launching container")
-        if not self.run_command(
-            "lxc launch {} {}".format(self.image_alias, self.name)
-        ):
+        if not self.run_command(f"lxc launch {self.image_alias} {self.name}"):
             return False
 
         logging.debug("Container listing:")
@@ -822,7 +816,7 @@ class LXDTest(object):
         return True
 
 
-class LXDTest_vm(object):
+class LXDTest_vm:
 
     def __init__(self, template=None, image=None):
         self.image_url = image
@@ -842,16 +836,16 @@ class LXDTest_vm(object):
                     task.cmd, task.returncode
                 )
             )
-            logging.error(" STDOUT: {}".format(task.stdout))
+            logging.error(f" STDOUT: {task.stdout}")
             if log_stderr:
-                logging.error(" STDERR: {}".format(task.stderr))
+                logging.error(f" STDERR: {task.stderr}")
             return False
         else:
-            logging.debug("Command {}:".format(task.cmd))
+            logging.debug(f"Command {task.cmd}:")
             if task.stdout != "":
-                logging.debug(" STDOUT: {}".format(task.stdout))
+                logging.debug(f" STDOUT: {task.stdout}")
             if task.stderr and log_stderr:
-                logging.debug(" STDERR: {}".format(task.stderr))
+                logging.debug(f" STDERR: {task.stderr}")
             if not (task.stderr or task.stdout):
                 logging.debug(" Command returned no output")
             return True
@@ -931,13 +925,10 @@ class LXDTest_vm(object):
         Downloads LXD files for same release as host machine
         """
         # TODO: Clean this up to use a non-internet simplestream on MAAS server
-        logging.debug(
-            "Attempting download of {} from {}".format(filename, url)
-        )
+        logging.debug(f"Attempting download of {filename} from {url}")
         try:
             urllib.request.urlretrieve(url, filename)
         except (
-            IOError,
             OSError,
             urllib.error.HTTPError,
             urllib.error.URLError,
@@ -952,7 +943,7 @@ class LXDTest_vm(object):
             return False
 
         if not os.path.isfile(filename):
-            logging.warn("Can not find {}".format(filename))
+            logging.warn(f"Can not find {filename}")
             return False
 
         return filename
@@ -962,8 +953,8 @@ class LXDTest_vm(object):
         Clean up test files an Virtual Machines created
         """
         logging.debug("Cleaning up images and VMs created during test")
-        self.run_command("lxc image delete {}".format(self.image_alias), False)
-        self.run_command("lxc delete --force {}".format(self.name), False)
+        self.run_command(f"lxc image delete {self.image_alias}", False)
+        self.run_command(f"lxc delete --force {self.name}", False)
 
     def start_vm(self):
         """
@@ -985,13 +976,13 @@ class LXDTest_vm(object):
                 self.default_remote, self.os_version, self.name
             )
         else:
-            cmd = "lxc init {} {} --vm".format(self.image_alias, self.name)
+            cmd = f"lxc init {self.image_alias} {self.name} --vm"
 
         if not self.run_command(cmd):
             return False
 
         logging.debug("Start VM:")
-        if not self.run_command("lxc start {} ".format(self.name)):
+        if not self.run_command(f"lxc start {self.name} "):
             return False
 
         logging.debug("Virtual Machine listing:")
@@ -1004,7 +995,7 @@ class LXDTest_vm(object):
         time_waited = 0
         while time_waited < max_wait_duration:
             time.sleep(wait_interval)
-            cmd = "lxc exec {} -- lsb_release -a".format(self.name)
+            cmd = f"lxc exec {self.name} -- lsb_release -a"
             if self.run_command(cmd, False):
                 print("Vm started and booted successfully")
                 return True

@@ -45,9 +45,7 @@ def run_with_retry(f, max_attempts, delay, *args, **kwargs):
             )
         )
     if delay < 1:
-        raise ValueError(
-            "delay should be at least 1 ({} was used)".format(delay)
-        )
+        raise ValueError(f"delay should be at least 1 ({delay} was used)")
     for attempt in range(1, max_attempts + 1):
         attempt_string = "Attempt {}/{} (function '{}')".format(
             attempt, max_attempts, f.__name__
@@ -63,7 +61,7 @@ def run_with_retry(f, max_attempts, delay, *args, **kwargs):
             result = f(*args, **kwargs)
             return result
         except BaseException as e:
-            print("Attempt {} failed:".format(attempt), file=sys.stderr)
+            print(f"Attempt {attempt} failed:", file=sys.stderr)
             print(e, file=sys.stderr)
             print(file=sys.stderr, flush=True)
             # also flush stdout to prevent messages being printed in the wrong

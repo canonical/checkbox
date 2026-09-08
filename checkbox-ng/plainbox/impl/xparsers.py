@@ -137,7 +137,7 @@ class Node(pod.POD):
             self.__class__.__name__,
             ", ".join(
                 [
-                    "{}={!r}".format(field.name, getattr(self, field.name))
+                    f"{field.name}={getattr(self, field.name)!r}"
                     for field in self.__class__.field_list
                     if field.name not in ("lineno", "col_offset")
                 ]
@@ -211,7 +211,7 @@ class Visitor:
     def visit(self, node: Node) -> "Any":
         """visit the specified node"""
         node_name = node.__class__.__name__
-        visit_meth_name = "visit_{}_node".format(node_name)
+        visit_meth_name = f"visit_{node_name}_node"
         if hasattr(self, visit_meth_name):
             visit_meth = getattr(self, visit_meth_name)
             return visit_meth(node)
@@ -602,7 +602,7 @@ class IncludeStmt(Node):
             return IncludeStmt(lineno, 0, Re.parse(include), [])
         if len(include) != 1:
             raise ValueError(
-                "Include is a non-single value map, got: {}".format(include)
+                f"Include is a non-single value map, got: {include}"
             )
         key, overrides = next(iter(include.items()))
 
@@ -746,7 +746,7 @@ class WordList(Node):
                     Error(
                         lineno,
                         col_offset,
-                        "Missing end of word: {!r}".format(lexeme),
+                        f"Missing end of word: {lexeme!r}",
                     )
                 )
                 break
@@ -755,7 +755,7 @@ class WordList(Node):
                     Error(
                         lineno,
                         col_offset,
-                        "Unexpected input: {!r}".format(lexeme),
+                        f"Unexpected input: {lexeme!r}",
                     )
                 )
         return WordList(lineno, col_offset, entries)

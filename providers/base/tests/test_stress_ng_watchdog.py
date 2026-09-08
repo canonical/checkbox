@@ -102,15 +102,13 @@ class TestMain(WatchdogTestBase):
     def test_main_dispatches_disable(self, disable_mock):
         with patch("sys.argv", ["stress_ng_watchdog.py", "disable"]):
             self.assertEqual(stress_ng_watchdog.main(), 0)
-        # call_count instead of assert_called_once(): the latter only
-        # exists from Python 3.6 and this provider is tox-tested on 3.5.
-        self.assertEqual(disable_mock.call_count, 1)
+        disable_mock.assert_called_once()
 
     @patch.object(stress_ng_watchdog, "restore", return_value=0)
     def test_main_dispatches_restore(self, restore_mock):
         with patch("sys.argv", ["stress_ng_watchdog.py", "restore"]):
             self.assertEqual(stress_ng_watchdog.main(), 0)
-        self.assertEqual(restore_mock.call_count, 1)
+        restore_mock.assert_called_once()
 
 
 if __name__ == "__main__":

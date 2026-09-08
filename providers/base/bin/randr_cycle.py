@@ -134,11 +134,11 @@ def action(filename, **kwargs):
     :param filename: The string is constructed by
                      [monitor name]_[resolution]_[transform]_.
     """
-    print("Test: {}".format(filename), flush=True)
+    print(f"Test: {filename}", flush=True)
     if "path" in kwargs:
         path_and_filename = "{}/{}.jpg".format(kwargs.get("path"), filename)
     else:
-        path_and_filename = "{}.jpg".format(filename)
+        path_and_filename = f"{filename}.jpg"
     time.sleep(5)
     if shutil.which("gnome-screenshot"):
         # gnome-screenshot no longer works on 26.04+
@@ -189,11 +189,11 @@ class MonitorTest:
         elif self.is_suspend_support():
             # check the status is before or after suspend
             try:
-                with open("/sys/power/suspend_stats/success", "r") as s:
+                with open("/sys/power/suspend_stats/success") as s:
                     suspend_count = s.readline().strip("\n")
                     if suspend_count != "0":
-                        path = "{}_after_suspend".format(path)
-            except (IOError, OSError):
+                        path = f"{path}_after_suspend"
+            except OSError:
                 pass
         os.makedirs(path, exist_ok=True)
 
@@ -209,7 +209,7 @@ class MonitorTest:
             with tarfile.open(path + ".tgz", "w:gz") as screen_tar:
                 for screen in os.listdir(path):
                     screen_tar.add(path + "/" + screen, screen)
-        except (IOError, OSError):
+        except OSError:
             pass
 
     def parse_args(self, args=sys.argv[1:]):
@@ -264,7 +264,7 @@ class MonitorTest:
         try:
             monitor_config = display_info.get_monitor_config()
         except ValueError as e:
-            raise SystemExit("Current host is not support: {}".format(e))
+            raise SystemExit(f"Current host is not support: {e}")
 
         screenshot_path = self.gen_screenshot_path(
             args.prefix, args.postfix, args.screenshot_dir

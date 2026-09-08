@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 #
 #  rotation_test
 #
@@ -37,9 +36,9 @@ def main():
     """Run rotation cycling by running xrandr command."""
     screen = Gdk.Screen.get_default()
     output = screen.get_monitor_plug_name(screen.get_primary_monitor())
-    print("Using output: {}".format(output))
+    print(f"Using output: {output}")
     for rotation in ["right", "inverted", "left", "normal"]:
-        print("setting rotation to {}".format(rotation))
+        print(f"setting rotation to {rotation}")
         subprocess.check_call(
             ["xrandr", "--output", output, "--rotation", rotation]
         )

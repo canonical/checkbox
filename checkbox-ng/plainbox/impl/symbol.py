@@ -86,7 +86,7 @@ class Symbol:
         """
         Convert the symbol object to its representation in python
         """
-        return "{}({!r})".format(self.__class__.__name__, self._name)
+        return f"{self.__class__.__name__}({self._name!r})"
 
     def __eq__(self, other):
         """

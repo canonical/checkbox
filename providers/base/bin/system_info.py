@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# encoding: UTF-8
 # Copyright (c) 2018 Canonical Ltd.
 #
 # Authors:
@@ -118,7 +117,7 @@ class INXI:
                 if "#bits" in k or "#type" in k:
                     continue
                 elif "#model" in k:
-                    cpu_details += "\nModel: {} ".format(v)
+                    cpu_details += f"\nModel: {v} "
                 else:
                     cpu_details += "{}: {} ".format(re.sub(".*#", "", k), v)
                 if "#arch" in k:
@@ -161,9 +160,9 @@ class INXI:
                 if not device_mode and (
                     "#vendor" in k or "#model" in k or "#size" in k
                 ):
-                    generic_details += "{} ".format(v)
+                    generic_details += f"{v} "
                 if "#chip ID" in k:
-                    generic_details += " [{}]".format(v)
+                    generic_details += f" [{v}]"
             if generic_details and not ignore:
                 generic_data.append(generic_details)
         if generic_data:
@@ -179,7 +178,7 @@ class INXI:
                 if "#Hardware" in k:
                     raid_details += v
                 if "#chip ID" in k:
-                    raid_details += " [{}]".format(v)
+                    raid_details += f" [{v}]"
             if raid_details:
                 raid_data.append(raid_details)
         if raid_data:
@@ -226,9 +225,7 @@ def main():
         "Touchpad": "TOUCHPAD",
     }
     for section, udev_category in extra_sections.items():
-        section_info = _run_cmd(
-            "udev_resource.py -l {} -s".format(udev_category)
-        )
+        section_info = _run_cmd(f"udev_resource.py -l {udev_category} -s")
         if section_info:
             sys_info[section] = section_info.splitlines()
     print(json.dumps(sys_info, indent=4))

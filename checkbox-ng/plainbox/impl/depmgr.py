@@ -125,7 +125,7 @@ class DependencyUnknownError(DependencyError):
 
     def __repr__(self):
         """Get a debugging representation of an error."""
-        return "<{} job:{!r}>".format(self.__class__.__name__, self.job)
+        return f"<{self.__class__.__name__} job:{self.job!r}>"
 
     def __eq__(self, other):
         """Check if one error is equal to another."""
@@ -204,7 +204,7 @@ class DependencyMissingError(DependencyError):
         self.missing_job_id = missing_job_id
 
         if not isinstance(dep_type, DependencyType):
-            raise TypeError("Invalid dependency type: {!r}".format(dep_type))
+            raise TypeError(f"Invalid dependency type: {dep_type!r}")
         self.dep_type = dep_type.value
 
     @property
@@ -294,7 +294,7 @@ class DependencyDuplicateError(DependencyError):
         )
 
 
-class Group(object):
+class Group:
     def __init__(self, name, jobs=None, external_deps=None):
         self.name = name
         self.jobs = [] if jobs is None else list(jobs)
@@ -545,9 +545,7 @@ class DependencySolver:
             # We can just skip it and go back
             return
         else:
-            raise ValueError(
-                "Invalid state for job {!r}: {!r}".format(job.id, state)
-            )
+            raise ValueError(f"Invalid state for job {job.id!r}: {state!r}")
 
     def _pull_visit(self, job, trail=None):
         # We travel through dependencies recursively
@@ -602,7 +600,7 @@ class DependencySolver:
                 # replace it with the group job.
                 if job_id in self._jobs_in_groups:
                     group_name = self._jobs_in_groups[job_id]
-                    job_id = "{}{}".format(GROUP_PREFIX, group_name)
+                    job_id = f"{GROUP_PREFIX}{group_name}"
             else:
                 # If we are in a group, we only care about the dependencies
                 # inside the group
@@ -690,7 +688,7 @@ class DependencySolver:
                     continue
 
                 # Create the group job
-                group_job_id = "{}{}".format(GROUP_PREFIX, group_name)
+                group_job_id = f"{GROUP_PREFIX}{group_name}"
                 # Add external dependencies as dependencies of the group job
                 deps = self._groups[group_name].external_deps
                 group_job = JobDefinition(

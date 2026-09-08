@@ -143,7 +143,7 @@ def loopback_test(seconds, device, freq=455.5):
     Y = fft(samples)
     freqs = [abs(y) for y in Y[: int(RATE / 2)]]
     dominant = freqs.index(max(freqs)) / real_seconds
-    print("Dominant frequency is {}, expected {}".format(dominant, freq))
+    print(f"Dominant frequency is {dominant}, expected {freq}")
 
     epsilon = 1.0
     if abs(dominant - freq) < epsilon:

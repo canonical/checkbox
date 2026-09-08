@@ -298,18 +298,18 @@ def main(argv=None):
     if args.resource_pcr_banks:
         # print each PCR bank as a separate resource record
         banks = sorted(tpm2_cap["pcr_banks"])
-        print("\n\n".join("pcr_bank: {}".format(bank) for bank in banks))
+        print("\n\n".join(f"pcr_bank: {bank}" for bank in banks))
         return
 
     try:
         if args.value in tpm2_cap[args.capability]:
-            print("{} supports {}".format(args.capability, args.value))
+            print(f"{args.capability} supports {args.value}")
         else:
             raise SystemExit(
-                "{} does not support {}".format(args.capability, args.value)
+                f"{args.capability} does not support {args.value}"
             )
     except KeyError:
-        raise SystemExit('Unknown capability "{}"'.format(args.capability))
+        raise SystemExit(f'Unknown capability "{args.capability}"')
 
 
 if __name__ == "__main__":

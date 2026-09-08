@@ -6,7 +6,7 @@ from collections import OrderedDict
 
 def print_as_resource(d):
     for k, v in d.items():
-        print("{}: {}".format(k, v))
+        print(f"{k}: {v}")
     print("")
 
 

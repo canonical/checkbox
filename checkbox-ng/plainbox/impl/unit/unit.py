@@ -170,8 +170,7 @@ class UnitValidator:
         """
         for field, validators in sorted(unit.Meta.field_validators.items()):
             for validator in validators:
-                for issue in validator.check(self, unit, field):
-                    yield issue
+                yield from validator.check(self, unit, field)
 
     def check_in_context(self, unit, context):
         """
@@ -186,10 +185,9 @@ class UnitValidator:
         """
         for field, validators in sorted(unit.Meta.field_validators.items()):
             for validator in validators:
-                for issue in validator.check_in_context(
+                yield from validator.check_in_context(
                     self, unit, field, context
-                ):
-                    yield issue
+                )
 
     def advice(
         self, unit, field, kind, message=None, *, offset=0, origin=None
@@ -246,7 +244,7 @@ class UnitValidator:
         message=None,
         *,
         offset=0,
-        origin=None
+        origin=None,
     ):
         """
         Helper method that aids in adding issues
@@ -298,11 +296,10 @@ class UnitValidator:
                     origin = origin.with_offset(
                         unit[0].field_offset_map[field] + offset
                     ).just_line()
-                elif "_{}".format(field) in unit[0].field_offset_map:
+                elif f"_{field}" in unit[0].field_offset_map:
                     if origin is None:
                         origin = origin.with_offset(
-                            unit[0].field_offset_map["_{}".format(field)]
-                            + offset
+                            unit[0].field_offset_map[f"_{field}"] + offset
                         ).just_line()
         else:
             cls = UnitFieldIssue
@@ -312,10 +309,10 @@ class UnitValidator:
                     origin = origin.with_offset(
                         unit.field_offset_map[field] + offset
                     ).just_line()
-                elif "_{}".format(field) in unit.field_offset_map:
+                elif f"_{field}" in unit.field_offset_map:
                     if origin is None:
                         origin = origin.with_offset(
-                            unit.field_offset_map["_{}".format(field)] + offset
+                            unit.field_offset_map[f"_{field}"] + offset
                         ).just_line()
         issue = cls(message, severity, kind, origin, unit, field)
         self.issue_list.append(issue)
@@ -433,7 +430,7 @@ class UnitType(abc.ABCMeta):
                 fields = SymbolDefMeta(
                     "fields", merged_fields_bases, merged_fields_ns
                 )
-                fields.__qualname__ = "{}.Meta.fields".format(name)
+                fields.__qualname__ = f"{name}.Meta.fields"
                 new_meta_ns["fields"] = fields
             # Ensure that Meta.name is explicitly defined
             if "name" not in our_meta.__dict__:
@@ -779,7 +776,7 @@ class Unit(metaclass=UnitType):
             The value of the field, possibly with parameters inserted, or the
             default value
         """
-        value = self._data.get("_{}".format(name))
+        value = self._data.get(f"_{name}")
         if value is None:
             value = self._data.get(name, default)
         return self._get_record_value(name, value)
@@ -801,9 +798,9 @@ class Unit(metaclass=UnitType):
         text. It will also not have the magic RFC822 dots removed. In general
         the text will be just as it was parsed from the unit file.
         """
-        value = self._raw_data.get("_{}".format(name))
+        value = self._raw_data.get(f"_{name}")
         if value is None:
-            value = self._raw_data.get("{}".format(name), default)
+            value = self._raw_data.get(f"{name}", default)
         if value is not None and self.is_parametric:
             if self.template_engine == "jinja2":
                 tmp_params = self.parameters.copy()
@@ -848,7 +845,7 @@ class Unit(metaclass=UnitType):
             formatting and prevent an otherwise valid unit from working.
         """
         # Try to access the marked-for-translation record
-        msgid = self._raw_data.get("_{}".format(name))
+        msgid = self._raw_data.get(f"_{name}")
         if msgid is not None:
             # We now have a translatable message that we can look up in the
             # provider translation database.
@@ -928,7 +925,7 @@ class Unit(metaclass=UnitType):
         identifiers are left alone.
         """
         if "::" not in some_id and self.provider is not None:
-            return "{}::{}".format(self.provider.namespace, some_id)
+            return f"{self.provider.namespace}::{some_id}"
         else:
             return some_id
 
@@ -1049,11 +1046,9 @@ class Unit(metaclass=UnitType):
 
     def _check_gen(self, context):
         validator = self.Meta.validator_cls()
-        for issue in validator.check(self):
-            yield issue
+        yield from validator.check(self)
         if context is not None:
-            for issue in validator.check_in_context(self, context):
-                yield issue
+            yield from validator.check_in_context(self, context)
 
     class Meta:
         """

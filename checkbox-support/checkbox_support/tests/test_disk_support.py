@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# encoding: UTF-8
 # Copyright (c) 2026 Canonical Ltd.
 #
 # Authors:
@@ -39,7 +38,7 @@ class TestDiskSupport(unittest.TestCase):
                 # simulate blkid -o export output; code looks for tokens
                 # containing "TYPE"
                 return b"TYPE=ext4"
-            raise AssertionError("Unexpected command: %r" % (args,))
+            raise AssertionError(f"Unexpected command: {args!r}")
 
         mock_check_output.side_effect = _side_effect
         result = disk_support.get_partition_data("sda1")
@@ -55,7 +54,7 @@ class TestDiskSupport(unittest.TestCase):
                 return b"1024"
             if args[0] == "blkid":
                 raise CalledProcessError(2, "blkid")
-            raise AssertionError("Unexpected command: %r" % (args,))
+            raise AssertionError(f"Unexpected command: {args!r}")
 
         mock_check_output.side_effect = _side_effect
         result = disk_support.get_partition_data("sda2")

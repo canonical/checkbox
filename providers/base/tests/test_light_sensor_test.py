@@ -246,7 +246,7 @@ class TestReadIlluminance(unittest.TestCase):
         def _open(path, *a, **kw):
             call_count["n"] += 1
             if "input" in path:
-                raise IOError("unreadable")
+                raise OSError("unreadable")
             return mock_open(read_data="99.5")()
 
         with patch("builtins.open", side_effect=_open):

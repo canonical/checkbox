@@ -224,4 +224,4 @@ class LegacyHelpFormatter(argparse.HelpFormatter):
                 usage = "\n".join(lines)
 
         # prefix with 'usage:'
-        return "%s%s\n\n" % (prefix, usage)
+        return f"{prefix}{usage}\n\n"

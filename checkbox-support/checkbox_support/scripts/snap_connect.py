@@ -88,7 +88,9 @@ def main():
                 Snapd(task_timeout=60).connect(*new_connection)
             except requests.HTTPError as exc:
                 logging.warning(
-                    "Failed to connect %s to %s. %s" % (conn[0], conn[1], exc)
+                    "Failed to connect {} to {}. {}".format(
+                        conn[0], conn[1], exc
+                    )
                 )
 
 

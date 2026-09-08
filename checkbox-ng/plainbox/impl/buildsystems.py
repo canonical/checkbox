@@ -75,12 +75,12 @@ class GoBuildSystem(IBuildSystem):
     """
 
     def probe(self, src_dir: str) -> int:
-        if glob.glob("{}/*.go".format(src_dir)) != []:
+        if glob.glob(f"{src_dir}/*.go") != []:
             return 50
         return 0
 
     def get_build_command(self, src_dir: str, build_dir: str) -> str:
-        return "go build {}/*.go".format(os.path.relpath(src_dir, build_dir))
+        return f"go build {os.path.relpath(src_dir, build_dir)}/*.go"
 
 
 # Collection of all buildsystems

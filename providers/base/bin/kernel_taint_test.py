@@ -40,13 +40,11 @@ max_taints = 17
 def find_taints(taint_file):
     """Read the kernel-taint file."""
     try:
-        f = open(taint_file, "r")
+        f = open(taint_file)
         taints = int(f.read())
     except OSError:
-        raise SystemExit(
-            "Kernel taint file ({}) not found!".format(taint_file)
-        )
-    print("Kernel taint value is {}".format(taints))
+        raise SystemExit(f"Kernel taint file ({taint_file}) not found!")
+    print(f"Kernel taint value is {taints}")
     return taints
 
 
@@ -145,13 +143,13 @@ def main():
     for i in range(max_taints + 1):
         if taints & (2**i):
             modules = get_modules()
-            print("Taint bit value: {} ({})".format(i, taint_meanings[i]))
+            print(f"Taint bit value: {i} ({taint_meanings[i]})")
             if i == 0:  # List GPL incompatible modules and licenses
                 proprietary_modules = process_GPL_incompatible_modules(modules)
                 if proprietary_modules:
                     print("*   Modules with GPL Incompatible Licenses:")
                     for mod in proprietary_modules:
-                        print("     %s: %s" % (mod[0], mod[1]))
+                        print(f"     {mod[0]}: {mod[1]}")
                     count += 1
                 else:
                     print(

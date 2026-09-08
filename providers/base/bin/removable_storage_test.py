@@ -106,7 +106,7 @@ def md5_hash_file(path):
                 if not data:
                     break
                 md5.update(data)
-    except IOError as exc:
+    except OSError as exc:
         logging.error("unable to checksum %s: %s", path, exc)
         return None
     else:
@@ -135,7 +135,7 @@ class DiskTest:
         with open(source, "rb") as infile:
             try:
                 self.data = infile.read()
-            except IOError as exc:
+            except OSError as exc:
                 logging.error("Unable to read data from %s: %s", source, exc)
                 return False
             else:
@@ -151,7 +151,7 @@ class DiskTest:
         with outfile:
             try:
                 outfile.write(self.data)
-            except IOError as exc:
+            except OSError as exc:
                 logging.error("Unable to write data to %s: %s", dest, exc)
                 return False
             else:
@@ -266,12 +266,10 @@ class DiskTest:
                 connection_bus = drive_object[UDISKS2_DRIVE_INTERFACE][
                     "ConnectionBus:"
                 ]
-                desired_connection_buses = set(
-                    [
-                        map_udisks1_connection_bus(device)
-                        for device in self.device
-                    ]
-                )
+                desired_connection_buses = {
+                    map_udisks1_connection_bus(device)
+                    for device in self.device
+                }
                 # Skip devices that are attached to undesired connection buses
                 if connection_bus not in desired_connection_buses:
                     continue
@@ -378,9 +376,9 @@ class DiskTest:
             # drive object. This is required to filter out the devices we don't
             # want to look at now.
             connection_bus = drive_props["ConnectionBus"]
-            desired_connection_buses = set(
-                [map_udisks1_connection_bus(device) for device in self.device]
-            )
+            desired_connection_buses = {
+                map_udisks1_connection_bus(device) for device in self.device
+            }
             # Skip devices that are attached to undesired connection buses
             if connection_bus not in desired_connection_buses:
                 continue
@@ -579,7 +577,7 @@ class DiskTest:
         # a smarter parser to get and validate a pci slot name from DEVPATH
         # then compare this pci slot name to the other
         dl = devpath.split("/")
-        s = set([x for x in dl if dl.count(x) > 1])
+        s = {x for x in dl if dl.count(x) > 1}
         if (
             (pci_slot_name in dl)
             and (dl.index(pci_slot_name) < dl.index("block"))
@@ -729,7 +727,7 @@ def main():
             if args.memorycard:
                 if len(test.rem_disks_memory_cards) > 0:
                     for disk, mnt_point in test.rem_disks_memory_cards.items():
-                        print("%s : %s" % (disk, mnt_point))
+                        print(f"{disk} : {mnt_point}")
                 else:
                     print("None")
 
@@ -742,7 +740,7 @@ def main():
             else:
                 if len(test.rem_disks) > 0:
                     for disk, mnt_point in test.rem_disks.items():
-                        print("%s : %s" % (disk, mnt_point))
+                        print(f"{disk} : {mnt_point}")
                 else:
                     print("None")
 
@@ -1019,16 +1017,12 @@ def main():
                             # Give it a hint for the detection failure.
                             # LP: #1362902
                             print(
-                                (
-                                    "\t\tNo SuperSpeed USB using xhci_hcd "
-                                    "was detected correctly."
-                                )
+                                "\t\tNo SuperSpeed USB using xhci_hcd "
+                                "was detected correctly."
                             )
                             print(
-                                (
-                                    "\t\tHint: please use dmesg to check "
-                                    "the system status again."
-                                )
+                                "\t\tHint: please use dmesg to check "
+                                "the system status again."
                             )
                             return 1
                     # Pass is not assured

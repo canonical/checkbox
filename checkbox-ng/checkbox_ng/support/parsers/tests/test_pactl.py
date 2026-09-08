@@ -1,4 +1,3 @@
-# encoding: UTF-8
 #
 # This file is part of Checkbox.
 #
@@ -19,10 +18,6 @@
 # You should have received a copy of the GNU General Public License
 # along with Checkbox.  If not, see <http://www.gnu.org/licenses/>.
 
-from __future__ import absolute_import
-from __future__ import division
-from __future__ import print_function
-from __future__ import unicode_literals
 
 """
 :mod:`checkbox_ng.support.parsers.tests.test_pactl` -- tests for pactl parser
@@ -31,7 +26,6 @@ from __future__ import unicode_literals
 
 from math import log10, floor, ceil
 from unittest import TestCase
-from io import open
 
 try:
     from importlib.resources import files
@@ -46,7 +40,7 @@ import pyparsing as p
 from checkbox_ng.support.parsers import pactl
 
 
-class ParsingMixIn(object):
+class ParsingMixIn:
     """
     Mix-in class for writing tests that parse stuff.
 
@@ -68,9 +62,7 @@ class ParsingMixIn(object):
                 lineno = p.lineno(exc.loc, text)
                 col = p.col(exc.loc, text)
             print()
-            print(
-                "Parse error on line {} column {}: {}".format(lineno, col, exc)
-            )
+            print(f"Parse error on line {lineno} column {col}: {exc}")
             self._show_text(text, lineno, col, context=3)
             raise
 
@@ -130,15 +122,15 @@ class ParsingMixIn(object):
                 )
 
 
-class PactlDataMixIn(object):
+class PactlDataMixIn:
     """
     Mix in with a helper method to load sample pactl data
     """
 
     def get_text(self, name):
-        resource = "parsers/tests/pactl_data/{}.txt".format(name)
+        resource = f"parsers/tests/pactl_data/{name}.txt"
         filename = resource_filename("checkbox_ng.support", resource)
-        with open(filename, "rt", encoding="UTF-8") as stream:
+        with open(filename, encoding="UTF-8") as stream:
             return stream.read()
 
 
@@ -917,9 +909,7 @@ class DocumentTests(ParsingTestCase, PactlDataMixIn):
             pactl.Document.Syntax, self.get_text("desktop-precise")
         )[0]
         for i in range(24):
-            self.assertEqual(
-                document.record_list[i].name, "Module #{}".format(i)
-            )
+            self.assertEqual(document.record_list[i].name, f"Module #{i}")
         self.assertEqual(document.record_list[24].name, "Sink #0")
         self.assertEqual(document.record_list[25].name, "Source #0")
         self.assertEqual(document.record_list[26].name, "Source #1")
@@ -951,9 +941,7 @@ class DocumentTests(ParsingTestCase, PactlDataMixIn):
             pactl.Document.Syntax, self.get_text("desktop-trusty-bt-headset")
         )[0]
         for i in range(26):
-            self.assertEqual(
-                document.record_list[i].name, "Module #{}".format(i)
-            )
+            self.assertEqual(document.record_list[i].name, f"Module #{i}")
         self.assertEqual(document.record_list[26].name, "Sink #1")
         self.assertEqual(document.record_list[27].name, "Sink #2")
         self.assertEqual(document.record_list[28].name, "Sink #3")

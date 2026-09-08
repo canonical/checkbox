@@ -47,15 +47,15 @@ def save_image(image: np.ndarray, device: str, output: str):
         device (str): name of the video device
         output (str): output directory
     """
-    filepath = os.path.join(output, "quality_image_{}.jpg".format(device))
+    filepath = os.path.join(output, f"quality_image_{device}.jpg")
     # Check if the output directory exists
     if not os.path.exists(output):
-        msg = "Output directory does not exist: {}".format(output)
+        msg = f"Output directory does not exist: {output}"
         raise RuntimeError(msg)
     if not cv2.imwrite(filepath, image):
         msg = "Error while saving the image"
         raise RuntimeError(msg)
-    print("Saved image to {}".format(filepath))
+    print(f"Saved image to {filepath}")
 
 
 def get_score_from_device(device: str, output: str = "") -> float:
@@ -80,7 +80,7 @@ def get_score_from_device(device: str, output: str = "") -> float:
     cam = cv2.VideoCapture(index)
 
     if not cam.isOpened():
-        msg = "Cannot open the selected device: {}".format(device)
+        msg = f"Cannot open the selected device: {device}"
         raise RuntimeError(msg)
 
     # Compute the score for some time and check if it stabilizes
@@ -97,7 +97,7 @@ def get_score_from_device(device: str, output: str = "") -> float:
         # Compute the score
         result, image = cam.read()
         if not result:
-            msg = "Cannot read from the selected device: {}".format(device)
+            msg = f"Cannot read from the selected device: {device}"
             raise RuntimeError(msg)
         score = brisque.score(image)
 
@@ -142,11 +142,11 @@ def evaluate_score(score: float) -> int:
         return 1
 
     elif score > THRESHOLD:
-        msg = "The BRISQUE score is too high: {} > {}".format(score, THRESHOLD)
+        msg = f"The BRISQUE score is too high: {score} > {THRESHOLD}"
         logger.error(msg)
         return 1
 
-    print("BRISQUE score: {}".format(score))
+    print(f"BRISQUE score: {score}")
     return 0
 
 

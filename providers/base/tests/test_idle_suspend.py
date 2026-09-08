@@ -266,7 +266,7 @@ class TestParseTs(unittest.TestCase):
 
 def _jline(ts, msg):
     """Build a fake journal line with the given timestamp and message."""
-    return "{} hostname kernel: {}".format(ts, msg)
+    return f"{ts} hostname kernel: {msg}"
 
 
 class TestParseJournalSuspendTimes(unittest.TestCase):

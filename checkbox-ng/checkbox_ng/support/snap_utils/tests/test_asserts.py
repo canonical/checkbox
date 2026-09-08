@@ -36,7 +36,7 @@ def create_mock_response(assert_path):
     mock_response = Mock(spec=Response)
     mock_response.status_code = 400
     mock_response.headers = {"X-Ubuntu-Assertions-Count": 1}
-    with open(resource_filename("checkbox_ng.support", assert_path), "r") as f:
+    with open(resource_filename("checkbox_ng.support", assert_path)) as f:
         mock_response.text = f.read()
     return mock_response
 

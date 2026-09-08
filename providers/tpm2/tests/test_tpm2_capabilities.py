@@ -20,7 +20,7 @@ def _fake_check_output(cmd, *args, **kwargs):
         return ALGS_SAMPLE
     if cmd == ["tpm2_getcap", "pcrs"]:
         return PCRS_SAMPLE
-    raise AssertionError("unexpected command: {}".format(cmd))
+    raise AssertionError(f"unexpected command: {cmd}")
 
 
 def _fake_check_call_all_ok(cmd, *args, **kwargs):
@@ -181,7 +181,7 @@ class TestMain(unittest.TestCase):
             "aes_modes",
             "pcr_banks",
         ):
-            self.assertIn("{}:".format(key), output)
+            self.assertIn(f"{key}:", output)
         self.assertIn("pcr_banks: sha256", output)
 
     @patch(

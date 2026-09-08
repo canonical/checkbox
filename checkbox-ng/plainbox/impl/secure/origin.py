@@ -111,7 +111,7 @@ class Origin:
         if mode is OriginMode.whole_file:
             return str(self.source)
         elif mode is OriginMode.single_line:
-            return "{}:{}".format(self.source, self.line_start)
+            return f"{self.source}:{self.line_start}"
         elif mode is OriginMode.line_range:
             return "{}:{}-{}".format(
                 self.source, self.line_start, self.line_end
@@ -248,7 +248,7 @@ class UnknownTextSource(ITextSource):
         return _("???")
 
     def __repr__(self):
-        return "{}()".format(self.__class__.__name__)
+        return f"{self.__class__.__name__}()"
 
     def __eq__(self, other):
         if isinstance(other, UnknownTextSource):
@@ -282,7 +282,7 @@ class FileTextSource(ITextSource):
         return self.filename
 
     def __repr__(self):
-        return "{}({!r})".format(self.__class__.__name__, self.filename)
+        return f"{self.__class__.__name__}({self.filename!r})"
 
     def __eq__(self, other):
         if isinstance(other, FileTextSource):
@@ -343,7 +343,7 @@ class JobOutputTextSource(ITextSource):
         return str(self.job.id)
 
     def __repr__(self):
-        return "<{} job:{!r}>".format(self.__class__.__name__, self.job)
+        return f"<{self.__class__.__name__} job:{self.job!r}>"
 
     def __eq__(self, other):
         if isinstance(other, JobOutputTextSource):

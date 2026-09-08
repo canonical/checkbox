@@ -42,7 +42,7 @@ class DmiResult:
         self.devices.append(device)
 
 
-class DmidecodeParser(object):
+class DmidecodeParser:
     """Parser for the dmidecode command."""
 
     _key_map = {
@@ -133,7 +133,7 @@ class DmidecodeParser(object):
                         .replace("-", "_")
                     )
 
-                key = "%s_%s" % (category.lower(), key)
+                key = f"{category.lower()}_{key}"
                 value = self._parseValue(match.group("value"))
                 if value:
                     attributes[key] = value

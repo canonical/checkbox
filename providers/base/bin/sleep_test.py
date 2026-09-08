@@ -63,7 +63,7 @@ class ListDictHandler(logging.StreamHandler):
         elif isinstance(record.msg, dict):
             for key, val in record.msg.items():
                 logger = logging.getLogger(record.name)
-                new_msg = "%s: %s" % (key, val)
+                new_msg = f"{key}: {val}"
                 new_record = logger.makeRecord(
                     record.name,
                     record.levelno,
@@ -137,10 +137,10 @@ class SuspendTest:
         wakealarm_fh = open("/sys/class/rtc/rtc0/wakealarm", "wb", 0)
 
         try:
-            wakealarm_fh.write("0\n".encode("ascii"))
+            wakealarm_fh.write(b"0\n")
             wakealarm_fh.flush()
 
-            wakealarm_fh.write("+{}\n".format(time).encode("ascii"))
+            wakealarm_fh.write(f"+{time}\n".encode("ascii"))
             wakealarm_fh.flush()
         finally:
             wakealarm_fh.close()
@@ -185,7 +185,7 @@ class SuspendTest:
         """
         # figure out our elapsed time
         logfile = "/var/log/syslog"
-        log_fh = open(logfile, "r")
+        log_fh = open(logfile)
         line = ""
         run_complete = "Fail"
         sleep_start_time = 0.0

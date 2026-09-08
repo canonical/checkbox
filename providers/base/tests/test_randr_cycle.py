@@ -167,7 +167,7 @@ class TestActionFunction(unittest.TestCase):
         mock_which.return_value = True
         action(filename, path=path)
 
-        expected_path_and_filename = "{}/{}.jpg".format(path, filename)
+        expected_path_and_filename = f"{path}/{filename}.jpg"
         mock_subprocess.assert_called_once_with(
             ["gnome-screenshot", "-f", expected_path_and_filename], timeout=5
         )
@@ -263,7 +263,7 @@ class GenScreenshotPath(unittest.TestCase):
             self.assertEqual(
                 mt.gen_screenshot_path("", "", "test"), "test/xrandr_screens"
             )
-        mock_file.assert_called_with("/sys/power/suspend_stats/success", "r")
+        mock_file.assert_called_with("/sys/power/suspend_stats/success")
         mock_mkdir.assert_called_with("test/xrandr_screens", exist_ok=True)
 
     @patch("randr_cycle.get_manifest")
@@ -280,7 +280,7 @@ class GenScreenshotPath(unittest.TestCase):
                 mt.gen_screenshot_path(None, "", "test"),
                 "test/xrandr_screens_after_suspend",
             )
-        mock_file.assert_called_with("/sys/power/suspend_stats/success", "r")
+        mock_file.assert_called_with("/sys/power/suspend_stats/success")
         mock_mkdir.assert_called_with(
             "test/xrandr_screens_after_suspend", exist_ok=True
         )

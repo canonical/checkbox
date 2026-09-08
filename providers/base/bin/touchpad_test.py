@@ -18,7 +18,7 @@ EXIT_WITH_SUCCESS = 0
 EXIT_TIMEOUT = 30
 
 
-class Direction(object):
+class Direction:
 
     def __init__(self, name):
         self.name = name
@@ -26,7 +26,7 @@ class Direction(object):
         self.value = getattr(Gdk.ScrollDirection, name.upper())
 
 
-class GtkScroller(object):
+class GtkScroller:
 
     exit_code = EXIT_WITH_FAILURE
 

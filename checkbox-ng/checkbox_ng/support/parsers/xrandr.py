@@ -88,7 +88,7 @@ class MonitorConfigX11(MonitorConfig):
                 monitor,
                 target_mode.resolution,
                 (
-                    "--right-of {}".format(previous)
+                    f"--right-of {previous}"
                     if previous
                     else "--primary --pos 0x0"
                 ),

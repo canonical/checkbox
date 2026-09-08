@@ -150,7 +150,7 @@ class ConfigIntegrationTests(unittest.TestCase):
         m = mock_open()
         with patch("builtins.open", m):
             refresh_configuration()
-        m.assert_called_with("SNAP_DATA_VALUE/checkbox.conf", "wt")
+        m.assert_called_with("SNAP_DATA_VALUE/checkbox.conf", "w")
         m.return_value.write.assert_has_calls(
             [call("[environment]\n"), call("FOO = bar\n"), call("\n")]
         )
@@ -186,7 +186,7 @@ class ConfigIntegrationTests(unittest.TestCase):
         m = mock_open()
         with patch("builtins.open", m):
             refresh_configuration()
-        m.assert_called_with("SNAP_DATA_VALUE/checkbox.conf", "wt")
+        m.assert_called_with("SNAP_DATA_VALUE/checkbox.conf", "w")
         m.return_value.write.assert_has_calls(
             [call("[environment]\n"), call("FOO = bar\n"), call("\n")]
         )
@@ -220,7 +220,7 @@ class ConfigIntegrationTests(unittest.TestCase):
         m = mock_open()
         with patch("builtins.open", m):
             refresh_configuration()
-        m.assert_called_with("SNAP_DATA_VALUE/checkbox.conf", "wt")
+        m.assert_called_with("SNAP_DATA_VALUE/checkbox.conf", "w")
         m.return_value.write.assert_has_calls(
             [
                 call("[environment]\n"),

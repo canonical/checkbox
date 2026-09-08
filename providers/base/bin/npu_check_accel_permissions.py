@@ -6,7 +6,7 @@ from pathlib import Path
 def find_npu_device_path():
     base_sys_path = Path("/sys/class/accel")
     if not base_sys_path.is_dir():
-        raise SystemExit("'{}' is not a directory.".format(base_sys_path))
+        raise SystemExit(f"'{base_sys_path}' is not a directory.")
 
     for device_dir in base_sys_path.iterdir():
         try:
@@ -16,7 +16,7 @@ def find_npu_device_path():
                 device_path = Path("/dev/accel") / device_dir.name
                 if device_path.exists():
                     return device_path
-        except (IOError, FileNotFoundError):
+        except (OSError, FileNotFoundError):
             # Ignore directories that don't match the expected structure
             continue
 
@@ -30,9 +30,7 @@ def main():
     has_readwrite_perm = os.access(npu_device, os.R_OK | os.W_OK)
 
     if not has_readwrite_perm:
-        raise SystemExit(
-            "User lacks required permissions for {}".format(npu_device)
-        )
+        raise SystemExit(f"User lacks required permissions for {npu_device}")
 
 
 if __name__ == "__main__":

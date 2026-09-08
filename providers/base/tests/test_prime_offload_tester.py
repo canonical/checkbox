@@ -40,7 +40,7 @@ class FindFileContainingString(unittest.TestCase):
                 "/foo/bar/spam",
             )
         mock_file.assert_called_with(
-            "/foo/bar/spam", "r", encoding="utf-8", errors="ignore"
+            "/foo/bar/spam", encoding="utf-8", errors="ignore"
         )
 
     @patch("os.walk")
@@ -52,7 +52,7 @@ class FindFileContainingString(unittest.TestCase):
                 po.find_file_containing_string("/foo/bar", "spam", "xxx"), None
             )
         mock_file.assert_called_with(
-            "/foo/bar/spam", "r", encoding="utf-8", errors="ignore"
+            "/foo/bar/spam", encoding="utf-8", errors="ignore"
         )
 
 
@@ -298,7 +298,7 @@ class GetClientsTests(unittest.TestCase):
         po = PrimeOffloader()
         with patch("builtins.open", mock_open(read_data="data")) as mock_file:
             self.assertEqual(po.get_clients(0), "data")
-        mock_file.assert_called_with("/sys/kernel/debug/dri/0/clients", "r")
+        mock_file.assert_called_with("/sys/kernel/debug/dri/0/clients")
 
 
 class CheckOffloadTests(unittest.TestCase):
@@ -355,7 +355,7 @@ class FindBDFTests(unittest.TestCase):
             mock_open(read_data="i915 dev=0000:00:02.0 unique=0000:00:02.0"),
         ) as mock_file:
             self.assertEqual(po._find_bdf(0), "0000:00:02.0")
-            mock_file.assert_called_with("/sys/kernel/debug/dri/0/name", "r")
+        mock_file.assert_called_with("/sys/kernel/debug/dri/0/name")
 
 
 class FindOffloadTests(unittest.TestCase):

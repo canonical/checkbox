@@ -411,12 +411,12 @@ class TestAllowRoaming(unittest.TestCase):
 
         _allow_roaming(test_mm_id, test_apn)
 
-        expected_bearer = "apn={},allow-roaming=true".format(test_apn)
+        expected_bearer = f"apn={test_apn},allow-roaming=true"
         expected_cmd = [
             "mmcli",
             "-m",
             test_mm_id,
-            "--create-bearer={}".format(expected_bearer),
+            f"--create-bearer={expected_bearer}",
         ]
 
         mock_check_call.assert_called_with(expected_cmd)

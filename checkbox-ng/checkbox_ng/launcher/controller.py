@@ -186,10 +186,10 @@ class RemoteController(ReportsStage, MainLoopStage):
                 raise SystemExit(
                     _("{} launcher file was not found!").format(expanded_path)
                 )
-            with open(expanded_path, "rt") as f:
+            with open(expanded_path) as f:
                 self._launcher_text = f.read()
             self.launcher = Configuration.from_text(
-                self._launcher_text, "Controller:{}".format(expanded_path)
+                self._launcher_text, f"Controller:{expanded_path}"
             )
         if ctx.args.user:
             self._normal_user = ctx.args.user
@@ -484,9 +484,7 @@ class RemoteController(ReportsStage, MainLoopStage):
 
     def resume_last_session_and_continue(self):
         last_abandoned_session = next(self.sa.get_resumable_sessions())
-        SimpleUI.header(
-            "Resuming last session: {}".format(last_abandoned_session.id)
-        )
+        SimpleUI.header(f"Resuming last session: {last_abandoned_session.id}")
         return self.resume_by_id(last_abandoned_session.id)
 
     def start_session(self):
@@ -958,7 +956,7 @@ class RemoteController(ReportsStage, MainLoopStage):
             # comment is checkbox complaining about trying to run a manual
             # test in a non-interactive session
             SimpleUI.yellow_text(
-                "Job cannot be started because:\n- {}".format(result.comments)
+                f"Job cannot be started because:\n- {result.comments}"
             )
 
     def finish_job(self, result=None, job_state=None):

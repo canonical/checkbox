@@ -6,30 +6,48 @@ import xtest_install_ta
 
 class TestFindTaPath(unittest.TestCase):
 
-    @patch("xtest_install_ta.glob.glob")
-    def test_ta_found(self, mock_glob):
-        mock_glob.return_value = [
-            "/var/snap/hon-x-test/common/lib/optee_armtz"
+    @patch("xtest_install_ta.os.walk")
+    def test_ta_found(self, mock_walk):
+        mock_walk.return_value = [
+            ("/var/snap/hon-x-test/current", ["common"], []),
+            ("/var/snap/hon-x-test/current/common", ["lib"], []),
+            (
+                "/var/snap/hon-x-test/current/common/lib",
+                ["optee_armtz"],
+                [],
+            ),
         ]
         path = xtest_install_ta.find_ta_path("hon-x-test")
-        self.assertEqual(path, "/var/snap/hon-x-test/common/lib/optee_armtz")
-        mock_glob.assert_called_once_with(
-            "/var/snap/hon-x-test/**/optee_armtz", recursive=True
+        self.assertEqual(
+            path,
+            "/var/snap/hon-x-test/current/common/lib/optee_armtz",
         )
+        mock_walk.assert_called_once_with("/var/snap/hon-x-test/current")
 
-    @patch("xtest_install_ta.glob.glob")
-    def test_ta_not_found(self, mock_glob):
-        mock_glob.return_value = []
+    @patch("xtest_install_ta.os.walk")
+    def test_ta_not_found(self, mock_walk):
+        mock_walk.return_value = [
+            ("/var/snap/hon-x-test/current", ["common"], []),
+            ("/var/snap/hon-x-test/current/common", [], []),
+        ]
         with self.assertRaises(SystemError):
             xtest_install_ta.find_ta_path("hon-x-test")
 
-    @patch("xtest_install_ta.glob.glob")
-    def test_multiple_ta_found_in_same_snap(self, mock_glob):
+    @patch("xtest_install_ta.os.walk")
+    def test_multiple_ta_found_in_same_snap(self, mock_walk):
         # Even scoped to a single snap, more than one match should
         # still be treated as ambiguous and fail loudly.
-        mock_glob.return_value = [
-            "/var/snap/hon-x-test/common/lib/optee_armtz",
-            "/var/snap/hon-x-test/x1/optee_armtz",
+        mock_walk.return_value = [
+            (
+                "/var/snap/hon-x-test/current/common/lib",
+                ["optee_armtz"],
+                [],
+            ),
+            (
+                "/var/snap/hon-x-test/current/x1",
+                ["optee_armtz"],
+                [],
+            ),
         ]
         with self.assertRaises(SystemError):
             xtest_install_ta.find_ta_path("hon-x-test")

@@ -34,7 +34,6 @@ import argparse
 import fnmatch
 import functools
 import email.parser
-import io
 import json
 import logging
 import os

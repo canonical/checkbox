@@ -26,7 +26,7 @@ class TestSysfsScanner(unittest.TestCase):
     def test_try_read_node_success(self, mock_file):
         """Test that try_read_node successfully opens and reads a byte."""
         try_read_node("/fake/path")
-        mock_file.assert_called_once_with("/fake/path", "r")
+        mock_file.assert_called_once_with("/fake/path")
         mock_file().read.assert_called_once_with(1)
 
     @patch("builtins.open", side_effect=Exception("Read Error"))

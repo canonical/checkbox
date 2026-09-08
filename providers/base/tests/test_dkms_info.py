@@ -47,7 +47,7 @@ usb:v1D6Bp0003d0319dc09dsc00dp03ic09isc00ip00in00
         dkms_info.get_system_module_list.cache_clear()
         dkms_info.get_system_modaliases.cache_clear()
 
-    @mock.patch("io.open", mock.mock_open(read_data=_proc_modules))
+    @mock.patch("builtins.open", mock.mock_open(read_data=_proc_modules))
     def test_get_module_list__calls_and_parses_lsmod(self):
         """Ensure that get_module_list() parses lsmod output."""
         # NOTE: Return value was loaded from my system running kernel 4.0.
@@ -66,7 +66,7 @@ usb:v1D6Bp0003d0319dc09dsc00dp03ic09isc00ip00in00
             ],
         )
 
-    @mock.patch("io.open", mock.mock_open(read_data=_proc_modules))
+    @mock.patch("builtins.open", mock.mock_open(read_data=_proc_modules))
     def test_get_module_list_is_cached(self):
         """Ensure that get_module_list() cache works."""
         modules1 = dkms_info.get_system_module_list()
@@ -76,7 +76,7 @@ usb:v1D6Bp0003d0319dc09dsc00dp03ic09isc00ip00in00
         self.assertEqual(modules1, modules2)
 
     @mock.patch("os.walk")
-    @mock.patch("io.open", mock.mock_open(read_data=_modalias))
+    @mock.patch("builtins.open", mock.mock_open(read_data=_modalias))
     def test_get_system_modalias(self, mock_os_walk):
         """test_get_system_modalias."""
         mock_os_walk.return_value = [
@@ -163,7 +163,9 @@ Status: install ok installed
 
 """
 
-    @mock.patch("io.open", mock.mock_open(read_data=_var_lib_dpkg_status))
+    @mock.patch(
+        "builtins.open", mock.mock_open(read_data=_var_lib_dpkg_status)
+    )
     @mock.patch("dkms_info.get_system_modaliases")
     def test_get_pkgs(self, mock_get_system_modaliases):
         """Test of test_get_pkgs."""

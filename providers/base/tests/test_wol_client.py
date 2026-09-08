@@ -131,16 +131,12 @@ class TestCheckWakeup(unittest.TestCase):
     @patch("builtins.open", new_callable=mock_open, read_data="enabled\n")
     def test_wakeup_enabled(self, mock_file):
         self.assertTrue(check_wakeup("eth0"))
-        mock_file.assert_called_with(
-            "/sys/class/net/eth0/device/power/wakeup", "r"
-        )
+        mock_file.assert_called_with("/sys/class/net/eth0/device/power/wakeup")
 
     @patch("builtins.open", new_callable=mock_open, read_data="disabled\n")
     def test_wakeup_disabled(self, mock_file):
         self.assertFalse(check_wakeup("eth0"))
-        mock_file.assert_called_with(
-            "/sys/class/net/eth0/device/power/wakeup", "r"
-        )
+        mock_file.assert_called_with("/sys/class/net/eth0/device/power/wakeup")
 
     @patch("builtins.open", new_callable=mock_open, read_data="unknown\n")
     def test_wakeup_unexpected_status(self, mock_file):

@@ -16,16 +16,21 @@ def run_command(cmd, capture_output=True, text=True, check=True):
         raise SystemExit("Error: {}".format(e))
 
 
-def find_ta_path():
-    dir = "/var/snap/**/optee_armtz"
+def find_ta_path(snap_name):
+    # TAs may also be bundled by other snaps (e.g. the board's gadget
+    # snap), so only look inside the xtest snap's own directory to
+    # avoid picking up unrelated duplicates.
+    dir = "/var/snap/{}/**/optee_armtz".format(snap_name)
     print("Looking for TA path...", flush=True)
     ta_folder = glob.glob(dir, recursive=True)
     if not ta_folder:
-        raise SystemError("Not able to find TA in the system!")
+        raise SystemError(
+            "Not able to find TA in the {} snap!".format(snap_name)
+        )
     elif len(ta_folder) > 1:
         raise SystemError(
-            "Found multiple TA sources."
-            "Please make sure only one exist in the system!"
+            "Found multiple TA sources in the {} snap."
+            "Please make sure only one exist in the system!".format(snap_name)
         )
     return ta_folder[0]
 
@@ -39,7 +44,9 @@ def install_ta(xtest, path):
 
 def main():
     xtest = look_up_app("xtest", os.environ.get("XTEST"))
-    ta_path = find_ta_path()
+    # xtest is returned as "<snap_name>.xtest"
+    snap_name = xtest.rsplit(".", 1)[0]
+    ta_path = find_ta_path(snap_name)
     install_ta(xtest, ta_path)
 
 

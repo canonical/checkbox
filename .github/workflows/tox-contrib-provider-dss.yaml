@@ -35,16 +35,11 @@ jobs:
         uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97
         with:
           python-version: ${{ matrix.python }}
-        env:
-          PIP_TRUSTED_HOST: pypi.python.org pypi.org files.pythonhosted.org
       - name: Install dependencies
         env:
           PYTHON_VERSION: ${{ matrix.python }}
         run: |
           sudo add-apt-repository ppa:deadsnakes/ppa
-          # python3.5 and python3.6 are no longer in deadsnakes for focal
-          # we pushed them to the Checkbox PPA instead
-          sudo add-apt-repository ppa:checkbox-dev/edge
           sudo apt-get update
           sudo apt-get install -y -qq libgl1 gcc python$PYTHON_VERSION-dev
           pip install tox

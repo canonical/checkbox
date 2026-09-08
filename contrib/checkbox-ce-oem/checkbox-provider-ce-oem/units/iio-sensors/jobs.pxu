@@ -28,8 +28,7 @@ requires: manifest.has_iio_sensors == 'True'
 flags: also-after-suspend
 command:
     echo "## Perform the industrial I/O {{ type }}-{{ name }} sensor test"
-    # shellcheck disable=SC2050
-    if [[ {{ input_num }} == "None" ]] ; then
+    if [[ -z "{{ input_num }}" ]] ; then
         iio_sensor_test.py test -t {{ type }} -n {{ name }}
     else
         iio_sensor_test.py test -t {{ type }} -n {{ name }} --input-num {{ input_num }}

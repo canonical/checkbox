@@ -85,6 +85,17 @@ class TestIndustrialIOSensorTest(unittest.TestCase):
         ]
         self.assertEqual(updated_mapping["adc"], expected_nodes)
 
+    def test_update_adc_nodes_mapping_does_not_mutate_input(self):
+        """
+        Tests that _update_adc_nodes_mapping does not mutate the dict
+        (e.g. the module-level NODE_MAPPING constant) passed into it.
+        """
+        original_mapping = {"adc": ["in_voltage", "in_voltage_scale"]}
+        iio_sensor_test._update_adc_nodes_mapping(original_mapping, 2)
+        self.assertEqual(
+            original_mapping["adc"], ["in_voltage", "in_voltage_scale"]
+        )
+
     @patch("iio_sensor_test._check_reading", return_value=True)
     @patch("pathlib.Path.read_text")
     @patch("iio_sensor_test._check_node")
@@ -254,8 +265,7 @@ class TestIndustrialIOSensorTest(unittest.TestCase):
 
         expected_output = (
             "name: test_sensor_name\n"
-            "type: pressure\n"
-            "input_num: None\n\n"
+            "type: pressure\n\n"
             "name: ad7490\n"
             "type: adc\n"
             "input_num: 8\n\n"

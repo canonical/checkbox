@@ -327,7 +327,11 @@ class IPerfPerformanceTest:
         # but there are still big differences in per-thread CPU load.
         # Boost the theoretical exact split a bit so that one thread can take
         # up a little slack if another falls behind.
-        thread_bit_rate = int(self.expected_max_speed / threads) + 1000
+
+        # NOTE: DO NOT use self.expected_max_speed here!
+        # NOTE: thread_bit_rate must be computed with
+        # NOTE: the real max speed reported by the kernel
+        thread_bit_rate = int(self.iface.max_speed / threads) + 1000
         logger.debug("thread_bit_rate is {}".format(thread_bit_rate))
 
         # If we set run_time, use that instead to build the command.

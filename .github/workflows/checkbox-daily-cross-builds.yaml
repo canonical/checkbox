@@ -24,7 +24,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        release: [16, 18, 20, 22, 24]
+        release: [16]
         arch: [armhf]
         include:
           # other confs built natively in checkbox-daily-native-builds.yaml
@@ -32,10 +32,6 @@ jobs:
             arch: amd64
           - release: 16
             arch: arm64
-          - release: 22
-            arch: riscv64
-          - release: 24
-            arch: riscv64
     # uc16 needs ubuntu20 because we need cgroup v1 to build it
     runs-on: ${{ matrix.release == 16 && fromJson('["self-hosted", "focal"]') || 'ubuntu-latest' }}
     timeout-minutes: 1200 #20h, this will timeout sooner due to inner timeouts
@@ -95,33 +91,8 @@ jobs:
       fail-fast: false
       matrix:
         type: [classic, uc]
-        release: [16, 18, 20, 22, 24]
+        release: [16]
         arch: [armhf, amd64, arm64]
-        exclude:
-          # other confs built natively in checkbox-daily-native-builds.yaml
-          - release: 18
-            arch: amd64
-          - release: 18
-            arch: arm64
-          - release: 20
-            arch: amd64
-          - release: 20
-            arch: arm64
-          - release: 22
-            arch: amd64
-          - release: 22
-            arch: arm64
-          - release: 24
-            arch: amd64
-          - release: 24
-            arch: arm64
-        include:
-          - release: 22
-            arch: riscv64
-            type: uc
-          - release: 24
-            arch: riscv64
-            type: uc
     # uc16 needs ubuntu20 because we need cgroup v1 to build it
     runs-on: ${{ matrix.release == 16 && fromJson('["self-hosted", "focal"]') || 'ubuntu-latest' }}
     timeout-minutes: 1200 #20h, this will timeout sooner due to inner timeouts

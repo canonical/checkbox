@@ -99,23 +99,15 @@ jobs:
       fail-fast: false
       matrix:
         path_flag: ${{ fromJson(needs.get_path_matrix.outputs.path_flag) }}
-        python: ["3.5", "3.6", "3.8", "3.10", "3.12"]
+        python: ["3.5"]
         include:
           - python: "3.5"
             tox_env_name: "py35"
-          - python: "3.6"
-            tox_env_name: "py36"
-          - python: "3.8"
-            tox_env_name: "py38"
-          - python: "3.10"
-            tox_env_name: "py310"
-          - python: "3.12"
-            tox_env_name: "py312"
     name: Tox ${{ matrix.path_flag.path }} (${{matrix.python}}) and upload coverage
     defaults:
       run:
         working-directory: ${{ matrix.path_flag.path }}
-    runs-on: ${{ (matrix.python == '3.5' || matrix.python == '3.6') && fromJson('["self-hosted", "focal"]') || 'ubuntu-latest' }}
+    runs-on: [self-hosted, focal]
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
         with:

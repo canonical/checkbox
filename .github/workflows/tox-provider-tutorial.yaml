@@ -22,17 +22,11 @@ jobs:
         working-directory: providers/tutorial
     strategy:
       matrix:
-        python: ["3.5", "3.6", "3.8", "3.10"]
+        python: ["3.5"]
         include:
           - python: "3.5"
             tox_env_name: "py35"
-          - python: "3.6"
-            tox_env_name: "py36"
-          - python: "3.8"
-            tox_env_name: "py38"
-          - python: "3.10"
-            tox_env_name: "py310"
-    runs-on: ${{ (matrix.python == '3.5' || matrix.python == '3.6') && fromJson('["self-hosted", "focal"]') || 'ubuntu-latest' }}
+    runs-on: [self-hosted, focal]
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
         with:

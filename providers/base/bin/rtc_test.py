@@ -151,7 +151,7 @@ def cmd_clock(args):
 
 def build_parser():
     parser = argparse.ArgumentParser(description="RTC test utility")
-    sub = parser.add_subparsers(dest="action", required=True)
+    sub = parser.add_subparsers(dest="action")
 
     default_rtc = os.environ.get("RTC_DEVICE_FILE", "rtc0")
 

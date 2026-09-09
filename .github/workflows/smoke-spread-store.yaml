@@ -4,6 +4,11 @@ permissions:
   contents: read
 
 on:
+  pull_request:
+    branches: [ main ]
+    paths:
+      - .github/Image-garden-spread/**
+      - .github/workflows/smoke-spread-store.yaml
   workflow_dispatch:
     inputs:
       channel:

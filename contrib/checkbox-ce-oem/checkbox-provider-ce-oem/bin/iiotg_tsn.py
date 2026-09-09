@@ -95,28 +95,23 @@ def ptp4l(
         )
         print(cfg.read_text().strip())
         print("-" * 80)
-
-        process = sp.Popen(
+        ptp4l_command = [
             # caller is responsible for making sure config file is valid
             # i.e. options are recognized by ptp4l
-            [
-                "timeout",
-                str(timeout),
-                "ptp4l",
-                "-i",
-                interface,
-                "-f",
-                cfg,
-                "-m",
-            ],
-            stdout=None if print_to_console else sp.PIPE,
-            stderr=None if print_to_console else sp.PIPE,
-            text=True,
-        )
+            "timeout",
+            str(timeout),
+            "ptp4l",
+            "-i",
+            interface,
+            "-f",
+            str(cfg),
+            "-m",
+        ]
+
     else:
         # convenience path, you don't have to have a config file to run tests
         # this should work on most intel platforms even without rt kernel
-        default_cmd = [
+        ptp4l_command = [
             "timeout",
             str(timeout),
             "ptp4l",
@@ -130,13 +125,8 @@ def ptp4l(
             # /usr/share/doc/linuxptp/configs/automotive-slave.cfg
             "--transportSpecific=1",
         ]
-        if not server_mode:
-            # client only mode
-            default_cmd.append("-s")
-            # force 'master offset' output to appear in stdout
-            default_cmd.append("--summary_interval=-4")
-        else:
-            default_cmd.extend(
+        if server_mode:
+            ptp4l_command.extend(
                 # print more logs basically
                 ["--logAnnounceInterval=0", "--logSyncInterval=-3"]
             )
@@ -158,16 +148,20 @@ def ptp4l(
                 "for an example",
             )
             print("=" * 80)
+        else:
+            # client only mode
+            ptp4l_command.append("-s")
+            # force 'master offset' output to appear in stdout
+            ptp4l_command.append("--summary_interval=-4")
 
-        process = sp.Popen(
-            default_cmd,
-            stdout=None if print_to_console else sp.PIPE,
-            stderr=None if print_to_console else sp.PIPE,
-            text=True,
-        )
-
+    print(f"Launching ptp4l process: {" ".join(ptp4l_command)}")
     # caller decides how to consume stdout and stderr
-    return process
+    return sp.Popen(
+        ptp4l_command,
+        stdout=None if print_to_console else sp.PIPE,
+        stderr=None if print_to_console else sp.PIPE,
+        text=True,
+    )
 
 
 def phc2sys(interface: str, timeout: int = 60) -> "sp.Popen[str]":
@@ -190,12 +184,16 @@ def phc2sys(interface: str, timeout: int = 60) -> "sp.Popen[str]":
             "phc2sys",
             "-s",  # the interface to sync
             interface,
-            "-O",  # -O 0 sets the offset between system clock
-            "0",  # and physical hardware clock to 0
-            "-c",  # client clock source is CLOCK_REALTIME
+            # -O 0 sets the offset between system clock and hardware clock to 0
+            "-O",
+            "0",
+            # client clock source is CLOCK_REALTIME
+            "-c",
             "CLOCK_REALTIME",
             "-w",  # wait for ptp4l to be ready
             "-m",  # print the messages to stdout
+            # allow phc2sys to converge faster when "time jumps" occur
+            # https://tsn.readthedocs.io/timesync.html#synchronizing-the-system-clock
             "--step_threshold=1",
             "--transportSpecific=1",  # see ptp4l()
         ],

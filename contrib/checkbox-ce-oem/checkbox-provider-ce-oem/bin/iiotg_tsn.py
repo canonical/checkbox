@@ -51,9 +51,9 @@ def ptp4l(
     print_to_console: bool = False,
 ) -> "sp.Popen[str]":
     """
-    Spawn the ptp4l process 
+    Spawn the ptp4l process
 
-    :param interface: interface to set the clock on. 
+    :param interface: interface to set the clock on.
         NOTE: caller must check if this interface supports PTP
     :param cfg: config file
         check /usr/share/doc/linuxptp/configs/automotive-slave.cfg for an example
@@ -147,8 +147,8 @@ def phc2sys(interface: str, timeout: int = 60) -> "sp.Popen[str]":
     :param interface: network interface to sync
     :param timeout: how long should we run phc2sys
     :return: phc2sys process object
-    """    
-    
+    """
+
     process = sp.Popen(
         [
             "timeout",

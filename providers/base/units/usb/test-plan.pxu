@@ -413,7 +413,6 @@ certification_status_overrides:
     apply blocker to com.canonical.certification::usb/storage-detect
     apply blocker to com.canonical.certification::usb/storage-preinserted-symlink_uuid
     apply blocker to com.canonical.certification::after-suspend-usb/storage-detect
-    apply blocker to com.canonical.certification::after-suspend-usb/storage-preinserted-symlink_uuid
 
 id: usb-c-base-26-04-manual
 unit: test plan

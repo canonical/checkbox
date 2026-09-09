@@ -901,6 +901,7 @@ def parse_string(string: str):
 
         print("interface:", interface)
         print("server_ip:", server_ip)
+        print()
 
 
 def parse_args() -> argparse.Namespace:

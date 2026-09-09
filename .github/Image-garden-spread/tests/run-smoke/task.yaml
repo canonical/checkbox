@@ -1,0 +1,40 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
+summary: Install the matching snap in devmode and run filtered smoke tests
+kill-timeout: 20m
+warn-timeout: 5m
+artifacts:
+  - snap-debug.txt
+  - submission.json
+  - submission.html
+  - submission.txt
+execute: |
+  set -euo pipefail
+
+  . /etc/os-release
+  CHECKBOX="checkbox$(echo "$VERSION_ID" | grep -Po '^\d{2}')"
+  CHECKBOX_CHANNEL="${CHECKBOX_CHANNEL:-edge}"
+
+  echo "Testing $CHECKBOX from $CHECKBOX_CHANNEL"
+  snap download "$CHECKBOX" --channel="$CHECKBOX_CHANNEL" \
+    --basename="$CHECKBOX"
+
+  if snap list "$CHECKBOX" >/dev/null 2>&1; then
+    snap remove --purge "$CHECKBOX"
+  fi
+
+  snap ack "$CHECKBOX"*.assert
+  snap install --devmode "$CHECKBOX"*.snap
+  snap start --enable "$CHECKBOX.agent"
+
+  {
+    echo "# snap list"
+    snap list "$CHECKBOX"
+    echo
+    echo "# snap services"
+    snap services "$CHECKBOX"
+    echo
+    echo "# snap warnings"
+    snap warnings
+  } > snap-debug.txt
+
+  "$CHECKBOX.checkbox" control 127.0.0.1 launcher.conf

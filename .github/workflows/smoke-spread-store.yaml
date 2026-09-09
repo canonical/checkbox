@@ -1,0 +1,50 @@
+name: Run smoke plan via spread (store snaps)
+
+permissions:
+  contents: read
+
+on:
+  workflow_dispatch:
+    inputs:
+      channel:
+        description: Store channel to install the Checkbox snaps from
+        type: string
+        default: edge
+  workflow_call:
+    inputs:
+      channel:
+        description: Store channel to install the Checkbox snaps from
+        type: string
+        default: edge
+        required: false
+
+jobs:
+  smoke-spread-store:
+    name: Smoke via spread on ${{ matrix.garden-system }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    strategy:
+      fail-fast: false
+      matrix:
+        garden-system:
+          - ubuntu-core-18
+          - ubuntu-core-20
+          - ubuntu-core-22
+          - ubuntu-core-24
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Run smoke spread suite
+        uses: zyga/image-garden-action@858839da03cc989855469c388a71d91f4621deaf
+        env:
+          CHECKBOX_CHANNEL: ${{ inputs.channel || 'edge' }}
+        with:
+          image-garden-channel: latest/edge
+          garden-system: ${{ matrix.garden-system }}
+          spread-subdir: .github/Image-garden-spread
+          spread-tasks: tests/run-smoke
+          spread-artifacts: artifacts
+          spread-artifacts-suffix: ${{ matrix.garden-system }}

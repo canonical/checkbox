@@ -125,7 +125,6 @@ def ptp4l(
             "-m",  # print msg to stdout
             # anycast, allows auto server discovery
             "--network_transport=L2",
-            "--tx_timestamp_timeout=5",
             # comes from the default config
             # both server and client needs to have this
             # /usr/share/doc/linuxptp/configs/automotive-slave.cfg

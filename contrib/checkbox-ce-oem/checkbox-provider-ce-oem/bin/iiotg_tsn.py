@@ -591,7 +591,8 @@ def credit_based_shaper(
         ]
         # all traffic classes start with exactly 1 queue
         + ["queues", "1@0", "1@1", "1@2", "1@3"]
-        # disable hw offloading
+        # disable hw offloading for traffic classification
+        # this comes from the example in `man tc-cbs`
         + ["hw", "0"]
     )
     sp.run(cmd, timeout=1, check=False)
@@ -617,13 +618,16 @@ def credit_based_shaper(
         "hicredit",  # max credit
         "150",
         "sendslope",
-        "-900000",  # comes from idleslope - link_speed
+        # comes from idleslope - max_link_speed
+        # where max_link_speed is the maximum transfer speed of this port
+        "-900000",
         # NOTE: this value is picked specifically for 1Gbps ports
         # NOTE: it may fail on faster / slower ports
         "idleslope",
         "100000",  # reserve 100Mbps bandwidth
+        # enable hardware offloading here to push the CBS algorithm onto the hw
         "offload",
-        "1",  # enable hardware offload
+        "1",
     ]
 
     sp.run(cmd, timeout=1, check=False)
@@ -735,7 +739,7 @@ def traffic_scheduling(
         # all traffic classes start with exactly 1 queue
         + ["queues", "1@0", "1@1", "1@2", "1@3"]
         # the 01, 02, 04, 08 here are used as bit masks
-        # 01 is 0x0001 meaning only queue 0 is open, 0x0010 means queue 1 etc.
+        # 01 == 0x0001 meaning only queue 0 is open, 0x0010 means queue 1 etc.
         # 5000000 is in nanoseconds i.e. 5ms
         # basically each queue is open for 5ms, going from queue 0 through 3
         # and keeps repeating
@@ -1070,9 +1074,7 @@ def parse_args() -> argparse.Namespace:
 
 
 def run_client_test(args: argparse.Namespace) -> None:
-    client_config = (
-        Path(args.client_config) if args.client_config else None
-    )
+    client_config = Path(args.client_config) if args.client_config else None
     with clear_qdisc_settings_before_and_after(interface=args.interface):
         if args.test == "ptp4l":
             time_sync_ptp4l(

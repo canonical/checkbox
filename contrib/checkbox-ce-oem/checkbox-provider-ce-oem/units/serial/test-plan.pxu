@@ -8,8 +8,6 @@ include:
 nested_part:
     ce-oem-serial-automated
 
-# Currently this testpln is not nested in any testplan
-# It stays here for future testplan refactoring to be nested
 id: ce-oem-serial-automated
 unit: test plan
 _name: Serial automated tests
@@ -19,9 +17,14 @@ _description:
 bootstrap_include:
     ce-oem-serial/serial-list
     ce-oem-serial/serial-console-list
+    ce-oem-serial/raw-uart-list
 include:
+    ce-oem-serial/check-serial-console-list-resource
+    ce-oem-serial/check-serial-list-resource
+    ce-oem-serial/check-raw-uart-list-resource
     ce-oem-serial/serial-transmit-data-tests
     ce-oem-serial/serial-console-tests
+    ce-oem-serial/raw-uart-self-loopback-quick-tests
 
 id: ce-oem-serial-stress
 unit: test plan
@@ -30,5 +33,9 @@ _description:
     serial stress tests for devices
 bootstrap_include:
     ce-oem-serial/serial-list
+    ce-oem-serial/raw-uart-list
 include:
+    ce-oem-serial/check-serial-list-resource
+    ce-oem-serial/check-raw-uart-list-resource
     ce-oem-serial/serial-transmit-data-stress-.*
+    ce-oem-serial/raw-uart-self-loopback-stress-tests

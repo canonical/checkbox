@@ -1042,7 +1042,11 @@ def parse_args() -> argparse.Namespace:
 
 
 def run_client_test(args: argparse.Namespace) -> None:
-    client_config = Path(args.client_config) if args.client_config else None
+    client_config = (
+        Path(args.client_config)
+        if (hasattr(args, "client_config") and args.client_config)
+        else None
+    )
     with clear_qdisc_settings_before_and_after(interface=args.interface):
         if args.test == "ptp4l":
             time_sync_ptp4l(
@@ -1075,7 +1079,11 @@ def main():
     args = parse_args()
 
     if args.command == "server":
-        config_path = Path(args.master_config) if args.master_config else None
+        config_path = (
+            Path(args.master_config)
+            if (hasattr(args, "master_config") and args.master_config)
+            else None
+        )
         server_mode(args.interfaces, cfg=config_path)
     elif args.command == "client":
         run_client_test(args)

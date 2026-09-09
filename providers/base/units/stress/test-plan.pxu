@@ -329,6 +329,18 @@ bootstrap_include:
     device
     executable
 
+id: memory-single-stressor
+unit: test plan
+_name: Memory tests (single stressor)
+_description:
+ Run a single memory stress-ng stressor. Use the test selection
+ screen to pick exactly one stressor job to run.
+include:
+    stress/memory_stressor_stressor
+bootstrap_include:
+    memory_stress_ng_stressors
+    executable
+
 id: stress-base-26-04-automated
 unit: test plan
 _name: Stress for 26.04 (Automated)

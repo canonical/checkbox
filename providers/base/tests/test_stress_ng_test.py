@@ -17,10 +17,17 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import unittest
+from contextlib import redirect_stdout
+import io
 from subprocess import CalledProcessError, TimeoutExpired
 from unittest.mock import MagicMock, mock_open, patch
 
-from stress_ng_test import main, num_numa_nodes, swap_space_ok
+from stress_ng_test import (
+    main,
+    memory_stressors,
+    num_numa_nodes,
+    swap_space_ok,
+)
 
 
 class TestMemoryFunctions(unittest.TestCase):
@@ -64,6 +71,19 @@ class TestMemoryFunctions(unittest.TestCase):
         self, psutil_swap_memory_mock, open_mock, os_chmod_mock, run_mock
     ):
         self.assertFalse(swap_space_ok(1))
+
+    @patch("stress_ng_test.num_numa_nodes", return_value=1)
+    def test_memory_stressors_single_numa_node(self, num_numa_nodes_mock):
+        crt, vrt, ltc = memory_stressors()
+        self.assertNotIn("numa", crt)
+        self.assertIn("matrix", crt)
+        self.assertIn("vm", vrt)
+        self.assertIn("stack", ltc)
+
+    @patch("stress_ng_test.num_numa_nodes", return_value=2)
+    def test_memory_stressors_multiple_numa_nodes(self, num_numa_nodes_mock):
+        crt, vrt, ltc = memory_stressors()
+        self.assertIn("numa", crt)
 
 
 @patch("os.geteuid", return_value=0)
@@ -176,6 +196,58 @@ class TestMainFunction(unittest.TestCase):
     @patch("sys.argv", ["stress_ng_test.py", "memory"])
     def test_main_stress_memory_not_enough_swap(
         self, shutil_which_mock, os_geteuid_mock, swap_space_ok_mock
+    ):
+        self.assertEqual(main(), 1)
+
+    @patch("stress_ng_test.num_numa_nodes", return_value=1)
+    @patch("sys.argv", ["stress_ng_test.py", "memory", "--list-stressors"])
+    def test_main_stress_memory_list_stressors(
+        self, shutil_which_mock, os_geteuid_mock, num_numa_nodes_mock
+    ):
+        buf = io.StringIO()
+        with redirect_stdout(buf):
+            self.assertEqual(main(), 0)
+        output = buf.getvalue()
+        # Resource-job output must be pure RFC822 records (blank-line
+        # separated "key: value" pairs); the human-readable epilogue
+        # printed for other sub-commands would break resource parsing.
+        self.assertNotIn("retval is", output)
+        self.assertIn("stressor: matrix\n", output)
+        records = [block for block in output.split("\n\n") if block.strip()]
+        for block in records:
+            self.assertTrue(block.startswith("stressor: "))
+
+    @patch("os.remove")
+    @patch("stress_ng_test.check_output")
+    @patch("stress_ng_test.num_numa_nodes", return_value=1)
+    @patch("stress_ng_test.swap_space_ok", return_value=True)
+    @patch(
+        "sys.argv",
+        ["stress_ng_test.py", "memory", "--stressor", "matrix"],
+    )
+    def test_main_stress_memory_single_stressor(
+        self,
+        shutil_which_mock,
+        os_geteuid_mock,
+        swap_space_ok_mock,
+        num_numa_nodes_mock,
+        check_output_mock,
+        remove_mock,
+    ):
+        self.assertEqual(main(), 0)
+
+    @patch("stress_ng_test.num_numa_nodes", return_value=1)
+    @patch("stress_ng_test.swap_space_ok", return_value=True)
+    @patch(
+        "sys.argv",
+        ["stress_ng_test.py", "memory", "--stressor", "bogus-stressor"],
+    )
+    def test_main_stress_memory_unknown_stressor(
+        self,
+        shutil_which_mock,
+        os_geteuid_mock,
+        swap_space_ok_mock,
+        num_numa_nodes_mock,
     ):
         self.assertEqual(main(), 1)
 

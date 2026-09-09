@@ -236,34 +236,15 @@ def swap_space_ok(swap_size):
     return swap.total >= min_swap_space
 
 
-def stress_memory(args):
-    """Run stress-ng tests on memory."""
+def memory_stressors():
+    """Return the (crt, vrt, ltc) memory stressor name lists.
 
-    retval = 0
-    if not swap_space_ok(args.swap_size):
-        print(
-            "** Swap space unavailable! Please activate swap space "
-            + "and re-run this test!"
-        )
-        return 1
-
-    ram = psutil.virtual_memory()
-    total_mem_in_gb = ram.total / (1024**3)
-
-    if args.oom_avoid_bytes is not None:
-        oom_avoid_bytes = args.oom_avoid_bytes
-    elif total_mem_in_gb > 255:
-        oom_avoid_bytes = "5%"
-    else:
-        oom_avoid_bytes = "10%"
-    vrt = args.base_time + total_mem_in_gb * args.time_per_gig
-    print(f"Total memory is {total_mem_in_gb:.1f} GiB")
-    print(f"Constant run time is {args.base_time} seconds per stressor")
-    print(f"Variable run time is {vrt:.0f} seconds per stressor")
-    print(f"Number of NUMA nodes is {num_numa_nodes()}")
-
-    # Constant-run-time stressors -- run them for the same length of time on
-    # all systems....
+    crt = constant-run-time stressors -- run them for the same length of
+    time on all systems.
+    vrt = variable-run-time stressors -- run longer on systems with more
+    RAM.
+    ltc = low-thread-count stressors -- throttle to >8 threads.
+    """
     crt_stressors = [
         "bsearch",
         "context",
@@ -291,10 +272,46 @@ def stress_memory(args):
     if num_numa_nodes() > 1:
         crt_stressors.append("numa")
 
-    # Variable-run-time stressors -- run longer on systems with more RAM....
     vrt_stressors = ["malloc", "mincore", "vm", "mmap"]
-    # Low-thread-count stressors -- throttle to >8 threads...
     ltc_stressors = ["stack", "bigheap", "brk"]
+
+    return crt_stressors, vrt_stressors, ltc_stressors
+
+
+def stress_memory(args):
+    """Run stress-ng tests on memory."""
+
+    if args.list_stressors:
+        crt_stressors, vrt_stressors, ltc_stressors = memory_stressors()
+        for stressor in crt_stressors + vrt_stressors + ltc_stressors:
+            print(f"stressor: {stressor}")
+            print()
+        return 0
+
+    retval = 0
+    if not swap_space_ok(args.swap_size):
+        print(
+            "** Swap space unavailable! Please activate swap space "
+            + "and re-run this test!"
+        )
+        return 1
+
+    ram = psutil.virtual_memory()
+    total_mem_in_gb = ram.total / (1024**3)
+
+    if args.oom_avoid_bytes is not None:
+        oom_avoid_bytes = args.oom_avoid_bytes
+    elif total_mem_in_gb > 255:
+        oom_avoid_bytes = "5%"
+    else:
+        oom_avoid_bytes = "10%"
+    vrt = args.base_time + total_mem_in_gb * args.time_per_gig
+    print(f"Total memory is {total_mem_in_gb:.1f} GiB")
+    print(f"Constant run time is {args.base_time} seconds per stressor")
+    print(f"Variable run time is {vrt:.0f} seconds per stressor")
+    print(f"Number of NUMA nodes is {num_numa_nodes()}")
+
+    crt_stressors, vrt_stressors, ltc_stressors = memory_stressors()
 
     if args.stressor is not None:
         if args.stressor in crt_stressors:
@@ -507,6 +524,11 @@ def main():
         help="Run only the named stress-ng memory stressor (e.g. matrix, vm)"
         " instead of the full suite",
     )
+    memory_parser.add_argument(
+        "--list-stressors",
+        action="store_true",
+        help="Print the available memory stressor names and exit",
+    )
 
     # Disk parameters
     disk_parser.add_argument(
@@ -544,6 +566,10 @@ def main():
         return 1
 
     retval = args.func(args)
+    if getattr(args, "list_stressors", False):
+        # Used as a resource-job command; output must be pure RFC822
+        # "key: value" records, so skip the human-readable epilogue below.
+        return retval
     print(f"retval is {retval}")
     print("*" * 62)
     if retval == 0:

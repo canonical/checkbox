@@ -68,7 +68,7 @@ def CheckNTPD():
     for item in ps_list:
         fields = item.split()
         if fields[1] == "ntpd":
-            logging.debug("Found %s with PID %s" % (fields[1], fields[0]))
+            logging.debug(f"Found {fields[1]} with PID {fields[0]}")
             break
     if fields[1] == "ntpd":
         return ("on", fields[0], fields[1])

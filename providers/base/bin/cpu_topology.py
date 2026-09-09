@@ -17,7 +17,7 @@ class proc_cpuinfo:
 
     def __init__(self):
         self.cpuinfo = {}
-        cpu_fh = open("/proc/cpuinfo", "r")
+        cpu_fh = open("/proc/cpuinfo")
         try:
             temp = cpu_fh.readlines()
         finally:
@@ -59,7 +59,7 @@ class sysfs_cpu:
         items = ["core_id", "physical_package_id"]
         for i in items:
             try:
-                syscpu_fh = open(os.path.join(self.path, i), "r")
+                syscpu_fh = open(os.path.join(self.path, i))
             except OSError as e:
                 print("ERROR: %s" % e)
                 sys.exit(1)
@@ -98,7 +98,7 @@ def main():
         print("FAIL: CPU Topology is incorrect", file=sys.stderr)
         print("-" * 52, file=sys.stderr)
         print(
-            "{0}{1}".format("/proc/cpuinfo".center(30), "sysfs".center(25)),
+            "{}{}".format("/proc/cpuinfo".center(30), "sysfs".center(25)),
             file=sys.stderr,
         )
         print(
@@ -112,7 +112,7 @@ def main():
         )
         for key in sorted(sys_cpu.keys()):
             print(
-                "{0}{1}{2}{3}{4}{5}".format(
+                "{}{}{}{}{}{}".format(
                     key.center(6),
                     cpuinfo.cpuinfo[key]["physical_package_id"].center(13),
                     cpuinfo.cpuinfo[key]["core_id"].center(9),

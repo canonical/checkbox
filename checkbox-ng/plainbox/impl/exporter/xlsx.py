@@ -368,14 +368,14 @@ class XLSXSessionStateExporter(SessionStateExporterBase):
                 ),
                 start=1,
             ):
-                hw_info["video{}".format(i)] = match.group("video")
+                hw_info[f"video{i}"] = match.group("video")
             vram = 0
             for match in re.finditer(
                 r"Memory.+ prefetchable\) \[size=(?P<vram>\d+)M\]", content
             ):
                 vram += int(match.group("vram"))
             if vram:
-                hw_info["vram"] = "{} MiB".format(vram)
+                hw_info["vram"] = f"{vram} MiB"
         resource = "com.canonical.certification::meminfo"
         if resource in data["resource_map"]:
             result = [
@@ -522,9 +522,9 @@ class XLSXSessionStateExporter(SessionStateExporterBase):
 
     def write_summary(self, data):
         if self.total != 0:
-            pass_rate = "{:.2f}%".format(self.total_pass / self.total * 100)
-            fail_rate = "{:.2f}%".format(self.total_fail / self.total * 100)
-            skip_rate = "{:.2f}%".format(self.total_skip / self.total * 100)
+            pass_rate = f"{self.total_pass / self.total * 100:.2f}%"
+            fail_rate = f"{self.total_fail / self.total * 100:.2f}%"
+            skip_rate = f"{self.total_skip / self.total * 100:.2f}%"
         else:
             pass_rate = _("N/A")
             fail_rate = _("N/A")

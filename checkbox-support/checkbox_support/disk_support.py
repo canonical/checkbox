@@ -35,12 +35,12 @@ def get_partition_data(file):
     part_data["name"] = file
 
     # Get size of device, in bytes....
-    command = "blockdev --getsize64 /dev/{}".format(file)
+    command = f"blockdev --getsize64 /dev/{file}"
     part_data["size"] = int(check_output(shlex.split(command)))
 
     # Get filesystem type....
     part_data["fs_type"] = ""
-    command = "blkid /dev/{} -o export".format(file)
+    command = f"blkid /dev/{file} -o export"
     try:
         local_results = check_output(shlex.split(command)).split()
     except CalledProcessError:
@@ -59,7 +59,7 @@ def find_mount_point(file):
     * The mount point (as a string) if it's mounted."""
 
     mount_point = None
-    cmd = "df /dev/{} --output=target".format(file)
+    cmd = f"df /dev/{file} --output=target"
     output = check_output(shlex.split(cmd)).decode(encoding="utf-8").split()
     potential_mount_point = str(output[-1])
     # If df is fed a non-mounted-partition, it returns "/dev" as the
@@ -119,11 +119,11 @@ class Disk:
             mode = os.stat(self.device).st_mode
             if not stat.S_ISBLK(mode):
                 logging.error(
-                    "{} is NOT a block device! Aborting!".format(self.device)
+                    f"{self.device} is NOT a block device! Aborting!"
                 )
                 return False
         except FileNotFoundError:
-            logging.error("{} does not exist! Aborting!".format(self.device))
+            logging.error(f"{self.device} does not exist! Aborting!")
             return False
         return True
 
@@ -170,7 +170,7 @@ class Disk:
         return self.largest_part
 
     def mount_filesystem(self, simulate):
-        logging.info("Disk device is {}".format(self.device))
+        logging.info(f"Disk device is {self.device}")
         target_part = self.find_largest_partition()
         if not target_part["name"]:
             if self.unsupported_fs is not None:
@@ -198,7 +198,7 @@ class Disk:
             return False
 
         full_device = "/dev/{}".format(target_part["name"])
-        logging.info("Testing partition {}".format(full_device))
+        logging.info(f"Testing partition {full_device}")
         self.mount_point = find_mount_point(target_part["name"])
         if simulate:
             logging.info("Run with --simulate, so not mounting filesystems.")
@@ -217,7 +217,7 @@ class Disk:
                     )
                 )
                 os.makedirs(self.mount_point, exist_ok=True)
-                command = "mount {} {}".format(full_device, self.mount_point)
+                command = f"mount {full_device} {self.mount_point}"
                 output = check_output(shlex.split(command)).decode(
                     encoding="utf-8"
                 )

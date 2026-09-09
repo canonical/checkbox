@@ -69,7 +69,7 @@ def get_nm_activate_connection():
         state = value["state"]
         uuid = value["uuid"]
         if state == "activated":
-            print("Activated Connection: {} {}".format(name, uuid))
+            print(f"Activated Connection: {name} {uuid}")
             return uuid
     return ""
 
@@ -77,17 +77,17 @@ def get_nm_activate_connection():
 def turn_up_connection(uuid):
     # uuid can also be connection name
     print_head("Turn up NM connection")
-    cmd = "nmcli c up {}".format(uuid)
-    print("Turn up {}".format(uuid))
+    cmd = f"nmcli c up {uuid}"
+    print(f"Turn up {uuid}")
     activate_uuid = get_nm_activate_connection()
     if uuid == activate_uuid:
-        print("{} state is already activated".format(uuid))
+        print(f"{uuid} state is already activated")
         return None
     try:
         print_cmd(cmd)
         sp.call(shlex.split(cmd))
     except Exception as e:
-        print("Can't turn on {}: {}".format(uuid, str(e)))
+        print(f"Can't turn on {uuid}: {str(e)}")
 
 
 def turn_down_nm_connections():
@@ -98,10 +98,10 @@ def turn_down_nm_connections():
             continue
         uuid = value["uuid"]
         print("Turn down connection", name)
-        cmd = "nmcli c down {}".format(uuid)
+        cmd = f"nmcli c down {uuid}"
         print_cmd(cmd)
         sp.check_call(shlex.split(cmd))
-        print("{} {} is down now".format(name, uuid))
+        print(f"{name} {uuid} is down now")
     print()
 
 
@@ -145,12 +145,12 @@ def device_rescan():
 
 def list_aps(ifname, essid=None):
     if essid:
-        print_head("List APs with ESSID: {}".format(essid))
+        print_head(f"List APs with ESSID: {essid}")
     else:
         print("List all APs")
     aps_dict = {}
     fields = "SSID,CHAN,FREQ,SIGNAL"
-    cmd = "nmcli -t -f {} d wifi list ifname {}".format(fields, ifname)
+    cmd = f"nmcli -t -f {fields} d wifi list ifname {ifname}"
     output = sp.check_output(shlex.split(cmd), universal_newlines=True)
     for line in output.splitlines():
         # lp bug #1723372 - extra line in output on zesty
@@ -174,7 +174,7 @@ def show_aps(aps_dict):
 
 
 def print_address_info(interface):
-    cmd = "ip address show dev {}".format(interface)
+    cmd = f"ip address show dev {interface}"
     print_cmd(cmd)
     sp.call(shlex.split(cmd))
     print()
@@ -193,7 +193,7 @@ def perform_ping_test(interface):
     print_cmd(cmd)
     output = sp.check_output(shlex.split(cmd), universal_newlines=True)
     target = output.strip()
-    print("Got gateway address: {}".format(target))
+    print(f"Got gateway address: {target}")
 
     if target:
         count = 5
@@ -220,9 +220,9 @@ def wait_for_connected(interface, essid):
     ssid = next(iter(ssid), None)
 
     if state.startswith("100") and ssid == essid:
-        print("Reached connected state with ESSID: {}".format(essid))
+        print(f"Reached connected state with ESSID: {essid}")
     elif not state.startswith("100"):
-        error_msg = "State is not connected: {}".format(state)
+        error_msg = f"State is not connected: {state}"
         raise SystemExit(error_msg)
     elif ssid != essid:
         error_msg = (
@@ -417,7 +417,7 @@ def backup_netplan_files(backup_dir: str, netplan_dir: str):
         # Then copy ownership
         st = os.stat(yaml_file)
         os.chown(temp_path, st.st_uid, st.st_gid)
-        print("Backed up: {} -> {}".format(yaml_file, temp_path))
+        print(f"Backed up: {yaml_file} -> {temp_path}")
 
     print("Netplan files backed up to:", backup_dir)
 
@@ -430,14 +430,14 @@ def restore_netplan_files(backup_dir: str, netplan_dir: str):
         bool: True if restoration successful, False otherwise
     """
     if not backup_dir or not os.path.exists(backup_dir):
-        print("Backup directory does not exist: {}".format(netplan_dir))
+        print(f"Backup directory does not exist: {netplan_dir}")
         return
 
     # Clean up existing netplan files first
     existing_files = glob.glob(os.path.join(netplan_dir, "*.yaml"))
     for existing_file in existing_files:
         os.remove(existing_file)
-        print("Removed: {}".format(existing_file))
+        print(f"Removed: {existing_file}")
 
     # Find all YAML files in backup directory
     backup_files = glob.glob(os.path.join(backup_dir, "*.yaml"))
@@ -454,7 +454,7 @@ def restore_netplan_files(backup_dir: str, netplan_dir: str):
         # Then copy ownership
         st = os.stat(backup_file)
         os.chown(target_path, st.st_uid, st.st_gid)
-        print("Restored: {} -> {}".format(backup_file, target_path))
+        print(f"Restored: {backup_file} -> {target_path}")
 
     print("Netplan files restored successfully")
     return
@@ -473,13 +473,11 @@ def run():
         if not aps_dict:
             raise SystemExit("Failed to find any access point.")
         else:
-            print("Found {} access points".format(len(aps_dict)))
+            print(f"Found {len(aps_dict)} access points")
             return
 
     if not aps_dict:
-        raise SystemExit(
-            "Targed access point: {} not found".format(args.essid)
-        )
+        raise SystemExit(f"Targed access point: {args.essid} not found")
 
     if args.func:
         delete_test_ap_ssid_connection()

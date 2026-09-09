@@ -127,15 +127,15 @@ class SnapInstall:
         args = parser.parse_args(sys.argv[2:])
         s = get_snapd_client()
         remove_if_present(s, TEST_SNAP)
-        print("Installing '{}'...".format(TEST_SNAP))
+        print(f"Installing '{TEST_SNAP}'...")
         s.install(TEST_SNAP, args.channel)
-        print("Confirming '{}' is in the snap list...".format(TEST_SNAP))
+        print(f"Confirming '{TEST_SNAP}' is in the snap list...")
         data = s.list()
         for snap in data:
             if snap["name"] == TEST_SNAP:
                 print("Pass: Test snap is in the snap list")
                 return 0
-        print("Fail: '{}' is not in the snap list".format(TEST_SNAP))
+        print(f"Fail: '{TEST_SNAP}' is not in the snap list")
         return 1
 
 
@@ -177,7 +177,7 @@ class SnapRevert:
         stable_rev = r["channels"]["latest/stable"]["revision"]
         r = s.list(TEST_SNAP)
         installed_rev = r["revision"]  # should be edge revision
-        print("Reverting test snap '{}'...".format(TEST_SNAP))
+        print(f"Reverting test snap '{TEST_SNAP}'...")
         s.revert(TEST_SNAP)
         r = s.list(TEST_SNAP)
         rev = r["revision"]
@@ -188,7 +188,7 @@ class SnapRevert:
             )
             return 1
         if rev == installed_rev:
-            print("Fail: Failed to revert, revisions match ({})".format(rev))
+            print(f"Fail: Failed to revert, revisions match ({rev})")
             return 1
         print("Pass: Snap refreshed and reverted correctly")
         return 0
@@ -230,16 +230,16 @@ class SnapRemove:
         """Test remove of test-snapd-tools snap."""
         s = get_snapd_client()
         if not s.list(TEST_SNAP):
-            print("Test snap '{}' not found. Installing".format(TEST_SNAP))
+            print(f"Test snap '{TEST_SNAP}' not found. Installing")
             s.install(TEST_SNAP)
-        print("Removing '{}'...".format(TEST_SNAP))
+        print(f"Removing '{TEST_SNAP}'...")
         s.remove(TEST_SNAP)
         data = s.list()
         for snap in data:
             if snap["name"] == TEST_SNAP:
-                print("Fail: Snap '{}' found in snap list".format(TEST_SNAP))
+                print(f"Fail: Snap '{TEST_SNAP}' found in snap list")
                 return 1
-        print("Pass: Snap '{}' succesfully removed".format(TEST_SNAP))
+        print(f"Pass: Snap '{TEST_SNAP}' succesfully removed")
         return 0
 
 

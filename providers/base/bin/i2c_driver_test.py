@@ -29,7 +29,7 @@ class Bus:
         )
         print(result)
         bus_number = len(result.splitlines())
-        print("Detected bus number: {}".format(bus_number))
+        print(f"Detected bus number: {bus_number}")
 
         # Test failed if no I2C bus detected
         if bus_number == 0:
@@ -64,7 +64,7 @@ class Device:
             bus_id = fields[0].split("-")[1]
             bus_name = fields[2].strip()
             detected_i2c_bus.append((bus_id, bus_name))
-        print("Detected buses: {}".format(detected_i2c_bus))
+        print(f"Detected buses: {detected_i2c_bus}")
 
         ignored_i2c_buses = list(
             filter(
@@ -75,18 +75,16 @@ class Device:
                 ),
             )
         )
-        print("Ignored buses: {}".format(ignored_i2c_buses))
+        print(f"Ignored buses: {ignored_i2c_buses}")
 
         # Detect device on each bus
         exit_code = 1
         for bus_id, bus_name in detected_i2c_bus:
             if bus_name in ignored_i2c_buses:
-                print(
-                    "Ignoring bus id: {}, name: {}\n".format(bus_id, bus_name)
-                )
+                print(f"Ignoring bus id: {bus_id}, name: {bus_name}\n")
                 continue
 
-            print("Checking I2C bus id: {}, name: {}".format(bus_id, bus_name))
+            print(f"Checking I2C bus id: {bus_id}, name: {bus_name}")
             result = subprocess.check_output(
                 ["i2cdetect", "-y", "-r", str(bus_id)], universal_newlines=True
             )

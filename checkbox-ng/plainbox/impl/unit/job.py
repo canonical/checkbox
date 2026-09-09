@@ -68,7 +68,7 @@ class propertywithsymbols(property):
         """
         Initializes the property with the specified values
         """
-        super(propertywithsymbols, self).__init__(fget, fset, fdel, doc)
+        super().__init__(fget, fset, fdel, doc)
         self.__doc__ = doc
         self.symbols = symbols
 
@@ -243,7 +243,7 @@ class JobDefinition(UnitWithId, IJobDefinition):
         # called with correctly-ordered arguments.
         assert (
             cls is JobDefinition
-        ), "{}.instantiate_template() not customized".format(cls.__name__)
+        ), f"{cls.__name__}.instantiate_template() not customized"
         return cls(
             data,
             origin,
@@ -1198,4 +1198,4 @@ class InvalidJob(JobDefinition):
         return self.summary
 
     def __repr__(self):
-        return "<InvalidJob id:{!r} plugin:{!r}>".format(self.id, self.plugin)
+        return f"<InvalidJob id:{self.id!r} plugin:{self.plugin!r}>"

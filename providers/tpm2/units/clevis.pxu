@@ -22,11 +22,16 @@ plugin: shell
 imports: from com.canonical.plainbox import manifest
 requires:
  manifest.has_tpm2_chip == 'True'
- executable.name == 'clevis-encrypt-tpm2'
 _summary: clevis encrypt/decrypt precheck
 depends: tpm2/detect
 flags: simple
-command: true
+command:
+  if ! command -v clevis-encrypt-tpm2 &> /dev/null; then
+      echo "Error: 'clevis-encrypt-tpm2' is not installed or not available in PATH." >&2
+      exit 1
+  fi
+  echo "'clevis-encrypt-tpm2' is available."
+  exit 0
 
 unit: template
 template-resource: tpm2_pcr_banks
@@ -60,7 +65,7 @@ command:
  echo "+ Generate a random string"
  rand=$(cat /dev/urandom | tr -dc 'a-zA-Z0-9' | head -c32768)
  echo "+ Encrypt and decrypt the string using the TPM"
- result=$(echo -n $rand | clevis-encrypt-tpm2 '{{"hash": "{pcr_bank}", "key":"rsa", "pcr_bank":"{pcr_bank}","pcr_ids":"0,1"}}' | clevis-decrypt-tpm2)
+ result=$(echo -n $rand | clevis-encrypt-tpm2 '{{"key":"rsa", "pcr_bank":"{pcr_bank}","pcr_ids":"0,1"}}' | clevis-decrypt-tpm2)
  echo "+ Compare with the original string"
  [[ $result == $rand ]]
 
@@ -96,6 +101,6 @@ command:
  echo "+ Generate a random string"
  rand=$(cat /dev/urandom | tr -dc 'a-zA-Z0-9' | head -c32768)
  echo "+ Encrypt and decrypt the string using the TPM"
- result=$(echo -n $rand | clevis-encrypt-tpm2 '{{"hash": "{pcr_bank}", "key":"ecc", "pcr_bank":"{pcr_bank}","pcr_ids":"0,1"}}' | clevis-decrypt-tpm2)
+ result=$(echo -n $rand | clevis-encrypt-tpm2 '{{"key":"ecc", "pcr_bank":"{pcr_bank}","pcr_ids":"0,1"}}' | clevis-decrypt-tpm2)
  echo "+ Compare with the original string"
  [[ $result == $rand ]]

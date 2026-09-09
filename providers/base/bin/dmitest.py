@@ -403,7 +403,7 @@ def main():
     try:
         dmi_out = subprocess.check_output(COMMAND).splitlines()
     except subprocess.CalledProcessError as err:
-        print("Error running {}: {}".format(COMMAND, err))
+        print(f"Error running {COMMAND}: {err}")
         return 1
 
     # Convert the bytes output separately, line by line, because it's possible
@@ -414,8 +414,8 @@ def main():
         try:
             stream.append(line.decode("utf-8"))
         except UnicodeDecodeError as ude:
-            print("DATA ERROR: {}".format(ude))
-            print("\tLINE NUMBER {}: {}".format(dmi_out.index(line) + 1, line))
+            print(f"DATA ERROR: {ude}")
+            print(f"\tLINE NUMBER {dmi_out.index(line) + 1}: {line}")
             stream.append("ERROR: BAD DATA FOUND HERE")
             bad_data = True
 
@@ -450,16 +450,16 @@ def main():
     # fields. Therefore, no tests based on these fields have been written.
 
     for section in sorted(dmi_data.keys()):
-        print("{}:".format(section))
+        print(f"{section}:")
         for item in sorted(dmi_data[section].keys()):
-            print("\t{}: {}".format(item, dmi_data[section][item]))
+            print(f"\t{item}: {dmi_data[section][item]}")
         print("\n")
 
     if retval > 0:
         if retval == 1:
             print("\nFailed 1 test (see above)")
         else:
-            print("\nFailed {0} tests (see above)".format(retval))
+            print(f"\nFailed {retval} tests (see above)")
     else:
         print("\nPassed all tests")
 

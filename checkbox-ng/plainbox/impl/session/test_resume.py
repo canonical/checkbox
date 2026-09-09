@@ -1613,7 +1613,7 @@ class SessionMetaDataResumeTests(TestCaseWithParameters):
         """
         self.good_repr["metadata"]["flags"] = ["flag1", "flag2"]
         self.resume_fn(self.session.metadata, self.good_repr)
-        self.assertEqual(self.session.metadata.flags, set(["flag1", "flag2"]))
+        self.assertEqual(self.session.metadata.flags, {"flag1", "flag2"})
 
     def test_restore_SessionState_metadata_checks_running_job_name_type(self):
         """

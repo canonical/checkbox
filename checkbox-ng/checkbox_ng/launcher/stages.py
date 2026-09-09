@@ -284,20 +284,18 @@ class MainLoopStage(CheckboxUiStage):
             )
         while result.outcome not in allowed_outcome:
             print(_("Please decide what to do next:"))
-            print("  " + _("outcome") + ": {0}".format(self.C.result(result)))
+            print("  " + _("outcome") + f": {self.C.result(result)}")
             if result.comments is None:
                 print(
                     "  "
                     + _("comments")
-                    + ": {0}".format(C_("none comment", "none"))
+                    + ": {}".format(C_("none comment", "none"))
                 )
             else:
                 print(
                     "  "
                     + _("comments")
-                    + ": {0}".format(
-                        self.C.CYAN(result.comments, bright=False)
-                    )
+                    + f": {self.C.CYAN(result.comments, bright=False)}"
                 )
             cmd = self._pick_action_cmd(allowed_actions)
             if cmd == "set-pass":
@@ -661,7 +659,7 @@ class ReportsStage(CheckboxUiStage):
             if not secure_id and self.is_interactive:
                 secure_id = input(self.C.BLUE(_("Enter secure-id:")))
             if secure_id:
-                options = "secure_id={}".format(secure_id)
+                options = f"secure_id={secure_id}"
             else:
                 options = ""
             c3_url = "https://certification.canonical.com"
@@ -825,7 +823,7 @@ class ReportsStage(CheckboxUiStage):
                 self._auto_submission_retries -= 1
                 # let's double the sleep length with each retry
                 sleep_length = [120, 60, 30][self._auto_submission_retries]
-                print("Retrying in {}s".format(sleep_length))
+                print(f"Retrying in {sleep_length}s")
                 time.sleep(sleep_length)
                 return True
 

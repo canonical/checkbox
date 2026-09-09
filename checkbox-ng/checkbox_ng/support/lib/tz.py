@@ -40,7 +40,7 @@ class _tzutc(tzinfo):
         return not self.__eq__(other)
 
     def __repr__(self):
-        return "{}()".format(self.__class__.__name__)
+        return f"{self.__class__.__name__}()"
 
     __reduce__ = object.__reduce__
 

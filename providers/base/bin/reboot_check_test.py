@@ -24,7 +24,7 @@ COMMAND_TIMEOUT_SECONDS = 30
 
 
 def get_timestamp_str() -> str:
-    with open("/proc/uptime", "r") as f:
+    with open("/proc/uptime") as f:
         # uptime file always have 2 numbers
         # uptime_seconds total_idle_seconds
         # take the 1st one
@@ -36,7 +36,7 @@ def get_timestamp_str() -> str:
 
 
 def get_current_boot_id() -> str:
-    with open("/proc/sys/kernel/random/boot_id", "r") as f:
+    with open("/proc/sys/kernel/random/boot_id") as f:
         # the boot_id file has a Version 4 UUID with hyphens
         # journalctl doesn't use hyphens so we just remove it
         return f.read().strip().replace("-", "")
@@ -86,7 +86,7 @@ class DeviceInfoCollector:
             [
                 "checkbox-support-lsusb",
                 "-f",
-                '"{}"/var/lib/usbutils/usb.ids'.format(RUNTIME_ROOT),
+                f'"{RUNTIME_ROOT}"/var/lib/usbutils/usb.ids',
                 "-s",
             ],
             universal_newlines=True,
@@ -97,7 +97,7 @@ class DeviceInfoCollector:
 
     def get_pci_info(self) -> str:
         return sp.check_output(
-            ["lspci", "-i", "{}/usr/share/misc/pci.ids".format(SNAP)],
+            ["lspci", "-i", f"{SNAP}/usr/share/misc/pci.ids"],
             timeout=COMMAND_TIMEOUT_SECONDS,
             universal_newlines=True,
         )
@@ -122,22 +122,22 @@ class DeviceInfoCollector:
         )
         for device in devices["required"]:
             # file paths of the expected and actual device lists
-            expected = "{}/{}_log".format(expected_dir, device)
-            actual = "{}/{}_log".format(actual_dir, device)
+            expected = f"{expected_dir}/{device}_log"
+            actual = f"{actual_dir}/{device}_log"
             if not filecmp.cmp(expected, actual):
                 print(
-                    "[ ERR ] The output of {} differs!".format(device),
+                    f"[ ERR ] The output of {device} differs!",
                     file=sys.stderr,
                 )
                 self.print_diff(device, expected, actual)
                 return False
 
         for device in devices["optional"]:
-            expected = "{}/{}_log".format(expected_dir, device)
-            actual = "{}/{}_log".format(actual_dir, device)
+            expected = f"{expected_dir}/{device}_log"
+            actual = f"{actual_dir}/{device}_log"
             if not filecmp.cmp(expected, actual):
                 print(
-                    "[ WARN ] Items under {} have changed.".format(actual),
+                    f"[ WARN ] Items under {actual} have changed.",
                     file=sys.stderr,
                 )
                 self.print_diff(device, expected, actual)
@@ -152,15 +152,11 @@ class DeviceInfoCollector:
         os.makedirs(output_directory, exist_ok=True)
         # add extra behavior if necessary
         for device in devices["required"]:
-            with open(
-                "{}/{}_log".format(output_directory, device), "w"
-            ) as file:
+            with open(f"{output_directory}/{device}_log", "w") as file:
                 file.write(self.dump_function[device]())
 
         for device in devices["optional"]:
-            with open(
-                "{}/{}_log".format(output_directory, device), "w"
-            ) as file:
+            with open(f"{output_directory}/{device}_log", "w") as file:
                 file.write(self.dump_function[device]())
 
         os.sync()
@@ -169,11 +165,11 @@ class DeviceInfoCollector:
         with open(expected_path) as file_expected, open(
             actual_path
         ) as file_actual:
-            print("Expected {} output:".format(name), file=sys.stderr)
+            print(f"Expected {name} output:", file=sys.stderr)
             print(file_expected.read(), file=sys.stderr)
-            print("Actual {} output:".format(name), file=sys.stderr)
+            print(f"Actual {name} output:", file=sys.stderr)
             print(file_actual.read(), file=sys.stderr)
-            print("End of {} diff".format(name), file=sys.stderr)
+            print(f"End of {name} diff", file=sys.stderr)
 
     def __init__(self) -> None:
         self.dump_function = {
@@ -264,7 +260,7 @@ class HardwareRendererTester:
 
         # /proc/pid/environ is a null-char separated string
         proc_env_strings = sp.check_output(
-            ["cat", "/proc/{}/environ".format(desktop_pid)],
+            ["cat", f"/proc/{desktop_pid}/environ"],
             universal_newlines=True,
         ).split("\0")
 
@@ -296,7 +292,7 @@ class HardwareRendererTester:
         if len(possible_gpu_nodes) == 0:
             # kernel doesn't see any GPU nodes
             print(
-                "There's nothing under {}".format(DRM_PATH),
+                f"There's nothing under {DRM_PATH}",
                 "if an external GPU is connected,"
                 "check if the connection is loose.",
             )
@@ -309,10 +305,10 @@ class HardwareRendererTester:
             # for each gpu, check for connection
             # return true if anything is connected
             try:
-                with open("{}/{}/status".format(DRM_PATH, gpu)) as status_file:
+                with open(f"{DRM_PATH}/{gpu}/status") as status_file:
                     status_str = status_file.read().strip().lower()
                     # - card0: connected
-                    print(" - {}: {}".format(gpu, status_str))
+                    print(f" - {gpu}: {status_str}")
 
                     if status_str == "connected":
                         connected_to_display = True
@@ -442,7 +438,7 @@ class HardwareRendererTester:
                 # but 16, 18, 20 doesn't have this option
                 # and the /usr/share/glmark2 is hard-coded inside glmark2
                 # by the GLMARK_DATA_PATH build macro
-                src = "{}/usr/share/glmark2".format(RUNTIME_ROOT)
+                src = f"{RUNTIME_ROOT}/usr/share/glmark2"
                 dst = glmark2_data_path
                 print(
                     "[ DEBUG ] Symlinking glmark2 data dir ({} -> {})".format(
@@ -467,7 +463,7 @@ class HardwareRendererTester:
             )
         except sp.TimeoutExpired:
             print(
-                "[ ERR ] {} timed out after 120s.".format(glmark2_executable),
+                f"[ ERR ] {glmark2_executable} timed out after 120s.",
                 "Marking this test as failed.",
                 file=sys.stderr,
             )
@@ -578,9 +574,7 @@ def poll_systemctl_is_system_running(max_wait_seconds: int) -> bool:
             )
             return True
 
-    print(
-        "Final 'systemctl is-system-running' return value: {}".format(status)
-    )
+    print(f"Final 'systemctl is-system-running' return value: {status}")
     return False
 
 
@@ -656,7 +650,7 @@ def main() -> int:
     else:
         print(
             "[ WARN ] System did not finish booting",
-            "in {} seconds.".format(args.boot_ready_timeout),
+            f"in {args.boot_ready_timeout} seconds.",
             "Continuing reboot checks as-is.",
             file=sys.stderr,
         )
@@ -696,7 +690,7 @@ def main() -> int:
 
     # dump (no checks) if only output_directory is specified
     if args.output_directory is not None and args.comparison_directory is None:
-        print("Only dumping device info to {}".format(args.output_directory))
+        print(f"Only dumping device info to {args.output_directory}")
         DeviceInfoCollector().dump(args.output_directory)
 
     if args.do_fwts_check:
@@ -727,7 +721,7 @@ def main() -> int:
             # skip renderer test if there's no display
             renderer_test_passed = tester.is_hardware_renderer_available()
 
-    print("Finished reboot checks. {}".format(get_timestamp_str()))
+    print(f"Finished reboot checks. {get_timestamp_str()}")
 
     if (
         fwts_passed

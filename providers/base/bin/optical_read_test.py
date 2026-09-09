@@ -57,20 +57,22 @@ def read_test(device):
 
     try:
         _command("umount %s" % device).communicate()
-        mount = _command("mount -o ro %s %s" % (device, device_dir))
+        mount = _command(f"mount -o ro {device} {device_dir}")
         mount.communicate()
         if mount.returncode != 0:
             print(
-                "Unable to mount %s to %s" % (device, device_dir),
+                f"Unable to mount {device} to {device_dir}",
                 file=sys.stderr,
             )
             return False
 
-        file_copy = _command("cp -dpR %s %s" % (device_dir, image_dir))
+        file_copy = _command(f"cp -dpR {device_dir} {image_dir}")
         file_copy.communicate()
         if file_copy.returncode != 0:
             print(
-                "Failed to copy files from %s to %s" % (device_dir, image_dir),
+                "Failed to copy files from {} to {}".format(
+                    device_dir, image_dir
+                ),
                 file=sys.stderr,
             )
             return False
@@ -94,7 +96,7 @@ def read_test(device):
 
 
 def get_capabilities(device):
-    cmd = "%s %s" % (CDROM_ID, device)
+    cmd = f"{CDROM_ID} {device}"
     capabilities = _command_out(cmd)
     return capabilities
 
@@ -130,7 +132,7 @@ def main():
                     tests.append("read")
 
         for test in set(tests):
-            print("Testing %s on %s ... " % (test, device), file=sys.stdout)
+            print(f"Testing {test} on {device} ... ", file=sys.stdout)
             tester = "%s_test" % test
             return_values.append(globals()[tester](device))
 

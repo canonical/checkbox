@@ -28,7 +28,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        series: [16, 18, 20, 22, 24]
+        series: [18, 20, 22, 24]
     runs-on:
       - self-hosted-linux-amd64-noble-private-endpoint-medium
     name: Checkbox${{ matrix.series }} Snap - Software Bill of Materials (SBOM)

@@ -17,8 +17,10 @@ _description:
     Manual Dragonwing project-specific tests for Ubuntu Server images.
 include:
 nested_part:
+    dragonwing-qim-manual
     dragonwing-camera-gstreamer-manual
     dragonwing-video-gstreamer-manual
+    after-suspend-dragonwing-qim-manual
 certification_status_overrides:
     apply blocker to .*
 
@@ -29,12 +31,14 @@ _description:
     Automated Dragonwing project-specific tests for Ubuntu Server images.
 include:
 nested_part:
+    dragonwing-qim-automated
     dragonwing-camera-gstreamer-automated
     dragonwing-fastrpc-automated
     dragonwing-sensor-automated
     dragonwing-video-gstreamer-automated
     dragonwing-watchdog-automated
     dragonwing-misc-automated
+    after-suspend-dragonwing-qim-automated
 certification_status_overrides:
     apply blocker to .*
 
@@ -57,8 +61,10 @@ _description:
     Manual Dragonwing project-specific tests for Ubuntu Desktop images.
 include:
 nested_part:
+    dragonwing-qim-manual
     dragonwing-camera-gstreamer-manual
     dragonwing-video-gstreamer-manual
+    after-suspend-dragonwing-qim-manual
 certification_status_overrides:
     apply blocker to .*
 
@@ -69,12 +75,14 @@ _description:
     Automated Dragonwing project-specific tests for Ubuntu Desktop images.
 include:
 nested_part:
+    dragonwing-qim-automated
     dragonwing-camera-gstreamer-automated
     dragonwing-fastrpc-automated
     dragonwing-sensor-automated
     dragonwing-video-gstreamer-automated
     dragonwing-watchdog-automated
     dragonwing-misc-automated
+    after-suspend-dragonwing-qim-automated
 certification_status_overrides:
     apply blocker to .*
 
@@ -97,8 +105,10 @@ _description:
     Manual Dragonwing project-specific tests for Ubuntu Core images.
 include:
 nested_part:
+    dragonwing-qim-manual
     dragonwing-camera-gstreamer-manual
     dragonwing-video-gstreamer-manual
+    after-suspend-dragonwing-qim-manual
 certification_status_overrides:
     apply blocker to .*
 
@@ -109,11 +119,13 @@ _description:
     Automated Dragonwing project-specific tests for Ubuntu Core images.
 include:
 nested_part:
+    dragonwing-qim-automated
     dragonwing-camera-gstreamer-automated
     dragonwing-fastrpc-automated
     dragonwing-sensor-automated
     dragonwing-video-gstreamer-automated
     dragonwing-watchdog-automated
     dragonwing-misc-automated
+    after-suspend-dragonwing-qim-automated
 certification_status_overrides:
     apply blocker to .*

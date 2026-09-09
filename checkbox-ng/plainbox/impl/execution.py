@@ -1,4 +1,3 @@
-# encoding: utf-8
 # This file is part of Checkbox.
 #
 # Copyright 2019 Canonical Ltd.
@@ -119,12 +118,42 @@ class UnifiedRunner(IJobRunner):
         self._stdin = stdin
         self._running_jobs_pid = None
         self._extra_env = extra_env
+        self._systemd_runner_prepared = False
+
+    def prepare_systemd_based_runner(self):
+        """
+        Patches to the system that only apply when using the systemd runner
+        """
+        if self._systemd_runner_prepared:
+            return
+        else:
+            # only apply the patches once
+            self._systemd_runner_prepared = True
+        if os.geteuid() != 0:
+            # Be lenient here, the user may be experimenting and none of these
+            # are make or break, they are all QoL patches
+            return
+        try:
+            # Make Checkbox immune to the OOM Killer
+            # this is only applied when using the systemd based runner because
+            # the oom_score_adj is inherited by children (applying this to the
+            # subprocess based runner would make all tests immune to OOM as
+            # well)
+            with open("/proc/self/oom_score_adj", "w") as f:
+                f.write("-1000")
+        except OSError:
+            logger.warning(
+                "Unable to set OOMScoreAdjust, memory stress tests may crash "
+                "the Checkbox Agent"
+            )
 
     def run_job(
         self, job, job_state, environ=None, ui=None, as_systemd_unit=False
     ):
         logger.info(_("Running %r"), job)
         self._job_runner_ui_delegate.ui = ui
+        if as_systemd_unit:
+            self.prepare_systemd_based_runner()
 
         if isinstance(job, InvalidJob):
             self._job_runner_ui_delegate.on_begin("", dict())
@@ -144,14 +173,10 @@ class UnifiedRunner(IJobRunner):
             ).get_result()
 
         if job.plugin not in supported_plugins:
-            print(
-                Colorizer().RED(
-                    "Unsupported plugin type: {}".format(job.plugin)
-                )
-            )
+            print(Colorizer().RED(f"Unsupported plugin type: {job.plugin}"))
             return JobResultBuilder(
                 outcome=IJobResult.OUTCOME_CRASH,
-                comments=_("Unsupported plugin type: {}".format(job.plugin)),
+                comments=_(f"Unsupported plugin type: {job.plugin}"),
             ).get_result()
 
         # resource and attachment jobs are always run (even in dry runs)
@@ -229,15 +254,11 @@ class UnifiedRunner(IJobRunner):
         start_time = time.time()
         slug = slugify(job.id)
         output_writer = CommandOutputWriter(
-            stdout_path=os.path.join(
-                self._jobs_io_log_dir, "{}.stdout".format(slug)
-            ),
-            stderr_path=os.path.join(
-                self._jobs_io_log_dir, "{}.stderr".format(slug)
-            ),
+            stdout_path=os.path.join(self._jobs_io_log_dir, f"{slug}.stdout"),
+            stderr_path=os.path.join(self._jobs_io_log_dir, f"{slug}.stderr"),
         )
         io_log_gen = IOLogRecordGenerator()
-        log = os.path.join(self._jobs_io_log_dir, "{}.record.gz".format(slug))
+        log = os.path.join(self._jobs_io_log_dir, f"{slug}.record.gz")
         with gzip.open(log, mode="wb") as gzip_stream, io.TextIOWrapper(
             gzip_stream, encoding="UTF-8"
         ) as record_stream:
@@ -399,7 +420,7 @@ class UnifiedRunner(IJobRunner):
                 env=env,
                 cwd=cwd_dir,
             )
-            logger.info("Finished job [{}]".format(job.id))
+            logger.info(f"Finished job [{job.id}]")
             if "noreturn" in job.get_flag_set():
                 signal.pause()
             return return_code
@@ -416,7 +437,7 @@ class UnifiedRunner(IJobRunner):
         """
         # Create a nest for all the private executables needed for execution
         prefix = "nest-"
-        suffix = ".{}".format(job.checksum)
+        suffix = f".{job.checksum}"
         with tempfile.TemporaryDirectory(suffix, prefix) as nest_dir:
             os.chmod(nest_dir, 0o777)
             logger.debug(_("Symlink nest for executables: %s"), nest_dir)
@@ -445,7 +466,7 @@ class UnifiedRunner(IJobRunner):
             return
         # Create a nest for all the private executables needed for execution
         prefix = "cwd-"
-        suffix = ".{}".format(job.checksum)
+        suffix = f".{job.checksum}"
         try:
             # use /var/tmp because in snaps /tmp is private to the snap
             with tempfile.TemporaryDirectory(
@@ -497,7 +518,7 @@ class UnifiedRunner(IJobRunner):
 
     def get_record_path_for_job(self, job):
         return os.path.join(
-            self._jobs_io_log_dir, "{}.record.gz".format(slugify(job.id))
+            self._jobs_io_log_dir, f"{slugify(job.id)}.record.gz"
         )
 
     def send_signal(self, signal, target_user):
@@ -523,7 +544,7 @@ class UnifiedRunner(IJobRunner):
                 "kill",
                 "-s",
                 str(signal),
-                "-{}".format(self._running_jobs_pid),
+                f"-{self._running_jobs_pid}",
             ]
             try:
                 check_call(cmd, stdin=in_r)
@@ -779,10 +800,7 @@ def get_execution_command_subshell(
         env = get_execution_environment(job, environ, session_id, nest_dir)
         if extra_env:
             env.update(extra_env())
-    cmd += [
-        "{key}={value}".format(key=key, value=value)
-        for key, value in sorted(env.items())
-    ]
+    cmd += [f"{key}={value}" for key, value in sorted(env.items())]
     # Run the command unconfined on ubuntu core because of snap-confine fixes
     # related to https://ubuntu.com/security/CVE-2021-44731
     if on_ubuntucore():
@@ -836,17 +854,16 @@ def dangerous_nsenter(path):
         run(get_plz_run(["rm", path]))
 
 
-# TODO: use enum.auto once python3.5 support is dropped
 class MountingStrategy(enum.Enum):
     # mount is not needed in this context
-    DONT_MOUNT = 0
+    DONT_MOUNT = enum.auto()
     # mount is needed but not permission is required
-    MOUNT_ROOT = 1
+    MOUNT_ROOT = enum.auto()
     # mount is needed and permission has to be aquired via dangerous nsenter
-    MOUNT_DANGEROUS_NSENTER = 2
+    MOUNT_DANGEROUS_NSENTER = enum.auto()
     # mount is needed and permission has to be aquired via ambient capabilities
     # this is the preferred option when available and needed
-    MOUNT_AMBIENT_CAPABILITIES = 3
+    MOUNT_AMBIENT_CAPABILITIES = enum.auto()
 
     @classmethod
     def from_user_core(cls, job_user, on_core, snap_base):
@@ -930,8 +947,8 @@ def get_snap_mount_namespace_commands(target_user, shared_location, cwd):
             if dangerous_nsenter_path is None
             else str(dangerous_nsenter_path)
         ),
-        "-m/run/snapd/ns/{}.mnt".format(snap_name),
-        "-W{}".format(cwd),  # wrapper command expects cwd to not change!
+        f"-m/run/snapd/ns/{snap_name}.mnt",
+        f"-W{cwd}",  # wrapper command expects cwd to not change!
     ]
     if mounting_strategy == MountingStrategy.MOUNT_AMBIENT_CAPABILITIES:
         # on non-core16 we have given ourselves AmbientCapabilities. After
@@ -940,7 +957,7 @@ def get_snap_mount_namespace_commands(target_user, shared_location, cwd):
         # than it is supposed to
         runtime_setpriv = runtime_path / "usr" / "bin" / "setpriv"
         caps_to_remove = "-" + ",-".join(necessary_caps)
-        cmd += [str(runtime_setpriv), "--inh-caps={}".format(caps_to_remove)]
+        cmd += [str(runtime_setpriv), f"--inh-caps={caps_to_remove}"]
     return wrapper_cmd, cmd, namespace_mounting_helper
 
 
@@ -997,10 +1014,9 @@ def get_execution_command_systemd_unit(
         env.update(extra_env())
     # SYSTEMD_IGNORE_CHROOT intentionally at the end because without this
     # no systemd command will work
-    env_cmds = [
-        "{key}={value}".format(key=key, value=value)
-        for key, value in sorted(env.items())
-    ] + ["SYSTEMD_IGNORE_CHROOT=1"]
+    env_cmds = [f"{key}={value}" for key, value in sorted(env.items())] + [
+        "SYSTEMD_IGNORE_CHROOT=1"
+    ]
     cmd += ["env", *env_cmds, job.shell, "-c", job.command]
     cmd_text = " ".join(shlex.quote(x) for x in cmd)
     with tempfile.NamedTemporaryFile(

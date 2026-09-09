@@ -528,7 +528,7 @@ class TestNestedTestPlan(TestCase):
         self.provider2.unit_list = [self.tp7]
         self.tp7.provider_list = [self.provider1, self.provider2]
         for i in range(1, 7):
-            tp = getattr(self, "tp{}".format(i))
+            tp = getattr(self, f"tp{i}")
             tp.provider_list = [self.provider1, self.provider2]
             self.provider1.unit_list.append(tp)
 

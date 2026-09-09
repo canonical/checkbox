@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
 
-from __future__ import division, print_function
 import argparse
 import collections
 import json
@@ -52,7 +51,7 @@ MAGNITUDE_THRESHOLD = 2.5
 PLAY_VOLUME = 70
 
 
-class PIDController(object):
+class PIDController:
     """A Proportional-Integrative-Derivative controller (PID) controls a
     process's output to try to maintain a desired output value (known as
     'setpoint', by continually adjusting the process's input.
@@ -117,7 +116,7 @@ class PIDController(object):
         self._change_limit = limit
 
 
-class PAVolumeController(object):
+class PAVolumeController:
     pa_types = {"input": "source", "output": "sink"}
 
     def __init__(self, type, logger=None):
@@ -169,7 +168,7 @@ class PAVolumeController(object):
         if self.type:
             self.identifier = self._get_identifier_for(self.type)
             if self.identifier and self.logger:
-                message = "Using PulseAudio identifier %s for %s" % (
+                message = "Using PulseAudio identifier {} for {}".format(
                     self.identifier,
                     self.type,
                 )
@@ -234,23 +233,23 @@ class PAVolumeController(object):
                 )
             except subprocess.CalledProcessError:
                 time.sleep(5)
-        self.logger.error("Fail to execute: {}".format(command))
+        self.logger.error(f"Fail to execute: {command}")
         sys.exit(1)
 
 
-class FileDumper(object):
+class FileDumper:
     def write_to_file(self, filename, data):
         try:
             with open(filename, "w") as f:
                 for i in data:
                     print(i, file=f)
             return_value = True
-        except (TypeError, IOError):
+        except (TypeError, OSError):
             return_value = False
         return return_value
 
 
-class SpectrumAnalyzer(object):
+class SpectrumAnalyzer:
     def __init__(self, points, sampling_frequency=44100, wanted_samples=50):
         self.spectrum = [0] * points
         self.number_of_samples = 0
@@ -326,7 +325,7 @@ class SpectrumAnalyzer(object):
         return self.number_of_samples >= self.wanted_samples
 
 
-class GStreamerMessageHandler(object):
+class GStreamerMessageHandler:
     def __init__(
         self,
         rec_level_range,
@@ -429,13 +428,13 @@ class GStreamerMessageHandler(object):
             self._quit_method()
 
 
-class GstAudioObject(object):
+class GstAudioObject:
     def __init__(self):
         self.class_name = self.__class__.__name__
 
     def _set_state(self, state, description):
         self.pipeline.set_state(state)
-        message = "%s: %s" % (self.class_name, description)
+        message = f"{self.class_name}: {description}"
         if self.logger:
             self.logger.info(message)
 
@@ -448,7 +447,7 @@ class GstAudioObject(object):
 
 class Player(GstAudioObject):
     def __init__(self, frequency=DEFAULT_TEST_FREQUENCY, logger=None):
-        super(Player, self).__init__()
+        super().__init__()
         self.pipeline_description = (
             "audiotestsrc wave=sine freq=%s "
             "! audioconvert "
@@ -470,21 +469,21 @@ class Recorder(GstAudioObject):
         fft_interval=FFT_INTERVAL,
         logger=None,
     ):
-        super(Recorder, self).__init__()
+        super().__init__()
         pipeline_description = """autoaudiosrc
         ! queue
         ! level message=true
         ! audioconvert
-        ! audio/x-raw, channels=1, rate=(int)%(rate)s
+        ! audio/x-raw, channels=1, rate=(int){rate}
         ! audioresample
-        ! spectrum interval=%(fft_interval)s bands = %(bands)s
+        ! spectrum interval={fft_interval} bands = {bands}
         ! wavenc
-        ! filesink location=%(file)s""" % {
-            "bands": bins,
-            "rate": sampling_frequency,
-            "fft_interval": fft_interval,
-            "file": output_file,
-        }
+        ! filesink location={file}""".format(
+            bands=bins,
+            rate=sampling_frequency,
+            fft_interval=fft_interval,
+            file=output_file,
+        )
         self.logger = logger
         if self.logger:
             self.logger.debug(pipeline_description)

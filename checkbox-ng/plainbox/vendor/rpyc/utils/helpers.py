@@ -1,6 +1,7 @@
 """
 Helpers and wrappers for common RPyC tasks
 """
+
 import time
 from plainbox.vendor.rpyc.lib import spawn
 from plainbox.vendor.rpyc.lib.colls import WeakValueDict
@@ -34,7 +35,7 @@ def buffiter(obj, chunk=10, max_chunk=1000, factor=2):
             print id, name, dob
     """
     if factor < 1:
-        raise ValueError("factor must be >= 1, got {!r}".format(factor))
+        raise ValueError(f"factor must be >= 1, got {factor!r}")
     it = iter(obj)
     count = chunk
     while True:
@@ -42,8 +43,7 @@ def buffiter(obj, chunk=10, max_chunk=1000, factor=2):
         count = min(count * factor, max_chunk)
         if not items:
             break
-        for elem in items:
-            yield elem
+        yield from items
 
 
 def restricted(obj, attrs, wattrs=None):
@@ -73,22 +73,25 @@ def restricted(obj, attrs, wattrs=None):
     if wattrs is None:
         wattrs = attrs
 
-    class Restricted(object):
+    class Restricted:
         def _rpyc_getattr(self, name):
             if name not in attrs:
                 raise AttributeError(name)
             return getattr(obj, name)
+
         __getattr__ = _rpyc_getattr
 
         def _rpyc_setattr(self, name, value):
             if name not in wattrs:
                 raise AttributeError(name)
             setattr(obj, name, value)
+
         __setattr__ = _rpyc_setattr
+
     return Restricted()
 
 
-class _Async(object):
+class _Async:
     """Creates an async proxy wrapper over an existing proxy. Async proxies
     are cached. Invoking an async proxy will return an AsyncResult instead of
     blocking"""
@@ -102,7 +105,7 @@ class _Async(object):
         return asyncreq(self.proxy, HANDLE_CALL, args, tuple(kwargs.items()))
 
     def __repr__(self):
-        return "async_({!r})".format(self.proxy)
+        return f"async_({self.proxy!r})"
 
 
 _async_proxies_cache = WeakValueDict()
@@ -145,19 +148,19 @@ def async_(proxy):
     if pid in _async_proxies_cache:
         return _async_proxies_cache[pid]
     if not hasattr(proxy, "____conn__") or not hasattr(proxy, "____id_pack__"):
-        raise TypeError("'proxy' must be a Netref: {!r}".format(proxy))
+        raise TypeError(f"'proxy' must be a Netref: {proxy!r}")
     if not callable(proxy):
-        raise TypeError("'proxy' must be callable: {!r}".format(proxy))
+        raise TypeError(f"'proxy' must be callable: {proxy!r}")
     caller = _Async(proxy)
     _async_proxies_cache[id(caller)] = _async_proxies_cache[pid] = caller
     return caller
 
 
 async_.__doc__ = _Async.__doc__
-globals()['async'] = async_         # backward compatibility alias
+globals()["async"] = async_  # backward compatibility alias
 
 
-class timed(object):
+class timed:
     """Creates a timed asynchronous proxy. Invoking the timed proxy will
     run in the background and will raise an :class:`rpyc.core.async_.AsyncResultTimeout`
     exception if the computation does not terminate within the given time frame
@@ -186,10 +189,10 @@ class timed(object):
         return res
 
     def __repr__(self):
-        return "timed({!r}, {!r})".format(self.proxy.proxy, self.timeout)
+        return f"timed({self.proxy.proxy!r}, {self.timeout!r})"
 
 
-class BgServingThread(object):
+class BgServingThread:
     """Runs an RPyC server in the background to serve all requests and replies
     that arrive on the given RPyC connection. The thread is started upon the
     the instantiation of the ``BgServingThread`` object; you can use the
@@ -207,11 +210,18 @@ class BgServingThread(object):
        ``BgServingThread``, see :ref:`tut5`
 
     """
+
     # these numbers are magical...
     SERVE_INTERVAL = 0.0
     SLEEP_INTERVAL = 0.1
 
-    def __init__(self, conn, callback=None, serve_interval=SERVE_INTERVAL, sleep_interval=SLEEP_INTERVAL):
+    def __init__(
+        self,
+        conn,
+        callback=None,
+        serve_interval=SERVE_INTERVAL,
+        sleep_interval=SLEEP_INTERVAL,
+    ):
         self._conn = conn
         self._active = True
         self._callback = callback
@@ -253,5 +263,6 @@ def classpartial(*args, **kwargs):
 
         def __new__(self):
             return cls(*args, **kwargs)
+
     Partial.__name__ = cls.__name__
     return Partial

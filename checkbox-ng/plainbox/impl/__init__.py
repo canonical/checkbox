@@ -94,7 +94,7 @@ def public(import_path, introduced=None, deprecated=None):
             impl = getattr(module, func_name)
         except AttributeError:
             raise NotImplementedError(
-                "%s.%s does not exist" % (module_name, func_name)
+                f"{module_name}.{func_name} does not exist"
             )
 
         @wraps(shim)
@@ -180,7 +180,7 @@ def deprecated(version, explanation=None):
         """
         The @deprecated decorator with deprecation information
         """
-        msg = "{0} is deprecated since version {1}".format(
+        msg = "{} is deprecated since version {}".format(
             func.__name__, version
         )
         if func.__doc__ is None:
@@ -189,7 +189,7 @@ def deprecated(version, explanation=None):
         else:
             indent = _get_doc_margin(func.__doc__) * " "
             func.__doc__ += indent + "\n"
-        func.__doc__ += indent + ".. deprecated:: {}".format(version)
+        func.__doc__ += indent + f".. deprecated:: {version}"
         if explanation is not None:
             func.__doc__ += _textwrap_indent(
                 textwrap.dedent(explanation), prefix=indent * 2

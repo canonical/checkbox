@@ -141,7 +141,7 @@ class Colorizer:
         return self.custom(result.tr_outcome(), result.outcome_color_ansi())
 
     def header(self, text, color_name="WHITE", bright=True, fill="="):
-        return self("[ {} ]".format(text).center(80, fill), color_name, bright)
+        return self(f"[ {text} ]".center(80, fill), color_name, bright)
 
     def f(self, color_name):
         return getattr(self.c.f, color_name.upper())

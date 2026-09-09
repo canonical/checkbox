@@ -68,7 +68,7 @@ apps:
     plugs: &standard [home, network-bind, hardware-observe, bluez, bluetooth-control,
       gpio, modem-manager, mount-observe, network-manager, pulseaudio, serial-port,
       system-observe, tpm, udisks2, account-control, accounts-service,
-      login-session-control, login-session-observe, checkbox-support]
+      login-session-control, login-session-observe, process-control, checkbox-support]
     environment:
       PYTHONPATH: $SNAP/lib/python3.6/site-packages/:$SNAP/lib64/python3.6/site-packages/:$SNAP/usr/lib/python3/dist-packages:$PYTHONPATH
       PATH: /snap/bin:$PATH

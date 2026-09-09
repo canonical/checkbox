@@ -87,13 +87,8 @@ def build_capabilities():
         "pcr_banks": set(),
     }
 
-    try:
-        algs_caps = subprocess.check_output(["tpm2_getcap", "algorithms"])
-        pcrs_caps = subprocess.check_output(["tpm2_getcap", "pcrs"])
-    except (subprocess.CalledProcessError, FileNotFoundError):
-        raise SystemExit(
-            "Please make sure you have installed tpm-tools and tpm chip."
-        )
+    algs_caps = subprocess.check_output(["tpm2_getcap", "algorithms"])
+    pcrs_caps = subprocess.check_output(["tpm2_getcap", "pcrs"])
 
     algs_list = yaml.load(algs_caps, Loader=yaml.SafeLoader)
     pcrs_list = yaml.load(pcrs_caps, Loader=yaml.SafeLoader)
@@ -284,7 +279,15 @@ def parse_args(argv=None):
 
 def main(argv=None):
     args = parse_args(argv)
-    tpm2_cap = build_capabilities()
+    try:
+        tpm2_cap = build_capabilities()
+    except (subprocess.CalledProcessError, FileNotFoundError) as exc:
+        if args.resource or args.resource_pcr_banks:
+            # resource job should only output `key: value` items and should
+            # never fail (other mechanisms are in place to make sure a failure
+            # in the TPM2 detection is raised when running Checkbox)
+            raise SystemExit()
+        raise SystemExit(exc)
 
     if args.resource:
         # print as resource unit
@@ -295,18 +298,18 @@ def main(argv=None):
     if args.resource_pcr_banks:
         # print each PCR bank as a separate resource record
         banks = sorted(tpm2_cap["pcr_banks"])
-        print("\n\n".join("pcr_bank: {}".format(bank) for bank in banks))
+        print("\n\n".join(f"pcr_bank: {bank}" for bank in banks))
         return
 
     try:
         if args.value in tpm2_cap[args.capability]:
-            print("{} supports {}".format(args.capability, args.value))
+            print(f"{args.capability} supports {args.value}")
         else:
             raise SystemExit(
-                "{} does not support {}".format(args.capability, args.value)
+                f"{args.capability} does not support {args.value}"
             )
     except KeyError:
-        raise SystemExit('Unknown capability "{}"'.format(args.capability))
+        raise SystemExit(f'Unknown capability "{args.capability}"')
 
 
 if __name__ == "__main__":

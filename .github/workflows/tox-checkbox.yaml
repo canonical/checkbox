@@ -99,10 +99,8 @@ jobs:
       fail-fast: false
       matrix:
         path_flag: ${{ fromJson(needs.get_path_matrix.outputs.path_flag) }}
-        python: ["3.5", "3.6", "3.8", "3.10", "3.12"]
+        python: ["3.6", "3.8", "3.10", "3.12"]
         include:
-          - python: "3.5"
-            tox_env_name: "py35"
           - python: "3.6"
             tox_env_name: "py36"
           - python: "3.8"
@@ -115,20 +113,11 @@ jobs:
     defaults:
       run:
         working-directory: ${{ matrix.path_flag.path }}
-    runs-on: ${{ (matrix.python == '3.5' || matrix.python == '3.6') && fromJson('["self-hosted", "focal"]') || 'ubuntu-latest' }}
+    runs-on: ${{ matrix.python == '3.6' && fromJson('["self-hosted", "focal"]') || 'ubuntu-latest' }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
         with:
           persist-credentials: false
-      # Python 3.5 setup was failing because of a CERTIFICATE_VERIFY_FAILED
-      # error. To fix this, we have set up manually PIP_TRUSTED_HOST, checking
-      # first that we can "curl" the hosts, since they will fail in case of
-      # expired/invalid/self-signed certificate.
-      - name: Workaround SSL Certificates manual verification for Python
-        run: |
-          curl --fail --silent --show-error https://pypi.python.org
-          curl --fail --silent --show-error https://pypi.org
-          curl --fail --silent --show-error https://files.pythonhosted.org
       - name: Setup Python
         uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97
         with:
@@ -143,7 +132,7 @@ jobs:
           attempt_limit: 3
           command: |
             sudo add-apt-repository ppa:deadsnakes/ppa
-            # python3.5 and python3.6 are no longer in deadsnakes for focal
+            # python3.6 is no longer in deadsnakes for focal
             # we pushed them to the Checkbox PPA instead
             sudo add-apt-repository ppa:checkbox-dev/edge
             sudo apt-get update

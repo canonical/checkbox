@@ -59,7 +59,7 @@ def cmd_resource():
 
 def cmd_validate_install():
     arch_triple = get_arch_triple()
-    host_vk = "/usr/lib/{}/libvulkan.so.1".format(arch_triple)
+    host_vk = f"/usr/lib/{arch_triple}/libvulkan.so.1"
     if os.path.isfile(host_vk):
         logging.info("Host Vulkan ICD loader found at %s", host_vk)
         return 0
@@ -80,7 +80,7 @@ def cmd_run_test(test_args):
         if icd_filenames:
             env["VK_ICD_FILENAMES"] = icd_filenames
     result = subprocess.run(
-        ["{}/test".format(snap), "--no-confinement", "--no-fork"] + test_args,
+        [f"{snap}/test", "--no-confinement", "--no-fork"] + test_args,
         env=env,
     )
     return result.returncode

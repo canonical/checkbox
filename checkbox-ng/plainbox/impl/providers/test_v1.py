@@ -50,10 +50,8 @@ class Tests(TestCase):
                 return default
             else:
                 self.fail(
-                    (
-                        "no other environment should be consulted"
-                        " (asked for {!r})".format(name)
-                    )
+                    "no other environment should be consulted"
+                    " (asked for {!r})".format(name)
                 )
 
         mock_getenv.side_effect = getenv
@@ -80,10 +78,8 @@ class Tests(TestCase):
                 return "/home/user/xdg-data"
             else:
                 self.fail(
-                    (
-                        "no other environment should be consulted"
-                        " (asked for {!r})".format(name)
-                    )
+                    "no other environment should be consulted"
+                    " (asked for {!r})".format(name)
                 )
 
         mock_getenv.side_effect = getenv

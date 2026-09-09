@@ -275,7 +275,7 @@ class JobReadinessInhibitor(pod.POD):
             return _("required dependency {!r} did not fail").format(
                 self.related_job.id
             )
-        raise NotImplementedError("Unknown inhibitor {}".format(self.cause))
+        raise NotImplementedError(f"Unknown inhibitor {self.cause}")
 
 
 # A global instance of :class:`JobReadinessInhibitor` with the UNDESIRED cause.
@@ -445,10 +445,8 @@ class JobState(pod.POD):
         if self.readiness_inhibitor_list:
             return _("job cannot be started: {}").format(
                 ", ".join(
-                    (
-                        str(inhibitor)
-                        for inhibitor in self.readiness_inhibitor_list
-                    )
+                    str(inhibitor)
+                    for inhibitor in self.readiness_inhibitor_list
                 )
             )
         else:
@@ -496,7 +494,7 @@ class JobState(pod.POD):
             'blocker'
         """
         for field, value in override_list:
-            effective_field = "effective_{}".format(field)
+            effective_field = f"effective_{field}"
             effective_field_obj = getattr(self.__class__, effective_field)
             if not isinstance(effective_field_obj, OverridableJobField):
                 raise ValueError(_("{!r} is not overridable").format(field))

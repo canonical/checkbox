@@ -91,7 +91,7 @@ class TestCmdRunTest(unittest.TestCase):
             vk_host.cmd_run_test([self.CASELIST])
         self.assertEqual(
             mock_run.call_args[0][0],
-            ["{}/test".format(self.SNAP), "--no-confinement", self.CASELIST],
+            [f"{self.SNAP}/test", "--no-confinement", self.CASELIST],
         )
         env = mock_run.call_args[1]["env"]
         self.assertEqual(env["VK_ICD_FILENAMES"], self.ICD)

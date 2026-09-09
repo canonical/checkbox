@@ -99,7 +99,7 @@ class UnitWithId(Unit):
             always equal to ``partial_id``.
         """
         if self.provider and self.partial_id:
-            return "{}::{}".format(self.provider.namespace, self.partial_id)
+            return f"{self.provider.namespace}::{self.partial_id}"
         else:
             return self.partial_id
 

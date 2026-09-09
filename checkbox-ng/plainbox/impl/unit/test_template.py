@@ -435,7 +435,7 @@ class TemplateUnitTests(TestCase):
             [ResourceExpression('resource.attr == "value"')],
         )
         # The program references the right resources
-        self.assertEqual(prog.required_resources, set(["resource"]))
+        self.assertEqual(prog.required_resources, {"resource"})
 
     def test_get_filter_program__explicit(self):
         # Programs are properly represented
@@ -451,7 +451,7 @@ class TemplateUnitTests(TestCase):
             [ResourceExpression('resource.attr == "value"')],
         )
         # The program references the right resources
-        self.assertEqual(prog.required_resources, set(["explicit::resource"]))
+        self.assertEqual(prog.required_resources, {"explicit::resource"})
 
     def test_get_filter_program__inherited(self):
         provider = mock.Mock(spec=IProvider1)
@@ -470,7 +470,7 @@ class TemplateUnitTests(TestCase):
             [ResourceExpression('resource.attr == "value"')],
         )
         # The program references the right resources
-        self.assertEqual(prog.required_resources, set(["inherited::resource"]))
+        self.assertEqual(prog.required_resources, {"inherited::resource"})
 
     def test_get_target_unit_cls(self):
         t1 = TemplateUnit({})

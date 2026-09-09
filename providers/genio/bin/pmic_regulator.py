@@ -143,11 +143,11 @@ def test_regulator(soc):
     expect_set = mt8365_MAIN_REGULATORS if soc == "mt8365" else MAIN_REGULATORS
     current_set = read_all_name()
     for node in expect_set:
-        print("Checking the '{0}' node exists in System...".format(node))
+        print(f"Checking the '{node}' node exists in System...")
         if node not in current_set:
             missing_node = True
             print(
-                " - ERROR: expect the '{0}' node exist but it doesn't".format(
+                " - ERROR: expect the '{}' node exist but it doesn't".format(
                     node
                 )
             )

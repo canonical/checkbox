@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# encoding: utf-8
 # Copyright 2024 Canonical Ltd.
 # Written by:
 #   Massimiliano Girardi <massimiliano.girardi@canonical.com>

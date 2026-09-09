@@ -105,6 +105,6 @@ def request_comment(prompt: str) -> str:
     comment = ""
     while not comment:
         print(red("This job is required in order to issue a certificate."))
-        print(red("Please add a comment to explain {}.".format(prompt)))
+        print(red(f"Please add a comment to explain {prompt}."))
         comment = input(blue("Please enter your comments:\n"))
     return comment

@@ -95,7 +95,7 @@ def main():
         cmd_get_stressors = [
             "stress-ng",
             "--class",
-            "{}?".format(stress_ng_class),
+            f"{stress_ng_class}?",
         ]
         try:
             output = subprocess.run(
@@ -118,7 +118,7 @@ def main():
 
     stressors_list.sort()
     for stressor in stressors_list:
-        print("stressor: {}".format(stressor))
+        print(f"stressor: {stressor}")
         for extra_attribute in extra_attributes:
             print(
                 "{}: {}".format(

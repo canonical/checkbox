@@ -115,9 +115,9 @@ class IPerfPerformanceTest:
 
     def run_one_thread(self, cmd: str, port_num: int):
         """Run a single test thread, storing the output in self.results[]."""
-        cmd = cmd + " -p {}".format(port_num)
-        logger.debug("Executing command {}".format(cmd))
-        logger.info("Connecting to port {} on server....".format(port_num))
+        cmd = cmd + f" -p {port_num}"
+        logging.debug(f"Executing command {cmd}")
+        logging.info(f"Connecting to port {port_num} on server....")
         try:
             iperf_return = check_output(
                 shlex.split(cmd),
@@ -145,12 +145,10 @@ class IPerfPerformanceTest:
                         logger.warning("more information.")
                 else:
                     # Unknown error; log it....
-                    logger.error(
-                        "Failed executing iperf on port {}.".format(port_num)
+                    logging.error(
+                        f"Failed executing iperf on port {port_num}."
                     )
-                    logger.error(
-                        "Output is '{}'".format(iperf_exception.output)
-                    )
+                    logging.error(f"Output is '{iperf_exception.output}'")
                 return iperf_exception.returncode
             else:
                 # this is normal so we "except" this exception and we
@@ -206,9 +204,7 @@ class IPerfPerformanceTest:
             )
             if new_cpu:
                 float_cpu = float(new_cpu[0])
-                logger.debug(
-                    "CPU load for thread {}: {}%".format(n, float_cpu)
-                )
+                logging.debug(f"CPU load for thread {n}: {float_cpu}%")
                 sum_cpu = sum_cpu + float_cpu
                 n = n + 1
             if n > 0:
@@ -234,10 +230,10 @@ class IPerfPerformanceTest:
         if node_num == -1:
             logger.warning(
                 "WARNING: Could not find the NUMA node "
-                + "associated with {}!".format(device)
+                + f"associated with {device}!"
             )
         else:
-            logger.info("NUMA node of {} is {}....".format(device, node_num))
+            logging.info(f"NUMA node of {device} is {node_num}....")
         return node_num
 
     def extract_core_list(self, line: str):
@@ -266,9 +262,9 @@ class IPerfPerformanceTest:
                 core_list.append(int(range_list[0]))
             else:
                 # Weirdness, so alert the user....
-                logger.error("Cannot parse CPU list:")
-                logger.error(cpu_list)
-        logger.debug("Will use CPU cores: {}....".format(core_list))
+                logging.error("Cannot parse CPU list:")
+                logging.error(cpu_list)
+        logging.debug(f"Will use CPU cores: {core_list}....")
         return core_list
 
     def find_cores(self, numa_node: int) -> "list[int]":
@@ -279,7 +275,7 @@ class IPerfPerformanceTest:
         # Note: If numa_node = -1, the below will never find a match, so
         # core_list will remain empty, and later in the script, the -A option
         # to iperf3 will be dropped.
-        regex = re.compile("NUMA node.*{}.*CPU".format(numa_node))
+        regex = re.compile(f"NUMA node.*{numa_node}.*CPU")
         core_list = []
         if numa_return:
             for i in numa_return:
@@ -300,7 +296,7 @@ class IPerfPerformanceTest:
         if threads == 1:
             logger.info("Using 1 thread.")
         else:
-            logger.info("Using {} threads.".format(threads))
+            logging.info(f"Using {threads} threads.")
 
         # Alter variables for iperf (2) vs. iperf3 -- Use iperf (2)'s own
         # built-in threading, vs. this script's threading for iperf3. (Note
@@ -332,7 +328,7 @@ class IPerfPerformanceTest:
         # NOTE: thread_bit_rate must be computed with
         # NOTE: the real max speed reported by the kernel
         thread_bit_rate = int(self.iface.max_speed / threads) + 1000
-        logger.debug("thread_bit_rate is {}".format(thread_bit_rate))
+        logging.debug(f"thread_bit_rate is {thread_bit_rate}")
 
         # If we set run_time, use that instead to build the command.
         if self.run_time is not None:
@@ -369,7 +365,7 @@ class IPerfPerformanceTest:
         for thread_num in range(python_threads):
             if self.iperf3 and len(core_list) > 0:
                 core = core_list[thread_num % len(core_list)]
-                full_cmd = cmd + " -A {}".format(core)
+                full_cmd = cmd + f" -A {core}"
             else:
                 full_cmd = cmd
             port_num = start_port + thread_num
@@ -403,7 +399,7 @@ class IPerfPerformanceTest:
             # it's up to the reviewer to pass or fail.
             percent = 0
             invalid_speed = True
-        logger.info("Avg Transfer speed: {} Mb/s".format(throughput))
+        logging.info(f"Avg Transfer speed: {throughput} Mb/s")
         if invalid_speed:
             # If we have no link_speed (e.g. wireless interfaces don't
             # report this), then we shouldn't penalize them because
@@ -422,9 +418,7 @@ class IPerfPerformanceTest:
 
         if self.iperf3:
             cpu_load = self.summarize_cpu()
-            logger.info(
-                "Average CPU utilization: {}%".format(round(cpu_load, 1))
-            )
+            logging.info(f"Average CPU utilization: {round(cpu_load, 1)}%")
         else:
             cpu_load = 0
         if (
@@ -437,22 +431,22 @@ class IPerfPerformanceTest:
                 )
             )
             if percent < self.fail_threshold:
-                logger.error("  Transfer speed: {} Mb/s".format(throughput))
-                logger.error(
+                logging.error(f"  Transfer speed: {throughput} Mb/s")
+                logging.error(
                     "  {:03.2f}% of theoretical max {} Mb/s\n".format(
                         percent, int(self.expected_max_speed)
                     )
                 )
             if cpu_load > self.cpu_load_fail_threshold:
-                logger.error("  CPU load: {}%".format(cpu_load))
-                logger.error(
+                logging.error(f"  CPU load: {cpu_load}%")
+                logging.error(
                     "  CPU load is above {}% maximum\n".format(
                         self.cpu_load_fail_threshold
                     )
                 )
             return 30
 
-        logger.debug("Passed benchmark against {}".format(self.target))
+        logging.debug(f"Passed benchmark against {self.target}")
 
     def optimize_num_threads(self):
         """Find the approximate optimal number of threads."""
@@ -467,8 +461,8 @@ class IPerfPerformanceTest:
         max_multiple = 0.5
         for multiple in multiples:
             self.num_threads = int(orig_num_threads * multiple)
-            logger.info(
-                "Testing optimization with {} threads".format(self.num_threads)
+            logging.info(
+                f"Testing optimization with {self.num_threads} threads"
             )
             # Disable logging for the test runs that determine the optimum
             # number of threads, since the output becomes too cluttered and
@@ -489,9 +483,7 @@ class IPerfPerformanceTest:
         self.run_time = orig_run_time
         self.scan_timeout = orig_scan_timeout
         self.num_threads = int(max_multiple * orig_num_threads)
-        logger.info(
-            "Setting number of threads to {}.".format(self.num_threads)
-        )
+        logging.info(f"Setting number of threads to {self.num_threads}.")
 
 
 class StressPerformanceTest:
@@ -512,7 +504,7 @@ class StressPerformanceTest:
         print("Running iperf...")
         iperf = subprocess.Popen(shlex.split(iperf_cmd))
 
-        ping_cmd = "ping -I {} {}".format(self.interface, self.target)
+        ping_cmd = f"ping -I {self.interface} {self.target}"
         ping = subprocess.Popen(shlex.split(ping_cmd), stdout=subprocess.PIPE)
         iperf.communicate()
 
@@ -546,7 +538,7 @@ class Interface(socket.socket):
 
     def __init__(self, interface: str):
 
-        super(Interface, self).__init__(socket.AF_INET, socket.IPPROTO_ICMP)
+        super().__init__(socket.AF_INET, socket.IPPROTO_ICMP)
 
         self.interface = interface
         self.dev_path = Path("/sys/class/net") / interface
@@ -567,8 +559,8 @@ class Interface(socket.socket):
 
         try:
             nic_data = fcntl.ioctl(self.fileno(), ETH_P_IBOE, freq)
-        except IOError:
-            logger.error("No IP address for %s", self.interface)
+        except OSError:
+            logging.error("No IP address for %s", self.interface)
             return None
         return socket.inet_ntoa(nic_data[20:24])
 
@@ -578,8 +570,8 @@ class Interface(socket.socket):
 
         try:
             mask_data = fcntl.ioctl(self.fileno(), SIOCGIFNETMASK, freq)
-        except IOError:
-            logger.error("No netmask for %s", self.interface)
+        except OSError:
+            logging.error("No netmask for %s", self.interface)
             return None
         return socket.inet_ntoa(mask_data[20:24])
 
@@ -712,7 +704,7 @@ def can_ping(the_interface, test_target):
 def run_test(args: Namespace, test_target: str):
     # Ensure that interface is fully up by waiting until it can
     # ping the test server
-    logger.info("Testing {} against {}".format(args.interface, test_target))
+    logging.info(f"Testing {args.interface} against {test_target}")
     if can_ping(args.interface, test_target):
         logger.info(
             "Have successfully pinged {} on {}".format(
@@ -767,7 +759,7 @@ def run_test(args: Namespace, test_target: str):
         )
         error_number = stress_benchmark.run()
     else:
-        logger.error("Unknown test type {}".format(args.test_type))
+        logging.error(f"Unknown test type {args.test_type}")
         return 10
     return error_number
 
@@ -796,9 +788,9 @@ def make_target_list(iface: str, test_targets: str, log_warnings: bool):
             False,
         )
     except ipaddress.AddressValueError as e:
-        logger.error("Device {}: Invalid IP Address".format(iface))
-        logger.error("  {}".format(e))
-        logger.error("Aborting test now")
+        logging.error(f"Device {iface}: Invalid IP Address")
+        logging.error(f"  {e}")
+        logging.error("Aborting test now")
         sys.exit(1)
     first_addr = net.network_address + 1
     last_addr = first_addr + net.num_addresses - 2
@@ -818,14 +810,14 @@ def make_target_list(iface: str, test_targets: str, log_warnings: bool):
                                 test_target, target
                             )
                         )
-                        logger.warning(
-                            "test list since it's not within {}.".format(net)
+                        logging.warning(
+                            f"test list since it's not within {net}."
                         )
                     return_list.remove(test_target)
             except ValueError:
                 if log_warnings:
-                    logger.warning(
-                        "Invalid address: {}; skipping".format(test_target)
+                    logging.warning(
+                        f"Invalid address: {test_target}; skipping"
                     )
                 return_list.remove(test_target)
     return_list.reverse()
@@ -877,9 +869,9 @@ def wait_for_iface_up(iface: str, timeout: int):
     net_if = Interface(iface)
     while time.time() < deadline:
         if net_if.status == "up":
-            logger.debug("Interface {} is up!".format(iface))
+            logging.debug(f"Interface {iface} is up!")
             return True
-        logger.debug("Interface {} not yet up; waiting....".format(iface))
+        logging.debug(f"Interface {iface} not yet up; waiting....")
         # Sleep whether or not interface is up because sometimes the IP
         # address gets assigned after "ip" claims it's up.
         time.sleep(5)
@@ -940,9 +932,9 @@ def check_underspeed(iface):
         network_if.link_speed < network_if.max_speed
         and network_if.max_speed != 0
     ):
-        logger.error(
-            "Detected link speed ({}) is lower ".format(network_if.link_speed)
-            + "than detected max speed ({})".format(network_if.max_speed)
+        logging.error(
+            f"Detected link speed ({network_if.link_speed}) is lower "
+            + f"than detected max speed ({network_if.max_speed})"
         )
         logger.error("Check your device configuration and try again.")
         logger.error("If you want to test despite this under-speed link, use")
@@ -961,9 +953,7 @@ def setup_network_ifaces(
     if target_if_attrs["status"] == "down" and not turn_up_network(
         target_network, timeout
     ):
-        raise SystemExit(
-            "Failed to bring up {} interface".format(target_network)
-        )
+        raise SystemExit(f"Failed to bring up {target_network} interface")
 
     if not underspeed_ok and check_underspeed(target_network):
         raise SystemExit(
@@ -995,16 +985,14 @@ def setup_network_ifaces(
             conduit_net, timeout
         ):
             raise SystemExit(
-                "Failed to bring up {} conduit interface".format(conduit_net)
+                f"Failed to bring up {conduit_net} conduit interface"
             )
 
     if toggle_status:
         # Shutdown other network interfaces
         for iface, attrs in network_info.items():
             if attrs["status"] == "up" and not turn_down_network(iface):
-                raise SystemExit(
-                    "Failed to shutdown {} interface".format(iface)
-                )
+                raise SystemExit(f"Failed to shutdown {iface} interface")
 
 
 def restore_network_ifaces(cur_network_info, origin_network_info, timeout):

@@ -38,11 +38,11 @@ def runcmd(command):
 
 
 def check_spi_node(path):
-    print("Checking whether SPI node {} exists".format(path))
+    print(f"Checking whether SPI node {path} exists")
     if os.path.exists(path):
-        print("PASS: SPI node {} exist!\n".format(path))
+        print(f"PASS: SPI node {path} exist!\n")
     else:
-        raise SystemExit("ERROR: SPI node {} does NOT exist!".format(path))
+        raise SystemExit(f"ERROR: SPI node {path} does NOT exist!")
 
 
 def test_spi_content_consistency(platform):
@@ -52,11 +52,11 @@ def test_spi_content_consistency(platform):
 
     check_spi_node(spi_path)
 
-    test_bin_path = "{}/spi/test.bin".format(PLAINBOX_PROVIDER_DATA)
+    test_bin_path = f"{PLAINBOX_PROVIDER_DATA}/spi/test.bin"
     cmd = "genio-test-tool.spidev-test -D" " {} -s 400000 -i {} -v".format(
         spi_path, test_bin_path
     )
-    print("Run command: {}\n".format(cmd))
+    print(f"Run command: {cmd}\n")
     spi_ret = runcmd([cmd])
     print(spi_ret.stdout)
 

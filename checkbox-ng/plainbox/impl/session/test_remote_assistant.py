@@ -556,7 +556,7 @@ class RemoteAssistantTests(TestCase):
             RemoteSessionAssistant.finish_bootstrap, self_mock
         )
         self_mock._sa.get_static_todo_list.return_value = static_todo_list = [
-            "test_{}".format(x) for x in range(10)
+            f"test_{x}" for x in range(10)
         ]
         to_r = {x: mock.MagicMock() for x in static_todo_list}
 

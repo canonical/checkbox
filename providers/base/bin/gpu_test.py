@@ -76,9 +76,9 @@ class RotateGlxThread(Thread):
             for j in range(60):
                 x = int(200 * self.offset + 100 * sin(j * 0.2))
                 y = int(200 * self.offset + 100 * cos(j * 0.2))
-                coords = "%s,%s" % (x, y)
+                coords = f"{x},{y}"
                 subprocess.call(
-                    "wmctrl -i -r %s -e 0,%s,-1,-1" % (self.id, coords),
+                    f"wmctrl -i -r {self.id} -e 0,{coords},-1,-1",
                     shell=True,
                 )
                 time.sleep(0.002 * self.offset)
@@ -104,7 +104,9 @@ class ChangeWorkspace(Thread):
             for i in range(self.hsize):
                 for j in range(self.vsize):
                     subprocess.call(
-                        "wmctrl -o %s,%s" % (self.xsize * j, self.ysize * i),
+                        "wmctrl -o {},{}".format(
+                            self.xsize * j, self.ysize * i
+                        ),
                         shell=True,
                     )
                     time.sleep(0.5)
@@ -179,7 +181,7 @@ def main():
             if b"glxgears" not in app:
                 continue
             GlxWindows[i].id = str(
-                re.match(b"^(0x\w+)", app).group(0), "utf-8"  # noqa: W605
+                re.match(rb"^(0x\w+)", app).group(0), "utf-8"  # noqa: W605
             )
             break
         if hasattr(GlxWindows[i], "id"):
@@ -187,7 +189,7 @@ def main():
             GlxRotate.append(rotator)
             rotator.start()
         else:
-            print("WARNING: Window {} not found, not rotating it.".format(i))
+            print(f"WARNING: Window {i} not found, not rotating it.")
 
     hsize = vsize = 2
     hsize_ori = vsize_ori = None
@@ -214,7 +216,7 @@ def main():
             )
         )
     x_res, y_res = re.search(
-        b"DG:\s+(\d+)x(\d+)",  # noqa: W605
+        rb"DG:\s+(\d+)x(\d+)",  # noqa: W605
         subprocess.check_output("wmctrl -d", shell=True),
     ).groups()
     DesktopSwitch = ChangeWorkspace(

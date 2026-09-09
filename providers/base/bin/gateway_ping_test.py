@@ -84,7 +84,7 @@ class Route:
         """
         logging.debug(_("Reading default gateway information from /proc"))
         try:
-            with open("/proc/net/route", "rt") as stream:
+            with open("/proc/net/route") as stream:
                 route = stream.read()
         except Exception:
             logging.error(_("Failed to read def gateway from /proc"))
@@ -127,7 +127,7 @@ class Route:
                 ):
                     return addr_info_fields[5]
         raise ValueError(
-            "Unable to determine broadcast for iface {}".format(self.interface)
+            f"Unable to determine broadcast for iface {self.interface}"
         )
 
     def _get_default_gateway_from_networkctl(self):
@@ -181,9 +181,7 @@ class Route:
             fields = line.split()
             if len(fields) > 3:
                 return fields[2]
-        raise ValueError(
-            "Unable to determine any device used for {}".format(ip)
-        )
+        raise ValueError(f"Unable to determine any device used for {ip}")
 
     @staticmethod
     def get_any_interface():
@@ -269,9 +267,7 @@ def get_any_host_reachable_on(interface: str) -> str:
         # we were unable to get any reachable host in the arp table, this may
         # be due to a slow network, lets retry in a few seconds
         time.sleep(5)
-    raise ValueError(
-        "Unable to reach any host on interface {}".format(interface)
-    )
+    raise ValueError(f"Unable to reach any host on interface {interface}")
 
 
 def get_host_to_ping(interface: str, target: str = None) -> "str|None":
@@ -322,7 +318,7 @@ def ping(
     """
     command = ["ping", str(host), "-c", str(count), "-w", str(deadline)]
     if interface:
-        command.append("-I{}".format(interface))
+        command.append(f"-I{interface}")
     if broadcast:
         command.append("-b")
     reg = re.compile(
@@ -375,9 +371,7 @@ def perform_ping_test(interfaces: List[str], target=None) -> None:
     for iface in interfaces:
         host = get_host_to_ping(iface, target)
         if not host:
-            print(
-                "Failed to find a host to ping on interface {}".format(iface)
-            )
+            print(f"Failed to find a host to ping on interface {iface}")
             continue
         print(
             "Pinging {} with {} interface".format(
@@ -386,7 +380,7 @@ def perform_ping_test(interfaces: List[str], target=None) -> None:
         )
         ping_summary = ping(host, iface)
         if ping_summary["received"] != ping_summary["transmitted"]:
-            print("FAIL: {0}% packet loss.".format(ping_summary["pct_loss"]))
+            print("FAIL: {}% packet loss.".format(ping_summary["pct_loss"]))
             continue
         if ping_summary["transmitted"] > 0:
             print(_("PASS: 0% packet loss").format(host))

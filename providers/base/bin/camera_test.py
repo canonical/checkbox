@@ -248,9 +248,9 @@ class CameraTest:
             cp = v4l2_capability()
             device = "/dev/video%d" % i
             try:
-                with open(device, "r") as vd:
+                with open(device) as vd:
                     fcntl.ioctl(vd, VIDIOC_QUERYCAP, cp)
-            except IOError:
+            except OSError:
                 continue
             dev_status = 0
             cap_status = self._detect_and_show_camera_info(device, cp)
@@ -319,11 +319,11 @@ class CameraTest:
             # Quit the GLib main loop
             self.main_loop.quit()
             err, debug = message.parse_error()
-            print("Error: {}".format(err.message))
+            print(f"Error: {err.message}")
 
-            logging.debug("Debug info: {}".format(debug))
+            logging.debug(f"Debug info: {debug}")
 
-            raise SystemExit("Error: {}".format(err.message))
+            raise SystemExit(f"Error: {err.message}")
 
         # Process Pipeline state change messages
         elif (
@@ -453,7 +453,7 @@ class CameraTest:
             supported_resolutions[width], key=lambda y: abs(y - self._height)
         )
         vf_caps = self.Gst.Caps.from_string(
-            "video/x-raw, width={}, height={}".format(width, height)
+            f"video/x-raw, width={width}, height={height}"
         )
         pipeline.set_property("viewfinder-caps", vf_caps)
 
@@ -521,7 +521,7 @@ class CameraTest:
             filename,
         ]
         if self.photo_wait_seconds > 0:
-            command.insert(1, "-D {}".format(self.photo_wait_seconds))
+            command.insert(1, f"-D {self.photo_wait_seconds}")
 
         if pixelformat:
             # special tweak for fswebcam
@@ -579,7 +579,7 @@ class CameraTest:
             caps.set_property(
                 "caps",
                 self.Gst.Caps.from_string(
-                    "{},width={},height={}".format(mime_type, width, height)
+                    f"{mime_type},width={width},height={height}"
                 ),
             )
             pipeline.add(caps)
@@ -659,7 +659,7 @@ class CameraTest:
         try:
             print(
                 "Starting GStreamer image capture pipeline with {}...".format(
-                    "{} second delay".format(self.photo_wait_seconds)
+                    f"{self.photo_wait_seconds} second delay"
                     if self.photo_wait_seconds > 0
                     else "no delay"
                 )
@@ -705,13 +705,13 @@ class CameraTest:
         """
         ret = ""
         for format in supported_formats:
-            ret += "Format: %s (%s)\n" % (
+            ret += "Format: {} ({})\n".format(
                 format["pixelformat"],
                 format["description"],
             )
             ret += "Resolutions: "
             for resolution in format["resolutions"]:
-                ret += "%sx%s," % (resolution[0], resolution[1])
+                ret += f"{resolution[0]}x{resolution[1]},"
             # truncate the extra comma with :-1
             ret = ret[:-1] + "\n"
         return ret
@@ -737,11 +737,13 @@ class CameraTest:
             w = resolution[0]
             h = resolution[1]
             f = NamedTemporaryFile(
-                prefix="camera_test_%s%sx%s" % (format["pixelformat"], w, h),
+                prefix="camera_test_{}{}x{}".format(
+                    format["pixelformat"], w, h
+                ),
                 suffix=".jpg",
                 delete=False,
             )
-            print("Taking a picture at %sx%s" % (w, h))
+            print(f"Taking a picture at {w}x{h}")
 
             self._capture_image(
                 f.name, w, h, pixelformat=format["pixelformat"]
@@ -761,9 +763,7 @@ class CameraTest:
         """
         # Check if the output directory exists
         if not os.path.exists(output):
-            raise SystemExit(
-                "Output directory does not exist: {}".format(output)
-            )
+            raise SystemExit(f"Output directory does not exist: {output}")
 
         # Choose one resolution image to store as an artifact. We will use
         # the closest resolution to 640x480 as the target to have some
@@ -775,7 +775,7 @@ class CameraTest:
         w, h = closest_resolution
         device_name = device.split("/")[-1]
         filepath = os.path.join(
-            output, "resolution_test_image_{}.jpg".format(device_name)
+            output, f"resolution_test_image_{device_name}.jpg"
         )
         print("Saving debug image to %s" % filepath)
         with open(filepath, "w") as f:
@@ -794,12 +794,12 @@ class CameraTest:
         fmt.type = V4L2_CAP_VIDEO_CAPTURE
         try:
             while fmt.index < maxformats:
-                with open(device, "r") as vd:
+                with open(device) as vd:
                     if fcntl.ioctl(vd, VIDIOC_ENUM_FMT, fmt) == 0:
                         pixelformat = {}
                         # save the int type for re-use later
                         pixelformat["pixelformat_int"] = fmt.pixelformat
-                        pixelformat["pixelformat"] = "%s%s%s%s" % (
+                        pixelformat["pixelformat"] = "{}{}{}{}".format(
                             chr(fmt.pixelformat & 0xFF),
                             chr((fmt.pixelformat >> 8) & 0xFF),
                             chr((fmt.pixelformat >> 16) & 0xFF),
@@ -808,7 +808,7 @@ class CameraTest:
                         pixelformat["description"] = fmt.description.decode()
                         supported_pixel_formats.append(pixelformat)
                 fmt.index = fmt.index + 1
-        except IOError as e:
+        except OSError as e:
             # EINVAL is the ioctl's way of telling us that there are no
             # more formats, so we ignore it
             if e.errno != errno.EINVAL:
@@ -848,7 +848,7 @@ class CameraTest:
             framesize = v4l2_frmsizeenum()
             framesize.index = 0
             framesize.pixel_format = supported_format["pixelformat_int"]
-            with open(device, "r") as vd:
+            with open(device) as vd:
                 try:
                     while (
                         fcntl.ioctl(vd, VIDIOC_ENUM_FRAMESIZES, framesize) == 0
@@ -881,7 +881,7 @@ class CameraTest:
                             )
                             break
                         framesize.index = framesize.index + 1
-                except IOError as e:
+                except OSError as e:
                     # EINVAL is the ioctl's way of telling us that there are no
                     # more formats, so we ignore it
                     if e.errno != errno.EINVAL:

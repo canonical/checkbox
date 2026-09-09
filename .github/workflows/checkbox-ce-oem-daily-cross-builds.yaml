@@ -26,26 +26,15 @@ jobs:
       fail-fast: false
       matrix:
         type: [classic, uc]
-        release: [20, 22, 24, 26]
-        arch: [armhf, amd64, arm64]
-        exclude:
-          # other confs built natively in checkbox-daily-native-builds.yaml
+        release: [20, 22, 24]
+        arch: [armhf]
+        include:
           - release: 20
-            arch: amd64
-          - release: 20
-            arch: arm64
+            snapcraft_version: 7.x/stable
           - release: 22
-            arch: amd64
-          - release: 22
-            arch: arm64
+            snapcraft_version: 8.x/stable
           - release: 24
-            arch: amd64
-          - release: 24
-            arch: arm64
-          - release: 26
-            arch: amd64
-          - release: 26
-            arch: arm64
+            snapcraft_version: 8.x/stable
     runs-on: ubuntu-latest
     timeout-minutes: 1200 #20h, this will timeout sooner due to inner timeouts
     name: Frontend ${{ matrix.type }}${{ matrix.release }} (${{ matrix.arch }})
@@ -73,6 +62,7 @@ jobs:
           with: |
             architecture: ${{ matrix.arch }}
             path: contrib/checkbox-ce-oem/checkbox-ce-oem-snap/series_${{ matrix.type }}${{ matrix.release }}
+            snapcraft-channel: ${{ matrix.snapcraft_version }}
 
       - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
         name: Upload logs on failure

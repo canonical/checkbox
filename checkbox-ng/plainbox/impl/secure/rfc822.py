@@ -161,14 +161,14 @@ class RFC822Record:
         """
 
         def _dump_part(stream, key, values):
-            stream.write("{}:\n".format(key))
+            stream.write(f"{key}:\n")
             for value in values:
                 if not value:
                     stream.write(" .\n")
                 elif value == ".":
                     stream.write(" ..\n")
                 else:
-                    stream.write(" {}\n".format(value))
+                    stream.write(f" {value}\n")
 
         for key, value in self.data.items():
             if isinstance(value, (list, tuple)):
@@ -179,7 +179,7 @@ class RFC822Record:
                     values = values[:-1]
                 _dump_part(stream, key, values)
             else:
-                stream.write("{}: {}\n".format(key, value))
+                stream.write(f"{key}: {value}\n")
         stream.write("\n")
 
 

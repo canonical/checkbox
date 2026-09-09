@@ -445,13 +445,13 @@ class FsPlugInCollectionTests(TestCase):
                     "noperm.plugin",
                 ]
             else:
-                raise OSError("There is nothing in {}".format(path))
+                raise OSError(f"There is nothing in {path}")
 
         def fake_isfile(path):
             return not os.path.basename(path).startswith("dir.")
 
         def fake_open(path, encoding=None, mode=None):
-            m = mock.MagicMock(name="opened file {!r}".format(path))
+            m = mock.MagicMock(name=f"opened file {path!r}")
             m.__enter__.return_value = m
             if path == os.path.join(self._P1, "foo.plugin"):
                 m.read.return_value = "foo"
@@ -462,7 +462,7 @@ class FsPlugInCollectionTests(TestCase):
             elif path == os.path.join(self._P1, "noperm.plugin"):
                 raise OSError("You cannot open this file")
             else:
-                raise IOError("Unexpected file: {}".format(path))
+                raise OSError(f"Unexpected file: {path}")
 
         mock_listdir.side_effect = fake_listdir
         mock_isfile.side_effect = fake_isfile
@@ -530,7 +530,7 @@ class FsPlugInCollectionTests(TestCase):
         mock_isfile.return_value = True
 
         def fake_open(path, encoding=None, mode=None):
-            m = mock.MagicMock(name="opened file {!r}".format(path))
+            m = mock.MagicMock(name=f"opened file {path!r}")
             m.read.return_value = "text"
             m.__enter__.return_value = m
             return m

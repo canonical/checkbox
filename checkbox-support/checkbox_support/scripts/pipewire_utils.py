@@ -94,7 +94,7 @@ class PipewireTest:
         elif media_class.lower() in ["source", "sources"]:
             return "Input"
         else:
-            self.logger.info("Media class:[{}] is unknown".format(media_class))
+            self.logger.info(f"Media class:[{media_class}] is unknown")
             return "UNKNOWN CLASS"
 
     def _get_pw_dump(
@@ -110,12 +110,12 @@ class PipewireTest:
         :"rtype": dict
         """
         pw_dump = subprocess.check_output(
-            "pw-dump {}".format(p_type), shell=True, universal_newlines=True
+            f"pw-dump {p_type}", shell=True, universal_newlines=True
         )
         try:
             return json.loads(pw_dump)
         except (json.decoder.JSONDecodeError, TypeError):
-            self.logger.error("pw-dump {} failed !!!".format(p_type))
+            self.logger.error(f"pw-dump {p_type} failed !!!")
             return []
 
     def generate_pw_media_class(self, media_type, media_class) -> str:
@@ -137,15 +137,15 @@ class PipewireTest:
         elif media_type.lower() == "video":
             mtype = "Video"
         else:
-            self.logger.info("Media type:[{}] is unknown".format(media_type))
+            self.logger.info(f"Media type:[{media_type}] is unknown")
             return "UNKNOWN TYPE"
 
         if media_class.lower() in ["sink", "sinks"]:
-            return "{}/Sink".format(mtype)
+            return f"{mtype}/Sink"
         elif media_class.lower() in ["source", "sources"]:
-            return "{}/Source".format(mtype)
+            return f"{mtype}/Source"
         else:
-            self.logger.info("Media class:[{}] is unknown".format(media_class))
+            self.logger.info(f"Media class:[{media_class}] is unknown")
             return "UNKNOWN CLASS"
 
     def detect_device(self, media_type, media_class) -> int:
@@ -180,7 +180,7 @@ class PipewireTest:
                 detected_flag = True
         if detected_flag:
             return PipewireTestError.NO_ERROR
-        self.logger.info("media.class:[{}] couldn't find".format(mclass))
+        self.logger.info(f"media.class:[{mclass}] couldn't find")
         return PipewireTestError.NOT_DETECTED
 
     def select_device(self, media_type, media_class, device):
@@ -211,9 +211,9 @@ class PipewireTest:
                 available_nodes[client["id"]] = client
 
         if len(available_nodes) < 1:
-            self.logger.error("No available {} found".format(mclass))
+            self.logger.error(f"No available {mclass} found")
             return PipewireTestError.NO_AVAILABLE_PORT
-        self.logger.info("Available {}:".format(mclass))
+        self.logger.info(f"Available {mclass}:")
         for i in available_nodes:
             n = available_nodes[i]
             desc = n["info"]["props"].get("node.description")
@@ -227,21 +227,21 @@ class PipewireTest:
                     mclass
                 )
             )
-            self.logger.info("    {} id:".format(mclass))
+            self.logger.info(f"    {mclass} id:")
             node_id = input()
             try:
                 chosen = int(node_id) in available_nodes
             except ValueError:
                 chosen = False
             if chosen:
-                cmd = "wpctl set-default {}".format(node_id)
+                cmd = f"wpctl set-default {node_id}"
                 subprocess.check_output(
                     cmd, shell=True, universal_newlines=True
                 )
             elif node_id == "-1":
                 chosen = True
             else:
-                self.logger.info("    [{}] isn't existed!".format(node_id))
+                self.logger.info(f"    [{node_id}] isn't existed!")
         return PipewireTestError.NO_ERROR
 
     def _check_state(self, device) -> bool:
@@ -276,9 +276,7 @@ class PipewireTest:
                                 )
                             )
                             return True
-            raise ValueError(
-                "No available output device for {}".format(device)
-            )
+            raise ValueError(f"No available output device for {device}")
         except (IndexError, ValueError) as e:
             logging.error(repr(e))
             return False
@@ -303,14 +301,12 @@ class PipewireTest:
         Gst.init(None)
         try:
             self.logger.info(
-                "Attempting to initialize Gstreamer pipeline: {}".format(pipe)
+                f"Attempting to initialize Gstreamer pipeline: {pipe}"
             )
             element = Gst.parse_launch(pipe)
         except GLib.GError as error:
             self.logger.info("Specified pipeline couldn't be processed.")
-            self.logger.info(
-                "Error when processing pipeline: {}".format(error)
-            )
+            self.logger.info(f"Error when processing pipeline: {error}")
             # Exit harmlessly
             return PipewireTestError.PIPELINE_PROCESS_FAIL
         self.logger.info("Pipeline initialized, now starting playback.")
@@ -372,15 +368,13 @@ class PipewireTest:
         :type mode: str
         """
         initial_cfg = self._get_audio_config(mode)
-        self.logger.info("Starting with config: {}".format(initial_cfg))
-        self.logger.info(
-            "You have {} seconds to plug the item in".format(timeout)
-        )
+        self.logger.info(f"Starting with config: {initial_cfg}")
+        self.logger.info(f"You have {timeout} seconds to plug the item in")
 
         for _ in range(int(timeout)):
             new_cfg = self._get_audio_config(mode)
             if new_cfg != initial_cfg:
-                self.logger.info("Now using config: {}".format(new_cfg))
+                self.logger.info(f"Now using config: {new_cfg}")
                 self.logger.info("It seems to work!")
                 return PipewireTestError.NO_ERROR
             time.sleep(1)
@@ -460,7 +454,7 @@ class PipewireTest:
                 # panic when sinks are removed
                 raise SystemExit(
                     "Some sinks were removed unexpectedly "
-                    + "({} sinks -> {} sinks)".format(N, len(audio_sink_ids))
+                    + f"({N} sinks -> {len(audio_sink_ids)} sinks)"
                 )
             else:
                 N = len(audio_sink_ids)
@@ -482,7 +476,7 @@ class PipewireTest:
                     )
 
                 print(
-                    "Choose an audio sink to test [0-{}],".format(N - 1),
+                    f"Choose an audio sink to test [0-{N - 1}],",
                     "hit ENTER to rediscover sinks,",
                     "or type 'q' to quit:",
                     flush=True,
@@ -512,7 +506,7 @@ class PipewireTest:
                             "[ ERR ] Only {} audio sinks were tested, ".format(
                                 len(tested_ids)
                             )
-                            + "but expected {}".format(N)
+                            + f"but expected {N}"
                         )
                 elif choice == "":
                     # rediscovery
@@ -556,7 +550,7 @@ class PipewireTest:
                 print(
                     "[ ERR ]",
                     cmd,
-                    "did not finish in {}s".format(TIMEOUT),
+                    f"did not finish in {TIMEOUT}s",
                     file=sys.stderr,
                 )
                 nothing_failed = False
@@ -666,7 +660,7 @@ class PipewireTest:
                 if "node.description" in line:
                     return line.split("=")[1]
         except IndexError as e:
-            raise RuntimeError("properties format error {}".format(repr(e)))
+            raise RuntimeError(f"properties format error {repr(e)}")
 
     def show_default_device(self, device_type):
         """
@@ -681,12 +675,12 @@ class PipewireTest:
         sink_cmd = [
             "wpctl",
             "inspect",
-            "@DEFAULT_{}_SINK@".format(device_type),
+            f"@DEFAULT_{device_type}_SINK@",
         ]
         source_cmd = [
             "wpctl",
             "inspect",
-            "@DEFAULT_{}_SOURCE@".format(device_type),
+            f"@DEFAULT_{device_type}_SOURCE@",
         ]
         self.logger.info("Default input device:")
         try:
@@ -705,7 +699,7 @@ class PipewireTest:
                 " please change them before testing"
             )
         except subprocess.CalledProcessError as e:
-            raise RuntimeError("Show default device error {}".format(repr(e)))
+            raise RuntimeError(f"Show default device error {repr(e)}")
 
     def _sort_wpctl_status(self, lines: "list[str]") -> "list[str]":
         """
@@ -749,7 +743,7 @@ class PipewireTest:
 
         :param status_2: path to second wpctl status
         """
-        with open(status_1, "r") as s1, open(status_2, "r") as s2:
+        with open(status_1) as s1, open(status_2) as s2:
             status_1_lines = s1.readlines()
             status_2_lines = s2.readlines()
             sorted_status_1 = self._sort_wpctl_status(status_1_lines)

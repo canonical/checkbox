@@ -227,7 +227,7 @@ class TestCpuBenchmark(unittest.TestCase):
             # If we reach here, the method executed successfully
             self.assertTrue(True)
         except Exception as e:
-            self.fail("burn_cpu_cycles raised an exception: {}".format(e))
+            self.fail(f"burn_cpu_cycles raised an exception: {e}")
 
     def test_burn_cpu_cycles_math_operations(self):
         """Test burn_cpu_cycles method performs expected math operations"""

@@ -81,7 +81,7 @@ def main():
 
     if args.mac:
         # TODO check MAC format
-        print("INFO: Trying to pair with {}".format(args.mac))
+        print(f"INFO: Trying to pair with {args.mac}")
         device = list(manager.get_bt_devices(filters={"Address": args.mac}))
         paired_device = list(
             manager.get_bt_devices(
@@ -133,7 +133,7 @@ def main():
         # let's assing numbers to devices
         devices = dict(enumerate(target_devices, 1))
         for num, dev in devices.items():
-            print("{}. {} (RSSI: {})".format(num, dev, dev.rssi))
+            print(f"{num}. {dev} (RSSI: {dev.rssi})")
         chosen = False
         while not chosen:
             print("Which one would you like to connect to? (0 to exit)")
@@ -142,7 +142,7 @@ def main():
             if num == "0":
                 return 1
             chosen = num.isnumeric() and int(num) in devices.keys()
-        print("INFO: {} chosen.".format(devices[int(num)]))
+        print(f"INFO: {devices[int(num)]} chosen.")
         print("INFO: Pairing selected device..")
         try:
             devices[int(num)].pair()

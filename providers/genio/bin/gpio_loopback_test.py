@@ -34,7 +34,7 @@ class GPIOSysFsController:
     def get_gpio_base_number(self):
         """Get the base number of GPIO chip"""
         print("Get GPIO Chips info")
-        with open("/sys/kernel/debug/gpio", "r") as fp:
+        with open("/sys/kernel/debug/gpio") as fp:
             value = fp.read().strip()
             print(value)
             gpiochips = [i for i in value.split("\n") if "gpiochip" in i]
@@ -83,15 +83,15 @@ class GPIOSysFsController:
         """
         base_number_mapping = self.get_gpio_base_number()
         output_base_number = int(
-            base_number_mapping["gpiochip{}".format(output_gpio_chip_number)]
+            base_number_mapping[f"gpiochip{output_gpio_chip_number}"]
         )
         input_base_number = int(
-            base_number_mapping["gpiochip{}".format(input_gpio_chip_number)]
+            base_number_mapping[f"gpiochip{input_gpio_chip_number}"]
         )
         output_pin_number = output_base_number + int(gpio_output_pin)
         input_pin_number = input_base_number + int(gpio_input_pin)
-        print("\nOutput Base Number: {}".format(output_base_number))
-        print("Input Base Number: {}".format(input_base_number))
+        print(f"\nOutput Base Number: {output_base_number}")
+        print(f"Input Base Number: {input_base_number}")
         print(
             "Physical output port: {}, GPIO number: {}".format(
                 physical_output_port, gpio_output_pin
@@ -122,7 +122,7 @@ class GPIOSysFsController:
         Args:
             port (str): the gpio port
         """
-        return os.path.exists("{}/gpio{}".format(self.ROOT_PATH, port))
+        return os.path.exists(f"{self.ROOT_PATH}/gpio{port}")
 
     def set_gpio(self, port, value):
         """Write the value to GPIO port
@@ -131,9 +131,9 @@ class GPIOSysFsController:
             port (str): the gpio port
             value (str): 0 or 1
         """
-        print("# Set GPIO {} value to {}".format(port, value))
-        with open("{}/gpio{}/value".format(self.ROOT_PATH, port), "wt") as fp:
-            fp.write("{}\n".format(value))
+        print(f"# Set GPIO {port} value to {value}")
+        with open(f"{self.ROOT_PATH}/gpio{port}/value", "w") as fp:
+            fp.write(f"{value}\n")
 
     def read_gpio(self, port):
         """Read the value from GPIO port
@@ -144,9 +144,9 @@ class GPIOSysFsController:
         Returns:
             value (str): the value of gpio port
         """
-        with open("{}/gpio{}/value".format(self.ROOT_PATH, port), "r") as fp:
+        with open(f"{self.ROOT_PATH}/gpio{port}/value") as fp:
             value = fp.read().strip()
-        print("# Read GPIO {}, value is {}".format(port, value))
+        print(f"# Read GPIO {port}, value is {value}")
         return value
 
     def set_direction(self, port, value):
@@ -156,11 +156,9 @@ class GPIOSysFsController:
             port (str): the gpio port
             direction (str): the direction of gpio port
         """
-        print("# Set GPIO {} direction to {}".format(port, value))
-        with open(
-            "{}/gpio{}/direction".format(self.ROOT_PATH, port), "w"
-        ) as fp:
-            fp.write("{}\n".format(value))
+        print(f"# Set GPIO {port} direction to {value}")
+        with open(f"{self.ROOT_PATH}/gpio{port}/direction", "w") as fp:
+            fp.write(f"{value}\n")
 
     def configure_gpio(self, port, direction):
         """Initial and configure GPIO port
@@ -175,16 +173,16 @@ class GPIOSysFsController:
         try:
             # Export GPIO
             if not self.check_gpio_node(port):
-                with open("{}/export".format(self.ROOT_PATH), "w") as fexport:
-                    fexport.write("{}\n".format(port))
+                with open(f"{self.ROOT_PATH}/export", "w") as fexport:
+                    fexport.write(f"{port}\n")
 
             if not self.check_gpio_node(port):
-                raise SystemExit("Failed to export GPIO {}\n".format(port))
+                raise SystemExit(f"Failed to export GPIO {port}\n")
 
             # Set direction
             self.set_direction(port, direction)
         except Exception as err:
-            raise IOError(
+            raise OSError(
                 "{} \nError: Failed to configure GPIO {} to {}".format(
                     err, port, direction
                 )
@@ -205,7 +203,7 @@ class GPIOSysFsController:
         self.configure_gpio(in_port, "in")
 
         for state in self.TEST_STATES:
-            print("Try to send and receive {}".format(state))
+            print(f"Try to send and receive {state}")
             value = self.read_gpio(in_port)
             print(
                 "The initial input GPIO {}'s value is {}".format(

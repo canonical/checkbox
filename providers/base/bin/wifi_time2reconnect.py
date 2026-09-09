@@ -58,7 +58,7 @@ def main():
     start = datetime.now()
 
     subprocess.call(
-        "nmcli con up uuid %s --timeout %s" % (uuid, TIMEOUT),
+        f"nmcli con up uuid {uuid} --timeout {TIMEOUT}",
         stdout=open(os.devnull, "w"),
         stderr=subprocess.STDOUT,
         shell=True,

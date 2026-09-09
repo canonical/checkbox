@@ -457,7 +457,7 @@ class NamedStringIO(StringIO):
     """
 
     def __init__(self, string, fake_filename=None):
-        super(NamedStringIO, self).__init__(string)
+        super().__init__(string)
         self._fake_filename = fake_filename
 
     @property

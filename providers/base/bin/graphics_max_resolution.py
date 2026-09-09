@@ -91,7 +91,7 @@ if __name__ == "__main__":
     total_sysfs_res = 0
     total_mons_res = 0
     compositor = os.environ.get("XDG_SESSION_TYPE")
-    print("Current compositor: {}".format(compositor))
+    print(f"Current compositor: {compositor}")
     print()
     print("Maximum resolution found for each connected monitors:")
     for p in sysfs_entries:
@@ -140,9 +140,7 @@ if __name__ == "__main__":
         print("The displays are configured at their maximum resolution.")
     else:
         sys.exit(
-            (
-                "The displays do not seem to be configured at their maximum "
-                "resolution.\nPlease switch to the maximum resolution before "
-                "continuing."
-            )
+            "The displays do not seem to be configured at their maximum "
+            "resolution.\nPlease switch to the maximum resolution before "
+            "continuing."
         )

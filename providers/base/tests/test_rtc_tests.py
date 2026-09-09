@@ -62,13 +62,15 @@ class CmdBatteryTests(unittest.TestCase):
         args = SimpleNamespace(rtc="rtc0", seconds=30)
         self.assertEqual(rtc_test.cmd_battery(args), 0)
         self.assertEqual(mock_run.call_count, 2)
-        mock_run.assert_has_calls([
-            call(
-                ["rtcwake", "-v", "-d", "rtc0", "-m", "disable"],
-                check=False
-            ),
-            call(["rtcwake", "-v", "-d", "rtc0", "-m", "off", "-s", "30"]),
-        ])
+        mock_run.assert_has_calls(
+            [
+                call(
+                    ["rtcwake", "-v", "-d", "rtc0", "-m", "disable"],
+                    check=False
+                ),
+                call(["rtcwake", "-v", "-d", "rtc0", "-m", "off", "-s", "30"]),
+            ]
+        )
 
 
 class CmdNumberTests(unittest.TestCase):

@@ -217,6 +217,19 @@ class TestMainFunction(unittest.TestCase):
         for block in records:
             self.assertTrue(block.startswith("stressor: "))
 
+    @patch("stress_ng_test.num_numa_nodes", return_value=1)
+    @patch("sys.argv", ["stress_ng_test.py", "memory", "--list-stressors"])
+    def test_main_stress_memory_list_stressors_no_root_no_stress_ng(
+        self, num_numa_nodes_mock, shutil_which_mock, os_geteuid_mock
+    ):
+        # The memory_stress_ng_stressors resource job runs as a normal
+        # user and stress-ng need not be installed for it to succeed, so
+        # --list-stressors must bypass both the root and stress-ng
+        # availability checks.
+        shutil_which_mock.return_value = None
+        os_geteuid_mock.return_value = 1000
+        self.assertEqual(main(), 0)
+
     @patch("os.remove")
     @patch("stress_ng_test.check_output")
     @patch("stress_ng_test.num_numa_nodes", return_value=1)

@@ -558,6 +558,12 @@ def main():
 
     args = parser.parse_args()
 
+    if getattr(args, "list_stressors", False):
+        # Listing stressors is informational only (used by the
+        # memory_stress_ng_stressors resource job) so it needs neither
+        # root nor the stress-ng binary to be installed.
+        return args.func(args)
+
     if shutil.which("stress-ng") is None:
         print("** The stress-ng utility is not installed; exiting!")
         return 1
@@ -566,10 +572,6 @@ def main():
         return 1
 
     retval = args.func(args)
-    if getattr(args, "list_stressors", False):
-        # Used as a resource-job command; output must be pure RFC822
-        # "key: value" records, so skip the human-readable epilogue below.
-        return retval
     print(f"retval is {retval}")
     print("*" * 62)
     if retval == 0:

@@ -1075,7 +1075,8 @@ def main():
     args = parse_args()
 
     if args.command == "server":
-        server_mode(args.interfaces, cfg=Path(args.master_config))
+        config_path = Path(args.master_config) if args.master_config else None
+        server_mode(args.interfaces, cfg=config_path)
     elif args.command == "client":
         run_client_test(args)
     elif args.command == "validate-string":

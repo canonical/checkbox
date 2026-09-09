@@ -207,12 +207,13 @@ class TestWriteLauncher(unittest.TestCase):
             gl.write_launcher("ns::ce-oem-test", self._items(), out)
             self.assertTrue(out.exists())
 
-    def test_shebang_line(self):
+    def test_no_shebang_line(self):
         with tempfile.TemporaryDirectory() as tmp:
             out = Path(tmp) / "ce-oem-test"
             gl.write_launcher("ns::ce-oem-test", self._items(), out)
             lines = out.read_text().splitlines()
-            self.assertEqual(lines[0], "#!/usr/bin/env checkbox-cli-wrapper")
+            self.assertEqual(lines[0], "[launcher]")
+            self.assertNotIn("checkbox-cli-wrapper", out.read_text())
 
     def test_sections_present(self):
         with tempfile.TemporaryDirectory() as tmp:
@@ -323,6 +324,125 @@ class TestWriteLauncher(unittest.TestCase):
             )
             self.assertIn("forced = no", text)
             self.assertIn("type = interactive", text)
+
+    def test_template_sections_merged(self):
+        template = gl.OrderedDict(
+            {
+                "ui": gl.OrderedDict({"verbosity": "verbose"}),
+                "restart": gl.OrderedDict({"strategy": "systemd"}),
+            }
+        )
+        with tempfile.TemporaryDirectory() as tmp:
+            out = Path(tmp) / "ce-oem-test"
+            gl.write_launcher(
+                "ns::ce-oem-test",
+                self._items(),
+                out,
+                template_sections=template,
+            )
+            text = out.read_text()
+            self.assertIn("verbosity = verbose", text)
+            self.assertIn("[restart]", text)
+            self.assertIn("strategy = systemd", text)
+            # still gets the built-in default silent ui type
+            self.assertIn("type = silent", text)
+
+    def test_template_ui_type_overridden(self):
+        template = gl.OrderedDict(
+            {"ui": gl.OrderedDict({"type": "interactive"})}
+        )
+        with tempfile.TemporaryDirectory() as tmp:
+            out = Path(tmp) / "ce-oem-test"
+            gl.write_launcher(
+                "ns::ce-oem-test",
+                self._items(),
+                out,
+                template_sections=template,
+            )
+            self.assertIn("type = interactive", out.read_text())
+
+    def test_template_ui_type_forced_interactive_with_filter(self):
+        # forced=False always needs type=interactive for the picker to
+        # appear, even if the template says otherwise.
+        template = gl.OrderedDict({"ui": gl.OrderedDict({"type": "silent"})})
+        with tempfile.TemporaryDirectory() as tmp:
+            out = Path(tmp) / "ce-oem-test"
+            gl.write_launcher(
+                "ns::ce-oem-test-automated",
+                self._items(),
+                out,
+                filter_plans=[
+                    "ns::ce-oem-test-manual",
+                    "ns::ce-oem-test-automated",
+                ],
+                forced=False,
+                template_sections=template,
+            )
+            self.assertIn("type = interactive", out.read_text())
+
+    def test_template_extra_sections_not_added_when_none(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            out = Path(tmp) / "ce-oem-test"
+            gl.write_launcher("ns::ce-oem-test", self._items(), out)
+            text = out.read_text()
+            self.assertEqual(text.count("[manifest]"), 1)
+
+
+class TestLoadLauncherTemplate(unittest.TestCase):
+    def test_missing_file_returns_empty(self):
+        result = gl.load_launcher_template(Path("/no/such/file.ini"))
+        self.assertEqual(result, gl.OrderedDict())
+
+    def test_loads_extra_sections(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            p = Path(tmp) / "tmpl.ini"
+            p.write_text(textwrap.dedent("""\
+                    [ui]
+                    type = interactive
+                    verbosity = verbose
+
+                    [restart]
+                    strategy = systemd
+                    """))
+            result = gl.load_launcher_template(p)
+            self.assertEqual(result["ui"]["type"], "interactive")
+            self.assertEqual(result["ui"]["verbosity"], "verbose")
+            self.assertEqual(result["restart"]["strategy"], "systemd")
+
+    def test_forbidden_sections_skipped(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            p = Path(tmp) / "tmpl.ini"
+            p.write_text(textwrap.dedent("""\
+                    [launcher]
+                    app_id = should-be-ignored
+
+                    [test plan]
+                    unit = should-be-ignored
+
+                    [manifest]
+                    ns::should_be_ignored = true
+
+                    [environment]
+                    SHOULD_BE_IGNORED = yes
+
+                    [ui]
+                    type = interactive
+                    """))
+            result = gl.load_launcher_template(p)
+            self.assertEqual(list(result.keys()), ["ui"])
+
+    def test_invalid_ini_returns_empty_without_raising(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            p = Path(tmp) / "tmpl.ini"
+            p.write_text("not valid ini [[[")
+            result = gl.load_launcher_template(p)
+            self.assertEqual(result, gl.OrderedDict())
+
+    def test_default_path_used_when_none_given(self):
+        # gen_launcher.py bundles its own default template next to the
+        # script; loading with no path should find and parse it.
+        result = gl.load_launcher_template()
+        self.assertIsInstance(result, gl.OrderedDict)
 
 
 class TestParseExistingLauncher(unittest.TestCase):
@@ -725,12 +845,13 @@ class TestSaveMergesManualAutoStress(unittest.TestCase):
     automated/stress trio, and fall back to a single plain launcher
     otherwise."""
 
-    def _make_screen(self, output_dir, sub_plans):
+    def _make_screen(self, output_dir, sub_plans, template_sections=None):
         screen = gl.LauncherEditorScreen.__new__(gl.LauncherEditorScreen)
         screen.plan_full_id = "ns::ce-oem-iot-ubuntucore-26"
         screen.items = []
         screen.output_dir = output_dir
         screen.sub_plans = sub_plans
+        screen.template_sections = template_sections
         screen._saved_paths = []
         screen._status_text = _FakeText()
         screen._status_text.set_text = lambda *a, **k: None
@@ -812,6 +933,20 @@ class TestSaveMergesManualAutoStress(unittest.TestCase):
             self.assertIn("unit = ns::ce-oem-iot-ubuntucore-26", text)
             self.assertIn("forced = yes", text)
             self.assertNotIn("filter =", text)
+
+    def test_template_sections_passed_through_to_write_launcher(self):
+        template = gl.OrderedDict(
+            {"restart": gl.OrderedDict({"strategy": "systemd"})}
+        )
+        with tempfile.TemporaryDirectory() as tmp:
+            out_dir = Path(tmp)
+            screen = self._make_screen(out_dir, [], template_sections=template)
+            self._call_save(screen)
+
+            out = out_dir / "ce-oem-iot-ubuntucore-26-launcher"
+            text = out.read_text()
+            self.assertIn("[restart]", text)
+            self.assertIn("strategy = systemd", text)
 
 
 if __name__ == "__main__":

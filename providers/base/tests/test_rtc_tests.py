@@ -66,7 +66,7 @@ class CmdBatteryTests(unittest.TestCase):
             [
                 call(
                     ["rtcwake", "-v", "-d", "rtc0", "-m", "disable"],
-                    check=False
+                    check=False,
                 ),
                 call(["rtcwake", "-v", "-d", "rtc0", "-m", "off", "-s", "30"]),
             ]

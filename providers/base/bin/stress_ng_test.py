@@ -491,8 +491,8 @@ def main():
         "-b",
         "--base-time",
         type=int,
-        help="Base time for each test, in seconds " + "(default=300)",
-        default=300,
+        help="Base time for each test, in seconds " + "(default=30)",
+        default=30,
     )
     memory_parser.add_argument(
         "-t",

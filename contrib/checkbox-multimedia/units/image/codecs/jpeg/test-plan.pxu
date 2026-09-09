@@ -1,0 +1,18 @@
+unit: test plan
+id: multimedia-codecs-vaapi-jpeg
+_name: JPEG codec tests
+include:
+  multimedia/image/codecs/jpeg/decode/baseline/vaapi
+  multimedia/image/codecs/jpeg/encode/baseline/vaapi
+
+unit: test plan
+id: multimedia-codecs-vaapi-jpeg-decode
+_name: JPEG decode tests
+include:
+  multimedia/image/codecs/jpeg/decode/baseline/vaapi
+
+unit: test plan
+id: multimedia-codecs-vaapi-jpeg-encode
+_name: JPEG encode tests
+include:
+  multimedia/image/codecs/jpeg/encode/baseline/vaapi

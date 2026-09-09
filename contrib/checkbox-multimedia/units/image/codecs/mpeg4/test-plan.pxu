@@ -1,0 +1,22 @@
+unit: test plan
+id: multimedia-codecs-vaapi-mpeg4
+_name: VA-API MPEG-4 tests
+include:
+  multimedia/image/codecs/mpeg4/decode/simple/vaapi
+  multimedia/image/codecs/mpeg4/decode/advanced_simple/vaapi
+  multimedia/image/codecs/mpeg4/decode/main/vaapi
+  multimedia/image/codecs/mpeg4/encode/simple/vaapi
+
+unit: test plan
+id: multimedia-codecs-vaapi-mpeg4-decode
+_name: VA-API MPEG-4 decode tests
+include:
+  multimedia/image/codecs/mpeg4/decode/simple/vaapi
+  multimedia/image/codecs/mpeg4/decode/advanced_simple/vaapi
+  multimedia/image/codecs/mpeg4/decode/main/vaapi
+
+unit: test plan
+id: multimedia-codecs-vaapi-mpeg4-encode
+_name: VA-API MPEG-4 encode tests
+include:
+  multimedia/image/codecs/mpeg4/encode/simple/vaapi

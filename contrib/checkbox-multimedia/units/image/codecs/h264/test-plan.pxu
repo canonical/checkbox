@@ -1,0 +1,22 @@
+unit: test plan
+id: multimedia-codecs-vaapi-h264
+_name: VA-API H.264 / AVC decode tests
+include:
+  multimedia/image/codecs/h264/decode/avc_baseline_main/vaapi
+  multimedia/image/codecs/h264/decode/frext/vaapi
+  multimedia/image/codecs/h264/decode/professional/vaapi
+  multimedia/image/codecs/h264/encode/main/vaapi
+
+unit: test plan
+id: multimedia-codecs-vaapi-h264-decode
+_name: VA-API H.264 / AVC decode tests
+include:
+  multimedia/image/codecs/h264/decode/avc_baseline_main/vaapi
+  multimedia/image/codecs/h264/decode/frext/vaapi
+  multimedia/image/codecs/h264/decode/professional/vaapi
+
+unit: test plan
+id: multimedia-codecs-vaapi-h264-encode
+_name: VA-API H.264 / AVC encode tests
+include:
+  multimedia/image/codecs/h264/encode/main/vaapi

@@ -1,0 +1,9 @@
+unit: manifest entry
+id: has_mpeg2_simple_decoder_vaapi
+_name: Has VA-API support for MPEG-2 Simple decode
+value-type: bool
+
+unit: manifest entry
+id: has_mpeg2_main_decoder_vaapi
+_name: Has VA-API support for MPEG-2 Main decode
+value-type: bool

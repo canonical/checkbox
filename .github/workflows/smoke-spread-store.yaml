@@ -28,6 +28,10 @@ jobs:
     name: Smoke via spread on ${{ matrix.garden-system }}
     runs-on: ubuntu-latest
     timeout-minutes: 120
+    # Set at job level so it reaches the spread run regardless of how the
+    # image-garden action is invoked.
+    env:
+      CHECKBOX_CHANNEL: ${{ inputs.channel || 'edge' }}
     strategy:
       fail-fast: false
       matrix:
@@ -76,14 +80,19 @@ jobs:
             warm_up "$snap_name"
           done
 
+      # snap-install inside the image-garden action queries the store with a
+      # single "curl --fail" and no retry, so one rate-limited reply aborts the
+      # whole run. Retry the action the same way the snap build workflows do.
       - name: Run smoke spread suite
-        uses: zyga/image-garden-action@858839da03cc989855469c388a71d91f4621deaf
-        env:
-          CHECKBOX_CHANNEL: ${{ inputs.channel || 'edge' }}
+        uses: Wandalen/wretry.action@df981d2bb22b26b5b23754bb516d0de8c1bfbbec
         with:
-          image-garden-channel: latest/edge
-          garden-system: ${{ matrix.garden-system }}
-          spread-subdir: .github/Image-garden-spread
-          spread-tasks: tests/run-smoke
-          spread-artifacts: artifacts
-          spread-artifacts-suffix: ${{ matrix.garden-system }}
+          action: zyga/image-garden-action@858839da03cc989855469c388a71d91f4621deaf
+          attempt_limit: 3
+          attempt_delay: 60000 # 1min, to let store rate limits expire
+          with: |
+            image-garden-channel: latest/edge
+            garden-system: ${{ matrix.garden-system }}
+            spread-subdir: .github/Image-garden-spread
+            spread-tasks: tests/run-smoke
+            spread-artifacts: artifacts
+            spread-artifacts-suffix: ${{ matrix.garden-system }}

@@ -1072,18 +1072,18 @@ def parse_args() -> argparse.Namespace:
     return parser.parse_args()
 
 
-def run_client(args: argparse.Namespace) -> None:
+def run_client_test(args: argparse.Namespace) -> None:
     with clear_qdisc_settings_before_and_after(interface=args.interface):
         if args.test == "ptp4l":
             time_sync_ptp4l(
                 args.interface,
-                cfg=args.client_config,
+                cfg=Path(args.client_config),
                 timeout=args.timeout,
             )
         elif args.test == "phc2sys":
             time_sync_phc2sys(
                 args.interface,
-                cfg=args.client_config,
+                cfg=Path(args.client_config),
                 timeout=args.timeout,
             )
         elif args.test == "credit-based-shaper":
@@ -1096,7 +1096,7 @@ def run_client(args: argparse.Namespace) -> None:
             traffic_scheduling(
                 interface=args.interface,
                 server_ip=args.server_ip,
-                cfg=args.client_config,
+                cfg=Path(args.client_config),
                 timeout=args.timeout,
             )
 
@@ -1107,7 +1107,7 @@ def main():
     if args.command == "server":
         server_mode(args.interfaces, cfg=Path(args.master_config))
     elif args.command == "client":
-        run_client(args)
+        run_client_test(args)
     elif args.command == "validate-string":
         parse_string(args.string)
 

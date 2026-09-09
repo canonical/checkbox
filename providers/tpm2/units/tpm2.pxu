@@ -29,6 +29,7 @@ command:
     TPM_LIST=$(ls -l /dev/tpm*)
     if [ -z "$TPM_LIST" ]; then
         echo "No TPM device found in /dev/tpm*!"
+        exit 1
     else
         echo "TPM device(s) found:"
         echo "$TPM_LIST"

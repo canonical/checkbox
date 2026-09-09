@@ -18,17 +18,21 @@ def run_command(cmd, capture_output=True, text=True, check=True):
 def find_ta_path(snap_name):
     # TAs may also be bundled by other snaps (e.g. the board's gadget
     # snap), so only look inside the xtest snap's own directory to
-    # avoid picking up unrelated duplicates. Restrict the search to
-    # the snap's currently active revision (the "current" symlink
-    # snapd maintains) rather than the whole snap root: a stale
-    # optee_armtz left behind in an older, still-retained revision
-    # would otherwise be picked up too and falsely reported as a
-    # duplicate.
-    current_revision = os.path.join("/var/snap", snap_name, "current")
+    # avoid picking up unrelated duplicates. On real devices the TA
+    # lives directly under the snap's persistent common data dir, e.g.
+    # /var/snap/<snap_name>/common/lib/optee_armtz — a sibling of
+    # "current"/the numbered revision dirs, not nested under them — so
+    # the search root here is the whole snap dir, not ".../current".
+    # followlinks is left at its default (False): "current" (and any
+    # other numbered revision dir) is a symlink to a revision dir, so
+    # not following it avoids walking that same revision data twice
+    # (once under its real numbered name, once via "current") and
+    # falsely reporting duplicate TA sources.
+    snap_root = os.path.join("/var/snap", snap_name)
     print("Looking for TA path...", flush=True)
     ta_folders = [
         os.path.join(dirpath, "optee_armtz")
-        for dirpath, dirnames, _ in os.walk(current_revision)
+        for dirpath, dirnames, _ in os.walk(snap_root)
         if "optee_armtz" in dirnames
     ]
     if not ta_folders:

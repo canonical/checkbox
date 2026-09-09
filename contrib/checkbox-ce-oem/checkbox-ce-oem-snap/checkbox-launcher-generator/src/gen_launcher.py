@@ -234,17 +234,21 @@ def write_launcher(
     hand-written launcher style used elsewhere), constraining interactive
     test-plan selection to just those ids; pass ``forced=False`` alongside
     it so the launcher actually prompts the user to pick between them
-    instead of always running *plan_full_id*.
+    instead of always running *plan_full_id* — note this also requires
+    ``[ui] type = interactive`` (checkbox only shows the picker in an
+    interactive session), which is the template's responsibility to set,
+    not this function's.
 
     *template_sections* (as returned by :func:`load_launcher_template`)
-    supplies every other launcher section (``[ui]``, ``[restart]``,
-    ``[report:...]``, ``[transport:...]``, ...) so those defaults live in
-    one editable ini file instead of this script. ``[ui] type`` defaults
-    to ``interactive`` when neither the template nor *forced* says
-    otherwise — the template may override ``type`` too (e.g. to
-    ``silent`` for unattended runs), except when *filter_plans* forces
-    ``forced=False``, where ``type = interactive`` is required for the
-    test-plan picker prompt to appear at all and always wins.
+    supplies every launcher section other than ``[launcher]``,
+    ``[test plan]``, ``[manifest]``, and ``[environment]`` — e.g.
+    ``[ui]``, ``[restart]``, ``[report:...]``, ``[transport:...]``, ...
+    — so those values live entirely in one editable ini file instead of
+    being hard-coded in this script. Sections/keys are copied verbatim,
+    in file order; nothing here supplies a built-in fallback (e.g. for
+    ``[ui] type``), including when *filter_plans* forces ``forced=False``
+    — the template is solely responsible for setting ``type =
+    interactive`` when that matters (see ``launcher_template.ini``).
     """
     lines = [
         "[launcher]",
@@ -265,17 +269,6 @@ def write_launcher(
         f"forced = {'yes' if forced else 'no'}",
     ]
 
-    template_sections = template_sections or OrderedDict()
-    ui_section = OrderedDict(template_sections.get("ui", {}))
-    ui_section.setdefault("type", "interactive")
-    if not forced:
-        # The test-plan picker prompt requires an interactive session,
-        # so this always wins over any template-supplied "type".
-        ui_section["type"] = "interactive"
-    lines += ["", "[ui]"]
-    for key, val in ui_section.items():
-        lines.append(f"{key} = {val}")
-
     manifest_items = [i for i in items if i.kind == "manifest"]
     environ_items = [i for i in items if i.kind == "environ" and i.value]
 
@@ -290,10 +283,9 @@ def write_launcher(
         for item in environ_items:
             lines.append(f"{item.key} = {item.value}")
 
-    # Any other template-supplied sections (already merged "ui" above).
+    # Every other launcher section comes solely from the template.
+    template_sections = template_sections or OrderedDict()
     for section, kv in template_sections.items():
-        if section == "ui":
-            continue
         lines += ["", f"[{section}]"]
         for key, val in kv.items():
             lines.append(f"{key} = {val}")

@@ -223,11 +223,13 @@ class TestWriteLauncher(unittest.TestCase):
             for section in (
                 "[launcher]",
                 "[test plan]",
-                "[ui]",
                 "[manifest]",
                 "[environment]",
             ):
                 self.assertIn(section, text)
+            # [ui] (like every other non-fixed section) only ever comes
+            # from a template — nothing here supplies one by default.
+            self.assertNotIn("[ui]", text)
 
     def test_plan_unit_line(self):
         with tempfile.TemporaryDirectory() as tmp:
@@ -291,16 +293,16 @@ class TestWriteLauncher(unittest.TestCase):
             gl.write_launcher("ns::ce-oem-test", items, out)
             self.assertNotIn("[environment]", out.read_text())
 
-    def test_default_forced_yes_and_interactive_ui(self):
+    def test_default_forced_yes_and_no_ui_section(self):
         with tempfile.TemporaryDirectory() as tmp:
             out = Path(tmp) / "ce-oem-test"
             gl.write_launcher("ns::ce-oem-test", self._items(), out)
             text = out.read_text()
             self.assertIn("forced = yes", text)
-            self.assertIn("type = interactive", text)
+            self.assertNotIn("[ui]", text)
             self.assertNotIn("filter =", text)
 
-    def test_filter_plans_written_with_forced_no_and_interactive_ui(self):
+    def test_filter_plans_written_with_forced_no(self):
         with tempfile.TemporaryDirectory() as tmp:
             out = Path(tmp) / "ce-oem-test"
             gl.write_launcher(
@@ -323,12 +325,14 @@ class TestWriteLauncher(unittest.TestCase):
                 text,
             )
             self.assertIn("forced = no", text)
-            self.assertIn("type = interactive", text)
+            # forced=False writes no [ui] section on its own either —
+            # the template is solely responsible for type=interactive.
+            self.assertNotIn("[ui]", text)
 
-    def test_template_sections_merged(self):
+    def test_template_sections_merged_verbatim(self):
         template = gl.OrderedDict(
             {
-                "ui": gl.OrderedDict({"verbosity": "verbose"}),
+                "ui": gl.OrderedDict({"type": "interactive"}),
                 "restart": gl.OrderedDict({"strategy": "systemd"}),
             }
         )
@@ -341,27 +345,16 @@ class TestWriteLauncher(unittest.TestCase):
                 template_sections=template,
             )
             text = out.read_text()
-            self.assertIn("verbosity = verbose", text)
+            self.assertIn("[ui]", text)
+            self.assertIn("type = interactive", text)
             self.assertIn("[restart]", text)
             self.assertIn("strategy = systemd", text)
-            # still gets the built-in default interactive ui type
-            self.assertIn("type = interactive", text)
 
-    def test_template_ui_type_overridden(self):
-        template = gl.OrderedDict({"ui": gl.OrderedDict({"type": "silent"})})
-        with tempfile.TemporaryDirectory() as tmp:
-            out = Path(tmp) / "ce-oem-test"
-            gl.write_launcher(
-                "ns::ce-oem-test",
-                self._items(),
-                out,
-                template_sections=template,
-            )
-            self.assertIn("type = silent", out.read_text())
-
-    def test_template_ui_type_forced_interactive_with_filter(self):
-        # forced=False always needs type=interactive for the picker to
-        # appear, even if the template says otherwise.
+    def test_template_ui_type_not_overridden_when_forced_false(self):
+        # No built-in logic second-guesses the template, even when it
+        # sets something that would otherwise break the filter picker —
+        # getting [ui] right for forced=False is entirely up to the
+        # template.
         template = gl.OrderedDict({"ui": gl.OrderedDict({"type": "silent"})})
         with tempfile.TemporaryDirectory() as tmp:
             out = Path(tmp) / "ce-oem-test"
@@ -376,7 +369,7 @@ class TestWriteLauncher(unittest.TestCase):
                 forced=False,
                 template_sections=template,
             )
-            self.assertIn("type = interactive", out.read_text())
+            self.assertIn("type = silent", out.read_text())
 
     def test_template_extra_sections_not_added_when_none(self):
         with tempfile.TemporaryDirectory() as tmp:
@@ -899,7 +892,9 @@ class TestSaveMergesManualAutoStress(unittest.TestCase):
                 text,
             )
             self.assertIn("forced = no", text)
-            self.assertIn("type = interactive", text)
+            # No template was passed to this screen, so [ui] is not
+            # written at all — that's now entirely the template's job.
+            self.assertNotIn("[ui]", text)
             filter_block = text.split("filter = ")[1].split("forced =")[0]
             self.assertNotIn("-rt", filter_block)
 
@@ -915,7 +910,7 @@ class TestSaveMergesManualAutoStress(unittest.TestCase):
             self.assertIn("unit = ns::ce-oem-iot-ubuntucore-26", text)
             self.assertIn("forced = yes", text)
             self.assertNotIn("filter =", text)
-            self.assertIn("type = interactive", text)
+            self.assertNotIn("[ui]", text)
 
     def test_no_matching_sub_plans_writes_plain_launcher(self):
         sub_plans = [

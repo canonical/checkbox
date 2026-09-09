@@ -34,6 +34,10 @@ jobs:
       CHECKBOX_CHANNEL: ${{ inputs.channel || 'edge' }}
     strategy:
       fail-fast: false
+      # Four jobs starting at once means a burst of store queries and snap
+      # downloads from the same runner pool, which is what triggers the
+      # "too many requests" replies from the store. Stagger them.
+      max-parallel: 2
       matrix:
         garden-system:
           - ubuntu-core-18
@@ -81,19 +85,15 @@ jobs:
             warm_up "$snap_name"
           done
 
-      # snap-install inside the image-garden action queries the store with a
-      # single "curl --fail" and no retry, so one rate-limited reply aborts the
-      # whole run. Retry the action the same way the snap build workflows do.
+      # Calling the action directly: it is a composite action, and
+      # Wandalen/wretry.action only knows how to re-run JavaScript actions, so
+      # wrapping this one fails in wretry's own "pre" stage.
       - name: Run smoke spread suite
-        uses: Wandalen/wretry.action@df981d2bb22b26b5b23754bb516d0de8c1bfbbec
+        uses: zyga/image-garden-action@3a6aa9042a0b994707108d1b205c4ac1845cebe5
         with:
-          action: zyga/image-garden-action@3a6aa9042a0b994707108d1b205c4ac1845cebe5
-          attempt_limit: 3
-          attempt_delay: 60000 # 1min, to let store rate limits expire
-          with: |
-            image-garden-channel: latest/edge
-            garden-system: ${{ matrix.garden-system }}
-            spread-subdir: .github/Image-garden-spread
-            spread-tasks: tests/run-smoke
-            spread-artifacts: artifacts
-            spread-artifacts-suffix: ${{ matrix.garden-system }}
+          image-garden-channel: latest/edge
+          garden-system: ${{ matrix.garden-system }}
+          spread-subdir: .github/Image-garden-spread
+          spread-tasks: tests/run-smoke
+          spread-artifacts: artifacts
+          spread-artifacts-suffix: ${{ matrix.garden-system }}

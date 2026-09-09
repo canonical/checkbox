@@ -293,16 +293,16 @@ class TestWriteLauncher(unittest.TestCase):
             gl.write_launcher("ns::ce-oem-test", items, out)
             self.assertNotIn("[environment]", out.read_text())
 
-    def test_default_forced_yes_and_no_ui_section(self):
+    def test_default_no_forced_and_no_ui_section(self):
         with tempfile.TemporaryDirectory() as tmp:
             out = Path(tmp) / "ce-oem-test"
             gl.write_launcher("ns::ce-oem-test", self._items(), out)
             text = out.read_text()
-            self.assertIn("forced = yes", text)
+            self.assertNotIn("forced =", text)
             self.assertNotIn("[ui]", text)
             self.assertNotIn("filter =", text)
 
-    def test_filter_plans_written_with_forced_no(self):
+    def test_filter_plans_written(self):
         with tempfile.TemporaryDirectory() as tmp:
             out = Path(tmp) / "ce-oem-test"
             gl.write_launcher(
@@ -314,7 +314,6 @@ class TestWriteLauncher(unittest.TestCase):
                     "ns::ce-oem-test-automated",
                     "ns::ce-oem-test-stress",
                 ],
-                forced=False,
             )
             text = out.read_text()
             self.assertIn("unit = ns::ce-oem-test-automated", text)
@@ -324,11 +323,9 @@ class TestWriteLauncher(unittest.TestCase):
                 "         ns::ce-oem-test-stress",
                 text,
             )
-            # checkbox-ng's own default is already forced=False, so the
-            # no-op "forced = no" line is omitted entirely.
+            # No "forced"/"[ui]" line is ever generated here — both are
+            # entirely up to the launcher template (see write_launcher()).
             self.assertNotIn("forced =", text)
-            # forced=False writes no [ui] section on its own either —
-            # the template is solely responsible for type=interactive.
             self.assertNotIn("[ui]", text)
 
     def test_template_sections_merged_verbatim(self):
@@ -352,12 +349,13 @@ class TestWriteLauncher(unittest.TestCase):
             self.assertIn("[restart]", text)
             self.assertIn("strategy = systemd", text)
 
-    def test_template_ui_type_not_overridden_when_forced_false(self):
-        # No built-in logic second-guesses the template, even when it
-        # sets something that would otherwise break the filter picker —
-        # getting [ui] right for forced=False is entirely up to the
-        # template.
-        template = gl.OrderedDict({"ui": gl.OrderedDict({"type": "silent"})})
+    def test_template_can_add_test_plan_forced(self):
+        # [test plan] is not a forbidden/special section any more — a
+        # template can add a "forced" key to it (or override "unit"/
+        # "filter") the same as any other ini merge.
+        template = gl.OrderedDict(
+            {"test plan": gl.OrderedDict({"forced": "yes"})}
+        )
         with tempfile.TemporaryDirectory() as tmp:
             out = Path(tmp) / "ce-oem-test"
             gl.write_launcher(
@@ -368,10 +366,95 @@ class TestWriteLauncher(unittest.TestCase):
                     "ns::ce-oem-test-manual",
                     "ns::ce-oem-test-automated",
                 ],
-                forced=False,
                 template_sections=template,
             )
-            self.assertIn("type = silent", out.read_text())
+            text = out.read_text()
+            self.assertIn("unit = ns::ce-oem-test-automated", text)
+            self.assertIn("forced = yes", text)
+
+    def test_template_overrides_generated_unit(self):
+        # Same-section/same-key template values win, ini-merge style —
+        # even for a key gen_launcher.py itself generates.
+        template = gl.OrderedDict(
+            {"test plan": gl.OrderedDict({"unit": "ns::overridden"})}
+        )
+        with tempfile.TemporaryDirectory() as tmp:
+            out = Path(tmp) / "ce-oem-test"
+            gl.write_launcher(
+                "ns::ce-oem-test",
+                self._items(),
+                out,
+                template_sections=template,
+            )
+            text = out.read_text()
+            self.assertIn("unit = ns::overridden", text)
+            self.assertNotIn("unit = ns::ce-oem-test\n", text)
+
+    def test_template_overrides_manifest_value(self):
+        template = gl.OrderedDict(
+            {"manifest": gl.OrderedDict({"ns::has_gpio": "False"})}
+        )
+        with tempfile.TemporaryDirectory() as tmp:
+            out = Path(tmp) / "ce-oem-test"
+            gl.write_launcher(
+                "ns::ce-oem-test",
+                self._items(),
+                out,
+                template_sections=template,
+            )
+            text = out.read_text()
+            self.assertIn("ns::has_gpio = False", text)
+            self.assertNotIn("ns::has_gpio = True", text)
+
+    def test_template_adds_new_manifest_key(self):
+        template = gl.OrderedDict(
+            {"manifest": gl.OrderedDict({"ns::extra_flag": "true"})}
+        )
+        with tempfile.TemporaryDirectory() as tmp:
+            out = Path(tmp) / "ce-oem-test"
+            gl.write_launcher(
+                "ns::ce-oem-test",
+                self._items(),
+                out,
+                template_sections=template,
+            )
+            text = out.read_text()
+            # original item is kept...
+            self.assertIn("ns::has_gpio = True", text)
+            # ...and the template-only key is added alongside it.
+            self.assertIn("ns::extra_flag = true", text)
+
+    def test_template_can_add_manifest_section_when_no_items(self):
+        template = gl.OrderedDict(
+            {"manifest": gl.OrderedDict({"ns::only_from_template": "true"})}
+        )
+        with tempfile.TemporaryDirectory() as tmp:
+            out = Path(tmp) / "ce-oem-test"
+            gl.write_launcher(
+                "ns::ce-oem-test",
+                [],
+                out,
+                template_sections=template,
+            )
+            text = out.read_text()
+            self.assertIn("[manifest]", text)
+            self.assertIn("ns::only_from_template = true", text)
+
+    def test_template_overrides_launcher_section(self):
+        template = gl.OrderedDict(
+            {"launcher": gl.OrderedDict({"app_id": "com.example:custom"})}
+        )
+        with tempfile.TemporaryDirectory() as tmp:
+            out = Path(tmp) / "ce-oem-test"
+            gl.write_launcher(
+                "ns::ce-oem-test",
+                self._items(),
+                out,
+                template_sections=template,
+            )
+            text = out.read_text()
+            self.assertIn("app_id = com.example:custom", text)
+            self.assertNotIn("app_id = com.canonical.contrib:checkbox", text)
 
     def test_template_extra_sections_not_added_when_none(self):
         with tempfile.TemporaryDirectory() as tmp:
@@ -402,32 +485,36 @@ class TestLoadLauncherTemplate(unittest.TestCase):
             self.assertEqual(result["ui"]["verbosity"], "verbose")
             self.assertEqual(result["restart"]["strategy"], "systemd")
 
-    def test_forbidden_sections_skipped(self):
+    def test_all_sections_loaded_no_forbidden_names(self):
+        # No section name is off-limits any more — [launcher],
+        # [test plan], [manifest], [environment] can all be defined in
+        # a template; write_launcher() merges them ini-style on top of
+        # what it generates rather than load_launcher_template()
+        # dropping them up front.
         with tempfile.TemporaryDirectory() as tmp:
             p = Path(tmp) / "tmpl.ini"
             p.write_text(textwrap.dedent("""\
                     [launcher]
-                    app_id = should-be-ignored
+                    app_id = com.example:custom
 
                     [test plan]
-                    unit = should-be-ignored
                     forced = yes
 
                     [manifest]
-                    ns::should_be_ignored = true
+                    ns::extra_flag = true
 
                     [environment]
-                    SHOULD_BE_IGNORED = yes
+                    EXTRA_VAR = yes
 
                     [ui]
                     type = interactive
                     """))
             result = gl.load_launcher_template(p)
-            # The whole [test plan] section is dropped, forced = yes
-            # included — it never reaches write_launcher(), so there is
-            # nothing to merge/conflict with the [test plan] section
-            # gen_launcher.py generates itself.
-            self.assertEqual(list(result.keys()), ["ui"])
+            self.assertEqual(
+                list(result.keys()),
+                ["launcher", "test plan", "manifest", "environment", "ui"],
+            )
+            self.assertEqual(result["test plan"]["forced"], "yes")
 
     def test_invalid_ini_returns_empty_without_raising(self):
         with tempfile.TemporaryDirectory() as tmp:
@@ -838,10 +925,10 @@ class TestEnsureRightFocusSelectable(unittest.TestCase):
 
 
 class TestSaveMergesManualAutoStress(unittest.TestCase):
-    """`_save` must write a single merged launcher (filter + forced=no,
-    defaulting to the base plan) when sub_plans contains a manual/
-    automated/stress trio, and fall back to a single plain launcher
-    otherwise."""
+    """`_save` must write a single merged launcher (filter, defaulting to
+    the base plan) when sub_plans contains a manual/automated/stress
+    trio, and fall back to a single plain launcher otherwise. Neither
+    case writes a `forced` line — that's entirely up to the template."""
 
     def _make_screen(self, output_dir, sub_plans, template_sections=None):
         screen = gl.LauncherEditorScreen.__new__(gl.LauncherEditorScreen)
@@ -915,7 +1002,7 @@ class TestSaveMergesManualAutoStress(unittest.TestCase):
             out = out_dir / "ce-oem-iot-ubuntucore-26-launcher"
             text = out.read_text()
             self.assertIn("unit = ns::ce-oem-iot-ubuntucore-26", text)
-            self.assertIn("forced = yes", text)
+            self.assertNotIn("forced =", text)
             self.assertNotIn("filter =", text)
             self.assertNotIn("[ui]", text)
 
@@ -931,7 +1018,7 @@ class TestSaveMergesManualAutoStress(unittest.TestCase):
             out = out_dir / "ce-oem-iot-ubuntucore-26-launcher"
             text = out.read_text()
             self.assertIn("unit = ns::ce-oem-iot-ubuntucore-26", text)
-            self.assertIn("forced = yes", text)
+            self.assertNotIn("forced =", text)
             self.assertNotIn("filter =", text)
 
     def test_template_sections_passed_through_to_write_launcher(self):

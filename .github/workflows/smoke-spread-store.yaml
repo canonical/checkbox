@@ -50,44 +50,43 @@ jobs:
           fetch-depth: 0
           persist-credentials: false
 
-      # The image-garden action restarts snapd and then immediately asks the
-      # store about each snap it installs. It runs that query with
-      # "curl --fail", so a failure is reported only as "exit code 69" with no
-      # explanation. Warm the store session up front (it is kept in snapd's
-      # state and survives the restart that follows) and print the real reply
-      # if the query keeps failing.
-      - name: Wait for snapd and warm up the store
+      - name: Wait for snapd to be ready
         run: |
           echo "CHECKBOX_CHANNEL=${CHECKBOX_CHANNEL:-<unset>}"
           snap version || true
           sudo snap wait system seed.loaded || true
 
-          warm_up() {
-            name="$1"
-            for attempt in 1 2 3 4 5 6; do
+      # The image-garden action asks the store about each snap it installs
+      # using a single "curl --fail" with no retry, so one rate-limited reply
+      # ("too many requests", reported as HTTP 500) aborts the whole run with a
+      # bare "exit code 69". Warming the queries up here retries until the
+      # store answers and leaves snapd holding a valid store session.
+      #
+      # This uses wretry's "command" mode. Its "action" mode cannot be used to
+      # wrap the image-garden action itself: wretry only implements the "node"
+      # and "docker" runners, and throws "Runner \"composite\" does not
+      # implemented" during its own pre stage for a composite action.
+      - name: Warm up the snap store
+        uses: Wandalen/wretry.action@df981d2bb22b26b5b23754bb516d0de8c1bfbbec
+        with:
+          attempt_limit: 6
+          attempt_delay: 15000 # 15s, to let store rate limits expire
+          command: |
+            for snap_name in snapd core24 image-garden; do
               code="$(curl --silent --output /tmp/snapd-find.json \
                 --write-out '%{http_code}' \
                 --unix-socket /run/snapd.socket \
-                "http://localhost/v2/find?name=$name" || echo 000)"
-              echo "$name attempt $attempt: HTTP $code"
-              if [ "$code" = 200 ]; then
-                return 0
+                "http://localhost/v2/find?name=$snap_name" || echo 000)"
+              echo "$snap_name: HTTP $code"
+              if [ "$code" != 200 ]; then
+                echo "--- snapd reply for $snap_name ---"
+                head -c 2000 /tmp/snapd-find.json || true
+                echo
+                exit 1
               fi
-              echo "--- snapd reply for $name ---"
-              head -c 2000 /tmp/snapd-find.json || true
-              echo
-              sleep 10
             done
-            echo "::warning::store query for $name never returned 200"
-          }
 
-          for snap_name in snapd core24 image-garden; do
-            warm_up "$snap_name"
-          done
-
-      # Calling the action directly: it is a composite action, and
-      # Wandalen/wretry.action only knows how to re-run JavaScript actions, so
-      # wrapping this one fails in wretry's own "pre" stage.
+      # Called directly rather than through wretry: see the note above.
       - name: Run smoke spread suite
         uses: zyga/image-garden-action@3a6aa9042a0b994707108d1b205c4ac1845cebe5
         with:

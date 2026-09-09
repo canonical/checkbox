@@ -98,16 +98,24 @@ def ptp4l(
             "--network_transport=L2",
             # comes from the default config
             # both server and client needs to have this
-            # /usr/share/doc/linuxptp/configs/automotive-slave.cfg
+            # https://github.com/richardcochran/linuxptp/blob/master/configs/gPTP.cfg
             "--transportSpecific=1",
-            # also from the default config
+            # these options mirror the 802.1AS profile in gPTP.cfg
+            # all flags are shared by the server and the client
             "--delay_mechanism=P2P",
+            "--gmCapable=1",
+            "--priority1=248",
+            "--priority2=248",
+            "--logAnnounceInterval=0",
+            "--logSyncInterval=-3",
+            "--syncReceiptTimeout=3",
+            "--neighborPropDelayThresh=800",
+            "--min_neighbor_prop_delay=-20000000",
+            "--assume_two_step=1",
+            "--path_trace_enabled=1",
+            "--follow_up_info=1",
         ]
         if server_mode:
-            ptp4l_command.extend(
-                # print more logs basically
-                ["--logAnnounceInterval=0", "--logSyncInterval=-3"]
-            )
             # print a warning message that we are using --transportSpecific=1
             # clients must also specify --transportSpecific=1
             # or their packets will be dropped silently
@@ -122,12 +130,15 @@ def ptp4l(
             )
             print(
                 "You can override this by specifying a config file.",
-                "See /usr/share/doc/linuxptp/configs/automotive-master.cfg",
+                "See /usr/share/doc/linuxptp/configs/gPTP.cfg",
+                'or /usr/share/doc/linuxptp/configs/default.cfg',
                 "for an example",
             )
             print("=" * 80)
         else:
             # client only mode
+            # explicitly use the shorthand flag here because older ptp4l
+            # expects slaveOnly, but modern ptp4l expects clientOnly
             ptp4l_command.append("-s")
             # force 'master offset' output to appear in stdout
             ptp4l_command.append("--summary_interval=-4")

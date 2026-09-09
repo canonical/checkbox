@@ -615,10 +615,10 @@ def credit_based_shaper(
     )
     assert iperf_process.stdout and iperf_process.stderr
 
-    iperf_stdout_lines = deque(maxlen=10)  # type: deque[str]
+    iperf_stdout_last_10_lines = deque(maxlen=10)  # type: deque[str]
     for raw_line in iperf_process.stdout:
         line = str(raw_line).strip()
-        iperf_stdout_lines.append(line)
+        iperf_stdout_last_10_lines.append(line)
         print(line, flush=True)
 
     iperf_process.wait()
@@ -629,20 +629,33 @@ def credit_based_shaper(
             f"[ERROR] Found error while running iperf3:\n{iperf_stderr}"
         )
 
-    # Parse the upload speed from the iperf3 output
-    speed_bits = float(iperf_stdout_lines[-4].split()[6])
+    # look for the real transfer speed in iperf3 output
+    # a successful line looks like
+    # [  5]   0.00-60.01  sec   674 MBytes  94.2 Mbits/sec receiver
+    # we want the number right before Mbits/sec
+    receiver_bitrate: "float | None" = None
+    for line in iperf_stdout_last_10_lines:
+        if line.lower().strip().endswith("receiver"):
+            # 94.2 in the example
+            words = line.lower().strip().split()
+            receiver_bitrate = float(words[words.index("mbits/sec") - 1])
 
+    if receiver_bitrate is None:
+        raise SystemExit(
+            "[ERROR] Iperf3 did not return receiver link speed "
+            + "in the last 10 lines!"
+        )
     # Check if the upload speed is between 90 and 100 Mbps
-    if not 90 < speed_bits < 100:
+    if not 90 < receiver_bitrate < 100:
         raise SystemExit(
             "[FAIL] The upload speed is not between 90 and 100 Mbps\n"
-            + f"The upload speed is {speed_bits} Mbps"
+            + f"The upload speed is {receiver_bitrate} Mbps"
         )
 
     # Print the upload speed and a success message
     print(
         "[PASS] The upload speed",
-        speed_bits,
+        receiver_bitrate,
         "Mbps",
         "is between 90 and 100 Mbps!",
     )

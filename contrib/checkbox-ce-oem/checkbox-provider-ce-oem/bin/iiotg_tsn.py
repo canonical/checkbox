@@ -89,7 +89,13 @@ def ptp4l(
     # Text mode is enabled to allow access to the output as text.
 
     if cfg:
-        print("Using ptp4l config file at", cfg, flush=True)
+        print(
+            f"Using ptp4l config file at {cfg.absolute()}".center(80, "-"),
+            flush=True,
+        )
+        print(cfg.read_text())
+        print("-" * 80)
+
         process = sp.Popen(
             # caller is responsible for making sure config file is valid
             # i.e. options are recognized by ptp4l
@@ -1099,7 +1105,7 @@ def main():
     args = parse_args()
 
     if args.command == "server":
-        server_mode(args.interfaces, cfg=args.master_config)
+        server_mode(args.interfaces, cfg=Path(args.master_config))
     elif args.command == "client":
         run_client(args)
     elif args.command == "validate-string":

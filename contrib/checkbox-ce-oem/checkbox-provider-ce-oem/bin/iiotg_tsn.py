@@ -100,6 +100,8 @@ def ptp4l(
             # both server and client needs to have this
             # /usr/share/doc/linuxptp/configs/automotive-slave.cfg
             "--transportSpecific=1",
+            # also from the default config
+            "--delay_mechanism=P2P",
         ]
         if server_mode:
             ptp4l_command.extend(

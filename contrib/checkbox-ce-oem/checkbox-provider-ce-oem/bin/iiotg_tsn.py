@@ -130,7 +130,7 @@ def ptp4l(
             # force 'master offset' output to appear in stdout
             ptp4l_command.append("--summary_interval=-4")
 
-    print(f"Launching ptp4l process: {" ".join(ptp4l_command)}")
+    print("Launching ptp4l process:", " ".join(ptp4l_command))
     # caller decides how to consume stdout and stderr
     return sp.Popen(
         ptp4l_command,

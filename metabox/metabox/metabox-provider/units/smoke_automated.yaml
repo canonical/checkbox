@@ -93,7 +93,7 @@ flags:
   - noreturn
 command: |
   echo SMOKE_NORMAL_RESUME_PASS
-  PID=`pgrep -f checkbox-cli`
+  PID=$(pgrep -f 'checkbox-cli.*run-agent')
   kill $PID
 ---
 id: smoke-automated-normal-resume-crash
@@ -105,7 +105,7 @@ flags:
   - simple
 command: |
   echo SMOKE_NORMAL_RESUME_CRASH
-  PID=`pgrep -f checkbox-cli`
+  PID=$(pgrep -f 'checkbox-cli.*run-agent')
   kill $PID
 ---
 unit: test plan

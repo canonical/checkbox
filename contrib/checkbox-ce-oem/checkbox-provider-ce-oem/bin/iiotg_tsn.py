@@ -56,7 +56,7 @@ def ptp4l(
     :param interface: interface to set the clock on.
         NOTE: caller must check if this interface supports PTP
     :param cfg: config file
-        check /usr/share/doc/linuxptp/configs/automotive-slave.cfg for an example
+        check /usr/share/doc/linuxptp/configs/automotive-slave.cfg for an example # noqa: E501
     :param timeout: how long should the ptp4l process run
     :param server_mode:
         if true and no config is specified, spawn a default ptp4l grandmaster

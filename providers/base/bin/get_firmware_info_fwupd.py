@@ -20,27 +20,25 @@
 import os
 import sys
 import json
-import shlex
 import logging
+import argparse
 import subprocess
 from checkbox_support.snap_utils.snapd import Snapd
 
 
-def get_fwupdmgr_services_versions():
+def get_fwupdmgr_services_versions() -> list:
     """Show fwupd client and daemon versions
 
     Returns:
         list: fwupd client and daemon versions
     """
-    fwupd_vers = subprocess.run(
-        shlex.split("fwupdmgr --version --json"), capture_output=True
-    )
-    fwupd_vers = json.loads(fwupd_vers.stdout).get("Versions", [])
+    fwupd_vers = subprocess.check_output(["fwupdmgr", "--version", "--json"])
+    fwupd_vers = json.loads(fwupd_vers).get("Versions", [])
 
     return fwupd_vers
 
 
-def get_fwupd_runtime_version():
+def get_fwupd_runtime_version() -> tuple:
     """Get fwupd runtime version
 
     Returns:
@@ -58,29 +56,90 @@ def get_fwupd_runtime_version():
     return runtime_ver
 
 
-def get_firmware_info_fwupd():
+def choose_command() -> str:
+    """
+    Choose which command should be used
+    """
+    if Snapd().list("fwupd"):
+        return "fwupd.fwupdmgr"
+    else:
+        return "fwupdmgr"
+
+
+def get_environment() -> dict:
+    """
+    Get the environment to use for subprocess execution.
+    Apply workaround to unset the SNAP for the fwupd issue.
+    See details from following PR
+    https://github.com/canonical/checkbox/pull/1089
+    """
+    env = os.environ.copy()
+
+    # If using debian fwupd (not snap)
+    if not Snapd().list("fwupd"):
+        runtime_ver = get_fwupd_runtime_version()
+        # SNAP environ is available, so it's running on checkbox snap
+        # Unset the environ variable if debian fwupd lower than 1.9.14
+        if os.environ.get("SNAP") and runtime_ver < (1, 9, 14):
+            env.pop("SNAP", None)
+
+    return env
+
+
+def get_firmware_info_fwupd() -> None:
     """
     Dump firmware information for all devices detected by fwupd
     """
-    if Snapd().list("fwupd"):
-        # Dump firmware info by fwupd snap
-        subprocess.run(shlex.split("fwupd.fwupdmgr get-devices --json"))
-    else:
-        # Dump firmware info by fwupd debian package
-        runtime_ver = get_fwupd_runtime_version()
-        # Apply workaround to unset the SNAP for the fwupd issue
-        # See details from following PR
-        # https://github.com/canonical/checkbox/pull/1089
+    try:
+        output = subprocess.check_output(
+            [choose_command(), "get-devices", "--json"], env=get_environment()
+        )
+        print(output.decode("utf-8"))
+    except subprocess.CalledProcessError as e:
+        raise SystemExit("fwupdmgr get-devices failed with {}".format(repr(e)))
 
-        # SNAP environ is avaialble, so it's running on checkbox snap
-        # Unset the environ variable if debian fwupd lower than 1.9.14
-        if os.environ.get("SNAP") and runtime_ver < (1, 9, 14):
-            del os.environ["SNAP"]
 
-        subprocess.run(shlex.split("fwupdmgr get-devices --json"))
+def get_bios_setting_fwupd() -> None:
+    """
+    Dump bios setting detected by fwupd
+    """
+    try:
+        output = subprocess.check_output(
+            [choose_command(), "get-bios-setting", "--json"],
+            env=get_environment(),
+        )
+        print(output.decode("utf-8"))
+    except subprocess.CalledProcessError as e:
+        raise SystemExit(
+            "fwupdmgr get-bios-setting failed with {}".format(repr(e))
+        )
+
+
+def parse_args(args=sys.argv[1:]) -> argparse.Namespace:
+    """
+    command line arguments parsing
+
+    :param args: arguments from sys
+    :type args: sys.argv
+    """
+    parser = argparse.ArgumentParser(
+        prog="fwupdmgr executor",
+        description="Executing fwupdmger in the right environment",
+    )
+
+    parser.add_argument(
+        "-c",
+        "--command",
+        type=str,
+        default="get-devices",
+        help="Command to execute: get-devices or get-bios-setting "
+        "(default: get-devices)",
+    )
+    return parser.parse_args(args)
 
 
 if __name__ == "__main__":
+    args = parse_args()
 
     root_logger = logging.getLogger()
     root_logger.setLevel(logging.INFO)
@@ -105,6 +164,13 @@ if __name__ == "__main__":
     root_logger.addHandler(stdout_handler)
 
     try:
-        get_firmware_info_fwupd()
+        if args.command == "get-devices":
+            get_firmware_info_fwupd()
+        elif args.command == "get-bios-setting":
+            get_bios_setting_fwupd()
+        else:
+            msg = "Command [{}] is not supported".format(args.command)
+            logging.error(msg)
+            raise SystemExit(msg)
     except Exception as err:
         logging.error(err)

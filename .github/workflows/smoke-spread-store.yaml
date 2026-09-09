@@ -54,6 +54,7 @@ jobs:
       # if the query keeps failing.
       - name: Wait for snapd and warm up the store
         run: |
+          echo "CHECKBOX_CHANNEL=${CHECKBOX_CHANNEL:-<unset>}"
           snap version || true
           sudo snap wait system seed.loaded || true
 
@@ -86,7 +87,7 @@ jobs:
       - name: Run smoke spread suite
         uses: Wandalen/wretry.action@df981d2bb22b26b5b23754bb516d0de8c1bfbbec
         with:
-          action: zyga/image-garden-action@858839da03cc989855469c388a71d91f4621deaf
+          action: zyga/image-garden-action@3a6aa9042a0b994707108d1b205c4ac1845cebe5
           attempt_limit: 3
           attempt_delay: 60000 # 1min, to let store rate limits expire
           with: |

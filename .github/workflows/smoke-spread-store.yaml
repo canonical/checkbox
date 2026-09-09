@@ -42,6 +42,40 @@ jobs:
           fetch-depth: 0
           persist-credentials: false
 
+      # The image-garden action restarts snapd and then immediately asks the
+      # store about each snap it installs. It runs that query with
+      # "curl --fail", so a failure is reported only as "exit code 69" with no
+      # explanation. Warm the store session up front (it is kept in snapd's
+      # state and survives the restart that follows) and print the real reply
+      # if the query keeps failing.
+      - name: Wait for snapd and warm up the store
+        run: |
+          snap version || true
+          sudo snap wait system seed.loaded || true
+
+          warm_up() {
+            name="$1"
+            for attempt in 1 2 3 4 5 6; do
+              code="$(curl --silent --output /tmp/snapd-find.json \
+                --write-out '%{http_code}' \
+                --unix-socket /run/snapd.socket \
+                "http://localhost/v2/find?name=$name" || echo 000)"
+              echo "$name attempt $attempt: HTTP $code"
+              if [ "$code" = 200 ]; then
+                return 0
+              fi
+              echo "--- snapd reply for $name ---"
+              head -c 2000 /tmp/snapd-find.json || true
+              echo
+              sleep 10
+            done
+            echo "::warning::store query for $name never returned 200"
+          }
+
+          for snap_name in snapd core24 image-garden; do
+            warm_up "$snap_name"
+          done
+
       - name: Run smoke spread suite
         uses: zyga/image-garden-action@858839da03cc989855469c388a71d91f4621deaf
         env:

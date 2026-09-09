@@ -34,7 +34,10 @@ def _run_command(cmd, **kwargs):
 
 
 def launch_xtest(test_suite, test_id):
-    test_utility = look_up_app("xtest", os.environ.get("XTEST"))
+    # XTEST is a required environ for this job and always points to the
+    # xtest snap's own name, so it can be used directly as the snap name.
+    snap_name = os.environ["XTEST"]
+    test_utility = look_up_app("xtest", snap_name)
 
     print("Looking for PID of tee-supplicant..", flush=True)
     _run_command("pgrep tee-supplicant", check=True)
@@ -49,7 +52,7 @@ def launch_xtest(test_suite, test_id):
         )
         return 2
     elif optee_fw < "4.0":
-        ta_path = find_ta_path()
+        ta_path = find_ta_path(snap_name)
         install_ta(test_utility, ta_path)
 
     ret = _run_command(

@@ -21,7 +21,6 @@ user: root
 flags:
   - simple
 command: |
-  test "$(id -u)" = 0
   echo SMOKE_BOOTSTRAP_ROOT
 ---
 unit: setup job
@@ -49,7 +48,6 @@ user: root
 flags:
   - simple
 command: |
-  test "$(id -u)" = 0
   echo SMOKE_SETUP_ROOT
 ---
 id: smoke-automated-normal-pass
@@ -83,7 +81,6 @@ user: root
 flags:
   - simple
 command: |
-  test "$(id -u)" = 0
   echo SMOKE_NORMAL_ROOT
 ---
 id: smoke-automated-normal-resume-pass

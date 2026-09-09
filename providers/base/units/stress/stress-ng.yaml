@@ -14,6 +14,37 @@ estimated_duration: 1s
 flags:
   - preserve-locale
 ---
+unit: job
+id: memory_stress_ng_stressors
+plugin: resource
+summary: Gather list of memory stressors from stress_ng_test.py
+purpose: |
+  stress_ng_test.py's memory sub-command runs a curated set of stress-ng
+  memory stressors with RAM-scaled timeouts and swap handling. The goal is
+  to get the list of those stressors so each one can be selected and run
+  individually.
+command: stress_ng_test.py memory --list-stressors
+estimated_duration: 1s
+flags:
+  - preserve-locale
+---
+unit: template
+template-unit: job
+template-resource: memory_stress_ng_stressors
+id: stress/memory_stressor_{stressor}
+template-id: stress/memory_stressor_stressor
+category_id: com.canonical.plainbox::stress
+plugin: shell
+user: root
+summary: Run the stress-ng memory stressor {stressor}
+purpose: |
+  Runs a single memory stressor from stress_ng_test.py's memory test,
+  including its RAM-scaled timeout and swap-space handling.
+requires:
+  - executable.name == 'stress-ng'
+estimated_duration: '300.0'
+command: systemd-inhibit stress_ng_test.py memory --stressor {stressor}
+---
 unit: template
 template-unit: job
 template-resource: stress_ng_stressors

@@ -324,7 +324,9 @@ class TestWriteLauncher(unittest.TestCase):
                 "         ns::ce-oem-test-stress",
                 text,
             )
-            self.assertIn("forced = no", text)
+            # checkbox-ng's own default is already forced=False, so the
+            # no-op "forced = no" line is omitted entirely.
+            self.assertNotIn("forced =", text)
             # forced=False writes no [ui] section on its own either —
             # the template is solely responsible for type=interactive.
             self.assertNotIn("[ui]", text)
@@ -409,6 +411,7 @@ class TestLoadLauncherTemplate(unittest.TestCase):
 
                     [test plan]
                     unit = should-be-ignored
+                    forced = yes
 
                     [manifest]
                     ns::should_be_ignored = true
@@ -420,6 +423,10 @@ class TestLoadLauncherTemplate(unittest.TestCase):
                     type = interactive
                     """))
             result = gl.load_launcher_template(p)
+            # The whole [test plan] section is dropped, forced = yes
+            # included — it never reaches write_launcher(), so there is
+            # nothing to merge/conflict with the [test plan] section
+            # gen_launcher.py generates itself.
             self.assertEqual(list(result.keys()), ["ui"])
 
     def test_invalid_ini_returns_empty_without_raising(self):
@@ -891,11 +898,11 @@ class TestSaveMergesManualAutoStress(unittest.TestCase):
                 "         ns::ce-oem-iot-ubuntucore-26-stress",
                 text,
             )
-            self.assertIn("forced = no", text)
+            self.assertNotIn("forced =", text)
             # No template was passed to this screen, so [ui] is not
             # written at all — that's now entirely the template's job.
             self.assertNotIn("[ui]", text)
-            filter_block = text.split("filter = ")[1].split("forced =")[0]
+            filter_block = text.split("filter = ")[1]
             self.assertNotIn("-rt", filter_block)
 
     def test_no_sub_plans_writes_plain_launcher(self):

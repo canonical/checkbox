@@ -237,7 +237,10 @@ def write_launcher(
     instead of always running *plan_full_id* — note this also requires
     ``[ui] type = interactive`` (checkbox only shows the picker in an
     interactive session), which is the template's responsibility to set,
-    not this function's.
+    not this function's. ``forced = yes`` is only written when *forced*
+    is true; checkbox-ng's own default for this key is already ``False``,
+    so ``forced=False`` simply omits the line instead of spelling out the
+    no-op ``forced = no``.
 
     *template_sections* (as returned by :func:`load_launcher_template`)
     supplies every launcher section other than ``[launcher]``,
@@ -265,9 +268,11 @@ def write_launcher(
             f"{indent}{fid}" for fid in filter_plans[1:]
         ]
         lines += filter_lines
-    lines += [
-        f"forced = {'yes' if forced else 'no'}",
-    ]
+    # checkbox-ng's own default for [test plan] forced is already False
+    # (see plainbox/impl/config.py), so it's only written when True —
+    # no need to spell out the no-op "forced = no".
+    if forced:
+        lines.append("forced = yes")
 
     manifest_items = [i for i in items if i.kind == "manifest"]
     environ_items = [i for i in items if i.kind == "environ" and i.value]

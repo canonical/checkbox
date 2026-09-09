@@ -59,31 +59,23 @@ class Transform(IntEnum):
 
 
 # A plain 4-tuple with some basic info about the monitor
-MonitorInfo = NamedTuple(
-    "MonitorInfo",
-    [
-        ("connector", str),  # HDMI-1, eDP-1, ...
-        ("vendor", str),  # vendor string like BOE, Asus, etc.
-        ("product", str),
-        ("serial", str),
-    ],
-)
+class MonitorInfo(NamedTuple):
+    connector: str  # HDMI-1, eDP-1, ...
+    vendor: str  # vendor string like BOE, Asus, etc.
+    product: str
+    serial: str
 
 
 # py3.5 can't use inline type annotations,
 # otherwise the _*T types should be merged with their non-underscore versions
-_MutterDisplayModeT = NamedTuple(
-    "_MutterDisplayModeT",
-    [
-        ("id", str),
-        ("width", int),
-        ("height", int),
-        ("refresh_rate", float),
-        ("preferred_scale", float),
-        ("supported_scales", List[float]),
-        ("properties", Mapping[str, Any]),
-    ],
-)
+class _MutterDisplayModeT(NamedTuple):
+    id: str
+    width: int
+    height: int
+    refresh_rate: float
+    preferred_scale: float
+    supported_scales: List[float]
+    properties: Mapping[str, Any]
 
 
 class MutterDisplayMode(_MutterDisplayModeT):
@@ -103,19 +95,15 @@ class MutterDisplayMode(_MutterDisplayModeT):
         !! This is only here for code that expects a string, new code should
         !! use the width and height numbers
         """
-        return "{}x{}".format(self.width, self.height)
+        return f"{self.width}x{self.height}"
 
 
-_PhysicalMonitorT = NamedTuple(
-    "_PhysicalMonitorT",
-    [
-        ("info", MonitorInfo),
-        ("modes", List[MutterDisplayMode]),
-        # See: https://gitlab.gnome.org/GNOME/mutter/-/blob/main/data/
-        # dbus-interfaces/org.gnome.Mutter.DisplayConfig.xml#L414
-        ("properties", Mapping[str, Any]),
-    ],
-)
+class _PhysicalMonitorT(NamedTuple):
+    info: MonitorInfo
+    modes: List[MutterDisplayMode]
+    # See: https://gitlab.gnome.org/GNOME/mutter/-/blob/main/data/
+    # dbus-interfaces/org.gnome.Mutter.DisplayConfig.xml#L414
+    properties: Mapping[str, Any]
 
 
 class PhysicalMonitor(_PhysicalMonitorT):
@@ -133,18 +121,14 @@ class PhysicalMonitor(_PhysicalMonitorT):
         return self.properties.get("is-builtin", False)
 
 
-_LogicalMonitorT = NamedTuple(
-    "_LogicalMonitorT",
-    [
-        ("x", int),
-        ("y", int),
-        ("scale", float),
-        ("transform", Transform),
-        ("is_primary", bool),
-        ("monitors", List[MonitorInfo]),
-        ("properties", Mapping[str, Any]),
-    ],
-)
+class _LogicalMonitorT(NamedTuple):
+    x: int
+    y: int
+    scale: float
+    transform: Transform
+    is_primary: bool
+    monitors: List[MonitorInfo]
+    properties: Mapping[str, Any]
 
 
 class LogicalMonitor(_LogicalMonitorT):
@@ -158,17 +142,13 @@ class LogicalMonitor(_LogicalMonitorT):
         )
 
 
-_MutterDisplayConfigT = NamedTuple(
-    "_MutterDisplayConfigT",
-    [
-        ("serial", int),
-        ("physical_monitors", List[PhysicalMonitor]),
-        ("logical_monitors", List[LogicalMonitor]),
-        # technically value type is GLib.Variant
-        # but it acts like a readonly map in this case
-        ("properties", Mapping[str, Any]),
-    ],
-)
+class _MutterDisplayConfigT(NamedTuple):
+    serial: int
+    physical_monitors: List[PhysicalMonitor]
+    logical_monitors: List[LogicalMonitor]
+    # technically value type is GLib.Variant
+    # but it acts like a readonly map in this case
+    properties: Mapping[str, Any]
 
 
 class MutterDisplayConfig(_MutterDisplayConfigT):
@@ -344,7 +324,7 @@ class MonitorConfigGnome(MonitorConfig):
         cycle_transforms: bool = False,
         resolution_filter: Optional[ResolutionFilter] = None,
         post_cycle_action: Callable[..., Any] = lambda *a, **k: sleep(5),
-        **post_cycle_action_kwargs: Any
+        **post_cycle_action_kwargs: Any,
     ):
         """Automatically cycle through the supported monitor configurations.
 

@@ -36,7 +36,7 @@ def check_platform_profiles():
         sysfs_root.exists() and choices_path.exists() and profile_path.exists()
     )
 
-    print("supported: {}".format(supported))
+    print(f"supported: {supported}")
 
 
 def main():

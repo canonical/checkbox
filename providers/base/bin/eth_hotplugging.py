@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# encoding: utf-8
 # Copyright 2025 Canonical Ltd.
 # Written by:
 #   Maciej Kisielewski <maciej.kisielewski@canonical.com>
@@ -46,7 +45,7 @@ def netplan_renderer():
             files = glob.glob(os.path.join(basedir, "*.yaml"))
             for f in files:
                 netplan_file_exist = True
-                with open(f, "r") as file:
+                with open(f) as file:
                     data = yaml.safe_load(file)
                     if "renderer" in data["network"]:
                         return data["network"]["renderer"]
@@ -60,13 +59,13 @@ def get_interface_info(interface, renderer):
     Get the interface information (state and gateway) from the renderer.
     """
     if renderer == "networkd":
-        cmd = "networkctl status --no-pager --no-legend {}".format(interface)
+        cmd = f"networkctl status --no-pager --no-legend {interface}"
         key_map = {"State": "state", "Gateway": "gateway"}
     elif renderer == "NetworkManager":
-        cmd = "nmcli device show {}".format(interface)
+        cmd = f"nmcli device show {interface}"
         key_map = {"GENERAL.STATE": "state", "IP4.GATEWAY": "gateway"}
     else:
-        raise ValueError("Unknown renderer: {}".format(renderer))
+        raise ValueError(f"Unknown renderer: {renderer}")
 
     return _get_cmd_info(cmd, key_map, renderer)
 
@@ -113,14 +112,14 @@ def wait_for_routable_state(interface, renderer, do_routable=True):
     routable_msg = "routable" if do_routable else "NOT routable"
     routable, _ = _check_routable_state(interface, renderer)
     if routable == do_routable:
-        print("Reached {} state".format(routable_msg))
+        print(f"Reached {routable_msg} state")
         return
-    raise SystemExit("Failed to reach {} state!".format(routable_msg))
+    raise SystemExit(f"Failed to reach {routable_msg} state!")
 
 
 def has_cable(iface):
     """Check if cable is inserted in the ethernet port identified by iface."""
-    path = "/sys/class/net/{}/carrier".format(iface)
+    path = f"/sys/class/net/{iface}/carrier"
     with open(path) as carrier:
         return carrier.read()[0] == "1"
 
@@ -130,9 +129,9 @@ def wait_for_cable_state(iface, do_cable=True):
     """Wait for the cable state to be True or False."""
     cable_msg = "plugged" if do_cable else "unplugged"
     if has_cable(iface) == do_cable:
-        print("Detected cable state: {}".format(cable_msg))
+        print(f"Detected cable state: {cable_msg}")
         return
-    raise SystemExit("Failed to detect {}!".format(cable_msg))
+    raise SystemExit(f"Failed to detect {cable_msg}!")
 
 
 def help_wait_cable_and_routable_state(iface, do_check=True):
@@ -166,13 +165,13 @@ def help_wait_cable_and_routable_state(iface, do_check=True):
 def main():
     """Entry point to the program."""
     if len(sys.argv) != 2:
-        raise SystemExit("Usage {} INTERFACE_NAME".format(sys.argv[0]))
+        raise SystemExit(f"Usage {sys.argv[0]} INTERFACE_NAME")
     iface = sys.argv[1]
     # sanity check of the interface path
     try:
         has_cable(iface)
     except Exception as exc:
-        msg = "Could not check the cable for '{}': {}".format(iface, exc)
+        msg = f"Could not check the cable for '{iface}': {exc}"
         raise SystemExit(msg) from exc
     print(
         (

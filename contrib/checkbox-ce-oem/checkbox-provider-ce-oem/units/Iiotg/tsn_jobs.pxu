@@ -46,12 +46,23 @@ _description:
 environ:
     TSN_DEVICE_IP_LIST
 command:
-    if [ -v TSN_DEVICE_IP_LIST ]; then
-        iiotg_tsn.py --parse-string "$TSN_DEVICE_IP_LIST"
-    else
-        echo "You did not set the environment variable 'TSN_DEVICE_IP_LIST'"
-        exit 1
-    fi
+    resource_wrapper.sh -- iiotg_tsn.py --parse-string "$TSN_DEVICE_IP_LIST"
+
+unit: job
+category_id: iiotg-tsn
+id: iiotg-tsn/check-tsn-device-ip-match-resource
+plugin: shell
+_summary: Check TSN device and IP mapping resource generation
+_description:
+    Verify TSN device and server IP mapping command executes directly.
+imports: from com.canonical.plainbox import manifest
+requires:
+    manifest.is_Iiotg == 'True'
+    manifest.has_iiotg_tsn == 'True'
+environ:
+    TSN_DEVICE_IP_LIST
+command:
+    iiotg_tsn.py --parse-string "$TSN_DEVICE_IP_LIST"
 
 
 unit: template

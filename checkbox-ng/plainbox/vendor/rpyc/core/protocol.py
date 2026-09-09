@@ -1,5 +1,5 @@
-"""The RPyC protocol
-"""
+"""The RPyC protocol"""
+
 import sys
 import itertools
 import socket
@@ -12,8 +12,20 @@ import os
 import threading
 
 from threading import Lock, Condition, RLock
-from plainbox.vendor.rpyc.lib import spawn, Timeout, get_methods, get_id_pack, hasattr_static
-from plainbox.vendor.rpyc.lib.compat import pickle, next, maxint, select_error, acquire_lock  # noqa: F401
+from plainbox.vendor.rpyc.lib import (
+    spawn,
+    Timeout,
+    get_methods,
+    get_id_pack,
+    hasattr_static,
+)
+from plainbox.vendor.rpyc.lib.compat import (
+    pickle,
+    next,
+    maxint,
+    select_error,
+    acquire_lock,
+)  # noqa: F401
 from plainbox.vendor.rpyc.lib.colls import WeakValueDict, RefCountingColl
 from plainbox.vendor.rpyc.core import consts, brine, vinegar, netref
 from plainbox.vendor.rpyc.core.async_ import AsyncResult
@@ -21,31 +33,101 @@ from plainbox.vendor.rpyc.core.async_ import AsyncResult
 
 class PingError(Exception):
     """The exception raised should :func:`Connection.ping` fail"""
+
     pass
 
 
-UNBOUND_THREAD_ID = 0  # Used when the message is being sent but the thread is not bound yet.
+UNBOUND_THREAD_ID = (
+    0  # Used when the message is being sent but the thread is not bound yet.
+)
 DEFAULT_CONFIG = dict(
     # ATTRIBUTES
     allow_safe_attrs=True,
     allow_exposed_attrs=True,
     allow_public_attrs=False,
     allow_all_attrs=False,
-    safe_attrs=set(['__abs__', '__add__', '__and__', '__bool__', '__cmp__', '__contains__',
-                    '__delitem__', '__delslice__', '__div__', '__divmod__', '__doc__',
-                    '__eq__', '__float__', '__floordiv__', '__ge__', '__getitem__',
-                    '__getslice__', '__gt__', '__hash__', '__hex__', '__iadd__', '__iand__',
-                    '__idiv__', '__ifloordiv__', '__ilshift__', '__imod__', '__imul__',
-                    '__index__', '__int__', '__invert__', '__ior__', '__ipow__', '__irshift__',
-                    '__isub__', '__iter__', '__itruediv__', '__ixor__', '__le__', '__len__',
-                    '__long__', '__lshift__', '__lt__', '__mod__', '__mul__', '__ne__',
-                    '__neg__', '__new__', '__nonzero__', '__oct__', '__or__', '__pos__',
-                    '__pow__', '__radd__', '__rand__', '__rdiv__', '__rdivmod__', '__repr__',
-                    '__rfloordiv__', '__rlshift__', '__rmod__', '__rmul__', '__ror__',
-                    '__rpow__', '__rrshift__', '__rshift__', '__rsub__', '__rtruediv__',
-                    '__rxor__', '__setitem__', '__setslice__', '__str__', '__sub__',
-                    '__truediv__', '__xor__', 'next', '__length_hint__', '__enter__',
-                    '__exit__', '__next__', '__format__']),
+    safe_attrs={
+        "__abs__",
+        "__add__",
+        "__and__",
+        "__bool__",
+        "__cmp__",
+        "__contains__",
+        "__delitem__",
+        "__delslice__",
+        "__div__",
+        "__divmod__",
+        "__doc__",
+        "__eq__",
+        "__float__",
+        "__floordiv__",
+        "__ge__",
+        "__getitem__",
+        "__getslice__",
+        "__gt__",
+        "__hash__",
+        "__hex__",
+        "__iadd__",
+        "__iand__",
+        "__idiv__",
+        "__ifloordiv__",
+        "__ilshift__",
+        "__imod__",
+        "__imul__",
+        "__index__",
+        "__int__",
+        "__invert__",
+        "__ior__",
+        "__ipow__",
+        "__irshift__",
+        "__isub__",
+        "__iter__",
+        "__itruediv__",
+        "__ixor__",
+        "__le__",
+        "__len__",
+        "__long__",
+        "__lshift__",
+        "__lt__",
+        "__mod__",
+        "__mul__",
+        "__ne__",
+        "__neg__",
+        "__new__",
+        "__nonzero__",
+        "__oct__",
+        "__or__",
+        "__pos__",
+        "__pow__",
+        "__radd__",
+        "__rand__",
+        "__rdiv__",
+        "__rdivmod__",
+        "__repr__",
+        "__rfloordiv__",
+        "__rlshift__",
+        "__rmod__",
+        "__rmul__",
+        "__ror__",
+        "__rpow__",
+        "__rrshift__",
+        "__rshift__",
+        "__rsub__",
+        "__rtruediv__",
+        "__rxor__",
+        "__setitem__",
+        "__setslice__",
+        "__str__",
+        "__sub__",
+        "__truediv__",
+        "__xor__",
+        "next",
+        "__length_hint__",
+        "__enter__",
+        "__exit__",
+        "__next__",
+        "__format__",
+    },
     exposed_prefix="exposed_",
     allow_getattr=True,
     allow_setattr=False,
@@ -68,7 +150,7 @@ DEFAULT_CONFIG = dict(
     sync_request_timeout=30,
     before_closed=None,
     close_catchall=False,
-    bind_threads=os.environ.get('RPYC_BIND_THREADS') == 'true',
+    bind_threads=os.environ.get("RPYC_BIND_THREADS") == "true",
 )
 """
 The default configuration dictionary of the protocol. You can override these parameters
@@ -136,7 +218,7 @@ Parameter                                Default value     Description
 _connection_id_generator = itertools.count(1)
 
 
-class Connection(object):
+class Connection:
     """The RPyC *connection* (AKA *protocol*).
 
     Objects referenced over the connection are either local or remote. This class retains a strong reference to
@@ -155,14 +237,18 @@ class Connection(object):
         self._config = DEFAULT_CONFIG.copy()
         self._config.update(config)
         if self._config["connid"] is None:
-            self._config["connid"] = "conn{}".format(next(_connection_id_generator))
+            self._config["connid"] = f"conn{next(_connection_id_generator)}"
 
         self._HANDLERS = self._request_handlers()
         self._channel = channel
         self._seqcounter = itertools.count()
-        self._recvlock = RLock()  # AsyncResult implementation means that synchronous requests have multiple acquires
+        self._recvlock = (
+            RLock()
+        )  # AsyncResult implementation means that synchronous requests have multiple acquires
         self._sendlock = Lock()
-        self._recv_event = Condition()  # TODO: why not simply timeout? why not associate w/ recvlock? explain/redesign
+        self._recv_event = (
+            Condition()
+        )  # TODO: why not simply timeout? why not associate w/ recvlock? explain/redesign
         self._request_callbacks = {}
         self._local_objects = RefCountingColl()
         self._last_traceback = None
@@ -173,7 +259,7 @@ class Connection(object):
         self._local_root = root
         self._closed = False
         # Settings for bind_threads
-        self._bind_threads = self._config['bind_threads']
+        self._bind_threads = self._config["bind_threads"]
         self._threads = None
         if self._bind_threads:
             self._lock = threading.Lock()
@@ -193,7 +279,7 @@ class Connection(object):
 
     def __repr__(self):
         a, b = object.__repr__(self).split(" object ")
-        return "{} {!r} object {}".format(a, self._config['connid'], b)
+        return "{} {!r} object {}".format(a, self._config["connid"], b)
 
     def _cleanup(self, _anyway=True):  # IO
         if self._closed and not _anyway:
@@ -263,7 +349,10 @@ class Connection(object):
         data = brine.dump((msg, seq, args))
         if self._bind_threads:
             this_thread = self._get_thread()
-            data = brine.I8I8.pack(this_thread.id, this_thread._remote_thread_id) + data
+            data = (
+                brine.I8I8.pack(this_thread.id, this_thread._remote_thread_id)
+                + data
+            )
             if msg == consts.MSG_REQUEST:
                 this_thread._occupation_count += 1
             else:
@@ -325,7 +414,11 @@ class Connection(object):
         if label == consts.LABEL_LOCAL_REF:
             return self._local_objects[value]
         if label == consts.LABEL_REMOTE_REF:
-            id_pack = (str(value[0]), value[1], value[2])  # so value is a id_pack
+            id_pack = (
+                str(value[0]),
+                value[1],
+                value[2],
+            )  # so value is a id_pack
             if id_pack in self._proxy_cache:
                 proxy = self._proxy_cache[id_pack]
                 proxy.____refcount__ += 1  # if cached then remote incremented refcount, so sync refcount
@@ -333,10 +426,10 @@ class Connection(object):
                 proxy = self._netref_factory(id_pack)
                 self._proxy_cache[id_pack] = proxy
             return proxy
-        raise ValueError("invalid label {!r}".format(label))
+        raise ValueError(f"invalid label {label!r}")
 
     def _netref_factory(self, id_pack):  # boxing
-        """id_pack is for remote, so when class id fails to directly match """
+        """id_pack is for remote, so when class id fails to directly match"""
         cls = None
         if id_pack[2] == 0 and id_pack in self._netref_classes_cache:
             cls = self._netref_classes_cache[id_pack]
@@ -364,31 +457,47 @@ class Connection(object):
             logger = self._config["logger"]
             if logger and t is not StopIteration:
                 logger.debug("Exception caught", exc_info=True)
-            if t is SystemExit and self._config["propagate_SystemExit_locally"]:
+            if (
+                t is SystemExit
+                and self._config["propagate_SystemExit_locally"]
+            ):
                 raise
-            if t is KeyboardInterrupt and self._config["propagate_KeyboardInterrupt_locally"]:
+            if (
+                t is KeyboardInterrupt
+                and self._config["propagate_KeyboardInterrupt_locally"]
+            ):
                 raise
             self._send(consts.MSG_EXCEPTION, seq, self._box_exc(t, v, tb))
         else:
             self._send(consts.MSG_REPLY, seq, self._box(res))
 
     def _box_exc(self, typ, val, tb):  # dispatch?
-        return vinegar.dump(typ, val, tb,
-                            include_local_traceback=self._config["include_local_traceback"],
-                            include_local_version=self._config["include_local_version"])
+        return vinegar.dump(
+            typ,
+            val,
+            tb,
+            include_local_traceback=self._config["include_local_traceback"],
+            include_local_version=self._config["include_local_version"],
+        )
 
     def _unbox_exc(self, raw):  # dispatch?
-        return vinegar.load(raw,
-                            import_custom_exceptions=self._config["import_custom_exceptions"],
-                            instantiate_custom_exceptions=self._config["instantiate_custom_exceptions"],
-                            instantiate_oldstyle_exceptions=self._config["instantiate_oldstyle_exceptions"])
+        return vinegar.load(
+            raw,
+            import_custom_exceptions=self._config["import_custom_exceptions"],
+            instantiate_custom_exceptions=self._config[
+                "instantiate_custom_exceptions"
+            ],
+            instantiate_oldstyle_exceptions=self._config[
+                "instantiate_oldstyle_exceptions"
+            ],
+        )
 
     def _seq_request_callback(self, msg, seq, is_exc, obj):
         _callback = self._request_callbacks.pop(seq, None)
         if _callback is not None:
             _callback(is_exc, obj)
         elif self._config["logger"] is not None:
-            debug_msg = 'Recieved {} seq {} and a related request callback did not exist'
+            debug_msg = "Recieved {} seq {} and a related request callback did not exist"
             self._config["logger"].debug(debug_msg.format(msg, seq))
 
     def _dispatch(self, data):  # serving---dispatch?
@@ -410,7 +519,7 @@ class Connection(object):
                 obj = self._unbox_exc(args)
                 self._seq_request_callback(msg, seq, True, obj)
             else:
-                raise ValueError("invalid message type: {!r}".format(msg))
+                raise ValueError(f"invalid message type: {msg!r}")
 
     def serve(self, timeout=1, wait_for_lock=True):  # serving
         """Serves a single request or reply that arrives within the given
@@ -444,7 +553,9 @@ class Connection(object):
         else:
             self._recvlock.release()
             if data:
-                self._dispatch(data)  # Dispatch will unbox, invoke callbacks, etc.
+                self._dispatch(
+                    data
+                )  # Dispatch will unbox, invoke callbacks, etc.
                 return True
             else:
                 return False
@@ -466,7 +577,9 @@ class Connection(object):
         wait = False
 
         with self._lock:
-            message_available = this_thread._event.is_set() and len(this_thread._deque) != 0
+            message_available = (
+                this_thread._event.is_set() and len(this_thread._deque) != 0
+            )
 
             if message_available:
                 remote_thread_id, message = this_thread._deque.popleft()
@@ -496,7 +609,9 @@ class Connection(object):
                         message_available = len(this_thread._deque) != 0
 
                         if message_available:
-                            remote_thread_id, message = this_thread._deque.popleft()
+                            remote_thread_id, message = (
+                                this_thread._deque.popleft()
+                            )
                             if len(this_thread._deque) == 0:
                                 this_thread._event.clear()
 
@@ -555,13 +670,19 @@ class Connection(object):
 
             this = False
 
-            if local_thread_id == UNBOUND_THREAD_ID and this_thread._occupation_count != 0:
+            if (
+                local_thread_id == UNBOUND_THREAD_ID
+                and this_thread._occupation_count != 0
+            ):
                 # Message is not meant for this thread. Use a thread that is not occupied or have the pool create a new one.
                 # TODO: reusing threads may be problematic if occupation being zero is wrong...
                 new = False
                 with self._lock:
                     for thread in self._thread_pool:
-                        if thread._occupation_count == 0 and not thread._event.is_set():
+                        if (
+                            thread._occupation_count == 0
+                            and not thread._event.is_set()
+                        ):
                             thread._deque.append((remote_thread_id, message))
                             thread._event.set()
                             break
@@ -570,7 +691,9 @@ class Connection(object):
                         new = True
 
                 if new:
-                    self._thread_pool_executor.submit(self._serve_temporary, remote_thread_id, message)
+                    self._thread_pool_executor.submit(
+                        self._serve_temporary, remote_thread_id, message
+                    )
 
             elif local_thread_id in {UNBOUND_THREAD_ID, this_thread.id}:
                 # Of course, the message is for this thread if equal. When id is UNBOUND_THREAD_ID,
@@ -616,7 +739,7 @@ class Connection(object):
                 if thread._occupation_count == 0:
                     break
 
-        except (socket.error, select_error, IOError):
+        except (OSError, select_error):
             if not self.closed:
                 raise
         except EOFError:
@@ -652,7 +775,7 @@ class Connection(object):
         try:
             while not self.closed:
                 self.serve(None)
-        except (socket.error, select_error, IOError):
+        except (OSError, select_error):
             if not self.closed:
                 raise
         except EOFError:
@@ -669,19 +792,19 @@ class Connection(object):
         opens a new connection would allow `ThreadedServer` to naturally avoid such multiplexing issues and
         is the preferred approach for threading procedures that invoke sync_request. See issue #345
         """
+
         def _thread_target():
             try:
                 while True:
                     self.serve(None)
-            except (socket.error, select_error, IOError):
+            except (OSError, select_error):
                 if not self.closed:
                     raise
             except EOFError:
                 pass
 
         try:
-            threads = [spawn(_thread_target)
-                       for _ in range(thread_count)]
+            threads = [spawn(_thread_target) for _ in range(thread_count)]
 
             for thread in threads:
                 thread.join()
@@ -717,7 +840,9 @@ class Connection(object):
         # So, the _recvlock can be acquired multiple times by the owning thread and warrants the use of RLock
         return _async_res.value
 
-    def _async_request(self, handler, args=(), callback=(lambda a, b: None)):  # serving
+    def _async_request(
+        self, handler, args=(), callback=(lambda a, b: None)
+    ):  # serving
         seq = self._get_seq_id()
         self._request_callbacks[seq] = callback
         try:
@@ -737,7 +862,9 @@ class Connection(object):
         """
         timeout = kwargs.pop("timeout", None)
         if kwargs:
-            raise TypeError("got unexpected keyword argument(s) {list(kwargs.keys()}")
+            raise TypeError(
+                "got unexpected keyword argument(s) {list(kwargs.keys()}"
+            )
         res = AsyncResult(self)
         self._async_request(handler, args, res)
         if timeout is not None:
@@ -754,22 +881,26 @@ class Connection(object):
     def _check_attr(self, obj, name, perm):  # attribute access
         config = self._config
         if not config[perm]:
-            raise AttributeError("cannot access {!r}".format(name))
+            raise AttributeError(f"cannot access {name!r}")
         prefix = config["allow_exposed_attrs"] and config["exposed_prefix"]
         plain = config["allow_all_attrs"]
         plain |= config["allow_exposed_attrs"] and name.startswith(prefix)
         plain |= config["allow_safe_attrs"] and name in config["safe_attrs"]
         plain |= config["allow_public_attrs"] and not name.startswith("_")
-        has_exposed = prefix and (hasattr(obj, prefix + name) or hasattr_static(obj, prefix + name))
+        has_exposed = prefix and (
+            hasattr(obj, prefix + name) or hasattr_static(obj, prefix + name)
+        )
         if plain and (not has_exposed or hasattr(obj, name)):
             return name
         if has_exposed:
             return prefix + name
         if plain:
             return name  # chance for better traceback
-        raise AttributeError("cannot access {!r}".format(name))
+        raise AttributeError(f"cannot access {name!r}")
 
-    def _access_attr(self, obj, name, args, overrider, param, default):  # attribute access
+    def _access_attr(
+        self, obj, name, args, overrider, param, default
+    ):  # attribute access
         if type(name) is bytes:
             name = str(name, "utf8")
         elif type(name) is not str:
@@ -823,10 +954,12 @@ class Connection(object):
     def _handle_str(self, obj):  # request handler
         return str(obj)
 
-    def _handle_cmp(self, obj, other, op='__cmp__'):  # request handler
+    def _handle_cmp(self, obj, other, op="__cmp__"):  # request handler
         # cmp() might enter recursive resonance... so use the underlying type and return cmp(obj, other)
         try:
-            return self._access_attr(type(obj), op, (), "_rpyc_getattr", "allow_getattr", getattr)(obj, other)
+            return self._access_attr(
+                type(obj), op, (), "_rpyc_getattr", "allow_getattr", getattr
+            )(obj, other)
         except Exception:
             raise
 
@@ -840,23 +973,31 @@ class Connection(object):
         return tuple(dir(obj))
 
     def _handle_inspect(self, id_pack):  # request handler
-        if hasattr(self._local_objects[id_pack], '____conn__'):
+        if hasattr(self._local_objects[id_pack], "____conn__"):
             # When RPyC is chained (RPyC over RPyC), id_pack is cached in local objects as a netref
             # since __mro__ is not a safe attribute the request is forwarded using the proxy connection
             # see issue #346 or tests.test_rpyc_over_rpyc.Test_rpyc_over_rpyc
             conn = self._local_objects[id_pack].____conn__
             return conn.sync_request(consts.HANDLE_INSPECT, id_pack)
         else:
-            return tuple(get_methods(netref.LOCAL_ATTRS, self._local_objects[id_pack]))
+            return tuple(
+                get_methods(netref.LOCAL_ATTRS, self._local_objects[id_pack])
+            )
 
     def _handle_getattr(self, obj, name):  # request handler
-        return self._access_attr(obj, name, (), "_rpyc_getattr", "allow_getattr", getattr)
+        return self._access_attr(
+            obj, name, (), "_rpyc_getattr", "allow_getattr", getattr
+        )
 
     def _handle_delattr(self, obj, name):  # request handler
-        return self._access_attr(obj, name, (), "_rpyc_delattr", "allow_delattr", delattr)
+        return self._access_attr(
+            obj, name, (), "_rpyc_delattr", "allow_delattr", delattr
+        )
 
     def _handle_setattr(self, obj, name, value):  # request handler
-        return self._access_attr(obj, name, (value,), "_rpyc_setattr", "allow_setattr", setattr)
+        return self._access_attr(
+            obj, name, (value,), "_rpyc_setattr", "allow_setattr", setattr
+        )
 
     def _handle_callattr(self, obj, name, args, kwargs=()):  # request handler
         obj = self._handle_getattr(obj, name)
@@ -877,7 +1018,7 @@ class Connection(object):
         #  + refactor cache instancecheck/inspect/class_factory
         #  + improve cache docs
 
-        if hasattr(obj, '____conn__'):  # keep unwrapping!
+        if hasattr(obj, "____conn__"):  # keep unwrapping!
             # When RPyC is chained (RPyC over RPyC), id_pack is cached in local objects as a netref
             # since __mro__ is not a safe attribute the request is forwarded using the proxy connection
             # relates to issue #346 or tests.test_netref_hierachy.Test_Netref_Hierarchy.test_StandardError
@@ -903,7 +1044,9 @@ class Connection(object):
     def _handle_buffiter(self, obj, count):  # request handler
         return tuple(itertools.islice(obj, count))
 
-    def _handle_oldslicing(self, obj, attempt, fallback, start, stop, args):  # request handler
+    def _handle_oldslicing(
+        self, obj, attempt, fallback, start, stop, args
+    ):  # request handler
         try:
             # first try __xxxitem__
             getitem = self._handle_getattr(obj, attempt)

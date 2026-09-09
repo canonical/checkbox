@@ -94,9 +94,7 @@ class TestCollector(TestCase):
 
         try:
             json.loads(collection_result.stdout)
-            self.fail(
-                "{} should be an invalid json".format(collection_result.stdout)
-            )
+            self.fail(f"{collection_result.stdout} should be an invalid json")
         except json.JSONDecodeError as e:
             exception_str = str(e)
 

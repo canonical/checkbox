@@ -29,7 +29,7 @@ def check_muted():
             )
         except Exception as e:
             print(
-                "Error when running pacmd list-%ss: %s" % (vtype, e),
+                f"Error when running pacmd list-{vtype}s: {e}",
                 file=sys.stderr,
             )
             return 1
@@ -62,10 +62,10 @@ def check_muted():
         if muted_match:
             muted = muted_match.group().strip()
             if muted.lower() == "yes":
-                print("FAIL: Audio is muted on %s %s" % (name, vtype))
+                print(f"FAIL: Audio is muted on {name} {vtype}")
                 retval = 1
             else:
-                print("PASS: Audio is not muted on %s %s" % (name, vtype))
+                print(f"PASS: Audio is not muted on {name} {vtype}")
         else:
             print(
                 "Unable to find mute information in the pacmd list-%ss"
@@ -91,7 +91,7 @@ def check_volume(minvol, maxvol):
             )
         except Exception as e:
             print(
-                "Error when running pacmd list-%ss: %s" % (vtype, e),
+                f"Error when running pacmd list-{vtype}s: {e}",
                 file=sys.stderr,
             )
             return 1

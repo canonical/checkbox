@@ -189,7 +189,7 @@ class RegExpJobQualifier(SimpleQualifier):
         return self._pattern_text
 
     def __repr__(self):
-        return "{0}({1!r}, inclusive={2})".format(
+        return "{}({!r}, inclusive={})".format(
             self.__class__.__name__, self._pattern_text, self._inclusive
         )
 
@@ -220,7 +220,7 @@ class JobIdQualifier(SimpleQualifier):
         return self._id == job.id
 
     def __repr__(self):
-        return "{0}({1!r}, inclusive={2})".format(
+        return "{}({!r}, inclusive={})".format(
             self.__class__.__name__, self._id, self._inclusive
         )
 
@@ -275,7 +275,7 @@ class OperatorMatcher(IMatcher):
         return self._op(self._value, value)
 
     def __repr__(self):
-        return "{0}({1!r}, {2!r})".format(
+        return "{}({!r}, {!r})".format(
             self.__class__.__name__, self._op, self._value
         )
 
@@ -313,7 +313,7 @@ class PatternMatcher(IMatcher):
         return self._pattern.match(value) is not None
 
     def __repr__(self):
-        return "{0}({1!r})".format(self.__class__.__name__, self._pattern_text)
+        return f"{self.__class__.__name__}({self._pattern_text!r})"
 
     def __eq__(self, other):
         if isinstance(other, PatternMatcher):
@@ -378,7 +378,7 @@ class FieldQualifier(SimpleQualifier):
         return self._matcher.match(field_value)
 
     def __repr__(self):
-        return "{0}({1!r}, {2!r}, inclusive={3})".format(
+        return "{}({!r}, {!r}, inclusive={})".format(
             self.__class__.__name__,
             self._field,
             self._matcher,

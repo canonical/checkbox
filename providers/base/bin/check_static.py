@@ -47,29 +47,29 @@ def check_networkmanager(interface, expected_address):
         ]
     )
     if conn_name == "--":
-        raise SystemExit("ERROR: No connection active on {}".format(interface))
-    print("Connection active on {} is {}".format(interface, conn_name))
+        raise SystemExit(f"ERROR: No connection active on {interface}")
+    print(f"Connection active on {interface} is {conn_name}")
 
     conn_method = nmcli_field(
         ["nmcli", "-t", "--fields", "ipv4.method", "c", "show", conn_name]
     )
     if conn_method == "auto":
-        raise SystemExit("FAIL: connection method {}".format(conn_method))
+        raise SystemExit(f"FAIL: connection method {conn_method}")
 
     address = nmcli_field(
         ["nmcli", "-t", "--fields", "IP4.ADDRESS", "c", "show", conn_name]
     )
-    print("Found static address: {}".format(address))
+    print(f"Found static address: {address}")
     if expected_address:
         if expected_address != address:
             raise SystemExit("FAIL: address doesn't match")
 
 
 def check_networkd(interface, expected_address):
-    config_f = "/run/systemd/network/10-netplan-{}.network".format(interface)
+    config_f = f"/run/systemd/network/10-netplan-{interface}.network"
     if not os.path.exists(config_f):
         raise SystemExit(
-            "ERROR: expected config file does not exist {}".format(config_f)
+            f"ERROR: expected config file does not exist {config_f}"
         )
 
     parser = configparser.ConfigParser()
@@ -96,10 +96,10 @@ def main():
     manager = sys.argv[1]
     interface = sys.argv[2]
 
-    if not os.path.exists("/sys/class/net/{}".format(interface)):
-        raise SystemExit("ERROR: {} doesn't exist".format(interface))
+    if not os.path.exists(f"/sys/class/net/{interface}"):
+        raise SystemExit(f"ERROR: {interface} doesn't exist")
 
-    configuration_key = "STATIC_IP_{}".format(interface.upper())
+    configuration_key = f"STATIC_IP_{interface.upper()}"
     expected_address = os.environ.get(configuration_key)
     if expected_address:
         print(
@@ -109,7 +109,7 @@ def main():
         )
     else:
         print("No expected address specified, testing for non-DHCP only")
-        print("Set key {} for address check\n".format(configuration_key))
+        print(f"Set key {configuration_key} for address check\n")
 
     if manager == "nm":
         check_networkmanager(interface, expected_address)

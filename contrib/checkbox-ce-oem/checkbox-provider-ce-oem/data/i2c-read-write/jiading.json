@@ -1,0 +1,24 @@
+{
+    "FT24C32 EEPROM Basic Write-Read": {
+        "steps": [
+            {
+                "description": "Write initial data to EEPROM",
+                "operation": "write",
+                "i2c_bus": 10,
+                "chip_address": "0x50",
+                "reg_address": ["0x00", "0x00"],
+                "data": ["0x11", "0x22", "0x33", "0x44"],
+                "delay_ms": 5
+            },
+            {
+                "description": "Verify EEPROM data",
+                "operation": "read",
+                "i2c_bus": 10,
+                "chip_address": "0x50",
+                "reg_address": ["0x00", "0x00"],
+                "read_length": 4,
+                "expected_output": ["0x11", "0x22", "0x33", "0x44"]
+            }
+        ]
+    }
+}

@@ -111,7 +111,7 @@ class SessionStateExporterBase(ISessionStateExporter):
             key_value = option_string.split("=", 1)
             option = key_value[0]
             if option not in self.supported_option_list:
-                raise ValueError("Unsupported option: {}".format(option))
+                raise ValueError(f"Unsupported option: {option}")
             if len(key_value) == 2:
                 value = key_value[1]
             else:
@@ -125,7 +125,7 @@ class SessionStateExporterBase(ISessionStateExporter):
                 key_value = option_string.split("=", 1)
                 option = key_value[0]
                 if option not in self.supported_option_list:
-                    raise ValueError("Unsupported option: {}".format(option))
+                    raise ValueError(f"Unsupported option: {option}")
                 if len(key_value) == 2:
                     value = key_value[1]
                 else:
@@ -323,11 +323,9 @@ class SessionStateExporterBase(ISessionStateExporter):
 
     def _build_attachment_map(self, data, job_id, job_state):
         raw_bytes = b"".join(
-            (
-                record[2]
-                for record in job_state.result.get_io_log()
-                if record[1] == "stdout"
-            )
+            record[2]
+            for record in job_state.result.get_io_log()
+            if record[1] == "stdout"
         )
         data["attachment_map"][job_id] = base64.standard_b64encode(
             raw_bytes

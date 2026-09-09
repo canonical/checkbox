@@ -8,19 +8,19 @@ import sys
 
 
 def offline_cpu(cpu_name):
-    with open("/sys/devices/system/cpu/{}/online".format(cpu_name), "wt") as f:
+    with open(f"/sys/devices/system/cpu/{cpu_name}/online", "w") as f:
         f.write("0\n")
 
 
 def online_cpu(cpu_name):
-    with open("/sys/devices/system/cpu/{}/online".format(cpu_name), "wt") as f:
+    with open(f"/sys/devices/system/cpu/{cpu_name}/online", "w") as f:
         f.write("1\n")
 
 
 def is_cpu_online(cpu_name):
     # use the same heuristic as original `cpu_offlining` test used which is to
     # check if cpu is mentioned in /proc/interrupts
-    with open("/proc/interrupts", "rt") as f:
+    with open("/proc/interrupts") as f:
         header = f.readline().lower().split()
         return cpu_name in header
 
@@ -30,7 +30,7 @@ def main():
     # sort *numerically* cpus by their number, ignoring first 3 characters
     # so ['cpu1', 'cpu11', 'cpu2'] is sorted to ['cpu1', 'cpu2', 'cpu11']
     cpus.sort(key=lambda x: int(x[3:]))
-    with open("/proc/interrupts", "rt") as f:
+    with open("/proc/interrupts") as f:
         interrupts_count = len(f.readlines()) - 1  # first line is a header
 
     # there is an arch limit on how many interrupts one cpu can handle
@@ -45,7 +45,7 @@ def main():
         offline_cpu(cpu)
         sleep(0.5)
         if is_cpu_online(cpu):
-            print("ERROR: Failed to offline {}".format(cpu), file=sys.stderr)
+            print(f"ERROR: Failed to offline {cpu}", file=sys.stderr)
             failed_offlines.append(cpu)
 
     failed_onlines = []
@@ -54,7 +54,7 @@ def main():
         online_cpu(cpu)
         sleep(0.5)
         if not is_cpu_online(cpu):
-            print("ERROR: Failed to online {}".format(cpu), file=sys.stderr)
+            print(f"ERROR: Failed to online {cpu}", file=sys.stderr)
             failed_onlines.append(cpu)
 
     if not failed_offlines and not failed_onlines:

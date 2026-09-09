@@ -16,7 +16,7 @@
 
 
 # See http://pciids.sourceforge.net/pci.ids.bz2
-class Pci(object):
+class Pci:
 
     BASE_CLASS_STORAGE = 1
     CLASS_STORAGE_SCSI = 0

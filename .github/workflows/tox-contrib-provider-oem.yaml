@@ -1,0 +1,46 @@
+name: Test provider-oem (from contrib area) with tox
+permissions:
+  contents: read
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - contrib/checkbox-oem/checkbox-provider-oem/**
+      - .github/workflows/tox-contrib-provider-oem.yaml
+  pull_request:
+    branches: [ main ]
+    paths:
+      - contrib/checkbox-oem/checkbox-provider-oem/**
+      - .github/workflows/tox-contrib-provider-oem.yaml
+  workflow_dispatch:
+
+jobs:
+  tox_test_contrib_oem_provider:
+    name: Test oem provider (from contrib area) with tox
+    defaults:
+      run:
+        working-directory: contrib/checkbox-oem/checkbox-provider-oem
+    strategy:
+      matrix:
+        python: ["3.14"]
+        include:
+          - python: "3.14"
+            tox_env_name: "py314"
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          persist-credentials: false
+      - name: Setup Python
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97
+        with:
+          python-version: ${{ matrix.python }}
+      - name: Install dependencies
+        run: pip install tox
+      - name: Run tox
+        run: tox -e${{ matrix.tox_env_name }}
+      - name: Upload coverage reports to Codecov
+        uses: codecov/codecov-action@e79a6962e0d4c0c17b229090214935d2e33f8354
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          flags: contrib-provider-oem

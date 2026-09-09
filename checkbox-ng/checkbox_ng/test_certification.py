@@ -55,7 +55,7 @@ class SubmissionServiceTransportTests(TestCase):
     invalid_url = "htz://:3128"
     unreachable_url = "http://i.dont.exist"
     valid_secure_id = "a00D000000Kkk5j"
-    valid_option_string = "secure_id={}".format(valid_secure_id)
+    valid_option_string = f"secure_id={valid_secure_id}"
 
     def setUp(self):
         self.sample_archive = BytesIO(
@@ -77,7 +77,7 @@ class SubmissionServiceTransportTests(TestCase):
     def test_invalid_length_secure_id_are_rejected(self):
         length = 14
         dummy_id = "a" * length
-        option_string = "secure_id={}".format(dummy_id)
+        option_string = f"secure_id={dummy_id}"
         with self.assertRaises(InvalidSecureIDError):
             SubmissionServiceTransport(self.valid_url, option_string)
 

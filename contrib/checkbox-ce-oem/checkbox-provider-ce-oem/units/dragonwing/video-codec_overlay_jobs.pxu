@@ -15,7 +15,7 @@ command:
     export GST_DEBUG=2
     export GST_PLUGIN_PATH=/usr/lib/aarch64-linux-gnu/gstreamer-1.0/
     mkdir -p "$PLAINBOX_SESSION_SHARE/video"
-    timeout -s2 --preserve-status 10s gst-launch-1.0 -f -v filesrc location="$GST_TEST_DATA/video/1080p_30fps_h264.mp4" \
+    timeout -s2 --preserve-status 10s gst-launch-1.0 -f -v filesrc location="$GST_TEST_DATA/video/1920x1080_30fps_h264.mp4" \
     ! qtdemux ! queue ! h264parse ! v4l2h264dec capture-io-mode=4 output-io-mode=4 ! video/x-raw, format=NV12 \
     ! qtivoverlay images="{(structure)\"Image1,path=$GST_TEST_DATA/video/static_image.rgba,resolution=<240,56>,destination=<0,0,240,56>;\"}" \
     ! v4l2h264enc capture-io-mode=4 output-io-mode=5 extra-controls="controls,video_bitrate=5000000,video_bitrate_mode=0;" \
@@ -39,7 +39,7 @@ command:
     export GST_DEBUG=2
     export GST_PLUGIN_PATH=/usr/lib/aarch64-linux-gnu/gstreamer-1.0/
     mkdir -p "$PLAINBOX_SESSION_SHARE/video"
-    timeout -s2 --preserve-status 10s gst-launch-1.0 -f -v filesrc location="$GST_TEST_DATA/video/1080p_30fps_h264.mp4" \
+    timeout -s2 --preserve-status 10s gst-launch-1.0 -f -v filesrc location="$GST_TEST_DATA/video/1920x1080_30fps_h264.mp4" \
     ! qtdemux ! queue ! h264parse ! v4l2h264dec capture-io-mode=4 output-io-mode=4 ! video/x-raw, format=NV12 \
     ! qtivoverlay strings="{(structure)\"Text1,contents=\\\"Ubuntu\ Testing\\\",fontsize=40,position=<20,20>,color=0xFF00FFFF;\"}" \
     ! v4l2h264enc capture-io-mode=4 output-io-mode=5 extra-controls="controls,video_bitrate=5000000,video_bitrate_mode=0;" \
@@ -63,7 +63,7 @@ command:
     export GST_DEBUG=2
     export GST_PLUGIN_PATH=/usr/lib/aarch64-linux-gnu/gstreamer-1.0/
     mkdir -p "$PLAINBOX_SESSION_SHARE/video"
-    timeout -s2 --preserve-status 10s gst-launch-1.0 -f -v filesrc location="$GST_TEST_DATA/video/1080p_30fps_h264.mp4" \
+    timeout -s2 --preserve-status 10s gst-launch-1.0 -f -v filesrc location="$GST_TEST_DATA/video/1920x1080_30fps_h264.mp4" \
     ! qtdemux ! queue ! h264parse ! v4l2h264dec capture-io-mode=4 output-io-mode=4 ! video/x-raw, format=NV12 \
     ! qtivoverlay timestamps="{(structure)\"Date/Time,format=\\\"%d/%m/%Y\ %H:%M:%S\\\",fontsize=40,position=<20,20>,color=0xff0000ff;\"}" \
     ! v4l2h264enc capture-io-mode=4 output-io-mode=5 extra-controls="controls,video_bitrate=5000000,video_bitrate_mode=0;" \
@@ -87,7 +87,7 @@ command:
     export GST_DEBUG=2
     export GST_PLUGIN_PATH=/usr/lib/aarch64-linux-gnu/gstreamer-1.0/
     mkdir -p "$PLAINBOX_SESSION_SHARE/video"
-    timeout -s2 --preserve-status 10s gst-launch-1.0 -f -v filesrc location="$GST_TEST_DATA/video/1080p_30fps_h264.mp4" \
+    timeout -s2 --preserve-status 10s gst-launch-1.0 -f -v filesrc location="$GST_TEST_DATA/video/1920x1080_30fps_h264.mp4" \
     ! qtdemux ! queue ! h264parse ! v4l2h264dec capture-io-mode=4 output-io-mode=4 ! video/x-raw, format=NV12 \
     ! qtivoverlay bboxes="{(structure)\"Box1,position=<150,150>,dimensions=<300,400>,color=0xFF0000FF;\"}" \
     ! v4l2h264enc capture-io-mode=4 output-io-mode=5 extra-controls="controls,video_bitrate=5000000,video_bitrate_mode=0;" \
@@ -111,7 +111,7 @@ command:
     export GST_DEBUG=2
     export GST_PLUGIN_PATH=/usr/lib/aarch64-linux-gnu/gstreamer-1.0/
     mkdir -p "$PLAINBOX_SESSION_SHARE/video"
-    timeout -s2 --preserve-status 10s gst-launch-1.0 -f -v filesrc location="$GST_TEST_DATA/video/1080p_30fps_h264.mp4" \
+    timeout -s2 --preserve-status 10s gst-launch-1.0 -f -v filesrc location="$GST_TEST_DATA/video/1920x1080_30fps_h264.mp4" \
     ! qtdemux ! queue ! h264parse ! v4l2h264dec capture-io-mode=4 output-io-mode=4 ! video/x-raw, format=NV12 \
     ! qtivoverlay masks="{(structure)\"Mask1,color=0xff0011ff,circle=<200,200,100>;\"}" \
     ! v4l2h264enc capture-io-mode=4 output-io-mode=5 extra-controls="controls,video_bitrate=5000000,video_bitrate_mode=0;" \
@@ -133,7 +133,7 @@ _steps:
     1. Set overlay property with below command
     $ setprop persist.overlay.use_c2d_blit 2
     2. Test the below command with different overlay user cases
-    $ gst-launch-1.0 -f -v filesrc location="$GST_TEST_DATA/video/1080p_30fps_h264.mp4" \
+    $ gst-launch-1.0 -f -v filesrc location="$GST_TEST_DATA/video/1920x1080_30fps_h264.mp4" \
     ! qtdemux ! queue ! h264parse ! v4l2h264dec capture-io-mode=4 output-io-mode=4 ! video/x-raw, format=NV12 \
     ! qtivoverlay {overlay user cases} \
     ! v4l2h264enc capture-io-mode=4 output-io-mode=5 extra-controls="controls,video_bitrate=5000000,video_bitrate_mode=0;" \

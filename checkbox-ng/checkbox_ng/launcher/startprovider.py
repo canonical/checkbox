@@ -90,7 +90,7 @@ class File:
             filename = os.path.join(root, self.name.format(**kwargs))
         if os.path.exists(filename):
             raise SomethingInTheWay(filename)
-        with open(filename, "wt", encoding="UTF-8") as stream:
+        with open(filename, "w", encoding="UTF-8") as stream:
             content = self.full_text.format(**kwargs)
             stream.write(content)
         if self.executable:

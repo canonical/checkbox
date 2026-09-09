@@ -7,6 +7,7 @@ Reference
    changelog
    glossary
    stack
+   configuration
    launcher
    envvar
    units/index

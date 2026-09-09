@@ -1,0 +1,5 @@
+id: oem-fan-automated
+unit: test plan
+_name: PWM Fan tests automated tests
+_description: Automated PWM Fan tests for devices
+include:

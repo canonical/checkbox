@@ -4,5 +4,10 @@ _purpose:
  Get the name of gadget snap.
 plugin: resource
 estimated_duration: 1
-command:
- python3 -c 'from checkbox_support.snap_utils.system import get_gadget_snap ; print("gadget_snap: {}".format(get_gadget_snap()))'
+command: resource_wrapper.sh -- resource_gadget_name.sh
+
+id: check_gadget_name_resource
+_summary: Check gadget snap name resource generation
+plugin: shell
+estimated_duration: 1
+command: resource_gadget_name.sh

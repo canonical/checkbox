@@ -1,0 +1,24 @@
+plugin: shell
+category_id: com.canonical.plainbox::miscellanea
+id: oem-miscellanea/checkbox-provider-oem-smoke-test
+estimated_duration: 0.1
+command:
+  echo "checkbox-provider-oem is alive and jobs are discoverable"
+_summary: Confirm checkbox-provider-oem jobs are discoverable and runnable
+_description:
+  Trivial sanity job to confirm the checkbox-provider-oem provider is
+  installed correctly and its jobs can be discovered and executed on
+  Core, Desktop, and Server test plans.
+
+plugin: shell
+category_id: com.canonical.plainbox::miscellanea
+id: oem-miscellanea/hello-misc
+estimated_duration: 0.1
+command: hello_misc.sh
+_summary: Example job calling a script from a bin/ category subfolder
+_description:
+  Example job showing that bin/ scripts can be organized into category
+  subfolders (mirroring the units/ layout), e.g. bin/miscellanea/. The
+  script is discovered recursively by checkbox, but is still invoked
+  here by its basename only ("hello_misc.sh"), since job execution
+  looks it up on PATH rather than by its subfolder path.

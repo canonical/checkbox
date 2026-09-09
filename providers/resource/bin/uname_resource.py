@@ -30,7 +30,7 @@ def get_uname():
 def main():
     uname = get_uname()
     for key, value in uname.items():
-        print("%s: %s" % (key, value))
+        print(f"{key}: {value}")
 
     return 0
 

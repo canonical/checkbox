@@ -550,7 +550,7 @@ class MonitorConfigGnomeTests(unittest.TestCase):
         argument_string = mock_post_cycle_action.call_args[0][0]
         p1 = "HDMI-1_2560x1440_normal_"
         p2 = "eDP-1_1920x1200_normal_"
-        pattern = re.compile("{}{}|{}{}".format(p1, p2, p2, p1))
+        pattern = re.compile(f"{p1}{p2}|{p2}{p1}")
         assert pattern.match(argument_string)
 
 

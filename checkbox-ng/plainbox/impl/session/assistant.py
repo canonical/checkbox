@@ -172,7 +172,7 @@ class SessionAssistant:
             if flag == SA_RESTARTABLE:
                 self._flags.add(flag)
             else:
-                raise ValueError("Unrecognized API flag: {!r}".format(flag))
+                raise ValueError(f"Unrecognized API flag: {flag!r}")
         self._app_id = app_id
         self._app_version = app_version
         self._api_version = api_version
@@ -594,7 +594,7 @@ class SessionAssistant:
                 if resume_candidate.id == session_id:
                     break
             else:
-                raise KeyError("Unknown session {}".format(session_id))
+                raise KeyError(f"Unknown session {session_id}")
 
         self._manager = SessionManager.load_session(
             all_units, self._resume_candidates[session_id][0]
@@ -967,7 +967,7 @@ class SessionAssistant:
             qualifiers.append(
                 FieldQualifier(
                     "id",
-                    PatternMatcher("^{}$".format(pattern)),
+                    PatternMatcher(f"^{pattern}$"),
                     Origin("hand-pick"),
                 )
             )
@@ -1172,7 +1172,11 @@ class SessionAssistant:
             JobState class for details.
         """
         UsageExpectation.of(self).enforce(self.get_job_state)
-        # XXX: job_state_map is a bit low level, can we avoid that?
+        UsageExpectation.of(self).allow(
+            self.get_job_state,
+            self.use_job_result,
+            "update the result of a job given its state",
+        )
         return self._context.state.job_state_map[job_id]
 
     @raises(KeyError, UnexpectedMethodCall)
@@ -1459,7 +1463,7 @@ class SessionAssistant:
         disk_manifest = {}
         manifest_path = WellKnownDirsHelper.manifest_file()
         if os.path.isfile(manifest_path):
-            with open(manifest_path, "rt", encoding="UTF-8") as stream:
+            with open(manifest_path, encoding="UTF-8") as stream:
                 disk_manifest = json.load(stream)
         try:
             config_manifest = self._config.manifest or {}
@@ -1560,7 +1564,7 @@ class SessionAssistant:
             elif ui == "piano":
                 ui = _PianoUI()
             else:
-                raise ValueError("unknown user interface: {!r}".format(ui))
+                raise ValueError(f"unknown user interface: {ui!r}")
         else:
             raise TypeError("incorrect UI type")
         warm_up_list = self._runner.get_warm_up_sequence(
@@ -1619,7 +1623,7 @@ class SessionAssistant:
                     session_share, "__respawn_checkbox"
                 )
                 if self._restart_cmd_callback:
-                    with open(respawn_cmd_file, "wt") as f:
+                    with open(respawn_cmd_file, "w") as f:
                         if isinstance(
                             self._restart_strategy, RemoteDebRestartStrategy
                         ):
@@ -1629,7 +1633,7 @@ class SessionAssistant:
                                     "sudo systemctl enable {}\n".format(
                                         service
                                     ),
-                                    "sudo systemctl start {}".format(service),
+                                    f"sudo systemctl start {service}",
                                 ]
                             )
                         else:
@@ -2112,7 +2116,7 @@ class SessionAssistant:
         self._runner = runner_cls(
             self._manager.storage.id,
             self._context.provider_list,
-            **runner_kwargs
+            **runner_kwargs,
         )
         return
 

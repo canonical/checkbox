@@ -191,7 +191,7 @@ class TestDCDStringToInfoIoT(TestCase):
 
         for example in invalid_examples:
             with self.assertRaises(
-                ValueError, msg="Should fail for: {}".format(example)
+                ValueError, msg=f"Should fail for: {example}"
             ):
                 image_info.dcd_string_to_info_iot(example)
 

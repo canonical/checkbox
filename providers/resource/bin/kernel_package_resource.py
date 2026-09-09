@@ -36,7 +36,7 @@ def get_kernel_package_info():
     # Get the kernel version
     kernel_version = os.uname().release
     linux_modules_info = subprocess.check_output(
-        ["apt-cache", "show", "linux-modules-{}".format(kernel_version)],
+        ["apt-cache", "show", f"linux-modules-{kernel_version}"],
         universal_newlines=True,
         stderr=subprocess.DEVNULL,
     )
@@ -55,9 +55,9 @@ def main():
     if not kernel_package:
         raise SystemExit("No kernel package found.")
 
-    print("name: {}".format(kernel_package))
-    print("type: {}".format(kernel_type))
-    print("release: {}".format(release))
+    print(f"name: {kernel_package}")
+    print(f"type: {kernel_type}")
+    print(f"release: {release}")
 
 
 if __name__ == "__main__":

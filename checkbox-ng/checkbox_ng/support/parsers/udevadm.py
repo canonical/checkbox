@@ -16,10 +16,6 @@
 # You should have received a copy of the GNU General Public License
 # along with Checkbox.  If not, see <http://www.gnu.org/licenses/>.
 
-from __future__ import absolute_import
-from __future__ import division
-from __future__ import print_function
-from __future__ import unicode_literals
 
 from collections import OrderedDict
 import json
@@ -147,7 +143,7 @@ def has_dev_block_node(name):
         return False
 
 
-class UdevadmDevice(object):
+class UdevadmDevice:
     __slots__ = (
         "_environment",
         "_name",
@@ -239,7 +235,7 @@ class UdevadmDevice(object):
             match = re.search(r"/nvme/nvme(\d+)(?:/|$)", devpath)
             if match:
                 nvme_num = match.group(1)
-                candidates.append("nvme{}n1".format(nvme_num))
+                candidates.append(f"nvme{nvme_num}n1")
 
             for candidate in candidates:
                 if has_dev_block_node(candidate):
@@ -1305,7 +1301,7 @@ class UdevadmDevice(object):
         return None
 
 
-class UdevadmParser(object):
+class UdevadmParser:
     """Parser for the udevadm command."""
 
     device_factory = UdevadmDevice
@@ -1473,7 +1469,7 @@ class UdevadmParser(object):
         multi_pattern = re.compile(r"(?P<key>[^=]+)=(?P<value>.*)")
 
         stack = []
-        if isinstance(self.stream_or_string, type("")):
+        if isinstance(self.stream_or_string, str):
             output = self.stream_or_string
         else:
             output = self.stream_or_string.read()

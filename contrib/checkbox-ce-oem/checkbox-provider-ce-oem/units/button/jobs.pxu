@@ -8,14 +8,17 @@ estimated_duration: 0.02
 category_id: button
 plugin: resource
 environ: GPIO_BUTTONS
-command:
-    awk '{
-        split($0, record, " ")
-        for (i in record) {
-            split(record[i], data, ":")
-            printf "name: %s\nport: %s\n\n", data[1], data[2]
-        }
-    }' <<< "$GPIO_BUTTONS"
+command: resource_wrapper.sh -- resource_gpio_button_mapping.sh
+
+id: check_gpio_button_mapping_resource
+_summary: Check GPIO button mapping resource generation
+plugin: shell
+category_id: button
+imports: from com.canonical.plainbox import manifest
+requires: manifest.has_button == 'True'
+estimated_duration: 0.02
+environ: GPIO_BUTTONS
+command: resource_gpio_button_mapping.sh
 
 unit: template
 template-resource: ce-oem-gpio-button-mapping
@@ -42,13 +45,17 @@ _description:
 estimated_duration: 0.02
 plugin: resource
 environ: INTERRUPTS_BUTTONS
-command:
-    awk '{
-        split($0, record, " ")
-        for (i in record) {
-            printf "name: %s\n\n", record[i]
-        }
-    }' <<< "$INTERRUPTS_BUTTONS"
+command: resource_wrapper.sh -- resource_interrupts_button_mapping.sh
+
+id: check_interrupts_button_mapping_resource
+_summary: Check interrupts button mapping resource generation
+plugin: shell
+category_id: button
+imports: from com.canonical.plainbox import manifest
+requires: manifest.has_button == 'True'
+estimated_duration: 0.02
+environ: INTERRUPTS_BUTTONS
+command: resource_interrupts_button_mapping.sh
 
 unit: template
 template-resource: ce-oem-interrupts-button-mapping

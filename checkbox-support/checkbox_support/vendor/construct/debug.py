@@ -49,7 +49,7 @@ class Probe(Construct):
     """
 
     def __init__(self, into=None, lookahead=None):
-        super(Probe, self).__init__()
+        super().__init__()
         self.flagbuildnone = True
         self.into = into
         self.lookahead = lookahead
@@ -65,18 +65,22 @@ class Probe(Construct):
         return 0
 
     def _emitparse(self, code):
-        return "print(%s)" % (self.into,) if self.into else "print(this)"
+        return f"print({self.into})" if self.into else "print(this)"
 
     def printout(self, stream, context, path):
         print("--------------------------------------------------")
-        print("Probe, path is %s, into is %r" % (path, self.into, ))
+        print(f"Probe, path is {path}, into is {self.into!r}")
 
         if self.lookahead and stream is not None:
             fallback = stream.tell()
             datafollows = stream.read(self.lookahead)
             stream.seek(fallback)
             if datafollows:
-                print("Stream peek: (hexlified) %s..." % (hexlify(datafollows), ))
+                print(
+                    "Stream peek: (hexlified) {}...".format(
+                        hexlify(datafollows)
+                    )
+                )
             else:
                 print("Stream peek: EOF reached")
 
@@ -86,7 +90,11 @@ class Probe(Construct):
                     subcontext = self.into(context)
                     print(subcontext)
                 except Exception:
-                    print("Failed to compute %r on the context %r" % (self.into, context, ))
+                    print(
+                        "Failed to compute {!r} on the context {!r}".format(
+                            self.into, context
+                        )
+                    )
             else:
                 print(context)
         print("--------------------------------------------------")
@@ -122,7 +130,10 @@ class Debugger(Subconstruct):
             return self.subcon._parse(stream, context, path)
         except Exception:
             self.retval = NotImplemented
-            self.handle_exc(path, msg="(you can set self.retval, which will be returned from method)")
+            self.handle_exc(
+                path,
+                msg="(you can set self.retval, which will be returned from method)",
+            )
             if self.retval is NotImplemented:
                 raise
             else:
@@ -145,8 +156,8 @@ class Debugger(Subconstruct):
 
     def handle_exc(self, path, msg=None):
         print("--------------------------------------------------")
-        print("Debugging exception of %r" % (self.subcon, ))
-        print("path is %s" % (path, ))
+        print(f"Debugging exception of {self.subcon!r}")
+        print(f"path is {path}")
         print("".join(traceback.format_exception(*sys.exc_info())[1:]))
         if msg:
             print(msg)

@@ -23,21 +23,28 @@ requires: manifest.has_buzzer == 'True'
 id: ce-oem-gpio-buzzer-mapping
 _summary: Generates a GPIO and buzzer mappings for further buzzer test
 _description:
-    A buzzer-gpio mapping resource that relies on the user specifying in config varirable.
-    Usage of parameter: GPIO_BUZZER=name1:port1:enable_value1 name2:port2:enable_value2 ...
-    e.g. GPIO_BUZZER=buzzer1:498:0
+    This resource maps buzzer names to GPIO settings from the GPIO_BUZZER configuration variable.
+    Supported formats:
+    GPIO_BUZZER=name1:port1:enable_value1 name2:port2:enable_value2 ...
+    or GPIO_BUZZER=GPIO_line_name1:enable_value1 ...
+    The port can be either a legacy global GPIO number or a GPIO line name.
+    If a GPIO line name is missing or shown as "-" (unnamed), please file an issue and ask the customer to define a proper GPIO line name.
+    Example: GPIO_BUZZER=buzzer1:498:0 BUZZER_EN:1
 estimated_duration: 0.02
 category_id: buzzer
 plugin: resource
 environ: GPIO_BUZZER
-command:
-    awk '{
-        split($0, record, " ")
-        for (i in record) {
-            split(record[i], data, ":")
-            printf "name: %s\nport: %s\nenable_value: %s\n", data[1], data[2], data[3]
-        }
-    }' <<< "$GPIO_BUZZER"
+command: resource_wrapper.sh -- resource_gpio_buzzer_mapping.sh
+
+id: check_gpio_buzzer_mapping_resource
+_summary: Check GPIO buzzer mapping resource generation
+plugin: shell
+category_id: buzzer
+imports: from com.canonical.plainbox import manifest
+requires: manifest.has_buzzer == 'True'
+estimated_duration: 0.02
+environ: GPIO_BUZZER
+command: resource_gpio_buzzer_mapping.sh
 
 unit: template
 template-resource: ce-oem-gpio-buzzer-mapping
@@ -65,14 +72,17 @@ estimated_duration: 0.02
 category_id: buzzer
 plugin: resource
 environ: PWM_BUZZER
-command:
-    awk '{
-        split($0, record, " ")
-        for (i in record) {
-            split(record[i], data, ":")
-            printf "name: %s\nchip: %s\nport: %s\nenable_value: %s\n", data[1], data[2], data[3], data[4]
-        }
-    }' <<< "$PWM_BUZZER"
+command: resource_wrapper.sh -- resource_pwm_buzzer_mapping.sh
+
+id: check_pwm_buzzer_mapping_resource
+_summary: Check PWM buzzer mapping resource generation
+plugin: shell
+category_id: buzzer
+imports: from com.canonical.plainbox import manifest
+requires: manifest.has_buzzer == 'True'
+estimated_duration: 0.02
+environ: PWM_BUZZER
+command: resource_pwm_buzzer_mapping.sh
 
 unit: template
 template-resource: ce-oem-pwm-buzzer-mapping

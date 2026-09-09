@@ -36,7 +36,7 @@ def check_pmf_loaded():
         else:
             raise SystemExit("AMD Platform Management Framework isn't loaded")
     except (subprocess.CalledProcessError, FileNotFoundError) as e:
-        raise SystemExit("running cmd:[{}] fail:{}".format(cmd, repr(e)))
+        raise SystemExit(f"running cmd:[{cmd}] fail:{repr(e)}")
 
 
 if __name__ == "__main__":

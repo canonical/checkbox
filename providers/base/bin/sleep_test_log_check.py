@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 #
 # This file is part of Checkbox.
 #
@@ -184,9 +183,7 @@ def main():
     logging.basicConfig(level=args.debug)
 
     # Create a generator and get our lines
-    log = (
-        line.rstrip() for line in open(args.logfile, "rt", encoding="UTF-8")
-    )
+    log = (line.rstrip() for line in open(args.logfile, encoding="UTF-8"))
 
     # End result will be a dictionary with a key per level, value is another
     # dictionary with a key per test (s3, s4, ...) and a list of all failures
@@ -215,16 +212,14 @@ def main():
     for level in sorted(results.keys()):
         if results[level]:  # Yes, we can have an empty level.
             # We may have seen the levelheader but had it report no failures.
-            print("{} failures:".format(level))
+            print(f"{level} failures:")
             for test in results[level].keys():
-                print(
-                    "  {}: {} failures".format(test, len(results[level][test]))
-                )
+                print(f"  {test}: {len(results[level][test])} failures")
                 if args.verbose:
                     print("=" * 40)
                     counts = collections.Counter(results[level][test])
                     for failure in counts:
-                        print("    {} (x {})".format(failure, counts[failure]))
+                        print(f"    {failure} (x {counts[failure]})")
 
     # Decide on the outcome based on the collected information
     if not summaries_found:

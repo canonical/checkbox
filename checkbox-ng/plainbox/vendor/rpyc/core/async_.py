@@ -4,11 +4,12 @@ from plainbox.vendor.rpyc.lib import Timeout
 from plainbox.vendor.rpyc.lib.compat import TimeoutError as AsyncResultTimeout
 
 
-class AsyncResult(object):
+class AsyncResult:
     """*AsyncResult* represents a computation that occurs in the background and
     will eventually have a result. Use the :attr:`value` property to access the
     result (which will block if the result has not yet arrived).
     """
+
     __slots__ = ["_conn", "_is_ready", "_is_exc", "_callbacks", "_obj", "_ttl"]
 
     def __init__(self, conn):
@@ -28,7 +29,7 @@ class AsyncResult(object):
             state = "expired"
         else:
             state = "pending"
-        return "<AsyncResult object ({}) at 0x{:08x}>".format(state, id(self))
+        return f"<AsyncResult object ({state}) at 0x{id(self):08x}>"
 
     def __call__(self, is_exc, obj):
         if self.expired:

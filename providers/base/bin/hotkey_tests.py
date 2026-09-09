@@ -304,13 +304,11 @@ class KeyCodes(enum.Enum):
         }
         if c in obvious_keys.keys():
             return obvious_keys[c]
-        keycode_name = "KEY_{}".format(c.upper())
+        keycode_name = f"KEY_{c.upper()}"
         try:
             return KeyCodes[keycode_name]
         except KeyError:
-            raise SystemExit(
-                "One does not simply convert {} to a keycode".format(c)
-            )
+            raise SystemExit(f"One does not simply convert {c} to a keycode")
 
 
 class VolumeChange:
@@ -378,16 +376,16 @@ class FauxKeyboard:
                 raise SystemExit("Unknown modifier")
             if isinstance(key_code, KeyCodes):
                 key_code = key_code.value
-            data = bytes()
+            data = b""
             data += self.event_struct.pack(0, 0, 4, 4, key_code)
             for mod in modifiers:
-                mod_code = KeyCodes["KEY_LEFT{}".format(mod.upper())].value
+                mod_code = KeyCodes[f"KEY_LEFT{mod.upper()}"].value
                 data += self.event_struct.pack(0, 0, 1, mod_code, 1)
             data += self.event_struct.pack(0, 0, 1, key_code, 1)
             data += self.event_struct.pack(0, 0, 0, 0, 0)
             data += self.event_struct.pack(0, 10, 1, key_code, 0)
             for mod in modifiers:
-                mod_code = KeyCodes["KEY_LEFT{}".format(mod.upper())].value
+                mod_code = KeyCodes[f"KEY_LEFT{mod.upper()}"].value
                 data += self.event_struct.pack(0, 10, 1, mod_code, 0)
             data += self.event_struct.pack(0, 10, 0, 0, 0)
             if use_special:
@@ -496,12 +494,12 @@ class HotKeyTesting:
         # spawn a terminal window using ctrl+alt+t
         # touch a unique temporary file, and check if it got created
         timestamp = datetime.datetime.now().strftime("%Y%m%d%H%M%S")
-        filename = os.path.join("/tmp/hotkey-testing-{}".format(timestamp))
+        filename = os.path.join(f"/tmp/hotkey-testing-{timestamp}")
         self.kb.press_key(KeyCodes.KEY_T, {"ctrl", "alt"})
         # wait for the terminal window to appear
         assert not os.path.exists(filename)
         time.sleep(2)
-        self.kb.type_text("touch {}".format(filename))
+        self.kb.type_text(f"touch {filename}")
         self.kb.press_key(KeyCodes.KEY_ENTER)
         for attempt_no in range(10):
             # let's wait some time to let X/terminal process the command
@@ -516,11 +514,11 @@ class HotKeyTesting:
 
     def check_command_hotkey(self):
         timestamp = datetime.datetime.now().strftime("%Y%m%d%H%M%S")
-        filename = os.path.join("/tmp/hotkey-testing-cmd-{}".format(timestamp))
+        filename = os.path.join(f"/tmp/hotkey-testing-cmd-{timestamp}")
         self.kb.press_key(KeyCodes.KEY_F2, {"alt"})
         assert not os.path.exists(filename)
         time.sleep(2)
-        self.kb.type_text("touch {}".format(filename))
+        self.kb.type_text(f"touch {filename}")
         self.kb.press_key(KeyCodes.KEY_ENTER)
         for attempt_no in range(10):
             # let's wait some time to let X/terminal process the command
@@ -542,7 +540,7 @@ class HotKeyTesting:
         self.kb.press_key(KeyCodes.KEY_F4, {"alt"})
         time.sleep(1)
         self.kb.press_key(KeyCodes.KEY_D, {"ctrl"})
-        with open("/tmp/media-key-test", "rt") as f:
+        with open("/tmp/media-key-test") as f:
             output = f.read()
             return "got media key 'Play'" in output
 
@@ -556,7 +554,7 @@ def main():
         attr = getattr(hkt, member)
         if not member.startswith("check_") or not callable(attr):
             continue
-        print("{}... ".format(member), end="", flush=True)
+        print(f"{member}... ", end="", flush=True)
         if not attr():
             print("FAIL")
             failed = True

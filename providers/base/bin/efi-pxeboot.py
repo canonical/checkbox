@@ -82,9 +82,9 @@ def discover_data():
 def is_pxe_booted(boot_entries, boot_order, boot_current):
     retval = 0
     desc = boot_entries[boot_current]
-    print("The current boot item is {}".format(boot_current))
-    print("The first BootOrder item is {}".format(boot_order[0]))
-    print("The description of Boot{} is '{}'".format(boot_current, desc))
+    print(f"The current boot item is {boot_current}")
+    print(f"The first BootOrder item is {boot_order[0]}")
+    print(f"The description of Boot{boot_current} is '{desc}'")
     if boot_current != boot_order[0]:
         # If the BootCurrent entry isn't the same as the first of the
         # BootOrder entries, then something is causing the first boot entry
@@ -92,13 +92,13 @@ def is_pxe_booted(boot_entries, boot_order, boot_current):
         # intervention, a bad boot entry, etc. This is not necessarily a
         # problem, but warn of it anyhow....
         desc2 = boot_entries[boot_order[0]]
-        print("The description of Boot{} is '{}'".format(boot_order[0], desc2))
+        print(f"The description of Boot{boot_order[0]} is '{desc2}'")
         print(
             "WARNING: The system is booted using Boot{}, but the first".format(
                 boot_current
             )
         )
-        print("boot item is Boot{}!".format(boot_order[0]))
+        print(f"boot item is Boot{boot_order[0]}!")
     if (
         "Network" in desc
         or "PXE" in desc

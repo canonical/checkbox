@@ -1,0 +1,4 @@
+unit: manifest entry
+id: has_specific_i2c_read_write_scenario
+_name: Has specific I2C read/write scenario requirements
+value-type: bool

@@ -139,7 +139,7 @@ class BRISQUE:
         def mean_squares_sum(x, filter=lambda z: z == z):
             filtered_values = x[filter(x)]
             squares_sum = np.sum(filtered_values**2)
-            return squares_sum / ((filtered_values.shape))
+            return squares_sum / (filtered_values.shape)
 
         def estimate_gamma(x):
             left_squares = mean_squares_sum(x, lambda z: z < 0)

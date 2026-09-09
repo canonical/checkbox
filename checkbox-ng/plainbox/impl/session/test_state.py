@@ -1221,15 +1221,15 @@ class SessionMetadataTests(TestCase):
             title="title", flags=["f1", "f2"], running_job_name="id"
         )
         self.assertEqual(metadata.title, "title")
-        self.assertEqual(metadata.flags, set(["f1", "f2"]))
+        self.assertEqual(metadata.flags, {"f1", "f2"})
         self.assertEqual(metadata.running_job_name, "id")
 
     def test_accessors(self):
         metadata = SessionMetaData()
         metadata.title = "title"
         self.assertEqual(metadata.title, "title")
-        metadata.flags = set(["f1", "f2"])
-        self.assertEqual(metadata.flags, set(["f1", "f2"]))
+        metadata.flags = {"f1", "f2"}
+        self.assertEqual(metadata.flags, {"f1", "f2"})
         metadata.running_job_name = "id"
         self.assertEqual(metadata.running_job_name, "id")
 

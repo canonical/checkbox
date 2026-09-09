@@ -240,7 +240,7 @@ class MemoryCompareTests(unittest.TestCase):
             "/sys/kernel/kexec_crash_loaded": "0\n",
             "/sys/kernel/kexec_crash_size": "0\n",
         }
-        mock_builtin_open.side_effect = lambda path, _: mock_open(
+        mock_builtin_open.side_effect = lambda path: mock_open(
             read_data=sysfs_values[path]
         ).return_value
 
@@ -249,7 +249,7 @@ class MemoryCompareTests(unittest.TestCase):
             self.assertEqual(memory_compare.get_kexec_crash_size(), 0)
 
         mock_builtin_open.assert_called_once_with(
-            "/sys/kernel/kexec_crash_loaded", "r"
+            "/sys/kernel/kexec_crash_loaded"
         )
         self.assertIn("No kexec crash kernel loaded", stdout.getvalue())
 
@@ -261,7 +261,7 @@ class MemoryCompareTests(unittest.TestCase):
             "/sys/kernel/kexec_crash_loaded": "1\n",
             "/sys/kernel/kexec_crash_size": "2097152\n",
         }
-        mock_builtin_open.side_effect = lambda path, _: mock_open(
+        mock_builtin_open.side_effect = lambda path: mock_open(
             read_data=sysfs_values[path]
         ).return_value
 
@@ -272,8 +272,8 @@ class MemoryCompareTests(unittest.TestCase):
         self.assertEqual(
             mock_builtin_open.call_args_list,
             [
-                call("/sys/kernel/kexec_crash_loaded", "r"),
-                call("/sys/kernel/kexec_crash_size", "r"),
+                call("/sys/kernel/kexec_crash_loaded"),
+                call("/sys/kernel/kexec_crash_size"),
             ],
         )
         self.assertIn("Detected kexec crash size: 2MiB", stdout.getvalue())

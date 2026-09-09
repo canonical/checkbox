@@ -27,6 +27,9 @@ import logging
 import operator
 import re
 
+from itertools import chain
+from typing import List, Tuple
+
 from plainbox.i18n import gettext as _
 from plainbox.impl.decorators import cached_property, instance_method_lru_cache
 from plainbox.impl.secure.qualifiers import (
@@ -45,6 +48,7 @@ from plainbox.impl.unit.validators import (
     UnitReferenceValidator,
     Severity,
     compute_value_map,
+    OverrideFieldValueValidator,
 )
 from plainbox.impl.validation import Problem
 from plainbox.impl.xparsers import (
@@ -70,10 +74,9 @@ class NoBaseIncludeValidator(FieldValidatorBase):
     """
 
     def check_in_context(self, parent, unit, field, context):
-        for issue in self._check_test_plan_in_context(
+        yield from self._check_test_plan_in_context(
             parent, unit, field, context
-        ):
-            yield issue
+        )
 
     def _check_test_plan_in_context(self, parent, unit, field, context):
         included_job_id = []
@@ -156,7 +159,7 @@ class TestPlanUnit(UnitWithId):
         return self.name
 
     def __repr__(self):
-        return "<TestPlanUnit id:{!r} name:{!r}>".format(self.id, self.name)
+        return f"<TestPlanUnit id:{self.id!r} name:{self.name!r}>"
 
     @cached_property
     def name(self):
@@ -215,6 +218,10 @@ class TestPlanUnit(UnitWithId):
     @cached_property
     def certification_status_overrides(self):
         return self.get_record_value("certification_status_overrides")
+
+    @cached_property
+    def xfail_overrides(self):
+        return self.get_record_value("xfail_overrides")
 
     @property
     def provider_list(self):
@@ -596,13 +603,13 @@ class TestPlanUnit(UnitWithId):
     def qualify_pattern(self, pattern):
         """qualify bare pattern (without ^ and $)"""
         if pattern.startswith("^") and pattern.endswith("$"):
-            return "^{}$".format(self.qualify_id(pattern[1:-1]))
+            return f"^{self.qualify_id(pattern[1:-1])}$"
         elif pattern.startswith("^"):
-            return "^{}$".format(self.qualify_id(pattern[1:]))
+            return f"^{self.qualify_id(pattern[1:])}$"
         elif pattern.endswith("$"):
-            return "^{}$".format(self.qualify_id(pattern[:-1]))
+            return f"^{self.qualify_id(pattern[:-1])}$"
         else:
-            return "^{}$".format(self.qualify_id(pattern))
+            return f"^{self.qualify_id(pattern)}$"
 
     class Meta:
 
@@ -624,6 +631,7 @@ class TestPlanUnit(UnitWithId):
             estimated_duration = "estimated_duration"
             icon = "icon"
             category_overrides = "category-overrides"
+            xfail_overrides = "xfail-overrides"
 
         field_validators = {
             fields.name: [
@@ -697,6 +705,9 @@ class TestPlanUnit(UnitWithId):
                 concrete_validators.templateInvariant,
             ],
             fields.icon: [],
+            fields.xfail_overrides: [
+                OverrideFieldValueValidator(["true", "false"]),
+            ],
         }
 
 
@@ -853,20 +864,63 @@ PatternMatcher('^job-[x-z]$'), inclusive=False)])
             The code below in *not* resilient to errors so make sure to
             validate the unit before starting with the helper.
         """
-        override_map = collections.defaultdict(list)
-        # ^^ Dict[str, Tuple[str, str]]
-        for pattern, field_value_list in self._get_inline_overrides(testplan):
-            override_map[pattern].extend(field_value_list)
-        for pattern, field, value in self._get_category_overrides(testplan):
-            override_map[pattern].append((field, value))
-        for pattern, field, value in self._get_blocker_status_overrides(
-            testplan
-        ):
+        override_map = collections.defaultdict(
+            list
+        )  # type: collections.defaultdict[str, List[Tuple[str, str]]]
+        overrides = (
+            (pattern, field, value)
+            for pattern, field_value_list in self._get_inline_overrides(
+                testplan
+            )
+            for (field, value) in field_value_list
+        )
+        overrides = chain(
+            overrides,
+            self._get_category_overrides(testplan),
+            self._get_blocker_status_overrides(testplan),
+            self._get_xfail_overrides(testplan),
+        )
+        for pattern, field, value in overrides:
             override_map[pattern].append((field, value))
         return sorted(
             (key, field_value_list)
             for key, field_value_list in override_map.items()
         )
+
+    def _get_overrides_field_value(
+        self, testplan: TestPlanUnit, override_attr: str, override_name: str
+    ):
+        """
+        Parses recursively .*_overrides testplan field into an override list
+        """
+        override_list = []
+        tp_overrides = getattr(testplan, override_attr)
+        if tp_overrides is not None:
+
+            class V(Visitor):
+
+                def visit_FieldOverride_node(self, node: FieldOverride):
+                    status = node.value.text
+                    pattern = r"^{}$".format(
+                        testplan.qualify_id(node.pattern.text)
+                    )
+                    override_list.append((pattern, override_name, status))
+
+            if isinstance(tp_overrides, str):
+                # LEGACY: pxu compatibility, now certification_status_overrides
+                #         is a list
+                to_visit = OverrideFieldList.parse(tp_overrides)
+            else:
+                to_visit = OverrideFieldList.from_preparsed(tp_overrides)
+
+            V().visit(to_visit)
+        for tp_unit in testplan.get_nested_part():
+            override_list.extend(
+                self._get_overrides_field_value(
+                    tp_unit, override_attr, override_name
+                )
+            )
+        return override_list
 
     def _get_category_overrides(
         self, testplan: TestPlanUnit
@@ -879,23 +933,24 @@ PatternMatcher('^job-[x-z]$'), inclusive=False)])
         be applied (but without the ``effective_`` prefix) and ``value`` is the
         overridden value.
         """
-        override_list = []
-        if testplan.category_overrides is None:
-            return override_list
+        return self._get_overrides_field_value(
+            testplan, "category_overrides", "category_id"
+        )
 
-        class V(Visitor):
-
-            def visit_FieldOverride_node(self, node: FieldOverride):
-                category_id = testplan.qualify_id(node.value.text)
-                pattern = r"^{}$".format(
-                    testplan.qualify_id(node.pattern.text)
-                )
-                override_list.append((pattern, "category_id", category_id))
-
-        V().visit(OverrideFieldList.parse(testplan.category_overrides))
-        for tp_unit in testplan.get_nested_part():
-            override_list.extend(self._get_category_overrides(tp_unit))
-        return override_list
+    def _get_xfail_overrides(
+        self, testplan: TestPlanUnit
+    ) -> "List[Tuple[str, str, str]]]":
+        """
+        Look at the xfail overrides and collect refined data about what
+        overrides to apply. The result is represented as a list of tuples
+        ``(pattern, field, value)`` where ``pattern`` is the string that
+        describes the pattern, ``field`` is the field to which an override
+        must be applied (but without the ``effective_`` prefix) and ``value``
+        is the overridden value.
+        """
+        return self._get_overrides_field_value(
+            testplan, "xfail_overrides", "xfail"
+        )
 
     def _get_blocker_status_overrides(
         self, testplan: TestPlanUnit
@@ -908,35 +963,9 @@ PatternMatcher('^job-[x-z]$'), inclusive=False)])
         must be applied (but without the ``effective_`` prefix) and ``value``
         is the overridden value.
         """
-        override_list = []
-        if testplan.certification_status_overrides is not None:
-
-            class V(Visitor):
-
-                def visit_FieldOverride_node(self, node: FieldOverride):
-                    blocker_status = node.value.text
-                    pattern = r"^{}$".format(
-                        testplan.qualify_id(node.pattern.text)
-                    )
-                    override_list.append(
-                        (pattern, "certification_status", blocker_status)
-                    )
-
-            if isinstance(testplan.certification_status_overrides, str):
-                # LEGACY: pxu compatibility, now certification_status_overrides
-                #         is a list
-                to_visit = OverrideFieldList.parse(
-                    testplan.certification_status_overrides
-                )
-            else:
-                to_visit = OverrideFieldList.from_preparsed(
-                    testplan.certification_status_overrides
-                )
-
-            V().visit(to_visit)
-        for tp_unit in testplan.get_nested_part():
-            override_list.extend(self._get_blocker_status_overrides(tp_unit))
-        return override_list
+        return self._get_overrides_field_value(
+            testplan, "certification_status_overrides", "certification_status"
+        )
 
     def _get_inline_overrides(
         self, testplan: TestPlanUnit

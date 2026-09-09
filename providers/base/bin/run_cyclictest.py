@@ -160,8 +160,8 @@ def main():
     args = parser.parse_args()
 
     result = run_it(args.duration)
-    print("stdout: {}".format(result.stdout))
-    print("stderr: {}\n".format(result.stderr))
+    print(f"stdout: {result.stdout}")
+    print(f"stderr: {result.stderr}\n")
 
     return_code = verify_cyclictest_results(result)
     return return_code

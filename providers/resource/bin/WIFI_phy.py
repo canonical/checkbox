@@ -124,7 +124,7 @@ def main():
             # i.e.: wifi.wlan0_2_4GHz is valid, wifi.wlan0_2.4GHz is not
             print("{}_{}: {}".format(interface, freq.replace(".", "_"), ret))
         for sta, ret in content["STA_Supported"].items():
-            print("{}_{}: {}".format(interface, sta.lower(), ret))
+            print(f"{interface}_{sta.lower()}: {ret}")
 
 
 if __name__ == "__main__":

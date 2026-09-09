@@ -25,7 +25,7 @@ def try_read_node(path: str) -> None:
     Isolated in a subprocess to protect against D-state hangs.
     """
     try:
-        with open(path, "r") as f:
+        with open(path) as f:
             # only need the first byte to trigger the kernel 'show' function
             f.read(1)
     except Exception:

@@ -13,7 +13,7 @@ def do_nothing(args: T.List[str], **kwargs):
     if "universal_newlines" in kwargs:
         return sp.CompletedProcess(args, 0, "", "")
     else:
-        return sp.CompletedProcess(args, 0, "".encode(), "".encode())
+        return sp.CompletedProcess(args, 0, b"", b"")
 
 
 class DisplayConnectionTests(unittest.TestCase):
@@ -357,7 +357,7 @@ class DisplayConnectionTests(unittest.TestCase):
 
                 if is_snap:
                     mock_symlink.assert_called_once_with(
-                        "{}/usr/share/glmark2".format(RCT.RUNTIME_ROOT),
+                        f"{RCT.RUNTIME_ROOT}/usr/share/glmark2",
                         "/usr/share/glmark2",
                         target_is_directory=True,
                     )
@@ -417,8 +417,8 @@ class DisplayConnectionTests(unittest.TestCase):
 class InfoDumpTests(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        cls.temp_output_dir = "{}/temp_output_dir".format(os.getcwd())
-        cls.temp_comparison_dir = "{}/temp_comparison_dir".format(os.getcwd())
+        cls.temp_output_dir = f"{os.getcwd()}/temp_output_dir"
+        cls.temp_comparison_dir = f"{os.getcwd()}/temp_comparison_dir"
 
     def tearDown(self):
         shutil.rmtree(self.temp_output_dir, ignore_errors=True)
@@ -532,8 +532,8 @@ class MainFunctionTests(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
-        cls.tmp_output_dir = "{}/temp_output_dir".format(os.getcwd())
-        cls.tmp_comparison_dir = "{}/temp_comparison_dir".format(os.getcwd())
+        cls.tmp_output_dir = f"{os.getcwd()}/temp_output_dir"
+        cls.tmp_comparison_dir = f"{os.getcwd()}/temp_comparison_dir"
 
     def tearDown(self):
         shutil.rmtree(self.tmp_output_dir, ignore_errors=True)
@@ -547,7 +547,7 @@ class MainFunctionTests(unittest.TestCase):
 
         with patch(
             "sys.argv",
-            sh_split("reboot_check_test.py -d {}".format(self.tmp_output_dir)),
+            sh_split(f"reboot_check_test.py -d {self.tmp_output_dir}"),
         ), patch("reboot_check_test.poll_systemctl_is_system_running"):
             RCT.main()
             self.assertEqual(
@@ -646,9 +646,7 @@ class MainFunctionTests(unittest.TestCase):
     def test_only_comparison_is_specified(self):
         with patch(
             "sys.argv",
-            sh_split(
-                'reboot_check_test.py -c "{}"'.format(self.tmp_output_dir)
-            ),
+            sh_split(f'reboot_check_test.py -c "{self.tmp_output_dir}"'),
         ), patch(
             "reboot_check_test.poll_systemctl_is_system_running"
         ), self.assertRaises(

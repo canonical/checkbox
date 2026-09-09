@@ -33,7 +33,7 @@ def main():
             version = parser.get_field("version")
             if not version:
                 version = parser.get_field("vermagic").split()[0]
-        print("%s: %s" % (module, version))
+        print(f"{module}: {version}")
     return 0
 
 

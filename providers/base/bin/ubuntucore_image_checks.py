@@ -99,8 +99,8 @@ class ModelInfo:
             raise SystemExit("ERROR: model grade must not be dangerous")
         if self.grade != MODEL_GRADE:
             raise SystemExit(
-                'ERROR: model grade is "{}",'.format(self.grade)
-                + ' but "{}" is expected'.format(MODEL_GRADE)
+                f'ERROR: model grade is "{self.grade}",'
+                + f' but "{MODEL_GRADE}" is expected'
             )
         print("PASS")
 

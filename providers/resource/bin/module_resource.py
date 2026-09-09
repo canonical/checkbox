@@ -28,7 +28,7 @@ def main():
             if isinstance(value, list):
                 value = " ".join(value)
             if value != "":
-                print("%s: %s" % (key, value))
+                print(f"{key}: {value}")
 
         # Empty line
         print()

@@ -81,7 +81,7 @@ def main():
             text = stdin.read()
             print(run_parsing(parser, text))
         except UnicodeDecodeError as exc:
-            msg = "Failed to decode input stream: {}".format(str(exc))
+            msg = f"Failed to decode input stream: {str(exc)}"
             raise SystemExit(msg) from exc
 
 
@@ -93,7 +93,7 @@ def run_parsing(parser_fn, text):
             ast, indent=4, sort_keys=True, default=_json_fallback
         )
     except Exception as exc:
-        msg = "Failed to parse the text: {}".format(str(exc))
+        msg = f"Failed to parse the text: {str(exc)}"
         raise SystemExit(msg) from exc
 
 
@@ -113,4 +113,4 @@ def _json_fallback(obj):
         return obj.__dict__
     if hasattr(obj, "__slots__"):
         return {slot: getattr(obj, slot) for slot in obj.__slots__}
-    raise NotImplementedError("unable to json-ify {!r}".format(obj.__class__))
+    raise NotImplementedError(f"unable to json-ify {obj.__class__!r}")

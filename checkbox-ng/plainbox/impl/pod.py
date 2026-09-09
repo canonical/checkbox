@@ -1,4 +1,3 @@
-# encoding: utf-8
 # This file is part of Checkbox.
 #
 # Copyright 2012-2015 Canonical Ltd.
@@ -235,7 +234,7 @@ class Field:
         if doc_extra:
             self.__doc__ += (
                 "\n\nSide effects of assign filters:\n"
-                + "\n".join("  - {}".format(extra) for extra in doc_extra)
+                + "\n".join(f"  - {extra}" for extra in doc_extra)
             )
         self.counter = self.__class__._counter
         self.__class__._counter += 1
@@ -278,7 +277,7 @@ class Field:
 
     def __repr__(self):
         """Get a debugging representation of a field."""
-        return "<{} name:{!r}>".format(self.__class__.__name__, self.name)
+        return f"<{self.__class__.__name__} name:{self.name!r}>"
 
     @property
     def is_mandatory(self) -> bool:
@@ -297,8 +296,8 @@ class Field:
         assigned to in the class.
         """
         self.name = name
-        self.instance_attr = "_{}".format(name)
-        self.signal_name = "on_{}_changed".format(name)
+        self.instance_attr = f"_{name}"
+        self.signal_name = f"on_{name}_changed"
 
     def alter_cls(self, cls: type) -> None:
         """
@@ -321,7 +320,7 @@ class Field:
                     if self.notify_fn is not None
                     else self.on_changed
                 ),
-                signal_name="{}.{}".format(cls.__name__, self.signal_name),
+                signal_name=f"{cls.__name__}.{self.signal_name}",
             )
             setattr(cls, self.signal_name, signal_def)
 
@@ -428,20 +427,16 @@ class PODBase:
         for field_name, field_value in kwargs.items():
             field = getattr(self.__class__, field_name, None)
             if not isinstance(field, Field):
-                raise TypeError("no such field: {}".format(field_name))
+                raise TypeError(f"no such field: {field_name}")
             if getattr(self, field.instance_attr) is not UNSET:
-                raise TypeError(
-                    "field initialized twice: {}".format(field_name)
-                )
+                raise TypeError(f"field initialized twice: {field_name}")
             setattr(self, field_name, field_value)
         # Initialize remaining fields using their default initializers
         for field in field_list:
             if getattr(self, field.instance_attr) is not UNSET:
                 continue
             if field.is_mandatory:
-                raise TypeError(
-                    "mandatory argument missing: {}".format(field.name)
-                )
+                raise TypeError(f"mandatory argument missing: {field.name}")
             if field.initial_fn is not None:
                 field_value = field.initial_fn()
             else:
@@ -454,7 +449,7 @@ class PODBase:
             self.__class__.__name__,
             ", ".join(
                 [
-                    "{}={!r}".format(field.name, getattr(self, field.name))
+                    f"{field.name}={getattr(self, field.name)!r}"
                     for field in self.__class__.field_list
                 ]
             ),
@@ -974,7 +969,7 @@ def unique_elements_assign_filter(
     seen = set()
     for item in new:
         if new in seen:
-            raise ValueError("Duplicate element: {!r}".format(item))
+            raise ValueError(f"Duplicate element: {item!r}")
         seen.add(item)
     return new
 

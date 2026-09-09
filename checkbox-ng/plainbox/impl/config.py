@@ -218,7 +218,7 @@ class Configuration:
                 break
         else:
             # the loop completed without finding the section
-            raise ValueError("No such section in the spec ({})".format(prefix))
+            raise ValueError(f"No such section in the spec ({prefix})")
 
         for sect_name, section in self.sections.items():
             sect_prefix, _, sect_param = sect_name.partition(":")
@@ -241,9 +241,9 @@ class Configuration:
         """Create a new configuration with values stored in a file at path."""
         cfg = Configuration()
         if not os.path.isfile(path):
-            cfg.notice_problem("{} file not found".format(path))
+            cfg.notice_problem(f"{path} file not found")
             return cfg
-        with open(path, "rt") as ini_file:
+        with open(path) as ini_file:
             return cls.from_ini_file(ini_file, path)
 
     @classmethod

@@ -75,7 +75,7 @@ def check_power_mode(mode: str) -> None:
         with open(ac_path) as fh:
             ac_online = fh.read().strip() == "1"
     except OSError as exc:
-        raise SystemExit("Cannot read power status: {}".format(exc))
+        raise SystemExit(f"Cannot read power status: {exc}")
     if mode == "ac" and not ac_online:
         raise SystemExit("Mode is 'ac' but system is running on battery.")
     if mode == "battery" and ac_online:

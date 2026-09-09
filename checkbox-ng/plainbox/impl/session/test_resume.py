@@ -1000,7 +1000,7 @@ class JobResultResumeMixIn:
                 "Value for key 'outcome' not in allowed set ['crash', 'fail',"
                 " None, 'not-implemented', 'not-supported', 'pass', 'skip',"
                 " 'skipped-dependency', 'skipped-manifest',"
-                " 'skipped-resource', 'undecided']"
+                " 'skipped-resource', 'undecided', 'xfail_fail', 'xfail_pass']"
             ),
         )
 
@@ -1613,7 +1613,7 @@ class SessionMetaDataResumeTests(TestCaseWithParameters):
         """
         self.good_repr["metadata"]["flags"] = ["flag1", "flag2"]
         self.resume_fn(self.session.metadata, self.good_repr)
-        self.assertEqual(self.session.metadata.flags, set(["flag1", "flag2"]))
+        self.assertEqual(self.session.metadata.flags, {"flag1", "flag2"})
 
     def test_restore_SessionState_metadata_checks_running_job_name_type(self):
         """

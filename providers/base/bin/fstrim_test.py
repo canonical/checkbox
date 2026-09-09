@@ -44,9 +44,9 @@ def mount_filesystem(device):
     mount_point = None
     if test_disk.mount_filesystem(False):
         mount_point = test_disk.get_mount_point()
-        logging.info("mount point is {}".format(test_disk.get_mount_point()))
+        logging.info(f"mount point is {test_disk.get_mount_point()}")
     if not mount_point:
-        logging.error("Test failed; {} is not mounted!".format(device))
+        logging.error(f"Test failed; {device} is not mounted!")
 
     return mount_point
 
@@ -54,7 +54,7 @@ def mount_filesystem(device):
 def run_fstrim(device):
     mount_point = mount_filesystem(device)
     if mount_point is not None:
-        command = "fstrim -v {}".format(mount_point)
+        command = f"fstrim -v {mount_point}"
         triminfo = Popen(shlex.split(command), stdout=PIPE)
         lsbinfo_bytes = triminfo.communicate()[0]
         lsbinfo = lsbinfo_bytes.decode(

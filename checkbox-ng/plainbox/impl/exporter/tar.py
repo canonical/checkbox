@@ -66,12 +66,12 @@ class TARSessionStateExporter(SessionStateExporterBase):
         with tarfile.TarFile.open(None, "w:xz", stream, preset=preset) as tar:
             for fmt in ("html", "json", "junit"):
                 unit = self._get_all_exporter_units()[
-                    "com.canonical.plainbox::{}".format(fmt)
+                    f"com.canonical.plainbox::{fmt}"
                 ]
                 exporter = Jinja2SessionStateExporter(exporter_unit=unit)
                 with SpooledTemporaryFile(max_size=102400, mode="w+b") as _s:
                     exporter.dump_from_session_manager(manager, _s)
-                    tarinfo = tarfile.TarInfo(name="submission.{}".format(fmt))
+                    tarinfo = tarfile.TarInfo(name=f"submission.{fmt}")
                     tarinfo.size = _s.tell()
                     tarinfo.mtime = time.time()
                     _s.seek(0)  # Need to rewind the file, puagh

@@ -46,10 +46,10 @@ def get_sysfs_content(path):
     Raises:
         SystemExit: If the file could not be read.
     """
-    with open(path, "rt", encoding="utf-8") as stream:
+    with open(path, encoding="utf-8") as stream:
         content = stream.read().strip()
     if not content:
-        raise SystemExit("Failed to read sysfs file: {}".format(path))
+        raise SystemExit(f"Failed to read sysfs file: {path}")
     return content
 
 
@@ -63,16 +63,14 @@ def set_power_profile(profile):
     """
 
     if profile not in profile_mappings:
-        raise SystemExit("Unhandled ACPI platform profile: {}".format(profile))
+        raise SystemExit(f"Unhandled ACPI platform profile: {profile}")
 
     profile = profile_mappings[profile]
 
     try:
         subprocess.check_call(["powerprofilesctl", "set", profile])
     except subprocess.CalledProcessError as e:
-        raise SystemExit(
-            "Failed to set power mode to {}.".format(profile)
-        ) from e
+        raise SystemExit(f"Failed to set power mode to {profile}.") from e
 
 
 @contextlib.contextmanager
@@ -100,17 +98,17 @@ def main():
 
         choices = get_sysfs_content(choices_path).split()
 
-        print("Power mode choices: {}".format(choices))
+        print(f"Power mode choices: {choices}")
         for choice in choices:
             set_power_profile(choice)
             if (
                 profile_mappings[get_sysfs_content(profile_path)]
                 == profile_mappings[choice]
             ):
-                print("Switch to {} successfully.".format(choice))
+                print(f"Switch to {choice} successfully.")
             else:
                 raise SystemExit(
-                    "ERROR: Failed to switch power mode to {}".format(choice)
+                    f"ERROR: Failed to switch power mode to {choice}"
                 )
 
 

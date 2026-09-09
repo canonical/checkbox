@@ -100,8 +100,6 @@ class ProviderContentPlugIn(PlugIn):
         check=True,
         context=None
     ):
-        # Python3.5 compatibility, black would put a trailing comma ^^
-        # but that is not supported in python3.5. Leave fmt off for now
         # fmt: on
         start_time = now()
         try:
@@ -278,8 +276,7 @@ class RFC822UnitPlugIn(ProviderContentPlugIn):
         text: str,
         provider: "Provider1",
     ) -> "Iterable[Unit]":
-        for unit in inspect_result:
-            yield unit
+        yield from inspect_result
         yield self.make_file_unit(filename, provider)
 
     # NOTE: this version of plugin_object() is just for legacy code support
@@ -413,8 +410,7 @@ class YAMLUnitPlugIn(ProviderContentPlugIn):
         text: str,
         provider: "Provider1",
     ) -> "Iterable[Unit]":
-        for unit in inspect_result:
-            yield unit
+        yield from inspect_result
         yield self.make_file_unit(filename, provider)
 
     # NOTE: this version of plugin_object() is just for legacy code support
@@ -568,7 +564,7 @@ class ProviderContentClassifier:
             if result is not None:
                 return result
         else:
-            raise ValueError("Unable to classify: {!r}".format(filename))
+            raise ValueError(f"Unable to classify: {filename!r}")
 
     @property
     def classify_fn_list(
@@ -629,7 +625,7 @@ class ProviderContentClassifier:
         assert self.provider.src_dir is not None
         hint_file = os.path.join(self.provider.src_dir, "EXECUTABLES")
         if os.path.isfile(hint_file):
-            with open(hint_file, "rt", encoding="UTF-8") as stream:
+            with open(hint_file, encoding="UTF-8") as stream:
                 return frozenset(line.strip() for line in stream)
         else:
             return frozenset()
@@ -919,8 +915,6 @@ class Provider1(IProvider1):
         context=None,
         sideloaded=False
     ):
-        # Python3.5 compatibility, black would put a trailing comma ^^
-        # but that is not supported in python3.5. Leave fmt off for now
         # fmt: on
         """
         Initialize a provider with a set of meta-data and directories.
@@ -1038,8 +1032,6 @@ class Provider1(IProvider1):
         context=None,
         sideloaded=False
     ):
-        # Python3.5 compatibility, black would put a trailing comma ^^
-        # but that is not supported in python3.5. Leave fmt off for now
         # fmt: on
         """
         Initialize a provider from Provider1Definition object
@@ -1090,10 +1082,10 @@ class Provider1(IProvider1):
         )
 
     def __repr__(self):
-        return "<{} name:{!r}>".format(self.__class__.__name__, self.name)
+        return f"<{self.__class__.__name__} name:{self.name!r}>"
 
     def __str__(self):
-        return "{}, version {}".format(self.name, self.version)
+        return f"{self.name}, version {self.version}"
 
     @property
     def name(self):
@@ -1424,12 +1416,12 @@ class IQNValidator(PatternValidator):
     """
 
     def __init__(self):
-        super(IQNValidator, self).__init__(
+        super().__init__(
             r"^([0-9]{4}\.)?[a-z][a-z0-9-]*(\.[a-z][a-z0-9-]*)+:[a-z][a-z0-9-]*$"
         )
 
     def __call__(self, variable, new_value):
-        if super(IQNValidator, self).__call__(variable, new_value):
+        if super().__call__(variable, new_value):
             return _("must look like RFC3720 IQN")
 
 
@@ -1856,8 +1848,6 @@ class Provider1PlugIn(PlugIn):
         check=None,
         context=None
     ):
-        # Python3.5 compatibility, black would put a trailing comma ^^
-        # but that is not supported in python3.5. Leave fmt off for now
         # fmt: on
         """
         Initialize the plug-in with the specified name and external object

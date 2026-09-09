@@ -267,7 +267,7 @@ class SessionManager(pod.POD):
         logger.debug("SessionManager.load_session()")
         try:
             data = storage.load_checkpoint()
-        except IOError as exc:
+        except OSError as exc:
             if exc.errno == errno.ENOENT:
                 state = SessionState(unit_list)
             else:

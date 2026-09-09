@@ -55,6 +55,10 @@ nested_part:
     ce-oem-printer-manual
     ce-oem-cash-drawer-manual
     ce-oem-power-manual
+    ce-oem-i2c-manual
+    ce-oem-monitor-manual
+    ce-oem-hdmi-rx-specific-manual
+    ce-oem-hdmi-rx-v4l2-manual
 certification_status_overrides:
     apply blocker to .*
 
@@ -79,7 +83,7 @@ nested_part:
     ce-oem-audio-automated
     ce-oem-otg-automated
     ce-oem-rtc-automated
-    before-suspend-ce-oem-serial-automated
+    ce-oem-serial-automated
     ce-oem-eeprom-automated
     ce-oem-led-automated
     ce-oem-accelerator-automated
@@ -108,8 +112,9 @@ nested_part:
     ce-oem-printer-automated
     ce-oem-credit-card-reader-automated
     ce-oem-nxp-ele-automated
-    ce-oem-monitor-automated
     ce-oem-ebbr-automated
+    ce-oem-i2c-automated
+    ce-oem-wwan-automated
 certification_status_overrides:
     apply blocker to .*
 
@@ -166,7 +171,6 @@ nested_part:
     after-suspend-ce-oem-audio-automated
     after-suspend-ce-oem-otg-automated
     after-suspend-ce-oem-rtc-automated
-    after-suspend-ce-oem-serial-automated
     after-suspend-ce-oem-eeprom-automated
     after-suspend-ce-oem-led-automated
     after-suspend-ce-oem-accelerator-automated

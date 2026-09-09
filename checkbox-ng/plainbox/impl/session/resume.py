@@ -142,7 +142,7 @@ class EnvelopeUnpackMixIn:
         """
         try:
             data = gzip.decompress(data)
-        except IOError:
+        except OSError:
             raise CorruptedSessionError(_("Cannot decompress session data"))
         try:
             text = data.decode("UTF-8")
@@ -378,18 +378,14 @@ class MetaDataHelper1MixIn:
         metadata.title = _validate(
             metadata_repr, key="title", value_type=str, value_none=True
         )
-        metadata.flags = set(
-            [
-                _validate(
-                    flag,
-                    value_type=str,
-                    value_type_msg=_("Each flag must be a string"),
-                )
-                for flag in _validate(
-                    metadata_repr, key="flags", value_type=list
-                )
-            ]
-        )
+        metadata.flags = {
+            _validate(
+                flag,
+                value_type=str,
+                value_type_msg=_("Each flag must be a string"),
+            )
+            for flag in _validate(metadata_repr, key="flags", value_type=list)
+        }
         metadata.running_job_name = _validate(
             metadata_repr,
             key="running_job_name",
@@ -1001,7 +997,7 @@ class SessionResumeHelper1(MetaDataHelper1MixIn):
             # - All of the jobs that we need to run (aka, the desired jobs
             #   list). This is pretty obvious and it is exactly what must
             #   be preserved or trim_job_list() will complain
-            set([job.id for job in session.run_list])
+            {job.id for job in session.run_list}
             # - All of the jobs that have representation (aka checksum).
             #   We want those jobs because they have results (or they would not
             #   end up in the list as of format v4). If they have results we
@@ -1121,7 +1117,7 @@ class SessionResumeHelper1(MetaDataHelper1MixIn):
             delay = float(delay)
         except ValueError:
             raise CorruptedSessionError(
-                "IOLogRecord has invalid delay {}".format(delay)
+                f"IOLogRecord has invalid delay {delay}"
             )
         if delay < 0:
             # TRANSLATORS: please keep delay untranslated

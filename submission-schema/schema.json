@@ -75,6 +75,9 @@
               "bios": {
                 "$ref": "#/definitions/SystemInformationOject"
               },
+              "chassis": {
+                "$ref": "#/definitions/SystemInformationOject"
+              },
               "debian_packages": {
                 "$ref": "#/definitions/SystemInformationOject"
               },
@@ -1010,7 +1013,9 @@
         "not-supported",
         "crash",
         "skip",
-        "undecided"
+        "undecided",
+        "xfail_pass",
+        "xfail_fail"
       ],
       "title": "Outcome"
     },

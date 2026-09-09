@@ -14,49 +14,49 @@ import time
 def export_gpio(lane):
     try:
         with open("/sys/class/gpio/export", "w") as f_export:
-            f_export.write("{}\n".format(lane))
+            f_export.write(f"{lane}\n")
     except OSError as e:
         if e.errno == errno.EBUSY:
             # EBUSY indicates GPIO already exported
-            print("GPIO {} already exported".format(lane))
+            print(f"GPIO {lane} already exported")
             pass
         else:
-            sys.stderr.write("Failed request to export GPIO {}\n".format(lane))
+            sys.stderr.write(f"Failed request to export GPIO {lane}\n")
             raise
     # test directory exists
-    if not os.path.exists("/sys/class/gpio/gpio{}".format(lane)):
-        raise SystemExit("GPIO {} failed to export".format(lane))
+    if not os.path.exists(f"/sys/class/gpio/gpio{lane}"):
+        raise SystemExit(f"GPIO {lane} failed to export")
 
 
 def unexport_gpio(lane):
     try:
         with open("/sys/class/gpio/unexport", "w") as f_unexport:
-            f_unexport.write("{}\n".format(lane))
+            f_unexport.write(f"{lane}\n")
     except OSError:
-        sys.stderr.write("Failed request to unexport GPIO {}\n".format(lane))
+        sys.stderr.write(f"Failed request to unexport GPIO {lane}\n")
         raise
     # test directory removed
-    if os.path.exists("/sys/class/gpio/gpio{}".format(lane)):
-        raise SystemExit("GPIO {} failed to export".format(lane))
+    if os.path.exists(f"/sys/class/gpio/gpio{lane}"):
+        raise SystemExit(f"GPIO {lane} failed to export")
 
 
 def configure_gpio(lane, direction):
-    with open("/sys/class/gpio/gpio{}/direction".format(lane), "wt") as f:
-        f.write("{}\n".format(direction))
+    with open(f"/sys/class/gpio/gpio{lane}/direction", "w") as f:
+        f.write(f"{direction}\n")
 
 
 def write_gpio(lane, val):
-    with open("/sys/class/gpio/gpio{}/value".format(lane), "wt") as f:
-        f.write("{}\n".format(val))
+    with open(f"/sys/class/gpio/gpio{lane}/value", "w") as f:
+        f.write(f"{val}\n")
 
 
 def read_gpio(lane):
-    with open("/sys/class/gpio/gpio{}/value".format(lane), "r") as f:
+    with open(f"/sys/class/gpio/gpio{lane}/value") as f:
         return f.read().strip()
 
 
 def loopback_test(out_lane, in_lane):
-    print("{} -> {}".format(out_lane, in_lane), flush=True)
+    print(f"{out_lane} -> {in_lane}", flush=True)
     export_gpio(out_lane)
     configure_gpio(out_lane, "out")
     export_gpio(in_lane)
@@ -66,7 +66,7 @@ def loopback_test(out_lane, in_lane):
         time.sleep(0.5)
         if read_gpio(in_lane) != str(i % 2):
             raise SystemExit(
-                "Failed loopback test out: {} in: {}".format(out_lane, in_lane)
+                f"Failed loopback test out: {out_lane} in: {in_lane}"
             )
         time.sleep(0.5)
     unexport_gpio(out_lane)
@@ -75,13 +75,11 @@ def loopback_test(out_lane, in_lane):
 
 def gpio_pairs(model_name):
     gpio_data = os.path.expandvars(
-        "$PLAINBOX_PROVIDER_DATA/gpio-loopback.{}.in".format(model_name)
+        f"$PLAINBOX_PROVIDER_DATA/gpio-loopback.{model_name}.in"
     )
     if not os.path.exists(gpio_data):
-        raise SystemExit(
-            "ERROR: no gpio information found at: {}".format(gpio_data)
-        )
-    with open(gpio_data, "r") as f:
+        raise SystemExit(f"ERROR: no gpio information found at: {gpio_data}")
+    with open(gpio_data) as f:
         for line in f:
             if line.startswith("#"):
                 continue

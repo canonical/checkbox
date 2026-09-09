@@ -16,6 +16,7 @@ _name: Xilinx server manual tests
 _description:
     Manual Xilinx project-specific tests for Ubuntu Server images.
 include:
+    check_xilinx_sku_resource
 nested_part:
     xilinx-gst-camera-manual
     xilinx-vcu-manual
@@ -28,6 +29,7 @@ _name: Xilinx server automated tests
 _description:
     Automated Xilinx project-specific tests for Ubuntu Server images.
 include:
+    check_xilinx_sku_resource
 nested_part:
     xilinx-dtb-automated
     xilinx-firmware-automated
@@ -55,6 +57,7 @@ _name: Xilinx desktop manual tests
 _description:
     Manual Xilinx project-specific tests for Ubuntu Desktop images.
 include:
+    check_xilinx_sku_resource
 nested_part:
     xilinx-gst-camera-manual
     xilinx-vcu-manual
@@ -67,6 +70,7 @@ _name: Xilinx desktop automated tests
 _description:
     Automated Xilinx project-specific tests for Ubuntu Desktop images.
 include:
+    check_xilinx_sku_resource
 nested_part:
     xilinx-dtb-automated
     xilinx-firmware-automated
@@ -94,6 +98,7 @@ _name: Xilinx core manual tests
 _description:
     Manual Xilinx project-specific tests for Ubuntu Core images.
 include:
+    check_xilinx_sku_resource
 nested_part:
     xilinx-gst-camera-manual
     xilinx-vcu-manual
@@ -106,6 +111,7 @@ _name: Xilinx core automated tests
 _description:
     Automated Xilinx project-specific tests for Ubuntu Core images.
 include:
+    check_xilinx_sku_resource
 nested_part:
     xilinx-dtb-automated
     xilinx-firmware-automated

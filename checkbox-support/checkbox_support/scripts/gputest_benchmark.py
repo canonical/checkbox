@@ -16,7 +16,6 @@
 # You should have received a copy of the GNU General Public License
 # along with Checkbox.  If not, see <http://www.gnu.org/licenses/>.
 
-from io import open
 from subprocess import check_output, CalledProcessError
 from tempfile import TemporaryDirectory
 from zipfile import ZipFile
@@ -49,7 +48,7 @@ def check_log(logfile):
                     "Check the above output for error messages, "
                     "these will show the reason for the failure."
                 )
-    except EnvironmentError as error:
+    except OSError as error:
         raise SystemExit(error)
     return False
 
@@ -91,16 +90,16 @@ def main():
             "-k",
             # Adds 16 s for the Warm-up phase before sending the KILL signal
             # See TIMEOUT(1)
-            "{}".format(args.duration + 16),
+            f"{args.duration + 16}",
             # Adds 15 s for the Warm-up phase before sending the TERM signal
-            "{}".format(args.duration + 15),
+            f"{args.duration + 15}",
             launcher,
         ]
         cmd_params = [
-            "/test={}".format(args.test),
-            "/width={}".format(args.width),
-            "/height={}".format(args.height),
-            "/benchmark_duration_ms={}".format(args.duration * 1000),
+            f"/test={args.test}",
+            f"/width={args.width}",
+            f"/height={args.height}",
+            f"/benchmark_duration_ms={args.duration * 1000}",
         ]
         if args.fullscreen:
             cmd_params = cmd_params + ["/fullscreen"]

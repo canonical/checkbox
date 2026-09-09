@@ -53,9 +53,9 @@ def main():
         results[protocol] = check_url(value)
 
     bool2str = {True: "Success", False: "Failed"}
-    message = "HTTP connection: %(http)s\n" % dict(
-        [(protocol, bool2str[value]) for protocol, value in results.items()]
-    )
+    message = "HTTP connection: %(http)s\n" % {
+        protocol: bool2str[value] for protocol, value in results.items()
+    }
 
     if not args.auto:
         if all(results.values()):

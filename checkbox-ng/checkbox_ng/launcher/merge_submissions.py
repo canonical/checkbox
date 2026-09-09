@@ -54,10 +54,8 @@ class MergeSubmissions(MergeReports):
         )
 
     def export(self, manager, temp_dir, exporter):
-        export_file = temp_dir / "submission.{}".format(exporter)
-        exporter = self._create_exporter(
-            "com.canonical.plainbox::{}".format(exporter)
-        )
+        export_file = temp_dir / f"submission.{exporter}"
+        exporter = self._create_exporter(f"com.canonical.plainbox::{exporter}")
         with export_file.open("wb+") as f:
             exporter.dump_from_session_manager(manager, f)
 

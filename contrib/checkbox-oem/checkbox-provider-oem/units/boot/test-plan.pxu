@@ -1,0 +1,6 @@
+id: oem-boot-automated
+unit: test plan
+_name: Boot manual Tests (Automated)
+_description: Boot manual Tests (Automated)
+bootstrap_include:
+include:

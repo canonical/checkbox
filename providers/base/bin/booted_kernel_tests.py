@@ -22,9 +22,9 @@ def get_snap_kernel_path():
     if kernel is None:
         raise SystemExit("ERROR: failed to get kernel snap")
     if int(get_series()) >= 20:
-        path = "/snap/{}/current/kernel.efi".format(kernel)
+        path = f"/snap/{kernel}/current/kernel.efi"
     else:
-        path = "/snap/{}/current/kernel.img".format(kernel)
+        path = f"/snap/{kernel}/current/kernel.img"
     return path
 
 
@@ -43,7 +43,7 @@ def kernel_matches_current(booted_kernel_image):
     rh = get_hash(booted_kernel_image)
     print("Running kernel hash:\n", rh, "\n")
     snap_kernel_image = get_snap_kernel_path()
-    print("Snap kernel image: {}".format(snap_kernel_image))
+    print(f"Snap kernel image: {snap_kernel_image}")
     sh = get_hash(snap_kernel_image)
     print("Current kernel snap hash:\n", sh, "\n")
     if rh != sh:
@@ -58,7 +58,7 @@ if __name__ == "__main__":
         raise SystemExit("ERROR: please specify the path to booted kernel")
     booted_kernel_image = sys.argv[1]
 
-    print("Supplied booted kernel image: {}".format(booted_kernel_image))
+    print(f"Supplied booted kernel image: {booted_kernel_image}")
     prefixed_image = add_hostfs_prefix(booted_kernel_image)
 
     if not os.path.exists(prefixed_image):

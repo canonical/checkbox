@@ -3,15 +3,31 @@ plugin: resource
 _summary: Collect and report the type of SoC
 estimated_duration: 0.1
 environ: DRAGONWING_SOC
-command:
-    [ -n "$DRAGONWING_SOC" ] && "SoC: $DRAGONWING_SOC" || exit 1
-    echo
+command: resource_wrapper.sh -- resource_dragonwing_soc_info.sh
 
 id: dragonwing_platform_info
 plugin: resource
 _summary: Report the model type of platform
 estimated_duration: 0.1
 environ: DRAGONWING_PLATFORM
-command:
-    [ -n "$DRAGONWING_PLATFORM" ] && echo "Model: $DRAGONWING_PLATFORM" || exit 1
-    echo
+command: resource_wrapper.sh -- resource_dragonwing_platform_info.sh
+
+id: check_dragonwing_soc_info
+plugin: shell
+_summary: Check the type of Dragonwing SoC
+estimated_duration: 0.1
+imports: from com.canonical.plainbox import manifest
+requires:
+    manifest.is_dragonwing_series == 'True'
+environ: DRAGONWING_SOC
+command: resource_dragonwing_soc_info.sh
+
+id: check_dragonwing_platform_info
+plugin: shell
+_summary: Check the model type of Dragonwing platform
+estimated_duration: 0.1
+imports: from com.canonical.plainbox import manifest
+requires:
+    manifest.is_dragonwing_series == 'True'
+environ: DRAGONWING_PLATFORM
+command: resource_dragonwing_platform_info.sh

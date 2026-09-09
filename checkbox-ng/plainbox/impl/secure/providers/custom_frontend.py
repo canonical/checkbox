@@ -125,12 +125,12 @@ def extra_PYTHONPATH() -> list:
     paths = [
         # Don't put a / in front or you will point to the root one
         # as Path("/a/b") / "/a" == Path("/a")
-        "lib/{}/site-packages".format(python_name),
-        "lib/{}/dist-packages".format(python_name),
-        "usr/lib/{}/site-packages".format(python_name),
-        "usr/lib/{}/lib-dynload".format(python_name),
+        f"lib/{python_name}/site-packages",
+        f"lib/{python_name}/dist-packages",
+        f"usr/lib/{python_name}/site-packages",
+        f"usr/lib/{python_name}/lib-dynload",
         "usr/lib/python3/dist-packages",
-        "usr/local/lib/{}/dist-packages".format(python_name),
+        f"usr/local/lib/{python_name}/dist-packages",
     ]
     return [
         path

@@ -1,8 +1,10 @@
 """*Channel* is an abstraction layer over streams that works with *packets of data*,
 rather than an endless stream of bytes, and adds support for compression.
 """
+
 from plainbox.vendor.rpyc.lib import safe_import
 from plainbox.vendor.rpyc.lib.compat import Struct, BYTES_LITERAL
+
 zlib = safe_import("zlib")
 
 # * 64 bit length field?
@@ -10,7 +12,7 @@ zlib = safe_import("zlib")
 # * add thread safety as a subclass?
 
 
-class Channel(object):
+class Channel:
     """Channel implementation.
 
     Note: In order to avoid problems with all sorts of line-buffered transports,
@@ -20,7 +22,9 @@ class Channel(object):
     COMPRESSION_THRESHOLD = 3000
     COMPRESSION_LEVEL = 1
     FRAME_HEADER = Struct("!LB")
-    FLUSHER = BYTES_LITERAL("\n")  # cause any line-buffered layers below us to flush
+    FLUSHER = BYTES_LITERAL(
+        "\n"
+    )  # cause any line-buffered layers below us to flush
     __slots__ = ["stream", "compress"]
 
     def __init__(self, stream, compress=True):
@@ -54,7 +58,9 @@ class Channel(object):
         """
         header = self.stream.read(self.FRAME_HEADER.size)
         length, compressed = self.FRAME_HEADER.unpack(header)
-        data = self.stream.read(length + len(self.FLUSHER))[:-len(self.FLUSHER)]
+        data = self.stream.read(length + len(self.FLUSHER))[
+            : -len(self.FLUSHER)
+        ]
         if compressed:
             data = zlib.decompress(data)
         return data
@@ -73,7 +79,10 @@ class Channel(object):
         data_size = len(data)
         header = self.FRAME_HEADER.pack(data_size, compressed)
         flush_size = len(self.FLUSHER)
-        if self.FRAME_HEADER.size + data_size + flush_size <= self.stream.MAX_IO_CHUNK:
+        if (
+            self.FRAME_HEADER.size + data_size + flush_size
+            <= self.stream.MAX_IO_CHUNK
+        ):
             # avoid overhead from socket writes requiring GIL to be held
             self.stream.write(header + data + self.FLUSHER)
         else:

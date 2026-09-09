@@ -70,10 +70,18 @@ def _generate_artifact_pattern(
         args.height,
     )
 
+    # Keep sensor modes sharing a resolution in their own artifact folder,
+    # mirroring the mode suffix of the job id.
+    mode_pattern = ""
+    if args.mode is not None:
+        mode_pattern = "_mode{}".format(args.mode)
+
     if scenario_name == CameraScenarios.CAPTURE_IMAGE:
-        return base_pattern + "_{}".format(args.format)
+        return base_pattern + "{}_{}".format(mode_pattern, args.format)
     elif scenario_name == CameraScenarios.RECORD_VIDEO:
-        return base_pattern + "@{}fps_{}".format(args.framerate, args.format)
+        return base_pattern + "@{}fps{}_{}".format(
+            args.framerate, mode_pattern, args.format
+        )
     else:
         raise ValueError("Unsupported scenario: {}".format(scenario_name))
 
@@ -101,6 +109,51 @@ def _create_artifact_store_path(
     return artifact_store_path
 
 
+def _get_staging_base_path() -> str:
+    """
+    Base directory the capture tools write into before the artifacts are
+    moved to the session share.
+
+    Confined capture tools cannot write into PLAINBOX_SESSION_SHARE (e.g.
+    on Ubuntu Core the multimedia snap's AppArmor profile only reaches the
+    invoking user's own home via the 'home' plug), so every capture is
+    staged under the job user's home first. Camera jobs run as the normal
+    user, so this is the normal user's home.
+    """
+    return os.path.join(os.path.expanduser("~"), "checkbox-camera-staging")
+
+
+def _create_staging_store_path(
+    args: argparse.Namespace, scenario_name: CameraScenarios
+) -> str:
+    """Create and prepare the staging directory for one scenario run."""
+    staging_store_path = os.path.join(
+        _get_staging_base_path(),
+        scenario_name.value,
+        _generate_artifact_pattern(args, scenario_name),
+    )
+    generate_artificat_folder(staging_store_path)
+    return staging_store_path
+
+
+def _move_artifacts(staging_store_path: str, artifact_store_path: str) -> None:
+    """
+    Move every staged artifact into the session share and drop the
+    now-empty staging directories.
+    """
+    for entry in os.listdir(staging_store_path):
+        shutil.move(
+            os.path.join(staging_store_path, entry),
+            os.path.join(artifact_store_path, entry),
+        )
+    shutil.rmtree(staging_store_path, ignore_errors=True)
+    try:
+        # prune empty parents up to (and including) the staging base
+        os.removedirs(os.path.dirname(staging_store_path))
+    except OSError:
+        pass
+
+
 def _execute_capture_image_scenario(
     args: argparse.Namespace,
     handler_instance: CameraInterface,
@@ -116,6 +169,13 @@ def _execute_capture_image_scenario(
         artifact_store_path: Path to store artifacts
         artifact_name: Base name for artifacts
     """
+    # Only pass the sensor mode / capture framerate when the scenario
+    # declares them: the platforms that don't use them don't accept them
+    # either.
+    extra = {"mode": args.mode} if args.mode is not None else {}
+    if args.framerate is not None:
+        extra["framerate"] = args.framerate
+
     iteration = 5  # Capture multiple images
     for i in range(1, iteration + 1):
         logger.info("\n\n===== Iteration {} =====\n".format(i))
@@ -127,6 +187,7 @@ def _execute_capture_image_scenario(
             store_path=artifact_store_path,
             artifact_name=artifact_name + "_{}".format(i),
             v4l2_device_name=args.v4l2_device_name,
+            **extra
         )
 
 
@@ -145,6 +206,10 @@ def _execute_record_video_scenario(
         artifact_store_path: Path to store artifacts
         artifact_name: Base name for artifacts
     """
+    # Only pass the sensor mode when the scenario declares one: the platforms
+    # that don't use it don't accept it either.
+    extra = {"mode": args.mode} if args.mode is not None else {}
+
     handler_instance.record_video(
         width=args.width,
         height=args.height,
@@ -155,6 +220,7 @@ def _execute_record_video_scenario(
         artifact_name=artifact_name,
         method=args.method,
         v4l2_device_name=args.v4l2_device_name,
+        **extra
     )
 
 
@@ -176,26 +242,31 @@ def _execute_scenario(
     Returns:
         str: Path to artifact store directory
     """
-    # Create artifact store path
+    # Create artifact store path and the staging path the capture tools
+    # actually write to
     artifact_store_path = _create_artifact_store_path(args, scenario_name)
+    staging_store_path = _create_staging_store_path(args, scenario_name)
 
     # Execute the appropriate scenario
     if scenario_name == CameraScenarios.CAPTURE_IMAGE:
         _execute_capture_image_scenario(
             args,
             handler_instance,
-            artifact_store_path,
+            staging_store_path,
             artifact_name,
         )
     elif scenario_name == CameraScenarios.RECORD_VIDEO:
         _execute_record_video_scenario(
             args,
             handler_instance,
-            artifact_store_path,
+            staging_store_path,
             artifact_name,
         )
     else:
         raise ValueError("Unsupported scenario: {}".format(scenario_name))
+
+    # Land the staged artifacts where checkbox expects them
+    _move_artifacts(staging_store_path, artifact_store_path)
 
     return artifact_store_path
 
@@ -324,6 +395,14 @@ def register_arguments() -> argparse.Namespace:
         "--framerate",
         type=int,
         help=("fps of camera"),
+    )
+
+    parser_testing.add_argument(
+        "-md",
+        "--mode",
+        type=int,
+        default=None,
+        help=("Optional: sensor mode of camera"),
     )
 
     args = parser.parse_args()

@@ -60,7 +60,7 @@ class CpuinfoResult:
                     value = open(FREQUENCY_FILENAME).read().strip()
                     value = int(value) // 1000
             if value:
-                print("%s: %s" % (key, value))
+                print(f"{key}: {value}")
         try:
             print("governors: %s" % open(GOVERNORS_FILENAME).read().strip())
         except FileNotFoundError:

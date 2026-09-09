@@ -23,10 +23,10 @@ def check_environment(resource):
     for led_data in resource.split(" "):
         tmp_data = led_data.split("|")
         if len(tmp_data) != 3:
-            raise SystemExit("Incorrect led data: {}".format(led_data))
+            raise SystemExit(f"Incorrect led data: {led_data}")
 
         if tmp_data[2] not in SupportedColorType:
-            raise SystemExit("Unexpected color type: {}".format(tmp_data[2]))
+            raise SystemExit(f"Unexpected color type: {tmp_data[2]}")
 
     print("the format of SYS_LEDS is correct")
 
@@ -41,9 +41,9 @@ def parse_sysfs_led_resource(resource):
         if color_type not in SupportedColorType:
             continue
 
-        print("name: {}".format(led_phys))
-        print("path: {}".format(sysfs_name))
-        print("color_type: {}".format(color_type))
+        print(f"name: {led_phys}")
+        print(f"path: {sysfs_name}")
+        print(f"color_type: {color_type}")
         print()
 
 

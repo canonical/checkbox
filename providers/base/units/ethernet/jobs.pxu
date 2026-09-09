@@ -240,10 +240,11 @@ template-resource: device
 template-filter: device.category == 'NETWORK' and device.mac != 'UNKNOWN'
 id: ethernet/wol_S5_{interface}
 template-id: ethernet/wol_S5_interface
+before: suspend/suspend_advanced_auto
 imports: from com.canonical.plainbox import manifest
 requires:
  manifest.has_ethernet_adapter == 'True'
- manifest.has_ethernet_wake_on_lan_support== 'True'
+ manifest.has_ethernet_s5_wake_on_lan_support== 'True'
 _summary: Wake on LAN (WOL) test from S5 - {interface}
 _purpose:
  Check that another system can wake the System Under Test (SUT) from S5 using the Ethernet port {interface} WOL function.
@@ -285,7 +286,7 @@ plugin: user-interact-verify
 imports: from com.canonical.plainbox import manifest
 requires:
  manifest.has_ethernet_adapter == 'True'
- manifest.has_ethernet_wake_on_lan_support== 'True'
+ manifest.has_ethernet_s4_wake_on_lan_support== 'True'
 command: systemctl hibernate
 user: root
 category_id: com.canonical.plainbox::ethernet
@@ -297,6 +298,7 @@ template-resource: device
 template-filter: device.category == 'NETWORK' and device.mac != 'UNKNOWN' and device.interface != 'UNKNOWN'
 id: ethernet/wol_S3_{interface}
 template-id: ethernet/wol_S3_interface
+depends: suspend/suspend_advanced_auto
 _summary: Wake on LAN (WOL) test from S3 - {interface}
 _purpose:
  Check that another system can wake the System Under Test (SUT) up from S3 using the Ethernet port {interface}'s WOL function.
@@ -313,7 +315,7 @@ plugin: user-interact-verify
 imports: from com.canonical.plainbox import manifest
 requires:
  manifest.has_ethernet_adapter == 'True'
- manifest.has_ethernet_wake_on_lan_support== 'True'
+ manifest.has_ethernet_s3_wake_on_lan_support== 'True'
 command: systemctl suspend
 user: root
 category_id: com.canonical.plainbox::ethernet
@@ -449,7 +451,7 @@ environ: SERVER_WAKE_ON_LAN WAKE_ON_LAN_DELAY WAKE_ON_LAN_RETRY PLAINBOX_SESSION
 imports: from com.canonical.plainbox import manifest
 requires:
  manifest.has_ethernet_adapter == 'True'
- manifest.has_ethernet_wake_on_lan_support == 'True'
+ manifest.has_ethernet_s3_wake_on_lan_support == 'True'
  manifest.wake_on_lan_server_running == 'True'
 command:
  set -e

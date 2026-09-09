@@ -16,10 +16,6 @@
 # You should have received a copy of the GNU General Public License
 # along with Checkbox.  If not, see <http://www.gnu.org/licenses/>.
 
-from __future__ import absolute_import
-from __future__ import division
-from __future__ import print_function
-from __future__ import unicode_literals
 
 from io import StringIO
 from unittest import TestCase
@@ -33,6 +29,7 @@ try:
 except ImportError:
     from pkg_resources import resource_filename
 
+from checkbox_ng.support.lib.dmi import Dmi, DmiDevice
 from checkbox_ng.support.parsers.dmidecode import DmidecodeParser
 from checkbox_ng.support.parsers.tests.test_dmi import TestDmiMixin, DmiResult
 
@@ -185,7 +182,7 @@ class TestLenovoSystemX(TestCase):
     def parse(self):
         resource = "parsers/tests/dmidecode_data/LENOVO_SYSTEMX.txt"
         filename = resource_filename("checkbox_ng.support", resource)
-        with open(filename, "rt", encoding="UTF-8") as stream:
+        with open(filename, encoding="UTF-8") as stream:
             parser = DmidecodeParser(stream)
             result = DmiResult()
             parser.run(result)
@@ -206,3 +203,17 @@ class TestLenovoSystemX(TestCase):
             "family": "System X",
         }
         self.assertDictEqual(dmi_device.raw_attributes, correct_values)
+
+
+class TestChassisProduct(TestCase):
+    def make_chassis(self, chassis_type):
+        return DmiDevice({"chassis_type": chassis_type}, "CHASSIS")
+
+    def test_out_of_range_index(self):
+        """Test that an index beyond the known list returns unknown."""
+        index = str(len(Dmi.chassis_types))
+        self.assertEqual(self.make_chassis(index).product, "Unknown")
+
+    def test_non_numeric_type(self):
+        """Test that a non-numeric type returns the type string."""
+        self.assertEqual(self.make_chassis("Notebook").product, "Notebook")

@@ -1283,7 +1283,7 @@ class DefaultDeviceIsRealTests(unittest.TestCase):
             elif args[0][0] == "pw-dump":
                 with (TEST_DATA_DIR / "pw_dump_happy_path.txt").open() as f:
                     return f.read()
-            raise RuntimeError("unexpected arg: {}".format(args))
+            raise RuntimeError(f"unexpected arg: {args}")
 
         mock_check_output.side_effect = fake_sp_check_output
         self.assertTrue(PipewireTest().default_device_is_real("audio-sink"))
@@ -1298,7 +1298,7 @@ class DefaultDeviceIsRealTests(unittest.TestCase):
             elif args[0][0] == "pw-dump":
                 with (TEST_DATA_DIR / "pw_dump_dummy.txt").open() as f:
                     return f.read()
-            raise RuntimeError("unexpected arg: {}".format(args))
+            raise RuntimeError(f"unexpected arg: {args}")
 
         mock_check_output.side_effect = fake_sp_check_output
         self.assertFalse(PipewireTest().default_device_is_real("audio-sink"))
@@ -1311,7 +1311,7 @@ class DefaultDeviceIsRealTests(unittest.TestCase):
                     return f.read()
             elif args[0][0] == "pw-dump":
                 return ""
-            raise RuntimeError("unexpected arg: {}".format(args))
+            raise RuntimeError(f"unexpected arg: {args}")
 
         mock_check_output.side_effect = fake_sp_check_output
         with self.assertRaises(SystemExit):
@@ -1326,7 +1326,7 @@ class DefaultDeviceIsRealTests(unittest.TestCase):
             elif args[0][0] == "pw-dump":
                 with (TEST_DATA_DIR / "pw_dump_multiple.txt").open() as f:
                     return f.read()
-            raise RuntimeError("unexpected arg: {}".format(args))
+            raise RuntimeError(f"unexpected arg: {args}")
 
         mock_check_output.side_effect = fake_sp_check_output
         self.assertTrue(PipewireTest().default_device_is_real("audio-sink"))
@@ -1339,7 +1339,7 @@ class DefaultDeviceIsRealTests(unittest.TestCase):
                     return f.read()
             elif args[0][0] == "pw-dump":
                 return ""
-            raise RuntimeError("unexpected arg: {}".format(args))
+            raise RuntimeError(f"unexpected arg: {args}")
 
         mock_check_output.side_effect = fake_sp_check_output
         with self.assertRaises(SystemExit):
@@ -1356,7 +1356,7 @@ class DefaultDeviceIsRealTests(unittest.TestCase):
                     original = json.load(f)
                     original[0]["id"] = 61
                     return json.dumps(original)
-            raise RuntimeError("unexpected arg: {}".format(args))
+            raise RuntimeError(f"unexpected arg: {args}")
 
         mock_check_output.side_effect = fake_sp_check_output
         with self.assertRaises(SystemExit):

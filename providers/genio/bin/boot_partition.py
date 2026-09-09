@@ -78,11 +78,9 @@ class TestPartedBootDevice:
     def check_is_block_device(self):
         print("\nChecking if it is block device...")
         if pathlib.Path(self.path).is_block_device():
-            print("PASS: {} is a block device!".format(self.path))
+            print(f"PASS: {self.path} is a block device!")
         else:
-            raise SystemExit(
-                "FAIL: {} is not a block device!".format(self.path)
-            )
+            raise SystemExit(f"FAIL: {self.path} is not a block device!")
 
     def check_disk(self):
         print("\nChecking Parted...")
@@ -91,7 +89,7 @@ class TestPartedBootDevice:
 
     def get_disk_information(self):
         print("\nGetting disk information in json")
-        ret = runcmd(["genio-test-tool.parted {} print -j".format(self.path)])
+        ret = runcmd([f"genio-test-tool.parted {self.path} print -j"])
         self.actual_result = json.loads(ret.stdout)["disk"]
         if self.path == "/dev/sdc":
             self.expected_result = self.expected_result_UFS

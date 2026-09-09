@@ -55,7 +55,7 @@ def instance_method_lru_cache(*cache_args, **cache_kwargs):
     return cache_decorator
 
 
-class cached_property(object):
+class cached_property:
     """
     Decorator that converts a method with a single self argument into a
     property cached on the instance.
@@ -89,7 +89,7 @@ class UndocumentedException(TypeError):
         self.exc_cls = exc_cls
 
     def __repr__(self):
-        return "{}({!r})".format(self.__class__.__name__, self.exc_cls)
+        return f"{self.__class__.__name__}({self.exc_cls!r})"
 
     def __str__(self):
         return (
@@ -136,7 +136,7 @@ def raises(*exc_cls_list: BaseException):
         # Enforce documentation of all the exceptions
         if func.__doc__ is not None:
             for exc_cls in exc_cls_list:
-                if ":raises {}:".format(exc_cls.__name__) not in func.__doc__:
+                if f":raises {exc_cls.__name__}:" not in func.__doc__:
                     raise UndocumentedException(func, exc_cls)
 
         # Wrap in detector function

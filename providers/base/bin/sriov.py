@@ -41,7 +41,7 @@ def get_release_to_test():
         import distro
 
         if distro.id() == "ubuntu-core":
-            return "{}.04".format(distro.version())
+            return f"{distro.version()}.04"
         return distro.version()
     except ImportError:
         import lsb_release
@@ -66,20 +66,16 @@ def check_interface_vendor(interface):
     """
     Find the vendor of the network interface
     """
-    vendor_id_path = "/sys/class/net/{}/device/vendor".format(interface)
+    vendor_id_path = f"/sys/class/net/{interface}/device/vendor"
 
     if not os.path.exists(vendor_id_path):
-        raise FileNotFoundError(
-            "Vendor ID path {} not found".format(vendor_id_path)
-        )
+        raise FileNotFoundError(f"Vendor ID path {vendor_id_path} not found")
 
-    with open(vendor_id_path, "r", encoding="utf-8") as file:
+    with open(vendor_id_path, encoding="utf-8") as file:
         vendor_id = file.read().strip()
 
     if vendor_id not in VENDOR_INFO:
-        raise ValueError(
-            "{} has an unknown vendor ID {}".format(interface, vendor_id)
-        )
+        raise ValueError(f"{interface} has an unknown vendor ID {vendor_id}")
 
     vendor_name = VENDOR_INFO[vendor_id]
 
@@ -91,7 +87,7 @@ def is_sriov_capable(interface):
     Check if the specified network interface is SR-IOV capable and
     configured to support at least one Virtual Function.
     """
-    sriov_path = "/sys/class/net/{}/device/sriov_numvfs".format(interface)
+    sriov_path = f"/sys/class/net/{interface}/device/sriov_numvfs"
     num_vfs = NUM_OF_VIRTUAL_IFACES
 
     try:
@@ -125,23 +121,23 @@ def is_sriov_capable(interface):
             )
         )
 
-    except (IOError, FileNotFoundError) as e:
-        logging.info("Failed to enable SR-IOV on {}: {}".format(interface, e))
+    except (OSError, FileNotFoundError) as e:
+        logging.info(f"Failed to enable SR-IOV on {interface}: {e}")
         sys.exit(1)
 
     except Exception as e:
-        logging.info("An error occurred: {}".format(e))
+        logging.info(f"An error occurred: {e}")
         sys.exit(1)
 
 
 def cleanup_sriov(interface):
-    sriov_path = "/sys/class/net/{}/device/sriov_numvfs".format(interface)
+    sriov_path = f"/sys/class/net/{interface}/device/sriov_numvfs"
     try:
         # Check if the interface SR-IOV exists
         logging.info("checking if sriov_numvfs exists")
         if not os.path.exists(sriov_path):
             raise FileNotFoundError(
-                "SR-IOV interface {} does not exist.".format(interface)
+                f"SR-IOV interface {interface} does not exist."
             )
 
         # First, disable VFs after testing
@@ -150,11 +146,11 @@ def cleanup_sriov(interface):
             f.write("0")
 
     except FileNotFoundError as e:
-        logging.info("Failed to disable SR-IOV on {}: {}".format(interface, e))
+        logging.info(f"Failed to disable SR-IOV on {interface}: {e}")
         sys.exit(1)
 
     except Exception as e:
-        logging.info("An error occurred: {}".format(e))
+        logging.info(f"An error occurred: {e}")
         sys.exit(1)
 
 

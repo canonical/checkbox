@@ -2,3 +2,8 @@ unit: manifest entry
 id: has_nvidia_drm_modeset_enable
 _name: Has the Nvidia proprietary driver and DRM modeset are enabled?
 value-type: bool
+
+unit: manifest entry
+id: has_opencl_support
+_name: Support OpenCL testing
+value-type: bool

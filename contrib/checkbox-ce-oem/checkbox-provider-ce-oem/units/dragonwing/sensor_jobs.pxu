@@ -4,11 +4,22 @@ id: dragonwing-sensor/sensor-list
 _summary: get sensors list and supported rate
 environ: DRAGONWING_PLATFORM
 command:
-    [ -n "$DRAGONWING_PLATFORM" ] && dragonwing_sensor_test.py sensor-list -p "$DRAGONWING_PLATFORM" || exit 1
+    resource_wrapper.sh -- dragonwing_sensor_test.py sensor-list -p "$DRAGONWING_PLATFORM"
+
+plugin: shell
+category_id: dragonwing-sensor
+id: dragonwing-sensor/check-sensor-list-resource
+_summary: Check Dragonwing sensor list resource generation
+imports: from com.canonical.plainbox import manifest
+requires:
+    manifest.is_dragonwing_series == 'True'
+environ: DRAGONWING_PLATFORM
+command:
+    dragonwing_sensor_test.py sensor-list -p "$DRAGONWING_PLATFORM"
 
 _summary: Detect sensors on the system
 category_id: dragonwing-sensor
-imports: 
+imports:
     from com.canonical.plainbox import manifest
 requires:
     manifest.is_dragonwing_series == 'True'
@@ -18,7 +29,7 @@ flags: also-after-suspend
 user: root
 plugin: shell
 environ: DRAGONWING_PLATFORM
-command: 
+command:
     [ -n "$DRAGONWING_PLATFORM" ] &&  dragonwing_sensor_test.py detect-sensors -p "$DRAGONWING_PLATFORM" || exit 1
 
 unit: template
@@ -30,7 +41,7 @@ _template-summary: Test sensor streaming at each supported rates
 _summary: Test {{ name }} streaming at sample rate {{ sample_rate }}
 category_id: dragonwing-sensor
 depends: dragonwing-sensor/detect
-imports: 
+imports:
     from com.canonical.certification import executable
     from com.canonical.plainbox import manifest
 requires:
@@ -46,7 +57,7 @@ _verification:
     Is the test result passed and total sample (event counter) approximately equal to {{ sample_rate }} * 10?
 _description:
     Test {{ name }} streaming at sample rate {{ sample_rate }}
-command: 
+command:
     # shellcheck disable=SC1083
     dragonwing_sensor_test.py streaming -s "{{ name }}" -d 10 -r {{ sample_rate }}
 
@@ -59,7 +70,7 @@ _template-summary: Test sensor streaming workhorse at each supported rates
 _summary: Test {{ name }} streaming workhorse at sample rate {{ sample_rate }}
 category_id: dragonwing-sensor
 depends: dragonwing-sensor/detect
-imports: 
+imports:
     from com.canonical.certification import executable
     from com.canonical.plainbox import manifest
 requires:
@@ -75,6 +86,6 @@ _verification:
     Is the test result passed and total sample (event counter) approximately equal to {{ sample_rate }} * 10?
 _description:
     Test {{ name }} streaming workhorse at sample rate {{ sample_rate }}
-command: 
+command:
     # shellcheck disable=SC1083
     dragonwing_sensor_test.py streaming-workhorse -s "{{ name }}" -d 10 -r {{ sample_rate }}

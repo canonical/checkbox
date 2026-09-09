@@ -36,18 +36,18 @@ def main():
     path = TouchpadDevices().devices[product_slug]
     abs_path = "/sys" + path + "/capabilities/abs"
 
-    f = open(abs_path, "r")
+    f = open(abs_path)
     abs_cap_str = f.readline()
     f.close()
     support = (int(abs_cap_str[-15], 16) & 8) >> 3
 
     if support == 0:
         modalias_path = "/sys" + path + "/modalias"
-        f = open(modalias_path, "r")
+        f = open(modalias_path)
         modalias_str = f.readline()
         f.close()
-        print("Touchpad modalias: {}".format(modalias_str[0:-2]))
-        print("Touchpad EV_ABS capabilities: {}".format(abs_cap_str[0:-2]))
+        print(f"Touchpad modalias: {modalias_str[0:-2]}")
+        print(f"Touchpad EV_ABS capabilities: {abs_cap_str[0:-2]}")
         sys.exit(1)
 
     return 0

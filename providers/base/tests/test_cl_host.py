@@ -22,7 +22,7 @@ import unittest
 from unittest.mock import MagicMock, patch
 
 import cl_host
-from checkbox_support.helpers.host_utils import VulkanDetectionError
+from checkbox_support.helpers.host_utils import HostGPUDetectionError
 
 
 class TestCheckHostGpu(unittest.TestCase):
@@ -115,7 +115,7 @@ class TestCmdResource(unittest.TestCase):
 
     @patch(
         "cl_host.find_plz_run",
-        side_effect=VulkanDetectionError("plz-run not found in PATH"),
+        side_effect=HostGPUDetectionError("plz-run not found in PATH"),
     )
     @patch("cl_host.get_arch_triple", return_value="x86_64-linux-gnu")
     def test_returns_1_when_plz_run_not_found(self, _arch, _plz):
@@ -154,7 +154,7 @@ class TestCmdRunTest(unittest.TestCase):
         mock_run.return_value = MagicMock(returncode=0)
         cl_host.cmd_run_test(["basic/test_basic"])
         cmd = mock_run.call_args[0][0]
-        self.assertEqual(cmd[0], "{}/test".format(self.SNAP))
+        self.assertEqual(cmd[0], f"{self.SNAP}/test")
         self.assertIn("--no-confinement", cmd)
         self.assertIn("basic/test_basic", cmd)
 

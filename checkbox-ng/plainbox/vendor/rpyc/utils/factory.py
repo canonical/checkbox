@@ -2,11 +2,12 @@
 RPyC connection factories: ease the creation of a connection for the common
 cases)
 """
-from __future__ import with_statement
+
 import socket
 from contextlib import closing
 from functools import partial
 import threading
+
 try:
     from thread import interrupt_main
 except ImportError:
@@ -15,13 +16,23 @@ except ImportError:
     except ImportError:
         # assume jython (#83)
         from java.lang import System
+
         interrupt_main = System.exit
 
 from plainbox.vendor.rpyc.core.channel import Channel
-from plainbox.vendor.rpyc.core.stream import SocketStream, TunneledSocketStream, PipeStream
-from plainbox.vendor.rpyc.core.service import VoidService, MasterService, SlaveService
+from plainbox.vendor.rpyc.core.stream import (
+    SocketStream,
+    TunneledSocketStream,
+    PipeStream,
+)
+from plainbox.vendor.rpyc.core.service import (
+    VoidService,
+    MasterService,
+    SlaveService,
+)
 from plainbox.vendor.rpyc.utils.registry import UDPRegistryClient
 from plainbox.vendor.rpyc.lib import safe_import, spawn
+
 ssl = safe_import("ssl")
 
 
@@ -71,7 +82,9 @@ def connect_pipes(input, output, service=VoidService, config={}):
 
     :returns: an RPyC connection
     """
-    return connect_stream(PipeStream(input, output), service=service, config=config)
+    return connect_stream(
+        PipeStream(input, output), service=service, config=config
+    )
 
 
 def connect_stdpipes(service=VoidService, config={}):
@@ -83,10 +96,14 @@ def connect_stdpipes(service=VoidService, config={}):
 
     :returns: an RPyC connection
     """
-    return connect_stream(PipeStream.from_std(), service=service, config=config)
+    return connect_stream(
+        PipeStream.from_std(), service=service, config=config
+    )
 
 
-def connect(host, port, service=VoidService, config={}, ipv6=False, keepalive=False):
+def connect(
+    host, port, service=VoidService, config={}, ipv6=False, keepalive=False
+):
     """
     creates a socket-connection to the given host and port
 
@@ -117,9 +134,21 @@ def unix_connect(path, service=VoidService, config={}):
     return connect_stream(s, service, config)
 
 
-def ssl_connect(host, port, keyfile=None, certfile=None, ca_certs=None,
-                cert_reqs=None, ssl_version=None, ciphers=None,
-                service=VoidService, config={}, ipv6=False, keepalive=False, verify_mode=None):
+def ssl_connect(
+    host,
+    port,
+    keyfile=None,
+    certfile=None,
+    ca_certs=None,
+    cert_reqs=None,
+    ssl_version=None,
+    ciphers=None,
+    service=VoidService,
+    config={},
+    ipv6=False,
+    keepalive=False,
+    verify_mode=None,
+):
     """
     creates an SSL-wrapped connection to the given host (encrypted and
     authenticated).
@@ -165,7 +194,9 @@ def ssl_connect(host, port, keyfile=None, certfile=None, ca_certs=None,
         ssl_kwargs["ssl_version"] = ssl_version
     if ciphers is not None:
         ssl_kwargs["ciphers"] = ciphers
-    s = SocketStream.ssl_connect(host, port, ssl_kwargs, ipv6=ipv6, keepalive=keepalive)
+    s = SocketStream.ssl_connect(
+        host, port, ssl_kwargs, ipv6=ipv6, keepalive=keepalive
+    )
     return connect_stream(s, service, config)
 
 
@@ -224,12 +255,16 @@ def discover(service_name, host=None, registrar=None, timeout=2):
         registrar = UDPRegistryClient(timeout=timeout)
     addrs = registrar.discover(service_name)
     if not addrs:
-        raise DiscoveryError("no servers exposing {!r} were found".format(service_name))
+        raise DiscoveryError(
+            f"no servers exposing {service_name!r} were found"
+        )
     if host:
         ips = socket.gethostbyname_ex(host)[2]
         addrs = [(h, p) for h, p in addrs if h in ips]
     if not addrs:
-        raise DiscoveryError("no servers exposing {} were found on {}".format(service_name, host))
+        raise DiscoveryError(
+            f"no servers exposing {service_name} were found on {host}"
+        )
     return addrs
 
 
@@ -243,7 +278,14 @@ def list_services(registrar=None, filter_host=None, timeout=2):
     return services
 
 
-def connect_by_service(service_name, host=None, registrar=None, timeout=2, service=VoidService, config={}):
+def connect_by_service(
+    service_name,
+    host=None,
+    registrar=None,
+    timeout=2,
+    service=VoidService,
+    config={},
+):
     """create a connection to an arbitrary server that exposes the requested service
 
     :param service_name: the service to discover
@@ -258,13 +300,15 @@ def connect_by_service(service_name, host=None, registrar=None, timeout=2, servi
     # some of which could be dead. We iterate over the list returned and return the first
     # one we could connect to. If none of the registered servers is responsive we re-throw
     # the exception
-    addrs = discover(service_name, host=host, registrar=registrar, timeout=timeout)
+    addrs = discover(
+        service_name, host=host, registrar=registrar, timeout=timeout
+    )
     for host, port in addrs:
         try:
             return connect(host, port, service, config=config)
-        except socket.error:
+        except OSError:
             pass
-    raise DiscoveryError("All services are down: {}".format(addrs))
+    raise DiscoveryError(f"All services are down: {addrs}")
 
 
 def connect_subproc(args, service=VoidService, config={}):
@@ -276,8 +320,11 @@ def connect_subproc(args, service=VoidService, config={}):
     :param config: configuration dict
     """
     from subprocess import Popen, PIPE
+
     proc = Popen(args, stdin=PIPE, stdout=PIPE)
-    conn = connect_pipes(proc.stdout, proc.stdin, service=service, config=config)
+    conn = connect_pipes(
+        proc.stdout, proc.stdin, service=service, config=config
+    )
     conn.proc = proc  # just so you can have control over the processs
     return conn
 
@@ -286,13 +333,23 @@ def _server(listener, remote_service, remote_config, args=None):
     try:
         with closing(listener):
             client = listener.accept()[0]
-        conn = connect_stream(SocketStream(client), service=remote_service, config=remote_config)
+        conn = connect_stream(
+            SocketStream(client), service=remote_service, config=remote_config
+        )
         if isinstance(args, dict):
             _oldstyle = (MasterService, SlaveService)
-            is_newstyle = isinstance(remote_service, type) and not issubclass(remote_service, _oldstyle)
-            is_newstyle |= not isinstance(remote_service, type) and not isinstance(remote_service, _oldstyle)
-            is_voidservice = isinstance(remote_service, type) and issubclass(remote_service, VoidService)
-            is_voidservice |= not isinstance(remote_service, type) and isinstance(remote_service, VoidService)
+            is_newstyle = isinstance(remote_service, type) and not issubclass(
+                remote_service, _oldstyle
+            )
+            is_newstyle |= not isinstance(
+                remote_service, type
+            ) and not isinstance(remote_service, _oldstyle)
+            is_voidservice = isinstance(remote_service, type) and issubclass(
+                remote_service, VoidService
+            )
+            is_voidservice |= not isinstance(
+                remote_service, type
+            ) and isinstance(remote_service, VoidService)
             if is_newstyle and not is_voidservice:
                 conn._local_root.exposed_namespace.update(args)
             elif not is_voidservice:
@@ -303,7 +360,12 @@ def _server(listener, remote_service, remote_config, args=None):
         interrupt_main()
 
 
-def connect_thread(service=VoidService, config={}, remote_service=VoidService, remote_config={}):
+def connect_thread(
+    service=VoidService,
+    config={},
+    remote_service=VoidService,
+    remote_config={},
+):
     """starts an rpyc server on a new thread, bound to an arbitrary port,
     and connects to it over a socket.
 
@@ -321,7 +383,13 @@ def connect_thread(service=VoidService, config={}, remote_service=VoidService, r
     return connect(host, port, service=service, config=config)
 
 
-def connect_multiprocess(service=VoidService, config={}, remote_service=VoidService, remote_config={}, args={}):
+def connect_multiprocess(
+    service=VoidService,
+    config={},
+    remote_service=VoidService,
+    remote_config={},
+    args={},
+):
     """starts an rpyc server on a new process, bound to an arbitrary port,
     and connects to it over a socket. Basically a copy of connect_thread().
     However if args is used and if these are shared memory then changes
@@ -340,7 +408,9 @@ def connect_multiprocess(service=VoidService, config={}, remote_service=VoidServ
     listener = socket.socket()
     listener.bind(("localhost", 0))
     listener.listen(1)
-    remote_server = partial(_server, listener, remote_service, remote_config, args)
+    remote_server = partial(
+        _server, listener, remote_service, remote_config, args
+    )
     t = Process(target=remote_server)
     t.start()
     host, port = listener.getsockname()

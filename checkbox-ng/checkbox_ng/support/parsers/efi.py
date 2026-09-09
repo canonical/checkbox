@@ -17,7 +17,7 @@
 import re
 
 
-class EfiDevice(object):
+class EfiDevice:
 
     path = "/sys/class/dmi/id/bios_version"
     category = "EFI"
@@ -27,7 +27,7 @@ class EfiDevice(object):
         self.vendor = vendor
 
 
-class EfiParser(object):
+class EfiParser:
     """Parser for EFI information."""
 
     def __init__(self, stream):

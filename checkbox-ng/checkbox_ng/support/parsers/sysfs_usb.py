@@ -46,7 +46,7 @@ class UsbIds:
 
     def decode_product(self, vid, pid):
         """Transate vendor ID and product ID to a device name."""
-        return "{} {}".format(self._vendors[vid], self._products[vid, pid])
+        return f"{self._vendors[vid]} {self._products[vid, pid]}"
 
     def decode_protocol(self, cid, scid, prid):
         """
@@ -85,7 +85,7 @@ class UsbIds:
                 # file's encoding, but iso match it nicely.  The other way to
                 # cover for those cases would be to use surrogates and then
                 # have some pass to interpret them.
-                with open(path, "rt", encoding="iso8859") as usb_ids_file:
+                with open(path, encoding="iso8859") as usb_ids_file:
                     self._parse_usb_ids(usb_ids_file.read())
 
     def _parse_usb_ids(self, content):
@@ -153,7 +153,7 @@ class UsbIds:
 
 def read_entry(sysfs_path, field):
     """Read a sysfs attribute."""
-    with open(os.path.join(sysfs_path, field), "rt") as fentry:
+    with open(os.path.join(sysfs_path, field)) as fentry:
         return fentry.readline().strip("\n")
 
 
@@ -340,5 +340,4 @@ def get_all_usb_devices():
     """Get all USB devices available in the system."""
     roots = get_root_devices()
     for root in roots:
-        for dev in root.get_all_devices():
-            yield dev
+        yield from root.get_all_devices()

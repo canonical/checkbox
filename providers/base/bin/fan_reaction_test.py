@@ -46,7 +46,7 @@ class FanMonitor:
             if "pci" in device_path:
                 pci_class_path = os.path.join(device, "class")
                 try:
-                    with open(pci_class_path, "r") as _file:
+                    with open(pci_class_path) as _file:
                         pci_class = _file.read().splitlines()
                         pci_device_class = (
                             int(pci_class[0], base=16) >> 16
@@ -55,7 +55,7 @@ class FanMonitor:
                         if pci_device_class == 3:
                             continue
                 except OSError:
-                    print("Not able to access {}".format(pci_class_path))
+                    print(f"Not able to access {pci_class_path}")
                     continue
             self.hwmons.append(i)
         if not self.hwmons:
@@ -66,11 +66,11 @@ class FanMonitor:
         result = {}
         for p in self.hwmons:
             try:
-                with open(p, "rt") as f:
+                with open(p) as f:
                     fan_mon_name = os.path.relpath(p, "/sys/class/hwmon")
                     result[fan_mon_name] = int(f.read())
             except OSError:
-                print("Fan SysFS node disappeared ({})".format(p))
+                print(f"Fan SysFS node disappeared ({p})")
         return result
 
     def get_average_rpm(self, period):
@@ -90,8 +90,8 @@ class Stressor:
         """Prepare the stressor."""
         if thread_count is None:
             thread_count = multiprocessing.cpu_count()
-            print("Found {} CPU(s) in the system".format(thread_count))
-        print("Will use #{} thread(s)".format(thread_count))
+            print(f"Found {thread_count} CPU(s) in the system")
+        print(f"Will use #{thread_count} thread(s)")
         self._thread_count = thread_count
         self._procs = []
 
@@ -135,19 +135,19 @@ def main():
     print("Launching stressor for 120s")
     stressor.start()
     for cycle in range(120):
-        print("Cycle #{}, RPM={}".format(cycle, fan_mon.get_rpm()))
+        print(f"Cycle #{cycle}, RPM={fan_mon.get_rpm()}")
         time.sleep(1)
     print("Measuring an average fan speed over 5s")
     stress_rpm = fan_mon.get_average_rpm(5)
     print("Stopping stressor, waiting for 60s for system to cool off")
     stressor.stop()
     for cycle in range(60):
-        print("Cycle #{}, RPM={}".format(cycle, fan_mon.get_rpm()))
+        print(f"Cycle #{cycle}, RPM={fan_mon.get_rpm()}")
         time.sleep(1)
     print("Measuring an average fan speed over 5s")
     end_rpm = fan_mon.get_average_rpm(5)
 
-    had_a_fan_spinning = any((rpm > 0 for rpm in stress_rpm.values()))
+    had_a_fan_spinning = any(rpm > 0 for rpm in stress_rpm.values())
     rpm_rose_during_stress = False
     rpm_dropped_during_cooling = False
     for fan_mon in sorted(baseline_rpm.keys()):
@@ -163,14 +163,14 @@ def main():
         if not rpm_dropped_during_cooling:
             rpm_dropped_during_cooling = end_rpm[fan_mon] < stress_rpm[fan_mon]
 
-        print("{} RPM:".format(fan_mon))
-        print("    baseline      : {:.2f}".format(baseline_rpm[fan_mon]))
+        print(f"{fan_mon} RPM:")
+        print(f"    baseline      : {baseline_rpm[fan_mon]:.2f}")
         print(
             "    during stress : {:.2f} ({:.2f}% of baseline)".format(
                 stress_rpm[fan_mon], stress_delta * 100
             )
         )
-        print("    after stress  : {:.2f}".format(end_rpm[fan_mon]))
+        print(f"    after stress  : {end_rpm[fan_mon]:.2f}")
     if not had_a_fan_spinning:
         print("The system had no fans spinning during the test")
         return 0

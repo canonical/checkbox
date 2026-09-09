@@ -70,7 +70,7 @@ def main():
                 for v in value:
                     print(" %s" % v)
             else:
-                print("%s: %s" % (key, value))
+                print(f"{key}: {value}")
 
         print()
 

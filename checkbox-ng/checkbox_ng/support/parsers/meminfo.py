@@ -17,7 +17,7 @@
 import re
 
 
-class MeminfoParser(object):
+class MeminfoParser:
     """Parser for the /proc/meminfo file."""
 
     def __init__(self, meminfo_file="/proc/meminfo"):

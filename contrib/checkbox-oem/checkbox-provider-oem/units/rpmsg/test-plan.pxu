@@ -1,0 +1,6 @@
+id: oem-rpmsg-automated
+unit: test plan
+_name: Remote Processor RPMSG auto tests
+_description: Automated RPMSG framework tests
+bootstrap_include:
+include:

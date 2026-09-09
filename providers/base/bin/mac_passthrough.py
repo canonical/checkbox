@@ -24,7 +24,7 @@ def get_system_mac():
     mac_addresses = []
     for interface in glob.glob("/sys/class/net/e*/address"):
         try:
-            with open(interface, "r") as iface:
+            with open(interface) as iface:
                 mac = iface.read()
                 mac = mac.strip()
                 mac = mac.replace(":", "")

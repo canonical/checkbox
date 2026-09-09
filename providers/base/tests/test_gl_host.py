@@ -111,7 +111,7 @@ class TestCmdRunTest(unittest.TestCase):
         self._run(mock_run)
         cmd = mock_run.call_args[0][0]
         self.assertEqual(cmd[0], self.PLZ_RUN)
-        self.assertIn("{}/usr/bin/glcts".format(self.SNAP), cmd)
+        self.assertIn(f"{self.SNAP}/usr/bin/glcts", cmd)
         self.assertIn("--deqp-surface-type=fbo", cmd)
         self.assertIn("--deqp-case=KHR-GLES32.info.*", cmd)
 
@@ -124,7 +124,7 @@ class TestCmdRunTest(unittest.TestCase):
             "LD_LIBRARY_PATH=/usr/lib/x86_64-linux-gnu:/usr/lib",
             cmd,
         )
-        self.assertIn("SNAP={}".format(self.SNAP), cmd)
+        self.assertIn(f"SNAP={self.SNAP}", cmd)
 
     @patch("subprocess.run")
     def test_returns_subprocess_returncode(self, mock_run):

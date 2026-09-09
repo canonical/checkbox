@@ -20,7 +20,7 @@ from `../checkbox-ng` before running tests.
 
 ## Supported Python versions
 
-3.5, 3.6, 3.8, 3.10, 3.12 (same as checkbox-ng).
+3.6, 3.8, 3.10, 3.12 (same as checkbox-ng).
 
 ## Running tests
 

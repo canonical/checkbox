@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# encoding: utf-8
 # Copyright 2022 Canonical Ltd.
 # Written by:
 #   Rod Smith <rod.smith@canonical.com>

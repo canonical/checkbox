@@ -53,8 +53,8 @@ class Xi2Parser:
 
 def main():
     if len(sys.argv) != 2 or not sys.argv[1].isnumeric():
-        raise SystemExit("Usage {} FINGER_COUNT".format(sys.argv[0]))
-    print("Waiting for {}-finger tap".format(sys.argv[1]))
+        raise SystemExit(f"Usage {sys.argv[0]} FINGER_COUNT")
+    print(f"Waiting for {sys.argv[1]}-finger tap")
 
     parser = Xi2Parser()
     fingers = 0
@@ -63,7 +63,7 @@ def main():
         nonlocal fingers
         fingers += 1
         if fingers == int(sys.argv[1]):
-            print("SUCCESS! {}-finger tap detected!".format(sys.argv[1]))
+            print(f"SUCCESS! {sys.argv[1]}-finger tap detected!")
             raise SystemExit(0)
 
     def end(ev):

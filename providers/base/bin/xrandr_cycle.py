@@ -94,14 +94,14 @@ for adapter, mode in modes:
     try:
         if mode[-1] == "i":
             continue
-        width, height = [int(x) for x in mode.split("x")]
+        width, height = (int(x) for x in mode.split("x"))
         aspect = Fraction(width, height)
         if adapter not in top_res_per_aspect:
             top_res_per_aspect[adapter] = OrderedDict()
         cur_max = top_res_per_aspect[adapter].get(aspect, 0)
         top_res_per_aspect[adapter][aspect] = max(cur_max, width)
     except Exception as exc:
-        print("Error parsing %s: %s" % (mode, exc))
+        print(f"Error parsing {mode}: {exc}")
 
 highest_modes = []
 for adapter, params in top_res_per_aspect.items():
@@ -113,7 +113,7 @@ for adapter, params in top_res_per_aspect.items():
         # from lp:unity-control-center
         if width < 675 or width / aspect < 530:
             continue
-        mode = "{}x{}".format(width, width / aspect)
+        mode = f"{width}x{width / aspect}"
         highest_modes.append((adapter, mode))
 
 # Now we have a list of the modes we need to test.  So let's do just that.
@@ -157,7 +157,7 @@ try:
     with tarfile.open(screenshot_path + ".tgz", "w:gz") as screen_tar:
         for screen in os.listdir(screenshot_path):
             screen_tar.add(screenshot_path + "/" + screen, screen)
-except (IOError, OSError):
+except OSError:
     pass
 
 if failures != 0:

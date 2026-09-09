@@ -39,7 +39,7 @@ def main():
         default=1,
     )
     args = parser.parse_args()
-    print("Device name: {}".format(args.device))
+    print(f"Device name: {args.device}")
     mode = os.stat(args.device).st_mode
     if not S_ISCHR(mode):
         raise SystemExit("Expected a character device file")
@@ -52,7 +52,7 @@ def main():
         timeout=1,
     ) as f_dev:
         attempts = 30
-        print("Attempting to parse {} sentences:".format(attempts))
+        print(f"Attempting to parse {attempts} sentences:")
         bad_msg_count = 0
         for _ in range(attempts):
             try:
@@ -71,8 +71,8 @@ def main():
                 print(" Bad sentence: parse error")
                 bad_msg_count += 1
                 continue
-            print(" Got sentence type: {}".format(msg.sentence_type))
-        print("Total bad sentences: {}".format(bad_msg_count))
+            print(f" Got sentence type: {msg.sentence_type}")
+        print(f"Total bad sentences: {bad_msg_count}")
         if bad_msg_count > 3:
             raise SystemExit("Too many bad NMEA sentences")
         else:

@@ -304,9 +304,7 @@ class ContainerSourceMachine(ContainerBaseMachine):
         if self.config.alias == "noble":
             return to_run  # noble pip is recent enough
         pip_version = (
-            '"pip<21"'
-            if self.config.alias in ["xenial", "bionic"]
-            else '"pip>20"'
+            '"pip<21"' if self.config.alias == "bionic" else '"pip>20"'
         )
         return to_run + [
             "bash -c 'sudo python3 -m pip install -U {}'".format(pip_version),
@@ -329,14 +327,6 @@ class ContainerSourceMachine(ContainerBaseMachine):
                 "sudo PIP_IGNORE_INSTALLED=1 PIP_BREAK_SYSTEM_PACKAGES=1 python3 -m pip install -e .'"
             ),
         ]
-        if self.config.alias == "xenial":
-            commands.append(
-                # ensure these two are at the correct version to support xenial
-                (
-                    "bash -c 'sudo python3 -m "
-                    'pip install importlib_metadata==1.0.0 "zipp<2"\''
-                )
-            )
         return commands
 
     def _get_provider_setup_cmds(self):
@@ -484,13 +474,11 @@ class ContainerSnapMachine(ContainerBaseMachine):
     """
 
     CHECKBOX_CORE_SNAP_MAP = {
-        "xenial": "checkbox16",
         "bionic": "checkbox18",
         "focal": "checkbox20",
         "jammy": "checkbox22",
     }
     CHECKBOX_SNAP_TRACK_MAP = {
-        "xenial": "16.04",
         "bionic": "18.04",
         "focal": "20.04",
         "jammy": "22.04",

@@ -47,7 +47,7 @@ def main():
     dpkg = get_dpkg()
 
     for key, value in dpkg.items():
-        print("%s: %s" % (key, value))
+        print(f"{key}: {value}")
 
     return 0
 

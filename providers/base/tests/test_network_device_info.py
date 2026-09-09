@@ -85,7 +85,7 @@ class GetIpv6AddressTests(unittest.TestCase):
             self.assertEqual(addr, "***NOT CONFIGURED***")
 
     def test_get_ipv6_address_with_connection(self):
-        test_input = "2: wlo1    inet6 fe80::d9eb:3f93:c7b2:86ba/64 scope link noprefixroute \       valid_lft forever preferred_lft forever"
+        test_input = r"2: wlo1    inet6 fe80::d9eb:3f93:c7b2:86ba/64 scope link noprefixroute \       valid_lft forever preferred_lft forever"
         mock_check_output = Mock(return_value=test_input)
         with patch("network_device_info.check_output", mock_check_output):
             interface = "wlo1"

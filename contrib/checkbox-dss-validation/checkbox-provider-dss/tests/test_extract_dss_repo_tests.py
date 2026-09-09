@@ -77,7 +77,7 @@ class TestMain(unittest.TestCase):
         with self.subTest("must raise exception"):
             with self.assertRaises(CalledProcessError) as caught:
                 extract_dss_repo_tests.main(args)
-            self.assertEquals(caught.exception, expected_exception)
+            self.assertEqual(caught.exception, expected_exception)
 
         with self.subTest("verify call args"):
             mock_run.assert_called_once_with(
@@ -120,7 +120,7 @@ class TestMain(unittest.TestCase):
             )
 
         with self.subTest("verify parsed test cases and names"):
-            self.assertEquals(buffer.getvalue(), SAMPLE_MATCHED_TESTS)
+            self.assertEqual(buffer.getvalue(), SAMPLE_MATCHED_TESTS)
 
     @mock.patch("subprocess.check_output")
     def test_prints_test_cases_and_names_for_resource(self, mock_run):
@@ -136,7 +136,7 @@ class TestMain(unittest.TestCase):
         with self.subTest("every third line is a newline"):
             for i, line in list(enumerate(lines))[2::3]:
                 with self.subTest(f"line: {i}"):
-                    self.assertEquals(line, "")
+                    self.assertEqual(line, "")
 
         with self.subTest("every first line is for test_case"):
             for i, line in list(enumerate(lines))[0::3]:

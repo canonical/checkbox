@@ -23,6 +23,7 @@ from unittest import TestCase, mock
 
 from plainbox.impl.execution import (
     FakeJobRunner,
+    IJobResult,
     MountingStrategy,
     UnifiedRunner,
     add_to_environment,
@@ -168,7 +169,7 @@ class UnifiedRunnerTests(TestCase):
         mock_get_checkbox_runtime_path.return_value = Path("")
 
         def shutil_which(x):
-            return "/bin/{}".format(x)
+            return f"/bin/{x}"
 
         mock_shutil_which.side_effect = shutil_which
 
@@ -325,6 +326,57 @@ class UnifiedRunnerTests(TestCase):
                 self_mock, job_mock, {}, mock.Mock(), as_systemd_unit=True
             )
         self.assertEqual(str(e.exception), "systemd")
+
+    @mock.patch("os.geteuid")
+    def test_prepare_systemd_based_runner_already_prepared(self, mock_geteuid):
+        self_mock = mock.MagicMock()
+        self_mock._systemd_runner_prepared = True
+
+        UnifiedRunner.prepare_systemd_based_runner(self_mock)
+
+        self.assertFalse(mock_geteuid.called)
+
+    @mock.patch("builtins.open", new_callable=mock.mock_open)
+    @mock.patch("os.geteuid")
+    def test_prepare_systemd_based_runner_not_root(
+        self, mock_geteuid, mock_open
+    ):
+        self_mock = mock.MagicMock()
+        self_mock._systemd_runner_prepared = False
+        mock_geteuid.return_value = 1000
+
+        UnifiedRunner.prepare_systemd_based_runner(self_mock)
+
+        self.assertTrue(mock_geteuid.called)
+        self.assertFalse(mock_open.called)
+
+    @mock.patch("builtins.open", new_callable=mock.mock_open)
+    @mock.patch("os.geteuid")
+    def test_prepare_systemd_based_runner_writes_oom_score(
+        self, mock_geteuid, mock_open
+    ):
+        self_mock = mock.MagicMock()
+        self_mock._systemd_runner_prepared = False
+        mock_geteuid.return_value = 0
+
+        UnifiedRunner.prepare_systemd_based_runner(self_mock)
+
+        self.assertTrue(mock_open.called)
+
+    @mock.patch("plainbox.impl.execution.logger")
+    @mock.patch("plainbox.impl.execution.open")
+    @mock.patch("os.geteuid")
+    def test_prepare_systemd_based_runner_write_failure_warns(
+        self, mock_geteuid, mock_open, mock_logger
+    ):
+        self_mock = mock.MagicMock()
+        self_mock._systemd_runner_prepared = False
+        mock_geteuid.return_value = 0
+        mock_open.side_effect = OSError("Permission denied")
+
+        UnifiedRunner.prepare_systemd_based_runner(self_mock)
+
+        self.assertTrue(mock_logger.warning.called)
 
     @mock.patch("os.getcwd")
     def test_get_proper_job_cwd_preserve_cwd(self, os_cwd_mock):
@@ -651,3 +703,37 @@ class FakeJobRunnerTests(TestCase):
             mock_parent_run_job.assert_called_once_with(
                 job, job_state, environ, ui, True
             )
+
+    def test__return_code_to_outcome_ok(self):
+        self.assertEqual(
+            UnifiedRunner._return_code_to_outcome(0, xfail=False),
+            IJobResult.OUTCOME_PASS,
+        )
+
+    def test__return_code_to_outcome_ok_xfail_not_ok(self):
+        self.assertEqual(
+            UnifiedRunner._return_code_to_outcome(0, xfail=True),
+            IJobResult.OUTCOME_XFAIL_FAIL,
+        )
+
+    def test__return_code_to_outcome_fail(self):
+        self.assertEqual(
+            UnifiedRunner._return_code_to_outcome(1, xfail=False),
+            IJobResult.OUTCOME_FAIL,
+        )
+
+    def test__return_code_to_outcome_fail_xfail_pass(self):
+        self.assertEqual(
+            UnifiedRunner._return_code_to_outcome(1, xfail=True),
+            IJobResult.OUTCOME_XFAIL_PASS,
+        )
+
+    def test_crash_doesnt_use_xfail(self):
+        self.assertEqual(
+            UnifiedRunner._return_code_to_outcome(-1, xfail=True),
+            UnifiedRunner._return_code_to_outcome(-1, xfail=False),
+        )
+        self.assertEqual(
+            UnifiedRunner._return_code_to_outcome(-1, xfail=True),
+            IJobResult.OUTCOME_CRASH,
+        )

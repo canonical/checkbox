@@ -121,7 +121,7 @@ class AccelerometerUI(Gtk.Window):
 class PermissionException(RuntimeError):
     def __init__(self, error):
         message = "Please re-run with root permissions: %s" % error.strip()
-        super(PermissionException, self).__init__(message)
+        super().__init__(message)
 
 
 class AxisData(threading.Thread):
@@ -153,7 +153,7 @@ class AxisData(threading.Thread):
         # Try and retrieve positional data from kernel
         try:
             position_tuple = open(data_file)
-        except (OSError, IOError):
+        except OSError:
             logging.error("Failed to open: %s" % data_file)
             return False
 
@@ -201,7 +201,7 @@ class AxisData(threading.Thread):
             else:
                 z_data = 0
 
-            debug_info = "X: %s Y: %s Z: %s" % (x_data, y_data, z_data)
+            debug_info = f"X: {x_data} Y: {y_data} Z: {z_data}"
 
             if self.ui.enabled:
                 # Update positional values in UI
@@ -303,7 +303,7 @@ def check_module_status():
         kernel_notes = re.findall(module_regex, driver_status.stdout.read())
         # Report ALL findings, it's useful to note it the driver failed init
         # more than once of actually passed despite a reading failure
-        logging.debug("\n".join((kernel_notes)))
+        logging.debug("\n".join(kernel_notes))
     else:
         logging.error("No supported module")
 
@@ -324,7 +324,7 @@ def check_for_accelerometer():
             break
 
     if found:
-        logger.debug("Name: %s\nPath: %s" % (name, path))
+        logger.debug(f"Name: {name}\nPath: {path}")
         return path.strip()
     else:
         # Return False as it's expected

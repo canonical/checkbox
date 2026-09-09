@@ -24,7 +24,7 @@
 
 import os
 import time
-from enum import Enum
+from enum import Enum, auto
 from collections import OrderedDict
 
 from gettext import gettext as _
@@ -193,10 +193,8 @@ class FlagUnitWidget(urwid.TreeWidget):
         else:
             while parent:
                 if any(
-                    (
-                        parent.get_child_node(key).get_widget().flagged
-                        for key in parent.get_child_keys()
-                    )
+                    parent.get_child_node(key).get_widget().flagged
+                    for key in parent.get_child_keys()
                 ):
                     break
                 parent_w = parent.get_widget()
@@ -530,16 +528,14 @@ class RerunNode(CategoryNode):
 
     def load_child_keys(self):
         if self.get_depth() == 0:
-            return sorted(set([job["outcome"] for job in test_info_list]))
+            return sorted({job["outcome"] for job in test_info_list})
         if self.get_depth() == 1:
             return sorted(
-                set(
-                    [
-                        job["category_name"]
-                        for job in test_info_list
-                        if job["outcome"] == self.get_value()
-                    ]
-                )
+                {
+                    job["category_name"]
+                    for job in test_info_list
+                    if job["outcome"] == self.get_value()
+                }
             )
         else:
             return sorted(
@@ -637,9 +633,7 @@ class TestPlanButton(urwid.RadioButton):
     def __init__(self, tp_info, group):
         self._tp_info = tp_info
         self.is_name = True
-        super(TestPlanButton, self).__init__(
-            group, self._tp_info.get("name"), state=False
-        )
+        super().__init__(group, self._tp_info.get("name"), state=False)
 
     def label_toggle(self):
         if self.is_name:
@@ -716,7 +710,7 @@ class TestPlanBrowser:
         if resume_count > 0:
             footer_components.append(
                 urwid.Text(
-                    "(R) Resume session ({} available)".format(resume_count),
+                    f"(R) Resume session ({resume_count} available)",
                     "center",
                 )
             )
@@ -831,12 +825,12 @@ class TestPlanBrowser:
 
 
 class InterruptDialogAnswer(Enum):
-    CANCEL = 0  # auto() doesn't exist in python3.5
-    KILL_COMMAND = 1
-    KILL_CONTROLLER = 2
-    KILL_AGENT = 3
-    FINALIZE = 4
-    FINALIZE_EXIT = 5
+    CANCEL = auto()
+    KILL_COMMAND = auto()
+    KILL_CONTROLLER = auto()
+    KILL_AGENT = auto()
+    FINALIZE = auto()
+    FINALIZE_EXIT = auto()
 
 
 def interrupt_dialog(host):
@@ -859,7 +853,7 @@ def interrupt_dialog(host):
         "Pause the test session and disconnect from the agent (CTRL+C)"
     )
     choices[InterruptDialogAnswer.KILL_AGENT] = _(
-        "Exit and stop the Checkbox agent on the DUT at {}".format(host)
+        f"Exit and stop the Checkbox agent on the DUT at {host}"
     )
     choices[InterruptDialogAnswer.FINALIZE] = _(
         "End this test session preserving its data and launch a new one"
@@ -951,7 +945,7 @@ class CountdownWidget(urwid.BigText):
     def __init__(self, duration):
         self._started = time.time()
         self._duration = duration
-        self.set_text("{0:.1f}".format(duration))
+        self.set_text(f"{duration:.1f}")
         self.font = urwid.HalfBlock6x5Font()
         super().__init__(self.get_text()[0], self.font)
 
@@ -959,7 +953,7 @@ class CountdownWidget(urwid.BigText):
         remaining = self._duration + self._started - time.time()
         if remaining <= 0:
             remaining = 0
-        text = "{0:.1f}".format(remaining)
+        text = f"{remaining:.1f}"
         self.set_text(text)
         print("\33]2;Auto resume remote session in %s\007" % text, end="")
         if remaining:

@@ -85,6 +85,29 @@ class DetermineOutcomeAndSkipReasonTests(unittest.TestCase):
         self.assertIn("job1", skip_reason["related_dependencies"])
         self.assertIn("job2", skip_reason["related_dependencies"])
 
+    def test_not_failed_deps(self):
+        """Test with NOT_FAILED_DEP inhibitor."""
+        job = Mock()
+        job.id = "job1"
+
+        inhibitor = Mock()
+        inhibitor.cause = InhibitionCause.NOT_FAILED_DEP
+        inhibitor.related_job = job
+
+        job_state = Mock()
+        job_state.readiness_inhibitor_list = [inhibitor]
+
+        job_state_map = {
+            "job1": Mock(result=Mock(outcome="fail")),
+        }
+
+        outcome, skip_reason = determine_outcome_and_skip_reason(
+            job_state, job_state_map
+        )
+
+        self.assertEqual(outcome, IJobResult.OUTCOME_SKIPPED_DEPENDENCY)
+        self.assertIn("job1", skip_reason["related_dependencies"])
+
     def test_failed_resource_inhibitor(self):
         """Test with a FAILED_RESOURCE inhibitor."""
         expr = Mock()

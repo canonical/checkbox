@@ -239,10 +239,10 @@ def write_launcher(
     *template_sections* (as returned by :func:`load_launcher_template`)
     supplies every other launcher section (``[ui]``, ``[restart]``,
     ``[report:...]``, ``[transport:...]``, ...) so those defaults live in
-    one editable ini file instead of this script. ``[ui] type`` still
-    defaults to ``silent``/``interactive`` based on *forced* the same way
-    it always has — the template may override ``type`` too (e.g. to
-    always use ``interactive``), except when *filter_plans* forces
+    one editable ini file instead of this script. ``[ui] type`` defaults
+    to ``interactive`` when neither the template nor *forced* says
+    otherwise — the template may override ``type`` too (e.g. to
+    ``silent`` for unattended runs), except when *filter_plans* forces
     ``forced=False``, where ``type = interactive`` is required for the
     test-plan picker prompt to appear at all and always wins.
     """
@@ -267,10 +267,11 @@ def write_launcher(
 
     template_sections = template_sections or OrderedDict()
     ui_section = OrderedDict(template_sections.get("ui", {}))
+    ui_section.setdefault("type", "interactive")
     if not forced:
+        # The test-plan picker prompt requires an interactive session,
+        # so this always wins over any template-supplied "type".
         ui_section["type"] = "interactive"
-    else:
-        ui_section.setdefault("type", "silent")
     lines += ["", "[ui]"]
     for key, val in ui_section.items():
         lines.append(f"{key} = {val}")

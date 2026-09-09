@@ -291,13 +291,13 @@ class TestWriteLauncher(unittest.TestCase):
             gl.write_launcher("ns::ce-oem-test", items, out)
             self.assertNotIn("[environment]", out.read_text())
 
-    def test_default_forced_yes_and_silent_ui(self):
+    def test_default_forced_yes_and_interactive_ui(self):
         with tempfile.TemporaryDirectory() as tmp:
             out = Path(tmp) / "ce-oem-test"
             gl.write_launcher("ns::ce-oem-test", self._items(), out)
             text = out.read_text()
             self.assertIn("forced = yes", text)
-            self.assertIn("type = silent", text)
+            self.assertIn("type = interactive", text)
             self.assertNotIn("filter =", text)
 
     def test_filter_plans_written_with_forced_no_and_interactive_ui(self):
@@ -344,13 +344,11 @@ class TestWriteLauncher(unittest.TestCase):
             self.assertIn("verbosity = verbose", text)
             self.assertIn("[restart]", text)
             self.assertIn("strategy = systemd", text)
-            # still gets the built-in default silent ui type
-            self.assertIn("type = silent", text)
+            # still gets the built-in default interactive ui type
+            self.assertIn("type = interactive", text)
 
     def test_template_ui_type_overridden(self):
-        template = gl.OrderedDict(
-            {"ui": gl.OrderedDict({"type": "interactive"})}
-        )
+        template = gl.OrderedDict({"ui": gl.OrderedDict({"type": "silent"})})
         with tempfile.TemporaryDirectory() as tmp:
             out = Path(tmp) / "ce-oem-test"
             gl.write_launcher(
@@ -359,7 +357,7 @@ class TestWriteLauncher(unittest.TestCase):
                 out,
                 template_sections=template,
             )
-            self.assertIn("type = interactive", out.read_text())
+            self.assertIn("type = silent", out.read_text())
 
     def test_template_ui_type_forced_interactive_with_filter(self):
         # forced=False always needs type=interactive for the picker to
@@ -917,7 +915,7 @@ class TestSaveMergesManualAutoStress(unittest.TestCase):
             self.assertIn("unit = ns::ce-oem-iot-ubuntucore-26", text)
             self.assertIn("forced = yes", text)
             self.assertNotIn("filter =", text)
-            self.assertIn("type = silent", text)
+            self.assertIn("type = interactive", text)
 
     def test_no_matching_sub_plans_writes_plain_launcher(self):
         sub_plans = [

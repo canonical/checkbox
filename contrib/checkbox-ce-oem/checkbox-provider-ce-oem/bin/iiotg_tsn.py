@@ -131,7 +131,7 @@ def ptp4l(
             print(
                 "You can override this by specifying a config file.",
                 "See /usr/share/doc/linuxptp/configs/gPTP.cfg",
-                'or /usr/share/doc/linuxptp/configs/default.cfg',
+                "or /usr/share/doc/linuxptp/configs/default.cfg",
                 "for an example",
             )
             print("=" * 80)

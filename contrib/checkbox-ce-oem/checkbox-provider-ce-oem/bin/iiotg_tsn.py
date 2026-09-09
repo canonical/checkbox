@@ -804,7 +804,7 @@ def traffic_scheduling(
         text=True,
     )
     print(after.stdout, flush=True)
-    bytes_after = re.findall(pattern, before.stdout)
+    bytes_after = re.findall(pattern, after.stdout)
 
     # Exclude the first value because we only care about 100:1 ~ 100:4
     for before, after in zip(bytes_before[1:], bytes_after[1:]):

@@ -1,0 +1,162 @@
+id: smoke-automated-bootstrap-pass
+summary: Smoke automated bootstrap pass
+flags:
+  - simple
+command: |
+  echo SMOKE_BOOTSTRAP_PASS
+---
+id: smoke-automated-bootstrap-fail
+summary: Smoke automated bootstrap fail
+flags:
+  - simple
+command: |
+  echo SMOKE_BOOTSTRAP_FAIL
+  false
+---
+id: smoke-automated-bootstrap-root
+unit: job
+summary: Smoke automated bootstrap root
+plugin: shell
+user: root
+flags:
+  - simple
+command: |
+  test "$(id -u)" = 0
+  echo SMOKE_BOOTSTRAP_ROOT
+---
+unit: setup job
+id: smoke-automated-setup-pass
+summary: Smoke automated setup pass
+flags:
+  - simple
+command: |
+  echo SMOKE_SETUP_PASS
+---
+unit: setup job
+id: smoke-automated-setup-fail
+summary: Smoke automated setup fail
+flags:
+  - simple
+command: |
+  echo SMOKE_SETUP_FAIL
+  false
+---
+unit: setup job
+id: smoke-automated-setup-root
+summary: Smoke automated setup root
+plugin: shell
+user: root
+flags:
+  - simple
+command: |
+  test "$(id -u)" = 0
+  echo SMOKE_SETUP_ROOT
+---
+id: smoke-automated-normal-pass
+summary: Smoke automated normal pass
+flags:
+  - simple
+command: |
+  echo SMOKE_NORMAL_PASS
+---
+id: smoke-automated-normal-fail
+summary: Smoke automated normal fail
+flags:
+  - simple
+command: |
+  echo SMOKE_NORMAL_FAIL
+  false
+---
+id: smoke-automated-normal-crash
+summary: Smoke automated normal crash
+flags:
+  - simple
+command: |
+  echo SMOKE_NORMAL_CRASH
+  timeout -s KILL 0.1 sleep 5
+---
+id: smoke-automated-normal-root
+unit: job
+summary: Smoke automated normal root
+plugin: shell
+user: root
+flags:
+  - simple
+command: |
+  test "$(id -u)" = 0
+  echo SMOKE_NORMAL_ROOT
+---
+id: smoke-automated-normal-resume-pass
+unit: job
+summary: Smoke automated normal resume pass
+plugin: shell
+user: root
+flags:
+  - simple
+  - noreturn
+command: |
+  echo SMOKE_NORMAL_RESUME_PASS
+  PID=`pgrep -f checkbox-cli`
+  kill $PID
+---
+id: smoke-automated-normal-resume-crash
+unit: job
+summary: Smoke automated normal resume crash
+plugin: shell
+user: root
+flags:
+  - simple
+command: |
+  echo SMOKE_NORMAL_RESUME_CRASH
+  PID=`pgrep -f checkbox-cli`
+  kill $PID
+---
+unit: test plan
+id: smoke-automated-passing
+name: Smoke Automated (passing)
+description: |
+  Exercise the automated outcomes that must not make Checkbox fail: pass,
+  xfail and root jobs across the bootstrap, setup and normal phases, plus
+  a resume triggered by a noreturn job. A full run of this test plan is
+  expected to exit 0.
+setup_include:
+  - smoke-automated-setup-pass
+  - smoke-automated-setup-fail
+  - smoke-automated-setup-root
+bootstrap_include:
+  - smoke-automated-bootstrap-pass
+  - smoke-automated-bootstrap-fail
+  - smoke-automated-bootstrap-root
+include:
+  - smoke-automated-normal-pass
+  - smoke-automated-normal-fail
+  - smoke-automated-normal-root
+  - smoke-automated-normal-resume-pass
+xfail_overrides:
+  - apply true to smoke-automated-bootstrap-fail
+  - apply true to smoke-automated-setup-fail
+  - apply true to smoke-automated-normal-fail
+---
+unit: test plan
+id: smoke-automated-crashing
+name: Smoke Automated (crashing)
+description: |
+  Exercise the automated outcomes that must make Checkbox fail: a job
+  that crashes outright and a job that crashes by killing Checkbox
+  without declaring it. A full run of this test plan is expected to
+  exit 1.
+include:
+  - smoke-automated-normal-crash
+  - smoke-automated-normal-resume-crash
+---
+unit: test plan
+id: smoke-automated
+name: Smoke Automated
+description: |
+  Full automated smoke coverage, combining the passing and the crashing
+  parts in a single session to check that both nest correctly. Because it
+  contains the crashing part, a full run is expected to exit 1.
+include: []
+nested_part:
+  - smoke-automated-passing
+  - smoke-automated-crashing

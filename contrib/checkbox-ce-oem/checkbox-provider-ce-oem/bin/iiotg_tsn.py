@@ -833,6 +833,7 @@ def iperf3_client(
         server_ip (str): The IP address of the server.
         client_ip (str): The IP address of the client.
         timeout (int): The timeout for the iperf3 test in seconds.
+        port (int): The server port to connect to.
 
     Returns:
         str: The output of the iperf3 client.
@@ -848,9 +849,11 @@ def iperf3_client(
             server_ip,  # connect to this server
             "--time",  # stop after <timeout> seconds
             str(timeout),
-            "--bind",  # iperf should only listen on the port associated with..
-            client_ip,  # this ip
-            "--format",  # print the speed in
+            "--bind",  # only listen on the port associated with...
+            client_ip,  # this ip on the DUT
+            "--port",  # connect to this port on the server
+            str(port),
+            "--format",  # print the speed in...
             "m",  # megabits
         ],
         stdout=None if print_to_console else sp.PIPE,

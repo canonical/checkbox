@@ -93,7 +93,7 @@ def ptp4l(
             f"Using ptp4l config file at {cfg.absolute()}".center(80, "-"),
             flush=True,
         )
-        print(cfg.read_text())
+        print(cfg.read_text().strip())
         print("-" * 80)
 
         process = sp.Popen(

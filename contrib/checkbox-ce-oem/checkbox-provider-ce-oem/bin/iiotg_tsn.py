@@ -13,54 +13,33 @@ from threading import Event
 
 
 def clear_qdisc_settings(interface: str) -> None:
-    """Clear the previous qdisc settings.
-
-    This function clears the previous qdisc settings by running the tc
-    command with the 'qdisc del' option.
-
-    Args:
-        interface (str): The name of the network interface.
-
-    Returns:
-        None
     """
-    # Build the tc command to delete the root qdisc settings
+    Delete the root qdisc settings
 
-    # Run the tc command with a timeout of 1 second
-    sp.run(
+    :param interface: name of the network interface like enp1s1
+    """
+    out = sp.run(
         ["tc", "qdisc", "del", "dev", interface, "root"],
         capture_output=True,
         timeout=1,
         check=False,  # cleaning nonexistent setting will return 2
     )
+    # explicitly allow return_code=2, otherwise panic
+    if out.returncode not in (0, 2):
+        out.check_returncode()
 
 
 @contextmanager
 def clear_qdisc_settings_before_and_after(interface: str):
-    """Clear the previous qdisc settings.
-
-    This context manager clears the previous qdisc settings by running the
-    tc command with the 'qdisc del' option. It may return an error if there
-    is no previous settings.
-
-    Args:
-        interface (str): The name of the network interface.
-
-    Yields:
-        None
-
-    Raises:
-        sp.CalledProcessError: If the tc command fails to delete
-        the root qdisc settings.
     """
+    Clear root qdisc settings before and after the context body
 
-    # Run the tc command to delete the root qdisc settings
+    :param interface: interface to clear
+    """
     try:
-        # Clear qdisc settings before the function call
         clear_qdisc_settings(interface)
         yield
     finally:
-        # Clear qdisc settings after the function call
         clear_qdisc_settings(interface)
 
 
@@ -71,22 +50,19 @@ def ptp4l(
     server_mode: bool = False,
     print_to_console: bool = False,
 ) -> "sp.Popen[str]":
-    """Spawn a ptp4l process
-
-    Args:
-        interface (str): The interface to set the clock on.
-        cfg (str): The path to the configuration file.
-        timeout (int): The time to wait for the command to complete, \
-            in seconds.
-
-    Returns:
-        sp.Popen: A process object representing \
-        the running ptp4l command.
     """
+    Spawn the ptp4l process 
 
-    # Run the ptp4l command with the provided parameters.
-    # The command is run with stdout and stderr redirected to pipes.
-    # Text mode is enabled to allow access to the output as text.
+    :param interface: interface to set the clock on. 
+        NOTE: caller must check if this interface supports PTP
+    :param cfg: config file
+        check /usr/share/doc/linuxptp/configs/automotive-slave.cfg for an example
+    :param timeout: how long should the ptp4l process run
+    :param server_mode:
+        if true and no config is specified, spawn a default ptp4l grandmaster
+    :param print_to_console: print to normal stdout/stderr instead of collecting the outputs
+    :return: the ptp4l process object
+    """
 
     if cfg:
         print(
@@ -165,18 +141,14 @@ def ptp4l(
 
 
 def phc2sys(interface: str, timeout: int = 60) -> "sp.Popen[str]":
-    """Run phc2sys command to sync system clock to physical hardware clock.
-
-    Args:
-        interface (str): The network interface to sync.
-        timeout (int): The time to wait for the command to complete,
-        in seconds. Defaults to 60 seconds.
-
-    Returns:
-        sp.Popen: A process object representing the
-        running phc2sys command.
     """
+    Run phc2sys command to sync system clock to physical hardware clock.
 
+    :param interface: network interface to sync
+    :param timeout: how long should we run phc2sys
+    :return: phc2sys process object
+    """    
+    
     process = sp.Popen(
         [
             "timeout",
@@ -209,20 +181,12 @@ def server_mode(
     interfaces: "list[str]",
     cfg: "Path | None" = None,
 ) -> None:
-    """Run ptp4l as master in every port.
+    """
+    Convenience function that spawns a ptp4l grandmaster on every port.
+    All running ptp4l processes can be terminated with KeyboardInterrupt.
 
-    Args:
-        interfaces (List): List of network interfaces.
-        cfg (str, optional): Path to the configuration file.
-            Defaults to
-            "/usr/share/doc/linuxptp/configs/automotive-master.cfg".
-
-    This function runs ptp4l as master in every port specified
-    in the interfaces list. It terminates all running ptp4l processes on
-    KeyboardInterrupt.
-
-    Raises:
-        ValueError: If the number of interfaces and server_ips is not the same.
+    :param interfaces: the interfaces to spawn
+    :param cfg: ptp4l config file
     """
 
     processes = []  # type: list[sp.Popen[str]]

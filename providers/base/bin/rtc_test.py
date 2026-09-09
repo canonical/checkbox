@@ -46,7 +46,9 @@ def cmd_list(args):
 
 
 def cmd_battery(args):
-    """Disable any pending wakealarm, then power off with a wake scheduled in N seconds."""
+    """Disable any pending wakealarm, then power off with a
+    wake scheduled in N seconds.
+    """
     rtc = args.rtc
     subprocess.run(["rtcwake", "-v", "-d", rtc, "-m", "disable"], check=False)
     result = subprocess.run(
@@ -78,7 +80,9 @@ def cmd_number(args):
 
 
 def cmd_read(args):
-    """Check /sys/class/rtc/<rtc>/since_epoch is readable; sync via hwclock if not."""
+    """Check /sys/class/rtc/<rtc>/since_epoch is readable;
+    sync via hwclock if not.
+    """
     rtc = args.rtc
     since_epoch_path = f"/sys/class/rtc/{rtc}/since_epoch"
 
@@ -101,7 +105,9 @@ def cmd_read(args):
 
 
 def cmd_alarm(args):
-    """Check that the RTC's wakealarm works via rtcwake, with a timeout guard."""
+    """Check that the RTC's wakealarm works via rtcwake,
+    with a timeout guard.
+    """
     rtc = args.rtc
     wakealarm_path = f"/sys/class/rtc/{rtc}/wakealarm"
 
@@ -152,9 +158,18 @@ def build_parser():
     p_list = sub.add_parser("list", help="List RTC devices (resource job)")
     p_list.set_defaults(func=cmd_list)
 
+    p_battery = sub.add_parser(
+        "battery", help="RTC battery wake-from-poweroff test"
+    )
+    p_battery.add_argument("--rtc", default=default_rtc)
+    p_battery.add_argument("--seconds", type=int, default=30)
+    p_battery.set_defaults(func=cmd_battery)
+
     p_number = sub.add_parser("number", help="Check RTC device count")
     p_number.add_argument(
-        "--total", type=int, default=None,
+        "--total",
+        type=int,
+        default=None,
         help="Expected RTC count (falls back to $TOTAL_RTC_NUM, then 1)",
     )
     p_number.set_defaults(func=cmd_number)
@@ -173,11 +188,6 @@ def build_parser():
     p_clock.add_argument("--rtc", default=default_rtc)
     p_clock.add_argument("--tolerance", type=int, default=5)
     p_clock.set_defaults(func=cmd_clock)
-
-    p_battery = sub.add_parser("battery", help="RTC battery wake-from-poweroff test")
-    p_battery.add_argument("--rtc", default=default_rtc)
-    p_battery.add_argument("--seconds", type=int, default=30)
-    p_battery.set_defaults(func=cmd_battery)
 
     return parser
 

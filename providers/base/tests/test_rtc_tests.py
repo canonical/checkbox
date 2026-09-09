@@ -55,12 +55,18 @@ class CmdListTests(unittest.TestCase):
 class CmdBatteryTests(unittest.TestCase):
     @patch("rtc_test.subprocess.run")
     def test_commands_has_called(self, mock_run: MagicMock):
-        mock_run.side_effect = [MagicMock(returncode=0), MagicMock(returncode=0)]
+        mock_run.side_effect = [
+            MagicMock(returncode=0),
+            MagicMock(returncode=0),
+        ]
         args = SimpleNamespace(rtc="rtc0", seconds=30)
         self.assertEqual(rtc_test.cmd_battery(args), 0)
         self.assertEqual(mock_run.call_count, 2)
         mock_run.assert_has_calls([
-            call(["rtcwake", "-v", "-d", "rtc0", "-m", "disable"], check=False),
+            call(
+                ["rtcwake", "-v", "-d", "rtc0", "-m", "disable"],
+                check=False
+            ),
             call(["rtcwake", "-v", "-d", "rtc0", "-m", "off", "-s", "30"]),
         ])
 
@@ -89,11 +95,15 @@ class CmdReadTests(unittest.TestCase):
     @patch("rtc_test._can_read", return_value=True)
     def test_can_read(self, mock_can_read):
         self.assertEqual(rtc_test.cmd_read(SimpleNamespace(rtc="rtc0")), 0)
-        mock_can_read.assert_called_once_with("/sys/class/rtc/rtc0/since_epoch")
+        mock_can_read.assert_called_once_with(
+            "/sys/class/rtc/rtc0/since_epoch"
+        )
 
     @patch("rtc_test.subprocess.run")
     @patch("rtc_test._can_read", side_effect=[False, True])
-    def test_calls_hwclock_sync_when_unreadable(self, mock_can_read, mock_run: MagicMock):
+    def test_calls_hwclock_sync_when_unreadable(
+        self, mock_can_read, mock_run: MagicMock
+    ):
         mock_run.return_value = MagicMock(returncode=0)
         self.assertEqual(rtc_test.cmd_read(SimpleNamespace(rtc="rtc0")), 0)
         mock_run.assert_called_once_with(
@@ -102,13 +112,17 @@ class CmdReadTests(unittest.TestCase):
 
     @patch("rtc_test.subprocess.run")
     @patch("rtc_test._can_read", return_value=False)
-    def test_hwclock_command_itself_fails(self, mock_can_read, mock_run: MagicMock):
+    def test_hwclock_command_itself_fails(
+        self, mock_can_read, mock_run: MagicMock
+    ):
         mock_run.return_value = MagicMock(returncode=1)
         self.assertEqual(rtc_test.cmd_read(SimpleNamespace(rtc="rtc0")), 1)
 
     @patch("rtc_test.subprocess.run")
     @patch("rtc_test._can_read", side_effect=[False, False])
-    def test_still_unreadable_after_successful_sync(self, mock_can_read, mock_run: MagicMock):
+    def test_still_unreadable_after_successful_sync(
+        self, mock_can_read, mock_run: MagicMock
+    ):
         mock_run.return_value = MagicMock(returncode=0)
         self.assertEqual(rtc_test.cmd_read(SimpleNamespace(rtc="rtc0")), 1)
 
@@ -121,7 +135,9 @@ class CmdAlarmTests(unittest.TestCase):
 
     @patch("rtc_test.subprocess.run")
     @patch("rtc_test.os.path.isfile", return_value=True)
-    def test_success_calls_rtcwake_with_expected_args(self, mock_isfile, mock_run):
+    def test_success_calls_rtcwake_with_expected_args(
+        self, mock_isfile, mock_run
+    ):
         args = SimpleNamespace(rtc="rtc0", seconds=30, timeout=60)
         self.assertEqual(rtc_test.cmd_alarm(args), 0)
         mock_run.assert_called_once_with(

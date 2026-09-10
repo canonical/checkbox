@@ -885,7 +885,7 @@ def traffic_scheduling(
         int(n) for n in re.findall(pattern, after.stdout)
     ]
 
-    # if iperf3 procs never ran, the byte counter check would
+    # if iperf3 processes never ran, the byte counter check would
     # just be comparing an idle link against itself
     for port, process in iperf_processes:
         try:

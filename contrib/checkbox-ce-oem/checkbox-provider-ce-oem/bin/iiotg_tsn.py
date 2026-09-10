@@ -621,11 +621,11 @@ def credit_based_shaper(
         # this comes from the example in `man tc-cbs`
         + ["hw", "0"]
     )
-    sp.run(cmd, timeout=1, check=False)
+    sp.run(cmd, timeout=1, check=True)
 
     # Show the current qdisc settings
     sp.run(
-        ["tc", "-g", "class", "show", "dev", interface], timeout=1, check=False
+        ["tc", "-g", "class", "show", "dev", interface], timeout=1, check=True
     )
 
     # Replace the parent qdisc (handle 100:) with a credit based shaper
@@ -648,10 +648,10 @@ def credit_based_shaper(
         "1",
     ]
 
-    sp.run(cmd, timeout=1, check=False)
+    sp.run(cmd, timeout=1, check=True)
 
     # Show the current qdisc settings
-    sp.run(["tc", "qdisc", "show", "dev", interface], timeout=1, check=False)
+    sp.run(["tc", "qdisc", "show", "dev", interface], timeout=1, check=True)
 
     # DO NOT REMOVE. Installing a cbs qdisc with `offload 1` makes the
     # driver reprogram the hardware shaper, and drivers like igc reset

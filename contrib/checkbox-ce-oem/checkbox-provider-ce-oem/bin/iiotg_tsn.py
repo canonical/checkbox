@@ -753,7 +753,7 @@ def traffic_scheduling(
     )
     if result.returncode:
         raise SystemExit(
-            "[ERROR] Failed to set qdisc:\n" + result.stderr.decode()
+            f"[ERROR] Failed to set qdisc:\n{result.stderr.decode()}"
         )
     time.sleep(5)
 
@@ -792,6 +792,7 @@ def traffic_scheduling(
             f.write(f"{interface} {grp}")
 
     # Run iperf3 client
+    iperf_processes: "list[tuple[int, sp.Popen[str]]]" = []
     for port, group in zip(range(5201, 5204), range(1, 4)):
         print(f"Running iperf3 client on port {port}...", flush=True)
         process = iperf3_client(
@@ -800,6 +801,7 @@ def traffic_scheduling(
             timeout=timeout - 15,
             port=port,
         )
+        iperf_processes.append((port, process))
         pid = str(process.pid)
         file = sys_fs_cgroup_net_prio / f"grp{group}" / "cgroup.procs"
         print(
@@ -817,9 +819,12 @@ def traffic_scheduling(
         text=True,
     )
     print(before.stdout, flush=True)
+    # look for this line:
+    # Sent 3786 bytes 55 pkt (dropped 0, overlimits 0 requeues 0)
     pattern = r"Sent (\d+) bytes"
-    bytes_before = re.findall(pattern, before.stdout)
-
+    num_bytes_before: "list[int]" = [
+        int(n) for n in re.findall(pattern, before.stdout)
+    ]
     time.sleep(timeout - 15)
 
     print("After", timeout - 15, "seconds...", flush=True)
@@ -830,15 +835,58 @@ def traffic_scheduling(
         text=True,
     )
     print(after.stdout, flush=True)
-    bytes_after = re.findall(pattern, after.stdout)
+    num_bytes_after: "list[int]" = [
+        int(n) for n in re.findall(pattern, after.stdout)
+    ]
+
+    # if iperf3 procs never ran, the byte counter check would
+    # just be comparing an idle link against itself
+    for port, process in iperf_processes:
+        try:
+            _, stderr = process.communicate(timeout=timeout)
+        except sp.TimeoutExpired:
+            process.kill()
+            raise SystemExit(
+                f"[FAIL] The iperf3 client on port {port} never finished"
+            )
+        if process.returncode != 0:
+            raise SystemExit(
+                f"[FAIL] The iperf3 client on port {port} failed with"
+                + f" return code {process.returncode}\n{stderr.strip()}"
+            )
+
+    # 1 counter for the root qdisc, the 1 for each of 100:1 to 100:4.
+    # pass without checking anything
+    expected_num_counters = 1 + 4
+    for before_or_after, counters in (
+        ("before", num_bytes_before),
+        ("after", num_bytes_after),
+    ):
+        if len(counters) < expected_num_counters:
+            raise SystemExit(
+                f"[FAIL] Expected at least {expected_num_counters} "
+                + f"'Sent N bytes' counters {before_or_after} the test "
+                + "(root qdisc + 100:1 to 100:4), "
+                + f"but only found {len(counters)}.\n"
+                + "This means some of the per-queue qdisc was not created"
+            )
 
     # Exclude the first value because we only care about 100:1 ~ 100:4
-    for before, after in zip(bytes_before[1:], bytes_after[1:]):
-        # Need increasing bytes in every queue
-        if int(after) - int(before) < 0:
+    for queue, (sent_before, sent_after) in enumerate(
+        zip(num_bytes_before[1:], num_bytes_after[1:]), start=1
+    ):
+        # these counters are monotonic, 
+        # so we must see a strict increase instead of just non-zero
+        delta = sent_after - sent_before
+        if delta <= 0:
             raise SystemExit(
-                "[FAIL] Sent bytes is not increasing in every queue!\n"
-                + "100:1 to 100:4"
+                f"[FAIL] Sent bytes is not increasing in queue 100:{queue}!\n"
+                + f"{sent_before} bytes before, {sent_after} bytes after"
+            )
+        else:
+            print(
+                f"[OK] Sent bytes is increasing in queue 100:{queue}!",
+                f"Amount increased: {delta}",
             )
 
     print("[PASS] Sent bytes is increasing in every queue!")

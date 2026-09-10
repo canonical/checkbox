@@ -39,7 +39,7 @@ body:
         Link any pages you read, or tell us if you could not find a relevant
         page.
       placeholder: |
-        - https://checkbox.readthedocs.io/...
+        - https://ubuntu.com/docs/checkbox/stable/
         - I could not find a page about this topic.
   - type: textarea
     id: expected-documentation

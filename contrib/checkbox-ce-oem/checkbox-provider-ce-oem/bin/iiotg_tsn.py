@@ -334,7 +334,7 @@ def time_sync_ptp4l(
     # Run ptp4l as a sp and get its output
     process = ptp4l(interface=interface, cfg=cfg, timeout=timeout)
     # discard the ones already printed to stdout
-    last_10_lines = deque(maxlen=10)  # type: deque[str]
+    last_10_lines: "deque[str]" = deque(maxlen=10)
 
     # they should be io.TextIO objects
     assert process.stdout and process.stderr
@@ -421,7 +421,7 @@ def time_sync_phc2sys(
     ptp4l(interface=interface, cfg=cfg, timeout=timeout, print_to_console=True)
 
     phc2sys_proc = phc2sys(interface=interface, timeout=timeout)
-    last_10_lines = deque(maxlen=10)  # type: deque[str]
+    last_10_lines: "deque[str]" = deque(maxlen=10)
     assert phc2sys_proc.stdout and phc2sys_proc.stderr
 
     for raw_line in phc2sys_proc.stdout:
@@ -772,7 +772,7 @@ def credit_based_shaper(
     )
     assert iperf_process.stdout and iperf_process.stderr
 
-    iperf_stdout_last_10_lines = deque(maxlen=10)  # type: deque[str]
+    iperf_stdout_last_10_lines: "deque[str]" = deque(maxlen=10)
     for raw_line in iperf_process.stdout:
         line = str(raw_line).strip()
         iperf_stdout_last_10_lines.append(line)

@@ -1084,8 +1084,8 @@ def iperf3_client(
 def get_interface_ip(interface: str):
     result = sp.run(
         ["ip", "-4", "-o", "addr", "show", "dev", interface],
-        check=True,
         capture_output=True,
+        check=False,
         text=True,
     )
     if result.returncode != 0:

@@ -6,11 +6,11 @@ import subprocess as sp
 import sys
 import time
 from collections import deque
+from collections.abc import Iterable
 from contextlib import contextmanager
 from ipaddress import ip_address
 from pathlib import Path
 from threading import Event
-from collections.abc import Iterable
 
 # come with linuxptp since 25.10 and newer
 # this forces phc2sys to use ptp4l's read only socket, see phc2sys()
@@ -380,7 +380,6 @@ def time_sync_ptp4l(
             )
             raise  # now we print the actual call trace
 
-    # If the master offset is between -100 and 100, print a success message
     print("[PASS] Master offset is between -100 to 100")
 
 

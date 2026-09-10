@@ -753,10 +753,8 @@ def credit_based_shaper(
     # Show the current qdisc settings
     sp.run(["tc", "qdisc", "show", "dev", interface], timeout=1, check=True)
 
-    # `offload 1` makes the driver reprogram
-    # the hardware shaper, and drivers like igc reset the adapter to do
-    # that, which drops the link and flushes the arp entry for the
-    # server. Wait for it to come back or iperf3 fails to connect.
+    # `offload 1` may restart the network card
+    # wait for it to come back first
     wait_until_reachable(interface, server_ip)
 
     # Run iperf3 client to measure the upload speed
@@ -780,7 +778,6 @@ def credit_based_shaper(
 
     iperf_process.wait()
     iperf_stderr = str(iperf_process.stderr.read()).strip()
-    # Check for errors in the iperf3 output
     if iperf_stderr:
         raise SystemExit(
             f"[ERROR] Found error while running iperf3:\n{iperf_stderr}"
@@ -814,7 +811,6 @@ def credit_based_shaper(
             + f"The upload speed is {receiver_bitrate:.2} Mbps"
         )
 
-    # Print the upload speed and a success message
     print(
         f"[PASS] The upload speed {receiver_bitrate:.2} Mbps",
         f"is between {lower_bound:.2} and {reserved_mbps:.2} Mbps!",
@@ -941,7 +937,6 @@ def traffic_scheduling(
             # example: enp1s1 1
             f.write(f"{interface} {grp}")
 
-    # Run iperf3 client
     iperf_processes: "list[tuple[int, sp.Popen[str]]]" = []
     for port, group in zip(range(5201, 5204), range(1, 4)):
         print(f"Running iperf3 client on port {port}...", flush=True)

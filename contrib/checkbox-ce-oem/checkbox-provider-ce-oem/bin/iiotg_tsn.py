@@ -1,7 +1,9 @@
 #!/usr/bin/env python3
 
 import argparse
+import os
 import re
+import selectors
 import subprocess as sp
 import sys
 import time
@@ -270,6 +272,89 @@ def server_mode(
         print("Terminated all ptp4l and iperf3 process")
 
 
+def stream_process_output(
+    process: "sp.Popen[str]",
+    stdout_maxlen: "int | None" = 10,
+    stderr_maxlen: "int | None" = 10,
+    print_stdout: bool = True,
+    print_stderr: bool = False,
+) -> "tuple[list[str], list[str]]":
+    """
+    Drain a process' stdout and stderr concurrently, without threads.
+
+    Streams output live so the test doesn't look frozen, using
+    `selectors` (epoll/poll) so a full pipe on either stream can never
+    block/deadlock the other, unlike reading stdout to completion
+    before stderr.
+
+    :param process: an sp.Popen with stdout=PIPE, stderr=PIPE, text=True
+    :param stdout_lines: how many trailing stdout lines to keep and
+        return, or None to keep all lines
+    :param stderr_lines: how many trailing stderr lines to keep and
+        return, or None to keep all lines
+    :param print_stdout: print each stdout line to console as it arrives
+    :param print_stderr: print each stderr line to console as it arrives
+    :return: (trailing stdout lines, trailing stderr lines)
+    """
+    # they should be io.TextIO objects
+    assert process.stdout and process.stderr
+
+    stdout_fd = process.stdout.fileno()
+    stderr_fd = process.stderr.fileno()
+    for fd in (stdout_fd, stderr_fd):
+        os.set_blocking(fd, False)
+
+    sel = selectors.DefaultSelector()
+    sel.register(stdout_fd, selectors.EVENT_READ)
+    sel.register(stderr_fd, selectors.EVENT_READ)
+
+    # raw byte buffer per fd, holding an incomplete trailing line
+    pending: "dict[int, bytes]" = {stdout_fd: b"", stderr_fd: b""}
+    open_fds = {stdout_fd, stderr_fd}
+    lines: "dict[int, deque[str]]" = {
+        stdout_fd: deque(maxlen=stdout_maxlen),
+        stderr_fd: deque(maxlen=stderr_maxlen),
+    }
+    should_print: "dict[int, bool]" = {
+        stdout_fd: print_stdout,
+        stderr_fd: print_stderr,
+    }
+
+    while open_fds:
+        for key, _ in sel.select():
+            fd = key.fd
+            try:
+                chunk = os.read(fd, 65536)
+            except BlockingIOError:
+                # selector said readable, but nothing left right now
+                continue
+
+            if not chunk:
+                # EOF on this pipe, the process closed it
+                sel.unregister(fd)
+                open_fds.discard(fd)
+                continue
+
+            pending[fd] += chunk
+            *complete, pending[fd] = pending[fd].split(b"\n")
+            for raw_line in complete:
+                clean_line = raw_line.decode(errors="replace").strip()
+                if should_print[fd]:
+                    print(clean_line, flush=True)
+                lines[fd].append(clean_line)
+
+    # flush a final line on each stream that never got a trailing newline
+    for fd in (stdout_fd, stderr_fd):
+        if pending[fd]:
+            clean_line = pending[fd].decode(errors="replace").strip()
+            if should_print[fd]:
+                print(clean_line, flush=True)
+            lines[fd].append(clean_line)
+
+    process.wait()
+    return list(lines[stdout_fd]), list(lines[stderr_fd])
+
+
 def filter_offset_lines(
     lines: "Iterable[str]", marker: str, program_name: str
 ) -> "list[str]":
@@ -331,28 +416,19 @@ def time_sync_ptp4l(
             "[ERROR] timeout should be at least 30 seconds "
             + f"for a successful time sync (got {timeout})"
         )
-    # Run ptp4l as a sp and get its output
-    process = ptp4l(interface=interface, cfg=cfg, timeout=timeout)
-    # discard the ones already printed to stdout
-    last_10_lines: "deque[str]" = deque(maxlen=10)
 
-    # they should be io.TextIO objects
-    assert process.stdout and process.stderr
-    for raw_line in process.stdout:
-        line = str(raw_line).strip()
-        print(line, flush=True)
-        last_10_lines.append(line)
+    ptp4l_process = ptp4l(interface=interface, cfg=cfg, timeout=timeout)
+    last_10_lines, stderr_lines = stream_process_output(
+        ptp4l_process, stdout_maxlen=10, stderr_maxlen=None
+    )
 
-    process.wait()
-
-    stderr = str(process.stderr.read()).strip()
-    if stderr:
+    if stderr_lines:
         # a successful & clean run of ptp4l shows no errors
         # NOTE: if the error mentions deleting files in /var/run
         # NOTE: that means a previous ptp4l run was force killed / crashed
         # NOTE: re-run the test and those lines won't appear
         print("Standard Error (stderr):", file=sys.stderr)
-        print(stderr, file=sys.stderr)
+        print("\n".join(stderr_lines), file=sys.stderr)
         raise SystemExit(
             f"[Error] Caught error while running ptp4l on {interface}"
         )
@@ -421,20 +497,13 @@ def time_sync_phc2sys(
     ptp4l(interface=interface, cfg=cfg, timeout=timeout, print_to_console=True)
 
     phc2sys_proc = phc2sys(interface=interface, timeout=timeout)
-    last_10_lines: "deque[str]" = deque(maxlen=10)
-    assert phc2sys_proc.stdout and phc2sys_proc.stderr
+    last_10_lines, stderr_lines = stream_process_output(
+        phc2sys_proc, stdout_maxlen=10, stderr_maxlen=None
+    )
 
-    for raw_line in phc2sys_proc.stdout:
-        line = str(raw_line).strip()
-        print(line, flush=True)
-        last_10_lines.append(line)
-
-    phc2sys_proc.wait()
-
-    stderr = str(phc2sys_proc.stderr.read()).strip()
-    if stderr:
+    if stderr_lines:
         print("Standard Error (stderr):", file=sys.stderr)
-        print(stderr, file=sys.stderr)
+        print("\n".join(stderr_lines), file=sys.stderr)
         raise SystemExit(
             f"[Error] Caught error while running phc2sys on {interface}"
         )
@@ -768,19 +837,14 @@ def credit_based_shaper(
     iperf_process = iperf3_client(
         server_ip, get_interface_ip(interface), timeout
     )
-    assert iperf_process.stdout and iperf_process.stderr
+    iperf_stdout_last_10_lines, iperf_stderr_lines = stream_process_output(
+        iperf_process, stdout_maxlen=10, stderr_maxlen=None
+    )
 
-    iperf_stdout_last_10_lines: "deque[str]" = deque(maxlen=10)
-    for raw_line in iperf_process.stdout:
-        line = str(raw_line).strip()
-        iperf_stdout_last_10_lines.append(line)
-        print(line, flush=True)
-
-    iperf_process.wait()
-    iperf_stderr = str(iperf_process.stderr.read()).strip()
-    if iperf_stderr:
+    if iperf_stderr_lines:
         raise SystemExit(
-            f"[ERROR] Found error while running iperf3:\n{iperf_stderr}"
+            "[ERROR] Found error while running iperf3:\n"
+            + "\n".join(iperf_stderr_lines)
         )
 
     # look for the real transfer speed in iperf3 output
@@ -795,10 +859,7 @@ def credit_based_shaper(
             receiver_bitrate = float(words[words.index("mbits/sec") - 1])
 
     if receiver_bitrate is None:
-        raise SystemExit(
-            "[ERROR] Iperf3 did not return receiver link speed "
-            + "in the last 10 lines!"
-        )
+        raise SystemExit("[ERROR] Iperf3 did not return receiver link speed!")
     # cbs should cap goodput at idleslope, minus some Ethernet framing
     # overhead (~90% of idleslope is expected TCP goodput), so the
     # measured upload speed should land in that range
@@ -806,14 +867,14 @@ def credit_based_shaper(
     lower_bound = 0.9 * reserved_mbps
     if not lower_bound < receiver_bitrate < reserved_mbps:
         raise SystemExit(
-            f"[FAIL] The upload speed is not between {lower_bound:.2} "
-            + f"and {reserved_mbps:.2} Mbps\n"
-            + f"The upload speed is {receiver_bitrate:.2} Mbps"
+            f"[FAIL] The upload speed is not between {lower_bound:.2f} "
+            + f"and {reserved_mbps:.2f} Mbps\n"
+            + f"The upload speed is {receiver_bitrate:.2f} Mbps"
         )
 
     print(
-        f"[PASS] The upload speed {receiver_bitrate:.2} Mbps",
-        f"is between {lower_bound:.2} and {reserved_mbps:.2} Mbps!",
+        f"[PASS] The upload speed {receiver_bitrate:.2f} Mbps",
+        f"is between {lower_bound:.2f} and {reserved_mbps:.2f} Mbps!",
     )
 
 

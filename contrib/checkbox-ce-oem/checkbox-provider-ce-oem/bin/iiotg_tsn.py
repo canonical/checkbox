@@ -233,7 +233,14 @@ def server_mode(
     for interface in interfaces:
         clear_qdisc_settings(interface=interface)
         ip = get_interface_ip(interface)
-        process = ptp4l(interface=interface, cfg=cfg, server_mode=True)
+        process = ptp4l(
+            interface=interface,
+            cfg=cfg,
+            server_mode=True,
+            # must print to console
+            # otherwise we will hit the pipe size limit after an hour
+            print_to_console=True,
+        )
         processes.append(process)
 
         print(f"Start running ptp4l on {interface} as grandmaster")

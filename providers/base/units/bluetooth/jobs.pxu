@@ -31,7 +31,8 @@ id: bluetooth/detect-output
 flags: also-after-suspend
 estimated_duration: 1.2
 requires:
- package.name == 'bluez' or snap.name == 'bluez'
+ executable.name == 'hcitool'
+ executable.name == 'rfkill'
  device.category == 'BLUETOOTH'
 command:
  if rfkill list bluetooth | grep -q 'Hard blocked: yes'; then

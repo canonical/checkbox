@@ -28,15 +28,12 @@ jobs:
     name: Smoke via spread on ${{ matrix.garden-system }}
     runs-on: ubuntu-latest
     timeout-minutes: 120
-    # Set at job level so it reaches the spread run regardless of how the
-    # image-garden action is invoked.
     env:
       CHECKBOX_CHANNEL: ${{ inputs.channel || 'edge' }}
     strategy:
       fail-fast: false
-      # Four jobs starting at once means a burst of store queries and snap
-      # downloads from the same runner pool, which is what triggers the
-      # "too many requests" replies from the store. Stagger them.
+      # Several jobs starting at once produce a burst of snap store requests,
+      # which the store answers with "too many requests". Stagger them.
       max-parallel: 2
       matrix:
         garden-system:
@@ -50,49 +47,50 @@ jobs:
           fetch-depth: 0
           persist-credentials: false
 
-      - name: Wait for snapd to be ready
+      - name: Install image-garden
         run: |
-          echo "CHECKBOX_CHANNEL=${CHECKBOX_CHANNEL:-<unset>}"
-          snap version || true
-          sudo snap wait system seed.loaded || true
+          sudo snap install --devmode --channel=latest/edge image-garden
+          snap list image-garden
 
-      # The image-garden action asks the store about each snap it installs
-      # using a single "curl --fail" with no retry, so one rate-limited reply
-      # ("too many requests", reported as HTTP 500) aborts the whole run with a
-      # bare "exit code 69". Warming the queries up here retries until the
-      # store answers and leaves snapd holding a valid store session.
-      #
-      # This uses wretry's "command" mode. Its "action" mode cannot be used to
-      # wrap the image-garden action itself: wretry only implements the "node"
-      # and "docker" runners, and throws "Runner \"composite\" does not
-      # implemented" during its own pre stage for a composite action.
-      - name: Warm up the snap store
-        uses: Wandalen/wretry.action@df981d2bb22b26b5b23754bb516d0de8c1bfbbec
-        with:
-          attempt_limit: 6
-          attempt_delay: 15000 # 15s, to let store rate limits expire
-          command: |
-            for snap_name in snapd core24 image-garden; do
-              code="$(curl --silent --output /tmp/snapd-find.json \
-                --write-out '%{http_code}' \
-                --unix-socket /run/snapd.socket \
-                "http://localhost/v2/find?name=$snap_name" || echo 000)"
-              echo "$snap_name: HTTP $code"
-              if [ "$code" != 200 ]; then
-                echo "--- snapd reply for $snap_name ---"
-                head -c 2000 /tmp/snapd-find.json || true
-                echo
-                exit 1
-              fi
-            done
+      - name: Prepare the runner for virtual machines
+        run: |
+          # image-garden runs QEMU, which needs access to KVM.
+          if [ -e /dev/kvm ]; then
+            sudo chmod -v 666 /dev/kvm
+          else
+            echo "::warning::/dev/kvm is missing, falling back to emulation"
+          fi
 
-      # Called directly rather than through wretry: see the note above.
-      - name: Run smoke spread suite
-        uses: zyga/image-garden-action@3a6aa9042a0b994707108d1b205c4ac1845cebe5
+      - name: Run the smoke spread suite
+        working-directory: .github/Image-garden-spread
+        run: |
+          image-garden.spread -v \
+            -artifacts=artifacts \
+            "garden:${{ matrix.garden-system }}:tests/run-smoke"
+
+      - name: Rename artifacts for GitHub compatibility
+        if: always()
+        working-directory: .github/Image-garden-spread
+        run: |
+          # Spread names artifact directories "backend:system:suite", and
+          # GitHub rejects colons in artifact paths.
+          if [ -d artifacts ]; then
+            find artifacts -depth -name '*:*' \
+              -execdir bash -c 'mv -v "$1" "${1//:/_}"' bash '{}' \;
+          fi
+
+      - name: Upload spread artifacts
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
         with:
-          image-garden-channel: latest/edge
-          garden-system: ${{ matrix.garden-system }}
-          spread-subdir: .github/Image-garden-spread
-          spread-tasks: tests/run-smoke
-          spread-artifacts: artifacts
-          spread-artifacts-suffix: ${{ matrix.garden-system }}
+          name: spread-artifacts-${{ matrix.garden-system }}
+          path: .github/Image-garden-spread/artifacts
+          if-no-files-found: ignore
+
+      - name: Upload image-garden logs
+        if: failure()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
+        with:
+          name: image-garden-logs-${{ matrix.garden-system }}
+          path: .github/Image-garden-spread/.image-garden/*.log
+          if-no-files-found: ignore

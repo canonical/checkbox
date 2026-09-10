@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
-summary: Install the matching snap in devmode and run filtered smoke tests
+summary: Install the Checkbox snap from the store and run the smoke test plan
 kill-timeout: 20m
 warn-timeout: 5m
 artifacts:
@@ -10,20 +10,44 @@ artifacts:
 execute: |
   set -euo pipefail
 
+  # Derive the Checkbox runtime from the system under test, the same way the
+  # certification tools derive it from a snap base: coreYY -> checkboxYY.
   . /etc/os-release
   CHECKBOX="checkbox$(echo "$VERSION_ID" | grep -Po '^\d{2}')"
   CHECKBOX_CHANNEL="${CHECKBOX_CHANNEL:-edge}"
 
   echo "Testing $CHECKBOX from $CHECKBOX_CHANNEL"
-  snap download "$CHECKBOX" --channel="$CHECKBOX_CHANNEL" \
-    --basename="$CHECKBOX"
+
+  # A checkboxXX*.snap placed at the root of the suite takes precedence over
+  # the store, which is how a locally built snap gets tested.
+  if ls ../../"$CHECKBOX"*.snap >/dev/null 2>&1; then
+    echo "Using local Checkbox snap"
+    cp ../../"$CHECKBOX"*.snap .
+    cp ../../"$CHECKBOX"*.assert . 2>/dev/null || true
+  else
+    echo "Downloading $CHECKBOX from the store"
+    snap download "$CHECKBOX" \
+      --channel="$CHECKBOX_CHANNEL" --basename="$CHECKBOX"
+  fi
 
   if snap list "$CHECKBOX" >/dev/null 2>&1; then
     snap remove --purge "$CHECKBOX"
   fi
 
-  snap ack "$CHECKBOX"*.assert
-  snap install --devmode "$CHECKBOX"*.snap
+  # Acknowledge the assertion so the snap can be installed without
+  # --dangerous, then install it as a strict snap in devmode. This mirrors
+  # what the certification tools run on a device under test.
+  if [ -f "$CHECKBOX".assert ]; then
+    snap ack "$CHECKBOX".assert
+    CHANGE_ID="$(snap install --no-wait --devmode "$CHECKBOX".snap)"
+  else
+    CHANGE_ID="$(snap install --no-wait --dangerous --devmode "$CHECKBOX".snap)"
+  fi
+
+  # --no-wait returns a change id instead of blocking, so settle that change
+  # before using the snap.
+  snap watch "$CHANGE_ID"
+
   snap start --enable "$CHECKBOX.agent"
 
   {

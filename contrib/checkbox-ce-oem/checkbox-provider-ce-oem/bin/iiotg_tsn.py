@@ -177,6 +177,16 @@ def phc2sys(interface: str, timeout: int = 60) -> "sp.Popen[str]":
             "CLOCK_REALTIME",
             "-w",  # wait for ptp4l to be ready
             "-m",  # print the messages to stdout
+            # Talk to ptp4l over its read only socket.
+            # The apparmor profile that the linuxptp package ships for
+            # phc2sys only allows @{run}/ptp4lro, so connecting to the
+            # default read-write socket at /var/run/ptp4l is denied and
+            # -w hangs on "Waiting for ptp4l..." forever.
+            # ptp4l creates both sockets by default and everything -w
+            # needs is a read only query.
+            # NOTE: the read only socket requires linuxptp >= 4.0
+            "-z",
+            "/var/run/ptp4lro",
             # allow phc2sys to converge faster when "time jumps" occur
             # https://tsn.readthedocs.io/timesync.html#synchronizing-the-system-clock
             "--step_threshold=1",
@@ -875,7 +885,7 @@ def traffic_scheduling(
     for queue, (sent_before, sent_after) in enumerate(
         zip(num_bytes_before[1:], num_bytes_after[1:]), start=1
     ):
-        # these counters are monotonic, 
+        # these counters are monotonic,
         # so we must see a strict increase instead of just non-zero
         delta = sent_after - sent_before
         if delta <= 0:

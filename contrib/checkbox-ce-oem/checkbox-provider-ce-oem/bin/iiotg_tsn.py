@@ -11,6 +11,10 @@ from ipaddress import ip_address
 from pathlib import Path
 from threading import Event
 
+# come with linuxptp since 25.10 and newer
+# this forces phc2sys to use ptp4l's read only socket, see phc2sys()
+PHC2SYS_APPARMOR_PROFILE = Path("/etc/apparmor.d/usr.sbin.phc2sys")
+
 
 def clear_qdisc_settings(interface: str) -> None:
     """
@@ -153,51 +157,62 @@ def ptp4l(
     )
 
 
-def phc2sys(interface: str, timeout: int = 60) -> "sp.Popen[str]":
+def phc2sys(
+    interface: str,
+    timeout: int = 60,
+) -> "sp.Popen[str]":
     """
     Run phc2sys command to sync system clock to physical hardware clock.
 
     :param interface: network interface to sync
     :param timeout: how long should we run phc2sys
+    :param apparmor_profile:
+        the apparmor profile that decides which ptp4l socket we talk to
     :return: phc2sys process object
     """
 
-    process = sp.Popen(
-        [
-            "timeout",
-            str(timeout),
-            "phc2sys",
-            "-s",  # the interface to sync
-            interface,
-            # -O 0 sets the offset between system clock and hardware clock to 0
-            "-O",
-            "0",
-            # client clock source is CLOCK_REALTIME
-            "-c",
-            "CLOCK_REALTIME",
-            "-w",  # wait for ptp4l to be ready
-            "-m",  # print the messages to stdout
-            # Talk to ptp4l over its read only socket.
-            # The apparmor profile that the linuxptp package ships for
-            # phc2sys only allows @{run}/ptp4lro, so connecting to the
-            # default read-write socket at /var/run/ptp4l is denied and
-            # -w hangs on "Waiting for ptp4l..." forever.
-            # ptp4l creates both sockets by default and everything -w
-            # needs is a read only query.
-            # NOTE: the read only socket requires linuxptp >= 4.0
-            "-z",
-            "/var/run/ptp4lro",
-            # allow phc2sys to converge faster when "time jumps" occur
-            # https://tsn.readthedocs.io/timesync.html#synchronizing-the-system-clock
-            "--step_threshold=1",
-            "--transportSpecific=1",  # see ptp4l()
-        ],
+    command = [
+        "timeout",
+        str(timeout),
+        "phc2sys",
+        "-s",  # the interface to sync
+        interface,
+        # -O 0 sets the offset between system clock and hardware clock to 0
+        "-O",
+        "0",
+        # client clock source is CLOCK_REALTIME
+        "-c",
+        "CLOCK_REALTIME",
+        "-w",  # wait for ptp4l to be ready
+        "-m",  # print the messages to stdout
+        # allow phc2sys to converge faster when "time jumps" occur
+        # https://tsn.readthedocs.io/timesync.html#synchronizing-the-system-clock
+        "--step_threshold=1",
+        "--transportSpecific=1",  # see ptp4l()
+    ]
+
+    if PHC2SYS_APPARMOR_PROFILE.exists():
+        # This profile only allows phc2sys to open @{run}/ptp4lro, so
+        # talking to ptp4l's default read-write socket at /var/run/ptp4l
+        # is denied and -w hangs on "Waiting for ptp4l..." forever.
+        
+        # ptp4lro needs linuxptp >= 4.0, but every release
+        # that ships this apparmor profile is new enough. Releases that
+        # don't have the profile keep using the default socket.
+
+        # test for the existence of the apparmor profile instead of testing
+        # ptp4lro existence, because there could be a race between launching
+        # ptp4l and socket creation
+        command.extend(["-z", "/var/run/ptp4lro"])
+
+    print("Launching phc2sys process:", " ".join(command))
+
+    return sp.Popen(
+        command,
         stdout=sp.PIPE,
         stderr=sp.PIPE,
         text=True,
     )
-
-    return process
 
 
 def server_mode(

@@ -10,6 +10,7 @@ from contextlib import contextmanager
 from ipaddress import ip_address
 from pathlib import Path
 from threading import Event
+from collections.abc import Iterable
 
 # come with linuxptp since 25.10 and newer
 # this forces phc2sys to use ptp4l's read only socket, see phc2sys()
@@ -269,6 +270,35 @@ def server_mode(
         print("Terminated all ptp4l and iperf3 process")
 
 
+def filter_offset_lines(
+    lines: "Iterable[str]", marker: str, program_name: str
+) -> "list[str]":
+    """
+    Look for lines that look like
+
+    phc2sys[10.6]: CLOCK_REALTIME phc offset 335394 s0 freq -80495 delay 0
+    ptp4l[12830.740]: master offset 850 s2 freq +7646 path delay 12
+
+    :param lines: the collected output lines
+    :param marker: the substring that identifies an offset line
+    :param program: name of the program, only used for the error message
+    :return: the lines containing marker
+    :raises SystemExit: if there is no line containing marker
+    """
+
+    offset_lines = [line for line in lines if marker in line]
+
+    if not offset_lines:
+        raise SystemExit(
+            f"[FAIL] Found no '{marker}' lines in stdout of {program_name}\n"
+            + "HINT: If you passed a config file, make sure "
+            + "summary_interval <= logSyncInterval, "
+            + "otherwise offset values don't appear"
+        )
+
+    return offset_lines
+
+
 def time_sync_ptp4l(
     interface: str,
     cfg: "Path | None" = None,
@@ -335,7 +365,7 @@ def time_sync_ptp4l(
     # we want to check the master_offset = -5 value from that line
     # if abs(master_offset) < 100, then the test passes
     # a failed run usually has very large numbers instead of -5
-    for line in last_10_lines:
+    for line in filter_offset_lines(last_10_lines, "master offset", "ptp4l"):
         try:
             master_offset = int(line.split()[3])
             if not -100 < master_offset < 100:
@@ -410,7 +440,9 @@ def time_sync_phc2sys(
             f"[Error] Caught error while running phc2sys on {interface}"
         )
 
-    for line in last_10_lines:
+    # a phc2sys offset line looks like this:
+    # phc2sys[5.000]: CLOCK_REALTIME phc offset -5 s2 freq +7652 delay 0
+    for line in filter_offset_lines(last_10_lines, "phc offset", "phc2sys"):
         offset = int(line.split()[4])
         state = line.split()[5]
         delay = int(line.split()[9])

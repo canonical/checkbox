@@ -578,6 +578,64 @@ def time_based_shaper(interface: str, timeout: int = 10) -> None:
     )
 
 
+def compute_cbs_params(
+    interface: str, idleslope: int = 100_000
+) -> "dict[str, int]":
+    """
+    Dynamically find the cbs credit values based on max link speed
+
+    idleslope is the bandwidth we want to reserve, everything else
+    follows from it and the port speed, see the formulas in `man tc-cbs`:
+
+        sendslope = idleslope - port_rate
+        hicredit  = max_frame_size * idleslope / port_rate
+        locredit  = max_frame_size * sendslope / port_rate
+
+    tc accepts arbitrary configs, so we need to explicitly check
+    idleslope < port_rate
+
+    :param interface: the interface the shaper will be attached to
+    :param idleslope: bandwidth to reserve, in kbit/s
+    :return: the cbs parameters, all in kbit/s except the credits
+    :raises SystemExit: if the link is too slow to reserve idleslope
+    """
+
+    try:
+        # -1 means the driver doesn't know yet, e.g. still auto-negotiating
+        speed_megabits = int(
+            Path(f"/sys/class/net/{interface}/speed").read_text().strip()
+        )
+    except (OSError, ValueError):
+        # reading this fails outright while the interface is down
+        speed_megabits = -1
+
+    if speed_megabits <= 0:
+        speed_megabits = 1000
+        print(
+            f"[WARN] Could not read the link speed of {interface},",
+            f"assuming {speed_megabits} Mb/s",
+        )
+
+    port_rate = speed_megabits * 1000  # kbit/s, same unit as idleslope
+
+    if idleslope >= port_rate:
+        raise SystemExit(
+            f"[ERROR] Cannot reserve {idleslope / 1000} Mbps on {interface}, "
+            f"the link only runs at {speed_megabits} Mb/s"
+        )
+
+    max_frame = int(Path(f"/sys/class/net/{interface}/mtu").read_text())
+    sendslope = idleslope - port_rate
+
+    # formula in https://man7.org/linux/man-pages/man8/tc-cbs.8.html
+    return {
+        "idleslope": idleslope,
+        "sendslope": sendslope,
+        "hicredit": round(max_frame * (idleslope / port_rate)),
+        "locredit": round(max_frame * (sendslope / port_rate)),
+    }
+
+
 def wait_until_reachable(
     interface: str, server_ip: str, timeout: int = 30
 ) -> float:
@@ -665,20 +723,19 @@ def credit_based_shaper(
     )
 
     # Replace the parent qdisc (handle 100:) with a credit based shaper
+    # reserve 100Mbps, the bitrate check below depends on this number
+    cbs_params = compute_cbs_params(interface, idleslope=100000)
+    print("Using cbs parameters:", cbs_params)
     cmd = ["tc", "qdisc", "replace", "dev", interface, "parent", "100:1"] + [
         "cbs",  # configure credit based shaping (cbs)
         "locredit",  # min credit
-        "-1350",
+        str(cbs_params["locredit"]),
         "hicredit",  # max credit
-        "150",
+        str(cbs_params["hicredit"]),
         "sendslope",
-        # comes from idleslope - max_link_speed
-        # where max_link_speed is the maximum transfer speed of this port
-        "-900000",
-        # NOTE: this value is picked specifically for 1Gbps ports
-        # NOTE: it may fail on faster / slower ports
+        str(cbs_params["sendslope"]),
         "idleslope",
-        "100000",  # reserve 100Mbps bandwidth
+        str(cbs_params["idleslope"]),
         # enable hardware offloading here to push the CBS algorithm onto the hw
         "offload",
         "1",
@@ -738,19 +795,22 @@ def credit_based_shaper(
             "[ERROR] Iperf3 did not return receiver link speed "
             + "in the last 10 lines!"
         )
-    # Check if the upload speed is between 90 and 100 Mbps
-    if not 90 < receiver_bitrate < 100:
+    # cbs should cap goodput at idleslope, minus some Ethernet framing
+    # overhead (~90% of idleslope is expected TCP goodput), so the
+    # measured upload speed should land in that range
+    reserved_mbps = cbs_params["idleslope"] / 1000
+    lower_bound = 0.9 * reserved_mbps
+    if not lower_bound < receiver_bitrate < reserved_mbps:
         raise SystemExit(
-            "[FAIL] The upload speed is not between 90 and 100 Mbps\n"
-            + f"The upload speed is {receiver_bitrate} Mbps"
+            f"[FAIL] The upload speed is not between {lower_bound:.2} "
+            + f"and {reserved_mbps:.2} Mbps\n"
+            + f"The upload speed is {receiver_bitrate:.2} Mbps"
         )
 
     # Print the upload speed and a success message
     print(
-        "[PASS] The upload speed",
-        receiver_bitrate,
-        "Mbps",
-        "is between 90 and 100 Mbps!",
+        f"[PASS] The upload speed {receiver_bitrate:.2} Mbps",
+        f"is between {lower_bound:.2} and {reserved_mbps:.2} Mbps!",
     )
 
 

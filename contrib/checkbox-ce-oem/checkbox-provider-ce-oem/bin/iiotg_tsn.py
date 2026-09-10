@@ -228,20 +228,15 @@ def server_mode(
     :param cfg: ptp4l config file
     """
 
-    processes = []  # type: list[sp.Popen[str]]
+    processes: "list[sp.Popen[str]]" = []
 
-    # Iterate over each interface and run ptp4l as master
     for interface in interfaces:
-        # Clear qdisc settings for the interface
         clear_qdisc_settings(interface=interface)
-
-        # Run ptp4l as master with the provided interface and configuration
+        ip = get_interface_ip(interface)
         process = ptp4l(interface=interface, cfg=cfg, server_mode=True)
         processes.append(process)
-        print(f"Start running ptp4l on {interface} as grandmaster")
 
-        # Get the IP address of the interface
-        ip = get_interface_ip(interface)
+        print(f"Start running ptp4l on {interface} as grandmaster")
 
         # Run iperf3 as a server in each port specified and each CPU
         for port, cpu in zip(range(5201, 5204), range(1, 4)):
@@ -254,8 +249,6 @@ def server_mode(
 
         # Wait for 0.5 seconds before printing the separator
         time.sleep(0.5)
-
-        # Print separator line
         print("===========================================================")
 
     print("Press ctrl + c to stop the server")
@@ -635,15 +628,7 @@ def credit_based_shaper(
         ["tc", "-g", "class", "show", "dev", interface], timeout=1, check=False
     )
 
-    # Wait for 5 seconds before replacing the parent qdisc with a credit-based
-    # shaper (cbs) and configuring its parameters
-    time.sleep(5)
-
-    # Replace the parent qdisc (handle 100:) with a cbs (credit based shaper)
-    # Set the low credit and high credit values
-    # Set the send slope and idle slope values
-    # Enable offload
-    # cmd = (
+    # Replace the parent qdisc (handle 100:) with a credit based shaper
     cmd = ["tc", "qdisc", "replace", "dev", interface, "parent", "100:1"] + [
         "cbs",  # configure credit based shaping (cbs)
         "locredit",  # min credit
@@ -668,7 +653,12 @@ def credit_based_shaper(
     # Show the current qdisc settings
     sp.run(["tc", "qdisc", "show", "dev", interface], timeout=1, check=False)
 
-    # Wait for 5 seconds before running iperf3 to measure the upload speed
+    # DO NOT REMOVE. Installing a cbs qdisc with `offload 1` makes the
+    # driver reprogram the hardware shaper, and drivers like igc reset
+    # the adapter to do that. tc returns immediately, but the link drops
+    # for ~2 seconds and the neighbour entry for the server is flushed,
+    # so it takes ~3 seconds before ARP resolves again. Starting iperf3
+    # any earlier just fails with "No route to host".
     time.sleep(5)
 
     # Run iperf3 client to measure the upload speed

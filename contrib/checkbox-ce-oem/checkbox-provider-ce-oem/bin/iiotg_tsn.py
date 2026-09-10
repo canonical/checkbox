@@ -578,6 +578,42 @@ def time_based_shaper(interface: str, timeout: int = 10) -> None:
     )
 
 
+def wait_until_reachable(
+    interface: str, server_ip: str, timeout: int = 30
+) -> float:
+    """
+    Block until interface can actually talk to server_ip again
+
+    :param interface: the interface that the qdisc was applied to
+    :param server_ip: the peer we need to reach
+    :param timeout: give up after this many seconds
+    :return: how long we waited, in seconds
+    :raises SystemExit: if the server is still unreachable after timeout
+    """
+
+    start = time.monotonic()
+
+    while time.monotonic() < start + timeout:
+        reachable = sp.run(
+            ["ping", "-I", interface, "-c", "1", "-W", "1", server_ip],
+            stdout=sp.DEVNULL,
+            stderr=sp.DEVNULL,
+            check=False,
+        )
+        if reachable.returncode == 0:
+            waited = time.monotonic() - start
+            print(f"{interface} can reach {server_ip} after {waited:.1f}s")
+            return waited
+        # ping can fail immediately while the link is down,
+        # so pace the loop instead of spinning on it
+        time.sleep(0.5)
+
+    raise SystemExit(
+        f"[ERROR] {interface} still could not reach {server_ip} "
+        f"{timeout} seconds after changing the qdisc"
+    )
+
+
 def credit_based_shaper(
     interface: str, server_ip: str, timeout: int = 10
 ) -> None:
@@ -653,13 +689,11 @@ def credit_based_shaper(
     # Show the current qdisc settings
     sp.run(["tc", "qdisc", "show", "dev", interface], timeout=1, check=True)
 
-    # DO NOT REMOVE. Installing a cbs qdisc with `offload 1` makes the
-    # driver reprogram the hardware shaper, and drivers like igc reset
-    # the adapter to do that. tc returns immediately, but the link drops
-    # for ~2 seconds and the neighbour entry for the server is flushed,
-    # so it takes ~3 seconds before ARP resolves again. Starting iperf3
-    # any earlier just fails with "No route to host".
-    time.sleep(5)
+    # `offload 1` makes the driver reprogram
+    # the hardware shaper, and drivers like igc reset the adapter to do
+    # that, which drops the link and flushes the arp entry for the
+    # server. Wait for it to come back or iperf3 fails to connect.
+    wait_until_reachable(interface, server_ip)
 
     # Run iperf3 client to measure the upload speed
     print(
@@ -801,7 +835,10 @@ def traffic_scheduling(
         raise SystemExit(
             f"[ERROR] Failed to set qdisc:\n{result.stderr.decode()}"
         )
-    time.sleep(5)
+
+    # flags 0x02 will reset the adapter and turn off the link briefly
+    # wait until it's back before testing
+    wait_until_reachable(interface, server_ip)
 
     print(
         "Setting which hardware transmit queue",

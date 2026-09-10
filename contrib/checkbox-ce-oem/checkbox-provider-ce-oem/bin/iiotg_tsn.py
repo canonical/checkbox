@@ -195,7 +195,7 @@ def phc2sys(
         # This profile only allows phc2sys to open @{run}/ptp4lro, so
         # talking to ptp4l's default read-write socket at /var/run/ptp4l
         # is denied and -w hangs on "Waiting for ptp4l..." forever.
-        
+
         # ptp4lro needs linuxptp >= 4.0, but every release
         # that ships this apparmor profile is new enough. Releases that
         # don't have the profile keep using the default socket.

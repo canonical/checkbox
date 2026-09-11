@@ -1162,6 +1162,8 @@ def parse_string(string: str):
     if len(interface_ip_pairs) == 0:
         raise SystemExit(f"Found no INTERFACE:SERVER_IP pairs in '{string}'")
 
+    # validate every pair before printing anything
+    parsed_pairs: "list[tuple[str, str]]" = []
     for pair in interface_ip_pairs:
         words = pair.strip().split(":")
         if len(words) != 2:
@@ -1179,6 +1181,9 @@ def parse_string(string: str):
         except ValueError:
             raise SystemExit(f"Invalid IP address '{server_ip}'")
 
+        parsed_pairs.append((interface, server_ip))
+
+    for interface, server_ip in parsed_pairs:
         print("interface:", interface)
         print("server_ip:", server_ip)
         print()

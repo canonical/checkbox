@@ -113,7 +113,9 @@ def parse_journal_csi_for_sensor(sensor_name, journal_lines):
             ):
                 matches = {
                     "slot": int(slot_match.group(1)) if slot_match else None,
-                    "chip": chip_match.group(1).upper() if chip_match else None,
+                    "chip": (
+                        chip_match.group(1).upper() if chip_match else None
+                    ),
                 }
                 break
 
@@ -183,9 +185,15 @@ def find_dt_csi_for_sensor(sensor_name):
 
                 matches.update(
                     {
-                        "slot": slot if slot is not None else matches.get("slot"),
-                        "csiphy": phy if phy is not None else matches.get("csiphy"),
-                        "cci": cci if cci is not None else matches.get("cci"),
+                        "slot": (
+                            slot if slot is not None else matches.get("slot")
+                        ),
+                        "csiphy": (
+                            phy if phy is not None else matches.get("csiphy"),
+                        ),
+                        "cci": (
+                            cci if cci is not None else matches.get("cci"),
+                        ),
                     }
                 )
                 return matches
@@ -251,7 +259,12 @@ def parse_camera_entry(entry):
     if right.isdigit():
         name = normalize_sensor_name(left)
         camera_id = right
-        return (camera_id, name, [camera_id], find_csi_interface_for_sensor(name))
+        return (
+            camera_id,
+            name,
+            [camera_id],
+            find_csi_interface_for_sensor(name),
+        )
 
     name = normalize_sensor_name(right)
     return (left, name, [left], find_csi_interface_for_sensor(name))
@@ -317,7 +330,10 @@ def get_camera_list(args):
     found_camera = False
     issue_names = []
     for _, name, camera_ids, csi in resolve_camera_entries(cameras):
-        normalized_name = normalize_supported_camera_name(name, supported_cameras)
+        normalized_name = normalize_supported_camera_name(
+            name,
+            supported_cameras,
+        )
         if normalized_name is None:
             if raise_error:
                 issue_names.append(name)

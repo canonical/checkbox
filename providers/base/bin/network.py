@@ -932,7 +932,7 @@ def check_underspeed(iface):
         network_if.link_speed < network_if.max_speed
         and network_if.max_speed != 0
     ):
-        logging.error(
+        logger.error(
             f"Detected link speed ({network_if.link_speed}) is lower "
             + f"than detected max speed ({network_if.max_speed})"
         )

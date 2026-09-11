@@ -1,202 +1,254 @@
 #!/usr/bin/env python3
 
 import argparse
-import subprocess
-import shlex
-import time
-import re
 import os
-from threading import Event
-from typing import List
+import re
+import selectors
+import subprocess as sp
+import sys
+import time
+from collections import deque
+from collections.abc import Iterable
 from contextlib import contextmanager
+from ipaddress import ip_address
+from pathlib import Path
+from threading import Event
+
+# comes with linuxptp since 25.10 and newer
+# this forces phc2sys to use ptp4l's read only socket, see phc2sys()
+PHC2SYS_APPARMOR_PROFILE = Path("/etc/apparmor.d/usr.sbin.phc2sys")
 
 
 def clear_qdisc_settings(interface: str) -> None:
-    """Clear the previous qdisc settings.
-
-    This function clears the previous qdisc settings by running the tc
-    command with the 'qdisc del' option. It may return an error if there
-    is no previous settings.
-    This will get errors if there is no previous settings.
-
-    Args:
-        interface (str): The name of the network interface.
-
-    Returns:
-        None
     """
-    # Build the tc command to delete the root qdisc settings
-    cmd = "tc qdisc del dev {} root".format(interface)
+    Delete the root qdisc settings
 
-    # Run the tc command with a timeout of 1 second
-    subprocess.run(
-        shlex.split(cmd),
-        stdout=subprocess.PIPE,  # Redirect stdout to a pipe.
-        stderr=subprocess.PIPE,  # Redirect stderr to a pipe.
+    :param interface: name of the network interface like enp1s1
+    """
+    out = sp.run(
+        ["tc", "qdisc", "del", "dev", interface, "root"],
+        capture_output=True,
         timeout=1,
+        check=False,  # cleaning nonexistent setting will return 2
     )
+    # explicitly allow return_code=2, otherwise panic
+    if out.returncode not in (0, 2):
+        out.check_returncode()
 
 
 @contextmanager
 def clear_qdisc_settings_before_and_after(interface: str):
-    """Clear the previous qdisc settings.
-
-    This context manager clears the previous qdisc settings by running the
-    tc command with the 'qdisc del' option. It may return an error if there
-    is no previous settings.
-
-    Args:
-        interface (str): The name of the network interface.
-
-    Yields:
-        None
-
-    Raises:
-        subprocess.CalledProcessError: If the tc command fails to delete
-        the root qdisc settings.
     """
+    Clear root qdisc settings before and after the context body
 
-    # Run the tc command to delete the root qdisc settings
+    :param interface: interface to clear
+    """
     try:
-        # Clear qdisc settings before the function call
         clear_qdisc_settings(interface)
         yield
     finally:
-        # Clear qdisc settings after the function call
         clear_qdisc_settings(interface)
 
 
-def ptp4l(interface: str, cfg: str, timeout: int = 0) -> subprocess.Popen:
-    """Run ptp4l command to sync physical hardware clock between systems.
-
-    Args:
-        interface (str): The interface to set the clock on.
-        cfg (str): The path to the configuration file.
-        timeout (int): The time to wait for the command to complete, \
-            in seconds.
-
-    Returns:
-        subprocess.Popen: A process object representing \
-        the running ptp4l command.
+def ptp4l(
+    interface: str,
+    cfg: "Path | None" = None,
+    timeout: int = 0,
+    server_mode: bool = False,
+    print_to_console: bool = False,
+) -> "sp.Popen[str]":
     """
-    # Build the ptp4l command with the provided parameters.
-    cmd = "timeout {} ptp4l -i {} -f {} -m".format(
-        timeout,
+    Spawn the ptp4l process
+
+    :param interface: interface to set the clock on.
+        NOTE: caller must check if this interface supports PTP
+    :param cfg: config file
+        check /usr/share/doc/linuxptp/configs/automotive-slave.cfg for an example # noqa: E501
+    :param timeout: how long should the ptp4l process run
+    :param server_mode:
+        if true and no config is specified, spawn a default ptp4l grandmaster
+    :param print_to_console: print to normal stdout/stderr instead of collecting the outputs
+    :return: the ptp4l process object
+    """
+
+    if cfg:
+        print(
+            f"Using ptp4l config file at {cfg.absolute()}".center(80, "-"),
+            flush=True,
+        )
+        print(cfg.read_text().strip())
+        print("-" * 80)
+        ptp4l_command = [
+            # caller is responsible for making sure config file is valid
+            # i.e. options are recognized by ptp4l
+            "timeout",
+            str(timeout),
+            "ptp4l",
+            "-i",
+            interface,
+            "-f",
+            str(cfg),
+            "-m",
+        ]
+
+    else:
+        # convenience path, you don't have to have a config file to run tests
+        # this should work on most intel platforms even without rt kernel
+        ptp4l_command = [
+            "timeout",
+            str(timeout),
+            "ptp4l",
+            "-i",
+            interface,
+            "-m",  # print msg to stdout
+            # anycast, allows auto server discovery
+            "--network_transport=L2",
+            # comes from the default config
+            # both server and client needs to have this
+            # https://github.com/richardcochran/linuxptp/blob/master/configs/gPTP.cfg
+            "--transportSpecific=1",
+            "--logAnnounceInterval=0",
+            "--logSyncInterval=-3",
+        ]
+        if server_mode:
+            # print a warning message that we are using --transportSpecific=1
+            # clients must also specify --transportSpecific=1
+            # or their packets will be dropped silently
+            print("=" * 80)
+            print(
+                "Launching default ptp4l grandmaster",
+                "with --transportSpecific=1",
+            )
+            print(
+                "All clients must also specify --transportSpecific=1",
+                "to prevent their packets from being dropped",
+            )
+            print(
+                "You can override this by specifying a config file.",
+                "See /usr/share/doc/linuxptp/configs/gPTP.cfg",
+                "or /usr/share/doc/linuxptp/configs/default.cfg",
+                "for an example",
+            )
+            print("=" * 80)
+        else:
+            # client only mode
+            # explicitly use the shorthand flag here because older ptp4l
+            # expects slaveOnly, but modern ptp4l expects clientOnly
+            ptp4l_command.append("-s")
+            # force 'master offset' output to appear in stdout
+            ptp4l_command.append("--summary_interval=-4")
+
+    print("Launching ptp4l process:", " ".join(ptp4l_command))
+    # caller decides how to consume stdout and stderr
+    return sp.Popen(
+        ptp4l_command,
+        stdout=None if print_to_console else sp.PIPE,
+        stderr=None if print_to_console else sp.PIPE,
+        text=True,
+    )
+
+
+def phc2sys(
+    interface: str,
+    timeout: int = 60,
+) -> "sp.Popen[str]":
+    """
+    Run phc2sys command to sync system clock to physical hardware clock.
+
+    :param interface: network interface to sync
+    :param timeout: how long should we run phc2sys
+    :param apparmor_profile:
+        the apparmor profile that decides which ptp4l socket we talk to
+    :return: phc2sys process object
+    """
+
+    command = [
+        "timeout",
+        str(timeout),
+        "phc2sys",
+        "-s",  # the interface to sync
         interface,
-        cfg,
+        # -O 0 sets the offset between system clock and hardware clock to 0
+        "-O",
+        "0",
+        # client clock source is CLOCK_REALTIME
+        "-c",
+        "CLOCK_REALTIME",
+        "-w",  # wait for ptp4l to be ready
+        "-m",  # print the messages to stdout
+        # allow phc2sys to converge faster when "time jumps" occur
+        # https://tsn.readthedocs.io/timesync.html#synchronizing-the-system-clock
+        "--step_threshold=1",
+        "--transportSpecific=1",  # see ptp4l()
+    ]
+
+    if PHC2SYS_APPARMOR_PROFILE.exists():
+        # This profile only allows phc2sys to open @{run}/ptp4lro, so
+        # talking to ptp4l's default read-write socket at /var/run/ptp4l
+        # is denied and -w hangs on "Waiting for ptp4l..." forever.
+
+        # ptp4lro needs linuxptp >= 4.0, but every release
+        # that ships this apparmor profile is new enough. Releases that
+        # don't have the profile keep using the default socket.
+
+        # test for the existence of the apparmor profile instead of testing
+        # ptp4lro existence, because there could be a race between launching
+        # ptp4l and socket creation
+        command.extend(["-z", "/var/run/ptp4lro"])
+
+    print("Launching phc2sys process:", " ".join(command))
+
+    return sp.Popen(
+        command,
+        stdout=sp.PIPE,
+        stderr=sp.PIPE,
+        text=True,
     )
-
-    # Run the ptp4l command with the provided parameters.
-    # The command is run with stdout and stderr redirected to pipes.
-    # Text mode is enabled to allow access to the output as text.
-    process = subprocess.Popen(
-        shlex.split(cmd),
-        stdout=subprocess.PIPE,  # Redirect stdout to a pipe.
-        stderr=subprocess.PIPE,  # Redirect stderr to a pipe.
-        text=True,  # Enable text mode, so output can be accessed as text.
-    )
-
-    # Return the process object representing the running ptp4l command.
-    return process
-
-
-def phc2sys(interface: str, timeout: int = 60) -> subprocess.Popen:
-    """Run phc2sys command to sync system clock to physical hardware clock.
-
-    Args:
-        interface (str): The network interface to sync.
-        timeout (int): The time to wait for the command to complete,
-        in seconds. Defaults to 60 seconds.
-
-    Returns:
-        subprocess.Popen: A process object representing the
-        running phc2sys command.
-    """
-    # Build the phc2sys command with the provided parameters.
-    # The command uses the timeout utility to limit the execution time.
-    # phc2sys is used to sync the system clock to the physical hardware clock.
-    # The -s specifies the interface to sync.
-    # The -O 0 flag sets the offset between system clock
-    # and physical hardware clock to 0.
-    # The -c specify the slave clock source.
-    # The -w flag wait for ptp4l.
-    # The -m flag print the messages.
-    # The --step_threshold=1 flag sets the step threshold to 1.
-    # The --transportSpecific=1 the transport specific field. [0-255]
-    cmd = (
-        "timeout {} phc2sys -s {} "
-        "-O 0 -c CLOCK_REALTIME -w -m "
-        "--step_threshold=1 --transportSpecific=1"
-    ).format(timeout, interface)
-
-    # Run the phc2sys command with the provided parameters.
-    # The command is run with stdout and stderr redirected to pipes.
-    # Text mode is enabled to allow access to the output as text.
-    process = subprocess.Popen(
-        shlex.split(cmd),
-        stdout=subprocess.PIPE,  # Redirect stdout to a pipe.
-        stderr=subprocess.PIPE,  # Redirect stderr to a pipe.
-        text=True,  # Enable text mode, so output can be accessed as text.
-    )
-
-    # Return the process object representing the running phc2sys command.
-    return process
 
 
 def server_mode(
-    interfaces: List,
-    cfg: str = "/usr/share/doc/linuxptp/configs/automotive-master.cfg",
+    interfaces: "list[str]",
+    cfg: "Path | None" = None,
 ) -> None:
-    """Run ptp4l as master in every port.
+    """
+    Convenience function that spawns a ptp4l grandmaster on every port.
+    All running ptp4l processes can be terminated with KeyboardInterrupt.
 
-    Args:
-        interfaces (List): List of network interfaces.
-        cfg (str, optional): Path to the configuration file.
-            Defaults to
-            "/usr/share/doc/linuxptp/configs/automotive-master.cfg".
-
-    This function runs ptp4l as master in every port specified
-    in the interfaces list. It terminates all running ptp4l processes on
-    KeyboardInterrupt.
-
-    Raises:
-        ValueError: If the number of interfaces and server_ips is not the same.
+    :param interfaces: the interfaces to spawn
+    :param cfg: ptp4l config file
     """
 
-    # List to store the process objects
-    processes = []
+    processes: "list[sp.Popen[str]]" = []
 
-    # Iterate over each interface and run ptp4l as master
     for interface in interfaces:
-        # Clear qdisc settings for the interface
         clear_qdisc_settings(interface=interface)
-
-        # Run ptp4l as master with the provided interface and configuration
-        process = ptp4l(interface=interface, cfg=cfg)
-        processes.append(process)
-        print("Start running ptp4l on {} as master".format(interface))
-
-        # Get the IP address of the interface
         ip = get_interface_ip(interface)
+        process = ptp4l(
+            interface=interface,
+            cfg=cfg,
+            server_mode=True,
+            # must print to console
+            # otherwise we will hit the pipe size limit after an hour
+            print_to_console=True,
+        )
+        processes.append(process)
+
+        print(f"Start running ptp4l on {interface} as grandmaster")
 
         # Run iperf3 as a server in each port specified and each CPU
         for port, cpu in zip(range(5201, 5204), range(1, 4)):
             # Run iperf3 server
-            process = subprocess.Popen(
-                shlex.split(
-                    "iperf3 -s -B {} -p {} -A {}".format(ip, port, cpu)
-                )
+            process = sp.Popen(
+                ["iperf3", "-s", "-B", ip, "-p", str(port), "-A", str(cpu)],
+                text=True,
             )
             processes.append(process)
 
         # Wait for 0.5 seconds before printing the separator
         time.sleep(0.5)
-
-        # Print separator line
         print("===========================================================")
 
-    # Print message to press ctrl + c to end this
-    print("Press ctrl + c to end this.")
+    print("Press ctrl + c to stop the server")
 
     try:
         # Wait for KeyboardInterrupt
@@ -207,154 +259,259 @@ def server_mode(
             process.terminate()
         print("Terminated all ptp4l and iperf3 process")
 
-    return
+
+def stream_process_output(
+    process: "sp.Popen[str]",
+    stdout_maxlen: "int | None" = 10,
+    stderr_maxlen: "int | None" = 10,
+    print_stdout: bool = True,
+    print_stderr: bool = True,
+) -> "tuple[list[str], list[str]]":
+    """
+    Drain a process' stdout and stderr concurrently without threads
+    - Streams output live to the current stdout and stderr so the subprocess
+    doesn't look frozen
+    - Implemented with `selectors` (epoll/poll) so a filled 64kb pipe on either
+    stream can never deadlock the other
+
+    :param process: an sp.Popen with stdout=PIPE, stderr=PIPE, text=True
+    :param stdout_lines: how many trailing stdout lines to keep and
+        return, or None to keep all lines
+    :param stderr_lines: how many trailing stderr lines to keep and
+        return, or None to keep all lines
+    :param print_stdout: print each stdout line to console as it arrives
+    :param print_stderr: print each stderr line to console as it arrives
+    :return: (trailing stdout lines, trailing stderr lines)
+    """
+    # they should be io.TextIO objects
+    assert process.stdout and process.stderr
+
+    stdout_fd = process.stdout.fileno()
+    stderr_fd = process.stderr.fileno()
+    for fd in (stdout_fd, stderr_fd):
+        os.set_blocking(fd, False)
+
+    sel = selectors.DefaultSelector()
+    sel.register(stdout_fd, selectors.EVENT_READ)
+    sel.register(stderr_fd, selectors.EVENT_READ)
+
+    # raw byte buffer per fd, holding an incomplete trailing line
+    pending: "dict[int, bytes]" = {stdout_fd: b"", stderr_fd: b""}
+    open_fds = {stdout_fd, stderr_fd}
+    lines: "dict[int, deque[str]]" = {
+        stdout_fd: deque(maxlen=stdout_maxlen),
+        stderr_fd: deque(maxlen=stderr_maxlen),
+    }
+
+    while open_fds:
+        for key, _ in sel.select():
+            fd = key.fd
+            try:
+                chunk = os.read(fd, 65536)
+            except BlockingIOError:
+                # selector said readable, but nothing left right now
+                continue
+
+            if not chunk:
+                # EOF on this pipe, the process closed it
+                sel.unregister(fd)
+                open_fds.discard(fd)
+                continue
+
+            pending[fd] += chunk
+            *complete, pending[fd] = pending[fd].split(b"\n")
+            for raw_line in complete:
+                clean_line = raw_line.decode(errors="replace").strip()
+                if fd == stdout_fd and print_stdout:
+                    print(clean_line, flush=True)
+                if fd == stderr_fd and print_stderr:
+                    print(clean_line, flush=True, file=sys.stderr)
+                lines[fd].append(clean_line)
+
+    # flush a final line on each stream that never got a trailing newline
+    for fd in (stdout_fd, stderr_fd):
+        if pending[fd]:
+            clean_line = pending[fd].decode(errors="replace").strip()
+            if fd == stdout_fd and print_stdout:
+                print(clean_line, flush=True)
+            if fd == stderr_fd and print_stderr:
+                print(clean_line, flush=True, file=sys.stderr)
+            lines[fd].append(clean_line)
+
+    process.wait()
+    return list(lines[stdout_fd]), list(lines[stderr_fd])
+
+
+def filter_offset_lines(
+    lines: "Iterable[str]", marker: str, program_name: str
+) -> "list[str]":
+    """
+    Look for lines that look like
+
+    phc2sys[10.6]: CLOCK_REALTIME phc offset 335394 s0 freq -80495 delay 0
+    ptp4l[12830.740]: master offset 850 s2 freq +7646 path delay 12
+
+    :param lines: the collected output lines
+    :param marker: the substring that identifies an offset line
+    :param program: name of the program, only used for the error message
+    :return: the lines containing marker
+    :raises SystemExit: if there is no line containing marker
+    """
+
+    offset_lines = [line for line in lines if marker in line]
+
+    if not offset_lines:
+        raise SystemExit(
+            f"[FAIL] Found no '{marker}' lines in stdout of {program_name}\n"
+            + "HINT: If you passed a config file, make sure "
+            + "summary_interval <= logSyncInterval, "
+            + "otherwise offset values don't appear"
+        )
+
+    return offset_lines
 
 
 def time_sync_ptp4l(
     interface: str,
-    cfg: str = "/usr/share/doc/linuxptp/configs/automotive-slave.cfg",
+    cfg: "Path | None" = None,
     timeout: int = 60,
 ) -> None:
     """
-    Test ptp4l by running it as a subprocess and checking its output.
+    The main ptp4l test.
+    Test passes if abs(master offset) < 100 and enters s2 state
 
-    Args:
-        interface (str): The network interface to run ptp4l on.
-        cfg (str, optional): The path to the ptp4l configuration file.
-            Defaults to "/usr/share/doc/linuxptp/configs/automotive-slave.cfg".
-        timeout (int, optional): The maximum time to wait for ptp4l to run.
-            Defaults to 60 seconds.
-
-    Raises:
-        SystemExit: If ptp4l encounters an error or the master offset is not
-        between -100 and 100.
-
-    Prints:
-        Standard Output (stdout): The output of ptp4l.
-        Standard Error (stderr): The error output of ptp4l, if any.
-        [PASS] Masteroffset is between -100 to 100: If the master offset is
-            between -100 and 100.
-        [FAIL] Masteroffset is not between -100 to 100: If the master offset
-            is not between -100 and 100.
+    :param interface: the PTP interface to test
+    :param cfg: config file to pass to ptp4l
+        NOTE: this config file overrides any default value this script provides
+              i.e. the user is on their own if using a config file
+    :param timeout: how long to run the test before we stop ptp4l
+    :raises SystemExit: if timeout is too short
+    :raises SystemExit: we found any stderr lines in ptp4l's output
+    :raises SystemExit: abs(master offset) >= 100
     """
+
     if timeout < 30:
         raise SystemExit(
             "[ERROR] timeout should be at least 30 seconds "
-            "to let the time synchronized"
+            + f"for a successful time sync (got {timeout})"
         )
-    # Run ptp4l as a subprocess and get its output
-    process = ptp4l(interface=interface, cfg=cfg, timeout=timeout)
-    stdout, stderr = process.communicate()
 
-    # Print the output of ptp4l
-    print("Standard Output (stdout):")
-    print(stdout)
-    print("Standard Error (stderr):")
-    print(stderr)
+    ptp4l_process = ptp4l(interface=interface, cfg=cfg, timeout=timeout)
+    last_10_lines, stderr_lines = stream_process_output(
+        ptp4l_process, stdout_maxlen=10, stderr_maxlen=None
+    )
 
-    # If ptp4l encountered an error, raise a SystemExit exception
-    if stderr:
+    if stderr_lines:
+        # a successful & clean run of ptp4l shows no errors
+        # NOTE: if the error mentions deleting files in /var/run
+        # NOTE: that means a previous ptp4l run was force killed / crashed
+        # NOTE: re-run the test and those lines won't appear
+        print("Standard Error (stderr):", file=sys.stderr)
+        print("\n".join(stderr_lines), file=sys.stderr)
         raise SystemExit(
-            "[Error] Catch error while running ptp4l on {}".format(interface)
+            f"[Error] Caught error while running ptp4l on {interface}"
         )
 
-    # Check the last 10 seconds of ptp4l output
-    lines = stdout.splitlines()
-    for line in lines[-10:]:
-        offset = int(line.split()[3])
-        if not -100 < offset < 100:
-            raise SystemExit("[FAIL] Masteroffset is not between -100 to 100")
+    # now we check the last 10 lines of ptp4l's output
+    # a successful output looks like this:
+    #
+    # ptp4l[11408.871]: master offset -5 s2 freq +7652 path delay 12
+    #
+    # we want to check the master_offset = -5 value from that line
+    # if abs(master_offset) < 100, then the test passes
+    # a failed run usually has very large numbers instead of -5
+    for line in filter_offset_lines(last_10_lines, "master offset", "ptp4l"):
+        try:
+            master_offset = int(line.split()[3])
+            if not -100 < master_offset < 100:
+                raise SystemExit(
+                    "[FAIL] Master offset is not between -100 to 100"
+                )
+        except ValueError:
+            # print the entire line before raising
+            # or we get a cryptic "'as' cannot be converted to int" message
+            print(
+                "Failed to parse offset int from line:", line, file=sys.stderr
+            )
+            raise  # now we print the actual call trace
 
-    # If the master offset is between -100 and 100, print a success message
-    print("[PASS] Masteroffset is between -100 to 100")
+    print("[PASS] Master offset is between -100 to 100")
 
 
 def time_sync_phc2sys(
     interface: str,
-    cfg: str = "/usr/share/doc/linuxptp/configs/automotive-slave.cfg",
+    cfg: "Path | None" = None,
     timeout: int = 60,
 ) -> None:
     """
-    Test phc2sys by running it as a subprocess and checking its output.
+    The main phc2sys test.
+    Passes if:
+     - abs(phc offset) < 100
+     - phc2sys enters "s2: synced" state
+     - path delay == 0
 
-    Args:
-        interface (str): The network interface to run phc2sys on.
-        cfg (str, optional): The path to the phc2sys configuration file.
-            Defaults to "/usr/share/doc/linuxptp/configs/automotive-slave.cfg".
-        timeout (int, optional): The maximum time to wait for phc2sys to run.
-            Defaults to 60 seconds.
-
-    Raises:
-        SystemExit: If phc2sys encounters an error or the master offset is not
-            between -100 and 100, or the state is not equal to "s2" for the
-            last 10 seconds, or the path delay is not equal to 0.
-
-    Prints:
-        Standard Output (stdout): The output of phc2sys.
-        Standard Error (stderr): The error output of phc2sys, if any.
-        [PASS] Syncing system time to physical hardware clock successfully: If
-            phc2sys syncs the system time to physical hardware clock
-            successfully.
+    :param interface: the PTP interface
+    :param cfg: config file to pass to ptp4l
+        NOTE: this config file overrides any default value this script provides
+              i.e. the user is on their own if using a config file
+    :param timeout: how long to run the test before we stop phc2sys
+    :raises SystemExit: timeout too short
+    :raises SystemExit: phc2sys printed any error
+    :raises SystemExit: abs(phc offset) >= 100
+    :raises SystemExit: stats is not s2
+    :raises SystemExit: nonzero path delay
     """
     if timeout < 30:
         raise SystemExit(
             "[ERROR] timeout should be at least 30 seconds "
-            "to let the time synchronized"
+            + f"for a successful time sync (got {timeout})"
         )
-    # Run ptp4l as a subprocess and get its output
-    ptp4l(interface=interface, cfg=cfg, timeout=timeout)
 
-    # Run phc2sys as a subprocess and get its output
-    process = phc2sys(interface=interface, timeout=timeout)
-    stdout, stderr = process.communicate()
+    # the timeout will cleanup the process for us
+    # so we don't have to explicitly call Process.terminate()
+    ptp4l(interface=interface, cfg=cfg, timeout=timeout, print_to_console=True)
 
-    # Print the output of phc2sys
-    print("Standard Output (stdout):")
-    print(stdout)
-    print("Standard Error (stderr):")
-    print(stderr)
+    phc2sys_proc = phc2sys(interface=interface, timeout=timeout)
+    last_10_lines, stderr_lines = stream_process_output(
+        phc2sys_proc, stdout_maxlen=10, stderr_maxlen=None
+    )
 
-    # If phc2sys encountered an error, raise a SystemExit exception
-    if stderr:
-        print(f"[Error] Catch error while running ptp4l on {interface}")
+    if stderr_lines:
+        print("Standard Error (stderr):", file=sys.stderr)
+        print("\n".join(stderr_lines), file=sys.stderr)
         raise SystemExit(
-            "[Error] Catch error while running ptp4l on {}".format(interface)
+            f"[Error] Caught error while running phc2sys on {interface}"
         )
 
-    # Check the last 10 seconds of phc2sys output
-    lines = stdout.splitlines()
-    for line in lines[-10:]:
-        offset = int(line.split()[4])
-        state = line.split()[5]
-        delay = int(line.split()[9])
+    # a phc2sys offset line looks like this:
+    # phc2sys[5.000]: CLOCK_REALTIME phc offset -5 s2 freq +7652 delay 0
+    for line in filter_offset_lines(last_10_lines, "phc offset", "phc2sys"):
+        try:
+            offset = int(line.split()[4])
+            state = line.split()[5]
+            delay = int(line.split()[9])
+        except (ValueError, IndexError):
+            # avoid the cryptic "'as' cannot be converted to int" message
+            raise SystemExit(f"Failed to parse offset line: {line}")
 
-        # If the master offset is not between -100 and 100,
-        # raise a SystemExit exception
         if not -100 < offset < 100:
-            print("[FAIL] phc offset is not between -100 to 100")
-            raise SystemExit(1)
+            raise SystemExit("[FAIL] phc offset is not between -100 to 100")
 
-        # If the state is not equal to "s2" for the last 10 seconds,
-        # raise a SystemExit exception
         if state != "s2":
             raise SystemExit(
-                "[FAIL] state is not equal to s2 "
-                "for the last 10 seconds\n"
-                "s0: unsynced\n"
-                "s1: syncing\n"
-                "s2: synced"
+                "[FAIL] state is not equal to s2 for the last 10 seconds\n"
+                + "s0: unsynced\n"
+                + "s1: syncing\n"
+                + "s2: synced"
             )
 
-        # If the path delay is not equal to 0 for the last 10 seconds,
-        # raise a SystemExit exception
         if delay != 0:
             raise SystemExit(
                 "[FAIL] path delay is not equal to 0\n"
-                "path delay should be 0 if using hardware "
-                "cross timestamping"
+                + "path delay should be 0 if using hardware cross timestamping"
             )
 
-    print("[PASS] Syncing system time to physical hardware clock successfully")
+    print("[PASS] Synced system time to physical hardware clock successfully")
 
 
 def time_based_shaper(interface: str, timeout: int = 10) -> None:
@@ -369,54 +526,79 @@ def time_based_shaper(interface: str, timeout: int = 10) -> None:
         SystemExit: If there are more than 5% packets not within the required
             time interval.
     """
-
-    # Add mqprio qdisc with four traffic classes
+    # https://man7.org/linux/man-pages/man8/tc-mqprio.8.html
     cmd = (
-        "tc qdisc add dev {} handle 8001: parent root mqprio num_tc 4 "
-        "map 0 1 2 3 3 3 3 3 3 3 3 3 3 3 3 3 queues 1@0 1@1 1@2 1@3 hw 0"
-    ).format(interface)
-    subprocess.run(shlex.split(cmd), timeout=1)
+        # create a new Queueing Discipline at <interface> with handle 8001:
+        ["tc", "qdisc", "add", "dev", interface, "handle", "8001:"]
+        # attach this Discipline to the root
+        # use the multi queue priority scheme (mqprio)
+        # and create 4 unique traffic classes
+        + ["parent", "root", "mqprio", "num_tc", "4"]
+        + [
+            "map",  # assign each of the 16 prio bands to the traffic classes
+            "0",  # band 0 to class 0
+            "1",  # band 1 to class 1
+            "2",  # band 2 to class 2
+            *(["3"] * (16 - 3)),  # dump all remaining bands to class 3
+        ]
+        # all traffic classes start with exactly 1 queue
+        + ["queues", "1@0", "1@1", "1@2", "1@3"]
+        # disable hw offloading
+        + ["hw", "0"]
+    )
+    sp.run(cmd, timeout=1, check=False)
 
-    # Replace parent qdisc with etf offload
+    # configure Earliest TxTime First
+    # https://man7.org/linux/man-pages/man8/tc-etf.8.html
     cmd = (
-        "tc qdisc replace dev {} parent 8001:4 etf offload clockid CLOCK_TAI "
-        "delta 500000"
-    ).format(interface)
-    subprocess.run(shlex.split(cmd), timeout=1)
+        # Replace parent qdisc with etf offload
+        ["tc", "qdisc", "replace", "dev", interface]
+        # specifically, replace the 4th queue
+        + ["parent", "8001:4"]
+        + ["etf", "offload", "clockid", "CLOCK_TAI", "delta", "500000"]
+    )
+    sp.run(cmd, timeout=1, check=False)
 
-    # Show the current qdisc settings
-    cmd = "tc qdisc show dev {}".format(interface)
-    subprocess.run(shlex.split(cmd), timeout=1)
+    # show the current qdisc settings
+    sp.run(["tc", "qdisc", "show", "dev", interface], timeout=1, check=False)
 
-    # Run udp_tai with specified parameters
-    cmd = "udp_tai -c 3 -i {} -P 1000000 -p 90 -d 600000".format(interface)
-    process_udp_tai = subprocess.Popen(
-        shlex.split(cmd), stdout=subprocess.PIPE, text=True
+    # spawn udp_tai. To get this command, compile from
+    # https://gist.github.com/tomli380576/73529ee1449106eaa7d289ef0253c9ed
+    process_udp_tai = sp.Popen(
+        ["udp_tai", "-c", "3", "-i", interface]
+        + ["-P", "1000000", "-p", "90", "-d", "600000"],
+        stdout=sp.PIPE,
+        text=True,
     )
 
-    # Capture packets with tcpdump and
+    # capture packets with tcpdump and
     # check that they are within the required time interval
-    cmd = (
-        "tcpdump -G {} -Q out -ttt -ni {} --time-stamp-precision=nano "
-        "-j adapter_unsynced port 7788 -c {}".format(
-            timeout, interface, timeout * 1000
-        )
-    )
-    process = subprocess.Popen(
-        shlex.split(cmd), stdout=subprocess.PIPE, text=True
-    )
+    cmd = [
+        "tcpdump",
+        "-G",  # rotate output file every <timeout> seconds
+        str(timeout),  # since we write to stdout, tcpdump stops after 10s
+        "-Q",
+        "out",  # only check outgoing packets
+        "-ttt",  # print time delta for each packet
+        "-ni",  # do not resolve ip
+        interface,  # and listen on this interface
+        "--time-stamp-precision=nano",
+        "-j",  # specify timestamp type
+        "adapter_unsynced",
+        "port",  # check this port only
+        "7788",
+        "-c",  # stop after this many packets
+        str(timeout * 1000),
+    ]
+    tcp_dump_proc = sp.Popen(cmd, stdout=sp.PIPE, text=True)
     try:
-        stdout, stderr = process.communicate(timeout=timeout * 2)
-    except subprocess.TimeoutExpired:
-        process.kill()
-        raise SystemExit("Reach timeout {}".format(timeout * 2))
+        stdout, stderr = tcp_dump_proc.communicate(timeout=timeout * 2)
+    except sp.TimeoutExpired:
+        tcp_dump_proc.kill()
+        raise SystemExit(f"Reached timeout {timeout * 2}s")
     finally:
         process_udp_tai.kill()
 
-    if stdout is None or stderr is not None:
-        raise SystemExit("No output from tcpdump!")
-
-    # Print the output of tcpdump
     print("Standard Output (stdout):")
     print(stdout)
     print("Standard Error (stderr):")
@@ -429,7 +611,7 @@ def time_based_shaper(interface: str, timeout: int = 10) -> None:
             time = int(line.split()[0].split(".")[1])
         except (IndexError, ValueError):
             raise SystemExit(
-                "[ERROR] Cannot find the time in the line: {}".format(line)
+                f"[ERROR] Cannot find the time in the line: {line}"
             )
         if not 999500 < time < 1000500:
             cnt += 1
@@ -438,279 +620,519 @@ def time_based_shaper(interface: str, timeout: int = 10) -> None:
     # raise a SystemExit exception
     if cnt > timeout * 1000 * 0.05:
         raise SystemExit(
-            "[FAIL] There are {}/{} (more than 5%) packets not "
-            "within the required time interval (999500 - 1000500)".format(
-                cnt, timeout * 1000
-            )
+            f"[FAIL] There are {cnt}/{timeout * 1000} (more than 5%) packets "
+            + "not within the required time interval (999500 - 1000500)"
         )
 
     print(
-        "[PASS] There are {}/{} packets (less than 5%) within "
-        "the required time interval (999500 - 1000500)".format(
-            cnt, timeout * 1000
+        "[PASS] There are",
+        f"{cnt}/{timeout * 1000}",
+        "packets (less than 5%) within",
+        "the required time interval (999500 - 1000500)",
+    )
+
+
+def compute_cbs_params(
+    interface: str, idleslope: int = 100_000
+) -> "dict[str, int]":
+    """
+    Dynamically find the cbs credit values based on max link speed
+
+    idleslope is the bandwidth we want to reserve, everything else
+    follows from it and max port_rate, see the formulas in `man tc-cbs`:
+
+    sendslope = idleslope - port_rate
+    hicredit  = max_frame_size * idleslope / port_rate
+    locredit  = max_frame_size * sendslope / port_rate
+
+    tc accepts arbitrary configs, so we need to explicitly check
+    idleslope < port_rate
+
+    :param interface: the interface the shaper will be attached to
+    :param idleslope: bandwidth to reserve, in kbit/s
+    :return: the cbs parameters, all in kbit/s except the credits
+    :raises SystemExit: if the link is too slow to reserve idleslope
+    """
+
+    try:
+        # -1 means the driver doesn't know yet, e.g. still auto-negotiating
+        speed_megabits = int(
+            Path(f"/sys/class/net/{interface}/speed").read_text().strip()
         )
+    except (OSError, ValueError):
+        # reading this fails outright while the interface is down
+        speed_megabits = -1
+
+    if speed_megabits <= 0:
+        speed_megabits = 1000
+        print(
+            f"[WARN] Could not read the link speed of {interface},",
+            f"assuming {speed_megabits} Mb/s",
+        )
+
+    port_rate = speed_megabits * 1000  # kbit/s, same unit as idleslope
+
+    if idleslope >= port_rate:
+        raise SystemExit(
+            f"[ERROR] Cannot reserve {idleslope / 1000} Mbps on {interface}, "
+            f"the link only runs at {speed_megabits} Mb/s"
+        )
+
+    max_frame = int(Path(f"/sys/class/net/{interface}/mtu").read_text())
+    sendslope = idleslope - port_rate
+
+    # formula in https://man7.org/linux/man-pages/man8/tc-cbs.8.html
+    return {
+        "idleslope": idleslope,
+        "sendslope": sendslope,
+        "hicredit": round(max_frame * (idleslope / port_rate)),
+        "locredit": round(max_frame * (sendslope / port_rate)),
+    }
+
+
+def wait_until_reachable(
+    interface: str, server_ip: str, timeout: int = 30
+) -> float:
+    """
+    Block until interface can actually talk to server_ip again
+
+    :param interface: the interface that the qdisc was applied to
+    :param server_ip: the server we need to reach
+    :param timeout: give up after this many seconds
+    :return: how many seconds we waited
+    :raises SystemExit: if the server is still unreachable after timeout
+    """
+
+    start = time.monotonic()
+
+    while time.monotonic() < start + timeout:
+        reachable = sp.run(
+            ["ping", "-I", interface, "-c", "1", "-W", "1", server_ip],
+            stdout=sp.DEVNULL,
+            stderr=sp.DEVNULL,
+            check=False,
+        )
+        if reachable.returncode == 0:
+            waited = time.monotonic() - start
+            print(f"{interface} can reach {server_ip} after {waited:.1f}s")
+            return waited
+        # ping can fail immediately while the link is down,
+        # so pace the loop instead of spinning on it
+        time.sleep(0.5)
+
+    raise SystemExit(
+        f"[ERROR] {interface} still could not reach {server_ip} "
+        f"{timeout} seconds after changing the qdisc"
     )
 
 
 def credit_based_shaper(
     interface: str, server_ip: str, timeout: int = 10
 ) -> None:
-    """
-    Setup a credit-based shaper on the specified interface.
+    """The main credit based shaper test.
 
-    Args:
-        interface (str): The interface to set the shaper on.
-        server_ip (str): The IP address of the server to send traffic to.
-        timeout (int): The timeout for the shaper in seconds.
+    :param interface: the PTP interface
+    :param server_ip: where's the PTP server
+    :param timeout: how long should we run the iperf3 clients
+                    and measure upload speed while cbs is active
+    :raises SystemExit: can't reach the server
+    :raises SystemExit: any iperf3 error
+    :raises SystemExit: failed to parse iperf3 output
+    :raises SystemExit: upload speed is not between +-10% of reserved bandwidth
     """
-
-    # Replace the main qdisc with a multi-queue qdisc (mqprio) with four
-    # traffic classes and 1 queue for each class
-    # Set the queues to be associated with classes 0-3
-    # and enable hardware offload
-    cmd = (
-        "tc qdisc replace dev {} handle 100: parent root mqprio num_tc 4 "
-        "map 0 1 2 3 3 3 3 3 3 3 3 3 3 3 3 3 "
-        "queues 1@0 1@1 1@2 1@3 hw 0".format(interface)
+    # quick sanity check and make sure server is reachable
+    print(
+        "Make sure we can reach the iperf sever at",
+        server_ip,
+        "through interface",
+        interface,
     )
-    subprocess.run(shlex.split(cmd), timeout=1)
+    if (
+        sp.run(
+            ["ping", "-I", interface, "-c", "5", server_ip], check=False
+        ).returncode
+        != 0
+    ):
+        raise SystemExit(f"[ERROR] Cannot reach {server_ip} via {interface}")
+
+    # this is mostly the same as time based shaper
+    # except it uses a different handle
+    # https://man7.org/linux/man-pages/man8/tc-mqprio.8.html
+    cmd = (
+        # create a new Queueing Discipline at <interface> with handle 8001:
+        ["tc", "qdisc", "add", "dev", interface, "handle", "100:"]
+        # attach this Discipline to the root
+        # use the multi queue priority scheme (mqprio)
+        # and create 4 unique traffic classes
+        + ["parent", "root", "mqprio", "num_tc", "4"]
+        + [
+            "map",  # assign each of the 16 prio bands to the traffic classes
+            "0",  # band 0 to class 0
+            "1",  # band 1 to class 1
+            "2",  # band 2 to class 2
+            *(["3"] * (16 - 3)),  # dump all remaining bands to class 3
+        ]
+        # all traffic classes start with exactly 1 queue
+        + ["queues", "1@0", "1@1", "1@2", "1@3"]
+        # disable hw offloading for traffic classification
+        # this comes from the example in `man tc-cbs`
+        + ["hw", "0"]
+    )
+    sp.run(cmd, timeout=1, check=True)
 
     # Show the current qdisc settings
-    cmd = "tc -g class show dev {}".format(interface)
-    subprocess.run(shlex.split(cmd), timeout=1)
-
-    # Wait for 5 seconds before replacing the parent qdisc with a credit-based
-    # shaper (cbs) and configuring its parameters
-    time.sleep(5)
-
-    # Replace the parent qdisc (handle 100:) with a cbs (credit based shaper)
-    # Set the low credit and high credit values
-    # Set the send slope and idle slope values
-    # Enable offload
-    cmd = (
-        "tc qdisc replace dev {} parent 100:1 cbs "
-        "locredit -1350 hicredit 150 sendslope -900000 "
-        "idleslope 100000 offload 1".format(interface)
+    sp.run(
+        ["tc", "-g", "class", "show", "dev", interface], timeout=1, check=True
     )
-    subprocess.run(shlex.split(cmd), timeout=1)
+
+    # Replace the parent qdisc (handle 100:) with a credit based shaper
+    # reserve 100Mbps, the bitrate check below depends on this number
+    cbs_params = compute_cbs_params(interface, idleslope=100000)
+    print("Using cbs parameters:", cbs_params)
+    cmd = ["tc", "qdisc", "replace", "dev", interface, "parent", "100:1"] + [
+        "cbs",  # configure credit based shaping (cbs)
+        "locredit",  # min credit
+        str(cbs_params["locredit"]),
+        "hicredit",  # max credit
+        str(cbs_params["hicredit"]),
+        "sendslope",
+        str(cbs_params["sendslope"]),
+        "idleslope",
+        str(cbs_params["idleslope"]),
+        # enable hardware offloading here to push the CBS algorithm onto the hw
+        "offload",
+        "1",
+    ]
+
+    sp.run(cmd, timeout=1, check=True)
 
     # Show the current qdisc settings
-    cmd = "tc qdisc show dev {}".format(interface)
-    subprocess.run(shlex.split(cmd), timeout=1)
+    sp.run(["tc", "qdisc", "show", "dev", interface], timeout=1, check=True)
 
-    # Wait for 5 seconds before running iperf3 to measure the upload speed
-    time.sleep(5)
+    # `offload 1` may restart the network card
+    # wait for it to come back first
+    wait_until_reachable(interface, server_ip)
 
     # Run iperf3 client to measure the upload speed
-    process = iperf3_client(server_ip, get_interface_ip(interface), timeout)
-    stdout, stderr = process.communicate()
-
-    # Check for errors in the iperf3 output
-    if stderr:
-        raise SystemExit(
-            "[ERROR] Found error while running iperf3:\n {}".format(stderr)
-        )
-
-    # Print the iperf3 output
-    print(stdout)
-
-    # Parse the upload speed from the iperf3 output
-    speed_bits = float(stdout.split("\n")[-4].split()[6])
-
-    # Check if the upload speed is between 90 and 100 Mbps
-    if not 90 < speed_bits < 100:
-        raise SystemExit(
-            "[FAIL] The upload speed is not between 90 and 100 Mbps\n"
-            "The upload speed is {} Mbps".format(speed_bits)
-        )
-
-    # Print the upload speed and a success message
     print(
-        "[PASS] The upload speed is between 90 and 100 Mbps\n"
-        "The upload speed is {} Mbps".format(speed_bits)
+        "Starting iperf3 client at",
+        interface,
+        "to measure upload speed",
+        f"(will run for {timeout} seconds)",
+        flush=True,
+    )
+    iperf_process = iperf3_client(
+        server_ip, get_interface_ip(interface), timeout
+    )
+    iperf_stdout_last_10_lines, iperf_stderr_lines = stream_process_output(
+        iperf_process, stdout_maxlen=10, stderr_maxlen=None
+    )
+
+    if iperf_stderr_lines:
+        raise SystemExit(
+            "[ERROR] Found error while running iperf3:\n"
+            + "\n".join(iperf_stderr_lines)
+        )
+
+    # look for the real transfer speed in iperf3 output
+    # a successful line looks like
+    # [  5]   0.00-60.01  sec   674 MBytes  94.2 Mbits/sec receiver
+    # we want the number right before Mbits/sec
+    receiver_bitrate: "float | None" = None
+    for line in iperf_stdout_last_10_lines:
+        if line.lower().strip().endswith("receiver"):
+            # 94.2 in the example
+            words = line.lower().strip().split()
+            receiver_bitrate = float(words[words.index("mbits/sec") - 1])
+
+    if receiver_bitrate is None:
+        raise SystemExit("[ERROR] Iperf3 did not return receiver link speed!")
+    # cbs should cap goodput at idleslope, minus some Ethernet framing
+    # overhead (~90% of idleslope is expected TCP goodput), so the
+    # measured upload speed should land in that range
+    reserved_mbps = cbs_params["idleslope"] / 1000
+    lower_bound = 0.9 * reserved_mbps
+    if not lower_bound < receiver_bitrate < reserved_mbps:
+        raise SystemExit(
+            f"[FAIL] The upload speed is not between {lower_bound:.2f} "
+            + f"and {reserved_mbps:.2f} Mbps\n"
+            + f"The upload speed is {receiver_bitrate:.2f} Mbps"
+        )
+
+    print(
+        f"[PASS] The upload speed {receiver_bitrate:.2f} Mbps",
+        f"is between {lower_bound:.2f} and {reserved_mbps:.2f} Mbps!",
     )
 
 
 def traffic_scheduling(
     interface: str,
     server_ip: str,
-    cfg: str,
+    cfg: "Path | None" = None,
     timeout: int = 25,
 ) -> None:
-    """
-    Schedules traffic by running ptp4l command, setting qdisc,
-    and managing hardware transmit queues for iperf3 instances
-    using net_prio cgroups.
+    """The main traffic scheduling test
 
-    Args:
-        interface (str): The interface to schedule traffic on.
-        server_ip (str): The IP address of the server.
-        cfg (str): The configuration file path.
-        timeout (int, optional): The time in seconds to wait for
-        each operation. Defaults to 25.
-
-    Returns:
-        None
+    :param interface: PTP interface
+    :param server_ip: where's the server
+    :param cfg: config file to pass to ptp4l
+        NOTE: this config file overrides any default value this script provides
+              i.e. the user is on their own if using a config file
+    :param timeout: total traffic scheduling timeout
+    :raises SystemExit: timeout too short
+    :raises SystemExit: cannot set qdisc
+    :raises SystemExit: iperf3 hang
+    :raises SystemExit: iperf3 failure
+    :raises SystemExit: missing counters from some of the queues
+    :raises SystemExit: "Sent N bytes" did not increase
     """
 
     if timeout < 25:
-        raise SystemExit("Timeout must be at least 25 seconds.")
-    print("Running ptp4l on {}...".format(interface))
-    ptp4l(interface, cfg, timeout)
+        raise SystemExit(
+            "Traffic scheduling timeout must be at least 25 seconds. "
+            + f"(got {timeout})"
+        )
+
+    print(f"Running ptp4l on {interface}...", flush=True)
+    ptp4l(interface, cfg, timeout, print_to_console=True)
+
+    print(
+        "Letting ptp4l sync for 10 seconds before starting the test",
+        flush=True,
+    )
     time.sleep(10)
 
-    print("Setting qdisc...")
+    print("Setting qdisc...", flush=True)
+    # similar to credit/time based shaping
+    # we create a new discipline for the interface
+    # but this time we use `taprio`
     cmd = (
-        "tc qdisc add dev {} parent root handle 100 taprio "
-        "num_tc 4 "
-        "map 0 1 2 3 3 3 3 3 3 3 3 3 3 3 3 3 "
-        "queues 1@0 1@1 1@2 1@3 "
-        "sched-entry S 01 5000000 "
-        "sched-entry S 02 5000000 "
-        "sched-entry S 04 5000000 "
-        "sched-entry S 08 5000000 "
-        "flags 0x2 "
-        "txtime-delay 0".format(interface)
+        ["tc", "qdisc", "add", "dev", interface]
+        + ["parent", "root", "handle", "100:"]
+        + ["taprio", "num_tc", "4"]
+        + [
+            "map",  # assign each of the 16 prio bands to the traffic classes
+            "0",  # band 0 to class 0
+            "1",  # band 1 to class 1
+            "2",  # band 2 to class 2
+            *(["3"] * (16 - 3)),  # dump all remaining bands to class 3
+        ]
+        # all traffic classes start with exactly 1 queue
+        + ["queues", "1@0", "1@1", "1@2", "1@3"]
+        # the 01, 02, 04, 08 here are used as bit masks
+        # 01 == 0x0001 meaning only queue 0 is open, 0x0010 means queue 1 etc.
+        # 5000000 is in nanoseconds i.e. 5ms
+        # basically each queue is open for 5ms, going from queue 0 through 3
+        # and keeps repeating
+        + ["sched-entry", "S", "01", "5000000"]
+        + ["sched-entry", "S", "02", "5000000"]
+        + ["sched-entry", "S", "04", "5000000"]
+        + ["sched-entry", "S", "08", "5000000"]
+        # https://man7.org/linux/man-pages/man8/tc-taprio.8.html
+        # 0x2 means fully offloading to the hardware
+        + ["flags", "0x2"]
+        # txtime-delay is specific to the full offload mode 0x2
+        # maximum time a packet might take to reach the network card
+        + ["txtime-delay", "0"]
     )
-    result = subprocess.run(
-        shlex.split(cmd),
-        stdout=subprocess.PIPE,
-        stderr=subprocess.PIPE,
+
+    result = sp.run(
+        cmd,
+        capture_output=True,
         timeout=1,
+        check=False,
     )
     if result.returncode:
         raise SystemExit(
-            "[ERROR] Found error while setting qdisc:\n{}".format(
-                result.stderr.decode()
-            )
+            f"[ERROR] Failed to set qdisc:\n{result.stderr.decode()}"
         )
-    time.sleep(5)
+
+    # flags 0x02 will reset the adapter and turn off the link briefly
+    # wait until it's back before testing
+    wait_until_reachable(interface, server_ip)
 
     print(
-        "Setting which hardware transmit queue "
-        "each iperf3 instance using via net_prio cgroups..."
+        "Setting which hardware transmit queue",
+        "each iperf3 instance will use via net_prio cgroups...",
+        flush=True,
     )
 
-    # Create /sys/fs/cgroup/net_prio
-    os.makedirs("/sys/fs/cgroup/net_prio", exist_ok=True)
-
-    # Mount /sys/fs/cgroup/net_prio
-    cmd = "mount -t cgroup -onet_prio none /sys/fs/cgroup/net_prio"
-    subprocess.run(shlex.split(cmd), timeout=1)
+    # Create and mount /sys/fs/cgroup/net_prio
+    sys_fs_cgroup_net_prio = Path("/sys/fs/cgroup/net_prio")
+    sys_fs_cgroup_net_prio.mkdir(exist_ok=True)
+    mount_result = sp.run(
+        [
+            "mount",
+            "-t",
+            "cgroup",
+            "-onet_prio",
+            "none",
+            str(sys_fs_cgroup_net_prio),
+        ],
+        timeout=1,
+        check=False,
+    )
+    if mount_result.returncode not in (0, 32):
+        # 32 means it's already mounted, explicitly ignore it
+        # otherwise let check_returncode panic and print the err for us
+        mount_result.check_returncode()
 
     # Create /sys/fs/cgroup/net_prio/grp{1,2,3} and write interface {1, 2, 3}
     for grp in range(1, 4):
-        path = "/sys/fs/cgroup/net_prio/grp{}".format(grp)
-        os.makedirs(path, exist_ok=True)
-        with open(path + "/net_prio.ifpriomap", "w") as f:
-            f.write("{} {}".format(interface, grp))
+        grp_path = sys_fs_cgroup_net_prio / f"grp{grp}"
+        grp_path.mkdir(exist_ok=True)
+        with (grp_path / "net_prio.ifpriomap").open("w") as f:
+            # example: enp1s1 1
+            f.write(f"{interface} {grp}")
 
-    # Run iperf3 client
+    iperf_processes: "list[tuple[int, sp.Popen[str]]]" = []
     for port, group in zip(range(5201, 5204), range(1, 4)):
-        print("Running iperf3 client on port {}...".format(port))
+        print(f"Running iperf3 client on port {port}...", flush=True)
         process = iperf3_client(
             server_ip,
             get_interface_ip(interface),
             timeout=timeout - 15,
             port=port,
         )
+        iperf_processes.append((port, process))
         pid = str(process.pid)
-        file = "/sys/fs/cgroup/net_prio/grp{}/cgroup.procs".format(group)
+        file = sys_fs_cgroup_net_prio / f"grp{group}" / "cgroup.procs"
         print(
-            "Writing iperf3 with port {} pid {} to {}".format(port, pid, file)
+            f"Adding iperf3 process (port={port} pid={pid}) to {file}",
+            flush=True,
         )
-        with open(file, "w") as f:
+        with file.open("w") as f:
             f.write(pid)
 
-    print("Showing qdisc settings after running iperf3...")
-    cmd = "tc -s qdisc show dev {}".format(interface)
-    before = subprocess.run(
-        shlex.split(cmd),
+    print("Showing qdisc settings after running iperf3...", flush=True)
+    before = sp.run(
+        ["tc", "-s", "qdisc", "show", "dev", interface],
         check=True,
-        stdout=subprocess.PIPE,
-        stderr=subprocess.PIPE,
+        capture_output=True,
         text=True,
     )
-    print(before.stdout)
+    print(before.stdout, flush=True)
+    # look for this line:
+    # Sent 3786 bytes 55 pkt (dropped 0, overlimits 0 requeues 0)
     pattern = r"Sent (\d+) bytes"
-    bytes_before = re.findall(pattern, before.stdout)
+    num_bytes_before: "list[int]" = [
+        int(n) for n in re.findall(pattern, before.stdout)
+    ]
     time.sleep(timeout - 15)
-    print("After {} seconds...".format(timeout - 15))
-    after = subprocess.run(
-        shlex.split(cmd),
+
+    print("After", timeout - 15, "seconds...", flush=True)
+    after = sp.run(
+        ["tc", "-s", "qdisc", "show", "dev", interface],
         check=True,
-        stdout=subprocess.PIPE,
-        stderr=subprocess.PIPE,
+        capture_output=True,
         text=True,
     )
-    print(after.stdout)
-    bytes_after = re.findall(pattern, before.stdout)
-    # Exclude the first value because we only care about 100:1 ~ 100:4
-    for before, after in zip(bytes_before[1:], bytes_after[1:]):
-        # Need increasing bytes in every queue
-        if int(after) - int(before) < 0:
+    print(after.stdout, flush=True)
+    num_bytes_after: "list[int]" = [
+        int(n) for n in re.findall(pattern, after.stdout)
+    ]
+
+    # if iperf3 processes never ran, the byte counter check would
+    # just be comparing an idle link against itself
+    for port, process in iperf_processes:
+        try:
+            _, stderr = process.communicate(timeout=timeout)
+        except sp.TimeoutExpired:
+            process.kill()
             raise SystemExit(
-                "[FAIL] Sent bytes is not increasing "
-                "in every queue!\n"
-                "100:1 to 100:4"
+                f"[FAIL] The iperf3 client on port {port} never finished"
             )
+        if process.returncode != 0:
+            raise SystemExit(
+                f"[FAIL] The iperf3 client on port {port} failed with"
+                + f" return code {process.returncode}\n{stderr.strip()}"
+            )
+
+    # 1 counter for the root qdisc, the 1 for each of 100:1 to 100:4.
+    # pass without checking anything
+    expected_num_counters = 1 + 4
+    for before_or_after, counters in (
+        ("before", num_bytes_before),
+        ("after", num_bytes_after),
+    ):
+        if len(counters) < expected_num_counters:
+            raise SystemExit(
+                f"[FAIL] Expected at least {expected_num_counters} "
+                + f"'Sent N bytes' counters {before_or_after} the test "
+                + "(root qdisc + 100:1 to 100:4), "
+                + f"but only found {len(counters)}.\n"
+                + "This means some of the per-queue qdisc was not created"
+            )
+
+    # Exclude the first value because we only care about 100:1 ~ 100:4
+    for queue, (sent_before, sent_after) in enumerate(
+        zip(num_bytes_before[1:], num_bytes_after[1:]), start=1
+    ):
+        # these counters are monotonic,
+        # so we must see a strict increase instead of just non-zero
+        delta = sent_after - sent_before
+        if delta <= 0:
+            raise SystemExit(
+                f"[FAIL] Sent bytes is not increasing in queue 100:{queue}!\n"
+                + f"{sent_before} bytes before, {sent_after} bytes after"
+            )
+        else:
+            print(
+                f"[OK] Sent bytes is increasing in queue 100:{queue}!",
+                f"Amount increased: {delta}",
+            )
+
     print("[PASS] Sent bytes is increasing in every queue!")
 
 
 def iperf3_client(
     server_ip: str,
-    client_ip,
+    client_ip: str,
     timeout: int = 60,
     port: int = 5201,
-) -> subprocess.Popen:
+    print_to_console: bool = False,
+) -> "sp.Popen[str]":
+    """Spawn an iperf3 client
+
+    :param server_ip: where's the server
+    :param client_ip: client's IP
+        iperf3 client will be bound to the iface associated with this IP
+    :param timeout: how long until the client stops gracefully
+    :param port: which port to listen on
+    :param print_to_console: print to stdout and stderr?
+    :return: the proc object
     """
-    Run iperf3 client to measure the upload speed
-    from the client to the server.
 
-    Args:
-        server_ip (str): The IP address of the server.
-        client_ip (str): The IP address of the client.
-        timeout (int): The timeout for the iperf3 test in seconds.
-
-    Returns:
-        str: The output of the iperf3 client.
-
-    Raises:
-        SystemExit: If an error occurs while running iperf3.
-    """
-    # Construct the iperf3 command
-    cmd = "iperf3 -c {} -t {} -B {} -p {} -f m".format(
-        server_ip,
-        timeout,
-        client_ip,
-        port,
+    return sp.Popen(
+        [
+            "iperf3",
+            "--client",  # run in client mode
+            server_ip,  # connect to this server
+            "--time",  # stop after <timeout> seconds
+            str(timeout),
+            "--bind",  # only listen on the port associated with...
+            client_ip,  # this ip on the DUT
+            "--port",  # connect to this port on the server
+            str(port),
+            "--format",  # print the speed in...
+            "m",  # megabits
+        ],
+        stdout=None if print_to_console else sp.PIPE,
+        stderr=None if print_to_console else sp.PIPE,
+        text=True,
     )
 
-    # Run the iperf3 client
-    process = subprocess.Popen(
-        shlex.split(cmd),
-        stdout=subprocess.PIPE,  # Redirect stdout to a pipe.
-        stderr=subprocess.PIPE,  # Redirect stderr to a pipe.
-        text=True,  # Enable text mode, so output can be accessed as text.
-    )
-    # Return the process object
-    return process
 
-
-def get_interface_ip(interface):
-    cmd = ["ip", "-4", "-o", "addr", "show", "dev", interface]
-    result = subprocess.run(
-        cmd,
+def get_interface_ip(interface: str):
+    result = sp.run(
+        ["ip", "-4", "-o", "addr", "show", "dev", interface],
+        capture_output=True,
         check=False,
-        stdout=subprocess.PIPE,
-        stderr=subprocess.PIPE,
         text=True,
     )
     if result.returncode != 0:
         raise SystemExit(
-            "Cannot find ip address for {}: {}".format(
-                interface, result.stderr.strip()
-            )
+            f"Cannot find ip address for {interface}: {result.stderr.strip()}"
         )
 
     for line in result.stdout.splitlines():
@@ -719,164 +1141,224 @@ def get_interface_ip(interface):
             ip_with_prefix = tokens[tokens.index("inet") + 1]
             return ip_with_prefix.split("/")[0]
 
-    raise SystemExit("Cannot find ip address for {}".format(interface))
+    raise SystemExit(f"Cannot find ip address for {interface}")
 
 
 def parse_string(string: str):
     """It should be this format, INTERFACE1:SERVER_IP1,INTERFACE2:SERVER_IP2"""
-    try:
-        for eth in string.split(","):
-            interface, server_ip = eth.split(":")
-            print("interface: {}".format(interface))
-            print("server_ip: {}".format(server_ip))
-            print("")
-    except Exception as err:
-        raise SystemExit("[ERROR] {}".format(err))
+    interface_ip_pairs = string.strip().split(",")
+    if len(interface_ip_pairs) == 0:
+        raise SystemExit(f"Found no INTERFACE:SERVER_IP pairs in '{string}'")
+
+    # validate every pair before printing anything
+    parsed_pairs: "list[tuple[str, str]]" = []
+    for pair in interface_ip_pairs:
+        words = pair.strip().split(":")
+        if len(words) != 2:
+            raise SystemExit(f"Expected INTERFACE:SERVER_IP, but got '{pair}'")
+        interface, server_ip = words
+        if not (Path("/sys/class/net/") / interface).exists():
+            raise SystemExit(
+                f"Parsed interface '{interface}', "
+                + "but it doesn't exist under /sys/class/net"
+            )
+
+        try:
+            # this will raise ValueError for us if addr invalid
+            ip_address(server_ip)
+        except ValueError:
+            raise SystemExit(f"Invalid IP address '{server_ip}'")
+
+        parsed_pairs.append((interface, server_ip))
+
+    for interface, server_ip in parsed_pairs:
+        print("interface:", interface)
+        print("server_ip:", server_ip)
+        print()
 
 
-def main():
+def parse_args() -> argparse.Namespace:
     """
-    Main function to parse command line arguments and perform the
-    specified testing item or server_mode.
+    we have 3 subcommands
+    - server: this should be run on a peer dut
+    - client: the actual TSN tests
+    - validate-string: only used for the resource job,
+        validates TSN_DEVICE_IP_LIST
     """
-    # Create ArgumentParser object
     parser = argparse.ArgumentParser(
         prog="TSN Testing Tool",
-        description="This is a tool to help you perform the TSN testing",
+        description=(
+            "This is a tool to help you test TSN (Time Sensitive Networking)"
+        ),
+    )
+    subparsers = parser.add_subparsers(dest="command", required=True)
+
+    server_parser = subparsers.add_parser(
+        "server",
+        help="Spawn the TSN test server (ptp4l master and iperf3 servers)",
+        formatter_class=argparse.ArgumentDefaultsHelpFormatter,
+    )
+    server_parser.add_argument(
+        "--interfaces",
+        "-i",
+        nargs="+",
+        required=True,
+        help=(
+            "TSN ethernet interfaces to serve. "
+            "ptp4l will run on these interfaces."
+        ),
+    )
+    server_parser.add_argument(
+        "--master-config",
+        type=str,
+        help=(
+            "Optional ptp4l config file for the server. "
+            "This is directly passed to ptp4l."
+        ),
+    )
+
+    client_parser = subparsers.add_parser(
+        "client",
+        help=(
+            "Run a TSN test on the client. "
+            "Specify a subcommand then -h to see usage."
+        ),
+    )
+    client_subparsers = client_parser.add_subparsers(
+        dest="test", required=True
+    )
+
+    # shared by every client test
+    common_parser = argparse.ArgumentParser(add_help=False)
+    common_parser.add_argument(
+        "--interface",
+        "-i",
+        required=True,
+        help="TSN ethernet interface to test",
+    )
+    common_parser.add_argument(
+        "--timeout",
+        "-t",
+        type=int,
+        default=60,
+        help="Timeout for the current test in seconds",
+    )
+
+    gptp_parser = argparse.ArgumentParser(
+        add_help=False, parents=[common_parser]
+    )
+    gptp_parser.add_argument(
+        "--client-config",
+        type=str,
+        help=(
+            "Config file for client. "
+            "They are passed to the corresponding test commands with -f <file>"
+        ),
+    )
+
+    client_subparsers.add_parser(
+        "ptp4l",
+        parents=[gptp_parser],
+        help="Time sync test with ptp4l",
+        formatter_class=argparse.ArgumentDefaultsHelpFormatter,
+    )
+    client_subparsers.add_parser(
+        "phc2sys",
+        parents=[gptp_parser],
+        help="Time sync test with phc2sys",
         formatter_class=argparse.ArgumentDefaultsHelpFormatter,
     )
 
-    # Add arguments
-    parser.add_argument(
-        "--run",
-        "-r",
-        action="store",
-        choices=[
-            "server",
-            "ptp4l",
-            "phc2sys",
-            "time_based_shaper",
-            "credit_based_shaper",
-            "traffic_scheduling",
-        ],
-        help="Run a testing item or server_mode",
+    credit_based_shaper_parser = client_subparsers.add_parser(
+        "credit-based-shaper",
+        parents=[common_parser],
+        help="Credit-Based Shaper test",
+        formatter_class=argparse.ArgumentDefaultsHelpFormatter,
     )
-    parser.add_argument(
-        "--parse-string",
-        "-p",
-        action="store",
-        type=str,
-        default=None,
-        help="The string need to be parsed, format: "
-        "INTERFACE1:SERVER_IP1,INTERFACE2:SERVER_IP2",
-    )
-    parser.add_argument(
-        "--interfaces", "-i", nargs="+", help="TSN ethernet interfaces"
-    )
-    parser.add_argument(
-        "--timeout",
-        "-t",
-        action="store",
-        type=int,
-        default=60,
-        help="Timeout for the testing item",
-    )
-    parser.add_argument(
-        "--master-config",
-        action="store",
-        type=str,
-        default="/usr/share/doc/linuxptp/configs/automotive-master.cfg",
-        help="gPTP config file for master",
-    )
-    parser.add_argument(
-        "--client-config",
-        action="store",
-        type=str,
-        default="/usr/share/doc/linuxptp/configs/automotive-slave.cfg",
-        help="gPTP config file for client",
-    )
-    parser.add_argument(
+    credit_based_shaper_parser.add_argument(
         "--server-ip",
-        action="store",
         type=str,
+        required=True,
         help="Server IP address",
     )
-    parser.add_argument(
-        "--all-interfaces",
-        type=str,
-        help="All TSN supported network interfaces, sperated by spaces, "
-        "quoted by double quotes",
+
+    traffic_scheduling_parser = client_subparsers.add_parser(
+        "traffic-scheduling",
+        parents=[gptp_parser],
+        help="Traffic scheduling test",
+        formatter_class=argparse.ArgumentDefaultsHelpFormatter,
     )
-    # Parse command line arguments
-    args = parser.parse_args()
+    traffic_scheduling_parser.add_argument(
+        "--server-ip",
+        type=str,
+        required=True,
+        help="Server IP address",
+    )
 
-    if args.parse_string is not None:
-        parse_string(args.parse_string)
-        return
-    # Perform the specified testing item or server_mode
-    if args.run == "server":
-        # Run server_mode
-        server_mode(args.interfaces, cfg=args.master_config)
-        return
-    elif len(args.interfaces) != 1:
-        # Exit if interfaces is not a single element
-        raise SystemExit("We only need one interface for testing!")
+    validate_parser = subparsers.add_parser(
+        "validate-string",
+        help="Validate an INTERFACE:SERVER_IP resource string",
+    )
+    validate_parser.add_argument(
+        "string",
+        type=str,
+        help=(
+            "The string to validate, format: "
+            "INTERFACE1:SERVER_IP1,INTERFACE2:SERVER_IP2"
+        ),
+    )
 
-    if args.run == "ptp4l":
-        # Time sync with ptp4l
-        with clear_qdisc_settings_before_and_after(
-            interface=args.interfaces[0]
-        ):
+    return parser.parse_args()
+
+
+def run_client_test(args: argparse.Namespace) -> None:
+    client_config = (
+        Path(args.client_config)
+        if (hasattr(args, "client_config") and args.client_config)
+        else None
+    )
+    with clear_qdisc_settings_before_and_after(interface=args.interface):
+        if args.test == "ptp4l":
             time_sync_ptp4l(
-                args.interfaces[0],
-                cfg=args.client_config,
+                args.interface,
+                cfg=client_config,
                 timeout=args.timeout,
             )
-    elif args.run == "phc2sys":
-        # Time sync with phc2sys
-        with clear_qdisc_settings_before_and_after(
-            interface=args.interfaces[0]
-        ):
+        elif args.test == "phc2sys":
             time_sync_phc2sys(
-                args.interfaces[0],
-                cfg=args.client_config,
+                args.interface,
+                cfg=client_config,
                 timeout=args.timeout,
             )
-    elif args.run == "time_based_shaper":
-        # Time based shaper
-        with clear_qdisc_settings_before_and_after(
-            interface=args.interfaces[0]
-        ):
-            time_based_shaper(
-                interface=args.interfaces[0],
-                timeout=args.timeout,
-            )
-    elif args.run == "credit_based_shaper":
-        # Credit based shaper
-        with clear_qdisc_settings_before_and_after(
-            interface=args.interfaces[0]
-        ):
+        elif args.test == "credit-based-shaper":
             credit_based_shaper(
-                interface=args.interfaces[0],
+                interface=args.interface,
                 server_ip=args.server_ip,
                 timeout=args.timeout,
             )
-    elif args.run == "traffic_scheduling":
-        # Traffic scheduling
-        if args.all_interfaces is None:
-            other_interfaces = []
-        else:
-            other_interfaces = args.all_interfaces.split()
-            other_interfaces.remove(args.interfaces[0])
-        with clear_qdisc_settings_before_and_after(
-            interface=args.interfaces[0]
-        ):
+        elif args.test == "traffic-scheduling":
             traffic_scheduling(
-                interface=args.interfaces[0],
+                interface=args.interface,
                 server_ip=args.server_ip,
-                cfg=args.client_config,
+                cfg=client_config,
                 timeout=args.timeout,
             )
+
+
+def main():
+    args = parse_args()
+
+    if args.command == "server":
+        config_path = (
+            Path(args.master_config)
+            if (hasattr(args, "master_config") and args.master_config)
+            else None
+        )
+        server_mode(args.interfaces, cfg=config_path)
+    elif args.command == "client":
+        run_client_test(args)
+    elif args.command == "validate-string":
+        parse_string(args.string)
 
 
 if __name__ == "__main__":

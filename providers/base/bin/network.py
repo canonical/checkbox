@@ -116,8 +116,8 @@ class IPerfPerformanceTest:
     def run_one_thread(self, cmd: str, port_num: int):
         """Run a single test thread, storing the output in self.results[]."""
         cmd = cmd + f" -p {port_num}"
-        logging.debug(f"Executing command {cmd}")
-        logging.info(f"Connecting to port {port_num} on server....")
+        logger.debug(f"Executing command {cmd}")
+        logger.info(f"Connecting to port {port_num} on server....")
         try:
             iperf_return = check_output(
                 shlex.split(cmd),
@@ -132,9 +132,7 @@ class IPerfPerformanceTest:
                     iperf_exception.output
                 ):
                     logger.error(
-                        "Unable to connect to server on port {}".format(
-                            port_num
-                        )
+                        f"Unable to connect to server on port {port_num}"
                     )
                     if port_num == 5202:
                         # 5202 is 2nd port in high-speed configs
@@ -145,10 +143,8 @@ class IPerfPerformanceTest:
                         logger.warning("more information.")
                 else:
                     # Unknown error; log it....
-                    logging.error(
-                        f"Failed executing iperf on port {port_num}."
-                    )
-                    logging.error(f"Output is '{iperf_exception.output}'")
+                    logger.error(f"Failed executing iperf on port {port_num}.")
+                    logger.error(f"Output is '{iperf_exception.output}'")
                 return iperf_exception.returncode
             else:
                 # this is normal so we "except" this exception and we
@@ -204,7 +200,7 @@ class IPerfPerformanceTest:
             )
             if new_cpu:
                 float_cpu = float(new_cpu[0])
-                logging.debug(f"CPU load for thread {n}: {float_cpu}%")
+                logger.debug(f"CPU load for thread {n}: {float_cpu}%")
                 sum_cpu = sum_cpu + float_cpu
                 n = n + 1
             if n > 0:
@@ -233,7 +229,7 @@ class IPerfPerformanceTest:
                 + f"associated with {device}!"
             )
         else:
-            logging.info(f"NUMA node of {device} is {node_num}....")
+            logger.info(f"NUMA node of {device} is {node_num}....")
         return node_num
 
     def extract_core_list(self, line: str):
@@ -262,9 +258,9 @@ class IPerfPerformanceTest:
                 core_list.append(int(range_list[0]))
             else:
                 # Weirdness, so alert the user....
-                logging.error("Cannot parse CPU list:")
-                logging.error(cpu_list)
-        logging.debug(f"Will use CPU cores: {core_list}....")
+                logger.error("Cannot parse CPU list:")
+                logger.error(cpu_list)
+        logger.debug(f"Will use CPU cores: {core_list}....")
         return core_list
 
     def find_cores(self, numa_node: int) -> "list[int]":
@@ -296,7 +292,7 @@ class IPerfPerformanceTest:
         if threads == 1:
             logger.info("Using 1 thread.")
         else:
-            logging.info(f"Using {threads} threads.")
+            logger.info(f"Using {threads} threads.")
 
         # Alter variables for iperf (2) vs. iperf3 -- Use iperf (2)'s own
         # built-in threading, vs. this script's threading for iperf3. (Note
@@ -328,7 +324,7 @@ class IPerfPerformanceTest:
         # NOTE: thread_bit_rate must be computed with
         # NOTE: the real max speed reported by the kernel
         thread_bit_rate = int(self.iface.max_speed / threads) + 1000
-        logging.debug(f"thread_bit_rate is {thread_bit_rate}")
+        logger.debug(f"thread_bit_rate is {thread_bit_rate}")
 
         # If we set run_time, use that instead to build the command.
         if self.run_time is not None:
@@ -399,7 +395,7 @@ class IPerfPerformanceTest:
             # it's up to the reviewer to pass or fail.
             percent = 0
             invalid_speed = True
-        logging.info(f"Avg Transfer speed: {throughput} Mb/s")
+        logger.info(f"Avg Transfer speed: {throughput} Mb/s")
         if invalid_speed:
             # If we have no link_speed (e.g. wireless interfaces don't
             # report this), then we shouldn't penalize them because
@@ -418,7 +414,7 @@ class IPerfPerformanceTest:
 
         if self.iperf3:
             cpu_load = self.summarize_cpu()
-            logging.info(f"Average CPU utilization: {round(cpu_load, 1)}%")
+            logger.info(f"Average CPU utilization: {round(cpu_load, 1)}%")
         else:
             cpu_load = 0
         if (
@@ -431,22 +427,22 @@ class IPerfPerformanceTest:
                 )
             )
             if percent < self.fail_threshold:
-                logging.error(f"  Transfer speed: {throughput} Mb/s")
-                logging.error(
+                logger.error(f"  Transfer speed: {throughput} Mb/s")
+                logger.error(
                     "  {:03.2f}% of theoretical max {} Mb/s\n".format(
                         percent, int(self.expected_max_speed)
                     )
                 )
             if cpu_load > self.cpu_load_fail_threshold:
-                logging.error(f"  CPU load: {cpu_load}%")
-                logging.error(
+                logger.error(f"  CPU load: {cpu_load}%")
+                logger.error(
                     "  CPU load is above {}% maximum\n".format(
                         self.cpu_load_fail_threshold
                     )
                 )
             return 30
 
-        logging.debug(f"Passed benchmark against {self.target}")
+        logger.debug(f"Passed benchmark against {self.target}")
 
     def optimize_num_threads(self):
         """Find the approximate optimal number of threads."""
@@ -461,7 +457,7 @@ class IPerfPerformanceTest:
         max_multiple = 0.5
         for multiple in multiples:
             self.num_threads = int(orig_num_threads * multiple)
-            logging.info(
+            logger.info(
                 f"Testing optimization with {self.num_threads} threads"
             )
             # Disable logging for the test runs that determine the optimum
@@ -483,7 +479,7 @@ class IPerfPerformanceTest:
         self.run_time = orig_run_time
         self.scan_timeout = orig_scan_timeout
         self.num_threads = int(max_multiple * orig_num_threads)
-        logging.info(f"Setting number of threads to {self.num_threads}.")
+        logger.info(f"Setting number of threads to {self.num_threads}.")
 
 
 class StressPerformanceTest:
@@ -560,7 +556,7 @@ class Interface(socket.socket):
         try:
             nic_data = fcntl.ioctl(self.fileno(), ETH_P_IBOE, freq)
         except OSError:
-            logging.error("No IP address for %s", self.interface)
+            logger.error("No IP address for %s", self.interface)
             return None
         return socket.inet_ntoa(nic_data[20:24])
 
@@ -571,7 +567,7 @@ class Interface(socket.socket):
         try:
             mask_data = fcntl.ioctl(self.fileno(), SIOCGIFNETMASK, freq)
         except OSError:
-            logging.error("No netmask for %s", self.interface)
+            logger.error("No netmask for %s", self.interface)
             return None
         return socket.inet_ntoa(mask_data[20:24])
 
@@ -704,7 +700,7 @@ def can_ping(the_interface, test_target):
 def run_test(args: Namespace, test_target: str):
     # Ensure that interface is fully up by waiting until it can
     # ping the test server
-    logging.info(f"Testing {args.interface} against {test_target}")
+    logger.info(f"Testing {args.interface} against {test_target}")
     if can_ping(args.interface, test_target):
         logger.info(
             "Have successfully pinged {} on {}".format(
@@ -759,7 +755,7 @@ def run_test(args: Namespace, test_target: str):
         )
         error_number = stress_benchmark.run()
     else:
-        logging.error(f"Unknown test type {args.test_type}")
+        logger.error(f"Unknown test type {args.test_type}")
         return 10
     return error_number
 
@@ -788,9 +784,9 @@ def make_target_list(iface: str, test_targets: str, log_warnings: bool):
             False,
         )
     except ipaddress.AddressValueError as e:
-        logging.error(f"Device {iface}: Invalid IP Address")
-        logging.error(f"  {e}")
-        logging.error("Aborting test now")
+        logger.error(f"Device {iface}: Invalid IP Address")
+        logger.error(f"  {e}")
+        logger.error("Aborting test now")
         sys.exit(1)
     first_addr = net.network_address + 1
     last_addr = first_addr + net.num_addresses - 2
@@ -810,15 +806,13 @@ def make_target_list(iface: str, test_targets: str, log_warnings: bool):
                                 test_target, target
                             )
                         )
-                        logging.warning(
+                        logger.warning(
                             f"test list since it's not within {net}."
                         )
                     return_list.remove(test_target)
             except ValueError:
                 if log_warnings:
-                    logging.warning(
-                        f"Invalid address: {test_target}; skipping"
-                    )
+                    logger.warning(f"Invalid address: {test_target}; skipping")
                 return_list.remove(test_target)
     return_list.reverse()
     if return_list == [""]:
@@ -869,9 +863,9 @@ def wait_for_iface_up(iface: str, timeout: int):
     net_if = Interface(iface)
     while time.time() < deadline:
         if net_if.status == "up":
-            logging.debug(f"Interface {iface} is up!")
+            logger.debug(f"Interface {iface} is up!")
             return True
-        logging.debug(f"Interface {iface} not yet up; waiting....")
+        logger.debug(f"Interface {iface} not yet up; waiting....")
         # Sleep whether or not interface is up because sometimes the IP
         # address gets assigned after "ip" claims it's up.
         time.sleep(5)

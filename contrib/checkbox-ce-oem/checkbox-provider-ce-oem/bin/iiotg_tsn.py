@@ -766,7 +766,13 @@ def credit_based_shaper(
         "through interface",
         interface,
     )
-    sp.run(["ping", "-I", interface, "-c", "5", server_ip], check=True)
+    if (
+        sp.run(
+            ["ping", "-I", interface, "-c", "5", server_ip], check=False
+        ).returncode
+        != 0
+    ):
+        raise SystemExit(f"[ERROR] Cannot reach {server_ip} via {interface}")
 
     # this is mostly the same as time based shaper
     # except it uses a different handle
@@ -1179,8 +1185,12 @@ def parse_string(string: str):
                 f"Parsed interface '{interface}', "
                 + "but it doesn't exist under /sys/class/net"
             )
-        # this will raise ValueError for us if addr invalid
-        ip_address(server_ip)
+
+        try:
+            # this will raise ValueError for us if addr invalid
+            ip_address(server_ip)
+        except ValueError:
+            raise SystemExit(f"Invalid IP address '{server_ip}'")
 
         print("interface:", interface)
         print("server_ip:", server_ip)

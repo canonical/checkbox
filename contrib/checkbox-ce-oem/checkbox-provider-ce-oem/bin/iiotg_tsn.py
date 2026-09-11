@@ -498,9 +498,13 @@ def time_sync_phc2sys(
     # a phc2sys offset line looks like this:
     # phc2sys[5.000]: CLOCK_REALTIME phc offset -5 s2 freq +7652 delay 0
     for line in filter_offset_lines(last_10_lines, "phc offset", "phc2sys"):
-        offset = int(line.split()[4])
-        state = line.split()[5]
-        delay = int(line.split()[9])
+        try:
+            offset = int(line.split()[4])
+            state = line.split()[5]
+            delay = int(line.split()[9])
+        except (ValueError, IndexError):
+            # avoid the cryptic "'as' cannot be converted to int" message
+            raise SystemExit(f"Failed to parse offset line: {line}")
 
         if not -100 < offset < 100:
             raise SystemExit("[FAIL] phc offset is not between -100 to 100")

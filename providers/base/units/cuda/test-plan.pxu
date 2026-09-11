@@ -1,0 +1,12 @@
+id: cuda-samples-automated
+unit: test plan
+_name: Prebuilt cuda-samples tests (automated)
+_description:
+ Runs every sample from a prebuilt cuda-samples tree as its own job.
+ Samples listed in the exclude-jobs JSON file still generate jobs but
+ are skipped visibly through their resource skip flag.
+include:
+    cuda/samples-readiness
+    cuda-sample/.*
+bootstrap_include:
+    com.canonical.certification::cuda_samples_resource

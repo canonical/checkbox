@@ -50,7 +50,7 @@ imports:
     from com.canonical.contrib import dragonwing_soc_info
 requires:
     manifest.is_dragonwing_series == 'True'
-    dragonwing_soc_info.SoC in ("qcs9075")
+    dragonwing_soc_info.SoC in ("qcs9075",)
 user: root
 command:
     dragonwing_fastrpc_test.sh 5:0 5:1 6:0 6:1

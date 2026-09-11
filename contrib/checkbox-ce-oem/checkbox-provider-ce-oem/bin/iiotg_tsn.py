@@ -107,19 +107,8 @@ def ptp4l(
             # both server and client needs to have this
             # https://github.com/richardcochran/linuxptp/blob/master/configs/gPTP.cfg
             "--transportSpecific=1",
-            # these options mirror the 802.1AS profile in gPTP.cfg
-            # all flags are shared by the server and the client
-            "--gmCapable=1",
-            "--priority1=248",
-            "--priority2=248",
             "--logAnnounceInterval=0",
             "--logSyncInterval=-3",
-            "--syncReceiptTimeout=3",
-            "--neighborPropDelayThresh=800",
-            "--min_neighbor_prop_delay=-20000000",
-            "--assume_two_step=1",
-            "--path_trace_enabled=1",
-            "--follow_up_info=1",
         ]
         if server_mode:
             # print a warning message that we are using --transportSpecific=1

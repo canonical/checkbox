@@ -1,0 +1,100 @@
+name: Run smoke plan via spread (store snaps)
+
+permissions:
+  contents: read
+
+on:
+  pull_request:
+    branches: [ main ]
+    paths:
+      - .github/Image-garden-spread/**
+      - .github/workflows/smoke-spread-store.yaml
+  workflow_dispatch:
+    inputs:
+      channel:
+        description: Store channel to install the Checkbox snaps from
+        type: string
+        default: edge
+  workflow_call:
+    inputs:
+      channel:
+        description: Store channel to install the Checkbox snaps from
+        type: string
+        default: edge
+        required: false
+
+jobs:
+  smoke-spread-store:
+    name: Smoke via spread on ${{ matrix.garden-system }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    env:
+      CHECKBOX_CHANNEL: ${{ inputs.channel || 'edge' }}
+    strategy:
+      fail-fast: false
+      # Several jobs starting at once produce a burst of snap store requests,
+      # which the store answers with "too many requests". Stagger them.
+      max-parallel: 2
+      matrix:
+        garden-system:
+          - ubuntu-core-18
+          - ubuntu-core-20
+          - ubuntu-core-22
+          - ubuntu-core-24
+          - ubuntu-core-26
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Install image-garden
+        run: |
+          sudo snap install --devmode --channel=latest/edge image-garden
+          snap list image-garden
+
+      - name: Prepare the runner for virtual machines
+        run: |
+          # image-garden runs QEMU, which needs access to KVM.
+          if [ -e /dev/kvm ]; then
+            sudo chmod -v 666 /dev/kvm
+          else
+            echo "::warning::/dev/kvm is missing, falling back to emulation"
+          fi
+
+      - name: Run the smoke spread suite
+        working-directory: .github/Image-garden-spread
+        run: |
+          # -vv (debug) is what makes spread dump the full output of each
+          # script once it finishes. With plain -v the Checkbox run is only
+          # visible through warn-timeout ticks and on failure.
+          image-garden.spread -vv \
+            -artifacts=artifacts \
+            "garden:${{ matrix.garden-system }}:tests/run-smoke"
+
+      - name: Rename artifacts for GitHub compatibility
+        if: always()
+        working-directory: .github/Image-garden-spread
+        run: |
+          # Spread names artifact directories "backend:system:suite", and
+          # GitHub rejects colons in artifact paths.
+          if [ -d artifacts ]; then
+            find artifacts -depth -name '*:*' \
+              -execdir bash -c 'mv -v "$1" "${1//:/_}"' bash '{}' \;
+          fi
+
+      - name: Upload spread artifacts
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
+        with:
+          name: spread-artifacts-${{ matrix.garden-system }}
+          path: .github/Image-garden-spread/artifacts
+          if-no-files-found: ignore
+
+      - name: Upload image-garden logs
+        if: failure()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
+        with:
+          name: image-garden-logs-${{ matrix.garden-system }}
+          path: .github/Image-garden-spread/.image-garden/*.log
+          if-no-files-found: ignore

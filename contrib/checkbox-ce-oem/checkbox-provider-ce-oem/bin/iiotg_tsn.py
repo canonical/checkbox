@@ -109,7 +109,6 @@ def ptp4l(
             "--transportSpecific=1",
             # these options mirror the 802.1AS profile in gPTP.cfg
             # all flags are shared by the server and the client
-            "--delay_mechanism=P2P",
             "--gmCapable=1",
             "--priority1=248",
             "--priority2=248",

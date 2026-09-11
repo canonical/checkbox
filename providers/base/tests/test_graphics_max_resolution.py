@@ -31,12 +31,8 @@ sys.modules.setdefault("gi", _mock_gi)
 sys.modules.setdefault("gi.repository", _mock_gi.repository)
 sys.modules.setdefault("gi.repository.Gio", _mock_gi.repository.Gio)
 sys.modules.setdefault("gi.repository.GLib", _mock_gi.repository.GLib)
-
-_mock_gnome_monitor = MagicMock()
-sys.modules.setdefault(
-    "checkbox_support.dbus.gnome_monitor",
-    _mock_gnome_monitor.dbus.gnome_monitor,
-)
+sys.modules.setdefault("dbus", MagicMock())
+sys.modules.setdefault("dbus.mainloop.glib", MagicMock())
 
 from graphics_max_resolution import SysfsDrmCardInfo, main  # noqa: E402
 

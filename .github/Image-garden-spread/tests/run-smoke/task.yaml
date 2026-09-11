@@ -1,12 +1,14 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 summary: Install the Checkbox snap from the store and run the smoke test plan
 kill-timeout: 20m
-warn-timeout: 5m
+# Spread buffers task output and only flushes it on error or on each
+# warn-timeout tick, so keep the tick short to get progress while the plan runs.
+warn-timeout: 1m
 artifacts:
+  - checkbox-output.txt
   - snap-debug.txt
   - submission.json
-  - submission.html
-  - submission.txt
+  - submission.tar.xz
 execute: |
   set -euo pipefail
 
@@ -29,6 +31,10 @@ execute: |
     snap download "$CHECKBOX" \
       --channel="$CHECKBOX_CHANNEL" --basename="$CHECKBOX"
   fi
+
+  # snapd may still be settling a boot-time change; talking to it while it is
+  # busy makes the following commands hang.
+  snap wait system seed.loaded
 
   if snap list "$CHECKBOX" >/dev/null 2>&1; then
     snap remove --purge "$CHECKBOX"
@@ -61,4 +67,13 @@ execute: |
     snap warnings
   } > snap-debug.txt
 
-  "$CHECKBOX.checkbox" control 127.0.0.1 launcher.conf
+  # tee so the run is visible in spread's warn-timeout dumps and preserved as
+  # an artifact even when the task fails.
+  set +e
+  "$CHECKBOX.checkbox" control 127.0.0.1 launcher.conf 2>&1 \
+    | tee checkbox-output.txt
+  checkbox_status=${PIPESTATUS[0]}
+  set -e
+
+  echo "Checkbox exited with $checkbox_status"
+  exit "$checkbox_status"

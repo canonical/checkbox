@@ -14,7 +14,7 @@ from ipaddress import ip_address
 from pathlib import Path
 from threading import Event
 
-# come with linuxptp since 25.10 and newer
+# comes with linuxptp since 25.10 and newer
 # this forces phc2sys to use ptp4l's read only socket, see phc2sys()
 PHC2SYS_APPARMOR_PROFILE = Path("/etc/apparmor.d/usr.sbin.phc2sys")
 
@@ -280,12 +280,11 @@ def stream_process_output(
     print_stderr: bool = False,
 ) -> "tuple[list[str], list[str]]":
     """
-    Drain a process' stdout and stderr concurrently, without threads.
-
-    Streams output live so the test doesn't look frozen, using
-    `selectors` (epoll/poll) so a full pipe on either stream can never
-    block/deadlock the other, unlike reading stdout to completion
-    before stderr.
+    Drain a process' stdout and stderr concurrently without threads
+    - Streams output live to the current stdout and stderr so the subprocess
+    doesn't look frozen
+    - Implemented with `selectors` (epoll/poll) so a filled 64kb pipe on either
+    stream can never deadlock the other
 
     :param process: an sp.Popen with stdout=PIPE, stderr=PIPE, text=True
     :param stdout_lines: how many trailing stdout lines to keep and
@@ -390,27 +389,19 @@ def time_sync_ptp4l(
     timeout: int = 60,
 ) -> None:
     """
-    Test ptp4l by running it as a sp and checking its output.
+    The main ptp4l test.
+    Test passes if abs(master offset) < 100 and enters s2 state
 
-    Args:
-        interface (str): The network interface to run ptp4l on.
-        cfg (str, optional): The path to the ptp4l configuration file.
-            Defaults to "/usr/share/doc/linuxptp/configs/automotive-slave.cfg".
-        timeout (int, optional): The maximum time to wait for ptp4l to run.
-            Defaults to 60 seconds.
-
-    Raises:
-        SystemExit: If ptp4l encounters an error or the master offset is not
-        between -100 and 100.
-
-    Prints:
-        Standard Output (stdout): The output of ptp4l.
-        Standard Error (stderr): The error output of ptp4l, if any.
-        [PASS] Master offset is between -100 to 100: If the master offset is
-            between -100 and 100.
-        [FAIL] Master offset is not between -100 to 100: If the master offset
-            is not between -100 and 100.
+    :param interface: the PTP interface to test
+    :param cfg: config file to pass to ptp4l
+        NOTE: this config file overrides any default value this script provides
+              i.e. the user is on their own if using a config file
+    :param timeout: how long to run the test before we stop ptp4l
+    :raises SystemExit: if timeout is too short
+    :raises SystemExit: we found any stderr lines in ptp4l's output
+    :raises SystemExit: abs(master offset) >= 100
     """
+
     if timeout < 30:
         raise SystemExit(
             "[ERROR] timeout should be at least 30 seconds "
@@ -465,26 +456,22 @@ def time_sync_phc2sys(
     timeout: int = 60,
 ) -> None:
     """
-    Test phc2sys by running it as a sp and checking its output.
+    The main phc2sys test.
+    Passes if:
+     - abs(phc offset) < 100
+     - phc2sys enters "s2: synced" state
+     - path delay == 0
 
-    Args:
-        interface (str): The network interface to run phc2sys on.
-        cfg (str, optional): The path to the phc2sys configuration file.
-            Defaults to "/usr/share/doc/linuxptp/configs/automotive-slave.cfg".
-        timeout (int, optional): The maximum time to wait for phc2sys to run.
-            Defaults to 60 seconds.
-
-    Raises:
-        SystemExit: If phc2sys encounters an error or the master offset is not
-            between -100 and 100, or the state is not equal to "s2" for the
-            last 10 seconds, or the path delay is not equal to 0.
-
-    Prints:
-        Standard Output (stdout): The output of phc2sys.
-        Standard Error (stderr): The error output of phc2sys, if any.
-        [PASS] Syncing system time to physical hardware clock successfully: If
-            phc2sys syncs the system time to physical hardware clock
-            successfully.
+    :param interface: the PTP interface
+    :param cfg: config file to pass to ptp4l
+        NOTE: this config file overrides any default value this script provides
+              i.e. the user is on their own if using a config file
+    :param timeout: how long to run the test before we stop phc2sys
+    :raises SystemExit: timeout too short
+    :raises SystemExit: phc2sys printed any error
+    :raises SystemExit: abs(phc offset) >= 100
+    :raises SystemExit: stats is not s2
+    :raises SystemExit: nonzero path delay
     """
     if timeout < 30:
         raise SystemExit(
@@ -516,8 +503,7 @@ def time_sync_phc2sys(
         delay = int(line.split()[9])
 
         if not -100 < offset < 100:
-            print("[FAIL] phc offset is not between -100 to 100")
-            raise SystemExit(1)
+            raise SystemExit("[FAIL] phc offset is not between -100 to 100")
 
         if state != "s2":
             raise SystemExit(
@@ -661,11 +647,11 @@ def compute_cbs_params(
     Dynamically find the cbs credit values based on max link speed
 
     idleslope is the bandwidth we want to reserve, everything else
-    follows from it and the port speed, see the formulas in `man tc-cbs`:
+    follows from it and max port_rate, see the formulas in `man tc-cbs`:
 
-        sendslope = idleslope - port_rate
-        hicredit  = max_frame_size * idleslope / port_rate
-        locredit  = max_frame_size * sendslope / port_rate
+    sendslope = idleslope - port_rate
+    hicredit  = max_frame_size * idleslope / port_rate
+    locredit  = max_frame_size * sendslope / port_rate
 
     tc accepts arbitrary configs, so we need to explicitly check
     idleslope < port_rate
@@ -719,9 +705,9 @@ def wait_until_reachable(
     Block until interface can actually talk to server_ip again
 
     :param interface: the interface that the qdisc was applied to
-    :param server_ip: the peer we need to reach
+    :param server_ip: the server we need to reach
     :param timeout: give up after this many seconds
-    :return: how long we waited, in seconds
+    :return: how many seconds we waited
     :raises SystemExit: if the server is still unreachable after timeout
     """
 
@@ -751,13 +737,16 @@ def wait_until_reachable(
 def credit_based_shaper(
     interface: str, server_ip: str, timeout: int = 10
 ) -> None:
-    """
-    Setup a credit-based shaper on the specified interface.
+    """The main credit based shaper test.
 
-    Args:
-        interface (str): The interface to set the shaper on.
-        server_ip (str): The IP address of the server to send traffic to.
-        timeout (int): The timeout for the shaper in seconds.
+    :param interface: the PTP interface
+    :param server_ip: where's the PTP server
+    :param timeout: how long should we run the iperf3 clients
+                    and measure upload speed while cbs is active
+    :raises SystemExit: can't reach the server
+    :raises SystemExit: any iperf3 error
+    :raises SystemExit: failed to parse iperf3 output
+    :raises SystemExit: upload speed is not between +-10% of reserved bandwidth
     """
     # quick sanity check and make sure server is reachable
     print(
@@ -890,20 +879,20 @@ def traffic_scheduling(
     cfg: "Path | None" = None,
     timeout: int = 25,
 ) -> None:
-    """
-    Schedules traffic by running ptp4l command, setting qdisc,
-    and managing hardware transmit queues for iperf3 instances
-    using net_prio cgroups.
+    """The main traffic scheduling test
 
-    Args:
-        interface (str): The interface to schedule traffic on.
-        server_ip (str): The IP address of the server.
-        cfg (str): The configuration file path.
-        timeout (int, optional): The time in seconds to wait for
-        each operation. Defaults to 25.
-
-    Returns:
-        None
+    :param interface: PTP interface
+    :param server_ip: where's the server
+    :param cfg: config file to pass to ptp4l
+        NOTE: this config file overrides any default value this script provides
+              i.e. the user is on their own if using a config file
+    :param timeout: total traffic scheduling timeout
+    :raises SystemExit: timeout too short
+    :raises SystemExit: cannot set qdisc
+    :raises SystemExit: iperf3 hang
+    :raises SystemExit: iperf3 failure
+    :raises SystemExit: missing counters from some of the queues
+    :raises SystemExit: "Sent N bytes" did not increase
     """
 
     if timeout < 25:
@@ -1111,21 +1100,15 @@ def iperf3_client(
     port: int = 5201,
     print_to_console: bool = False,
 ) -> "sp.Popen[str]":
-    """
-    Run iperf3 client to measure the upload speed
-    from the client to the server.
+    """Spawn an iperf3 client
 
-    Args:
-        server_ip (str): The IP address of the server.
-        client_ip (str): The IP address of the client.
-        timeout (int): The timeout for the iperf3 test in seconds.
-        port (int): The server port to connect to.
-
-    Returns:
-        str: The output of the iperf3 client.
-
-    Raises:
-        SystemExit: If an error occurs while running iperf3.
+    :param server_ip: where's the server
+    :param client_ip: client's IP
+        iperf3 client will be bound to the iface associated with this IP
+    :param timeout: how long until the client stops gracefully
+    :param port: which port to listen on
+    :param print_to_console: print to stdout and stderr?
+    :return: the proc object
     """
 
     return sp.Popen(

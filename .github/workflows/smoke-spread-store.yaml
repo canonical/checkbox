@@ -41,6 +41,7 @@ jobs:
           - ubuntu-core-20
           - ubuntu-core-22
           - ubuntu-core-24
+          - ubuntu-core-26
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
         with:
@@ -64,7 +65,10 @@ jobs:
       - name: Run the smoke spread suite
         working-directory: .github/Image-garden-spread
         run: |
-          image-garden.spread -v \
+          # -vv (debug) is what makes spread dump the full output of each
+          # script once it finishes. With plain -v the Checkbox run is only
+          # visible through warn-timeout ticks and on failure.
+          image-garden.spread -vv \
             -artifacts=artifacts \
             "garden:${{ matrix.garden-system }}:tests/run-smoke"
 

@@ -7,7 +7,6 @@ import unittest
 from contextlib import redirect_stdout
 from unittest.mock import patch
 
-
 SCRIPT_PATH = os.path.join(
     os.path.dirname(__file__),
     "..",
@@ -15,7 +14,9 @@ SCRIPT_PATH = os.path.join(
     "dragonwing_camera_test.py",
 )
 
-spec = importlib.util.spec_from_file_location("dragonwing_camera_test", SCRIPT_PATH)
+spec = importlib.util.spec_from_file_location(
+    "dragonwing_camera_test", SCRIPT_PATH
+)
 module = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(module)
 
@@ -137,7 +138,9 @@ class TestDragonwingCameraTest(unittest.TestCase):
             module,
             "find_csi_interface_for_sensor",
             return_value={"csiphy": 4, "slot": 1, "cci": 0},
-        ), patch.object(module.logging, "error") as mock_error:
+        ), patch.object(
+            module.logging, "error"
+        ) as mock_error:
             out = io.StringIO()
             with redirect_stdout(out):
                 result = module.get_camera_list(args)

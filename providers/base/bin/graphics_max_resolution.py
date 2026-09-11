@@ -107,7 +107,8 @@ def main():
                 "[ ERR ]",
                 msg_prefix,
                 "is not using its maximum resolution.",
-                f"Expected {max_w}x{max_h}, got {curr.width}x{curr.height}",
+                f"Expected {max_w}x{max_h},"
+                f"but got {curr.width}x{curr.height}",
                 file=sys.stderr,
             )
             failed = True

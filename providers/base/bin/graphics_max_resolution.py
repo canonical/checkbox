@@ -20,10 +20,11 @@
 # You should have received a copy of the GNU General Public License
 # along with Checkbox.  If not, see <http://www.gnu.org/licenses/>.
 
-from glob import glob
 import os
 import sys
+from glob import glob
 from pathlib import Path
+
 from checkbox_support.dbus.gnome_monitor import MonitorConfigGnome
 
 
@@ -31,7 +32,7 @@ class SysfsDrmCardInfo:
     def __init__(self, path: Path) -> None:
         if not path.is_dir():
             raise ValueError(
-                "{} requires a directory path.".format(type(self).__name__)
+                f"{type(self).__name__} requires a directory path."
                 + "Example: /sys/class/drm/card1-eDP-1/"
             )
         with (Path(path) / "modes").open() as f:
@@ -39,7 +40,7 @@ class SysfsDrmCardInfo:
             max_resolution = f.readline().strip()
             if not max_resolution:
                 raise ValueError(
-                    "No monitor is connected to this port {}".format(path)
+                    f"No monitor is connected to this port {path}"
                 )
             str_width, str_height = max_resolution.split("x")
             self.max_width, self.max_height = int(str_width), int(str_height)
@@ -86,9 +87,7 @@ def main():
     total_gnome_res = 0
     for monitor in mutter_state.physical_monitors:
         curr = monitor.get_current_mode()
-        msg_prefix = "Monitor '{} {}', connected at '{}'".format(
-            monitor.info.vendor, monitor.info.product, monitor.info.connector
-        )
+        msg_prefix = f"Monitor '{monitor.info.vendor} {monitor.info.product}', connected at '{monitor.info.connector}'"
 
         # preserve the original logic of ignoring inactive monitors
         if curr is None:
@@ -101,18 +100,14 @@ def main():
                 "[ ERR ]",
                 msg_prefix,
                 "is not using its maximum resolution.",
-                "Expected {}x{}, but got {}x{}".format(
-                    max_w, max_h, curr.width, curr.height
-                ),
+                f"Expected {max_w}x{max_h}, but got {curr.width}x{curr.height}",
                 file=sys.stderr,
             )
             failed = True
         else:
             print(
-                "[ OK ] {} is set to its maximum resolution".format(
-                    msg_prefix
-                ),
-                "{}x{}".format(curr.width, curr.height),
+                f"[ OK ] {msg_prefix} is set to its maximum resolution",
+                f"{curr.width}x{curr.height}",
             )
             total_gnome_res += curr.width * curr.height
 

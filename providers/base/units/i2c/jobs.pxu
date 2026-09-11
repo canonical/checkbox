@@ -38,3 +38,34 @@ category_id: i2c
 environ: IGNORED_I2C_BUSES
 estimated_duration: 3m
 depends: i2c/i2c-bus-detect
+
+unit: job
+id: i2c/expected-device-resource
+_summary: Gather the list of expected I²C devices from the configuration
+_description:
+  Parses the EXPECTED_I2C_DEVICES configuration variable, a comma-separated
+  list of <bus>:<address> entries (e.g. "1:0x2d,1:0x68"), into resource
+  records used to generate one detection job per expected device.
+plugin: resource
+category_id: i2c
+environ: EXPECTED_I2C_DEVICES
+command: i2c_driver_test.py resource
+estimated_duration: 1s
+
+unit: template
+template-resource: i2c/expected-device-resource
+template-unit: job
+template-id: i2c/i2c-expected-device-check
+id: i2c/i2c-expected-device-check-{bus}-{address}
+_summary: Check the I²C device at address {address} on bus {bus} is detected
+_purpose:
+  The test will pass only if the expected I²C device at address {address}
+  appears in the i2cdetect scan results of bus {bus}, not merely if some
+  I²C device is detected.
+command:
+  i2c_driver_test.py address -b {bus} -a {address}
+user: root
+plugin: shell
+category_id: i2c
+estimated_duration: 5s
+depends: i2c/i2c-bus-detect

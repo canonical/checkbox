@@ -277,7 +277,7 @@ def stream_process_output(
     stdout_maxlen: "int | None" = 10,
     stderr_maxlen: "int | None" = 10,
     print_stdout: bool = True,
-    print_stderr: bool = False,
+    print_stderr: bool = True,
 ) -> "tuple[list[str], list[str]]":
     """
     Drain a process' stdout and stderr concurrently without threads
@@ -314,10 +314,6 @@ def stream_process_output(
         stdout_fd: deque(maxlen=stdout_maxlen),
         stderr_fd: deque(maxlen=stderr_maxlen),
     }
-    should_print: "dict[int, bool]" = {
-        stdout_fd: print_stdout,
-        stderr_fd: print_stderr,
-    }
 
     while open_fds:
         for key, _ in sel.select():
@@ -338,16 +334,20 @@ def stream_process_output(
             *complete, pending[fd] = pending[fd].split(b"\n")
             for raw_line in complete:
                 clean_line = raw_line.decode(errors="replace").strip()
-                if should_print[fd]:
+                if fd == stdout_fd and print_stdout:
                     print(clean_line, flush=True)
+                if fd == stderr_fd and print_stderr:
+                    print(clean_line, flush=True, file=sys.stderr)
                 lines[fd].append(clean_line)
 
     # flush a final line on each stream that never got a trailing newline
     for fd in (stdout_fd, stderr_fd):
         if pending[fd]:
             clean_line = pending[fd].decode(errors="replace").strip()
-            if should_print[fd]:
+            if fd == stdout_fd and print_stdout:
                 print(clean_line, flush=True)
+            if fd == stderr_fd and print_stderr:
+                print(clean_line, flush=True, file=sys.stderr)
             lines[fd].append(clean_line)
 
     process.wait()

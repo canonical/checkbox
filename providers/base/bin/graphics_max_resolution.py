@@ -56,7 +56,7 @@ class SysfsDrmCardInfo:
 
     def __str__(self) -> str:
         return (
-            "{}: max_resolution={}x{} "
+            "{}: max_resolution={}x{}, "
             + "enabled={}, is_connected={}, dpms_enabled={}"
         ).format(
             self.port,
@@ -69,7 +69,7 @@ class SysfsDrmCardInfo:
 
     @classmethod
     def get_all_active_ports(cls):
-        out = []  # type: list[SysfsDrmCardInfo]
+        out: "list[SysfsDrmCardInfo]" = []
         for str_path in glob("/sys/class/drm/card*-*"):
             try:
                 # use the constructor behavior of rejecting ports
@@ -87,11 +87,18 @@ def main():
     total_gnome_res = 0
     for monitor in mutter_state.physical_monitors:
         curr = monitor.get_current_mode()
-        msg_prefix = f"Monitor '{monitor.info.vendor} {monitor.info.product}', connected at '{monitor.info.connector}'"
+        msg_prefix = (
+            f"Monitor '{monitor.info.vendor} {monitor.info.product}', "
+            + f"connected at '{monitor.info.connector}'"
+        )
 
         # preserve the original logic of ignoring inactive monitors
         if curr is None:
-            print("[ WARN ]", msg_prefix, "has no active mode. Skipping.")
+            print(
+                "[ WARN ]",
+                msg_prefix,
+                "has no active mode (likely turned off). Skipping.",
+            )
             continue
 
         max_w, max_h = monitor.get_max_resolution()
@@ -118,8 +125,9 @@ def main():
 
     # now we know gnome is using the maximum resolution
     # compare it with sysfs
-    total_sysfs_res = 0
+
     print("Checking against these max resolutions shown in sysfs:")
+    total_sysfs_res = 0
     sysfs_info = SysfsDrmCardInfo.get_all_active_ports()
     for drm_card in sysfs_info:
         print(" -", drm_card)

@@ -29,6 +29,9 @@ apps:
   launcher-generator:
     command-chain: [bin/wrapper_local]
     command: bin/gen_launcher.py
+  tsn-server: # experimental, should be generic enough
+    command-chain: [bin/wrapper_local]
+    command: providers/checkbox-provider-ce-oem/bin/iiotg_tsn.py server
 
 passthrough:
   hooks:

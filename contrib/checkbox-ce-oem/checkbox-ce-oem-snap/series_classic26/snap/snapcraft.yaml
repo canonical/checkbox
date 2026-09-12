@@ -146,9 +146,11 @@ parts:
     organize:
       gen_launcher.py: bin/gen_launcher.py
       checkbox_ce_oem_scan.py: bin/checkbox_ce_oem_scan.py
+      launcher_template.ini: bin/launcher_template.ini
     stage:
        - bin/gen_launcher.py
        - bin/checkbox_ce_oem_scan.py
+       - bin/launcher_template.ini
   config-variables:
     plugin: dump
     source: config/

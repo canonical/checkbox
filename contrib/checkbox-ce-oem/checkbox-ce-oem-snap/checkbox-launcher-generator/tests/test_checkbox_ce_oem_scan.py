@@ -517,6 +517,74 @@ class TestDiscoverTopLevelPlans(unittest.TestCase):
         self.assertEqual(result, sorted(result))
 
 
+class TestSelectManualAutoStress(unittest.TestCase):
+    def test_filters_and_orders_manual_auto_stress(self):
+        # Deliberately out of order, and includes a non-matching "-rt" plan.
+        sub_plans = [
+            ("ns::p-rt", "p-rt"),
+            ("ns::p-stress", "p-stress"),
+            ("ns::p-manual", "p-manual"),
+            ("ns::p-automated", "p-automated"),
+        ]
+        filtered, default_full_id = gl.select_manual_auto_stress(
+            "ns::p", sub_plans
+        )
+        self.assertEqual(
+            filtered,
+            [
+                ("ns::p", "p"),
+                ("ns::p-manual", "p-manual"),
+                ("ns::p-automated", "p-automated"),
+                ("ns::p-stress", "p-stress"),
+            ],
+        )
+        self.assertEqual(default_full_id, "ns::p")
+
+    def test_missing_automated_still_includes_base(self):
+        sub_plans = [
+            ("ns::p-manual", "p-manual"),
+            ("ns::p-stress", "p-stress"),
+        ]
+        filtered, default_full_id = gl.select_manual_auto_stress(
+            "ns::p", sub_plans
+        )
+        self.assertEqual(
+            filtered,
+            [
+                ("ns::p", "p"),
+                ("ns::p-manual", "p-manual"),
+                ("ns::p-stress", "p-stress"),
+            ],
+        )
+        self.assertEqual(default_full_id, "ns::p")
+
+    def test_ignores_same_suffix_from_other_base_plan(self):
+        sub_plans = [
+            ("ns::p-manual", "p-manual"),
+            ("ns::after-suspend-p-manual", "after-suspend-p-manual"),
+        ]
+        filtered, default_full_id = gl.select_manual_auto_stress(
+            "ns::p", sub_plans
+        )
+        self.assertEqual(
+            filtered, [("ns::p", "p"), ("ns::p-manual", "p-manual")]
+        )
+        self.assertEqual(default_full_id, "ns::p")
+
+    def test_no_matching_plans_returns_empty(self):
+        sub_plans = [("ns::p-rt", "p-rt")]
+        filtered, default_full_id = gl.select_manual_auto_stress(
+            "ns::p", sub_plans
+        )
+        self.assertEqual(filtered, [])
+        self.assertIsNone(default_full_id)
+
+    def test_empty_input(self):
+        filtered, default_full_id = gl.select_manual_auto_stress("ns::p", [])
+        self.assertEqual(filtered, [])
+        self.assertIsNone(default_full_id)
+
+
 class TestExpandPlan(unittest.TestCase):
     def _cache(self):
         return {

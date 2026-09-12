@@ -207,12 +207,13 @@ class TestWriteLauncher(unittest.TestCase):
             gl.write_launcher("ns::ce-oem-test", self._items(), out)
             self.assertTrue(out.exists())
 
-    def test_shebang_line(self):
+    def test_no_shebang_line(self):
         with tempfile.TemporaryDirectory() as tmp:
             out = Path(tmp) / "ce-oem-test"
             gl.write_launcher("ns::ce-oem-test", self._items(), out)
             lines = out.read_text().splitlines()
-            self.assertEqual(lines[0], "#!/usr/bin/env checkbox-cli-wrapper")
+            self.assertEqual(lines[0], "[launcher]")
+            self.assertNotIn("checkbox-cli-wrapper", out.read_text())
 
     def test_sections_present(self):
         with tempfile.TemporaryDirectory() as tmp:
@@ -222,11 +223,13 @@ class TestWriteLauncher(unittest.TestCase):
             for section in (
                 "[launcher]",
                 "[test plan]",
-                "[ui]",
                 "[manifest]",
                 "[environment]",
             ):
                 self.assertIn(section, text)
+            # [ui] (like every other non-fixed section) only ever comes
+            # from a template — nothing here supplies one by default.
+            self.assertNotIn("[ui]", text)
 
     def test_plan_unit_line(self):
         with tempfile.TemporaryDirectory() as tmp:
@@ -259,6 +262,272 @@ class TestWriteLauncher(unittest.TestCase):
             out = Path(tmp) / "ce-oem-test"
             gl.write_launcher("ns::ce-oem-test", [], out)
             self.assertNotIn("[manifest]", out.read_text())
+
+    def test_empty_environ_omitted(self):
+        items = self._items() + [
+            gl.Item(
+                kind="environ",
+                key="UNSET_VAR",
+                bare_key="UNSET_VAR",
+                value="",
+            )
+        ]
+        with tempfile.TemporaryDirectory() as tmp:
+            out = Path(tmp) / "ce-oem-test"
+            gl.write_launcher("ns::ce-oem-test", items, out)
+            text = out.read_text()
+            self.assertIn("MYVAR = hello", text)
+            self.assertNotIn("UNSET_VAR", text)
+
+    def test_no_environment_section_when_all_empty(self):
+        items = [
+            gl.Item(
+                kind="environ",
+                key="UNSET_VAR",
+                bare_key="UNSET_VAR",
+                value="",
+            )
+        ]
+        with tempfile.TemporaryDirectory() as tmp:
+            out = Path(tmp) / "ce-oem-test"
+            gl.write_launcher("ns::ce-oem-test", items, out)
+            self.assertNotIn("[environment]", out.read_text())
+
+    def test_default_no_forced_and_no_ui_section(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            out = Path(tmp) / "ce-oem-test"
+            gl.write_launcher("ns::ce-oem-test", self._items(), out)
+            text = out.read_text()
+            self.assertNotIn("forced =", text)
+            self.assertNotIn("[ui]", text)
+            self.assertNotIn("filter =", text)
+
+    def test_filter_plans_written(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            out = Path(tmp) / "ce-oem-test"
+            gl.write_launcher(
+                "ns::ce-oem-test-automated",
+                self._items(),
+                out,
+                filter_plans=[
+                    "ns::ce-oem-test-manual",
+                    "ns::ce-oem-test-automated",
+                    "ns::ce-oem-test-stress",
+                ],
+            )
+            text = out.read_text()
+            self.assertIn("unit = ns::ce-oem-test-automated", text)
+            self.assertIn(
+                "filter = ns::ce-oem-test-manual\n"
+                "         ns::ce-oem-test-automated\n"
+                "         ns::ce-oem-test-stress",
+                text,
+            )
+            # No "forced"/"[ui]" line is ever generated here — both are
+            # entirely up to the launcher template (see write_launcher()).
+            self.assertNotIn("forced =", text)
+            self.assertNotIn("[ui]", text)
+
+    def test_template_sections_merged_verbatim(self):
+        template = gl.OrderedDict(
+            {
+                "ui": gl.OrderedDict({"type": "interactive"}),
+                "restart": gl.OrderedDict({"strategy": "systemd"}),
+            }
+        )
+        with tempfile.TemporaryDirectory() as tmp:
+            out = Path(tmp) / "ce-oem-test"
+            gl.write_launcher(
+                "ns::ce-oem-test",
+                self._items(),
+                out,
+                template_sections=template,
+            )
+            text = out.read_text()
+            self.assertIn("[ui]", text)
+            self.assertIn("type = interactive", text)
+            self.assertIn("[restart]", text)
+            self.assertIn("strategy = systemd", text)
+
+    def test_template_can_add_test_plan_forced(self):
+        # [test plan] is not a forbidden/special section any more — a
+        # template can add a "forced" key to it (or override "unit"/
+        # "filter") the same as any other ini merge.
+        template = gl.OrderedDict(
+            {"test plan": gl.OrderedDict({"forced": "yes"})}
+        )
+        with tempfile.TemporaryDirectory() as tmp:
+            out = Path(tmp) / "ce-oem-test"
+            gl.write_launcher(
+                "ns::ce-oem-test-automated",
+                self._items(),
+                out,
+                filter_plans=[
+                    "ns::ce-oem-test-manual",
+                    "ns::ce-oem-test-automated",
+                ],
+                template_sections=template,
+            )
+            text = out.read_text()
+            self.assertIn("unit = ns::ce-oem-test-automated", text)
+            self.assertIn("forced = yes", text)
+
+    def test_template_overrides_generated_unit(self):
+        # Same-section/same-key template values win, ini-merge style —
+        # even for a key gen_launcher.py itself generates.
+        template = gl.OrderedDict(
+            {"test plan": gl.OrderedDict({"unit": "ns::overridden"})}
+        )
+        with tempfile.TemporaryDirectory() as tmp:
+            out = Path(tmp) / "ce-oem-test"
+            gl.write_launcher(
+                "ns::ce-oem-test",
+                self._items(),
+                out,
+                template_sections=template,
+            )
+            text = out.read_text()
+            self.assertIn("unit = ns::overridden", text)
+            self.assertNotIn("unit = ns::ce-oem-test\n", text)
+
+    def test_template_overrides_manifest_value(self):
+        template = gl.OrderedDict(
+            {"manifest": gl.OrderedDict({"ns::has_gpio": "False"})}
+        )
+        with tempfile.TemporaryDirectory() as tmp:
+            out = Path(tmp) / "ce-oem-test"
+            gl.write_launcher(
+                "ns::ce-oem-test",
+                self._items(),
+                out,
+                template_sections=template,
+            )
+            text = out.read_text()
+            self.assertIn("ns::has_gpio = False", text)
+            self.assertNotIn("ns::has_gpio = True", text)
+
+    def test_template_adds_new_manifest_key(self):
+        template = gl.OrderedDict(
+            {"manifest": gl.OrderedDict({"ns::extra_flag": "true"})}
+        )
+        with tempfile.TemporaryDirectory() as tmp:
+            out = Path(tmp) / "ce-oem-test"
+            gl.write_launcher(
+                "ns::ce-oem-test",
+                self._items(),
+                out,
+                template_sections=template,
+            )
+            text = out.read_text()
+            # original item is kept...
+            self.assertIn("ns::has_gpio = True", text)
+            # ...and the template-only key is added alongside it.
+            self.assertIn("ns::extra_flag = true", text)
+
+    def test_template_can_add_manifest_section_when_no_items(self):
+        template = gl.OrderedDict(
+            {"manifest": gl.OrderedDict({"ns::only_from_template": "true"})}
+        )
+        with tempfile.TemporaryDirectory() as tmp:
+            out = Path(tmp) / "ce-oem-test"
+            gl.write_launcher(
+                "ns::ce-oem-test",
+                [],
+                out,
+                template_sections=template,
+            )
+            text = out.read_text()
+            self.assertIn("[manifest]", text)
+            self.assertIn("ns::only_from_template = true", text)
+
+    def test_template_overrides_launcher_section(self):
+        template = gl.OrderedDict(
+            {"launcher": gl.OrderedDict({"app_id": "com.example:custom"})}
+        )
+        with tempfile.TemporaryDirectory() as tmp:
+            out = Path(tmp) / "ce-oem-test"
+            gl.write_launcher(
+                "ns::ce-oem-test",
+                self._items(),
+                out,
+                template_sections=template,
+            )
+            text = out.read_text()
+            self.assertIn("app_id = com.example:custom", text)
+            self.assertNotIn("app_id = com.canonical.contrib:checkbox", text)
+
+    def test_template_extra_sections_not_added_when_none(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            out = Path(tmp) / "ce-oem-test"
+            gl.write_launcher("ns::ce-oem-test", self._items(), out)
+            text = out.read_text()
+            self.assertEqual(text.count("[manifest]"), 1)
+
+
+class TestLoadLauncherTemplate(unittest.TestCase):
+    def test_missing_file_returns_empty(self):
+        result = gl.load_launcher_template(Path("/no/such/file.ini"))
+        self.assertEqual(result, gl.OrderedDict())
+
+    def test_loads_extra_sections(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            p = Path(tmp) / "tmpl.ini"
+            p.write_text(textwrap.dedent("""\
+                    [ui]
+                    type = interactive
+                    verbosity = verbose
+
+                    [restart]
+                    strategy = systemd
+                    """))
+            result = gl.load_launcher_template(p)
+            self.assertEqual(result["ui"]["type"], "interactive")
+            self.assertEqual(result["ui"]["verbosity"], "verbose")
+            self.assertEqual(result["restart"]["strategy"], "systemd")
+
+    def test_all_sections_loaded_no_forbidden_names(self):
+        # No section name is off-limits any more — [launcher],
+        # [test plan], [manifest], [environment] can all be defined in
+        # a template; write_launcher() merges them ini-style on top of
+        # what it generates rather than load_launcher_template()
+        # dropping them up front.
+        with tempfile.TemporaryDirectory() as tmp:
+            p = Path(tmp) / "tmpl.ini"
+            p.write_text(textwrap.dedent("""\
+                    [launcher]
+                    app_id = com.example:custom
+
+                    [test plan]
+                    forced = yes
+
+                    [manifest]
+                    ns::extra_flag = true
+
+                    [environment]
+                    EXTRA_VAR = yes
+
+                    [ui]
+                    type = interactive
+                    """))
+            result = gl.load_launcher_template(p)
+            self.assertEqual(
+                list(result.keys()),
+                ["launcher", "test plan", "manifest", "environment", "ui"],
+            )
+            self.assertEqual(result["test plan"]["forced"], "yes")
+
+    def test_invalid_ini_returns_empty_without_raising(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            p = Path(tmp) / "tmpl.ini"
+            p.write_text("not valid ini [[[")
+            result = gl.load_launcher_template(p)
+            self.assertEqual(result, gl.OrderedDict())
+
+    def test_default_path_used_when_none_given(self):
+        # gen_launcher.py bundles its own default template next to the
+        # script; loading with no path should find and parse it.
+        result = gl.load_launcher_template()
+        self.assertIsInstance(result, gl.OrderedDict)
 
 
 class TestParseExistingLauncher(unittest.TestCase):
@@ -653,6 +922,118 @@ class TestEnsureRightFocusSelectable(unittest.TestCase):
         screen._ensure_right_focus_selectable()  # must not raise
 
         self.assertEqual(walker._focus_idx, 0)
+
+
+class TestSaveMergesManualAutoStress(unittest.TestCase):
+    """`_save` must write a single merged launcher (filter, defaulting to
+    the base plan) when sub_plans contains a manual/automated/stress
+    trio, and fall back to a single plain launcher otherwise. Neither
+    case writes a `forced` line — that's entirely up to the template."""
+
+    def _make_screen(self, output_dir, sub_plans, template_sections=None):
+        screen = gl.LauncherEditorScreen.__new__(gl.LauncherEditorScreen)
+        screen.plan_full_id = "ns::ce-oem-iot-ubuntucore-26"
+        screen.items = []
+        screen.output_dir = output_dir
+        screen.sub_plans = sub_plans
+        screen.template_sections = template_sections
+        screen._saved_paths = []
+        screen._status_text = _FakeText()
+        screen._status_text.set_text = lambda *a, **k: None
+        return screen
+
+    def _call_save(self, screen):
+        # _save() ends its success path with `raise urwid.ExitMainLoop()`;
+        # ensure the stub urwid module has that attribute, then swallow it.
+        if not hasattr(gl.urwid, "ExitMainLoop"):
+            gl.urwid.ExitMainLoop = type("ExitMainLoop", (Exception,), {})
+        try:
+            screen._save()
+        except gl.urwid.ExitMainLoop:
+            pass
+
+    def test_writes_single_merged_launcher(self):
+        sub_plans = [
+            (
+                "ns::ce-oem-iot-ubuntucore-26-manual",
+                "ce-oem-iot-ubuntucore-26-manual",
+            ),
+            (
+                "ns::ce-oem-iot-ubuntucore-26-automated",
+                "ce-oem-iot-ubuntucore-26-automated",
+            ),
+            (
+                "ns::ce-oem-iot-ubuntucore-26-stress",
+                "ce-oem-iot-ubuntucore-26-stress",
+            ),
+            ("ns::ce-oem-iot-ubuntucore-26-rt", "ce-oem-iot-ubuntucore-26-rt"),
+        ]
+        with tempfile.TemporaryDirectory() as tmp:
+            out_dir = Path(tmp)
+            screen = self._make_screen(out_dir, sub_plans)
+            self._call_save(screen)
+
+            self.assertEqual(len(screen._saved_paths), 1)
+            out = out_dir / "ce-oem-iot-ubuntucore-26-launcher"
+            self.assertEqual(screen._saved_paths[0], out)
+            text = out.read_text()
+            self.assertIn("unit = ns::ce-oem-iot-ubuntucore-26", text)
+            self.assertIn(
+                "filter = ns::ce-oem-iot-ubuntucore-26\n"
+                "         ns::ce-oem-iot-ubuntucore-26-manual\n"
+                "         ns::ce-oem-iot-ubuntucore-26-automated\n"
+                "         ns::ce-oem-iot-ubuntucore-26-stress",
+                text,
+            )
+            self.assertNotIn("forced =", text)
+            # No template was passed to this screen, so [ui] is not
+            # written at all — that's now entirely the template's job.
+            self.assertNotIn("[ui]", text)
+            filter_block = text.split("filter = ")[1]
+            self.assertNotIn("-rt", filter_block)
+
+    def test_no_sub_plans_writes_plain_launcher(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            out_dir = Path(tmp)
+            screen = self._make_screen(out_dir, [])
+            self._call_save(screen)
+
+            self.assertEqual(len(screen._saved_paths), 1)
+            out = out_dir / "ce-oem-iot-ubuntucore-26-launcher"
+            text = out.read_text()
+            self.assertIn("unit = ns::ce-oem-iot-ubuntucore-26", text)
+            self.assertNotIn("forced =", text)
+            self.assertNotIn("filter =", text)
+            self.assertNotIn("[ui]", text)
+
+    def test_no_matching_sub_plans_writes_plain_launcher(self):
+        sub_plans = [
+            ("ns::ce-oem-iot-ubuntucore-26-rt", "ce-oem-iot-ubuntucore-26-rt")
+        ]
+        with tempfile.TemporaryDirectory() as tmp:
+            out_dir = Path(tmp)
+            screen = self._make_screen(out_dir, sub_plans)
+            self._call_save(screen)
+
+            out = out_dir / "ce-oem-iot-ubuntucore-26-launcher"
+            text = out.read_text()
+            self.assertIn("unit = ns::ce-oem-iot-ubuntucore-26", text)
+            self.assertNotIn("forced =", text)
+            self.assertNotIn("filter =", text)
+
+    def test_template_sections_passed_through_to_write_launcher(self):
+        template = gl.OrderedDict(
+            {"restart": gl.OrderedDict({"strategy": "systemd"})}
+        )
+        with tempfile.TemporaryDirectory() as tmp:
+            out_dir = Path(tmp)
+            screen = self._make_screen(out_dir, [], template_sections=template)
+            self._call_save(screen)
+
+            out = out_dir / "ce-oem-iot-ubuntucore-26-launcher"
+            text = out.read_text()
+            self.assertIn("[restart]", text)
+            self.assertIn("strategy = systemd", text)
 
 
 if __name__ == "__main__":

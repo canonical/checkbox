@@ -3,6 +3,7 @@
 
 Usage:
     python3 gen_launcher.py [--providers-dir PATH] [--output-dir DIR]
+                            [--input LAUNCHER] [--template INI]
                             [--rebuild-cache]
 """
 
@@ -10,8 +11,11 @@ from __future__ import annotations
 
 # §1 Imports + constants
 import argparse
+import configparser
+import os
 import signal
 import sys
+from collections import OrderedDict
 from dataclasses import dataclass, field
 from pathlib import Path
 
@@ -25,6 +29,7 @@ from checkbox_ce_oem_scan import (
     load_expansion_cache,
     load_or_build_cache,
     save_expansion_cache,
+    select_manual_auto_stress,
 )
 
 # §2 Item dataclass
@@ -135,50 +140,149 @@ def collect_items(
 
 # ── §4  Launcher writer ──────────────────────────────────────────────────────
 
+# Bundled next to this script — read-only once packaged into the snap. Use
+# --template/$CHECKBOX_LAUNCHER_TEMPLATE to point at a writable override.
+DEFAULT_TEMPLATE_PATH = (
+    Path(__file__).resolve().parent / "launcher_template.ini"
+)
+
+
+def load_launcher_template(
+    template_path: "Path | None" = None,
+) -> "OrderedDict[str, OrderedDict[str, str]]":
+    """Load launcher sections/values from an ini template file.
+
+    This is what lets a user maintain launcher defaults — for *any*
+    section, including ``[launcher]``, ``[test plan]``, ``[manifest]``,
+    and ``[environment]`` — in one editable ini file instead of
+    hand-patching every generated launcher, or forking
+    ``gen_launcher.py``. ``write_launcher()`` merges the result on top of
+    what it generates, following normal ini semantics: a template key
+    matching an already-generated key in the same section overrides its
+    value, and any other template key/section is simply added.
+
+    *template_path*, if given, is read directly — this is how a caller
+    supplies an external override (see ``--template`` /
+    ``$CHECKBOX_LAUNCHER_TEMPLATE`` in ``main()``), which matters because
+    the script's own install directory is read-only once packaged into a
+    snap. When omitted, the bundled default at ``DEFAULT_TEMPLATE_PATH``
+    (next to this script) is used instead.
+
+    Returns an ``OrderedDict`` of ``{section: OrderedDict({key: value})}``
+    in file order. Returns an empty ``OrderedDict`` if no template file is
+    found, it can't be read, or it fails to parse — a missing/broken
+    template only means "nothing extra to merge", it must never crash
+    launcher generation.
+    """
+    path = template_path or DEFAULT_TEMPLATE_PATH
+    sections: "OrderedDict[str, OrderedDict[str, str]]" = OrderedDict()
+    if not path.is_file():
+        return sections
+
+    parser = configparser.ConfigParser()
+    # preserve key case — launcher keys are case-sensitive (e.g. RS485_CONFIG)
+    parser.optionxform = str
+    try:
+        parser.read(path, encoding="utf-8")
+    except (OSError, configparser.Error) as exc:
+        print(
+            f"WARNING: ignoring unreadable launcher template {path}: {exc}",
+            file=sys.stderr,
+        )
+        return sections
+
+    for section in parser.sections():
+        sections[section] = OrderedDict(parser.items(section))
+    return sections
+
 
 def write_launcher(
     plan_full_id: str,
     items: list[Item],
     output_path: Path,
+    *,
+    filter_plans: "list[str] | None" = None,
+    template_sections: "OrderedDict[str, OrderedDict[str, str]] | None" = None,
 ) -> Path:
     """Write a checkbox launcher ini file to *output_path*.
 
-    The file starts with ``#!/usr/bin/env checkbox-cli-wrapper`` so it can
-    be executed directly on a system where checkbox is installed.
+    Empty manifest ``Item.value`` fields are written as ``key = false`` so
+    the file can be edited by hand later.  Environment items with an empty
+    value are omitted entirely, since unset environment variables have no
+    meaningful default to write. The ``[manifest]`` and ``[environment]``
+    sections are themselves omitted when no relevant items exist (unless
+    *template_sections* adds one back — see below).
 
-    Empty ``Item.value`` fields are written as ``key = `` (blank value) so
-    the file can be edited by hand later.  The ``[manifest]`` and
-    ``[environment]`` sections are omitted entirely when no relevant items
-    exist.
+    *plan_full_id* is used as ``[test plan] unit`` — the test plan
+    selected/run by default. When *filter_plans* is given (a list of full
+    test plan ids), a ``[test plan] filter`` line is written listing them
+    one per line (indented to align under the first id, matching the
+    hand-written launcher style used elsewhere), constraining interactive
+    test-plan selection to just those ids. No ``[test plan] forced`` line
+    is ever generated here — checkbox-ng's own default for that key is
+    already ``False`` (see ``plainbox/impl/config.py``); if a particular
+    fleet needs ``forced = yes``, set it in the launcher template's own
+    ``[test plan]`` section and it will be merged in like any other key
+    (see *template_sections* below). Likewise, ``[ui] type =
+    interactive`` (required for the picker to actually appear when
+    multiple plans are listed via *filter_plans*) is entirely the
+    template's responsibility.
+
+    *template_sections* (as returned by :func:`load_launcher_template`)
+    is merged on top of the sections generated above, following normal
+    ini semantics: for a section this function also generates (e.g.
+    ``[test plan]``, ``[manifest]``), a template key with the same name
+    overrides the generated value and any other template key in that
+    section is simply added; a section not generated here at all (e.g.
+    ``[ui]``, ``[restart]``, ``[report:...]``) is added as-is. This is
+    the only way non-generated sections/values (or overrides of the
+    generated ones) make it into the launcher — nothing here supplies a
+    built-in fallback for them.
     """
-    lines = [
-        "#!/usr/bin/env checkbox-cli-wrapper",
-        "[launcher]",
-        "app_id = com.canonical.contrib:checkbox",
-        "launcher_version = 1",
-        "stock_reports = text, submission_files, certification",
-        "",
-        "[test plan]",
-        f"unit = {plan_full_id}",
-        "forced = yes",
-        "",
-        "[ui]",
-        "type = silent",
-    ]
+    sections: "OrderedDict[str, OrderedDict[str, str]]" = OrderedDict()
+
+    sections["launcher"] = OrderedDict(
+        [
+            ("app_id", "com.canonical.contrib:checkbox"),
+            ("launcher_version", "1"),
+            ("stock_reports", "text, submission_files, certification"),
+        ]
+    )
+
+    test_plan = OrderedDict([("unit", plan_full_id)])
+    if filter_plans:
+        indent = " " * len("filter = ")
+        test_plan["filter"] = "\n".join(
+            [filter_plans[0]] + [f"{indent}{fid}" for fid in filter_plans[1:]]
+        )
+    sections["test plan"] = test_plan
 
     manifest_items = [i for i in items if i.kind == "manifest"]
-    environ_items = [i for i in items if i.kind == "environ"]
-
     if manifest_items:
-        lines += ["", "[manifest]"]
-        for item in manifest_items:
-            val = item.value if item.value else "false"
-            lines.append(f"{item.key} = {val}")
+        sections["manifest"] = OrderedDict(
+            (item.key, item.value if item.value else "false")
+            for item in manifest_items
+        )
 
+    environ_items = [i for i in items if i.kind == "environ" and i.value]
     if environ_items:
-        lines += ["", "[environment]"]
-        for item in environ_items:
-            lines.append(f"{item.key} = {item.value}")
+        sections["environment"] = OrderedDict(
+            (item.key, item.value) for item in environ_items
+        )
+
+    # Merge the template on top, ini-style: same section+key overrides
+    # the generated value, new keys/sections are simply added.
+    template_sections = template_sections or OrderedDict()
+    for section, kv in template_sections.items():
+        sections.setdefault(section, OrderedDict()).update(kv)
+
+    lines: list[str] = []
+    for section, kv in sections.items():
+        if lines:
+            lines.append("")
+        lines.append(f"[{section}]")
+        for key, val in kv.items():
+            lines.append(f"{key} = {val}")
 
     output_path.write_text("\n".join(lines) + "\n", encoding="utf-8")
     return output_path
@@ -386,6 +490,7 @@ class PlanPickerScreen:
 # §7  ItemRow widget
 
 _KEY_COL_W = 54  # characters reserved for the key column
+_VALUE_COL_W = 80  # max characters shown for the value before truncating
 _KIND_LABEL = {"manifest": "M", "environ": "E"}
 # When an ItemRow is focused every named attr must be remapped so the full
 # row width (including the key and value spans) turns light cyan.
@@ -492,11 +597,18 @@ class ItemRow(urwid.WidgetWrap):
             key = "\u2026" + key[-(_KEY_COL_W - 1) :]  # noqa: E203
         return [("key", f"[{label}] " + key.ljust(_KEY_COL_W) + " = ")]
 
-    def _display_widget(self) -> urwid.Widget:
+    def _display_value(self) -> str:
         val = self.item.value
+        if len(val) > _VALUE_COL_W:
+            val = "\u2026" + val[-(_VALUE_COL_W - 1) :]  # noqa: E203
+        return val
+
+    def _display_widget(self) -> urwid.Widget:
+        val = self._display_value()
         val_markup = ("value_set", val) if val else ("value_empty", "")
         return urwid.AttrMap(
-            urwid.Text(self._key_caption() + [val_markup]),
+            # wrap="clip" so long values never cause multi-row entries
+            urwid.Text(self._key_caption() + [val_markup], wrap="clip"),
             None,
             focus_map=_ITEM_FOCUS_MAP,
         )
@@ -507,7 +619,9 @@ class ItemRow(urwid.WidgetWrap):
                 self._key_caption(), self.item.value
             )
             return urwid.AttrMap(self._edit, "focus")
-        self._edit = urwid.Edit(self._key_caption(), self.item.value)
+        self._edit = urwid.Edit(
+            self._key_caption(), self.item.value, wrap="clip"
+        )
         self._edit.set_edit_pos(len(self.item.value))
         return urwid.AttrMap(self._edit, "focus")
 
@@ -671,9 +785,16 @@ class LauncherEditorScreen:
     Press ``q`` to quit without saving.
     Press ``b``/``Esc`` to go back to the plan picker.
 
-    When *sub_plans* is provided, pressing ``s`` writes one launcher per
-    sub-plan (each with a different ``[test plan] unit``).  Otherwise a
-    single launcher is written for *plan_full_id*.
+    When *sub_plans* is provided and contains a manual/automated/stress
+    trio (see ``select_manual_auto_stress``), pressing ``s`` writes a
+    single launcher whose ``[test plan]`` section lists *plan_full_id*
+    plus all three via ``filter`` and defaults ``unit`` to
+    *plan_full_id* itself (running the base plan exercises the whole
+    trio).  Otherwise a single launcher is written for *plan_full_id*
+    with just ``unit``.  No ``[test plan] forced`` line is ever written
+    by this class or ``write_launcher()`` — that (and ``[ui] type``,
+    needed for the picker to appear at all) is entirely the launcher
+    template's responsibility (see ``write_launcher()``).
     """
 
     _BINDINGS = (
@@ -687,12 +808,16 @@ class LauncherEditorScreen:
         cache: dict,
         output_dir: Path,
         sub_plans: "list[tuple[str, str]] | None" = None,
+        template_sections: (
+            "OrderedDict[str, OrderedDict[str, str]] | None"
+        ) = None,
     ):
         self.plan_full_id = plan_full_id
         self.items = items
         self._cache = cache
         self.output_dir = output_dir
         self.sub_plans = sub_plans or []
+        self.template_sections = template_sections
         self._saved_paths: list[Path] = []
         self._went_back: bool = False
         self._right_focus: bool = False
@@ -748,8 +873,10 @@ class LauncherEditorScreen:
         )
 
         plan_id = self.plan_full_id.split("::")[-1]
-        n = len(self.sub_plans)
-        suffix = f"  ({n} launchers)" if n else ""
+        filtered_mas, _ = select_manual_auto_stress(
+            self.plan_full_id, self.sub_plans
+        )
+        suffix = "  (manual/auto/stress)" if filtered_mas else ""
         self._title_text = urwid.Text(
             f"Launcher Generator \u2014 {plan_id}{suffix}", wrap="clip"
         )
@@ -889,21 +1016,30 @@ class LauncherEditorScreen:
 
     def _save(self):
         try:
-            if self.sub_plans:
-                for sub_full_id, sub_id in self.sub_plans:
-                    out = self.output_dir / f"{sub_id}-launcher"
-                    write_launcher(sub_full_id, self.items, out)
-                    self._saved_paths.append(out)
-                self._status_text.set_text(
-                    f"Saved {len(self._saved_paths)} launchers"
-                    f" to {self.output_dir}"
+            plan_id = self.plan_full_id.split("::")[-1]
+            out = self.output_dir / f"{plan_id}-launcher"
+            filtered_mas, default_full_id = select_manual_auto_stress(
+                self.plan_full_id, self.sub_plans
+            )
+            template_sections = getattr(self, "template_sections", None)
+            if filtered_mas:
+                unit = default_full_id or filtered_mas[0][0]
+                write_launcher(
+                    unit,
+                    self.items,
+                    out,
+                    filter_plans=[fid for fid, _ in filtered_mas],
+                    template_sections=template_sections,
                 )
             else:
-                plan_id = self.plan_full_id.split("::")[-1]
-                out = self.output_dir / f"{plan_id}-launcher"
-                write_launcher(self.plan_full_id, self.items, out)
-                self._saved_paths.append(out)
-                self._status_text.set_text(f"Saved to {out}")
+                write_launcher(
+                    self.plan_full_id,
+                    self.items,
+                    out,
+                    template_sections=template_sections,
+                )
+            self._saved_paths.append(out)
+            self._status_text.set_text(f"Saved to {out}")
             raise urwid.ExitMainLoop()
         except OSError as exc:
             self._status_text.set_text(f" ERROR writing file: {exc}")
@@ -1020,6 +1156,20 @@ def main(argv: list[str] | None = None) -> int:  # pragma: no cover
         "and environment entries",
     )
     parser.add_argument(
+        "--template",
+        metavar="INI",
+        help=(
+            "Launcher template ini file supplying default values for every "
+            "launcher section other than [launcher], [test plan], "
+            "[manifest] and [environment] (e.g. [ui], [restart], "
+            "[report:certification], [transport:c3]) — merged into every "
+            "generated launcher. Defaults to launcher_template.ini next to "
+            "this script, or $CHECKBOX_LAUNCHER_TEMPLATE if set. Point "
+            "this at a writable copy to customize it, since this script's "
+            "own install location is read-only once packaged into a snap"
+        ),
+    )
+    parser.add_argument(
         "--rebuild-cache",
         action="store_true",
         help="Force cache rebuild even if cache is fresh",
@@ -1040,6 +1190,34 @@ def main(argv: list[str] | None = None) -> int:  # pragma: no cover
         print(
             f"Loaded {len(_input_defaults)} default value(s)"
             f" from {_input_path.name}"
+        )
+
+    # ── resolve + load the launcher template (once, before the loop) ─
+    _template_path = None
+    if args.template:
+        _template_path = Path(args.template)
+        if not _template_path.is_file():
+            print(
+                f"ERROR: --template file not found: {_template_path}",
+                file=sys.stderr,
+            )
+            return 1
+    elif os.environ.get("CHECKBOX_LAUNCHER_TEMPLATE"):
+        _env_template_path = Path(os.environ["CHECKBOX_LAUNCHER_TEMPLATE"])
+        if _env_template_path.is_file():
+            _template_path = _env_template_path
+        else:
+            print(
+                "WARNING: $CHECKBOX_LAUNCHER_TEMPLATE file not found: "
+                f"{_env_template_path}, ignoring",
+                file=sys.stderr,
+            )
+    template_sections = load_launcher_template(_template_path)
+    if template_sections:
+        _template_src = _template_path or DEFAULT_TEMPLATE_PATH
+        print(
+            f"Loaded launcher template from {_template_src}"
+            f" ({len(template_sections)} section(s))"
         )
 
     # ── discover repo root(s) ─────────────────────────────────────
@@ -1118,16 +1296,19 @@ def main(argv: list[str] | None = None) -> int:  # pragma: no cover
 
         # ── resolve nested plans ──────────────────────────────────
         sub_plans = get_nested_plans(full_id, cache)
-        n_sub = len(sub_plans)
-        if n_sub:
+        filtered_mas, _ = select_manual_auto_stress(full_id, sub_plans)
+        if filtered_mas:
+            nested_mas = filtered_mas[1:]
+            names = ", ".join(pid for _, pid in nested_mas)
             print(
-                f"  {n_sub} nested plans → {n_sub} launchers will be written"
+                f"  {len(nested_mas)} nested plans ({names}) will be"
+                " merged into one launcher (default: base plan)"
             )
 
         # ── editor ────────────────────────────────────────────────
         output_dir = Path(args.output_dir)
         editor = LauncherEditorScreen(
-            full_id, items, cache, output_dir, sub_plans
+            full_id, items, cache, output_dir, sub_plans, template_sections
         )
         paths = editor.run()
 

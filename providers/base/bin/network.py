@@ -95,16 +95,19 @@ class IPerfPerformanceTest:
 
         # If INTERFACE_SPEED_OVERRIDE specifies a value for this interface,
         # use it instead of the speed reported by ethtool/mii-tool.
-        self._max_speed_override = None  # type: int | None
+        self._max_speed_override: "int | None" = None
         if interface_speed_override:
             for override_iface, speed in parse_interface_speed_override(
                 interface_speed_override
             ):
                 if override_iface.interface == self.interface:
                     self._max_speed_override = speed
+                    logger.warning(
+                        f"Using override {speed} for {self.interface}"
+                    )
                     break
 
-        self._results = []  # type: list[str]
+        self._results: "list[str]" = []
         self._results_lock = threading.Lock()
 
     @property

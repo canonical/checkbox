@@ -46,24 +46,6 @@ def get_current_boot_id() -> str:
 
 
 class DeviceInfoCollector:
-
-    class Device:
-        PCI = "pci"
-        WIRELESS = "wireless"
-        USB = "usb"
-        DRM = "drm"
-
-    DEFAULT_DEVICES: "dict[str, list[str]]" = {
-        "required": [
-            Device.WIRELESS,
-            Device.PCI,
-            Device.USB,
-        ],  # these can fail the test case
-        "optional": [Device.DRM],  # these only produce warnings
-    }
-    # to modify, add more values in the enum
-    # and reference them in required/optional respectively
-
     def get_drm_info(self) -> str:
         return str(sorted(os.listdir("/sys/class/drm")))
 
@@ -109,7 +91,7 @@ class DeviceInfoCollector:
         self,
         expected_dir: str,
         actual_dir: str,
-        devices: "dict[str, list[str]]" = DEFAULT_DEVICES,
+        devices: "dict[str, Sequence[str]] | None" = None,
     ) -> bool:
         """Compares the list of devices in expected_dir against actual_dir
 
@@ -118,6 +100,9 @@ class DeviceInfoCollector:
         :param devices: what devices do we want to compare, see DEFAULT_DEVICES
         :return: whether the device list matches
         """
+        if devices is None:
+            devices = self.DEFAULT_DEVICES
+        
         print(
             f"Comparing devices in (expected) {expected_dir}",
             f"against (actual) {actual_dir}...",
@@ -149,8 +134,10 @@ class DeviceInfoCollector:
     def dump(
         self,
         output_directory: str,
-        devices: "dict[str, list[str]]" = DEFAULT_DEVICES,
+        devices: "dict[str, Sequence[str]] | None" = None,
     ) -> None:
+        if devices is None:
+            devices = self.DEFAULT_DEVICES
         os.makedirs(output_directory, exist_ok=True)
         # add extra behavior if necessary
         for device in devices["required"]:
@@ -174,11 +161,17 @@ class DeviceInfoCollector:
             print(f"End of {name} diff", file=sys.stderr)
 
     def __init__(self) -> None:
+        self.DEFAULT_DEVICES: "dict[str, Sequence[str]]" = {
+            # these can fail the test case
+            "required": ("wireless", "usb", "pci"),
+            # these only produce warnings
+            "optional": ("drm"),
+        }
         self.dump_function = {
-            self.Device.PCI: self.get_pci_info,
-            self.Device.DRM: self.get_drm_info,
-            self.Device.USB: self.get_usb_info,
-            self.Device.WIRELESS: self.get_wireless_info,
+            "pci": self.get_pci_info,
+            "drm": self.get_drm_info,
+            "usb": self.get_usb_info,
+            "wireless": self.get_wireless_info,
         }
 
 

@@ -342,7 +342,7 @@ If the path is relative, it is resolved under `PLAINBOX_PROVIDER_DATA`.
 ```json
 {
   "eglinfo": {
-    "LD_PATH": ["/path/to/lib1", "/path/to/lib2"],
+    "LD_LIBRARY_PATH": ["/path/to/lib1", "/path/to/lib2"],
     "env1": "value1"
   }
 }

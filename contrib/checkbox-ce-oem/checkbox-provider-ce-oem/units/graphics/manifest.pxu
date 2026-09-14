@@ -7,3 +7,8 @@ unit: manifest entry
 id: has_opencl_support
 _name: Support OpenCL testing
 value-type: bool
+
+unit: manifest entry
+id: has_opengl_support
+_name: Support OpenGL testing
+value-type: bool

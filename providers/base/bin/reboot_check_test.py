@@ -8,8 +8,10 @@ import shutil
 import subprocess as sp
 import sys
 import time
-import typing as T
+import typing as t
+from collections.abc import Sequence
 from datetime import datetime
+from pathlib import Path
 from shlex import split as sh_split
 
 from checkbox_support.scripts.fwts_test import get_fwts_base_cmd
@@ -51,14 +53,14 @@ class DeviceInfoCollector:
         USB = "usb"
         DRM = "drm"
 
-    DEFAULT_DEVICES = {
+    DEFAULT_DEVICES: "dict[str, list[str]]" = {
         "required": [
             Device.WIRELESS,
             Device.PCI,
             Device.USB,
         ],  # these can fail the test case
         "optional": [Device.DRM],  # these only produce warnings
-    }  # type: dict[str, list[str]]
+    }
     # to modify, add more values in the enum
     # and reference them in required/optional respectively
 
@@ -80,7 +82,7 @@ class DeviceInfoCollector:
                 sorted(lines),
             )
         )
-        return "\n".join(map(lambda line: line.strip(), lines_to_write))
+        return "\n".join(line.strip() for line in lines_to_write)
 
     def get_usb_info(self) -> str:
         out = sp.check_output(
@@ -107,7 +109,7 @@ class DeviceInfoCollector:
         self,
         expected_dir: str,
         actual_dir: str,
-        devices: T.Dict[str, T.List[str]] = DEFAULT_DEVICES,
+        devices: "dict[str, list[str]]" = DEFAULT_DEVICES,
     ) -> bool:
         """Compares the list of devices in expected_dir against actual_dir
 
@@ -117,9 +119,8 @@ class DeviceInfoCollector:
         :return: whether the device list matches
         """
         print(
-            "Comparing devices in (expected) {} against (actual) {}...".format(
-                expected_dir, actual_dir
-            )
+            f"Comparing devices in (expected) {expected_dir}",
+            f"against (actual) {actual_dir}...",
         )
         for device in devices["required"]:
             # file paths of the expected and actual device lists
@@ -148,7 +149,7 @@ class DeviceInfoCollector:
     def dump(
         self,
         output_directory: str,
-        devices: T.Dict[str, T.List[str]] = DEFAULT_DEVICES,
+        devices: "dict[str, list[str]]" = DEFAULT_DEVICES,
     ) -> None:
         os.makedirs(output_directory, exist_ok=True)
         # add extra behavior if necessary
@@ -188,7 +189,7 @@ class FwtsTester:
     def fwts_log_check_passed(
         self,
         output_directory: str,
-        fwts_arguments: T.Sequence[str] = ["klog", "oops"],
+        fwts_arguments: Sequence[str] = ("klog", "oops"),
     ) -> bool:
         """
         Check if fwts logs passes the checks specified in sleep_test_log_check
@@ -227,9 +228,7 @@ class FwtsTester:
 
 class HardwareRendererTester:
 
-    def get_desktop_environment_variables(
-        self,
-    ) -> T.Optional[T.Dict[str, str]]:
+    def get_desktop_environment_variables(self) -> "dict[str, str] | None":
         """Gets all the environment variables used by the desktop process
 
         :return: dict[str, str] similar to os.environ
@@ -248,7 +247,7 @@ class HardwareRendererTester:
             ["pidof", "-s", "compiz"], stdout=sp.PIPE, universal_newlines=True
         )
 
-        desktop_pid = None  # type: int | None
+        desktop_pid = None
         if gnome_pid.returncode == 0:
             desktop_pid = int(gnome_pid.stdout)
         elif compiz_pid.returncode == 0:
@@ -267,7 +266,7 @@ class HardwareRendererTester:
 
         # ideally we don't manually parse this and just use the env file
         # but py3.5 only takes a mapping for the env param
-        desktop_env_vars = {}  # type: dict[str, str]
+        desktop_env_vars: "dict[str, str]" = {}
         for env_str in proc_env_strings:
             kv = env_str.split("=", maxsplit=1)  # DISPLAY=:0
             if len(kv) == 2:
@@ -371,21 +370,18 @@ class HardwareRendererTester:
             return False
         # https://docs.mesa3d.org/envvars.html#envvar-GALLIUM_DRIVER
         # it's almost always the 'llvmpipe' case if we find software rendering
-        if "llvmpipe" in gl_renderer or "softpipe" in gl_renderer:
-            return False
-
-        return True
+        return not ("llvmpipe" in gl_renderer or "softpipe" in gl_renderer)
 
     def extract_gl_renderer_str(
         self,
         glmark2_validate_output: str,
-    ) -> T.Optional[str]:
+    ) -> "str | None":
         """Attempts to extract GL_RENDERER from `glmark2 --validate`'s output
 
         :param glmark2_validate_output: the .stdout from `glmark2 --validate`
         :return: GL_RENDERER itself or None if couldn't be determined
         """
-        gl_renderer_line = None  # type: str | None
+        gl_renderer_line = None
         for line in glmark2_validate_output.splitlines():
             if "GL_RENDERER" in line:
                 gl_renderer_line = line
@@ -418,9 +414,7 @@ class HardwareRendererTester:
             # usually it's tty if we get here,
             # happens when gnome failed to start or not using graphical session
             print(
-                "[ ERR ] Unsupported session type: '{}'.".format(
-                    XDG_SESSION_TYPE
-                ),
+                f"[ ERR ] Unsupported session type: '{XDG_SESSION_TYPE}'.",
                 "Expected either 'x11' or 'wayland'",
                 file=sys.stderr,
             )
@@ -442,9 +436,7 @@ class HardwareRendererTester:
                 src = f"{RUNTIME_ROOT}/usr/share/glmark2"
                 dst = glmark2_data_path
                 print(
-                    "[ DEBUG ] Symlinking glmark2 data dir ({} -> {})".format(
-                        src, dst
-                    )
+                    f"[ DEBUG ] Symlinking glmark2 data dir ({src} -> {dst})"
                 )
                 os.symlink(src, dst, target_is_directory=True)
             # override is needed for snaps on classic ubuntu
@@ -477,11 +469,9 @@ class HardwareRendererTester:
 
         if glmark2_output.returncode != 0:
             print(
-                "[ ERR ] {} returned {}. Error is: {}".format(
-                    glmark2_executable,
-                    glmark2_output.returncode,
-                    glmark2_output.stdout,
-                ),
+                "[ ERR ]",
+                f"{glmark2_executable} returned {glmark2_output.returncode}.",
+                f"Error is: {glmark2_output.stdout}",
                 file=sys.stderr,
             )
             return False
@@ -490,18 +480,13 @@ class HardwareRendererTester:
 
         if gl_renderer is None:
             print(
-                "[ ERR ] {} did not return a renderer string".format(
-                    glmark2_executable
-                ),
+                "[ ERR ]",
+                f"{glmark2_executable} did not return a renderer string",
                 file=sys.stderr,
             )
             return False
 
-        print(
-            "GL_RENDERER found by {} is: {}".format(
-                glmark2_executable, gl_renderer
-            )
-        )
+        print(f"GL_RENDERER found by {glmark2_executable} is: {gl_renderer}")
         is_hardware_rendered = self.gl_renderer_str_is_hardware_renderer(
             gl_renderer
         )
@@ -513,7 +498,7 @@ class HardwareRendererTester:
         return False
 
 
-def get_failed_services() -> T.List[str]:
+def get_failed_services() -> "list[str]":
     """
     Counts the number of failed services listed in systemctl
 
@@ -543,7 +528,7 @@ def poll_systemctl_is_system_running(max_wait_seconds: int) -> bool:
     """
 
     start = time.time()
-    status = None  # type: str | None
+    status: "str | None" = None
     while time.time() - start < max_wait_seconds:
         # https://unix.stackexchange.com/questions
         # /460324/is-there-a-way-to-wait-for-boot-to-complete
@@ -569,9 +554,7 @@ def poll_systemctl_is_system_running(max_wait_seconds: int) -> bool:
             time.sleep(1)
         else:
             print(
-                "Final 'systemctl is-system-running' return value: {}".format(
-                    status
-                )
+                f"Final 'systemctl is-system-running' return value: {status}"
             )
             return True
 
@@ -665,9 +648,8 @@ def main() -> int:
     service_check_passed = True
 
     print(
-        "Starting reboot checks. {}. Boot ID: {}".format(
-            get_timestamp_str(), get_current_boot_id()
-        )
+        f"Starting reboot checks. {get_timestamp_str()}.",
+        f"Boot ID: {get_current_boot_id()}",
     )
 
     if args.comparison_directory is not None:
@@ -736,4 +718,4 @@ def main() -> int:
 
 
 if __name__ == "__main__":
-    exit(main())
+    sys.exit(main())

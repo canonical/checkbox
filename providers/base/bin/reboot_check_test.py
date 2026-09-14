@@ -55,15 +55,11 @@ class DeviceInfoCollector:
             timeout=COMMAND_TIMEOUT_SECONDS,
             universal_newlines=True,
         )
-        lines = iw_out.splitlines()
-        lines_to_write = list(
-            filter(
-                lambda line: "addr" in line
-                or "Interface" in line
-                or "ssid" in line,
-                sorted(lines),
-            )
-        )
+        lines_to_write = [
+            line
+            for line in sorted(iw_out.splitlines())
+            if any(word in line for word in ("addr", "Interface", "ssid"))
+        ]
         return "\n".join(line.strip() for line in lines_to_write)
 
     def get_usb_info(self) -> str:

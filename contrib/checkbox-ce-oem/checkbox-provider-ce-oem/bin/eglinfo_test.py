@@ -127,7 +127,7 @@ def cmd_resource() -> int:
     for platform_name in PLATFORMS:
         is_ignored = platform_name in ignored_platforms
         print("platform_name: {}".format(platform_name))
-        print("ignore: {}".format("true" if is_ignored else "false"))
+        print("ignore: {}".format(is_ignored))
         print("")
 
     return 0

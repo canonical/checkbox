@@ -56,11 +56,11 @@ class DeviceInfoCollector:
             universal_newlines=True,
         )
         lines_to_write = [
-            line
+            line.strip()
             for line in sorted(iw_out.splitlines())
             if any(word in line for word in ("addr", "Interface", "ssid"))
         ]
-        return "\n".join(line.strip() for line in lines_to_write)
+        return "\n".join(lines_to_write)
 
     def get_usb_info(self) -> str:
         out = sp.check_output(

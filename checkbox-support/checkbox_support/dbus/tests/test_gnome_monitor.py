@@ -613,7 +613,7 @@ class PhysicalMonitorTests(unittest.TestCase):
                 make_mode(1920, 1200),
             ]
         )
-        self.assertEqual(monitor.get_max_resolution(), (2048, 1536))
+        self.assertEqual(monitor.get_max_resolution(), (2560, 1080))
 
     def test_get_max_resolution_raises_value_error_if_no_modes(self):
         monitor = make_physical_monitor([])

@@ -19,6 +19,7 @@
 # You should have received a copy of the GNU General Public License
 # along with Checkbox.  If not, see <http://www.gnu.org/licenses/>.
 
+from contextlib import ExitStack
 import sys
 import unittest
 from io import StringIO
@@ -244,14 +245,14 @@ class TestMain(unittest.TestCase):
         mutter_state = MagicMock()
         mutter_state.physical_monitors = monitors
 
-        with (
-            patch("graphics_max_resolution.MonitorConfigGnome") as MockGnome,
-            patch(
-                "graphics_max_resolution.SysfsDrmCardInfo.get_all_active_ports",
-                return_value=drm_cards,
-            ),
-            patch("sys.stdout", new_callable=StringIO) as mock_stdout,
-        ):
+        with patch(
+            "graphics_max_resolution.MonitorConfigGnome"
+        ) as MockGnome, patch(
+            "graphics_max_resolution.SysfsDrmCardInfo.get_all_active_ports",
+            return_value=drm_cards,
+        ) as _, patch(
+            "sys.stdout", new_callable=StringIO
+        ) as mock_stdout:
             MockGnome.return_value.get_current_state.return_value = (
                 mutter_state
             )
@@ -287,10 +288,9 @@ class TestMain(unittest.TestCase):
         mutter_state = MagicMock()
         mutter_state.physical_monitors = monitors
 
-        with (
-            patch("graphics_max_resolution.MonitorConfigGnome") as MockGnome,
-            patch("sys.stderr", new_callable=StringIO) as mock_err,
-        ):
+        with patch(
+            "graphics_max_resolution.MonitorConfigGnome"
+        ) as MockGnome, patch("sys.stderr", new_callable=StringIO) as mock_err:
             MockGnome.return_value.get_current_state.return_value = (
                 mutter_state
             )

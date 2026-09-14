@@ -632,6 +632,11 @@ class UdevadmDevice:
                     else:
                         return "DISK"
                 if "/dev/md" in self._environment.get("DEVNAME", ""):
+                    # IMSM/DDF containers (e.g. Intel VROC) only hold RAID
+                    # metadata and expose no usable block device (0B size),
+                    # so they should not be treated as DISK devices.
+                    if self._environment.get("MD_LEVEL") == "container":
+                        return "RAID"
                     return "DISK"
                 if self.bus == "mtd":
                     return "DISK"

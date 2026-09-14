@@ -1,18 +1,19 @@
 #!/usr/bin/env python3
 
 import argparse
-import os
-import subprocess as sp
-import shutil
 import filecmp
-import sys
-import typing as T
-from checkbox_support.scripts.image_checker import has_desktop_environment
-from checkbox_support.scripts.fwts_test import get_fwts_base_cmd
-from shlex import split as sh_split
-from datetime import datetime
-import time
+import os
 import platform
+import shutil
+import subprocess as sp
+import sys
+import time
+import typing as T
+from datetime import datetime
+from shlex import split as sh_split
+
+from checkbox_support.scripts.fwts_test import get_fwts_base_cmd
+from checkbox_support.scripts.image_checker import has_desktop_environment
 
 # Checkbox could run in a snap container, so we need to prepend this root path
 RUNTIME_ROOT = os.getenv("CHECKBOX_RUNTIME", default="").rstrip("/")

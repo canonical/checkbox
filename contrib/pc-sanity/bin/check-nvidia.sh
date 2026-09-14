@@ -2,6 +2,7 @@
 #set -x
 OUTPUT_FOLDER=/tmp
 test_result="PASS"
+release_number=$(lsb_release -rs)
 #readonly function_pass=0
 readonly function_failed=1
 
@@ -101,7 +102,10 @@ check_environment() {
     [ -n "$DISPLAY" ] || show_error "Please assign DISPLAY enviornment." usage-exit1
     glxinfo > /dev/null || show_error "Failed to execute glxinfo" usage-exit1
     dpkg --compare-versions "$(modinfo nvidia -F version)" "gt" "450" || show_error "[ERROR] $(basename "$0") only support nvidia driver >= 450." usage-exit1
-    command -v prime-select || show_error "nvidia-prime is not installed."  usage-exit1
+    # did not install nvidia-prime after 26.04
+    if [ "$(echo "$release_number < 26.04" | bc -l)" -eq 1 ]; then
+        command -v prime-select || show_error "nvidia-prime is not installed."  usage-exit1
+    fi
     command -v gpu-manager || show_error "ubuntu-drivers-common is not installed." usage-exit1
 }
 check_renderer() {
@@ -167,7 +171,11 @@ check_intel_mode() {
 }
 check_behavior_of_current_mode() {
     local NV_MODE
-    NV_MODE="$(prime-select query)"
+    if [ "$(echo "$release_number < 26.04" | bc -l)" -eq 1 ]; then
+        NV_MODE="$(prime-select query)"
+    else
+        NV_MODE="on-demand"
+    fi
     case "$NV_MODE" in
         on-demand)
             echo "[INFO] current mode is on-demand mode."

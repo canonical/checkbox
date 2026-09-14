@@ -102,7 +102,7 @@ class DeviceInfoCollector:
         """
         if devices is None:
             devices = self.DEFAULT_DEVICES
-        
+
         print(
             f"Comparing devices in (expected) {expected_dir}",
             f"against (actual) {actual_dir}...",
@@ -203,7 +203,8 @@ class FwtsTester:
                 log_file_path,
                 "-q",
                 *fwts_arguments,
-            ]
+            ],
+            check=False,
         )
         result = sp.run(
             [
@@ -214,6 +215,7 @@ class FwtsTester:
                 "all",
                 log_file_path,
             ],
+            check=False,
         )
 
         return result.returncode == 0
@@ -232,12 +234,16 @@ class HardwareRendererTester:
         # pidof will return 1 when process is not found
         gnome_pid = sp.run(
             ["pidof", "-s", "gnome-shell"],
+            check=False,
             stdout=sp.PIPE,
             universal_newlines=True,
         )
         # TODO: remove unity related checks after 16.04 reaches EOL
         compiz_pid = sp.run(  # 16.04 only
-            ["pidof", "-s", "compiz"], stdout=sp.PIPE, universal_newlines=True
+            ["pidof", "-s", "compiz"],
+            check=False,
+            stdout=sp.PIPE,
+            universal_newlines=True,
         )
 
         desktop_pid = None
@@ -438,6 +444,7 @@ class HardwareRendererTester:
             glmark2_output = sp.run(
                 # all glmark2 programs share the same args
                 [glmark2_executable, "--off-screen", "--validate"],
+                check=False,
                 stdout=sp.PIPE,
                 stderr=sp.STDOUT,
                 universal_newlines=True,
@@ -532,6 +539,7 @@ def poll_systemctl_is_system_running(max_wait_seconds: int) -> bool:
         # TODO: remove this function once we drop ubuntu 18 and use --wait
         out = sp.run(
             ["systemctl", "is-system-running"],
+            check=False,
             stdout=sp.PIPE,
             stderr=sp.STDOUT,
             universal_newlines=True,

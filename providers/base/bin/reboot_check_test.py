@@ -674,6 +674,13 @@ def main() -> int:
         DeviceInfoCollector().dump(args.output_directory)
 
     if args.do_fwts_check:
+        try:
+            if args.output_directory is None:
+                raise SystemExit(
+                    "--dump-to must be specified for the fwts test"
+                )
+        except AttributeError:
+            raise SystemExit("--dump-to must be specified for the fwts test")
         tester = FwtsTester()
         if tester.is_fwts_supported() and not tester.fwts_log_check_passed(
             args.output_directory

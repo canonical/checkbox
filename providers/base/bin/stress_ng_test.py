@@ -340,9 +340,9 @@ def stress_memory(args):
         if my_swap is not None and args.keep_swap is False:
             print("Deleting temporary swap file....")
             cmd = "swapoff {}".format(my_swap)
-            Popen(
-                shlex.split(cmd), stderr=STDOUT, stdout=PIPE
-            ).communicate()[0]
+            Popen(shlex.split(cmd), stderr=STDOUT, stdout=PIPE).communicate()[
+                0
+            ]
             os.remove(my_swap)
         return retval
 

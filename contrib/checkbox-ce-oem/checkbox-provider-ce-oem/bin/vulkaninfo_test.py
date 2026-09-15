@@ -59,12 +59,6 @@ CRASH_INDICATORS = (
 # implementation is being used instead of real hardware.
 DEFAULT_SOFTWARE_RENDERERS = ("llvmpipe", "softpipe", "swrast")
 
-logging.basicConfig(
-    level=logging.INFO,
-    format="%(levelname)-8s - %(module)-10s: %(funcName)s "
-    + "%(lineno)-4d - %(message)s",
-)
-
 logger = logging.getLogger(__name__)
 
 
@@ -113,7 +107,7 @@ def parse_vulkaninfo_summary(output: str) -> "list[VulkaninfoRecord]":
     for line in output.splitlines():
         stripped_line = line.strip()
         if stripped_line.startswith("GPU") and stripped_line.endswith(":"):
-            device_number = stripped_line[len("GPU"):-1].strip()
+            device_number = stripped_line[len("GPU") : -1].strip()
             if device_number.isdigit():
                 flush()
                 current_number = device_number
@@ -150,7 +144,7 @@ def extract_device_block(output: str, device_number: str) -> str:
         if stripped_line.startswith("GPU") and stripped_line.endswith(":"):
             if collecting:
                 break
-            if stripped_line[len("GPU"):-1].strip() == device_number:
+            if stripped_line[len("GPU") : -1].strip() == device_number:
                 collecting = True
                 lines.append(line)
             continue
@@ -358,4 +352,10 @@ def main() -> int:
 
 
 if __name__ == "__main__":
+    logging.basicConfig(
+        level=logging.INFO,
+        format="%(levelname)-8s - %(module)-10s: %(funcName)s "
+        + "%(lineno)-4d - %(message)s",
+    )
+
     sys.exit(main())

@@ -46,7 +46,7 @@ estimated_duration: 120.0
 user: root
 flags: preserve-locale also-after-suspend
 command:
-   wifi_test.py --interface {interface} --host-ip "$WIFI_AP_HOST_DEVICE_IP" \
+   wifi_test.py --interface {interface} ssh-host --host-ip "$WIFI_AP_HOST_DEVICE_IP" \
    --host-user "$WIFI_AP_HOST_DEVICE_USER" --host-pwd "$WIFI_AP_HOST_DEVICE_PWD" \
    --host-interface "$WIFI_AP_HOST_DEVICE_INTERFACE" wifi --mode ap  --band {band} --channel {channel}
 
@@ -72,7 +72,60 @@ estimated_duration: 120.0
 user: root
 flags: preserve-locale also-after-suspend
 command:
-   wifi_test.py --interface {interface} --host-ip "$WIFI_AP_HOST_DEVICE_IP" \
+   wifi_test.py --interface {interface} ssh-host --host-ip "$WIFI_AP_HOST_DEVICE_IP" \
    --host-user "$WIFI_AP_HOST_DEVICE_USER" --host-pwd "$WIFI_AP_HOST_DEVICE_PWD" \
    --host-interface "$WIFI_AP_HOST_DEVICE_INTERFACE" wifi --mode ap  --band {band} \
    --channel {channel} --keymgmt {key_mgmt} --group {group}
+
+unit: template
+template-resource: ce_oem_wifi_ap_mode
+template-filter: ce_oem_wifi_ap_mode.key_mgmt == 'none'
+template-unit: job
+id: ce-oem-wireless/ap_open_{band}_ch{channel}_{group}_{interface}_control_host_automated
+category_id: com.canonical.certification::wifi_ap
+_summary: Create open 802.11{band} Wi-Fi AP on {interface} and check connection with a control host
+_description:
+   Create open 802.11{band} Wi-Fi AP on {interface} in channel{channel} group {group}
+   and check a control host can join it and reach the assigned IP address.
+plugin: shell
+environ: CONTROL_HOST
+imports:
+  from com.canonical.certification import net_if_management
+  from com.canonical.plainbox import manifest
+requires:
+  net_if_management.device == '{interface}'
+  net_if_management.master_mode_managed_by == 'NetworkManager'
+  manifest.has_wifi_ap_control_host == 'True'
+estimated_duration: 60.0
+user: root
+flags: preserve-locale also-after-suspend
+command:
+   wifi_test.py --interface {interface} control-host --band {band} --channel {channel} \
+   --ssid qa-test-ap-{interface}-{channel} --control-host "$CONTROL_HOST"
+
+unit: template
+template-resource: ce_oem_wifi_ap_mode
+template-filter: ce_oem_wifi_ap_mode.key_mgmt != 'none'
+template-unit: job
+id: ce-oem-wireless/ap_wpa_{key_mgmt}_{band}_ch{channel}_{group}_{interface}_control_host_automated
+category_id: com.canonical.certification::wifi_ap
+_summary: Create wpa 802.11{band} Wi-Fi AP on {interface} and check connection with a control host
+_description:
+   Create wpa 802.11{band} Wi-Fi AP on {interface} in channel{channel} group {group}
+   and check a control host can join it and reach the assigned IP address.
+plugin: shell
+environ: CONTROL_HOST
+imports:
+  from com.canonical.certification import net_if_management
+  from com.canonical.plainbox import manifest
+requires:
+  net_if_management.device == '{interface}'
+  net_if_management.master_mode_managed_by == 'NetworkManager'
+  manifest.has_wifi_ap_control_host == 'True'
+estimated_duration: 60.0
+user: root
+flags: preserve-locale also-after-suspend
+command:
+   wifi_test.py --interface {interface} control-host --band {band} --channel {channel} \
+   --keymgmt {key_mgmt} --group {group} --ssid qa-test-ap-{interface}-{channel} \
+   --control-host "$CONTROL_HOST"

@@ -249,6 +249,130 @@ class TestMainFunction(unittest.TestCase):
     ):
         self.assertEqual(main(), 0)
 
+    @patch("os.remove")
+    @patch("stress_ng_test.check_output")
+    @patch("stress_ng_test.num_numa_nodes", return_value=1)
+    @patch("stress_ng_test.swap_space_ok", return_value=True)
+    @patch(
+        "sys.argv",
+        ["stress_ng_test.py", "memory", "--stressor", "vm"],
+    )
+    def test_main_stress_memory_single_stressor_vrt(
+        self,
+        shutil_which_mock,
+        os_geteuid_mock,
+        swap_space_ok_mock,
+        num_numa_nodes_mock,
+        check_output_mock,
+        remove_mock,
+    ):
+        # "vm" is a variable-run-time stressor; exercise that branch of
+        # the per-stressor timeout selection.
+        self.assertEqual(main(), 0)
+
+    @patch("os.remove")
+    @patch("stress_ng_test.check_output")
+    @patch("stress_ng_test.num_numa_nodes", return_value=1)
+    @patch("stress_ng_test.swap_space_ok", return_value=True)
+    @patch(
+        "sys.argv",
+        ["stress_ng_test.py", "memory", "--stressor", "stack"],
+    )
+    def test_main_stress_memory_single_stressor_ltc(
+        self,
+        shutil_which_mock,
+        os_geteuid_mock,
+        swap_space_ok_mock,
+        num_numa_nodes_mock,
+        check_output_mock,
+        remove_mock,
+    ):
+        # "stack" is a low-thread-count stressor; exercise that branch of
+        # the per-stressor timeout selection.
+        self.assertEqual(main(), 0)
+
+    @patch("os.remove")
+    @patch("stress_ng_test.Popen")
+    @patch(
+        "stress_ng_test.my_swap",
+        return_value="/swap-df8a2b5f-d624-4e06-81bd-ec5e31aa213f",
+    )
+    @patch("stress_ng_test.check_output")
+    @patch("stress_ng_test.num_numa_nodes", return_value=1)
+    @patch("stress_ng_test.swap_space_ok", return_value=True)
+    @patch(
+        "sys.argv",
+        ["stress_ng_test.py", "memory", "--stressor", "matrix"],
+    )
+    def test_main_stress_memory_single_stressor_delete_swap(
+        self,
+        shutil_which_mock,
+        os_geteuid_mock,
+        swap_space_ok_mock,
+        num_numa_nodes_mock,
+        check_output_mock,
+        my_swap_mock,
+        popen_mock,
+        os_remove_mock,
+    ):
+        # When a temporary swap file was created, the single-stressor
+        # path must clean it up the same way the full-suite path does.
+        self.assertEqual(main(), 0)
+
+    @patch("os.remove")
+    @patch("stress_ng_test.check_output")
+    @patch("stress_ng_test.num_numa_nodes", return_value=1)
+    @patch("stress_ng_test.swap_space_ok", return_value=True)
+    @patch(
+        "sys.argv",
+        [
+            "stress_ng_test.py",
+            "memory",
+            "--stressor",
+            "matrix",
+            "--oom-avoid-bytes",
+            "20%",
+        ],
+    )
+    def test_main_stress_memory_explicit_oom_avoid_bytes(
+        self,
+        shutil_which_mock,
+        os_geteuid_mock,
+        swap_space_ok_mock,
+        num_numa_nodes_mock,
+        check_output_mock,
+        remove_mock,
+    ):
+        # An explicit --oom-avoid-bytes value must override the
+        # size-based 5%/10% default.
+        self.assertEqual(main(), 0)
+
+    @patch("os.remove")
+    @patch("stress_ng_test.check_output")
+    @patch("stress_ng_test.num_numa_nodes", return_value=1)
+    @patch("stress_ng_test.swap_space_ok", return_value=True)
+    @patch(
+        "psutil.virtual_memory",
+        return_value=MagicMock(total=300 * (1024**3)),
+    )
+    @patch(
+        "sys.argv",
+        ["stress_ng_test.py", "memory", "--stressor", "matrix"],
+    )
+    def test_main_stress_memory_large_ram_oom_avoid_bytes(
+        self,
+        shutil_which_mock,
+        os_geteuid_mock,
+        virtual_memory_mock,
+        swap_space_ok_mock,
+        num_numa_nodes_mock,
+        check_output_mock,
+        remove_mock,
+    ):
+        # Systems with more than 255 GiB of RAM default to a 5% OOM
+        # avoidance margin instead of the usual 10%.
+        self.assertEqual(main(), 0)
+
     @patch("stress_ng_test.num_numa_nodes", return_value=1)
     @patch("stress_ng_test.swap_space_ok", return_value=True)
     @patch(

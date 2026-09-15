@@ -140,11 +140,14 @@ def collect_items(
 
 # ── §4  Launcher writer ──────────────────────────────────────────────────────
 
-# Bundled next to this script — read-only once packaged into the snap. Use
-# --template/$CHECKBOX_LAUNCHER_TEMPLATE to point at a writable override.
-DEFAULT_TEMPLATE_PATH = (
-    Path(__file__).resolve().parent / "launcher_template.ini"
-)
+# Bundled next to this script in the source tree, but staged at the snap
+# root (sibling of bin/) rather than inside bin/ — read-only once packaged
+# into the snap. Use --template/$CHECKBOX_LAUNCHER_TEMPLATE to point at a
+# writable override.
+_SCRIPT_DIR = Path(__file__).resolve().parent
+DEFAULT_TEMPLATE_PATH = _SCRIPT_DIR / "launcher_template.ini"
+if not DEFAULT_TEMPLATE_PATH.is_file():
+    DEFAULT_TEMPLATE_PATH = _SCRIPT_DIR.parent / "launcher_template.ini"
 
 
 def load_launcher_template(

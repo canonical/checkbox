@@ -1,0 +1,19 @@
+unit: manifest entry
+id: has_mpeg4_simple_decoder_vaapi
+_name: Has VA-API support for MPEG-4 Simple decode
+value-type: bool
+
+unit: manifest entry
+id: has_mpeg4_advanced_simple_decoder_vaapi
+_name: Has VA-API support for MPEG-4 Advanced Simple decode
+value-type: bool
+
+unit: manifest entry
+id: has_mpeg4_main_decoder_vaapi
+_name: Has VA-API support for MPEG-4 Main decode
+value-type: bool
+
+unit: manifest entry
+id: has_mpeg4_encoder_vaapi
+_name: Has VA-API support for MPEG-4 encoding
+value-type: bool

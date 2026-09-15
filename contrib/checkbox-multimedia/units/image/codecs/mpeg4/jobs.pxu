@@ -1,0 +1,43 @@
+id: multimedia/image/codecs/mpeg4/decode/simple/vaapi
+category_id: com.canonical.contrib.multimedia.codecs
+flags: simple
+estimated_duration: 1s
+_summary: VA-API MPEG-4 Simple decode
+imports: from com.canonical.plainbox import manifest
+requires:
+  manifest.has_mpeg4_simple_decoder_vaapi == 'True'
+command:
+  fluster run -d GStreamer-MPEG4_VIDEO-Libav-Gst1.0 -j1 -ts MPEG4_VIDEO-SimpleProfile
+
+id: multimedia/image/codecs/mpeg4/decode/advanced_simple/vaapi
+category_id: com.canonical.contrib.multimedia.codecs
+flags: simple
+estimated_duration: 1s
+_summary: VA-API MPEG-4 Advanced Simple decode
+imports: from com.canonical.plainbox import manifest
+requires:
+  manifest.has_mpeg4_advanced_simple_decoder_vaapi == 'True'
+command:
+  fluster run -d GStreamer-MPEG4_VIDEO-Libav-Gst1.0 -j1 -ts MPEG4_VIDEO-AdvancedSimpleProfile
+
+id: multimedia/image/codecs/mpeg4/decode/main/vaapi
+category_id: com.canonical.contrib.multimedia.codecs
+flags: simple
+estimated_duration: 1s
+_summary: VA-API MPEG-4 Main decode
+imports: from com.canonical.plainbox import manifest
+requires:
+  manifest.has_mpeg4_main_decoder_vaapi == 'True'
+command:
+  gst-launch-1.0 -q videotestsrc num-buffers=30 ! vampl4enc ! vaapidecode ! fakesink
+
+id: multimedia/image/codecs/mpeg4/encode/simple/vaapi
+category_id: com.canonical.contrib.multimedia.codecs
+flags: simple
+estimated_duration: 10s
+_summary: VA-API MPEG-4 Simple encode
+imports: from com.canonical.plainbox import manifest
+requires:
+  manifest.has_mpeg4_encoder_vaapi == 'True'
+command:
+  gst_encoder_quality.py --codec mpeg4 --width 1920 --height 1080 --framerate 30 --num-buffers 60

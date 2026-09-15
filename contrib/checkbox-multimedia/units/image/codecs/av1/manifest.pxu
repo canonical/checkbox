@@ -1,0 +1,19 @@
+unit: manifest entry
+id: has_av1_profile0_decoder_vaapi
+_name: Has VA-API support for AV1 Profile 0 decode
+value-type: bool
+
+unit: manifest entry
+id: has_av1_profile1_decoder_vaapi
+_name: Has VA-API support for AV1 Profile 1 decode
+value-type: bool
+
+unit: manifest entry
+id: has_av1_profile2_decoder_vaapi
+_name: Has VA-API support for AV1 Profile 2 decode
+value-type: bool
+
+unit: manifest entry
+id: has_av1_encoder_vaapi
+_name: Has VA-API support for AV1 encoding
+value-type: bool

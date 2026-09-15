@@ -54,6 +54,7 @@ _purpose:
 plugin: shell
 estimated_duration: 1s
 flags: also-after-suspend
+depends: ce-oem-graphics/check-opengl_eglinfo_resource
 imports:
     from com.canonical.plainbox import manifest
 requires:

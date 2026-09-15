@@ -32,8 +32,9 @@ Subcommands:
 import argparse
 import logging
 import os
+import subprocess
 import sys
-from typing import Set, Tuple, TypedDict
+from typing import TypedDict
 
 from general_utils import resolve_configured_commands
 
@@ -81,35 +82,12 @@ def _resolve_eglinfo_command(enable_logger: bool = False) -> str:
     return resolved_commands.get(EXECUTABLE_CMD, "")
 
 
-def _run_eglinfo_command(
-    command: str, enable_logger: bool = False
-) -> Tuple[int, str]:
-    """Run an eglinfo command and return (returncode, combined output).
-
-    stdout and stderr are combined because 'eglinfo' prints error messages
-    such as 'eglInitialize failed' without a reliable, consistent stream.
-    """
-    import subprocess
-
-    if enable_logger:
-        logger.info("Running command: '%s'", command)
-    result = subprocess.run(
-        command,
-        shell=True,
-        check=False,
-        text=True,
-        stdout=subprocess.PIPE,
-        stderr=subprocess.STDOUT,
-    )
-    return result.returncode, result.stdout
-
-
-def parse_ignored_set() -> Set[str]:
+def parse_ignored_set() -> "set[str]":
     """Read ignored platform names from the EGLINFO_IGNORED_PLATFORM
     environment variable, a comma-separated list, e.g. "x11,surfaceless".
     """
     raw_value = os.environ.get(EGLINFO_IGNORED_PLATFORM, "")
-    logger.debug("%s=%r", EGLINFO_IGNORED_PLATFORM, raw_value)
+    logger.debug(f"{EGLINFO_IGNORED_PLATFORM}={raw_value!r}")
 
     return {
         platform_name.strip().lower()
@@ -148,25 +126,35 @@ def cmd_test(platform_name: str) -> int:
         logger.error("eglinfo command not found")
         return 1
 
-    full_command = "{} -B -p {}".format(command, platform_name)
-    _, output = _run_eglinfo_command(full_command, enable_logger=True)
+    full_command = " ".join([command, "-B", "-p", platform_name])
+    logger.info(f"Running command: '{full_command}'")
+    # stdout and stderr are combined because 'eglinfo' prints error
+    # messages such as 'eglInitialize failed' without a reliable,
+    # consistent stream.
+    result = subprocess.run(
+        full_command,
+        shell=True,
+        check=False,
+        text=True,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.STDOUT,
+    )
+    output = result.stdout
 
     if output:
-        logger.info("eglinfo output:\n%s", output.rstrip())
+        logger.info(f"eglinfo output:\n{output.rstrip()}")
 
     if not output.strip():
         logger.error(
-            "FAIL: no output from '%s' for platform '%s'",
-            full_command,
-            platform_name,
+            f"FAIL: no output from '{full_command}' "
+            f"for platform '{platform_name}'"
         )
         return 1
 
     if EGL_INITIALIZE_FAILED in output:
         logger.error(
-            "FAIL: found '%s' error message for platform '%s'",
-            EGL_INITIALIZE_FAILED,
-            platform_name,
+            f"FAIL: found '{EGL_INITIALIZE_FAILED}' error message "
+            f"for platform '{platform_name}'"
         )
         return 1
 
@@ -178,14 +166,13 @@ def cmd_test(platform_name: str) -> int:
     ]
     if found_keywords:
         logger.error(
-            "FAIL: software renderer detected for platform '%s': %s",
-            platform_name,
-            ", ".join(sorted(set(found_keywords))),
+            f"FAIL: software renderer detected for platform "
+            f"'{platform_name}': {', '.join(sorted(set(found_keywords)))}"
         )
         return 1
 
     logger.info(
-        "PASS: eglinfo validation passed for platform '%s'", platform_name
+        f"PASS: eglinfo validation passed for platform '{platform_name}'"
     )
     return 0
 

@@ -27,26 +27,6 @@ class TestEglinfoTest(unittest.TestCase):
             enable_logger=True,
         )
 
-    @patch("subprocess.run")
-    def test_run_eglinfo_command_combines_output(self, mock_run):
-        mock_run.return_value = subprocess.CompletedProcess(
-            args="eglinfo -B -p gbm",
-            returncode=2,
-            stdout="eglInitialize failed\n",
-        )
-
-        result = eglinfo_test._run_eglinfo_command("eglinfo -B -p gbm")
-
-        self.assertEqual(result, (2, "eglInitialize failed\n"))
-        mock_run.assert_called_once_with(
-            "eglinfo -B -p gbm",
-            shell=True,
-            check=False,
-            text=True,
-            stdout=subprocess.PIPE,
-            stderr=subprocess.STDOUT,
-        )
-
     @patch.dict(
         os.environ,
         {eglinfo_test.EGLINFO_IGNORED_PLATFORM: " X11, surfaceless, ,GBM "},
@@ -86,49 +66,71 @@ class TestEglinfoTest(unittest.TestCase):
             "ignore: false\n\n",
         )
 
+    def _completed_process(
+        self, returncode: int, stdout: str
+    ) -> subprocess.CompletedProcess:
+        return subprocess.CompletedProcess(
+            args="eglinfo", returncode=returncode, stdout=stdout
+        )
+
     @patch("eglinfo_test._resolve_eglinfo_command", return_value="")
     def test_cmd_test_fails_when_eglinfo_is_missing(self, _mock_resolve):
         self.assertEqual(eglinfo_test.cmd_test("gbm"), 1)
 
     @patch("eglinfo_test._resolve_eglinfo_command", return_value="eglinfo")
-    @patch("eglinfo_test._run_eglinfo_command", return_value=(0, ""))
+    @patch("eglinfo_test.subprocess.run")
     def test_cmd_test_fails_without_output(self, mock_run, _mock_resolve):
+        mock_run.return_value = self._completed_process(0, "")
+
         self.assertEqual(eglinfo_test.cmd_test("wayland"), 1)
         mock_run.assert_called_once_with(
-            "eglinfo -B -p wayland", enable_logger=True
+            "eglinfo -B -p wayland",
+            shell=True,
+            check=False,
+            text=True,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.STDOUT,
         )
 
     @patch("eglinfo_test._resolve_eglinfo_command", return_value="eglinfo")
-    @patch(
-        "eglinfo_test._run_eglinfo_command",
-        return_value=(1, "eglInitialize failed for platform\n"),
-    )
+    @patch("eglinfo_test.subprocess.run")
     def test_cmd_test_fails_on_egl_initialize_error(
-        self, _mock_run, _mock_resolve
+        self, mock_run, _mock_resolve
     ):
+        mock_run.return_value = self._completed_process(
+            1, "eglInitialize failed for platform\n"
+        )
+
         self.assertEqual(eglinfo_test.cmd_test("x11"), 1)
 
     @patch("eglinfo_test._resolve_eglinfo_command", return_value="eglinfo")
-    @patch(
-        "eglinfo_test._run_eglinfo_command",
-        return_value=(0, "OpenGL renderer: Mesa llvmpipe (LLVM 18.0.0)\n"),
-    )
+    @patch("eglinfo_test.subprocess.run")
     def test_cmd_test_fails_on_software_renderer(
-        self, _mock_run, _mock_resolve
+        self, mock_run, _mock_resolve
     ):
+        mock_run.return_value = self._completed_process(
+            0, "OpenGL renderer: Mesa llvmpipe (LLVM 18.0.0)\n"
+        )
+
         self.assertEqual(eglinfo_test.cmd_test("surfaceless"), 1)
 
     @patch("eglinfo_test._resolve_eglinfo_command", return_value="eglinfo")
-    @patch(
-        "eglinfo_test._run_eglinfo_command",
-        return_value=(0, "OpenGL renderer: Mali-G610\n"),
-    )
+    @patch("eglinfo_test.subprocess.run")
     def test_cmd_test_passes_for_hardware_renderer(
         self, mock_run, _mock_resolve
     ):
+        mock_run.return_value = self._completed_process(
+            0, "OpenGL renderer: Mali-G610\n"
+        )
+
         self.assertEqual(eglinfo_test.cmd_test("gbm"), 0)
         mock_run.assert_called_once_with(
-            "eglinfo -B -p gbm", enable_logger=True
+            "eglinfo -B -p gbm",
+            shell=True,
+            check=False,
+            text=True,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.STDOUT,
         )
 
     def test_build_parser_parses_resource_and_test_actions(self):

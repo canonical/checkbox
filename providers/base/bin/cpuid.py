@@ -185,6 +185,7 @@ def cpuid_to_human_friendly(cpuid: str) -> str:
         "AMD Sorano SP6":   ['0xb00f20'],                                # 2026
         "AMD Turin":        ['0xb00f21', '0xb10f10'],                    # 2024
         "AMD Grado":        ['0xb40f40'],                                # 2025
+        "AMD Venice":       ['0xb50f10'],                                # 2026
 
         # Hygon
         "Hygon Dhyana Plus": ["0x900f22"],                               # 2019

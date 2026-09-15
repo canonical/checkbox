@@ -63,3 +63,10 @@ jobs:
     uses: ./.github/workflows/deb-daily-builds.yml
     secrets:
       LP_CREDS: ${{ secrets.LP_CREDS }}
+
+  smoke-spread-store-daily:
+    # Validate the freshly published edge snaps in Ubuntu Core VMs.
+    needs: [snap-cross-build-upload-daily, snap-native-build-upload-daily]
+    uses: ./.github/workflows/smoke-spread-store.yaml
+    with:
+      channel: edge

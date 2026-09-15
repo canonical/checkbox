@@ -55,12 +55,6 @@ EGLINFO_IGNORED_PLATFORM = "EGLINFO_IGNORED_PLATFORM"
 # actually being used, e.g. Mesa's llvmpipe/softpipe or Gallium's swrast.
 DEFAULT_SOFTWARE_RENDERERS = ("llvmpipe", "softpipe", "swrast")
 
-logging.basicConfig(
-    level=logging.INFO,
-    format="%(levelname)-8s - %(module)-10s: %(funcName)s "
-    + "%(lineno)-4d - %(message)s",
-)
-
 logger = logging.getLogger(__name__)
 
 
@@ -218,4 +212,9 @@ def main() -> int:
 
 
 if __name__ == "__main__":
+    logging.basicConfig(
+        level=logging.INFO,
+        format="%(levelname)-8s - %(module)-10s: %(funcName)s "
+        + "%(lineno)-4d - %(message)s",
+    )
     sys.exit(main())

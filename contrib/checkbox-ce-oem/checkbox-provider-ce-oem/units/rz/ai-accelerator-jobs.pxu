@@ -26,20 +26,48 @@ command:
     fi
     echo "Success: Running by DRP-AI without error!"
 
-id: rz-ai-accelerator/driver-nodes
+id: rz-ai-accelerator/driver-nodes-drp-ai
 category_id: rz-ai-accelerator
 plugin: shell
 user: root
-_summary: Check DRP-AI/DRP-AI3 device nodes are present
+_summary: Check DRP-AI (V2L) device nodes are present
 _purpose:
-    Check that the DRP-AI (V2L) or DRP-AI3 (V2H/V2N) kernel device
-    nodes are present, as a fast driver-level smoke test ahead of any
-    application-level inference test.
+    Check that the DRP-AI (single-core, V2L) kernel device nodes are
+    present, as a fast driver-level smoke test ahead of the
+    application-level inference test. Confirmed on real V2L hardware
+    (CID 202507-36926): V2L does NOT have /dev/drp1 (that node only
+    exists on the dual-core DRP-AI3 used by V2H/V2N), so this is a
+    separate job from driver-nodes-drp-ai3 rather than a single
+    OR-gated job across both generations.
 imports:
     from com.canonical.plainbox import manifest
 requires:
     manifest.is_rz_series == 'True'
-    manifest.has_rz_drp_ai == 'True' or manifest.has_rz_drp_ai3 == 'True'
+    manifest.has_rz_drp_ai == 'True'
+command:
+    for dev in /dev/drpai0 /dev/udmabuf /dev/rgnmm /dev/rgnmmbuf; do
+        if [ ! -e "$dev" ]; then
+            echo "Fail: missing $dev"
+            exit 1
+        fi
+    done
+    echo "Success: all DRP-AI device nodes present"
+
+id: rz-ai-accelerator/driver-nodes-drp-ai3
+category_id: rz-ai-accelerator
+plugin: shell
+user: root
+_summary: Check DRP-AI3 (V2H/V2N) device nodes are present
+_purpose:
+    Check that the DRP-AI3 (dual-core, V2H/V2N) kernel device nodes
+    are present, as a fast driver-level smoke test ahead of the
+    application-level object-counter test. Confirmed on real V2H
+    hardware (CID 202503-36406): all five nodes below exist there.
+imports:
+    from com.canonical.plainbox import manifest
+requires:
+    manifest.is_rz_series == 'True'
+    manifest.has_rz_drp_ai3 == 'True'
 command:
     for dev in /dev/drpai0 /dev/drp1 /dev/udmabuf /dev/rgnmm /dev/rgnmmbuf; do
         if [ ! -e "$dev" ]; then
@@ -47,4 +75,4 @@ command:
             exit 1
         fi
     done
-    echo "Success: all DRP-AI/DRP-AI3 device nodes present"
+    echo "Success: all DRP-AI3 device nodes present"

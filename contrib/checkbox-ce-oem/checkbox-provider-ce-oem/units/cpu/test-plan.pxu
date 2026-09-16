@@ -30,6 +30,7 @@ include:
     ce-oem-cpu/cpufreq-governor-schedutil-.*
     ce-oem-cpu/cpufreq-governor-ondemand-.*
     ce-oem-cpu/cpufreq-governor-conservative-.*
+    ce-oem-cpu/idle_state_test
 
 id: after-suspend-ce-oem-cpu-manual
 unit: test plan
@@ -52,3 +53,4 @@ include:
     after-suspend-ce-oem-cpu/cpufreq-governor-schedutil-.*
     after-suspend-ce-oem-cpu/cpufreq-governor-ondemand-.*
     after-suspend-ce-oem-cpu/cpufreq-governor-conservative-.*
+    after-suspend-ce-oem-cpu/idle_state_test

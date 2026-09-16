@@ -36,3 +36,25 @@ requires:
     cpufreq_policy_list.cpb != '1'
 estimated_duration: 1s
 command: cpufreq_governors.py --policy {policy} --governor {governor}
+
+id: ce-oem-cpu/idle_state_test
+_summary: Trigger and verify all CPU idle states are reachable
+_description:
+    Uses cpu_idle_state.py (vendored from the checkbox base provider,
+    see providers/base/bin/cpu_idle_state.py) to alternate sleep/burn
+    load on every CPU core and verify that each cpuidle state
+    advertised under /sys/devices/system/cpu/cpuX/cpuidle is actually
+    entered at least once. This is the ARM equivalent of the FWTS-based
+    cpu/cstates test, which only runs on x86.
+plugin: shell
+user: root
+category_id: com.canonical.plainbox::cpu
+flags: also-after-suspend
+estimated_duration: 160s
+imports:
+    from com.canonical.plainbox import manifest
+    from com.canonical.certification import cpuinfo
+requires:
+    cpuinfo.platform in ("aarch64", "armv7l")
+    manifest.has_cpu_idle_states == 'True'
+command: cpu_idle_state.py --verbose

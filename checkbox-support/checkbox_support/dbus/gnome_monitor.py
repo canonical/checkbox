@@ -136,13 +136,16 @@ class PhysicalMonitor(_PhysicalMonitorT):
         # https://github.com/GNOME/gnome-control-center/blob/d4ac269200c1d3cbd886507acdd4fe54ac19cb31/panels/display/cc-display-settings.c#L313-L328
 
         # sort by width, then tie-break by height
-        max_w, max_h = self.modes[0].width, self.modes[0].height
+        max_w, max_h = 0, 0
         for mode in self.modes:
             if (mode.width > max_w) or (
                 mode.width == max_w and mode.height > max_h
             ):
                 max_w, max_h = mode.width, mode.height
                 continue
+
+        if (max_w, max_h) == (0, 0):
+            raise RuntimeError("Unexpected mode with width=0, height=0!")
 
         return max_w, max_h
 

@@ -19,7 +19,6 @@
 # You should have received a copy of the GNU General Public License
 # along with Checkbox.  If not, see <http://www.gnu.org/licenses/>.
 
-from contextlib import ExitStack
 import sys
 import unittest
 from io import StringIO

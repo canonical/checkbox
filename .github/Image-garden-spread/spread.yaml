@@ -9,9 +9,6 @@ backends:
                 PATH="${SPREAD_HOST_PATH}"
             fi
 
-            # GitHub's ubuntu-latest runners provide 4 CPUs and 16GB of RAM,
-            # so the guest can be given considerably more than the defaults.
-            # Override from the environment to test on a smaller machine.
             export QEMU_SMP_OPTION="-smp ${GARDEN_CPUS:-4}"
             export QEMU_MEM_OPTION="-m ${GARDEN_MEM:-4096}"
 

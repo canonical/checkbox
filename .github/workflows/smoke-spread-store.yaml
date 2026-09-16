@@ -32,9 +32,6 @@ jobs:
       CHECKBOX_CHANNEL: ${{ inputs.channel || 'edge' }}
     strategy:
       fail-fast: false
-      # Several jobs starting at once produce a burst of snap store requests,
-      # which the store answers with "too many requests". Stagger them.
-      max-parallel: 2
       matrix:
         garden-system:
           - ubuntu-core-18
@@ -50,7 +47,7 @@ jobs:
 
       - name: Install image-garden
         run: |
-          sudo snap install --devmode --channel=latest/edge image-garden
+          sudo snap install image-garden
           snap list image-garden
 
       - name: Prepare the runner for virtual machines
@@ -65,9 +62,7 @@ jobs:
       - name: Run the smoke spread suite
         working-directory: .github/Image-garden-spread
         run: |
-          # -vv (debug) is what makes spread dump the full output of each
-          # script once it finishes. With plain -v the Checkbox run is only
-          # visible through warn-timeout ticks and on failure.
+          # -vv allows the checkbox output to be output in full during the run
           image-garden.spread -vv \
             -artifacts=artifacts \
             "garden:${{ matrix.garden-system }}:tests/run-smoke"

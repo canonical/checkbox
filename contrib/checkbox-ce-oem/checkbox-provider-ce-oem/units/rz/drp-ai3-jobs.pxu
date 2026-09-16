@@ -10,6 +10,26 @@ _purpose:
     $SNAP_REAL_HOME/test.png via a gstreamer filesrc pipeline instead
     of a live USB/MIPI camera), so this can run headless/unattended.
     https://github.com/canonical/rzv_ai_applications
+    Note: TEST mode is a live-display demo mode that never exits on
+    its own (it feeds the static image through an imagefreeze
+    pipeline at 30fps in an infinite "Main Loop", waiting for a
+    keypress to quit - see patches/apps/q08_test.patch upstream). This
+    job runs it under `timeout` and inspects the captured output
+    instead of relying on the process exit status. Confirmed on real
+    V2H hardware (CID 202503-36406) that a 30s capture window reliably
+    reaches "Main Loop Starts" with no [ERROR] lines.
+    Note: checkbox-ce-oem is itself a strict-confined snap and
+    exports its own GST_PLUGIN_PATH/GST_PLUGIN_SYSTEM_PATH/
+    GST_PLUGIN_SCANNER into every job's environment, pointing at its
+    own bundled gstreamer runtime. That leaks into and hijacks the
+    rzv-ai-applications subprocess spawned below, making GStreamer
+    fail to find even core elements like "filesrc" (seen as a
+    confusing "no element filesrc" error, unrelated to test.png or
+    the actual rzv-ai-applications snap). Those vars are explicitly
+    unset before invoking object-counter so it falls back to its own
+    snap's gstreamer plugin path. Confirmed on real V2H hardware: the
+    job fails with "no element filesrc" without this unset, and
+    passes reliably with it.
 imports:
     from com.canonical.plainbox import manifest
 requires:
@@ -22,13 +42,24 @@ command:
     cp "$PLAINBOX_PROVIDER_DATA/rz-ai-accelerator/test.png" "$SNAP_REAL_HOME/test.png"
     output_file="$(mktemp /var/tmp/renesas-rz-drp-ai3.XXXXXX)"
     trap 'rm -f "$output_file" "$SNAP_REAL_HOME/test.png"' EXIT
-    if ! rzv-ai-applications.object-counter COCO TEST 2>&1 | tee "$output_file"; then
-        echo "Fail: object-counter exited with non-zero status"
+    env -u GST_PLUGIN_PATH -u GST_PLUGIN_SYSTEM_PATH -u GST_PLUGIN_SCANNER \
+        timeout -s INT 30 rzv-ai-applications.object-counter COCO TEST > "$output_file" 2>&1
+    rc=$?
+    cat "$output_file"
+    # TEST mode never exits by itself, so a timeout (124) or a
+    # handled SIGINT (0/130) both count as a normal, expected end of
+    # the capture window - only other exit codes are real failures.
+    if [ "$rc" -ne 0 ] && [ "$rc" -ne 124 ] && [ "$rc" -ne 130 ]; then
+        echo "Fail: object-counter exited with unexpected status $rc"
         exit 1
     fi
     echo "Checking for errors ..."
     if grep -Eq "\[ERROR\]" "$output_file"; then
         echo "Fail: object-counter reported an error!"
+        exit 1
+    fi
+    if ! grep -q "Main Loop Starts" "$output_file"; then
+        echo "Fail: object-counter never reached its main inference loop!"
         exit 1
     fi
     echo "Success: DRP-AI3 object-counter ran without error!"

@@ -40,6 +40,19 @@ class DisplayConnectionTests(unittest.TestCase):
         ), patch("pathlib.Path.read_text", return_value="not connected"):
             self.assertFalse(self.tester.has_display_connection())
 
+    def test_display_check_unexpected_error(self):
+        error = PermissionError("nope")
+        with patch(
+            "pathlib.Path.iterdir",
+            return_value=[RCT.Path("fakeCard0")],
+        ), patch("pathlib.Path.read_text", side_effect=error), patch(
+            "builtins.print"
+        ) as mock_print:
+            self.assertFalse(self.tester.has_display_connection())
+            mock_print.assert_any_call(
+                "Unexpected error: ", error, file=sys.stderr
+            )
+
     @patch("subprocess.run")
     def test_get_desktop_env_vars_no_desktop_session(
         self, mock_run: MagicMock
@@ -298,6 +311,17 @@ class DisplayConnectionTests(unittest.TestCase):
             mock_run.call_args_list[-1][0][0][0], "glmark2-wayland"
         )
 
+    def test_pick_glmark2_executable_non_x86(self):
+        tester = RCT.HardwareRendererTester()
+        # non-x86 arches fall back to the es2 variant
+        self.assertEqual(
+            tester.pick_glmark2_executable("x11", "aarch64"), "glmark2-es2"
+        )
+        self.assertEqual(
+            tester.pick_glmark2_executable("wayland", "aarch64"),
+            "glmark2-es2-wayland",
+        )
+
     @patch(
         "reboot_check_test." + "HardwareRendererTester.pick_glmark2_executable"
     )
@@ -485,6 +509,16 @@ class InfoDumpTests(unittest.TestCase):
         )
 
 
+class FwtsTesterTests(unittest.TestCase):
+    @patch("shutil.which")
+    def test_is_fwts_supported(self, mock_which: MagicMock):
+        mock_which.return_value = "/usr/bin/fwts"
+        self.assertTrue(RCT.FwtsTester().is_fwts_supported())
+
+        mock_which.return_value = None
+        self.assertFalse(RCT.FwtsTester().is_fwts_supported())
+
+
 class FailedServiceCheckerTests(unittest.TestCase):
 
     @patch("subprocess.run")
@@ -633,6 +667,31 @@ class MainFunctionTests(unittest.TestCase):
             ValueError
         ):
             RCT.main()
+
+    def test_fwts_check_without_output_dir_raises(self):
+        with patch("sys.argv", sh_split("reboot_check_test.py -f")), patch(
+            "reboot_check_test.poll_systemctl_is_system_running"
+        ):
+            self.assertRaises(SystemExit, RCT.main)
+
+    @patch("reboot_check_test.FwtsTester.fwts_log_check_passed")
+    @patch("reboot_check_test.FwtsTester.is_fwts_supported")
+    @patch("subprocess.run")
+    def test_fwts_check_fails(
+        self,
+        mock_run: MagicMock,
+        mock_is_fwts_supported: MagicMock,
+        mock_fwts_log_check_passed: MagicMock,
+    ):
+        mock_run.side_effect = do_nothing
+        mock_is_fwts_supported.return_value = True
+        mock_fwts_log_check_passed.return_value = False
+
+        with patch(
+            "sys.argv",
+            sh_split(f'reboot_check_test.py -d "{self.tmp_output_dir}" -f'),
+        ), patch("reboot_check_test.poll_systemctl_is_system_running"):
+            self.assertEqual(RCT.main(), 1)
 
     def test_continue_tests_even_with_boot_timeout(self):
         with patch(

@@ -8,7 +8,6 @@ import shutil
 import subprocess as sp
 import sys
 import time
-import typing as t
 from collections.abc import Sequence
 from datetime import datetime
 from pathlib import Path
@@ -187,7 +186,7 @@ class FwtsTester:
     def fwts_log_check_passed(
         self,
         output_directory: Path,
-        fwts_arguments: Sequence[str] = ("klog", "oops"),
+        fwts_arguments: "Sequence[str]" = ("klog", "oops"),
     ) -> bool:
         """
         Check if fwts logs passes the checks specified in sleep_test_log_check

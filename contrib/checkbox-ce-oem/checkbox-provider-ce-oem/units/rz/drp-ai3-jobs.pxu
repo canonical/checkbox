@@ -1,0 +1,34 @@
+id: rz-ai-accelerator/drp-ai3-object-counter
+category_id: rz-ai-accelerator
+plugin: shell
+user: root
+_summary: Check if DRP-AI3 is working via the object-counter Q08 sample
+_purpose:
+    Check if DRP-AI3 is working by running the rzv-ai-applications
+    object-counter (Q08) sample against a bundled static test image,
+    using the upstream TEST input source (reads
+    $SNAP_REAL_HOME/test.png via a gstreamer filesrc pipeline instead
+    of a live USB/MIPI camera), so this can run headless/unattended.
+    https://github.com/canonical/rzv_ai_applications
+imports:
+    from com.canonical.plainbox import manifest
+requires:
+    manifest.has_rz_drp_ai3 == 'True'
+    manifest.is_rz_series == 'True'
+environ:
+    PLAINBOX_PROVIDER_DATA
+command:
+    set -o pipefail
+    cp "$PLAINBOX_PROVIDER_DATA/rz-ai-accelerator/test.png" "$SNAP_REAL_HOME/test.png"
+    output_file="$(mktemp /var/tmp/renesas-rz-drp-ai3.XXXXXX)"
+    trap 'rm -f "$output_file" "$SNAP_REAL_HOME/test.png"' EXIT
+    if ! rzv-ai-applications.object-counter COCO TEST 2>&1 | tee "$output_file"; then
+        echo "Fail: object-counter exited with non-zero status"
+        exit 1
+    fi
+    echo "Checking for errors ..."
+    if grep -Eq "\[ERROR\]" "$output_file"; then
+        echo "Fail: object-counter reported an error!"
+        exit 1
+    fi
+    echo "Success: DRP-AI3 object-counter ran without error!"

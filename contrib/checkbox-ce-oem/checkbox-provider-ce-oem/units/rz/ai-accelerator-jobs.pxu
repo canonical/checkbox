@@ -1,5 +1,5 @@
-id: rz-drp-ai/inference
-category_id: rz-drp-ai
+id: rz-ai-accelerator/inference
+category_id: rz-ai-accelerator
 plugin: shell
 user: root
 _summary: Check if DRP-AI is working
@@ -25,3 +25,26 @@ command:
         exit 1
     fi
     echo "Success: Running by DRP-AI without error!"
+
+id: rz-ai-accelerator/driver-nodes
+category_id: rz-ai-accelerator
+plugin: shell
+user: root
+_summary: Check DRP-AI/DRP-AI3 device nodes are present
+_purpose:
+    Check that the DRP-AI (V2L) or DRP-AI3 (V2H/V2N) kernel device
+    nodes are present, as a fast driver-level smoke test ahead of any
+    application-level inference test.
+imports:
+    from com.canonical.plainbox import manifest
+requires:
+    manifest.is_rz_series == 'True'
+    manifest.has_rz_drp_ai == 'True' or manifest.has_rz_drp_ai3 == 'True'
+command:
+    for dev in /dev/drpai0 /dev/drp1 /dev/udmabuf /dev/rgnmm /dev/rgnmmbuf; do
+        if [ ! -e "$dev" ]; then
+            echo "Fail: missing $dev"
+            exit 1
+        fi
+    done
+    echo "Success: all DRP-AI/DRP-AI3 device nodes present"

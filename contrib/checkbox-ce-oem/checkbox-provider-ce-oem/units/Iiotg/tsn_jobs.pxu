@@ -46,6 +46,20 @@ _description:
 environ:
     TSN_DEVICE_IP_LIST
 command:
+    resource_wrapper.sh -- iiotg_tsn.py validate-string "$TSN_DEVICE_IP_LIST"
+
+unit: job
+category_id: iiotg-tsn
+id: iiotg-tsn/check-tsn-device-ip-match-resource
+plugin: shell
+_summary: Check TSN device/IP match resource generation
+_description:
+    Verify TSN_DEVICE_IP_LIST parses into valid INTERFACE:SERVER_IP pairs.
+    Unlike the resource job, this check job is expected to fail loudly when
+    the environment variable is missing or malformed.
+environ:
+    TSN_DEVICE_IP_LIST
+command:
     if [ -v TSN_DEVICE_IP_LIST ]; then
         iiotg_tsn.py validate-string "$TSN_DEVICE_IP_LIST"
     else

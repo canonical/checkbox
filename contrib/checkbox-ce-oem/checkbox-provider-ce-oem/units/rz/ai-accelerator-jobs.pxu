@@ -59,20 +59,33 @@ plugin: shell
 user: root
 _summary: Check DRP-AI3 (V2H/V2N) device nodes are present
 _purpose:
-    Check that the DRP-AI3 (dual-core, V2H/V2N) kernel device nodes
-    are present, as a fast driver-level smoke test ahead of the
-    application-level object-counter test. Confirmed on real V2H
-    hardware (CID 202503-36406): all five nodes below exist there.
+    Check that the DRP-AI3 kernel device nodes are present, as a fast
+    driver-level smoke test ahead of the application-level
+    object-counter test. Confirmed on real hardware: V2H (CID
+    202503-36406) exposes all five nodes below. V2N (CID 202602-38383)
+    only exposes /dev/drpai0, /dev/udmabuf, /dev/rgnmm, /dev/rgnmmbuf
+    -- it lacks /dev/drp1. This is an expected hardware difference,
+    not a bug: per Renesas' official product pages
+    (renesas.com/en/products/rz-v2h and rz-v2n), RZ/V2H integrates an
+    extra standalone "Dynamically reconfigurable processor (DRP)" IP
+    block alongside DRP-AI3, which RZ/V2N does not have. /dev/drp1 is
+    therefore checked only if present, and its absence does not fail
+    this job.
 imports:
     from com.canonical.plainbox import manifest
 requires:
     manifest.is_rz_series == 'True'
     manifest.has_rz_drp_ai3 == 'True'
 command:
-    for dev in /dev/drpai0 /dev/drp1 /dev/udmabuf /dev/rgnmm /dev/rgnmmbuf; do
+    for dev in /dev/drpai0 /dev/udmabuf /dev/rgnmm /dev/rgnmmbuf; do
         if [ ! -e "$dev" ]; then
             echo "Fail: missing $dev"
             exit 1
         fi
     done
-    echo "Success: all DRP-AI3 device nodes present"
+    if [ -e /dev/drp1 ]; then
+        echo "Info: optional /dev/drp1 (V2H-only DRP core) present"
+    else
+        echo "Info: optional /dev/drp1 (V2H-only DRP core) not present on this device"
+    fi
+    echo "Success: all required DRP-AI3 device nodes present"

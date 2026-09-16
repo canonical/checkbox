@@ -1,0 +1,19 @@
+test.png license/provenance
+============================
+
+File: test.png
+Title: "happy-afternoon-golden-retriever-yoko"
+Creator: pixellaphoto
+Source: https://live.staticflickr.com/1611/24326853815_200749ddb9_b.jpg
+License: CC0 1.0 Universal (Public Domain Dedication)
+License URL: https://creativecommons.org/publicdomain/zero/1.0/
+Retrieved via: Openverse API (https://api.openverse.org/v1/images/),
+filtered to license=cc0, on 2026-09-16.
+
+Modifications: center-cropped to a 4:3 ratio and resized to 640x480 to
+match the DRP-AI3 object-counter TEST-mode pipeline's expected input
+resolution. No other edits were made.
+
+Used by: rz-ai-accelerator/drp-ai3-object-counter (DRP-AI3
+object-counter "animal" model test, checked for "[INFO] dog detected."
+in the sample's output).

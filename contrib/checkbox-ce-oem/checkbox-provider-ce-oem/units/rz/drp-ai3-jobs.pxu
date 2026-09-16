@@ -5,11 +5,26 @@ user: root
 _summary: Check if DRP-AI3 is working via the object-counter Q08 sample
 _purpose:
     Check if DRP-AI3 is working by running the rzv-ai-applications
-    object-counter (Q08) sample against a bundled static test image,
+    object-counter (Q08) sample against a bundled real photo of a dog,
     using the upstream TEST input source (reads
     $SNAP_REAL_HOME/test.png via a gstreamer filesrc pipeline instead
     of a live USB/MIPI camera), so this can run headless/unattended.
+    Success requires the sample to actually recognize the dog in the
+    image (looks for "[INFO] dog detected." in its output), not just
+    that the command ran without error.
     https://github.com/canonical/rzv_ai_applications
+    .
+    V2H and V2N share the same DRP-AI3 hardware/driver and the same
+    object-counter command-line interface (<COCO|animal|vehicle>
+    <USB|MIPI|TEST>); the only difference is the snap name
+    (rzv-ai-applications on V2H vs rzv-ai-applications-v2n on V2N).
+    This one job covers both generations - the caller must supply the
+    installed snap's name via the DRP_AI_TEST_SNAP environ variable
+    (e.g. in the launcher's [environment] section). V2L is not
+    affected: it only ever has one possible snap
+    (rzv-drp-ai-tvm-examples, see rz-ai-accelerator/inference), so it
+    doesn't need this variable.
+    .
     Note: TEST mode is a live-display demo mode that never exits on
     its own (it feeds the static image through an imagefreeze
     pipeline at 30fps in an infinite "Main Loop", waiting for a
@@ -18,6 +33,7 @@ _purpose:
     instead of relying on the process exit status. Confirmed on real
     V2H hardware (CID 202503-36406) that a 30s capture window reliably
     reaches "Main Loop Starts" with no [ERROR] lines.
+    .
     Note: checkbox-ce-oem is itself a strict-confined snap and
     exports its own GST_PLUGIN_PATH/GST_PLUGIN_SYSTEM_PATH/
     GST_PLUGIN_SCANNER into every job's environment, pointing at its
@@ -30,6 +46,19 @@ _purpose:
     snap's gstreamer plugin path. Confirmed on real V2H hardware: the
     job fails with "no element filesrc" without this unset, and
     passes reliably with it.
+    .
+    Note: object-counter's own stdout is fully-buffered (not
+    line-buffered) whenever it isn't connected to a real terminal -
+    which is always the case for a checkbox shell job. That means a
+    short message like "[INFO] dog detected.\n" (no explicit flush)
+    can sit in libc's stdio buffer and never reach our captured output
+    at all, even though detection actually happened internally.
+    Confirmed on real V2H hardware: capturing via plain redirection
+    never showed the detection line even after 60s, while allocating
+    a pty for the child (forcing glibc's automatic line-buffering)
+    showed it appear within ~2s every time. This job spawns
+    object-counter through Python's pty module for exactly that
+    reason - it is not optional.
 imports:
     from com.canonical.plainbox import manifest
 requires:
@@ -37,13 +66,21 @@ requires:
     manifest.is_rz_series == 'True'
 environ:
     PLAINBOX_PROVIDER_DATA
+    DRP_AI_TEST_SNAP
 command:
     set -o pipefail
+    if [ -z "$DRP_AI_TEST_SNAP" ]; then
+        echo "Fail: DRP_AI_TEST_SNAP has not been set! It must be the" \
+             "installed object-counter snap name, e.g." \
+             "rzv-ai-applications (V2H) or rzv-ai-applications-v2n (V2N)."
+        exit 1
+    fi
     cp "$PLAINBOX_PROVIDER_DATA/rz-ai-accelerator/test.png" "$SNAP_REAL_HOME/test.png"
     output_file="$(mktemp /var/tmp/renesas-rz-drp-ai3.XXXXXX)"
     trap 'rm -f "$output_file" "$SNAP_REAL_HOME/test.png"' EXIT
     env -u GST_PLUGIN_PATH -u GST_PLUGIN_SYSTEM_PATH -u GST_PLUGIN_SCANNER \
-        timeout -s INT 30 rzv-ai-applications.object-counter COCO TEST > "$output_file" 2>&1
+        python3 -c 'import os, pty, sys; snap = os.environ["DRP_AI_TEST_SNAP"]; argv = ["timeout", "-s", "INT", "30", snap + ".object-counter", "animal", "TEST"]; status = pty.spawn(argv); sys.exit(os.WEXITSTATUS(status) if os.WIFEXITED(status) else 1)' \
+        > "$output_file" 2>&1
     rc=$?
     cat "$output_file"
     # TEST mode never exits by itself, so a timeout (124) or a
@@ -58,8 +95,8 @@ command:
         echo "Fail: object-counter reported an error!"
         exit 1
     fi
-    if ! grep -q "Main Loop Starts" "$output_file"; then
-        echo "Fail: object-counter never reached its main inference loop!"
+    if ! grep -q "\[INFO\] dog detected\." "$output_file"; then
+        echo "Fail: object-counter never recognized the dog in the test image!"
         exit 1
     fi
-    echo "Success: DRP-AI3 object-counter ran without error!"
+    echo "Success: DRP-AI3 object-counter correctly detected the dog!"

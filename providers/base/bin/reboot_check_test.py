@@ -78,10 +78,10 @@ class DeviceInfoCollector:
         return "\n".join(out)
 
     def get_pci_info(self) -> str:
-        pci_ids_file = str(
+        pci_ids_file = (
             SNAP / "usr/share/misc/pci.ids"
             if SNAP
-            else "/usr/share/misc/pci.ids"
+            else Path("/usr/share/misc/pci.ids")
         )
         return sp.check_output(
             [
@@ -115,9 +115,8 @@ class DeviceInfoCollector:
         )
         for device in devices["required"]:
             # file paths of the expected and actual device lists
-            # expected = f"{expected_dir}/{device}_log"
             expected = expected_dir / f"{device}_log"
-            actual = actual_dir / expected_dir
+            actual = actual_dir / f"{device}_log"
             if not filecmp.cmp(expected, actual):
                 print(
                     f"[ ERR ] The output of {device} differs!",
@@ -128,7 +127,7 @@ class DeviceInfoCollector:
 
         for device in devices["optional"]:
             expected = expected_dir / f"{device}_log"
-            actual = actual_dir / expected_dir
+            actual = actual_dir / f"{device}_log"
             if not filecmp.cmp(expected, actual):
                 print(
                     f"[ WARN ] Items under {actual} have changed.",
@@ -143,11 +142,9 @@ class DeviceInfoCollector:
         output_directory: Path,
         devices: "dict[str, Sequence[str]] | None" = None,
     ) -> None:
-        if not output_directory.is_dir():
-            raise ValueError(f"{output_directory} is not a directory")
         if devices is None:
             devices = self.DEFAULT_DEVICES
-        os.makedirs(output_directory, exist_ok=True)
+        output_directory.mkdir(parents=True, exist_ok=True)
         # add extra behavior if necessary
         for device in devices["required"]:
             with (output_directory / f"{device}_log").open("w") as file:
@@ -160,19 +157,20 @@ class DeviceInfoCollector:
         os.sync()
 
     def print_diff(self, name: str, expected_path: Path, actual_path: Path):
-        with expected_path.open() as file_expected, actual_path.open() as file_actual:
-            print(f"Expected {name} output:", file=sys.stderr)
-            print(file_expected.read(), file=sys.stderr)
-            print(f"Actual {name} output:", file=sys.stderr)
-            print(file_actual.read(), file=sys.stderr)
-            print(f"End of {name} diff", file=sys.stderr)
+        with expected_path.open() as file_expected:
+            with actual_path.open() as file_actual:
+                print(f"Expected {name} output:", file=sys.stderr)
+                print(file_expected.read(), file=sys.stderr)
+                print(f"Actual {name} output:", file=sys.stderr)
+                print(file_actual.read(), file=sys.stderr)
+                print(f"End of {name} diff", file=sys.stderr)
 
     def __init__(self) -> None:
         self.DEFAULT_DEVICES: "dict[str, Sequence[str]]" = {
             # these can fail the test case
             "required": ("wireless", "usb", "pci"),
             # these only produce warnings
-            "optional": ("drm"),
+            "optional": ("drm",),
         }
         self.dump_function = {
             "pci": self.get_pci_info,
@@ -209,7 +207,7 @@ class FwtsTester:
             [
                 *sh_split(get_fwts_base_cmd()),
                 "-r",
-                str(log_file_path),
+                log_file_path,
                 "-q",
                 *fwts_arguments,
             ],
@@ -222,7 +220,7 @@ class FwtsTester:
                 "--ignore-warning",
                 "-t",
                 "all",
-                str(log_file_path),
+                log_file_path,
             ],
             check=False,
         )
@@ -436,7 +434,7 @@ class HardwareRendererTester:
         glmark2_data_path = Path("/usr/share/glmark2")
 
         try:
-            if CHECKBOX_RUNTIME and not os.path.exists(glmark2_data_path):
+            if CHECKBOX_RUNTIME and not glmark2_data_path.exists():
                 # the official way to specify the location of the data files
                 # is "--data-path path/to/data/files"
                 # but 16, 18, 20 doesn't have this option
@@ -582,12 +580,14 @@ def create_parser():
         "-d",
         "--dump-to",
         required=False,
+        type=Path,
         dest="output_directory",
         help="Device info-dumps will be written here",
     )
     parser.add_argument(
         "-c",
         "--compare-to",
+        type=Path,
         dest="comparison_directory",
         help="Directory of ground-truth for device info comparison",
     )
@@ -674,9 +674,9 @@ def main() -> int:
             )
         else:
             collector = DeviceInfoCollector()
-            collector.dump(Path(args.output_directory))
+            collector.dump(args.output_directory)
             if collector.compare_device_lists(
-                Path(args.comparison_directory), Path(args.output_directory)
+                args.comparison_directory, args.output_directory
             ):
                 print("[ OK ] Devices match!")
             else:
@@ -685,7 +685,7 @@ def main() -> int:
     # dump (no checks) if only output_directory is specified
     if args.output_directory is not None and args.comparison_directory is None:
         print(f"Only dumping device info to {args.output_directory}")
-        DeviceInfoCollector().dump(Path(args.output_directory))
+        DeviceInfoCollector().dump(args.output_directory)
 
     if args.do_fwts_check:
         try:
@@ -697,7 +697,7 @@ def main() -> int:
             raise SystemExit("--dump-to must be specified for the fwts test")
         tester = FwtsTester()
         if tester.is_fwts_supported() and not tester.fwts_log_check_passed(
-            Path(args.output_directory)
+            args.output_directory
         ):
             fwts_passed = False
         else:

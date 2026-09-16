@@ -67,18 +67,10 @@ class DeviceInfoCollector:
         return "\n".join(lines_to_write)
 
     def get_usb_info(self) -> str:
-        usb_ids_file = str(
-            CHECKBOX_RUNTIME / "var/lib/usbutils/usb.ids"
-            if CHECKBOX_RUNTIME
-            else "/var/lib/usbutils/usb.ids"
-        )
+        # don't specify the usb.ids file here
+        # handle that inside checkbox-support-lsusb
         out = sp.check_output(
-            [
-                "checkbox-support-lsusb",
-                "-f",
-                usb_ids_file,
-                "-s",
-            ],
+            ["checkbox-support-lsusb", "-s"],
             universal_newlines=True,
             timeout=COMMAND_TIMEOUT_SECONDS,
         ).splitlines()

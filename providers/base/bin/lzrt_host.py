@@ -17,19 +17,7 @@
 # You should have received a copy of the GNU General Public License
 # along with Checkbox.  If not, see <http://www.gnu.org/licenses/>.
 
-"""
-Host Level Zero helper for Checkbox.
-
-Subcommands:
-  resource          Emit a resource record if a GPU is available via host
-                    Level Zero drivers (used by depends:
-                    graphics/lz_classic_gpu_avail).
-  validate-install  Emit a resource record if the host Level Zero ICD loader
-                    is installed (used by depends:
-                    graphics/lz_classic_lz_avail).
-  run-test ARGS...  Run a level-zero-tests test binary with --no-confinement,
-                    forwarding all remaining arguments to the test.
-"""
+"""Host Level Zero Raytracing helper for Checkbox."""
 
 import logging
 import os
@@ -62,15 +50,16 @@ def cmd_validate_install():
         return 0
     logging.error("Host Level Zero loader not found at %s", host_ze)
     logging.error(
-        "Install libze1 or equivalent before running host Level Zero tests"
+        "Install libze1 or equivalent before running host Level Zero "
+        "raytracing tests"
     )
     return 1
 
 
 def cmd_run_test(test_args):
-    snap = "/snap/level-zero-tests/current"
+    snap = "/snap/level-zero-raytracing-tests/current"
     result = subprocess.run(
-        [f"{snap}/test", "--no-confinement"] + test_args,
+        ["{}/test".format(snap), "--no-confinement"] + test_args,
         env=dict(os.environ, SNAP=snap),
     )
     return result.returncode
@@ -82,7 +71,8 @@ def main():
     )
     if len(sys.argv) < 2:
         logging.error(
-            "Usage: lz_host.py {resource,validate-install,run-test} [args...]"
+            "Usage: lzrt_host.py {resource,validate-install,run-test} "
+            "[args...]"
         )
         return 1
     command = sys.argv[1]

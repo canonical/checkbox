@@ -814,3 +814,24 @@ include:
 bootstrap_include:
   - graphics_card
   - executable
+
+---
+id: level-zero-raytracing-core-test-plan
+unit: test plan
+name: Graphics test plan for verifying Level Zero Raytracing (core/snap)
+include:
+  - setup/install_level_zero_raytracing
+  - graphics/lzrt_core_.*
+bootstrap_include:
+  - graphics_card
+  - executable
+---
+id: level-zero-raytracing-classic-test-plan
+unit: test plan
+name: Graphics test plan for verifying Level Zero Raytracing (classic)
+include:
+  - setup/install_level_zero_raytracing
+  - graphics/lzrt_classic_.*
+bootstrap_include:
+  - graphics_card
+  - executable

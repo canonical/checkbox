@@ -295,5 +295,47 @@ class TestFindHostIcdFilenames(unittest.TestCase):
                 host_utils.find_host_icd_filenames()
 
 
+class TestCheckHostLevelZeroGpu(unittest.TestCase):
+    ARCH_TRIPLE = "x86_64-linux-gnu"
+
+    @patch("os.path.isfile", return_value=True)
+    @patch("checkbox_support.helpers.host_utils.glob.glob", return_value=[])
+    def test_returns_false_when_no_render_nodes(self, _glob, _isfile):
+        self.assertFalse(
+            host_utils.check_host_level_zero_gpu(self.ARCH_TRIPLE)
+        )
+
+    @patch("os.path.isfile", return_value=False)
+    @patch(
+        "checkbox_support.helpers.host_utils.glob.glob",
+        return_value=["/dev/dri/renderD128"],
+    )
+    def test_returns_false_when_loader_missing(self, _glob, _isfile):
+        self.assertFalse(
+            host_utils.check_host_level_zero_gpu(self.ARCH_TRIPLE)
+        )
+
+    @patch("os.path.isfile", return_value=True)
+    @patch(
+        "checkbox_support.helpers.host_utils.glob.glob",
+        return_value=["/dev/dri/renderD128"],
+    )
+    def test_returns_true_when_render_node_and_loader_found(
+        self, _glob, _isfile
+    ):
+        self.assertTrue(host_utils.check_host_level_zero_gpu(self.ARCH_TRIPLE))
+
+    @patch("os.path.isfile", return_value=True)
+    @patch(
+        "checkbox_support.helpers.host_utils.glob.glob",
+        return_value=["/dev/dri/renderD128"],
+    )
+    def test_checks_correct_loader_path(self, _glob, mock_isfile):
+        host_utils.check_host_level_zero_gpu(self.ARCH_TRIPLE)
+        mock_isfile.assert_called_once_with(
+            "/usr/lib/x86_64-linux-gnu/libze_loader.so.1"
+        )
+
+
 if __name__ == "__main__":
     unittest.main()

@@ -1,0 +1,231 @@
+unit: job
+plugin: shell
+id: setup/install_level_zero_raytracing
+category_id: com.canonical.plainbox::graphics
+summary: Install level-zero-raytracing-tests snap
+purpose: This job will install the level-zero-raytracing-tests snap, a dependency of Level Zero raytracing conformance testing
+user: root
+command: |
+  if snap list level-zero-raytracing-tests &>/dev/null; then
+    snap refresh --beta level-zero-raytracing-tests
+  else
+    snap install --beta level-zero-raytracing-tests
+  fi
+estimated_duration: 1m
+---
+unit: job
+plugin: shell
+id: graphics/lzrt_gpu_avail
+depends:
+  - setup/install_level_zero_raytracing
+category_id: com.canonical.plainbox::graphics
+user: root
+summary: Checks for GPU for level-zero-raytracing-tests
+estimated_duration: 1s
+command: |
+  if level-zero-raytracing-tests.check-gpu; then
+    echo "PASS: Found a Level Zero GPU"
+  else
+    echo "FAIL: No Level Zero GPU found"
+    exit 1
+  fi
+---
+id: graphics/lzrt_core_embree_rthwif_cornell_box
+depends:
+  - graphics/lzrt_gpu_avail
+  - setup/install_level_zero_raytracing
+category_id: com.canonical.plainbox::graphics
+flags:
+  - simple
+user: root
+summary: Run embree_rthwif_cornell_box from level-zero-raytracing-tests (core)
+environ:
+  - XDG_SESSION_TYPE
+  - XDG_RUNTIME_DIR
+estimated_duration: 1m
+command: level-zero-raytracing-tests.test embree_rthwif_cornell_box --compare cornell_box_reference.tga
+siblings:
+  - id: graphics/lzrt_core_rthwif_test_builder_triangles_expected
+    summary: Run rthwif_test_builder_triangles_expected from level-zero-raytracing-tests (core)
+    command: level-zero-raytracing-tests.test embree_rthwif_test --build_test_triangles --build_mode_expected
+  - id: graphics/lzrt_core_rthwif_test_builder_procedurals_expected
+    summary: Run rthwif_test_builder_procedurals_expected from level-zero-raytracing-tests (core)
+    command: level-zero-raytracing-tests.test embree_rthwif_test --build_test_procedurals --build_mode_expected
+  - id: graphics/lzrt_core_rthwif_test_builder_instances_expected
+    summary: Run rthwif_test_builder_instances_expected from level-zero-raytracing-tests (core)
+    command: level-zero-raytracing-tests.test embree_rthwif_test --build_test_instances --build_mode_expected
+  - id: graphics/lzrt_core_rthwif_test_builder_mixed_expected
+    summary: Run rthwif_test_builder_mixed_expected from level-zero-raytracing-tests (core)
+    command: level-zero-raytracing-tests.test embree_rthwif_test --build_test_mixed --build_mode_expected
+  - id: graphics/lzrt_core_rthwif_test_benchmark_triangles
+    summary: Run rthwif_test_benchmark_triangles from level-zero-raytracing-tests (core)
+    command: level-zero-raytracing-tests.test embree_rthwif_test --benchmark_triangles
+  - id: graphics/lzrt_core_rthwif_test_benchmark_procedurals
+    summary: Run rthwif_test_benchmark_procedurals from level-zero-raytracing-tests (core)
+    command: level-zero-raytracing-tests.test embree_rthwif_test --benchmark_procedurals
+  - id: graphics/lzrt_core_rthwif_test_builder_triangles_worst_case
+    summary: Run rthwif_test_builder_triangles_worst_case from level-zero-raytracing-tests (core)
+    command: level-zero-raytracing-tests.test embree_rthwif_test --build_test_triangles --build_mode_worst_case
+  - id: graphics/lzrt_core_rthwif_test_builder_procedurals_worst_case
+    summary: Run rthwif_test_builder_procedurals_worst_case from level-zero-raytracing-tests (core)
+    command: level-zero-raytracing-tests.test embree_rthwif_test --build_test_procedurals --build_mode_worst_case
+  - id: graphics/lzrt_core_rthwif_test_builder_instances_worst_case
+    summary: Run rthwif_test_builder_instances_worst_case from level-zero-raytracing-tests (core)
+    command: level-zero-raytracing-tests.test embree_rthwif_test --build_test_instances --build_mode_worst_case
+  - id: graphics/lzrt_core_rthwif_test_builder_mixed_worst_case
+    summary: Run rthwif_test_builder_mixed_worst_case from level-zero-raytracing-tests (core)
+    command: level-zero-raytracing-tests.test embree_rthwif_test --build_test_mixed --build_mode_worst_case
+  - id: graphics/lzrt_core_rthwif_test_triangles_committed_hit
+    summary: Run rthwif_test_triangles_committed_hit from level-zero-raytracing-tests (core)
+    command: level-zero-raytracing-tests.test embree_rthwif_test --no-instancing --triangles-committed-hit
+  - id: graphics/lzrt_core_rthwif_test_triangles_potential_hit
+    summary: Run rthwif_test_triangles_potential_hit from level-zero-raytracing-tests (core)
+    command: level-zero-raytracing-tests.test embree_rthwif_test --no-instancing --triangles-potential-hit
+  - id: graphics/lzrt_core_rthwif_test_triangles_anyhit_shader_commit
+    summary: Run rthwif_test_triangles_anyhit_shader_commit from level-zero-raytracing-tests (core)
+    command: level-zero-raytracing-tests.test embree_rthwif_test --no-instancing --triangles-anyhit-shader-commit
+  - id: graphics/lzrt_core_rthwif_test_triangles_anyhit_shader_reject
+    summary: Run rthwif_test_triangles_anyhit_shader_reject from level-zero-raytracing-tests (core)
+    command: level-zero-raytracing-tests.test embree_rthwif_test --no-instancing --triangles-anyhit-shader-reject
+  - id: graphics/lzrt_core_rthwif_test_procedurals_committed_hit
+    summary: Run rthwif_test_procedurals_committed_hit from level-zero-raytracing-tests (core)
+    command: level-zero-raytracing-tests.test embree_rthwif_test --no-instancing --procedurals-committed-hit
+  - id: graphics/lzrt_core_rthwif_test_hwinstancing_triangles_committed_hit
+    summary: Run rthwif_test_hwinstancing_triangles_committed_hit from level-zero-raytracing-tests (core)
+    command: level-zero-raytracing-tests.test embree_rthwif_test --hw-instancing --triangles-committed-hit
+  - id: graphics/lzrt_core_rthwif_test_hwinstancing_triangles_potential_hit
+    summary: Run rthwif_test_hwinstancing_triangles_potential_hit from level-zero-raytracing-tests (core)
+    command: level-zero-raytracing-tests.test embree_rthwif_test --hw-instancing --triangles-potential-hit
+  - id: graphics/lzrt_core_rthwif_test_hwinstancing_triangles_anyhit_shader_commit
+    summary: Run rthwif_test_hwinstancing_triangles_anyhit_shader_commit from level-zero-raytracing-tests (core)
+    command: level-zero-raytracing-tests.test embree_rthwif_test --hw-instancing --triangles-anyhit-shader-commit
+  - id: graphics/lzrt_core_rthwif_test_hwinstancing_procedurals_committed_hit
+    summary: Run rthwif_test_hwinstancing_procedurals_committed_hit from level-zero-raytracing-tests (core)
+    command: level-zero-raytracing-tests.test embree_rthwif_test --hw-instancing --procedurals-committed-hit
+  - id: graphics/lzrt_core_rthwif_test_swinstancing_triangles_committed_hit
+    summary: Run rthwif_test_swinstancing_triangles_committed_hit from level-zero-raytracing-tests (core)
+    command: level-zero-raytracing-tests.test embree_rthwif_test --sw-instancing --triangles-committed-hit
+  - id: graphics/lzrt_core_rthwif_test_swinstancing_triangles_potential_hit
+    summary: Run rthwif_test_swinstancing_triangles_potential_hit from level-zero-raytracing-tests (core)
+    command: level-zero-raytracing-tests.test embree_rthwif_test --sw-instancing --triangles-potential-hit
+  - id: graphics/lzrt_core_rthwif_test_swinstancing_triangles_anyhit_shader_commit
+    summary: Run rthwif_test_swinstancing_triangles_anyhit_shader_commit from level-zero-raytracing-tests (core)
+    command: level-zero-raytracing-tests.test embree_rthwif_test --sw-instancing --triangles-anyhit-shader-commit
+  - id: graphics/lzrt_core_rthwif_test_swinstancing_triangles_anyhit_shader_reject
+    summary: Run rthwif_test_swinstancing_triangles_anyhit_shader_reject from level-zero-raytracing-tests (core)
+    command: level-zero-raytracing-tests.test embree_rthwif_test --sw-instancing --triangles-anyhit-shader-reject
+  - id: graphics/lzrt_core_rthwif_test_swinstancing_procedurals_committed_hit
+    summary: Run rthwif_test_swinstancing_procedurals_committed_hit from level-zero-raytracing-tests (core)
+    command: level-zero-raytracing-tests.test embree_rthwif_test --sw-instancing --procedurals-committed-hit
+---
+unit: job
+plugin: shell
+id: graphics/lzrt_classic_gpu_avail
+category_id: com.canonical.plainbox::graphics
+user: root
+summary: Checks for Level Zero GPU using host drivers
+environ:
+  - XDG_SESSION_TYPE
+  - XDG_RUNTIME_DIR
+  - PATH
+estimated_duration: 1s
+command: lzrt_host.py resource
+---
+unit: job
+plugin: shell
+id: graphics/lzrt_classic_lz_avail
+category_id: com.canonical.plainbox::graphics
+user: root
+summary: Checks for host Level Zero ICD loader required by level-zero-raytracing-tests
+estimated_duration: 1s
+command: lzrt_host.py validate-install
+---
+id: graphics/lzrt_classic_embree_rthwif_cornell_box
+depends:
+  - graphics/lzrt_classic_gpu_avail
+  - graphics/lzrt_classic_lz_avail
+setup_include:
+  - setup/install_level_zero_raytracing
+category_id: com.canonical.plainbox::graphics
+flags:
+  - simple
+user: root
+summary: Run embree_rthwif_cornell_box from level-zero-raytracing-tests (classic)
+environ:
+  - XDG_SESSION_TYPE
+  - XDG_RUNTIME_DIR
+estimated_duration: 1m
+command: lzrt_host.py run-test embree_rthwif_cornell_box --compare cornell_box_reference.tga
+siblings:
+  - id: graphics/lzrt_classic_rthwif_test_builder_triangles_expected
+    summary: Run rthwif_test_builder_triangles_expected from level-zero-raytracing-tests (classic)
+    command: lzrt_host.py run-test embree_rthwif_test --build_test_triangles --build_mode_expected
+  - id: graphics/lzrt_classic_rthwif_test_builder_procedurals_expected
+    summary: Run rthwif_test_builder_procedurals_expected from level-zero-raytracing-tests (classic)
+    command: lzrt_host.py run-test embree_rthwif_test --build_test_procedurals --build_mode_expected
+  - id: graphics/lzrt_classic_rthwif_test_builder_instances_expected
+    summary: Run rthwif_test_builder_instances_expected from level-zero-raytracing-tests (classic)
+    command: lzrt_host.py run-test embree_rthwif_test --build_test_instances --build_mode_expected
+  - id: graphics/lzrt_classic_rthwif_test_builder_mixed_expected
+    summary: Run rthwif_test_builder_mixed_expected from level-zero-raytracing-tests (classic)
+    command: lzrt_host.py run-test embree_rthwif_test --build_test_mixed --build_mode_expected
+  - id: graphics/lzrt_classic_rthwif_test_benchmark_triangles
+    summary: Run rthwif_test_benchmark_triangles from level-zero-raytracing-tests (classic)
+    command: lzrt_host.py run-test embree_rthwif_test --benchmark_triangles
+  - id: graphics/lzrt_classic_rthwif_test_benchmark_procedurals
+    summary: Run rthwif_test_benchmark_procedurals from level-zero-raytracing-tests (classic)
+    command: lzrt_host.py run-test embree_rthwif_test --benchmark_procedurals
+  - id: graphics/lzrt_classic_rthwif_test_builder_triangles_worst_case
+    summary: Run rthwif_test_builder_triangles_worst_case from level-zero-raytracing-tests (classic)
+    command: lzrt_host.py run-test embree_rthwif_test --build_test_triangles --build_mode_worst_case
+  - id: graphics/lzrt_classic_rthwif_test_builder_procedurals_worst_case
+    summary: Run rthwif_test_builder_procedurals_worst_case from level-zero-raytracing-tests (classic)
+    command: lzrt_host.py run-test embree_rthwif_test --build_test_procedurals --build_mode_worst_case
+  - id: graphics/lzrt_classic_rthwif_test_builder_instances_worst_case
+    summary: Run rthwif_test_builder_instances_worst_case from level-zero-raytracing-tests (classic)
+    command: lzrt_host.py run-test embree_rthwif_test --build_test_instances --build_mode_worst_case
+  - id: graphics/lzrt_classic_rthwif_test_builder_mixed_worst_case
+    summary: Run rthwif_test_builder_mixed_worst_case from level-zero-raytracing-tests (classic)
+    command: lzrt_host.py run-test embree_rthwif_test --build_test_mixed --build_mode_worst_case
+  - id: graphics/lzrt_classic_rthwif_test_triangles_committed_hit
+    summary: Run rthwif_test_triangles_committed_hit from level-zero-raytracing-tests (classic)
+    command: lzrt_host.py run-test embree_rthwif_test --no-instancing --triangles-committed-hit
+  - id: graphics/lzrt_classic_rthwif_test_triangles_potential_hit
+    summary: Run rthwif_test_triangles_potential_hit from level-zero-raytracing-tests (classic)
+    command: lzrt_host.py run-test embree_rthwif_test --no-instancing --triangles-potential-hit
+  - id: graphics/lzrt_classic_rthwif_test_triangles_anyhit_shader_commit
+    summary: Run rthwif_test_triangles_anyhit_shader_commit from level-zero-raytracing-tests (classic)
+    command: lzrt_host.py run-test embree_rthwif_test --no-instancing --triangles-anyhit-shader-commit
+  - id: graphics/lzrt_classic_rthwif_test_triangles_anyhit_shader_reject
+    summary: Run rthwif_test_triangles_anyhit_shader_reject from level-zero-raytracing-tests (classic)
+    command: lzrt_host.py run-test embree_rthwif_test --no-instancing --triangles-anyhit-shader-reject
+  - id: graphics/lzrt_classic_rthwif_test_procedurals_committed_hit
+    summary: Run rthwif_test_procedurals_committed_hit from level-zero-raytracing-tests (classic)
+    command: lzrt_host.py run-test embree_rthwif_test --no-instancing --procedurals-committed-hit
+  - id: graphics/lzrt_classic_rthwif_test_hwinstancing_triangles_committed_hit
+    summary: Run rthwif_test_hwinstancing_triangles_committed_hit from level-zero-raytracing-tests (classic)
+    command: lzrt_host.py run-test embree_rthwif_test --hw-instancing --triangles-committed-hit
+  - id: graphics/lzrt_classic_rthwif_test_hwinstancing_triangles_potential_hit
+    summary: Run rthwif_test_hwinstancing_triangles_potential_hit from level-zero-raytracing-tests (classic)
+    command: lzrt_host.py run-test embree_rthwif_test --hw-instancing --triangles-potential-hit
+  - id: graphics/lzrt_classic_rthwif_test_hwinstancing_triangles_anyhit_shader_commit
+    summary: Run rthwif_test_hwinstancing_triangles_anyhit_shader_commit from level-zero-raytracing-tests (classic)
+    command: lzrt_host.py run-test embree_rthwif_test --hw-instancing --triangles-anyhit-shader-commit
+  - id: graphics/lzrt_classic_rthwif_test_hwinstancing_procedurals_committed_hit
+    summary: Run rthwif_test_hwinstancing_procedurals_committed_hit from level-zero-raytracing-tests (classic)
+    command: lzrt_host.py run-test embree_rthwif_test --hw-instancing --procedurals-committed-hit
+  - id: graphics/lzrt_classic_rthwif_test_swinstancing_triangles_committed_hit
+    summary: Run rthwif_test_swinstancing_triangles_committed_hit from level-zero-raytracing-tests (classic)
+    command: lzrt_host.py run-test embree_rthwif_test --sw-instancing --triangles-committed-hit
+  - id: graphics/lzrt_classic_rthwif_test_swinstancing_triangles_potential_hit
+    summary: Run rthwif_test_swinstancing_triangles_potential_hit from level-zero-raytracing-tests (classic)
+    command: lzrt_host.py run-test embree_rthwif_test --sw-instancing --triangles-potential-hit
+  - id: graphics/lzrt_classic_rthwif_test_swinstancing_triangles_anyhit_shader_commit
+    summary: Run rthwif_test_swinstancing_triangles_anyhit_shader_commit from level-zero-raytracing-tests (classic)
+    command: lzrt_host.py run-test embree_rthwif_test --sw-instancing --triangles-anyhit-shader-commit
+  - id: graphics/lzrt_classic_rthwif_test_swinstancing_triangles_anyhit_shader_reject
+    summary: Run rthwif_test_swinstancing_triangles_anyhit_shader_reject from level-zero-raytracing-tests (classic)
+    command: lzrt_host.py run-test embree_rthwif_test --sw-instancing --triangles-anyhit-shader-reject
+  - id: graphics/lzrt_classic_rthwif_test_swinstancing_procedurals_committed_hit
+    summary: Run rthwif_test_swinstancing_procedurals_committed_hit from level-zero-raytracing-tests (classic)
+    command: lzrt_host.py run-test embree_rthwif_test --sw-instancing --procedurals-committed-hit

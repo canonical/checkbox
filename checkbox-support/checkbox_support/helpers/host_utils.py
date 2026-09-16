@@ -18,6 +18,8 @@
 
 """Shared utilities for host GPU test helpers."""
 
+import glob
+import logging
 import os
 import shutil
 import subprocess
@@ -34,6 +36,25 @@ def get_arch_triple():
     if triple is None:
         raise RuntimeError("could not determine multiarch triple")
     return triple
+
+
+def host_ze_loader_path(arch_triple):
+    """Return the host Level Zero loader path for the given arch triple."""
+    return "/usr/lib/{}/libze_loader.so.1".format(arch_triple)
+
+
+def check_host_level_zero_gpu(arch_triple):
+    """Check for a Level Zero GPU via render nodes and the ze loader."""
+    render_nodes = glob.glob("/dev/dri/renderD*")
+    if not render_nodes:
+        logging.error("No render device nodes found in /dev/dri")
+        return False
+    loader = host_ze_loader_path(arch_triple)
+    if not os.path.isfile(loader):
+        logging.error("Host Level Zero loader not found at %s", loader)
+        return False
+    logging.info("Found render device(s) and Level Zero loader at %s", loader)
+    return True
 
 
 def find_plz_run():

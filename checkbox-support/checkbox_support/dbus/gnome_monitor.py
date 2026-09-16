@@ -127,19 +127,22 @@ class PhysicalMonitor(_PhysicalMonitorT):
         :raises RuntimeError: if all modes are 0
         :return: (width, height) pair like (1920, 1080)
         """
-        max_w, max_h = 0, 0
+
         if len(self.modes) == 0:
             raise ValueError(
-                "Monitor {} doesn't have any supported modes!".format(
-                    self.info.connector
-                )
+                f"Monitor {self.info.connector} supports 0 modes!"
             )
-        for mode in self.modes:
-            if (mode.width, mode.height) >= (max_w, max_h):
-                max_w, max_h = mode.width, mode.height
+        # mirror gnome settings sorting logic
+        # https://github.com/GNOME/gnome-control-center/blob/d4ac269200c1d3cbd886507acdd4fe54ac19cb31/panels/display/cc-display-settings.c#L313-L328
 
-        if (max_w, max_h) == (0, 0):
-            raise RuntimeError("Unexpected max resolution of 0x0")
+        # sort by width, then tie-break by height
+        max_w, max_h = self.modes[0].width, self.modes[0].height
+        for mode in self.modes:
+            if (mode.width > max_w) or (
+                mode.width == max_w and mode.height > max_h
+            ):
+                max_w, max_h = mode.width, mode.height
+                continue
 
         return max_w, max_h
 

@@ -12,7 +12,7 @@ backends:
             export QEMU_SMP_OPTION="-smp ${GARDEN_CPUS:-4}"
             export QEMU_MEM_OPTION="-m ${GARDEN_MEM:-4096}"
 
-            exec image-garden allocate "$SPREAD_SYSTEM"."${ARCH:=$(uname -m)}"
+            exec image-garden allocate --spread "$SPREAD_SYSTEM"."${ARCH:=$(uname -m)}"
         discard: |
             if [ -n "${SPREAD_HOST_PATH-}" ]; then
                 PATH="${SPREAD_HOST_PATH}"

@@ -25,6 +25,7 @@ unit: test plan
 bootstrap_include:
     iiotg-tsn/tsn-device-ip-match
 include:
+    iiotg-tsn/check-tsn-device-ip-match-resource
     iiotg-tsn/test-env-setup
 nested_part:
     iiotg-tsn/ieee802-1as-2011

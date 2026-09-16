@@ -92,10 +92,9 @@ requires:
   - rtc.wakealarm == 'supported'
 environ:
   - STRESS_BOOT_WAKEUP_DELAY
-  - STRESS_BOOT_WAIT_DELAY
   - RTC_DEVICE_FILE
 command: |
-  sleep "${{STRESS_BOOT_WAIT_DELAY:-120}}"
+  echo "Starting cold boot loop reboot {reboot_id}"
   rtcwake -v -d "${{RTC_DEVICE_FILE:-rtc0}}" --mode no -s "${{STRESS_BOOT_WAKEUP_DELAY:-120}}"
   sleep 5
   rtcwake -v -d "${{RTC_DEVICE_FILE:-rtc0}}" -m show
@@ -138,8 +137,8 @@ siblings:
     command: >-
       mkdir -p "$PLAINBOX_SESSION_SHARE"/cold_reboot_cycle-1
 
-      checkbox-support-fwts_test 
-      -t klog 
+      checkbox-support-fwts_test
+      -t klog
       -t oops
       -f low
       -l "$PLAINBOX_SESSION_SHARE"/cold_reboot_cycle-1/fwts-all.log
@@ -152,7 +151,7 @@ siblings:
   - id: cold-boot-loop-1-device-check
     summary: Cold boot 1 device difference check
     command: >-
-      reboot_check_test.py 
+      reboot_check_test.py
       -c "$PLAINBOX_SESSION_SHARE"/before_reboot
       -d "$PLAINBOX_SESSION_SHARE"/cold_reboot_cycle-1
 user: root
@@ -203,7 +202,7 @@ command: >-
   checkbox-support-fwts_test
   -t klog
   -t oops
-  -f low 
+  -f low
   -l "$PLAINBOX_SESSION_SHARE"/cold_reboot_cycle-{reboot_id}/fwts-all.log
 user: root
 flags:
@@ -223,7 +222,7 @@ plugin: shell
 environ:
   - LD_LIBRARY_PATH
 command: >-
-  reboot_check_test.py 
+  reboot_check_test.py
   -c "$PLAINBOX_SESSION_SHARE"/before_reboot
   -d "$PLAINBOX_SESSION_SHARE"/cold_reboot_cycle-{reboot_id}
 user: root
@@ -296,11 +295,8 @@ template-resource: reboot-run-generator
 template-unit: job
 plugin: shell
 environ:
-  - STRESS_BOOT_WAIT_DELAY
 command: |
-  delay=${{STRESS_BOOT_WAIT_DELAY:-120}}
-  echo Sleeping "${{delay}}s" before rebooting
-  sleep "$delay"
+  echo "Rebooting now (warm reboot {reboot_id})"
   reboot
 user: root
 flags:
@@ -341,7 +337,7 @@ siblings:
       checkbox-support-fwts_test
       -t klog
       -t oops
-      -f low 
+      -f low
       -l "$PLAINBOX_SESSION_SHARE"/warm_reboot_cycle-1/fwts-all.log
   - id: warm-boot-loop-1-hardware-renderer-check
     summary: Warm boot 1 hardware renderer check
@@ -352,7 +348,7 @@ siblings:
   - id: warm-boot-loop-1-device-check
     summary: Warm boot 1 device difference check
     command: >-
-      reboot_check_test.py 
+      reboot_check_test.py
       -c "$PLAINBOX_SESSION_SHARE"/before_reboot
       -d "$PLAINBOX_SESSION_SHARE"/warm_reboot_cycle-1
 user: root
@@ -405,7 +401,7 @@ command: >-
   checkbox-support-fwts_test
   -t klog
   -t oops
-  -f low 
+  -f low
   -l "$PLAINBOX_SESSION_SHARE"/warm_reboot_cycle-{reboot_id}/fwts-all.log
 user: root
 flags:
@@ -425,7 +421,7 @@ plugin: shell
 environ:
   - LD_LIBRARY_PATH
 command: >-
-  reboot_check_test.py 
+  reboot_check_test.py
   -c "$PLAINBOX_SESSION_SHARE"/before_reboot
   -d "$PLAINBOX_SESSION_SHARE"/warm_reboot_cycle-{reboot_id}
 user: root

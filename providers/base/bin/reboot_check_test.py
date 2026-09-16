@@ -95,8 +95,8 @@ class DeviceInfoCollector:
 
     def compare_device_lists(
         self,
-        expected_dir: str,
-        actual_dir: str,
+        expected_dir: Path,
+        actual_dir: Path,
         devices: "dict[str, Sequence[str]] | None" = None,
     ) -> bool:
         """Compares the list of devices in expected_dir against actual_dir
@@ -115,8 +115,9 @@ class DeviceInfoCollector:
         )
         for device in devices["required"]:
             # file paths of the expected and actual device lists
-            expected = f"{expected_dir}/{device}_log"
-            actual = f"{actual_dir}/{device}_log"
+            # expected = f"{expected_dir}/{device}_log"
+            expected = expected_dir / f"{device}_log"
+            actual = actual_dir / expected_dir
             if not filecmp.cmp(expected, actual):
                 print(
                     f"[ ERR ] The output of {device} differs!",
@@ -126,8 +127,8 @@ class DeviceInfoCollector:
                 return False
 
         for device in devices["optional"]:
-            expected = f"{expected_dir}/{device}_log"
-            actual = f"{actual_dir}/{device}_log"
+            expected = expected_dir / f"{device}_log"
+            actual = actual_dir / expected_dir
             if not filecmp.cmp(expected, actual):
                 print(
                     f"[ WARN ] Items under {actual} have changed.",
@@ -139,27 +140,27 @@ class DeviceInfoCollector:
 
     def dump(
         self,
-        output_directory: str,
+        output_directory: Path,
         devices: "dict[str, Sequence[str]] | None" = None,
     ) -> None:
+        if not output_directory.is_dir():
+            raise ValueError(f"{output_directory} is not a directory")
         if devices is None:
             devices = self.DEFAULT_DEVICES
         os.makedirs(output_directory, exist_ok=True)
         # add extra behavior if necessary
         for device in devices["required"]:
-            with open(f"{output_directory}/{device}_log", "w") as file:
+            with (output_directory / f"{device}_log").open("w") as file:
                 file.write(self.dump_function[device]())
 
         for device in devices["optional"]:
-            with open(f"{output_directory}/{device}_log", "w") as file:
+            with (output_directory / f"{device}_log").open("w") as file:
                 file.write(self.dump_function[device]())
 
         os.sync()
 
-    def print_diff(self, name: str, expected_path: str, actual_path: str):
-        with open(expected_path) as file_expected, open(
-            actual_path
-        ) as file_actual:
+    def print_diff(self, name: str, expected_path: Path, actual_path: Path):
+        with expected_path.open() as file_expected, actual_path.open() as file_actual:
             print(f"Expected {name} output:", file=sys.stderr)
             print(file_expected.read(), file=sys.stderr)
             print(f"Actual {name} output:", file=sys.stderr)
@@ -187,7 +188,7 @@ class FwtsTester:
 
     def fwts_log_check_passed(
         self,
-        output_directory: str,
+        output_directory: Path,
         fwts_arguments: Sequence[str] = ("klog", "oops"),
     ) -> bool:
         """
@@ -199,14 +200,16 @@ class FwtsTester:
         :return: whether sleep_test_log_check.py returned 0 (success)
         :rtype: bool
         """
-        log_file_path = "{}/fwts_{}.log".format(
-            output_directory, "_".join(fwts_arguments)
+
+        # 3.6 doesn't support quotes nested inside f strings
+        log_file_path = output_directory / "fwts_{}.log".format(
+            "_".join(fwts_arguments)
         )
         sp.run(
             [
                 *sh_split(get_fwts_base_cmd()),
                 "-r",
-                log_file_path,
+                str(log_file_path),
                 "-q",
                 *fwts_arguments,
             ],
@@ -219,7 +222,7 @@ class FwtsTester:
                 "--ignore-warning",
                 "-t",
                 "all",
-                log_file_path,
+                str(log_file_path),
             ],
             check=False,
         )
@@ -288,11 +291,11 @@ class HardwareRendererTester:
         """
 
         # look for GPU file nodes first
-        DRM_PATH = "/sys/class/drm"
+        DRM_PATH = Path("/sys/class/drm")
         possible_gpu_nodes = [
             directory
-            for directory in os.listdir(DRM_PATH)
-            if directory != "version"
+            for directory in DRM_PATH.iterdir()
+            if directory.name != "version"
         ]
         if len(possible_gpu_nodes) == 0:
             # kernel doesn't see any GPU nodes
@@ -310,13 +313,14 @@ class HardwareRendererTester:
             # for each gpu, check for connection
             # return true if anything is connected
             try:
-                with open(f"{DRM_PATH}/{gpu}/status") as status_file:
-                    status_str = status_file.read().strip().lower()
-                    # - card0: connected
-                    print(f" - {gpu}: {status_str}")
+                status_str = (
+                    (DRM_PATH / gpu / "status").read_text().strip().lower()
+                )
+                # - card0: connected
+                print(f" - {gpu}: {status_str}")
 
-                    if status_str == "connected":
-                        connected_to_display = True
+                if status_str == "connected":
+                    connected_to_display = True
             except FileNotFoundError:
                 # this just means we don't have a status file
                 # => no connection, continue to the next
@@ -469,9 +473,9 @@ class HardwareRendererTester:
             return False
         finally:
             # immediately cleanup
-            if CHECKBOX_RUNTIME and os.path.islink(glmark2_data_path):
+            if CHECKBOX_RUNTIME and glmark2_data_path.is_symlink():
                 print("[ DEBUG ] Un-symlinking glmark2 data")
-                os.unlink(glmark2_data_path)
+                glmark2_data_path.unlink()
 
         if glmark2_output.returncode != 0:
             print(
@@ -670,9 +674,9 @@ def main() -> int:
             )
         else:
             collector = DeviceInfoCollector()
-            collector.dump(args.output_directory)
+            collector.dump(Path(args.output_directory))
             if collector.compare_device_lists(
-                args.comparison_directory, args.output_directory
+                Path(args.comparison_directory), Path(args.output_directory)
             ):
                 print("[ OK ] Devices match!")
             else:
@@ -681,7 +685,7 @@ def main() -> int:
     # dump (no checks) if only output_directory is specified
     if args.output_directory is not None and args.comparison_directory is None:
         print(f"Only dumping device info to {args.output_directory}")
-        DeviceInfoCollector().dump(args.output_directory)
+        DeviceInfoCollector().dump(Path(args.output_directory))
 
     if args.do_fwts_check:
         try:
@@ -693,7 +697,7 @@ def main() -> int:
             raise SystemExit("--dump-to must be specified for the fwts test")
         tester = FwtsTester()
         if tester.is_fwts_supported() and not tester.fwts_log_check_passed(
-            args.output_directory
+            Path(args.output_directory)
         ):
             fwts_passed = False
         else:

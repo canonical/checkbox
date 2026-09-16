@@ -16,7 +16,7 @@ _description:
     Automated renesas-rz project-specific tests for Ubuntu Server images.
 include:
 nested_part:
-    rz-drp-ai-automated
+    rz-ai-accelerator-automated
 certification_status_overrides:
     apply blocker to .*
 
@@ -38,7 +38,7 @@ _description:
     Automated renesas-rz project-specific tests for Ubuntu Desktop images.
 include:
 nested_part:
-    rz-drp-ai-automated
+    rz-ai-accelerator-automated
 certification_status_overrides:
     apply blocker to .*
 
@@ -60,6 +60,6 @@ _description:
     Automated renesas-rz project-specific tests for Ubuntu Core images.
 include:
 nested_part:
-    rz-drp-ai-automated
+    rz-ai-accelerator-automated
 certification_status_overrides:
     apply blocker to .*

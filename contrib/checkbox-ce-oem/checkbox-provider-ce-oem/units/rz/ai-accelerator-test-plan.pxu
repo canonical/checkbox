@@ -1,0 +1,8 @@
+id: rz-ai-accelerator-automated
+unit: test plan
+_name: Renesas RZ AI accelerator tests
+_description: Automated tests for Renesas RZ DRP-AI / DRP-AI3
+include:
+    rz-ai-accelerator/driver-nodes
+    rz-ai-accelerator/inference
+    rz-ai-accelerator/drp-ai3-object-counter

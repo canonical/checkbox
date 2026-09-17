@@ -397,16 +397,19 @@ class MonitorConfigGnome(MonitorConfig):
 
         for combined_mode in itertools.product(*modes_list):
             for trans in transform_list:
-                logical_monitors: "list[LogicalMonitorConfig]" = []
+                logical_monitor_configs: "list[LogicalMonitorConfig]" = []
                 position_x = 0
-                unique_str = ""  # unique string for the current monitor state
+                # unique string for the current monitor state
+                # start at nothing, then attach all the monitor configs
+                # as we loop through them
+                monitor_state_strings: "list[str]" = []
 
                 for connector, mode in zip(connectors, combined_mode):
                     transformation_str = transformation_name_map[trans]
-                    unique_str += (
+                    monitor_state_strings.append(
                         f"{connector}_{mode.resolution}_{transformation_str}"
                     )
-                    logical_monitors.append(
+                    logical_monitor_configs.append(
                         LogicalMonitorConfig(
                             position_x,  # x
                             0,  # y
@@ -414,6 +417,8 @@ class MonitorConfigGnome(MonitorConfig):
                             trans,  # rotation
                             position_x == 0,  # make the first monitor primary
                             # specify target connector name and mode
+                            # for the last dict we don't need any props
+                            # but the dict itself must be present
                             [(connector, mode.id, {})],
                         )
                     )
@@ -435,10 +440,17 @@ class MonitorConfigGnome(MonitorConfig):
                 # Sometimes the NVIDIA driver won't update the state.
                 # Get the state before applying to avoid this issue.
                 state = self.get_current_state()
-                self._apply_monitors_config(state.serial, logical_monitors)
+                # apply the config
+                self._apply_monitors_config(
+                    state.serial, logical_monitor_configs
+                )
 
                 if post_cycle_action is not None:
-                    post_cycle_action(unique_str, **post_cycle_action_kwargs)
+                    post_cycle_action(
+                        # this string contains ALL configs we walked through
+                        ":".join(monitor_state_strings),
+                        **post_cycle_action_kwargs,
+                    )
 
                 print("-" * 80, flush=True)  # just a divider
 

@@ -27,7 +27,7 @@ from collections import OrderedDict
 from collections.abc import Mapping
 from enum import IntEnum
 from time import sleep
-from typing import Any, List, NamedTuple, Callable
+from typing import Any, Callable, List, NamedTuple
 
 from gi.repository import (
     Gio,  # pyright: ignore[reportMissingModuleSource]
@@ -396,7 +396,7 @@ class MonitorConfigGnome(MonitorConfig):
                 modes_list.append(monitor.modes)
 
         for combined_mode in itertools.product(*modes_list):
-            for trans in transform_list:
+            for transform in transform_list:
                 logical_monitor_configs: "list[LogicalMonitorConfig]" = []
                 position_x = 0
                 # unique string for the current monitor state
@@ -405,7 +405,7 @@ class MonitorConfigGnome(MonitorConfig):
                 monitor_state_strings: "list[str]" = []
 
                 for connector, mode in zip(connectors, combined_mode):
-                    transformation_str = transformation_name_map[trans]
+                    transformation_str = transformation_name_map[transform]
                     monitor_state_strings.append(
                         f"{connector}_{mode.resolution}_{transformation_str}"
                     )
@@ -414,7 +414,7 @@ class MonitorConfigGnome(MonitorConfig):
                             position_x,  # x
                             0,  # y
                             1.0,  # scale
-                            trans,  # rotation
+                            transform,  # rotation
                             position_x == 0,  # make the first monitor primary
                             # specify target connector name and mode
                             # for the last dict we don't need any props
@@ -433,7 +433,8 @@ class MonitorConfigGnome(MonitorConfig):
 
                     x_offset = (
                         mode.height
-                        if trans in (Transform.NORMAL_90, Transform.NORMAL_270)
+                        if transform
+                        in (Transform.NORMAL_90, Transform.NORMAL_270)
                         else mode.width
                     )  # left and right should convert x and y
                     position_x += x_offset

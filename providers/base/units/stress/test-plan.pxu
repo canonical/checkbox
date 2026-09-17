@@ -333,8 +333,8 @@ id: memory-single-stressor
 unit: test plan
 _name: Memory tests (single stressor)
 _description:
- Run a single memory stress-ng stressor. Use the test selection
- screen to pick exactly one stressor job to run.
+ Run one or more memory stress-ng stressors. Use the test selection
+ screen to choose the stressor jobs to run.
 include:
     stress/memory_stressor_stressor
 bootstrap_include:

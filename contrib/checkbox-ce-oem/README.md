@@ -166,4 +166,7 @@ board:
 - RZ/V2H: rzv-ai-applications
 - RZ/V2N: rzv-ai-applications-v2n
 e.g. DRP_AI_TEST_SNAP=rzv-ai-applications
+This job also requires a 640x480, 24-bit RGB PNG photo containing a
+clearly visible dog to be placed at $SNAP_REAL_HOME/test.png before
+running, as the input image is not bundled with the provider.
 ```

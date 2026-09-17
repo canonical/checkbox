@@ -27,7 +27,7 @@ from collections import OrderedDict
 from collections.abc import Callable, Mapping
 from enum import IntEnum
 from time import sleep
-from typing import Any, NamedTuple
+from typing import Any, List, NamedTuple
 
 from gi.repository import (
     Gio,  # pyright: ignore[reportMissingModuleSource]
@@ -203,9 +203,8 @@ class MutterDisplayConfig(NamedTuple):
         return self.properties.get("global-scale-required", False)
 
 
-ResolutionFilter = Callable[
-    ["list[MutterDisplayMode]"], "list[MutterDisplayMode]"
-]
+# TODO: use lowercase 'list' when we move to 3.9
+ResolutionFilter = Callable[[List[MutterDisplayMode]], List[MutterDisplayMode]]
 
 
 class LogicalMonitorConfig(NamedTuple):

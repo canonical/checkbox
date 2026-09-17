@@ -50,6 +50,7 @@ class TestSupplicantServesTaDir(unittest.TestCase):
         )
 
 
+@patch.dict(os.environ, {"XTEST": "x-test"})
 @patch("optee_helper.stage_ta_for_supplicant")
 @patch("optee_helper.install_ta")
 @patch("optee_helper.find_ta_path", return_value="/var/snap/x/optee_armtz")

@@ -3,19 +3,20 @@
 This doc describes the execution flow of the `suspend-cycles-stress-test` test plan, specifically the `suspend_cycles_{n}_reboot{k}` and `suspend_cycles_reboot{k}`
 jobs.
 
-The remaining jobs in the test plan (`suspend-{n}-cycles-with-reboot-{k}-log-check`,
+The remaining jobs in the test plan (`suspend-{N}-cycles-with-reboot-{K}-log-check`,
 `-time-check`, and `-log-attach`) run once at the end, after all
-suspend and reboot jobs have completed.
+suspend and reboot jobs have completed. Note that these use the *totals*
+$N$ and $K$ defined below, not the per-job indices $n$ and $k$.
 
 ## Test case name definition
 
-Let $N$ be the total number of suspends per reboot and $K$ be the total number of reboots. Then the following test case will be generated for all $n=1,\dots,N$ and $k=1,\dots,K$
+Let $N$ be the total number of suspends per reboot and $K$ be the total number of reboots. Then the following test cases will be generated for all $n=1,\dots,N$ and $k=1,\dots,K$
 
 - **`suspend_cycles_{n}_reboot{k}`**
   - Indicates the execution of a suspend operation. $n$ is the suspend index of the $k$th reboot.
   - Let $S_{n,k}$ denote this job
 - **`suspend_cycles_reboot{k}`**
-  - Indicate the execution of a reboot operation, $k$ is the the reboot index.
+  - Indicates the execution of a reboot operation, $k$ is the reboot index.
   - Let $R_k$ denote this job
 
 The value of $N$ and $K$ can be controlled by `STRESS_S3_ITERATIONS` and `STRESS_SUSPEND_REBOOT_ITERATIONS` respectively.
@@ -25,9 +26,9 @@ The value of $N$ and $K$ can be controlled by `STRESS_S3_ITERATIONS` and `STRESS
 If we are doing 5 suspends per reboot for 3 reboots ($N = 5, K = 3$), it means we have these jobs:
 
 - `suspend_cycles_1_reboot1`: $S_{1,1}$
-- `suspend_cycles_1_reboot{{suspend_reboot_id}}`: $S_{k,1}$, where $k = 1,2,3$
-- `suspend_cycles_{{suspend_id}}_reboot{{suspend_reboot_id}}`: $S_{n, k}$, where $n = 2,3,4,5$ and $k=2,3$
-- suspend_cycles_reboot{{suspend_reboot_id}}: $R_k$, where $k=1,2,3$ 
+- `suspend_cycles_1_reboot{{suspend_reboot_id}}`: $S_{1,k}$, where $k = 2,3$
+- `suspend_cycles_{{suspend_id}}_reboot{{suspend_reboot_id}}`: $S_{n, k}$, where $n = 2,3,4,5$ and $k=1,2,3$
+- `suspend_cycles_reboot{{suspend_reboot_id}}`: $R_k$, where $k=1,2,3$
 
 The execution flow will look like the following:
 
@@ -54,7 +55,7 @@ Now we can consider jobs with a single variable $k$
   - They need to run after `suspend_cycles_reboot{{suspend_reboot_previous}}`
     - For example: $R_1$, $R_2$
 
-To generate $k = 2,\dots,K$, we use the resource job `stress_s3_cycles_iterations_1`. It gives us 2 values 
+To generate $k = 2,\dots,K$, we use the resource job `stress_s3_cycles_iterations_1`. It gives us 2 values
   - `suspend_reboot_id`: current reboot index, $k$
   - `suspend_reboot_previous`: previous reboot index, $k-1$
 
@@ -67,7 +68,7 @@ The reboot jobs $R_k$ uses `stress_suspend_reboot_cycles_iterations`.
 So far we have successfully generated the "initial" jobs for each reboot cycle $S_{1, 1\dots K}$ and the reboot jobs $R_{1\dots K}$. For each cycle $k$, we need to generate $S_{n, k}$ for $n=2,\dots,N$. To do this, we use another resource job `stress_s3_cycles_iterations_multiple`, which generates these values:
   - `suspend_id`: suspend index, $n$
   - `suspend_id_previous`: previous suspend index, $n-1$
-  - `suspend_reboot_id`: reboot index $k$ from before 
+  - `suspend_reboot_id`: reboot index $k$ from before
 
 Let's consider a concrete example. Using $N=5, K=3$ from before, we already have:
 
@@ -102,10 +103,9 @@ $$
 
 $$
 \begin{gather*}
-  \text{For all}\, k=1\dots K-1\\
-  R_k \text{ runs after } S_{N, k}\\
-  S_{1, k+1} \text{ runs after } R_k  
-\end{gather*} 
+  \text{For all}\, k=1\dots K,\ R_k \text{ runs after } S_{N, k}\\
+  \text{For all}\, k=1\dots K-1,\ S_{1, k+1} \text{ runs after } R_k
+\end{gather*}
 $$
 
 ## Summary

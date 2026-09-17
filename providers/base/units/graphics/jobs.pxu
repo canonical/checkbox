@@ -388,7 +388,7 @@ id: graphics/{index}_valid_opengl_renderer_{product_slug}
 template-id: graphics/index_valid_opengl_renderer_product_slug
 requires:
  executable.name == 'glxinfo'
- lsb.release >= "22.04"
+ os.release >= "22.04"
 command:
  # shellcheck disable=SC1091
  source graphics_env.sh {driver} {index} {path}
@@ -763,7 +763,7 @@ id: graphics/{index}_switch_card_{product_slug}_xenial
 template-id: graphics/index_switch_card_product_slug_xenial
 requires:
  graphics_card.driver in ['nouveau', 'nvidia', 'amdgpu-pro', 'pcieport']
- lsb.codename == 'xenial'
+ os.codename == 'xenial'
 _summary: Test GPU switching for {vendor} {product}
 _purpose:
      Manually switch to the {vendor} {product} card.
@@ -827,7 +827,7 @@ id: graphics/{index}_auto_switch_card_{product_slug}
 template-id: graphics/index_auto_switch_card_product_slug
 requires:
  graphics_card.driver in ['nvidia', 'amdgpu-pro', 'pcieport']
- graphics_card.driver != 'amdgpu-pro' and lsb.release < '22.04'
+ graphics_card.driver != 'amdgpu-pro' and os.release < '22.04'
 _summary: Switch GPU to {vendor} {product} and reboot
 _purpose:
  Switch GPU to {vendor} {product} and reboot the machine

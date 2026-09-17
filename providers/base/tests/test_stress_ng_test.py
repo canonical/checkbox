@@ -220,7 +220,7 @@ class TestMainFunction(unittest.TestCase):
     @patch("stress_ng_test.num_numa_nodes", return_value=1)
     @patch("sys.argv", ["stress_ng_test.py", "memory", "--list-stressors"])
     def test_main_stress_memory_list_stressors_no_root_no_stress_ng(
-        self, num_numa_nodes_mock, shutil_which_mock, os_geteuid_mock
+        self, shutil_which_mock, os_geteuid_mock, num_numa_nodes_mock
     ):
         # The memory_stress_ng_stressors resource job runs as a normal
         # user and stress-ng need not be installed for it to succeed, so

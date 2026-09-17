@@ -73,7 +73,7 @@ class MutterDisplayMode(NamedTuple):
     refresh_rate: float
     preferred_scale: float
     supported_scales: "list[float]"
-    properties: Mapping[str, Any]
+    properties: "Mapping[str, Any]"
 
     @property
     def is_current(self) -> bool:
@@ -99,7 +99,7 @@ class PhysicalMonitor(NamedTuple):
     modes: "list[MutterDisplayMode]"
     # See: https://gitlab.gnome.org/GNOME/mutter/-/blob/main/data/
     # dbus-interfaces/org.gnome.Mutter.DisplayConfig.xml#L414
-    properties: Mapping[str, Any]
+    properties: "Mapping[str, Any]"
 
     @classmethod
     def from_variant(cls, v: GLib.Variant):
@@ -158,7 +158,7 @@ class LogicalMonitor(NamedTuple):
     transform: Transform
     is_primary: bool
     monitors: "list[MonitorInfo]"
-    properties: Mapping[str, Any]
+    properties: "Mapping[str, Any]"
 
     @classmethod
     def from_variant(cls, v: GLib.Variant):
@@ -178,7 +178,7 @@ class MutterDisplayConfig(NamedTuple):
     logical_monitors: "list[LogicalMonitor]"
     # technically value type is GLib.Variant
     # but it acts like a readonly map in this case
-    properties: Mapping[str, Any]
+    properties: "Mapping[str, Any]"
 
     @classmethod
     def from_variant(cls, v: GLib.Variant):

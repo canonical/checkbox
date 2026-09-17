@@ -13,7 +13,7 @@ requires:
     manifest.is_rz_series == 'True'
 command:
     set -o pipefail
-    output_file="$(mktemp /var/tmp/renesas-rz-drp-ai.XXXXXX)"
+    output_file="$(mktemp /var/tmp/renesas-rz-drp-ai.log)"
     trap 'rm -f "$output_file"' EXIT
     if ! rzv-drp-ai-tvm-examples.tutorial-app 2>&1 | tee "$output_file"; then
         echo "Fail: tutorial-app exited with non-zero status"
@@ -50,6 +50,7 @@ command:
             echo "Fail: missing $dev"
             exit 1
         fi
+        echo "Found: $dev"
     done
     echo "Success: all DRP-AI device nodes present"
 
@@ -82,6 +83,7 @@ command:
             echo "Fail: missing $dev"
             exit 1
         fi
+        echo "Found: $dev"
     done
     if [ -e /dev/drp1 ]; then
         echo "Info: optional /dev/drp1 (V2H-only DRP core) present"

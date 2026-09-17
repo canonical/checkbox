@@ -104,7 +104,7 @@ class TestGetAveragePSNR(unittest.TestCase):
         mock_capt_refrnc.read.return_value = (True, "frameReference")
         mock_capt_undTst.read.return_value = (True, "frameUnderTest")
 
-        mock_psnr.return_value = 30
+        mock_psnr.side_effect = [20, 30, 40, 50, 60]
 
         # Code under test
         avg_psnr, psnr_array = get_average_psnr(
@@ -112,12 +112,13 @@ class TestGetAveragePSNR(unittest.TestCase):
         )
 
         # Assertions
-        expected_psnr_array = np.array([30] * total_frame_count)
+        expected_psnr_array = np.array([20, 30, 40, 50, 60])
         expected_avg_psnr = np.mean(expected_psnr_array)
 
         self.assertEqual(len(psnr_array), total_frame_count)
         self.assertTrue(np.array_equal(psnr_array, expected_psnr_array))
         self.assertEqual(avg_psnr, expected_avg_psnr)
+        self.assertNotEqual(avg_psnr, expected_psnr_array[-1])
 
         # Ensure mocks were called correctly
         mock_VideoCapture.assert_any_call(reference_file_path)

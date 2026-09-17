@@ -123,7 +123,7 @@ siblings:
         --log-level=debug \
         --log-dir=$PLAINBOX_SESSION_SHARE \
         --suspends-before-reboot=30 -r 3 --silent --check-hardware-list
-    description:
+    purpose:
       This is an automated stress test that will run a sequence of '30 suspend/resume cycles and one
       poweroff' 3 times.
     summary: 30 suspend/resume cycles and 1 poweroff, 3 times (automated stress test)
@@ -202,7 +202,7 @@ siblings:
     depends:
       - power-management/suspend_30_cycles_with_coldboots
     command: "[ -e $PLAINBOX_SESSION_SHARE/pm_test.poweroff.3.log ] && cat $PLAINBOX_SESSION_SHARE/pm_test.poweroff.3.log"
-    description: Attaches the log from the '30 cycle Suspend/Resume and one poweroff times 3' test if it exists
+    purpose: Attaches the log from the '30 cycle Suspend/Resume and one poweroff times 3' test if it exists
     summary: 30 suspend/resume cycles and 1 poweroff, 3 times (attach logs)
 ---
 plugin: shell

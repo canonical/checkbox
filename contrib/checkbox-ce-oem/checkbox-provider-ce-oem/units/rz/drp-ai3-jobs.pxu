@@ -5,17 +5,18 @@ user: root
 _summary: Check if DRP-AI3 is working via the object-counter Q08 sample
 _purpose:
     Check if DRP-AI3 is working by running the rzv-ai-applications
-    object-counter (Q08) sample against a bundled real photo of a dog,
-    using the upstream TEST input source (reads
-    $SNAP_REAL_HOME/test.png via a gstreamer filesrc pipeline instead
-    of a live USB/MIPI camera).
+    object-counter (Q08) sample using the upstream TEST input source
+    (reads $SNAP_REAL_HOME/test.png via a gstreamer filesrc pipeline
+    instead of a live USB/MIPI camera).
+    This job requires a 640x480, 24-bit RGB PNG photo containing a
+    clearly visible dog to be placed at $SNAP_REAL_HOME/test.png
+    before running, so the sample has a known-good subject to detect.
 imports:
     from com.canonical.plainbox import manifest
 requires:
     manifest.has_rz_drp_ai3 == 'True'
     manifest.is_rz_series == 'True'
 environ:
-    PLAINBOX_PROVIDER_DATA
     DRP_AI_TEST_SNAP
 command:
     set -o pipefail
@@ -25,12 +26,14 @@ command:
              "rzv-ai-applications or rzv-ai-applications-v2n."
         exit 1
     fi
-    if ! cp "$PLAINBOX_PROVIDER_DATA/rz-ai-accelerator/test.png" "$SNAP_REAL_HOME/test.png"; then
-        echo "Fail: unable to copy test image to $SNAP_REAL_HOME"
+    if [ ! -f "$SNAP_REAL_HOME/test.png" ]; then
+        echo "Fail: $SNAP_REAL_HOME/test.png not found! Place a" \
+             "640x480, 24-bit RGB PNG photo containing a clearly" \
+             "visible dog at that path before running this job."
         exit 1
     fi
     output_file="$(mktemp /var/tmp/renesas-rz-drp-ai3-XXXXXX.log)"
-    trap 'rm -f "$output_file" "$SNAP_REAL_HOME/test.png"' EXIT
+    trap 'rm -f "$output_file"' EXIT
     env -u GST_PLUGIN_PATH -u GST_PLUGIN_SYSTEM_PATH -u GST_PLUGIN_SCANNER \
         python3 -c 'import os, pty, sys; snap = os.environ["DRP_AI_TEST_SNAP"]; argv = ["timeout", "-s", "INT", "30", snap + ".object-counter", "animal", "TEST"]; status = pty.spawn(argv); sys.exit(os.WEXITSTATUS(status) if os.WIFEXITED(status) else 1)' \
         > "$output_file" 2>&1

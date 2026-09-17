@@ -24,10 +24,10 @@ Original script that inspired this class:
 
 import itertools
 from collections import OrderedDict
-from collections.abc import Callable, Mapping
+from collections.abc import Mapping
 from enum import IntEnum
 from time import sleep
-from typing import Any, List, NamedTuple
+from typing import Any, List, NamedTuple, Callable
 
 from gi.repository import (
     Gio,  # pyright: ignore[reportMissingModuleSource]

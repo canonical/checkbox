@@ -25,8 +25,11 @@ command:
              "rzv-ai-applications or rzv-ai-applications-v2n."
         exit 1
     fi
-    cp "$PLAINBOX_PROVIDER_DATA/rz-ai-accelerator/test.png" "$SNAP_REAL_HOME/test.png"
-    output_file="$(mktemp /var/tmp/renesas-rz-drp-ai3.log)"
+    if ! cp "$PLAINBOX_PROVIDER_DATA/rz-ai-accelerator/test.png" "$SNAP_REAL_HOME/test.png"; then
+        echo "Fail: unable to copy test image to $SNAP_REAL_HOME"
+        exit 1
+    fi
+    output_file="$(mktemp /var/tmp/renesas-rz-drp-ai3-XXXXXX.log)"
     trap 'rm -f "$output_file" "$SNAP_REAL_HOME/test.png"' EXIT
     env -u GST_PLUGIN_PATH -u GST_PLUGIN_SYSTEM_PATH -u GST_PLUGIN_SCANNER \
         python3 -c 'import os, pty, sys; snap = os.environ["DRP_AI_TEST_SNAP"]; argv = ["timeout", "-s", "INT", "30", snap + ".object-counter", "animal", "TEST"]; status = pty.spawn(argv); sys.exit(os.WEXITSTATUS(status) if os.WIFEXITED(status) else 1)' \

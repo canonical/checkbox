@@ -27,13 +27,7 @@ from collections import OrderedDict
 from collections.abc import Callable, Mapping
 from enum import IntEnum
 from time import sleep
-from typing import (
-    Any,
-    Dict,
-    List,
-    NamedTuple,
-    Tuple,
-)
+from typing import Any, NamedTuple
 
 from gi.repository import (
     Gio,  # pyright: ignore[reportMissingModuleSource]
@@ -209,29 +203,28 @@ class MutterDisplayConfig(NamedTuple):
         return self.properties.get("global-scale-required", False)
 
 
-ResolutionFilter = Callable[[List[MutterDisplayMode]], List[MutterDisplayMode]]
-# this only appears in apply_monitors_config
-# it's very similar to LogicalMonitor but the last list element is different
-LogicalMonitorConfig = Tuple[
-    int,  # x offset
-    int,  # y offset
-    float,  # scale, 1.0 for 100%
-    Transform,  # transformation
-    bool,  # is primary
-    List[
-        Tuple[
-            str,  # connector name, same as <MutterDisplayMode>.connector
-            str,  # monitor mode id, same as <PhysicalMonitor>.id
-            Dict[
-                # only 2 possible keys:
-                # underscanning: bool
-                # color-mode: uint32
-                str,
-                "bool | int",
-            ],
-        ]
-    ],
+ResolutionFilter = Callable[
+    ["list[MutterDisplayMode]"], "list[MutterDisplayMode]"
 ]
+
+
+class LogicalMonitorConfig(NamedTuple):
+    # we want to mirror (iiduba(ssa{sv})) used in _apply_monitor_config
+    # it's very similar to LogicalMonitor
+    # but the "configurations" prop is different
+
+    x_offset: int
+    y_offset: int
+    scale: float
+    transform: Transform
+    is_primary: bool
+    # each list element is a 3-tuple of:
+    # connector name from <MutterDisplayMode>.connector
+    # monitor mode id from <PhysicalMonitor>.id
+    # dict of 2 possible keys:
+    #   underscanning: bool
+    #   color-mode: uint32
+    configurations: "list[tuple[str, str, dict[str, bool | int]]]"
 
 
 class MonitorConfigGnome(MonitorConfig):
@@ -299,7 +292,7 @@ class MonitorConfigGnome(MonitorConfig):
         """
         state = self.get_current_state()
 
-        extended_logical_monitors: "list[LogicalMonitorConfig]" = []  # type: 
+        extended_logical_monitors: "list[LogicalMonitorConfig]" = []
         # key is connector name, value is resolution string
         configuration: "OrderedDict[str, str]" = OrderedDict()
 
@@ -323,7 +316,7 @@ class MonitorConfigGnome(MonitorConfig):
                 raise TypeError("Unexpected mode:", target_mode)
 
             extended_logical_monitors.append(
-                (
+                LogicalMonitorConfig(
                     position_x,  # x
                     0,  # y
                     1.0,  # scale
@@ -334,7 +327,7 @@ class MonitorConfigGnome(MonitorConfig):
                     [(physical_monitor.info.connector, target_mode.id, {})],
                 )
             )
-            position_x += int(target_mode.width)
+            position_x += target_mode.width
             configuration[physical_monitor.info.connector] = (
                 target_mode.resolution
             )
@@ -415,7 +408,7 @@ class MonitorConfigGnome(MonitorConfig):
                         f"{connector}_{mode.resolution}_{transformation_str}"
                     )
                     logical_monitors.append(
-                        (
+                        LogicalMonitorConfig(
                             position_x,  # x
                             0,  # y
                             1.0,  # scale

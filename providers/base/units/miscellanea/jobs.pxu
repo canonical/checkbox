@@ -199,7 +199,7 @@ _purpose:
  than pre-release, versions of the kernel and the OS.
 command: check_prerelease.py
 requires:
-  "Ubuntu Core" not in lsb.description
+  "Ubuntu Core" not in os.description
 
 plugin: shell
 category_id: com.canonical.plainbox::miscellanea
@@ -565,7 +565,7 @@ _summary: Check if the file core.efi exists to make sure shim and grub can be up
 plugin: shell
 estimated_duration: 0.2
 requires:
-  "Ubuntu Core" not in lsb.description
+  "Ubuntu Core" not in os.description
   cpuinfo.platform in ("x86_64", "aarch64", "armhf")
   bootloader.name == "grub"
 command: grub_file_check.sh

@@ -23,12 +23,12 @@ _summary: The booted kernel image matches the image in the current kernel snap
 _description:
 _purpose:
   On some Ubuntu Core devices, it is necessary for the kernel image to be
-  extracted from the kernel snap and placed in the boot partition (notably 
+  extracted from the kernel snap and placed in the boot partition (notably
   devices using full disk encryption). This checks the images are in sync.
 plugin: shell
 user: root
 estimated_duration: 2.0
-command: 
+command:
   booted_kernel_tests.py {booted_kernel_path}
 imports:
   from com.canonical.certification import ubuntu_core_features
@@ -41,7 +41,7 @@ template-filter: bootloader.name == 'uboot'
 id: kernel-snap/booted-dtbs-match-current-{name}
 template-id: kernel-snap/booted-dtbs-match-current-name
 requires:
-  lsb.description == 'Ubuntu Core 18'
+  os.description == 'Ubuntu Core 18'
   snap.name == 'snapd' and int(snap.revision) >= 11841
 category_id: kernel-snap
 _summary: The dtbs in the bootloader match those in the current kernel snap

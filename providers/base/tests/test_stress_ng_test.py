@@ -17,10 +17,17 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import unittest
+from contextlib import redirect_stdout
+import io
 from subprocess import CalledProcessError, TimeoutExpired
 from unittest.mock import MagicMock, mock_open, patch
 
-from stress_ng_test import main, num_numa_nodes, swap_space_ok
+from stress_ng_test import (
+    main,
+    memory_stressors,
+    num_numa_nodes,
+    swap_space_ok,
+)
 
 
 class TestMemoryFunctions(unittest.TestCase):
@@ -64,6 +71,19 @@ class TestMemoryFunctions(unittest.TestCase):
         self, psutil_swap_memory_mock, open_mock, os_chmod_mock, run_mock
     ):
         self.assertFalse(swap_space_ok(1))
+
+    @patch("stress_ng_test.num_numa_nodes", return_value=1)
+    def test_memory_stressors_single_numa_node(self, num_numa_nodes_mock):
+        crt, vrt, ltc = memory_stressors()
+        self.assertNotIn("numa", crt)
+        self.assertIn("matrix", crt)
+        self.assertIn("vm", vrt)
+        self.assertIn("stack", ltc)
+
+    @patch("stress_ng_test.num_numa_nodes", return_value=2)
+    def test_memory_stressors_multiple_numa_nodes(self, num_numa_nodes_mock):
+        crt, vrt, ltc = memory_stressors()
+        self.assertIn("numa", crt)
 
 
 @patch("os.geteuid", return_value=0)
@@ -176,6 +196,195 @@ class TestMainFunction(unittest.TestCase):
     @patch("sys.argv", ["stress_ng_test.py", "memory"])
     def test_main_stress_memory_not_enough_swap(
         self, shutil_which_mock, os_geteuid_mock, swap_space_ok_mock
+    ):
+        self.assertEqual(main(), 1)
+
+    @patch("stress_ng_test.num_numa_nodes", return_value=1)
+    @patch("sys.argv", ["stress_ng_test.py", "memory", "--list-stressors"])
+    def test_main_stress_memory_list_stressors(
+        self, shutil_which_mock, os_geteuid_mock, num_numa_nodes_mock
+    ):
+        buf = io.StringIO()
+        with redirect_stdout(buf):
+            self.assertEqual(main(), 0)
+        output = buf.getvalue()
+        # Resource-job output must be pure RFC822 records (blank-line
+        # separated "key: value" pairs); the human-readable epilogue
+        # printed for other sub-commands would break resource parsing.
+        self.assertNotIn("retval is", output)
+        self.assertIn("stressor: matrix\n", output)
+        records = [block for block in output.split("\n\n") if block.strip()]
+        for block in records:
+            self.assertTrue(block.startswith("stressor: "))
+
+    @patch("stress_ng_test.num_numa_nodes", return_value=1)
+    @patch("sys.argv", ["stress_ng_test.py", "memory", "--list-stressors"])
+    def test_main_stress_memory_list_stressors_no_root_no_stress_ng(
+        self, shutil_which_mock, os_geteuid_mock, num_numa_nodes_mock
+    ):
+        # The memory_stress_ng_stressors resource job runs as a normal
+        # user and stress-ng need not be installed for it to succeed, so
+        # --list-stressors must bypass both the root and stress-ng
+        # availability checks.
+        shutil_which_mock.return_value = None
+        os_geteuid_mock.return_value = 1000
+        self.assertEqual(main(), 0)
+
+    @patch("os.remove")
+    @patch("stress_ng_test.check_output")
+    @patch("stress_ng_test.num_numa_nodes", return_value=1)
+    @patch("stress_ng_test.swap_space_ok", return_value=True)
+    @patch(
+        "sys.argv",
+        ["stress_ng_test.py", "memory", "--stressor", "matrix"],
+    )
+    def test_main_stress_memory_single_stressor(
+        self,
+        shutil_which_mock,
+        os_geteuid_mock,
+        swap_space_ok_mock,
+        num_numa_nodes_mock,
+        check_output_mock,
+        remove_mock,
+    ):
+        self.assertEqual(main(), 0)
+
+    @patch("os.remove")
+    @patch("stress_ng_test.check_output")
+    @patch("stress_ng_test.num_numa_nodes", return_value=1)
+    @patch("stress_ng_test.swap_space_ok", return_value=True)
+    @patch(
+        "sys.argv",
+        ["stress_ng_test.py", "memory", "--stressor", "vm"],
+    )
+    def test_main_stress_memory_single_stressor_vrt(
+        self,
+        shutil_which_mock,
+        os_geteuid_mock,
+        swap_space_ok_mock,
+        num_numa_nodes_mock,
+        check_output_mock,
+        remove_mock,
+    ):
+        # "vm" is a variable-run-time stressor; exercise that branch of
+        # the per-stressor timeout selection.
+        self.assertEqual(main(), 0)
+
+    @patch("os.remove")
+    @patch("stress_ng_test.check_output")
+    @patch("stress_ng_test.num_numa_nodes", return_value=1)
+    @patch("stress_ng_test.swap_space_ok", return_value=True)
+    @patch(
+        "sys.argv",
+        ["stress_ng_test.py", "memory", "--stressor", "stack"],
+    )
+    def test_main_stress_memory_single_stressor_ltc(
+        self,
+        shutil_which_mock,
+        os_geteuid_mock,
+        swap_space_ok_mock,
+        num_numa_nodes_mock,
+        check_output_mock,
+        remove_mock,
+    ):
+        # "stack" is a low-thread-count stressor; exercise that branch of
+        # the per-stressor timeout selection.
+        self.assertEqual(main(), 0)
+
+    @patch("os.remove")
+    @patch("stress_ng_test.Popen")
+    @patch(
+        "stress_ng_test.my_swap",
+        return_value="/swap-df8a2b5f-d624-4e06-81bd-ec5e31aa213f",
+    )
+    @patch("stress_ng_test.check_output")
+    @patch("stress_ng_test.num_numa_nodes", return_value=1)
+    @patch("stress_ng_test.swap_space_ok", return_value=True)
+    @patch(
+        "sys.argv",
+        ["stress_ng_test.py", "memory", "--stressor", "matrix"],
+    )
+    def test_main_stress_memory_single_stressor_delete_swap(
+        self,
+        shutil_which_mock,
+        os_geteuid_mock,
+        swap_space_ok_mock,
+        num_numa_nodes_mock,
+        check_output_mock,
+        my_swap_mock,
+        popen_mock,
+        os_remove_mock,
+    ):
+        # When a temporary swap file was created, the single-stressor
+        # path must clean it up the same way the full-suite path does.
+        self.assertEqual(main(), 0)
+
+    @patch("os.remove")
+    @patch("stress_ng_test.check_output")
+    @patch("stress_ng_test.num_numa_nodes", return_value=1)
+    @patch("stress_ng_test.swap_space_ok", return_value=True)
+    @patch(
+        "sys.argv",
+        [
+            "stress_ng_test.py",
+            "memory",
+            "--stressor",
+            "matrix",
+            "--oom-avoid-bytes",
+            "20%",
+        ],
+    )
+    def test_main_stress_memory_explicit_oom_avoid_bytes(
+        self,
+        shutil_which_mock,
+        os_geteuid_mock,
+        swap_space_ok_mock,
+        num_numa_nodes_mock,
+        check_output_mock,
+        remove_mock,
+    ):
+        # An explicit --oom-avoid-bytes value must override the
+        # size-based 5%/10% default.
+        self.assertEqual(main(), 0)
+
+    @patch("os.remove")
+    @patch("stress_ng_test.check_output")
+    @patch("stress_ng_test.num_numa_nodes", return_value=1)
+    @patch("stress_ng_test.swap_space_ok", return_value=True)
+    @patch(
+        "psutil.virtual_memory",
+        return_value=MagicMock(total=300 * (1024**3)),
+    )
+    @patch(
+        "sys.argv",
+        ["stress_ng_test.py", "memory", "--stressor", "matrix"],
+    )
+    def test_main_stress_memory_large_ram_oom_avoid_bytes(
+        self,
+        shutil_which_mock,
+        os_geteuid_mock,
+        virtual_memory_mock,
+        swap_space_ok_mock,
+        num_numa_nodes_mock,
+        check_output_mock,
+        remove_mock,
+    ):
+        # Systems with more than 255 GiB of RAM default to a 5% OOM
+        # avoidance margin instead of the usual 10%.
+        self.assertEqual(main(), 0)
+
+    @patch("stress_ng_test.num_numa_nodes", return_value=1)
+    @patch("stress_ng_test.swap_space_ok", return_value=True)
+    @patch(
+        "sys.argv",
+        ["stress_ng_test.py", "memory", "--stressor", "bogus-stressor"],
+    )
+    def test_main_stress_memory_unknown_stressor(
+        self,
+        shutil_which_mock,
+        os_geteuid_mock,
+        swap_space_ok_mock,
+        num_numa_nodes_mock,
     ):
         self.assertEqual(main(), 1)
 

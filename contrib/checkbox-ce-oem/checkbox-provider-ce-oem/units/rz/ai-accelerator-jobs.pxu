@@ -30,15 +30,11 @@ id: rz-ai-accelerator/driver-nodes-drp-ai
 category_id: rz-ai-accelerator
 plugin: shell
 user: root
-_summary: Check DRP-AI (V2L) device nodes are present
+_summary: Check DRP-AI device nodes are present
 _purpose:
-    Check that the DRP-AI (single-core, V2L) kernel device nodes are
-    present, as a fast driver-level smoke test ahead of the
-    application-level inference test. Confirmed on real V2L hardware
-    (CID 202507-36926): V2L does NOT have /dev/drp1 (that node only
-    exists on the dual-core DRP-AI3 used by V2H/V2N), so this is a
-    separate job from driver-nodes-drp-ai3 rather than a single
-    OR-gated job across both generations.
+    Check that the DRP-AI kernel device nodes are present,
+    as a fast driver-level smoke test ahead of the
+    application-level inference test.
 imports:
     from com.canonical.plainbox import manifest
 requires:
@@ -58,20 +54,11 @@ id: rz-ai-accelerator/driver-nodes-drp-ai3
 category_id: rz-ai-accelerator
 plugin: shell
 user: root
-_summary: Check DRP-AI3 (V2H/V2N) device nodes are present
+_summary: Check DRP-AI3 device nodes are present
 _purpose:
     Check that the DRP-AI3 kernel device nodes are present, as a fast
     driver-level smoke test ahead of the application-level
-    object-counter test. Confirmed on real hardware: V2H (CID
-    202503-36406) exposes all five nodes below. V2N (CID 202602-38383)
-    only exposes /dev/drpai0, /dev/udmabuf, /dev/rgnmm, /dev/rgnmmbuf
-    -- it lacks /dev/drp1. This is an expected hardware difference,
-    not a bug: per Renesas' official product pages
-    (renesas.com/en/products/rz-v2h and rz-v2n), RZ/V2H integrates an
-    extra standalone "Dynamically reconfigurable processor (DRP)" IP
-    block alongside DRP-AI3, which RZ/V2N does not have. /dev/drp1 is
-    therefore checked only if present, and its absence does not fail
-    this job.
+    object-counter test.
 imports:
     from com.canonical.plainbox import manifest
 requires:
@@ -86,8 +73,8 @@ command:
         echo "Found: $dev"
     done
     if [ -e /dev/drp1 ]; then
-        echo "Info: optional /dev/drp1 (V2H-only DRP core) present"
+        echo "Info: optional /dev/drp1 present"
     else
-        echo "Info: optional /dev/drp1 (V2H-only DRP core) not present on this device"
+        echo "Info: optional /dev/drp1 not present on this device"
     fi
     echo "Success: all required DRP-AI3 device nodes present"

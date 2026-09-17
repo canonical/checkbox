@@ -585,7 +585,7 @@ class MonitorConfigGnomeTests(unittest.TestCase):
         p1 = "eDP-1_1920x1200_normal"
         p2 = "HDMI-1_2560x1440_normal"
 
-        self.assertEqual(argument_string, f"{p1}:{p2}")
+        self.assertEqual(argument_string, f"{p1}_{p2}")
 
 
 class PhysicalMonitorTests(unittest.TestCase):

@@ -448,7 +448,7 @@ class MonitorConfigGnome(MonitorConfig):
                 if post_cycle_action is not None:
                     post_cycle_action(
                         # this string contains ALL configs we walked through
-                        ":".join(monitor_state_strings),
+                        "_".join(monitor_state_strings),
                         **post_cycle_action_kwargs,
                     )
 

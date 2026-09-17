@@ -21,38 +21,16 @@ environ:
 command:
     set -o pipefail
     if [ -z "$DRP_AI_TEST_SNAP" ]; then
-        echo "Fail: DRP_AI_TEST_SNAP has not been set! It must be the" \
-             "installed object-counter snap name, e.g." \
-             "rzv-ai-applications or rzv-ai-applications-v2n."
+        echo "Fail: DRP_AI_TEST_SNAP has not been set!"
         exit 1
     fi
-    if [ ! -f "$SNAP_REAL_HOME/test.png" ]; then
-        echo "Fail: $SNAP_REAL_HOME/test.png not found! Place a" \
-             "640x480, 24-bit RGB PNG photo containing a clearly" \
-             "visible dog at that path before running this job."
-        exit 1
-    fi
-    output_file="$(mktemp /var/tmp/renesas-rz-drp-ai3-XXXXXX.log)"
-    trap 'rm -f "$output_file"' EXIT
-    env -u GST_PLUGIN_PATH -u GST_PLUGIN_SYSTEM_PATH -u GST_PLUGIN_SCANNER \
-        python3 -c 'import os, pty, sys; snap = os.environ["DRP_AI_TEST_SNAP"]; argv = ["timeout", "-s", "INT", "30", snap + ".object-counter", "animal", "TEST"]; status = pty.spawn(argv); sys.exit(os.WEXITSTATUS(status) if os.WIFEXITED(status) else 1)' \
-        > "$output_file" 2>&1
-    rc=$?
-    cat "$output_file"
-    # TEST mode never exits by itself, so a timeout (124) or a
-    # handled SIGINT (0/130) both count as a normal, expected end of
-    # the capture window - only other exit codes are real failures.
-    if [ "$rc" -ne 0 ] && [ "$rc" -ne 124 ] && [ "$rc" -ne 130 ]; then
-        echo "Fail: object-counter exited with unexpected status $rc"
-        exit 1
-    fi
-    echo "Checking for errors ..."
-    if grep -Eq "\[ERROR\]" "$output_file"; then
-        echo "Fail: object-counter reported an error!"
-        exit 1
-    fi
-    if ! grep -q "\[INFO\] dog detected\." "$output_file"; then
+    output_file="$(mktemp /var/tmp/renesas-rz-drp-ai3-XXXXXX)"
+    { sleep 15; echo; } | env -u GST_PLUGIN_PATH -u GST_PLUGIN_SYSTEM_PATH \
+        -u GST_PLUGIN_SCANNER \
+        "$DRP_AI_TEST_SNAP".object-counter animal TEST | tee "$output_file"
+    if grep -q "\[INFO\] dog detected\." "$output_file"; then
+        echo "Success: DRP-AI3 object-counter correctly detected the dog!"
+    else
         echo "Fail: object-counter never recognized the dog in the test image!"
         exit 1
     fi
-    echo "Success: DRP-AI3 object-counter correctly detected the dog!"

@@ -17,6 +17,8 @@ def stream_process_output(
     Streams subprocess stderr and stdout live to the current stdout and stderr
     so the subprocess doesn't look frozen
 
+    Caller is responsible for ensuring process.wait() hasn't been called
+
     :param process: an sp.Popen with stdout=PIPE, stderr=PIPE
     :param stdout_lines: how many trailing stdout lines to keep and
         return, or None to keep everything
@@ -45,6 +47,8 @@ def stream_process_output(
     os.set_blocking(stdout_fd, False)
     os.set_blocking(stderr_fd, False)
 
+    # register read events
+    # so we can respond when something appears in the fd
     sel = selectors.DefaultSelector()
     sel.register(stdout_fd, selectors.EVENT_READ)
     sel.register(stderr_fd, selectors.EVENT_READ)

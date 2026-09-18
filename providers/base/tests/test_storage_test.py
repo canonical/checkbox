@@ -9,8 +9,10 @@ from storage_test import (
     disk_test,
     find_largest_partition,
     main,
+    mount,
     mountpoint,
     run_bonnie,
+    unmount,
 )
 
 
@@ -121,11 +123,25 @@ class TestDevmapperName(unittest.TestCase):
     @patch("storage_test.Path.read_text", return_value="mapper_name\n")
     @patch("storage_test.Path.is_dir", return_value=True)
     def test_devmapper_name_found(self, mock_is_dir, mock_read_text):
-        self.assertEqual(devmapper_name("dm-0"), "mapper_name\n")
+        self.assertEqual(devmapper_name("dm-0"), "mapper_name")
 
     @patch("storage_test.Path.is_dir", return_value=False)
     def test_devmapper_name_not_found(self, mock_is_dir):
         self.assertIsNone(devmapper_name("sda"))
+
+
+class TestMountUnmount(unittest.TestCase):
+    @patch("storage_test.sp.check_call")
+    def test_mount(self, mock_check_call):
+        mount(Path("/dev/sda1"), Path("/mnt/point"))
+        mock_check_call.assert_called_once_with(
+            ["mount", Path("/dev/sda1"), Path("/mnt/point")]
+        )
+
+    @patch("storage_test.sp.check_call")
+    def test_unmount(self, mock_check_call):
+        unmount(Path("/mnt/point"))
+        mock_check_call.assert_called_once_with(["umount", Path("/mnt/point")])
 
 
 class TestRunBonnie(unittest.TestCase):

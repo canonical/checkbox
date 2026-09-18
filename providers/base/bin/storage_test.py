@@ -94,8 +94,8 @@ def mount(source: Path, target: Path):
 
 
 def unmount(target: Path):
-    print(f"+ unmount {target}", flush=True)
-    sp.check_call(["unmount", target])
+    print(f"+ umount {target}", flush=True)
+    sp.check_call(["umount", target])
 
 
 def memory() -> float:
@@ -110,7 +110,7 @@ def free_space(test_dir: Path) -> float:
 def devmapper_name(udev_name: str) -> "str | None":
     sys_block_device = Path("/sys/block") / udev_name
     if (sys_block_device / "dm").is_dir():
-        return (sys_block_device / "dm" / "name").read_text()
+        return (sys_block_device / "dm" / "name").read_text().strip()
 
 
 def run_bonnie(test_dir: Path, user: str = "root"):

@@ -18,6 +18,7 @@ requires:
     manifest.is_rz_series == 'True'
 environ:
     DRP_AI_TEST_SNAP
+flags: also-after-suspend
 command:
     set -o pipefail
     if [ -z "$DRP_AI_TEST_SNAP" ]; then

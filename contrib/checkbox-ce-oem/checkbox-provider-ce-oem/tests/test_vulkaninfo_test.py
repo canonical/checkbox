@@ -124,6 +124,54 @@ class TestVulkaninfoTest(unittest.TestCase):
             [],
         )
 
+    def test_iter_gpu_blocks_splits_by_device(self):
+        blocks = vulkaninfo_test._iter_gpu_blocks(
+            SUMMARY_OUTPUT_HW_AND_SW_DEVICES
+        )
+
+        self.assertEqual([number for number, _ in blocks], ["0", "1"])
+        self.assertIn(
+            "\tdeviceName         = Intel(R) Graphics (LNL)",
+            blocks[0][1],
+        )
+
+    def test_iter_gpu_blocks_returns_empty_without_devices(self):
+        self.assertEqual(
+            vulkaninfo_test._iter_gpu_blocks("no devices here\n"),
+            [],
+        )
+
+    def test_build_record_extracts_known_fields(self):
+        record = vulkaninfo_test._build_record(
+            "0",
+            [
+                "\tdeviceType         = PHYSICAL_DEVICE_TYPE_INTEGRATED_GPU",
+                "\tdeviceName         = Mali-G720-Immortalis",
+                "not a field line",
+            ],
+        )
+
+        self.assertEqual(
+            record,
+            {
+                "device_number": "0",
+                "device_name": "Mali-G720-Immortalis",
+                "device_type": "PHYSICAL_DEVICE_TYPE_INTEGRATED_GPU",
+            },
+        )
+
+    def test_build_record_defaults_missing_fields_to_empty_string(self):
+        record = vulkaninfo_test._build_record("0", [])
+
+        self.assertEqual(
+            record,
+            {
+                "device_number": "0",
+                "device_name": "",
+                "device_type": "",
+            },
+        )
+
     def test_extract_device_block_returns_matching_block_only(self):
         block = vulkaninfo_test.extract_device_block(
             SUMMARY_OUTPUT_HW_AND_SW_DEVICES, "1"

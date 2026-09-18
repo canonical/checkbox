@@ -81,6 +81,49 @@ def _resolve_vulkaninfo_command(enable_logger: bool = False) -> str:
     return resolved_commands.get(EXECUTABLE_CMD, "")
 
 
+def _iter_gpu_blocks(output: str) -> "list[tuple[str, list[str]]]":
+    """Split 'vulkaninfo --summary' output into per-device blocks of raw
+    'key = value' lines, keyed by the device number found in 'GPUn:'.
+    """
+    blocks: "list[tuple[str, list[str]]]" = []
+    device_number = None
+    field_lines: "list[str]" = []
+
+    for line in output.splitlines():
+        stripped_line = line.strip()
+        if stripped_line.startswith("GPU") and stripped_line.endswith(":"):
+            candidate = stripped_line[len("GPU") : -1].strip()
+            if candidate.isdigit():
+                if device_number is not None:
+                    blocks.append((device_number, field_lines))
+                device_number, field_lines = candidate, []
+                continue
+
+        if device_number is not None:
+            field_lines.append(line)
+
+    if device_number is not None:
+        blocks.append((device_number, field_lines))
+
+    return blocks
+
+
+def _build_record(
+    device_number: str, field_lines: "list[str]"
+) -> VulkaninfoRecord:
+    fields = {}
+    for line in field_lines:
+        if not line.startswith("\t") or "=" not in line:
+            continue
+        key, _, value = line.strip().partition("=")
+        fields[key.strip()] = value.strip()
+    return {
+        "device_number": device_number,
+        "device_name": fields.get("deviceName", ""),
+        "device_type": fields.get("deviceType", ""),
+    }
+
+
 def parse_vulkaninfo_summary(output: str) -> "list[VulkaninfoRecord]":
     """Parse 'vulkaninfo --summary' output into a list of device records.
 
@@ -90,41 +133,10 @@ def parse_vulkaninfo_summary(output: str) -> "list[VulkaninfoRecord]":
     string operations are used instead of regexes to keep the parser
     simple and easy to follow.
     """
-    records: "list[VulkaninfoRecord]" = []
-    current_number = None
-    current_fields = {}
-
-    def flush():
-        if current_number is not None:
-            records.append(
-                {
-                    "device_number": current_number,
-                    "device_name": current_fields.get("deviceName", ""),
-                    "device_type": current_fields.get("deviceType", ""),
-                }
-            )
-
-    for line in output.splitlines():
-        stripped_line = line.strip()
-        if stripped_line.startswith("GPU") and stripped_line.endswith(":"):
-            device_number = stripped_line[len("GPU") : -1].strip()
-            if device_number.isdigit():
-                flush()
-                current_number = device_number
-                current_fields = {}
-                continue
-
-        if current_number is None:
-            continue
-
-        if not line.startswith("\t") or "=" not in line:
-            continue
-
-        key, _, value = line.strip().partition("=")
-        current_fields[key.strip()] = value.strip()
-
-    flush()
-    return records
+    return [
+        _build_record(device_number, field_lines)
+        for device_number, field_lines in _iter_gpu_blocks(output)
+    ]
 
 
 def extract_device_block(output: str, device_number: str) -> str:

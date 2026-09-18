@@ -151,7 +151,7 @@ class TestRunBonnie(unittest.TestCase):
     def test_run_bonnie(self, mock_check_call, mock_free_space, mock_memory):
         run_bonnie(Path("/test_dir"))
         mock_check_call.assert_called_once_with(
-            "bonnie++ -d /test_dir -u root -r 8000", shell=True
+            ["bonnie++", "-d", "/test_dir", "-u", "root", "-r", "8000"]
         )
 
     @patch("storage_test.memory", return_value=8000)
@@ -162,7 +162,7 @@ class TestRunBonnie(unittest.TestCase):
     ):
         run_bonnie(Path("/test_dir"))
         mock_check_call.assert_called_once_with(
-            "bonnie++ -d /test_dir -u root -r 250.0", shell=True
+            ["bonnie++", "-d", "/test_dir", "-u", "root", "-r", "250.0"]
         )
 
 

@@ -138,6 +138,7 @@ parts:
     stage:
        - bin/gen_launcher.py
        - bin/checkbox_ce_oem_scan.py
+       - launcher_template.ini
   config-variables:
     plugin: dump
     source: config/

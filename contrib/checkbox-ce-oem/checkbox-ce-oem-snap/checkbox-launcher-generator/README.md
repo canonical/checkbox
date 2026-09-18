@@ -29,7 +29,8 @@ environment values interactively, and writes a ready-to-use launcher file.
 
 ```
 python3 gen_launcher.py [--providers-dir DIR] [--output-dir DIR]
-                        [--input LAUNCHER] [--rebuild-cache]
+                        [--input LAUNCHER] [--template INI]
+                        [--rebuild-cache]
 ```
 
 | Flag | Default | Description |
@@ -38,6 +39,7 @@ python3 gen_launcher.py [--providers-dir DIR] [--output-dir DIR]
 | `--plan-prefix PREFIX` | `ce-oem-iot` | Top-level test plan id prefix to match, e.g. plans named `<prefix>-<platform>-<version>` |
 | `--output-dir DIR` | `.` (current directory) | Directory where the generated launcher file is written |
 | `--input LAUNCHER` | _(none)_ | Existing launcher file whose `[manifest]` and `[environment]` values are pre-loaded as defaults |
+| `--template INI` | bundled `launcher_template.ini`, or `$CHECKBOX_LAUNCHER_TEMPLATE` | Launcher template ini merged ini-style on top of the generated launcher — see [Launcher template](#launcher-template) below |
 | `--rebuild-cache` | off | Force a full rescan of all `.pxu` files, ignoring any cached data |
 
 The script is also executable directly:
@@ -45,6 +47,7 @@ The script is also executable directly:
 ```
 ./gen_launcher.py
 ./gen_launcher.py --input path/to/existing-launcher
+./gen_launcher.py --template path/to/launcher_template.ini
 ```
 
 ## Workflow
@@ -98,17 +101,22 @@ The script is also executable directly:
      right panes and navigate the job list; the description area updates
      immediately regardless of which key was used to switch.
 
-3. **Save** — press `s` to write the launcher files and exit, `b`/`Esc` to
+3. **Save** — press `s` to write the launcher file and exit, `b`/`Esc` to
    go back to the plan picker, or `q` to quit without saving.
 
-   When the selected top-level plan has a `nested_part`, pressing `s`
-   writes **one launcher per nested plan** (e.g.
-   `ce-oem-iot-ubuntucore-26-crypto-launcher`,
-   `ce-oem-iot-ubuntucore-26-gpio-launcher`, …).  Each launcher's
-   `[test plan] unit` is set to the corresponding nested plan ID.  The
-   manifest and environment values filled in the editor are shared across
-   all generated launchers.  The number of launchers to be written is
-   shown in the editor title bar.
+   When the selected top-level plan's direct `nested_part` includes a
+   manual/automated/stress trio (ids ending in `-manual`, `-automated`,
+   `-stress` — other nested plans, e.g. an `-rt` variant, are ignored),
+   pressing `s` writes a **single** launcher whose `[test plan]` section
+   lists the top-level plan plus all three via `filter` and defaults
+   `unit` to the **top-level plan itself** (running it exercises the
+   whole trio).  See [Manual / automated / stress
+   selection](#manual--automated--stress-selection) below.  Otherwise a
+   single plain launcher is written for the selected plan with just
+   `unit`.  Neither case writes a `forced` line — see [Launcher
+   template](#launcher-template) below for how to add one.  Either way
+   the manifest and environment values filled in the editor are written
+   to that one file.
 
 ### Key bindings
 
@@ -191,14 +199,131 @@ Manifest entries whose bare id starts with `_` (e.g. `_internal_flag`)
 are internal/derived and are excluded from the editor and the written
 launcher file — there is nothing for the user to fill in for them.
 
+## Manual / automated / stress selection
+
+Some top-level plans (e.g. `ce-oem-iot-ubuntucore-26`) nest three
+sub-plans covering manual tests, automated tests, and stress tests
+(ids ending in `-manual`, `-automated`, `-stress`).  Instead of writing
+one launcher per sub-plan, `gen_launcher.py` writes a **single**
+launcher for these, using the checkbox launcher's built-in `[test plan]
+filter` / `unit` / `forced` mechanism (see `checkbox-ng`'s
+`plainbox/impl/config.py`):
+
+```ini
+[test plan]
+unit = com.canonical.contrib::ce-oem-iot-ubuntucore-26
+filter = com.canonical.contrib::ce-oem-iot-ubuntucore-26
+         com.canonical.contrib::ce-oem-iot-ubuntucore-26-manual
+         com.canonical.contrib::ce-oem-iot-ubuntucore-26-automated
+         com.canonical.contrib::ce-oem-iot-ubuntucore-26-stress
+
+[ui]
+type = interactive
+```
+
+- `filter` constrains the interactive test-plan picker to the top-level
+  plan plus those three sub-plans — any other nested plan (e.g. an
+  `-rt` variant) is left out.
+- `unit` defaults the picker's initial selection to the **top-level
+  plan itself** (running it exercises the whole manual/automated/stress
+  trio, so it is the recommended default for unattended/CI runs).
+- No `forced` key is written here — checkbox-ng's own default for this
+  key is already `False` (see `VarSpec` for `"test plan"` in
+  `plainbox/impl/config.py`), i.e. the user is prompted to pick a plan
+  at run time. Note this still requires `[ui] type = interactive`
+  (checkbox only shows the test-plan picker in an interactive session
+  — see `is_interactive` in `checkbox_ng/launcher/subcommands.py`).
+  `gen_launcher.py` does **not** set this itself — it is entirely the
+  [launcher template](#launcher-template)'s job, since the bundled
+  default already ships `type = interactive` (see below). A fleet that
+  instead wants `forced = yes` for this case can add it to the
+  template's own `[test plan]` section — it merges in like any other
+  key (see [Launcher template](#launcher-template)).
+- If none of the three sub-plans are found (or the plan has no
+  `nested_part` at all), a single plain launcher is written instead,
+  with just `unit` (no `filter`, no `forced`).
+
+This logic lives in `select_manual_auto_stress()` in
+`checkbox_ce_oem_scan.py`.
+
+## Launcher template
+
+The generated launcher is, at the end of the day, just an ini file — so
+customizing anything beyond what `gen_launcher.py` fills in from the
+selected plan and the editor's manifest/environment values works the
+same way any ini file merge would: point it at a second, editable **ini
+template file**, and matching sections/keys get merged in on save,
+**ini-style**:
+
+- a template key in a section `gen_launcher.py` also generates (e.g.
+  `[test plan] forced`, or even overriding `[test plan] unit`/`[manifest]
+  ns::has_gpio`) **overrides** the generated value;
+- any other template key is simply **added** to that section (existing
+  generated keys are kept);
+- a template section `gen_launcher.py` doesn't generate at all (e.g.
+  `[ui]`, `[restart]`, `[report:certification]`, `[transport:c3]` — see
+  `checkbox-ng`'s `plainbox/impl/config.py` for the full list of valid
+  launcher sections/keys) is added as a new section, as-is.
+
+No section name is off-limits to a template — `[launcher]`, `[test
+plan]`, `[manifest]`, and `[environment]` can all be extended/overridden
+this way too. Nothing here has a built-in fallback of its own: a
+section/key not in the template and not generated from the plan/editor
+is simply never written (e.g. no template at all means no `[ui]`
+section).
+
+The bundled default, `launcher_template.ini` (next to `gen_launcher.py`),
+ships with just:
+
+```ini
+[ui]
+type = interactive
+```
+
+This single `type = interactive` line is what makes the
+manual/automated/stress picker prompt (see [Manual / automated / stress
+selection](#manual--automated--stress-selection) above) actually show
+up — `gen_launcher.py` itself has no opinion on `[ui]` at all, so
+getting this right is entirely the template's responsibility. Set it to
+`silent` in your own template for unattended/CI runs instead (note this
+disables the manual/automated/stress picker, since it needs an
+interactive session). Likewise, a fleet that wants every launcher forced
+to a single test plan even when a manual/automated/stress trio is found
+can add `forced = yes` to the template's own `[test plan]` section.
+
+### Customizing the template
+
+Since the script's own install location is **read-only once packaged
+into a snap**, editing the bundled `launcher_template.ini` in place
+isn't an option there. Instead, point at your own copy:
+
+```
+./gen_launcher.py --template /path/to/my-launcher_template.ini
+```
+
+or, equivalently, via an environment variable (useful when you can't
+easily change how the script is invoked):
+
+```
+export CHECKBOX_LAUNCHER_TEMPLATE=/path/to/my-launcher_template.ini
+./gen_launcher.py
+```
+
+`--template` takes precedence over `$CHECKBOX_LAUNCHER_TEMPLATE`, which
+takes precedence over the bundled default. A missing/unreadable/invalid
+template file only means "nothing extra to merge" — it never aborts
+launcher generation (a `--template` path that doesn't exist is still a
+hard error, to catch typos).
+
+This logic lives in `load_launcher_template()` (parsing) and
+`write_launcher()` (merging) in `gen_launcher.py`.
+
 ## Output format
 
 The generated file name is `<plan-id>-launcher` with no extension
-(e.g. `ce-oem-iot-ubuntucore-26-launcher`) and starts with a shebang so it
-can be executed directly on a system with checkbox installed:
+(e.g. `ce-oem-iot-ubuntucore-26-launcher`):
 
 ```ini
-#!/usr/bin/env checkbox-cli-wrapper
 [launcher]
 app_id = com.canonical.contrib:checkbox
 launcher_version = 1
@@ -206,10 +331,6 @@ stock_reports = text, submission_files, certification
 
 [test plan]
 unit = com.canonical.contrib::ce-oem-iot-ubuntucore-26
-forced = yes
-
-[ui]
-type = silent
 
 [manifest]
 com.canonical.contrib::has_gpio = True
@@ -219,7 +340,18 @@ com.canonical.certification::has_edac_module = false
 [environment]
 RS485_CONFIG = /dev/ttyS0
 OTG =
+
+[ui]
+type = interactive
 ```
+
+Any extra sections/keys supplied by the [launcher template](#launcher-template)
+(e.g. `[restart]`, `[report:certification]`) are appended after the last
+section generated from the plan/editor (`[manifest]`/`[environment]`, or
+`[test plan]` if neither has any entries). The file no longer starts with a shebang line, so it is
+not directly executable (`./<plan-id>-launcher` will not work); run it by
+passing it as an argument instead, e.g.
+`checkbox-cli-wrapper <plan-id>-launcher`.
 
 ### Manifest defaults
 
@@ -295,18 +427,19 @@ expansion without any file I/O.
 python3 -m unittest test_checkbox_ce_oem_scan test_gen_launcher -v
 ```
 
-101 unit tests total, split across two files:
+123 unit tests total, split across two files:
 
 - `test_checkbox_ce_oem_scan.py` — the data layer (PXU parsing, cache
   schema, plan expansion, glob matching, manifest/environ extraction,
   reserved-environ-var filtering, default repo-root discovery, hidden
   manifest filtering, multi-root scanning, top-level plan discovery,
-  cache version invalidation, `dump_inventory_json`, and the standalone
-  CLI's `main()`).
-- `test_gen_launcher.py` — the TUI layer (launcher file format,
-  existing-launcher import, `ItemRow` edit-mode state transitions, job
-  purpose/description formatting, and right-pane focus-switching, `Tab`
-  and arrow keys, including auto-focusing the first job row).
+  manual/automated/stress selection, cache version invalidation,
+  `dump_inventory_json`, and the standalone CLI's `main()`).
+- `test_gen_launcher.py` — the TUI layer (launcher file format, launcher
+  template loading/merging, existing-launcher import, `ItemRow` edit-mode
+  state transitions, job purpose/description formatting, and right-pane
+  focus-switching, `Tab` and arrow keys, including auto-focusing the
+  first job row).
 
 ## checkbox_ce_oem_scan.py — JSON inventory export
 

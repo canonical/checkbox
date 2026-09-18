@@ -52,6 +52,13 @@ class Transform(IntEnum):
     FLIPPED_270 = 7
 
 
+class LayoutMode(IntEnum):
+    # See https://gitlab.gnome.org/GNOME/mutter/-/blob/main/data/
+    # dbus-interfaces/org.gnome.Mutter.DisplayConfig.xml#L441
+    LOGICAL = 1
+    PHYSICAL = 2
+
+
 # A plain 4-tuple with some basic info about the monitor
 class MonitorInfo(NamedTuple):
     """
@@ -216,11 +223,14 @@ class MutterDisplayConfig(NamedTuple):
         return self.properties.get("supports-mirroring", False)
 
     @property
-    def layout_mode(self) -> "int | None":
+    def layout_mode(self) -> "LayoutMode | None":
         # only 2 possible layouts
         # layout-mode = 2 => physical, 1 => logical
         # If the key doesn't exist, then layout mode can't be changed
-        return self.properties.get("layout-mode", None)
+        raw = self.properties.get("layout-mode", None)
+        if raw is None:
+            return None
+        return LayoutMode(raw)
 
     @property
     def supports_changing_layout_mode(self) -> bool:

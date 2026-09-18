@@ -126,5 +126,6 @@ _summary: Collect the BIOS setting information
 _purpose: Attach information about the BIOS, as reported by the fwupdmgr
 requires:
     executable.name in ("fwupdmgr", "fwupd.fwupdmgr")
+    os.release >= '22.04'
 command:
     get_firmware_info_fwupd.py -c get-bios-setting

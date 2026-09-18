@@ -96,7 +96,7 @@ def get_firmware_info_fwupd() -> None:
         )
         print(output.decode("utf-8"))
     except subprocess.CalledProcessError as e:
-        raise SystemExit("fwupdmgr get-devices failed with {}".format(repr(e)))
+        raise SystemExit(f"fwupdmgr get-devices failed with {repr(e)}")
 
 
 def get_bios_setting_fwupd() -> None:
@@ -110,9 +110,7 @@ def get_bios_setting_fwupd() -> None:
         )
         print(output.decode("utf-8"))
     except subprocess.CalledProcessError as e:
-        raise SystemExit(
-            "fwupdmgr get-bios-setting failed with {}".format(repr(e))
-        )
+        raise SystemExit(f"fwupdmgr get-bios-setting failed with {repr(e)}")
 
 
 def parse_args(args=sys.argv[1:]) -> argparse.Namespace:
@@ -169,7 +167,7 @@ if __name__ == "__main__":
         elif args.command == "get-bios-setting":
             get_bios_setting_fwupd()
         else:
-            msg = "Command [{}] is not supported".format(args.command)
+            msg = f"Command [{args.command}] is not supported"
             logging.error(msg)
             raise SystemExit(msg)
     except Exception as err:

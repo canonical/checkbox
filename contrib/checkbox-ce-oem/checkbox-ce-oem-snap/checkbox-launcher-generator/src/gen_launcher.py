@@ -182,7 +182,7 @@ def load_launcher_template(
     if not path.is_file():
         return sections
 
-    parser = configparser.ConfigParser()
+    parser = configparser.ConfigParser(interpolation=None)
     # preserve key case — launcher keys are case-sensitive (e.g. RS485_CONFIG)
     parser.optionxform = str
     try:

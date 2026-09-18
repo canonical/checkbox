@@ -1,0 +1,4 @@
+unit: manifest entry
+id: has_alsa_ucm
+_name: Has ALSA UCM devices to validate?
+value-type: bool

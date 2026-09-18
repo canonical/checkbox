@@ -120,6 +120,42 @@ class PhysicalMonitor(_PhysicalMonitorT):
     def is_builtin(self) -> bool:
         return self.properties.get("is-builtin", False)
 
+    def get_max_resolution(self) -> "tuple[int, int]":
+        """Get the maximum physcial resolution of this monitor
+
+        :raises ValueError: if there's no supported modes
+        :raises RuntimeError: if all modes are 0
+        :return: (width, height) pair like (1920, 1080)
+        """
+
+        if len(self.modes) == 0:
+            raise ValueError(
+                f"Monitor {self.info.connector} supports 0 modes!"
+            )
+        # mirror gnome settings sorting logic
+        # https://github.com/GNOME/gnome-control-center/blob/d4ac269200c1d3cbd886507acdd4fe54ac19cb31/panels/display/cc-display-settings.c#L313-L328
+
+        # sort by width, then tie-break by height
+        max_w, max_h = 0, 0
+        for mode in self.modes:
+            if (mode.width > max_w) or (
+                mode.width == max_w and mode.height > max_h
+            ):
+                max_w, max_h = mode.width, mode.height
+                continue
+
+        if (max_w, max_h) == (0, 0):
+            raise RuntimeError("Unexpected mode with width=0, height=0!")
+
+        return max_w, max_h
+
+    def get_current_mode(self) -> "MutterDisplayMode | None":
+        # it' possible to return none
+        # if somehow all monitors are turned off
+        for mode in self.modes:
+            if mode.is_current:
+                return mode
+
 
 class _LogicalMonitorT(NamedTuple):
     x: int

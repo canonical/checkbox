@@ -160,7 +160,8 @@ def main(argv=None) -> int:
         )
     except sp.CalledProcessError as error:
         raise SystemExit(
-            "Time synchronization failed: %s" % (error.output.strip() if error.output else error)
+            "Time synchronization failed: %s"
+            % (error.output.strip() if error.output else error)
         )
     except (OSError, RuntimeError, sp.SubprocessError) as error:
         raise SystemExit("Time synchronization failed: %s" % error)

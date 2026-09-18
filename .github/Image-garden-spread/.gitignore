@@ -1,0 +1,17 @@
+*.snap
+*.assert
+/artifacts/
+/.image-garden/*
+!/.image-garden/README.md
+/.spread-reuse*.yaml
+*.lock
+*.img
+*.iso
+*.meta-data
+*.user-data
+*.qcow2
+*.qcow2.log
+*.run
+*.serial.log
+*.stderr.log
+*.stdout.log

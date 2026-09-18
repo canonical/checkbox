@@ -4,87 +4,120 @@
 #
 # Written by:
 #   Jonathan Cave <jonathan.cave@canonical.com>
+#   Zhongning Li <zhongning.li@canonical.com>
 #
 # Perform bonnie++ disk test
 
-from collections import namedtuple
-from contextlib import ExitStack
+import json
 import os
 import subprocess as sp
-import sys
 import tempfile
+from argparse import ArgumentParser
+from contextlib import ExitStack
+from pathlib import Path
+from typing import NamedTuple
 
 import psutil
 
 
-def mountpoint(device):
+class BlockDevice(NamedTuple):
+    # warning: these types are not enforced without explicit checks at runtime
+    name: str  # nvme0n1p3, dm_crypt-0
+    size: int
+    type: str  # lvm, part, crypt
+    fstype: str  # ext4, vfat, crypto_LUKS
+
+
+def mountpoint(device: Path) -> "Path | None":
     for part in psutil.disk_partitions():
-        if part.device == device:
-            return part.mountpoint
+        if Path(part.device).resolve() == device.resolve():
+            return Path(part.mountpoint)
     return None
 
 
-def find_largest_partition(device):
-    BlkDev = namedtuple("BlkDev", ["name", "size", "type", "fstype"])
-    cmd = f"lsblk -b -l -n -o NAME,SIZE,TYPE,FSTYPE {device}"
-    out = sp.check_output(cmd, shell=True)
-    blk_devs = []
-    for entry in out.decode(sys.stdout.encoding).splitlines():
-        params = entry.strip().split()
-        if len(params) == 3:
-            # filesystem info missing, so it's unknown - skip
-            continue
-        blk_devs.append(BlkDev(*params))
-    blk_devs[:] = [
-        bd
-        for bd in blk_devs
-        if (bd.type in ("part", "md") and bd.fstype != "crypto_LUKS")
-    ]
-    if not blk_devs:
+def find_largest_partition(device: Path) -> Path:
+    out = json.loads(
+        sp.check_output(
+            [
+                "lsblk",
+                # available on 18.04+
+                "--json",
+                # makes SIZE always an integer
+                "--bytes",
+                # flatten the output,
+                # so we don't need to walk the tree
+                "--list",
+                # filter these columns
+                # return null when value unavailable
+                "--output",
+                "NAME,SIZE,TYPE,FSTYPE",
+                device,
+            ],
+            universal_newlines=True,
+        )
+    )
+    if type(out) is not dict:
+        raise TypeError(
+            "Unexpected return type from lsblk, "
+            + f"expected dict, got {type(out)}"
+        )
+    # the return value should be a dict with "blockdevices" as the only key
+    # index into it and we get a list of block devices
+    block_devices: "list[BlockDevice]" = []
+    for raw_json in out["blockdevices"]:
+        block_device = BlockDevice(
+            name=raw_json["name"],
+            size=int(raw_json["size"]),
+            type=raw_json["type"],
+            fstype=raw_json["fstype"],
+        )
+        # skip the "raw" disks, LUKS partitions, and partitions with no
+        # filesystem (fstype is None means it's not formatted)
+        if block_device.type in ("part", "md") and block_device.fstype not in (
+            None,
+            "crypto_LUKS",
+        ):
+            block_devices.append(block_device)
+
+    if not block_devices:
         raise SystemExit(
             f"ERROR: No suitable partitions found on device {device}"
         )
-    blk_devs.sort(key=lambda bd: int(bd.size))
-    return blk_devs[-1].name
+    block_devices.sort(key=lambda bd: bd.size)
+    # it should be always under /dev
+    return Path("/dev") / block_devices[-1].name
 
 
-def mount(source, target):
-    cmd = f"mount {source} {target}"
-    print("+", cmd, flush=True)
-    sp.check_call(cmd, shell=True)
+def mount(source: Path, target: Path):
+    print(f"+ mount {source} {target}", flush=True)
+    sp.check_call(["mount", source, target])
 
 
-def unmount(target):
-    cmd = f"umount {target}"
-    print("+", cmd, flush=True)
-    sp.check_call(cmd, shell=True)
+def unmount(target: Path):
+    print(f"+ umount {target}", flush=True)
+    sp.check_call(["umount", target])
 
 
-def memory():
+def memory() -> float:
     return psutil.virtual_memory().total / (1024 * 1024)
 
 
-def free_space(test_dir):
-    du = psutil.disk_usage(test_dir)
+def free_space(test_dir: Path) -> float:
+    du = psutil.disk_usage(str(test_dir))
     return du.free / (1024 * 1024)
 
 
-def devmapper_name(udev_name):
-    dm_name = None
-    sys_d = f"/sys/block/{udev_name}"
-    if os.path.isdir(os.path.join(sys_d, "dm")):
-        with open(f"/sys/block/{udev_name}/dm/name") as f:
-            dm_name = f.read().strip()
-    return dm_name
+def devmapper_name(udev_name: str) -> "str | None":
+    sys_block_device = Path("/sys/block") / udev_name
+    if (sys_block_device / "dm").is_dir():
+        return (sys_block_device / "dm" / "name").read_text().strip()
 
 
-def run_bonnie(test_dir, user="root"):
+def run_bonnie(test_dir: Path, user: str = "root"):
     # Set a maximum size on the amount of RAM, this has the effect of keeping
     # the amount of data written during tests lower than default. This keeps
     # duration of tests at something reasonable
-    force_mem_mb = 8000
-    if memory() < force_mem_mb:
-        force_mem_mb = memory()
+    force_mem_mb = min(8000, memory())
     # When running on disks with small drives (SSD/flash) we need to do
     # some tweaking. Bonnie uses 2x RAM by default to write data. If that's
     # more than available disk space, the test will fail inappropriately.
@@ -93,28 +126,28 @@ def run_bonnie(test_dir, user="root"):
     if (force_mem_mb * 2) > free:
         force_mem_mb = free / 4
     print(f"Forcing memory setting to {force_mem_mb}MB")
-    cmd = f"bonnie++ -d {test_dir} -u {user} -r {force_mem_mb}"
-    print("+", cmd, flush=True)
-    sp.check_call(cmd, shell=True)
+    cmd = ["bonnie++", "-d", test_dir, "-u", user, "-r", str(force_mem_mb)]
+    print("+", " ".join(map(str, cmd)), flush=True)
+    sp.check_call(cmd)
 
 
-def devmapper_test(udev_name):
-    print("identified as a devmapper device...")
-    device = f"/dev/{udev_name}"
+def devmapper_test(udev_name: str):
+    print(f"Identified {udev_name} as a devmapper device...")
+    device = Path("/dev") / udev_name
     mount_dir = mountpoint(device)
     if mount_dir:
         print(f"{device} already mounted at {mount_dir}")
     else:
         dm_name = devmapper_name(udev_name)
         if dm_name:
-            dm_device = os.path.join("/dev/mapper", dm_name)
+            dm_device = Path("/dev/mapper") / dm_name
             if os.path.exists(dm_device):
                 mount_dir = mountpoint(dm_device)
                 if mount_dir:
                     print(f"{dm_device} already mounted at {mount_dir}")
     with ExitStack() as stack:
         if mount_dir is None:
-            mount_dir = tempfile.mkdtemp()
+            mount_dir = Path(tempfile.mkdtemp())
             stack.callback(os.rmdir, mount_dir)
             mount(device, mount_dir)
             print(f"Performed mount of {device} at {mount_dir}")
@@ -122,17 +155,19 @@ def devmapper_test(udev_name):
         run_bonnie(mount_dir)
 
 
-def disk_test(udev_name):
-    print("identified as a disk...")
-    device = f"/dev/{udev_name}"
-    part_to_test = f"/dev/{find_largest_partition(device)}"
-    print(f"test will be run on partition {part_to_test}")
+def disk_test(udev_name: str):
+    print(f"Identified {udev_name} as a disk...")
+    device = Path("/dev") / udev_name
+    part_to_test = find_largest_partition(device)
+    print(f"Test will be run on partition {part_to_test}")
+
     mount_dir = mountpoint(part_to_test)
     if mount_dir:
         print(f"{part_to_test} already mounted at {mount_dir}")
+
     with ExitStack() as stack:
         if mount_dir is None:
-            mount_dir = tempfile.mkdtemp()
+            mount_dir = Path(tempfile.mkdtemp())
             stack.callback(os.rmdir, mount_dir)
             mount(part_to_test, mount_dir)
             print(f"Performed mount {part_to_test} at {mount_dir}")
@@ -140,8 +175,18 @@ def disk_test(udev_name):
         run_bonnie(mount_dir)
 
 
+def parse_args() -> str:
+    p = ArgumentParser()
+    p.add_argument("udev_disk_name", type=str)
+    return p.parse_args().udev_disk_name
+
+
 def main():
-    udev_name = sys.argv[1]
+    udev_name = parse_args()
+
+    if os.getuid() != 0:
+        raise SystemExit("You must run this program as root")
+
     print(f"Testing device {udev_name}")
 
     # Handle devmapper, and regular disks separately, and ignore mtdblock.

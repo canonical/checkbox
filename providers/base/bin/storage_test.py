@@ -180,7 +180,7 @@ def disk_test(udev_name: str):
 
 def parse_args() -> str:
     p = ArgumentParser()
-    p.add_argument("udev-disk-name", required=True, type=str)
+    p.add_argument("udev-disk-name", type=str)
     return p.parse_args().udev_disk_name
 
 

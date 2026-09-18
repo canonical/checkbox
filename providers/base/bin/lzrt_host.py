@@ -25,19 +25,20 @@ import subprocess
 import sys
 
 from checkbox_support.helpers.host_utils import (
-    check_host_level_zero_gpu,
     get_arch_triple,
+    has_intel_gpu,
     host_ze_loader_path,
 )
 
 
 def cmd_resource():
-    arch_triple = get_arch_triple()
-    if check_host_level_zero_gpu(arch_triple):
+    if has_intel_gpu():
         print("gpu_available: True")
         return 0
 
-    logging.error("No Level Zero GPU device found using host drivers")
+    logging.error(
+        "No Intel GPU found; Level Zero raytracing requires Intel RT hardware"
+    )
     return 1
 
 

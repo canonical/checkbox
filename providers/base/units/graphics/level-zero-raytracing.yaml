@@ -123,7 +123,7 @@ plugin: shell
 id: graphics/lzrt_classic_gpu_avail
 category_id: com.canonical.plainbox::graphics
 user: root
-summary: Checks for Level Zero GPU using host drivers
+summary: Checks for an Intel GPU required by level-zero-raytracing-tests
 environ:
   - XDG_SESSION_TYPE
   - XDG_RUNTIME_DIR
@@ -144,7 +144,6 @@ id: graphics/lzrt_classic_embree_rthwif_cornell_box
 depends:
   - graphics/lzrt_classic_gpu_avail
   - graphics/lzrt_classic_lz_avail
-setup_include:
   - setup/install_level_zero_raytracing
 category_id: com.canonical.plainbox::graphics
 flags:

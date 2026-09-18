@@ -19,7 +19,7 @@
 
 import subprocess
 import unittest
-from unittest.mock import patch
+from unittest.mock import mock_open, patch
 
 import checkbox_support.helpers.host_utils as host_utils
 
@@ -335,6 +335,40 @@ class TestCheckHostLevelZeroGpu(unittest.TestCase):
         mock_isfile.assert_called_once_with(
             "/usr/lib/x86_64-linux-gnu/libze_loader.so.1"
         )
+
+
+class TestHasIntelGpu(unittest.TestCase):
+    @patch("os.listdir", side_effect=OSError("permission denied"))
+    def test_returns_false_when_drm_unreadable(self, _listdir):
+        self.assertFalse(host_utils.has_intel_gpu())
+
+    @patch("os.listdir", return_value=[])
+    def test_returns_false_when_no_cards(self, _listdir):
+        self.assertFalse(host_utils.has_intel_gpu())
+
+    @patch("os.listdir", return_value=["card0", "card0-HDMI-1"])
+    @patch("builtins.open", mock_open(read_data="0x8086\n"))
+    def test_returns_true_for_intel_vendor(self, _listdir):
+        self.assertTrue(host_utils.has_intel_gpu())
+
+    @patch("os.listdir", return_value=["card0"])
+    @patch("builtins.open", mock_open(read_data="0X8086\n"))
+    def test_vendor_match_is_case_insensitive(self, _listdir):
+        self.assertTrue(host_utils.has_intel_gpu())
+
+    @patch("os.listdir", return_value=["card0"])
+    @patch("builtins.open", mock_open(read_data="0x10de\n"))
+    def test_returns_false_for_non_intel_vendor(self, _listdir):
+        self.assertFalse(host_utils.has_intel_gpu())
+
+    @patch("os.listdir", return_value=["renderD128", "version"])
+    def test_ignores_non_card_entries(self, _listdir):
+        self.assertFalse(host_utils.has_intel_gpu())
+
+    @patch("os.listdir", return_value=["card0"])
+    @patch("builtins.open", side_effect=OSError("no such file"))
+    def test_skips_unreadable_card(self, _open, _listdir):
+        self.assertFalse(host_utils.has_intel_gpu())
 
 
 if __name__ == "__main__":

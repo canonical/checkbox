@@ -339,6 +339,9 @@ class MonitorConfigGnome(MonitorConfig):
         cycle_resolutions: bool = True,
         cycle_transforms: bool = False,
         resolution_filter: "ResolutionFilter | None" = None,
+        # when we move to 3.12, annotate this as:
+        # def cycle[**P, R](post_cycle_action: Callable[P, R], kwarg: P.kwargs)
+        # to allow the 2 variables to have linked types
         post_cycle_action: Callable[..., Any] = lambda *a, **k: sleep(5),
         **post_cycle_action_kwargs: Any,
     ):

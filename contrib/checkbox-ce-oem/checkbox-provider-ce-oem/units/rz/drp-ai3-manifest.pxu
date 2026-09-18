@@ -1,5 +1,0 @@
-unit: manifest entry
-id: has_rz_drp_ai3
-_name: Does platform support Renesas RZ DRP-AI3?
-_prompt: RZ specific?
-value-type: bool

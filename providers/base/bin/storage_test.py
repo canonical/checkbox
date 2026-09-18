@@ -185,10 +185,11 @@ def parse_args() -> str:
 
 
 def main():
+    udev_name = parse_args()
+
     if os.getuid() != 0:
         raise SystemExit("You must run this program as root")
 
-    udev_name = parse_args()
     print(f"Testing device {udev_name}")
 
     # Handle devmapper, and regular disks separately, and ignore mtdblock.

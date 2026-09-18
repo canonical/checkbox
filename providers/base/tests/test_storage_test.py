@@ -98,6 +98,28 @@ class TestFindLargestPartition(unittest.TestCase):
         )
 
     @patch("storage_test.sp.check_output")
+    def test_find_largest_partition_skips_unformatted(self, mock_check_output):
+        mock_check_output.return_value = self._lsblk_json(
+            [
+                {
+                    "name": "sda1",
+                    "size": 9999,
+                    "type": "part",
+                    "fstype": None,
+                },
+                {
+                    "name": "sda2",
+                    "size": 1000,
+                    "type": "part",
+                    "fstype": "ext4",
+                },
+            ]
+        )
+        self.assertEqual(
+            find_largest_partition(Path("/dev/sda")), Path("/dev/sda2")
+        )
+
+    @patch("storage_test.sp.check_output")
     def test_find_largest_partition_no_candidates(self, mock_check_output):
         mock_check_output.return_value = self._lsblk_json(
             [

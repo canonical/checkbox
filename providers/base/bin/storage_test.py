@@ -25,7 +25,7 @@ class BlockDevice(NamedTuple):
     name: str  # nvme0n1p3, dm_crypt-0
     size: int
     type: str  # lvm, part, crypt
-    fstype: "str  | None"  # ext4, vfat, crypto_LUKS
+    fstype: str  # ext4, vfat, crypto_LUKS
 
 
 def mountpoint(device: Path) -> "Path | None":
@@ -71,10 +71,11 @@ def find_largest_partition(device: Path) -> Path:
             type=raw_json["type"],
             fstype=raw_json["fstype"],
         )
-        # skip the "raw" disks and LUKS partition
-        if (
-            block_device.type in ("part", "md")
-            and block_device.fstype != "crypto_LUKS"
+        # skip the "raw" disks, LUKS partitions, and partitions with no
+        # filesystem (fstype is None means it's not formatted)
+        if block_device.type in ("part", "md") and block_device.fstype not in (
+            None,
+            "crypto_LUKS",
         ):
             block_devices.append(block_device)
 

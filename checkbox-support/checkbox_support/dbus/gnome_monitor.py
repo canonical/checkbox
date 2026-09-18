@@ -54,6 +54,12 @@ class Transform(IntEnum):
 
 # A plain 4-tuple with some basic info about the monitor
 class MonitorInfo(NamedTuple):
+    """
+    See the "@monitors represent connected physical monitors" section at:
+    https://gitlab.gnome.org/GNOME/mutter/-/blob/main/data/dbus-interfaces/
+        org.gnome.Mutter.DisplayConfig.xml#L355
+    """
+
     connector: str  # HDMI-1, eDP-1, ...
     vendor: str  # vendor string like BOE, Asus, etc.
     product: str
@@ -61,6 +67,12 @@ class MonitorInfo(NamedTuple):
 
 
 class MutterDisplayMode(NamedTuple):
+    """
+    See the "modes" struct doc at:
+    https://gitlab.gnome.org/GNOME/mutter/-/blob/main/data/dbus-interfaces/
+        org.gnome.Mutter.DisplayConfig.xml#L361
+    """
+
     id: str
     width: int
     height: int
@@ -89,6 +101,12 @@ class MutterDisplayMode(NamedTuple):
 
 
 class PhysicalMonitor(NamedTuple):
+    """
+    See the "@monitors" doc for GetCurrentState at:
+    https://gitlab.gnome.org/GNOME/mutter/-/blob/main/data/dbus-interfaces/
+        org.gnome.Mutter.DisplayConfig.xml#L355
+    """
+
     info: MonitorInfo
     modes: "list[MutterDisplayMode]"
     # See: https://gitlab.gnome.org/GNOME/mutter/-/blob/main/data/
@@ -146,6 +164,12 @@ class PhysicalMonitor(NamedTuple):
 
 
 class LogicalMonitor(NamedTuple):
+    """
+    See the "@logical_monitors" doc for GetCurrentState at:
+    https://gitlab.gnome.org/GNOME/mutter/-/blob/main/data/dbus-interfaces/
+        org.gnome.Mutter.DisplayConfig.xml#L416
+    """
+
     x: int
     y: int
     scale: float
@@ -165,6 +189,10 @@ class LogicalMonitor(NamedTuple):
 class MutterDisplayConfig(NamedTuple):
     """The top level object that represents
     the return value of the GetCurrentState dbus call
+
+    See the "GetCurrentState" method doc at:
+    https://gitlab.gnome.org/GNOME/mutter/-/blob/main/data/dbus-interfaces/
+        org.gnome.Mutter.DisplayConfig.xml#L349
     """
 
     serial: int
@@ -208,6 +236,12 @@ ResolutionFilter = Callable[[List[MutterDisplayMode]], List[MutterDisplayMode]]
 
 
 class LogicalMonitorConfig(NamedTuple):
+    """
+    See the "@logical_monitors" doc for ApplyMonitorsConfig at:
+    https://gitlab.gnome.org/GNOME/mutter/-/blob/main/data/dbus-interfaces/
+        org.gnome.Mutter.DisplayConfig.xml#L494
+    """
+
     # we want to mirror (iiduba(ssa{sv})) used in _apply_monitor_config
     # it's very similar to LogicalMonitor
     # but the "configurations" prop is different

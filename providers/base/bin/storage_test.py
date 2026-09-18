@@ -126,9 +126,9 @@ def run_bonnie(test_dir: Path, user: str = "root"):
     if (force_mem_mb * 2) > free:
         force_mem_mb = free / 4
     print(f"Forcing memory setting to {force_mem_mb}MB")
-    cmd = f"bonnie++ -d {test_dir} -u {user} -r {force_mem_mb}"
-    print("+", cmd, flush=True)
-    sp.check_call(cmd, shell=True)
+    cmd = ["bonnie++", "-d", test_dir, "-u", user, "-r", str(force_mem_mb)]
+    print("+", " ".join(map(str, cmd)), flush=True)
+    sp.check_call(cmd)
 
 
 def devmapper_test(udev_name: str):

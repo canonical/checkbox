@@ -51,3 +51,13 @@ and perform connecting AP and ping DUT automaticlly by using `sshpass` command.
 A template job for WPA AP mode automated test. It will depend on resource job `ce_oem_wifi_ap_mode` to generate the related jobs.\
 This job requires the checkbox environment variables `WIFI_AP_HOST_DEVICE_IP` `WIFI_AP_HOST_DEVICE_USER` `WIFI_AP_HOST_DEVICE_PWD` to allow auto login to HOST machine
 and perform connecting AP and ping DUT automaticlly by using `sshpass` command.
+
+## id: ce-oem-wireless/ap_open_{band}_ch{channel}_{group}_{interface}_control_host_automated
+A template job for open AP mode automated test using a control host. It will depend on resource job `ce_oem_wifi_ap_mode` to generate the related jobs.\
+This job requires the checkbox environment variable `CONTROL_HOST` to allow the control host to join the AP
+and perform connecting AP and ping the control host automaticlly by using its REST API.
+
+## id: ce-oem-wireless/ap_wpa_{key_mgmt}_{band}_ch{channel}_{group}_{interface}_control_host_automated
+A template job for WPA AP mode automated test using a control host. It will depend on resource job `ce_oem_wifi_ap_mode` to generate the related jobs.\
+This job requires the checkbox environment variable `CONTROL_HOST` to allow the control host to join the AP
+and perform connecting AP and ping the control host automaticlly by using its REST API.

@@ -1,4 +1,3 @@
-import re
 import sys
 import unittest
 from unittest.mock import MagicMock, Mock, patch
@@ -582,10 +581,10 @@ class MonitorConfigGnomeTests(unittest.TestCase):
             cancellable=None,
         )
         argument_string = mock_post_cycle_action.call_args[0][0]
-        p1 = "HDMI-1_2560x1440_normal_"
-        p2 = "eDP-1_1920x1200_normal_"
-        pattern = re.compile(f"{p1}{p2}|{p2}{p1}")
-        assert pattern.match(argument_string)
+        p1 = "eDP-1_1920x1200_normal"
+        p2 = "HDMI-1_2560x1440_normal"
+
+        self.assertEqual(argument_string, f"{p1}_{p2}")
 
 
 class PhysicalMonitorTests(unittest.TestCase):

@@ -180,11 +180,14 @@ def disk_test(udev_name: str):
 
 def parse_args() -> str:
     p = ArgumentParser()
-    p.add_argument("udev-disk-name", type=str)
+    p.add_argument("udev_disk_name", type=str)
     return p.parse_args().udev_disk_name
 
 
 def main():
+    if os.getuid() != 0:
+        raise SystemExit("You must run this program as root")
+
     udev_name = parse_args()
     print(f"Testing device {udev_name}")
 

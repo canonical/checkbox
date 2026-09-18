@@ -1,3 +1,4 @@
+import io
 import os
 import selectors
 import subprocess as sp
@@ -13,9 +14,8 @@ def stream_process_output(
     print_stderr: bool = True,
 ) -> "tuple[list[str], list[str]]":
     """
-    Drain a process' stdout and stderr concurrently without threads
-    - streams output live to the current stdout and stderr so the subprocess
-    doesn't look frozen
+    Streams subprocess stderr and stdout live to the current stdout and stderr
+    so the subprocess doesn't look frozen
 
     :param process: an sp.Popen with stdout=PIPE, stderr=PIPE
     :param stdout_lines: how many trailing stdout lines to keep and
@@ -27,14 +27,21 @@ def stream_process_output(
     :return: (trailing stdout lines, trailing stderr lines)
     """
     # they should be io.TextIO objects
-    if not (process.stdout and process.stderr):
-        raise RuntimeError(
-            "Both stdout and stderr must be subprocess.PIPE to use this function"
+    if not isinstance(process.stdout, io.TextIOBase):
+        raise TypeError(
+            "Process stdout must be set to subprocess.PIPE during creation "
+            + f"to use this function. Got {type(process.stdout)}"
+        )
+
+    if not isinstance(process.stderr, io.TextIOBase):
+        raise TypeError(
+            "Process stderr must be set to subprocess.PIPE during creation "
+            + f"to use this function. Got {type(process.stderr)}"
         )
 
     stdout_fd = process.stdout.fileno()
     stderr_fd = process.stderr.fileno()
-    
+
     os.set_blocking(stdout_fd, False)
     os.set_blocking(stderr_fd, False)
 

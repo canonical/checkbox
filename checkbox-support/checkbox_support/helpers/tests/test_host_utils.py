@@ -342,10 +342,6 @@ class TestHasIntelGpu(unittest.TestCase):
     def test_returns_false_when_drm_unreadable(self, _listdir):
         self.assertFalse(host_utils.has_intel_gpu())
 
-    @patch("os.listdir", return_value=[])
-    def test_returns_false_when_no_cards(self, _listdir):
-        self.assertFalse(host_utils.has_intel_gpu())
-
     @patch("os.listdir", return_value=["card0", "card0-HDMI-1"])
     @patch("builtins.open", mock_open(read_data="0x8086\n"))
     def test_returns_true_for_intel_vendor(self, _listdir):

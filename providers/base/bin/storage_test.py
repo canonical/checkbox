@@ -107,10 +107,10 @@ def free_space(test_dir: Path) -> float:
     return du.free / (1024 * 1024)
 
 
-def devmapper_name(udev_name: str) -> 'str | None':
-    sys_block_device = Path('/sys/block') / udev_name
-    if (sys_block_device / 'dm').is_dir():
-        return (sys_block_device / 'dm' / 'name').read_text()
+def devmapper_name(udev_name: str) -> "str | None":
+    sys_block_device = Path("/sys/block") / udev_name
+    if (sys_block_device / "dm").is_dir():
+        return (sys_block_device / "dm" / "name").read_text()
 
 
 def run_bonnie(test_dir: Path, user: str = "root"):

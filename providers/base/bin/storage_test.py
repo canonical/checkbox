@@ -63,29 +63,28 @@ def find_largest_partition(device: Path) -> Path:
         )
     # the return value should be a dict with "blockdevices" as the only key
     # index into it and we get a list of block devices
-    blk_devs: "list[BlockDevice]" = []
+    block_devices: "list[BlockDevice]" = []
     for raw_json in out["blockdevices"]:
-        blk_devs.append(
-            BlockDevice(
-                name=raw_json["name"],
-                size=raw_json["size"],
-                type=raw_json["type"],
-                fstype=raw_json["fstype"],
-            )
+        block_device = BlockDevice(
+            name=raw_json["name"],
+            size=int(raw_json["size"]),
+            type=raw_json["type"],
+            fstype=raw_json["fstype"],
         )
-    # skip the "raw" disks and LUKS partition
-    blk_devs[:] = [
-        bd
-        for bd in blk_devs
-        if (bd.type in ("part", "md") and bd.fstype != "crypto_LUKS")
-    ]
-    if not blk_devs:
+        # skip the "raw" disks and LUKS partition
+        if (
+            block_device.type in ("part", "md")
+            and block_device.fstype != "crypto_LUKS"
+        ):
+            block_devices.append(block_device)
+
+    if not block_devices:
         raise SystemExit(
             f"ERROR: No suitable partitions found on device {device}"
         )
-    blk_devs.sort(key=lambda bd: int(bd.size))
+    block_devices.sort(key=lambda bd: bd.size)
     # it should be always under /dev
-    return Path("/dev") / blk_devs[-1].name
+    return Path("/dev") / block_devices[-1].name
 
 
 def mount(source: Path, target: Path):

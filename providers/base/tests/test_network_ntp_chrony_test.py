@@ -141,12 +141,18 @@ class ArgumentTests(unittest.TestCase):
 class MainTests(unittest.TestCase):
     @patch("network_ntp_chrony_test.os.geteuid", return_value=1)
     def test_requires_root(self, geteuid_mock):
-        self.assertEqual(network_ntp_chrony_test.main([]), 1)
+        with self.assertRaisesRegex(
+            SystemExit, "You must run this script as root"
+        ):
+            network_ntp_chrony_test.main([])
 
     @patch("network_ntp_chrony_test.is_chrony_active", return_value=False)
     @patch("network_ntp_chrony_test.os.geteuid", return_value=0)
     def test_requires_active_chrony(self, geteuid_mock, active_mock):
-        self.assertEqual(network_ntp_chrony_test.main([]), 1)
+        with self.assertRaisesRegex(
+            SystemExit, "Chrony service is not active"
+        ):
+            network_ntp_chrony_test.main([])
 
     @patch("network_ntp_chrony_test.time")
     @patch("network_ntp_chrony_test.sync_with_chrony")
@@ -186,7 +192,12 @@ class MainTests(unittest.TestCase):
         time_mock.time.side_effect = [1000.0, 999.0]
         time_mock.strftime.return_value = "time"
 
-        self.assertEqual(network_ntp_chrony_test.main([]), 1)
+        with self.assertRaisesRegex(
+            SystemExit,
+            "Time synchronization failed: "
+            "Failed to synchronize the system time",
+        ):
+            network_ntp_chrony_test.main([])
 
     @patch("network_ntp_chrony_test.time")
     @patch(
@@ -207,12 +218,11 @@ class MainTests(unittest.TestCase):
         time_mock.time.return_value = 1000.0
         time_mock.strftime.return_value = "time"
 
-        with self.assertLogs(
-            network_ntp_chrony_test.logger, level="ERROR"
-        ) as log:
-            self.assertEqual(network_ntp_chrony_test.main([]), 1)
-
-        self.assertIn("501 Not authorised", log.output[0])
+        with self.assertRaisesRegex(
+            SystemExit,
+            "Time synchronization failed: 501 Not authorised",
+        ):
+            network_ntp_chrony_test.main([])
 
 
 if __name__ == "__main__":

@@ -127,12 +127,10 @@ def main(argv=None) -> int:
     )
 
     if os.geteuid() != 0:
-        logger.error("You must run this script as root")
-        return 1
+        raise SystemExit("You must run this script as root")
 
     if not is_chrony_active():
-        logger.error("Chrony service is not active")
-        return 1
+        raise SystemExit("Chrony service is not active")
 
     try:
         # Record the correct time before deliberately changing the clock.
@@ -161,14 +159,11 @@ def main(argv=None) -> int:
             "Synchronized system date and time: %s", synchronized_datetime
         )
     except sp.CalledProcessError as error:
-        logger.error(
-            "Time synchronization failed: %s",
-            error.output.strip() if error.output else error,
+        raise SystemExit(
+            "Time synchronization failed: %s" % (error.output.strip() if error.output else error)
         )
-        return 1
     except (OSError, RuntimeError, sp.SubprocessError) as error:
-        logger.error("Time synchronization failed: %s", error)
-        return 1
+        raise SystemExit("Time synchronization failed: %s" % error)
 
     return 0
 

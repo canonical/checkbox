@@ -182,7 +182,7 @@ def resolve_configured_commands(
         # Suppose the executable.json content looks like this:
             {
                 "foo": {
-                    "LD_PATH": ["/path/to/lib1"],
+                    "LD_LIBRARY_PATH": ["/path/to/lib1"],
                     "env1": "value1",
                 }
             }

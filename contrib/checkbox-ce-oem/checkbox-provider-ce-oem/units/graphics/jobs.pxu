@@ -12,6 +12,57 @@ _purpose:
     Verify that the Nvidia card is using the proprietary driver with nvidia-drm modeset enabled,
     ensuring the system can render properly on all Nvidia graphics cards with proprietary drivers.
 
+
+plugin: resource
+category_id: com.canonical.plainbox::graphics
+id: opengl_eglinfo_resource
+_summary: Collect and generate OpenGL platforms from eglinfo
+_purpose:
+    Emit eglinfo platform records with an ignore flag for the ce-oem-graphics/opengl-eglinfo-platform-validation jobs.
+environ: PLAINBOX_PROVIDER_DATA EXECUTABLE_JSON_PATH EGLINFO_IGNORED_PLATFORM
+command: resource_wrapper.sh -- eglinfo_test.py resource
+
+
+id: ce-oem-graphics/check-opengl_eglinfo_resource
+_summary: Check OpenGL eglinfo resource generation
+_description:
+    Verify OpenGL eglinfo resource generation command executes directly.
+estimated_duration: 0.02
+category_id: com.canonical.plainbox::graphics
+imports:
+    from com.canonical.plainbox import manifest
+requires:
+    manifest.has_opengl_support == 'True'
+environ: PLAINBOX_PROVIDER_DATA EXECUTABLE_JSON_PATH EGLINFO_IGNORED_PLATFORM
+plugin: shell
+command: eglinfo_test.py resource
+
+
+unit: template
+template-engine: jinja2
+template-resource: opengl_eglinfo_resource
+template-unit: job
+template-id: ce-oem-graphics/opengl-eglinfo-platform-validation
+template-filter:
+    opengl_eglinfo_resource.ignore == "false"
+id: ce-oem-graphics/opengl-platform-validation-{{platform_name}}
+category_id: com.canonical.plainbox::graphics
+_summary: Validate OpenGL platform: '{{platform_name}}' via eglinfo tool
+_purpose:
+    Validate selected OpenGL for the platform: '{{platform_name}}'
+    discovered by the OpenGL eglinfo resource job.
+plugin: shell
+estimated_duration: 1s
+flags: also-after-suspend
+depends: ce-oem-graphics/check-opengl_eglinfo_resource
+imports:
+    from com.canonical.plainbox import manifest
+requires:
+    manifest.has_opengl_support == 'True'
+environ: PLAINBOX_PROVIDER_DATA EXECUTABLE_JSON_PATH
+command: eglinfo_test.py test -p "{{platform_name}}"
+
+
 plugin: shell
 category_id: com.canonical.plainbox::graphics
 id: ce-oem-graphics/detect_opencl

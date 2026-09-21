@@ -193,7 +193,7 @@ class FwtsTester:
         This script live in the same directory
 
         :param output_directory: where the output of fwts should be written to
-        :type output_directory: str
+        :type output_directory: Path
         :return: whether sleep_test_log_check.py returned 0 (success)
         :rtype: bool
         """

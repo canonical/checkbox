@@ -509,6 +509,22 @@ class InfoDumpTests(unittest.TestCase):
         )
 
 
+class DeviceInfoCollectorTests(unittest.TestCase):
+    @patch("subprocess.check_output")
+    def test_get_usb_info_does_not_pass_usb_ids_path(
+        self, mock_check_output: MagicMock
+    ):
+        mock_check_output.return_value = "usb1\nusb2\nusb3\n"
+
+        RCT.DeviceInfoCollector().get_usb_info()
+
+        mock_check_output.assert_called_once_with(
+            ["checkbox-support-lsusb", "-s"],
+            universal_newlines=True,
+            timeout=RCT.COMMAND_TIMEOUT_SECONDS,
+        )
+
+
 class FwtsTesterTests(unittest.TestCase):
     @patch("shutil.which")
     def test_is_fwts_supported(self, mock_which: MagicMock):

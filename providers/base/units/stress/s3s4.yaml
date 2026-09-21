@@ -64,9 +64,19 @@ environ:
   - RTC_DEVICE_FILE
 user: root
 command: |
-  if [ "{fwts}" = "supported" ]; then
+  FWTS="{fwts}"
+  if [ "$FWTS" = "supported" ]; then
     export LD_LIBRARY_PATH="$LD_LIBRARY_PATH:$SNAP/usr/lib/fwts"
-    set -o pipefail; checkbox-support-fwts_test -l "$PLAINBOX_SESSION_SHARE"/suspend_{s3_iterations}_cycles.log -f none -s s3 --s3-device-check --s3-device-check-delay="${{STRESS_S3_WAIT_DELAY:-45}}" --s3-sleep-delay="${{STRESS_S3_SLEEP_DELAY:-30}}" --s3-multiple={s3_iterations} -j "$SNAP"/share/fwts | tee "$PLAINBOX_SESSION_SHARE"/suspend_{s3_iterations}_cycles_times.log
+    set -o pipefail
+    checkbox-support-fwts_test \
+      -l "$PLAINBOX_SESSION_SHARE"/suspend_{s3_iterations}_cycles.log \
+      -f none \
+      -s s3 \
+      --s3-device-check \
+      --s3-device-check-delay="${{STRESS_S3_WAIT_DELAY:-45}}" \
+      --s3-sleep-delay="${{STRESS_S3_SLEEP_DELAY:-30}}" \
+      --s3-multiple={s3_iterations} \
+      -j "$SNAP"/share/fwts | tee "$PLAINBOX_SESSION_SHARE"/suspend_{s3_iterations}_cycles_times.log
   else
     for i in $(seq 1 {s3_iterations}); do
        echo "Iteration $i"

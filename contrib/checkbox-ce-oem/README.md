@@ -157,4 +157,16 @@ e.g. TOTAL_RTC_NUM=2
 id: ce-oem-serial/rs485-list
 RS485_PORTS={port1} {port2}
 e.g. RS485_PORTS=/dev/ttymxc1 /dev/ttymxc2
+
+id: rz-ai-accelerator/drp-ai3-object-counter
+DRP_AI_TEST_SNAP={installed object-counter snap name}
+The name of the installed rzv-ai-applications snap providing the
+object-counter (Q08) sample used to exercise DRP-AI3, which varies by
+board:
+- RZ/V2H: rzv-ai-applications
+- RZ/V2N: rzv-ai-applications-v2n
+e.g. DRP_AI_TEST_SNAP=rzv-ai-applications
+This job also requires a 640x480, 24-bit RGB PNG photo containing a
+clearly visible dog to be placed at $SNAP_REAL_HOME/test.png before
+running, as the input image is not bundled with the provider.
 ```

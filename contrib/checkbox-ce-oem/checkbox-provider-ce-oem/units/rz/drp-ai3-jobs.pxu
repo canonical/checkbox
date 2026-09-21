@@ -1,0 +1,37 @@
+id: rz-ai-accelerator/drp-ai3-object-counter
+category_id: rz-ai-accelerator
+plugin: shell
+user: root
+_summary: Check if DRP-AI3 is working via the object-counter Q08 sample
+_purpose:
+    Check if DRP-AI3 is working by running the rzv-ai-applications
+    object-counter (Q08) sample using the upstream TEST input source
+    (reads $SNAP_REAL_HOME/test.png via a gstreamer filesrc pipeline
+    instead of a live USB/MIPI camera).
+    This job requires a 640x480, 24-bit RGB PNG photo containing a
+    clearly visible dog to be placed at $SNAP_REAL_HOME/test.png
+    before running, so the sample has a known-good subject to detect.
+imports:
+    from com.canonical.plainbox import manifest
+requires:
+    manifest.has_rz_drp_ai3 == 'True'
+    manifest.is_rz_series == 'True'
+environ:
+    DRP_AI_TEST_SNAP
+flags: also-after-suspend
+command:
+    set -o pipefail
+    if [ -z "$DRP_AI_TEST_SNAP" ]; then
+        echo "Fail: DRP_AI_TEST_SNAP has not been set!"
+        exit 1
+    fi
+    output_file="$(mktemp /var/tmp/renesas-rz-drp-ai3-XXXXXX)"
+    { sleep 15; echo; } | env -u GST_PLUGIN_PATH -u GST_PLUGIN_SYSTEM_PATH \
+        -u GST_PLUGIN_SCANNER \
+        "$DRP_AI_TEST_SNAP".object-counter animal TEST | tee "$output_file"
+    if grep -q "\[INFO\] dog detected\." "$output_file"; then
+        echo "Success: DRP-AI3 object-counter correctly detected the dog!"
+    else
+        echo "Fail: object-counter never recognized the dog in the test image!"
+        exit 1
+    fi

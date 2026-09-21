@@ -20,7 +20,16 @@ from typing import NamedTuple
 
 import psutil
 
-ACCEPTED_DEVICE_TYPES = ("part", "md")
+ACCEPTED_DEVICE_TYPES = (
+    "part",
+    "raid0",
+    "raid1",
+    "raid4",
+    "raid5",
+    "raid6",
+    "raid10",
+    "linear",
+)
 
 
 class BlockDevice(NamedTuple):

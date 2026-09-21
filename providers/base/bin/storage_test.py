@@ -158,19 +158,19 @@ def devmapper_test(udev_name: str):
 def disk_test(udev_name: str):
     print(f"Identified {udev_name} as a disk...")
     device = Path("/dev") / udev_name
-    part_to_test = find_largest_partition(device)
-    print(f"Test will be run on partition {part_to_test}")
+    partition_to_test = find_largest_partition(device)
+    print(f"Test will be run on the largest partition {partition_to_test}")
 
-    mount_dir = mountpoint(part_to_test)
+    mount_dir = mountpoint(partition_to_test)
     if mount_dir:
-        print(f"{part_to_test} already mounted at {mount_dir}")
+        print(f"{partition_to_test} already mounted at {mount_dir}")
 
     with ExitStack() as stack:
         if mount_dir is None:
             mount_dir = Path(tempfile.mkdtemp())
             stack.callback(os.rmdir, mount_dir)
-            mount(part_to_test, mount_dir)
-            print(f"Performed mount {part_to_test} at {mount_dir}")
+            mount(partition_to_test, mount_dir)
+            print(f"Performed mount {partition_to_test} at {mount_dir}")
             stack.callback(unmount, mount_dir)
         run_bonnie(mount_dir)
 

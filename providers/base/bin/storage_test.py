@@ -181,7 +181,17 @@ def run_bonnie(test_dir: Path, user: str = "root"):
     if (force_mem_mb * 2) > free:
         force_mem_mb = round(free / 4)
     print(f"Forcing memory setting to {force_mem_mb}MB")
-    cmd = ["bonnie++", "-d", test_dir, "-u", user, "-r", str(force_mem_mb)]
+    cmd = [
+        "bonnie++",
+        "-d",
+        test_dir,
+        "-u",
+        user,
+        "-r",
+        str(force_mem_mb),
+        # bypass the page cache, O_DIRECT
+        "-D",
+    ]
     print("+", " ".join(map(str, cmd)), flush=True)
     sp.check_call(cmd)
 

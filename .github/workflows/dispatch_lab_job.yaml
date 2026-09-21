@@ -64,7 +64,7 @@ jobs:
         run: echo "sha=$(git rev-parse HEAD)" >> $GITHUB_OUTPUT
 
       - name: Run the spec
-        uses: canonical/checkbox/.github/actions/checkbox_source_deb@9927aa1ad7d9275b57595772f83abc692fbcac7e
+        uses: canonical/checkbox/.github/actions/checkbox_source_deb@279a6575655f5e94dbc25ed3efca1ddc164cc5b8
         with:
           data_source: ${{ matrix.spec.data_source }}
           queue: ${{ matrix.spec.queue }}

@@ -37,6 +37,7 @@ include:
     cpu/clocktest
     cpu/armhf_vfp_support_.*
     cpu/arm64_vfp_support_.*
+    cpu/idle_state_test
 
 id: after-suspend-cpu-cert-automated
 unit: test plan

@@ -181,6 +181,7 @@ class TestRunBonnie(unittest.TestCase):
                 "root",
                 "-r",
                 "8000",
+                "-D",
             ]
         )
 
@@ -199,7 +200,8 @@ class TestRunBonnie(unittest.TestCase):
                 "-u",
                 "root",
                 "-r",
-                "250.0",
+                "250",
+                "-D",
             ]
         )
 

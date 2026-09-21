@@ -119,6 +119,7 @@ def find_largest_partition(device: Path) -> Path:
                 f"Skipping {block_device.name}",
                 f"because it has unmountable fstype '{block_device.fstype}',",
                 f"but we need {get_mountable_fstypes()}",
+                file=sys.stderr,
             )
             continue
 

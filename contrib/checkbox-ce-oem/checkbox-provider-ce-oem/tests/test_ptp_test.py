@@ -87,6 +87,24 @@ class TestBuildPtp4lArgs(unittest.TestCase):
         )
         self.assertIn("--delay_mechanism=E2E", args)
 
+    def test_warns_on_transport_specific_1_with_e2e(self):
+        # 1 is the 802.1AS marker and 802.1AS only uses peer delay: the
+        # historical 1 + E2E mix must run unchanged, but say why it may fail.
+        with patch("builtins.print") as mock_print:
+            ptp_test.build_ptp4l_args("eth0", {}, ptp4l_major=3)
+        printed = " ".join(str(c.args[0]) for c in mock_print.call_args_list)
+        self.assertIn("802.1AS", printed)
+        self.assertIn("PTP4L_DELAY_MECHANISM=P2P", printed)
+
+    def test_no_warning_for_consistent_profiles(self):
+        for env in (
+            {"PTP4L_TRANSPORT_SPECIFIC": "0"},
+            {"PTP4L_TRANSPORT_SPECIFIC": "1", "PTP4L_DELAY_MECHANISM": "P2P"},
+        ):
+            with patch("builtins.print") as mock_print:
+                ptp_test.build_ptp4l_args("eth0", env, ptp4l_major=3)
+            self.assertEqual(mock_print.call_count, 0, env)
+
     def test_invalid_delay_mechanism_is_rejected(self):
         with self.assertRaises(SystemExit):
             ptp_test.build_ptp4l_args(

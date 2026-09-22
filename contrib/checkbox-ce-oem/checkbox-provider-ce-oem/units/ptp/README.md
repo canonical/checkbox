@@ -88,8 +88,12 @@ Use these variables in the launcher `[environment]` section when needed:
 | `PTP4L_DELAY_MECHANISM`    | Path-delay mechanism: `E2E` (`Delay_Req`/`Delay_Resp`, ptp4l's default) or `P2P` (peer delay, what 802.1AS uses). The grandmaster must use the same mechanism. | Not set (`E2E`) |
 | `PTP4L_PTP_MINOR_VERSION`  | Value for `--ptp_minor_version`; only applied when `ptp4l` is version 4 or newer. | Not set |
 
-The two profile variables have to be consistent with what the NIC's hardware
-timestamping engine accepts. A Realtek RTL8126 (`r8126` driver, verified on a
+The two variables together select a PTP profile. The standard pairs are
+`0` + `E2E` (IEEE 1588 default profile) and `1` + `P2P` (IEEE 802.1AS /
+gPTP, which only uses peer delay). The job's historical default, `1` + `E2E`,
+is not a defined profile: it runs unchanged for platforms that rely on it,
+but `ptp_test.py` prints a warning, because the pair has to be consistent
+with what the NIC's hardware timestamping engine accepts. A Realtek RTL8126 (`r8126` driver, verified on a
 Jetson Orin NX carrier) hardware-timestamps `transportSpecific=0` frames of
 every kind, and `transportSpecific=1` frames of the message types 802.1AS
 defines (`Sync`, `Pdelay_Req`, ...), but never returns a TX timestamp for a

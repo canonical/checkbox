@@ -73,6 +73,15 @@ def build_ptp4l_args(iface, env, ptp4l_major):
                 "got {!r}".format(delay_mechanism)
             )
         args.append("--delay_mechanism={}".format(delay_mechanism))
+    if transport_specific == "1" and delay_mechanism != "P2P":
+        print(
+            "WARNING: transportSpecific=1 is the IEEE 802.1AS (gPTP) marker "
+            "and 802.1AS only uses the peer-delay mechanism; combined with "
+            "E2E (Delay_Req) this is not a defined profile and NICs with a "
+            "strict PTP engine will not timestamp the Delay_Req. Use "
+            "PTP4L_DELAY_MECHANISM=P2P (gPTP) or PTP4L_TRANSPORT_SPECIFIC=0 "
+            "(IEEE 1588), matching the grandmaster."
+        )
     minor = env.get("PTP4L_PTP_MINOR_VERSION", "").strip()
     if minor:
         if ptp4l_major is not None and ptp4l_major >= 4:

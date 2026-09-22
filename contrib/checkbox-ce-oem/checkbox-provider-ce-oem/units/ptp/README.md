@@ -86,13 +86,19 @@ Use these variables in the launcher `[environment]` section when needed:
 | `PTP4L_PTP_MINOR_VERSION`  | Value for `--ptp_minor_version`; only applied when `ptp4l` is version 4 or newer. | Not set |
 
 `PTP4L_TRANSPORT_SPECIFIC` matters because some NICs only hardware-timestamp
-one flavour of PTP frame. Realtek `r8125`/`r8126` controllers, for example,
-timestamp `transportSpecific=0` frames but never return a TX timestamp for
-`transportSpecific=1` ones, so `ptp4l` logs
-`timed out while polling for tx timestamp`, drops to `FAULTY` and the job
-never sees an `rms` line. When the job output shows that message, set the
-variable to `0` and start the grandmaster with `--transportSpecific=0`
-(or without the option) as well.
+one flavour of PTP frame. A Realtek RTL8126 (`r8126` driver, verified on a
+Jetson Orin NX carrier) timestamps `transportSpecific=0` frames but never
+returns a TX timestamp for otherwise identical `transportSpecific=1` ones, so
+`ptp4l` logs `timed out while polling for tx timestamp`, drops to `FAULTY`
+and the job never sees an `rms` line. (The RTL8125 uses the same PTP engine
+design in its driver but was not verified.) When the job output shows that
+message, set the variable to `0` and start the grandmaster with
+`--transportSpecific=0` (or without the option) as well.
+
+To check a NIC directly, send one PTPv2 Delay_Req per `transportSpecific`
+value from a raw socket with `SO_TIMESTAMPING` and see which one returns a
+hardware stamp on the error queue; the `ethtool -T` capability list does not
+reveal this.
 
 ### Example launcher environment
 

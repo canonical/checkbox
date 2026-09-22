@@ -42,8 +42,8 @@ class TestBuildPtp4lArgs(unittest.TestCase):
         )
 
     def test_transport_specific_from_environment(self):
-        # Realtek r8125/r8126 only hardware-timestamp transportSpecific=0
-        # frames, so the launcher can turn the nibble off.
+        # A Realtek RTL8126 (r8126) only hardware-timestamps
+        # transportSpecific=0 frames, so the launcher can turn the nibble off.
         args = ptp_test.build_ptp4l_args(
             "eth0", {"PTP4L_TRANSPORT_SPECIFIC": "0"}, ptp4l_major=3
         )

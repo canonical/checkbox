@@ -117,8 +117,8 @@ def run_sync_test(iface, duration, rms_max):
         if "timed out while polling for tx timestamp" in output:
             print(
                 "HINT: ptp4l never received a hardware TX timestamp for its "
-                "Delay_Req. Some NICs (e.g. Realtek r8125/r8126) only "
-                "timestamp transportSpecific=0 frames: set "
+                "Delay_Req. Some NICs (e.g. Realtek RTL8126, r8126 driver) "
+                "only timestamp transportSpecific=0 frames: set "
                 "PTP4L_TRANSPORT_SPECIFIC=0 in the checkbox config and start "
                 "the grandmaster without --transportSpecific=1"
             )

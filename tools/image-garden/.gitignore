@@ -1,0 +1,15 @@
+*.snap
+*.assert
+/artifacts/
+/.spread-reuse*.yaml
+*.lock
+*.img
+*.iso
+*.meta-data
+*.user-data
+*.qcow2
+*.qcow2.log
+*.run
+*.serial.log
+*.stderr.log
+*.stdout.log

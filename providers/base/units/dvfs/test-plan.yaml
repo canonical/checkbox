@@ -1,0 +1,8 @@
+id: dvfs-automated
+unit: test plan
+name: Dynamic Voltage and Frequency Scaling (DVFS) tests (Automated)
+bootstrap_include:
+    dvfs/dvfs_resource
+include:
+    dvfs/detect_dvfs_devices
+    dvfs/dvfs_device_governor_test

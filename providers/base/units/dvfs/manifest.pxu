@@ -1,0 +1,4 @@
+unit: manifest entry
+id: has_dvfs_device_support
+_name: Support Dynamic Voltage and Frequency Scaling (DVFS) Devices?
+value-type: bool

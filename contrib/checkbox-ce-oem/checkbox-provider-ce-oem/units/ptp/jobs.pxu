@@ -66,14 +66,15 @@ _description:
     Use {eth-interface} on the DUT to synchronize its clock with the clock
     of the Grand Master on another host device.
     This automated test needs another host device which runs the ptp4l as a Grand Master
-    in the same network domain of the DUT, started with the same transportSpecific
-    value (checkbox config PTP4L_TRANSPORT_SPECIFIC, default 1) and delay mechanism
-    (PTP4L_DELAY_MECHANISM, E2E by default; P2P for gPTP) as the DUT.
-    Command for launch ptp4l as a Grand Master:
+    in the same network domain of the DUT, running the same PTP profile as the DUT:
+    IEEE 1588 (checkbox config PTP4L_TRANSPORT_SPECIFIC=0, the default, E2E delay) or
+    IEEE 802.1AS / gPTP (PTP4L_TRANSPORT_SPECIFIC=1 together with
+    PTP4L_DELAY_MECHANISM=P2P, grandmaster on a direct link).
+    Command for launch ptp4l as a Grand Master (IEEE 1588):
     $ sudo ptp4l -i <if_name_on_host> -m --step_threshold=1\
-    --logAnnounceInterval=0 --logSyncInterval=-3 --network_transport=L2\
-    --transportSpecific=<PTP4L_TRANSPORT_SPECIFIC> [--delay_mechanism=P2P]
-    See units/ptp/README.md for the config variables.
+    --logAnnounceInterval=0 --logSyncInterval=-3 --network_transport=L2
+    For gPTP add --transportSpecific=1 --delay_mechanism=P2P.
+    See units/ptp/README.md for the config variables and the profile differences.
 plugin: shell
 flags: also-after-suspend
 user: root
@@ -101,17 +102,15 @@ requires: manifest.has_ptp == 'True'
 _steps:
     1. Connect an Ethernet cable from another device's Ethernet interface which supports ptp
        which supports ptp directly to the {eth-interface} Ethernet interface of our DUT.
-    2. On the Host (another device), execute the command, using the same
-       transportSpecific value and delay mechanism on both sides (see
-       units/ptp/README.md):
-       $ sudo ./ptp4l -i <if_name_on_host> -m --step_threshold=1 --logAnnounceInterval=0 --logSyncInterval=-3 --network_transport=L2 --transportSpecific=1
+    2. On the Host (another device), execute the command (IEEE 1588 default
+       profile, transportSpecific=0, E2E delay; see units/ptp/README.md):
+       $ sudo ./ptp4l -i <if_name_on_host> -m --step_threshold=1 --logAnnounceInterval=0 --logSyncInterval=-3 --network_transport=L2
     3. Wait for the system to announce it is the Grand Master.
     4. On the DUT, run the command:
-       $ sudo ./ptp4l -i {eth-interface} -m -s --network_transport=L2 --tx_timestamp_timeout=5 --transportSpecific=1
+       $ sudo ./ptp4l -i {eth-interface} -m -s --network_transport=L2 --tx_timestamp_timeout=5 --transportSpecific=0
     5. The DUT should announce it has selected a foreign master (Host).
-       If it then reports "timed out while polling for tx timestamp", the NIC
-       does not timestamp a transportSpecific=1 Delay_Req: repeat steps 2-4
-       with --transportSpecific=0 on both sides, or with
-       --delay_mechanism=P2P on both sides over a direct cable (gPTP).
+       To test IEEE 802.1AS (gPTP) instead, add --transportSpecific=1
+       --delay_mechanism=P2P to BOTH commands; this only works over a direct
+       cable or an 802.1AS-capable switch.
     6. Clock readings will appear on the DUT.  When the "rms" value remains below 100ns,
        the DUT has successfully synchronized to the clock on the Host.

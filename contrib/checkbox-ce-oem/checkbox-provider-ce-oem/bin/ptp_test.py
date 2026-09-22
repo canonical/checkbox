@@ -7,14 +7,20 @@ the offset it reports against the grandmaster ("rms" lines).
 Checkbox config variables (launcher [environment]):
 
   PTP4L_TRANSPORT_SPECIFIC  transportSpecific nibble of the PTP header,
-                            0 (IEEE 1588) or 1 (802.1AS/gPTP). Default 1.
-                            The grandmaster must use the same value.
-  PTP4L_DELAY_MECHANISM     E2E (Delay_Req, ptp4l's default) or P2P
-                            (peer delay, what 802.1AS uses). Unset = E2E.
-                            Some NICs only hardware-timestamp 802.1AS
-                            message types when the nibble is 1, so 1 + E2E
-                            never gets a Delay_Req timestamp on them.
-  PTP4L_PTP_MINOR_VERSION   passed as --ptp_minor_version on ptp4l >= 4.
+                            0 (IEEE 1588) or 1 (IEEE 802.1AS / gPTP).
+                            Default 0. The grandmaster must use the same.
+  PTP4L_DELAY_MECHANISM     E2E (Delay_Req/Delay_Resp) or P2P (peer delay).
+                            Unset = the mechanism of the selected profile:
+                            E2E for 0, P2P for 1. The pair must be a
+                            defined profile: 0 + E2E (IEEE 1588 default),
+                            0 + P2P (IEEE 1588 peer-to-peer) or 1 + P2P
+                            (802.1AS); 1 + E2E is rejected because 802.1AS
+                            has no Delay_Req and strict NICs will not
+                            timestamp one carrying the 802.1AS marker.
+  PTP4L_PTP_MINOR_VERSION   passed as --ptp_minor_version, which exists
+                            from linuxptp 4.0 (Ubuntu 24.04 noble); the
+                            series-22 runtime carries jammy's 3.1.1, where
+                            the option is skipped with a message.
   PTP4L_REARM_HWTSTAMP      "1" re-programs hardware timestamping on the
                             interface (hwstamp_ctl off/on + phc_ctl set)
                             before the test. Off by default: a PHC that
@@ -40,7 +46,10 @@ import time
 # That patch is only in ptp4l versions later than v2.0, so older versions
 # would otherwise still use 1 ms and fail on those drivers.
 TX_TIMESTAMP_TIMEOUT_MS = 5
-DEFAULT_TRANSPORT_SPECIFIC = "1"
+DEFAULT_TRANSPORT_SPECIFIC = "0"
+# delay mechanism of the profile each transportSpecific value stands for:
+# 0 = IEEE 1588 default profile (E2E), 1 = IEEE 802.1AS / gPTP (P2P only)
+PROFILE_DELAY_MECHANISM = {"0": "E2E", "1": "P2P"}
 RMS_LINES = 5
 
 
@@ -77,29 +86,33 @@ def build_ptp4l_args(iface, env, ptp4l_major):
         "--transportSpecific={}".format(transport_specific),
     ]
     delay_mechanism = env.get("PTP4L_DELAY_MECHANISM", "").strip().upper()
-    if delay_mechanism:
-        if delay_mechanism not in ("E2E", "P2P"):
-            raise SystemExit(
-                "ERROR: PTP4L_DELAY_MECHANISM must be E2E or P2P, "
-                "got {!r}".format(delay_mechanism)
+    if delay_mechanism and delay_mechanism not in ("E2E", "P2P"):
+        raise SystemExit(
+            "ERROR: PTP4L_DELAY_MECHANISM must be E2E or P2P, got {!r}".format(
+                delay_mechanism
             )
-        args.append("--delay_mechanism={}".format(delay_mechanism))
-    if transport_specific == "1" and delay_mechanism != "P2P":
-        print(
-            "WARNING: transportSpecific=1 is the IEEE 802.1AS (gPTP) marker "
-            "and 802.1AS only uses the peer-delay mechanism; combined with "
-            "E2E (Delay_Req) this is not a defined profile and NICs with a "
-            "strict PTP engine will not timestamp the Delay_Req. Use "
-            "PTP4L_DELAY_MECHANISM=P2P (gPTP) or PTP4L_TRANSPORT_SPECIFIC=0 "
-            "(IEEE 1588), matching the grandmaster."
         )
+    if transport_specific == "1" and delay_mechanism == "E2E":
+        raise SystemExit(
+            "ERROR: PTP4L_TRANSPORT_SPECIFIC=1 marks IEEE 802.1AS (gPTP), "
+            "which only uses the peer-delay mechanism; 1 + E2E is not a "
+            "defined profile and strict NICs never timestamp its Delay_Req. "
+            "Use PTP4L_DELAY_MECHANISM=P2P (gPTP, grandmaster on the same "
+            "link) or PTP4L_TRANSPORT_SPECIFIC=0 (IEEE 1588)."
+        )
+    if not delay_mechanism:
+        delay_mechanism = PROFILE_DELAY_MECHANISM[transport_specific]
+    if delay_mechanism == "P2P":
+        # E2E is ptp4l's own default: the 1588 command line stays minimal
+        args.append("--delay_mechanism=P2P")
     minor = env.get("PTP4L_PTP_MINOR_VERSION", "").strip()
     if minor:
         if ptp4l_major is not None and ptp4l_major >= 4:
             args.append("--ptp_minor_version={}".format(minor))
         else:
             print(
-                "ptp4l version {} does not support --ptp_minor_version, "
+                "ptp4l version {} does not support --ptp_minor_version "
+                "(linuxptp >= 4.0, Ubuntu 24.04; jammy has 3.1.1), "
                 "skipping this option.".format(ptp4l_major)
             )
     return args
@@ -257,12 +270,12 @@ def run_sync_test(iface, duration, rms_max):
         )
         if "timed out while polling for tx timestamp" in output:
             print(
-                "HINT: ptp4l never received a hardware TX timestamp for its "
-                "delay request. Some NICs (e.g. Realtek RTL8126, r8126 "
-                "driver) only timestamp 802.1AS message types when "
-                "transportSpecific is 1, so a Delay_Req is never stamped: "
-                "either set PTP4L_TRANSPORT_SPECIFIC=0 (IEEE 1588 + E2E) or "
-                "PTP4L_DELAY_MECHANISM=P2P (gPTP), on the grandmaster too"
+                "HINT: the NIC did not return a hardware TX timestamp for "
+                "ptp4l's event message within {} ms. The driver's PTP "
+                "engine is off or too slow (check the driver's timestamp "
+                "counters, e.g. /proc/net/r8126/<iface>/debug/driver_var), "
+                "or the NIC refuses that message type with that "
+                "transportSpecific value".format(TX_TIMESTAMP_TIMEOUT_MS)
             )
         elif "--delay_mechanism=P2P" in args and "UNCALIBRATED" in output:
             print(

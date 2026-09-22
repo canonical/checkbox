@@ -25,9 +25,9 @@ class TestPtp4lVersion(unittest.TestCase):
 
 
 class TestBuildPtp4lArgs(unittest.TestCase):
-    def test_defaults_keep_the_historical_command_line(self):
-        # transportSpecific defaults to 1 so platforms that relied on the
-        # old hard-coded value (NXP, TI) keep their behaviour.
+    def test_defaults_are_the_ieee_1588_default_profile(self):
+        # transportSpecific 0 + E2E: ptp4l's own defaults, works through
+        # ordinary switches and on NICs with a strict PTP engine.
         self.assertEqual(
             ptp_test.build_ptp4l_args("eth0", {}, ptp4l_major=3),
             [
@@ -37,18 +37,17 @@ class TestBuildPtp4lArgs(unittest.TestCase):
                 "-s",
                 "--network_transport=L2",
                 "--tx_timestamp_timeout=5",
-                "--transportSpecific=1",
+                "--transportSpecific=0",
             ],
         )
 
-    def test_transport_specific_from_environment(self):
-        # A Realtek RTL8126 (r8126) only hardware-timestamps
-        # transportSpecific=0 frames, so the launcher can turn the nibble off.
+    def test_transport_specific_1_alone_selects_gptp(self):
+        # 1 marks IEEE 802.1AS, which only has peer delay: derive P2P
         args = ptp_test.build_ptp4l_args(
-            "eth0", {"PTP4L_TRANSPORT_SPECIFIC": "0"}, ptp4l_major=3
+            "eth0", {"PTP4L_TRANSPORT_SPECIFIC": "1"}, ptp4l_major=3
         )
-        self.assertIn("--transportSpecific=0", args)
-        self.assertNotIn("--transportSpecific=1", args)
+        self.assertIn("--transportSpecific=1", args)
+        self.assertIn("--delay_mechanism=P2P", args)
 
     def test_invalid_transport_specific_is_rejected(self):
         with self.assertRaises(SystemExit):
@@ -63,47 +62,58 @@ class TestBuildPtp4lArgs(unittest.TestCase):
         self.assertIn("--ptp_minor_version=1", args)
 
     def test_minor_version_skipped_on_older_ptp4l(self):
-        args = ptp_test.build_ptp4l_args(
-            "eth0", {"PTP4L_PTP_MINOR_VERSION": "1"}, ptp4l_major=3
-        )
-        self.assertNotIn("--ptp_minor_version=1", args)
-
-    def test_delay_mechanism_unset_keeps_ptp4l_default(self):
-        args = ptp_test.build_ptp4l_args("eth0", {}, ptp4l_major=3)
-        self.assertFalse(any(a.startswith("--delay_mechanism") for a in args))
-
-    def test_delay_mechanism_p2p_for_gptp(self):
-        args = ptp_test.build_ptp4l_args(
-            "eth0",
-            {"PTP4L_TRANSPORT_SPECIFIC": "1", "PTP4L_DELAY_MECHANISM": "p2p"},
-            ptp4l_major=3,
-        )
-        self.assertIn("--delay_mechanism=P2P", args)
-        self.assertIn("--transportSpecific=1", args)
-
-    def test_delay_mechanism_e2e_explicit(self):
-        args = ptp_test.build_ptp4l_args(
-            "eth0", {"PTP4L_DELAY_MECHANISM": "E2E"}, ptp4l_major=3
-        )
-        self.assertIn("--delay_mechanism=E2E", args)
-
-    def test_warns_on_transport_specific_1_with_e2e(self):
-        # 1 is the 802.1AS marker and 802.1AS only uses peer delay: the
-        # historical 1 + E2E mix must run unchanged, but say why it may fail.
+        # jammy's linuxptp 3.1.1 (series-22 runtime) has no such option
         with patch("builtins.print") as mock_print:
-            ptp_test.build_ptp4l_args("eth0", {}, ptp4l_major=3)
+            args = ptp_test.build_ptp4l_args(
+                "eth0", {"PTP4L_PTP_MINOR_VERSION": "1"}, ptp4l_major=3
+            )
+        self.assertNotIn("--ptp_minor_version=1", args)
         printed = " ".join(str(c.args[0]) for c in mock_print.call_args_list)
-        self.assertIn("802.1AS", printed)
-        self.assertIn("PTP4L_DELAY_MECHANISM=P2P", printed)
+        self.assertIn("skipping this option", printed)
 
-    def test_no_warning_for_consistent_profiles(self):
-        for env in (
-            {"PTP4L_TRANSPORT_SPECIFIC": "0"},
-            {"PTP4L_TRANSPORT_SPECIFIC": "1", "PTP4L_DELAY_MECHANISM": "P2P"},
+    def test_e2e_is_left_to_ptp4l_default(self):
+        for env in ({}, {"PTP4L_DELAY_MECHANISM": "E2E"}):
+            args = ptp_test.build_ptp4l_args("eth0", env, ptp4l_major=3)
+            self.assertFalse(
+                any(a.startswith("--delay_mechanism") for a in args), env
+            )
+
+    def test_defined_profiles_are_accepted(self):
+        for env, expect_p2p in (
+            ({"PTP4L_TRANSPORT_SPECIFIC": "0"}, False),
+            # IEEE 1588 peer-to-peer default profile (Annex J.4)
+            (
+                {
+                    "PTP4L_TRANSPORT_SPECIFIC": "0",
+                    "PTP4L_DELAY_MECHANISM": "p2p",
+                },
+                True,
+            ),
+            (
+                {
+                    "PTP4L_TRANSPORT_SPECIFIC": "1",
+                    "PTP4L_DELAY_MECHANISM": "P2P",
+                },
+                True,
+            ),
         ):
-            with patch("builtins.print") as mock_print:
-                ptp_test.build_ptp4l_args("eth0", env, ptp4l_major=3)
-            self.assertEqual(mock_print.call_count, 0, env)
+            args = ptp_test.build_ptp4l_args("eth0", env, ptp4l_major=3)
+            self.assertEqual("--delay_mechanism=P2P" in args, expect_p2p, env)
+
+    def test_transport_specific_1_with_e2e_is_rejected(self):
+        # not a defined profile: 802.1AS has no Delay_Req, and strict NICs
+        # (r8126) never timestamp one carrying the 802.1AS marker
+        with self.assertRaises(SystemExit) as ctx:
+            ptp_test.build_ptp4l_args(
+                "eth0",
+                {
+                    "PTP4L_TRANSPORT_SPECIFIC": "1",
+                    "PTP4L_DELAY_MECHANISM": "E2E",
+                },
+                ptp4l_major=3,
+            )
+        self.assertIn("802.1AS", str(ctx.exception))
+        self.assertIn("PTP4L_DELAY_MECHANISM=P2P", str(ctx.exception))
 
     def test_invalid_delay_mechanism_is_rejected(self):
         with self.assertRaises(SystemExit):
@@ -178,7 +188,7 @@ class TestRunSyncTest(unittest.TestCase):
             self.assertEqual(ptp_test.run_sync_test("eth0", 30, 1000), 1)
         printed = " ".join(str(c.args[0]) for c in mock_print.call_args_list)
         self.assertIn("TX timestamp", printed)
-        self.assertIn("PTP4L_TRANSPORT_SPECIFIC", printed)
+        self.assertIn("transportSpecific", printed)
 
     @patch("ptp_test.ptp4l_major_version", return_value=3)
     @patch("ptp_test.run_ptp4l", return_value=PTP4L_P2P_STUCK)

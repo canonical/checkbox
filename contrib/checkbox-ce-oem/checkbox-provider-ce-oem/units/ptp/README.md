@@ -73,7 +73,9 @@ The DUT side is started as:
 
 ```
 ptp4l -i <interface> -m -s --network_transport=L2 --tx_timestamp_timeout=5 \
-    --transportSpecific=<PTP4L_TRANSPORT_SPECIFIC> [--ptp_minor_version=<PTP4L_PTP_MINOR_VERSION>]
+    --transportSpecific=<PTP4L_TRANSPORT_SPECIFIC> \
+    [--delay_mechanism=<PTP4L_DELAY_MECHANISM>] \
+    [--ptp_minor_version=<PTP4L_PTP_MINOR_VERSION>]
 ```
 
 ### Optional environment variables
@@ -82,29 +84,54 @@ Use these variables in the launcher `[environment]` section when needed:
 
 | Variable                   | Description                                                        | Default |
 |----------------------------|--------------------------------------------------------------------|---------|
-| `PTP4L_TRANSPORT_SPECIFIC` | `transportSpecific` nibble of the PTP header: `0` (IEEE 1588) or `1` (802.1AS style). The grandmaster must use the same value. | `1` |
+| `PTP4L_TRANSPORT_SPECIFIC` | `transportSpecific` nibble of the PTP header: `0` (IEEE 1588) or `1` (IEEE 802.1AS / gPTP). The grandmaster must use the same value. | `1` |
+| `PTP4L_DELAY_MECHANISM`    | Path-delay mechanism: `E2E` (`Delay_Req`/`Delay_Resp`, ptp4l's default) or `P2P` (peer delay, what 802.1AS uses). The grandmaster must use the same mechanism. | Not set (`E2E`) |
 | `PTP4L_PTP_MINOR_VERSION`  | Value for `--ptp_minor_version`; only applied when `ptp4l` is version 4 or newer. | Not set |
 
-`PTP4L_TRANSPORT_SPECIFIC` matters because some NICs only hardware-timestamp
-one flavour of PTP frame. A Realtek RTL8126 (`r8126` driver, verified on a
-Jetson Orin NX carrier) timestamps `transportSpecific=0` frames but never
-returns a TX timestamp for otherwise identical `transportSpecific=1` ones, so
-`ptp4l` logs `timed out while polling for tx timestamp`, drops to `FAULTY`
-and the job never sees an `rms` line. (The RTL8125 uses the same PTP engine
-design in its driver but was not verified.) When the job output shows that
-message, set the variable to `0` and start the grandmaster with
-`--transportSpecific=0` (or without the option) as well.
+The two profile variables have to be consistent with what the NIC's hardware
+timestamping engine accepts. A Realtek RTL8126 (`r8126` driver, verified on a
+Jetson Orin NX carrier) hardware-timestamps `transportSpecific=0` frames of
+every kind, and `transportSpecific=1` frames of the message types 802.1AS
+defines (`Sync`, `Pdelay_Req`, ...), but never returns a TX timestamp for a
+`transportSpecific=1` `Delay_Req`, which 802.1AS does not define. With the
+default `1` + E2E combination `ptp4l` therefore logs `timed out while
+polling for tx timestamp`, drops to `FAULTY` and the job never sees an
+`rms` line; the PTP minor version makes no difference. (The RTL8125 uses the
+same PTP engine design in its driver but was not verified.) On such a NIC,
+either:
 
-To check a NIC directly, send one PTPv2 Delay_Req per `transportSpecific`
-value from a raw socket with `SO_TIMESTAMPING` and see which one returns a
-hardware stamp on the error queue; the `ethtool -T` capability list does not
-reveal this.
+- set `PTP4L_TRANSPORT_SPECIFIC = 0` and start the grandmaster with
+  `--transportSpecific=0` (or without the option): plain IEEE 1588, E2E; or
+- set `PTP4L_DELAY_MECHANISM = P2P` and start the grandmaster with
+  `--transportSpecific=1 --delay_mechanism=P2P`: gPTP.
+
+gPTP's peer-delay messages go to the link-local MAC `01:80:C2:00:00:0E`,
+which switches and bridges must not forward, so the P2P variant only works
+with the grandmaster on the same link (a direct cable, or an 802.1AS-capable
+switch). Through an ordinary lab switch the slave stays `UNCALIBRATED`
+without any error: the `Pdelay_Req` leaves the DUT but no `Pdelay_Resp` can
+come back.
+
+To check a NIC directly, send one PTPv2 event message per combination from a
+raw socket with `SO_TIMESTAMPING` and see which ones return a hardware stamp
+on the error queue; the `ethtool -T` capability list does not reveal this.
 
 ### Example launcher environment
+
+IEEE 1588 profile on a NIC that does not stamp `transportSpecific=1`
+`Delay_Req` frames:
 
 ```ini
 [environment]
 PTP4L_TRANSPORT_SPECIFIC = 0
+```
+
+gPTP over a direct cable:
+
+```ini
+[environment]
+PTP4L_TRANSPORT_SPECIFIC = 1
+PTP4L_DELAY_MECHANISM = P2P
 ```
 
 ## `ce-oem-ptp/ptp4l-time-sync-for-ETH_INTERFACE-manual`

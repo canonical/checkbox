@@ -7,9 +7,13 @@ the offset it reports against the grandmaster ("rms" lines).
 Checkbox config variables (launcher [environment]):
 
   PTP4L_TRANSPORT_SPECIFIC  transportSpecific nibble of the PTP header,
-                            0 (IEEE 1588) or 1 (802.1AS style). Default 1.
-                            Some NICs only hardware-timestamp one of the
-                            two, and the grandmaster must use the same value.
+                            0 (IEEE 1588) or 1 (802.1AS/gPTP). Default 1.
+                            The grandmaster must use the same value.
+  PTP4L_DELAY_MECHANISM     E2E (Delay_Req, ptp4l's default) or P2P
+                            (peer delay, what 802.1AS uses). Unset = E2E.
+                            Some NICs only hardware-timestamp 802.1AS
+                            message types when the nibble is 1, so 1 + E2E
+                            never gets a Delay_Req timestamp on them.
   PTP4L_PTP_MINOR_VERSION   passed as --ptp_minor_version on ptp4l >= 4.
 """
 
@@ -61,6 +65,14 @@ def build_ptp4l_args(iface, env, ptp4l_major):
         "--tx_timestamp_timeout={}".format(TX_TIMESTAMP_TIMEOUT_MS),
         "--transportSpecific={}".format(transport_specific),
     ]
+    delay_mechanism = env.get("PTP4L_DELAY_MECHANISM", "").strip().upper()
+    if delay_mechanism:
+        if delay_mechanism not in ("E2E", "P2P"):
+            raise SystemExit(
+                "ERROR: PTP4L_DELAY_MECHANISM must be E2E or P2P, "
+                "got {!r}".format(delay_mechanism)
+            )
+        args.append("--delay_mechanism={}".format(delay_mechanism))
     minor = env.get("PTP4L_PTP_MINOR_VERSION", "").strip()
     if minor:
         if ptp4l_major is not None and ptp4l_major >= 4:
@@ -111,16 +123,24 @@ def run_sync_test(iface, duration, rms_max):
         print("ERROR: unable to get rms value from the ptp4l output")
         print(
             "HINT: make sure a ptp4l grandmaster runs on the same network "
-            "segment with the same --transportSpecific value and a large "
-            "enough --logSyncInterval"
+            "segment with the same --transportSpecific value and "
+            "--delay_mechanism, and a large enough --logSyncInterval"
         )
         if "timed out while polling for tx timestamp" in output:
             print(
                 "HINT: ptp4l never received a hardware TX timestamp for its "
-                "Delay_Req. Some NICs (e.g. Realtek RTL8126, r8126 driver) "
-                "only timestamp transportSpecific=0 frames: set "
-                "PTP4L_TRANSPORT_SPECIFIC=0 in the checkbox config and start "
-                "the grandmaster without --transportSpecific=1"
+                "delay request. Some NICs (e.g. Realtek RTL8126, r8126 "
+                "driver) only timestamp 802.1AS message types when "
+                "transportSpecific is 1, so a Delay_Req is never stamped: "
+                "either set PTP4L_TRANSPORT_SPECIFIC=0 (IEEE 1588 + E2E) or "
+                "PTP4L_DELAY_MECHANISM=P2P (gPTP), on the grandmaster too"
+            )
+        elif "--delay_mechanism=P2P" in args and "UNCALIBRATED" in output:
+            print(
+                "HINT: the peer-delay exchange never completed. P2P "
+                "messages go to the link-local MAC 01:80:C2:00:00:0E, which "
+                "bridges/switches do not forward: the grandmaster must be on "
+                "the same link (direct cable or an 802.1AS-capable switch)"
             )
         return 1
     print()

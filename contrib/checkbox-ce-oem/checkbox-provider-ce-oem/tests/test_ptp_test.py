@@ -68,6 +68,31 @@ class TestBuildPtp4lArgs(unittest.TestCase):
         )
         self.assertNotIn("--ptp_minor_version=1", args)
 
+    def test_delay_mechanism_unset_keeps_ptp4l_default(self):
+        args = ptp_test.build_ptp4l_args("eth0", {}, ptp4l_major=3)
+        self.assertFalse(any(a.startswith("--delay_mechanism") for a in args))
+
+    def test_delay_mechanism_p2p_for_gptp(self):
+        args = ptp_test.build_ptp4l_args(
+            "eth0",
+            {"PTP4L_TRANSPORT_SPECIFIC": "1", "PTP4L_DELAY_MECHANISM": "p2p"},
+            ptp4l_major=3,
+        )
+        self.assertIn("--delay_mechanism=P2P", args)
+        self.assertIn("--transportSpecific=1", args)
+
+    def test_delay_mechanism_e2e_explicit(self):
+        args = ptp_test.build_ptp4l_args(
+            "eth0", {"PTP4L_DELAY_MECHANISM": "E2E"}, ptp4l_major=3
+        )
+        self.assertIn("--delay_mechanism=E2E", args)
+
+    def test_invalid_delay_mechanism_is_rejected(self):
+        with self.assertRaises(SystemExit):
+            ptp_test.build_ptp4l_args(
+                "eth0", {"PTP4L_DELAY_MECHANISM": "AUTO"}, ptp4l_major=3
+            )
+
 
 PTP4L_SYNCED = """\
 ptp4l[259.664]: selected best master clock d8860b.fffe.302283
@@ -84,6 +109,13 @@ ptp4l[259.664]: port 1: LISTENING to UNCALIBRATED on RS_SLAVE
 ptp4l[260.949]: timed out while polling for tx timestamp
 ptp4l[260.950]: port 1: send delay request failed
 ptp4l[260.950]: port 1: UNCALIBRATED to FAULTY on FAULT_DETECTED
+"""
+
+# P2P through a bridge: the peer-delay exchange never completes, no error
+PTP4L_P2P_STUCK = """\
+ptp4l[259.664]: port 1: new foreign master d8860b.fffe.302283-1
+ptp4l[259.664]: selected best master clock d8860b.fffe.302283
+ptp4l[259.664]: port 1: LISTENING to UNCALIBRATED on RS_SLAVE
 """
 
 
@@ -120,6 +152,15 @@ class TestRunSyncTest(unittest.TestCase):
         printed = " ".join(str(c.args[0]) for c in mock_print.call_args_list)
         self.assertIn("TX timestamp", printed)
         self.assertIn("PTP4L_TRANSPORT_SPECIFIC", printed)
+
+    @patch("ptp_test.ptp4l_major_version", return_value=3)
+    @patch("ptp_test.run_ptp4l", return_value=PTP4L_P2P_STUCK)
+    def test_p2p_hint_when_peer_delay_never_completes(self, *_):
+        with patch.dict(os.environ, {"PTP4L_DELAY_MECHANISM": "P2P"}):
+            with patch("builtins.print") as mock_print:
+                self.assertEqual(ptp_test.run_sync_test("eth0", 30, 1000), 1)
+        printed = " ".join(str(c.args[0]) for c in mock_print.call_args_list)
+        self.assertIn("01:80:C2:00:00:0E", printed)
 
     @patch("ptp_test.ptp4l_major_version", return_value=3)
     @patch("ptp_test.run_ptp4l", return_value=PTP4L_SYNCED)

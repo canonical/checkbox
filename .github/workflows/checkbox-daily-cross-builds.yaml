@@ -48,7 +48,7 @@ jobs:
           ./prepare.sh series${{ matrix.release }}
 
       - name: Set up QEMU
-        uses: docker/setup-qemu-action@1f40c72289eff860ee54a304f1438e3cff362e0a
+        uses: docker/setup-qemu-action@99012661954931238ded8c8b007157a8430204e1
 
       - id: snap_build
         name: Build (retries on fail)
@@ -133,7 +133,7 @@ jobs:
           ./prepare_${{ matrix.type }}.sh series_${{ matrix.type }}${{ matrix.release }}
 
       - name: Set up QEMU
-        uses: docker/setup-qemu-action@1f40c72289eff860ee54a304f1438e3cff362e0a
+        uses: docker/setup-qemu-action@99012661954931238ded8c8b007157a8430204e1
 
       - id: snap_build
         name: Build (retries on fail)

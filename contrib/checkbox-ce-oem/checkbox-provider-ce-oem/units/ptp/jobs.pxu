@@ -81,7 +81,7 @@ estimated_duration: 32s
 imports: from com.canonical.plainbox import manifest
 requires: manifest.has_ptp == 'True'
 depends: ce-oem-ptp/verify-PTP-support-for-{eth-interface}
-environ: PTP4L_PTP_MINOR_VERSION PTP4L_TRANSPORT_SPECIFIC PTP4L_DELAY_MECHANISM
+environ: PTP4L_PTP_MINOR_VERSION PTP4L_TRANSPORT_SPECIFIC PTP4L_DELAY_MECHANISM PTP4L_REARM_HWTSTAMP
 command: ptp_test.py sync {eth-interface}
 
 unit: template

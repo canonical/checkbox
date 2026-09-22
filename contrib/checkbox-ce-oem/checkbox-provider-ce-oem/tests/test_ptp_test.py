@@ -151,7 +151,16 @@ class TestRmsValues(unittest.TestCase):
 
 
 @patch.dict(os.environ, {}, clear=True)
+@patch("ptp_test.check_phc_ready", return_value=True)
 class TestRunSyncTest(unittest.TestCase):
+    @patch("ptp_test.ptp4l_major_version", return_value=3)
+    @patch("ptp_test.run_ptp4l", return_value=PTP4L_SYNCED)
+    def test_frozen_phc_fails_before_ptp4l(self, mock_run, _, mock_ready):
+        mock_ready.return_value = False
+        self.assertEqual(ptp_test.run_sync_test("eth0", 30, 1000), 1)
+        mock_run.assert_not_called()
+        mock_ready.return_value = True
+
     @patch("ptp_test.ptp4l_major_version", return_value=3)
     @patch("ptp_test.run_ptp4l", return_value=PTP4L_SYNCED)
     def test_pass_when_rms_within_limit(self, *_):
@@ -182,10 +191,66 @@ class TestRunSyncTest(unittest.TestCase):
 
     @patch("ptp_test.ptp4l_major_version", return_value=3)
     @patch("ptp_test.run_ptp4l", return_value=PTP4L_SYNCED)
-    def test_passes_environment_to_arg_builder(self, mock_run, _):
+    def test_passes_environment_to_arg_builder(self, mock_run, *_):
         with patch.dict(os.environ, {"PTP4L_TRANSPORT_SPECIFIC": "0"}):
             ptp_test.run_sync_test("eth0", 30, 1000)
         self.assertIn("--transportSpecific=0", mock_run.call_args.args[0])
+
+
+ETHTOOL_T = """\
+Time stamping parameters for enP1p1s0:
+Capabilities:
+\thardware-transmit
+\thardware-receive
+\thardware-raw-clock
+PTP Hardware Clock: 0
+"""
+
+
+class TestPhcReadiness(unittest.TestCase):
+    @patch("ptp_test.subprocess.run", return_value=_proc(stdout=ETHTOOL_T))
+    def test_phc_device_from_ethtool(self, _):
+        self.assertEqual(ptp_test.phc_device("enP1p1s0"), "/dev/ptp0")
+
+    @patch(
+        "ptp_test.subprocess.run",
+        return_value=_proc(stdout="PTP Hardware Clock: none\n"),
+    )
+    def test_no_phc(self, _):
+        self.assertIsNone(ptp_test.phc_device("eth0"))
+
+    @patch("ptp_test.phc_time", side_effect=[100.0, 101.0])
+    @patch("ptp_test.time.sleep")
+    def test_ticking_phc_is_ready(self, *_):
+        self.assertTrue(ptp_test.phc_advances("/dev/ptp0"))
+
+    @patch("ptp_test.phc_time", side_effect=[100.0, 100.0])
+    @patch("ptp_test.time.sleep")
+    def test_frozen_phc_is_not_ready(self, *_):
+        # r8126 after a device reset / resume: the PHC stops advancing
+        self.assertFalse(ptp_test.phc_advances("/dev/ptp0"))
+
+    @patch("ptp_test.phc_device", return_value="/dev/ptp0")
+    @patch("ptp_test.phc_advances", return_value=False)
+    @patch("ptp_test.rearm_hwtstamp")
+    def test_frozen_phc_fails_fast_without_rearm(self, mock_rearm, *_):
+        with patch("builtins.print") as mock_print:
+            self.assertFalse(ptp_test.check_phc_ready("eth0", {}))
+        printed = " ".join(str(c.args[0]) for c in mock_print.call_args_list)
+        self.assertIn("not advancing", printed)
+        self.assertIn("PTP4L_REARM_HWTSTAMP", printed)
+        mock_rearm.assert_not_called()
+
+    @patch("ptp_test.phc_device", return_value="/dev/ptp0")
+    @patch("ptp_test.phc_advances", return_value=True)
+    @patch("ptp_test.rearm_hwtstamp")
+    def test_rearm_only_when_opted_in(self, mock_rearm, *_):
+        self.assertTrue(ptp_test.check_phc_ready("eth0", {}))
+        mock_rearm.assert_not_called()
+        self.assertTrue(
+            ptp_test.check_phc_ready("eth0", {"PTP4L_REARM_HWTSTAMP": "1"})
+        )
+        mock_rearm.assert_called_once_with("eth0", "/dev/ptp0")
 
 
 class TestMain(unittest.TestCase):

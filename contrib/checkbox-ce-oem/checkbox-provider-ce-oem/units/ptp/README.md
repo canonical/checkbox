@@ -69,6 +69,14 @@ Runs `ptp4l` as a slave on the interface for 30 seconds
 the grandmaster: the job passes when the last `rms` values are all within
 1000 ns. It depends on the `verify-PTP-support` job for the same interface.
 
+Before starting `ptp4l` the script checks that the interface's PTP hardware
+clock (`/dev/ptp<N>` from `ethtool -T`) is advancing. A PHC that does not
+advance means the NIC's timestamping engine is off — seen on the Realtek
+r8126 after every device reset or suspend/resume, while the driver still
+reports timestamping enabled — and the job fails immediately with that
+reason instead of a timeout or a huge offset. This is deliberately not
+repaired automatically: after-suspend PTP jobs exist to catch exactly that.
+
 The DUT side is started as:
 
 ```
@@ -87,6 +95,7 @@ Use these variables in the launcher `[environment]` section when needed:
 | `PTP4L_TRANSPORT_SPECIFIC` | `transportSpecific` nibble of the PTP header: `0` (IEEE 1588) or `1` (IEEE 802.1AS / gPTP). The grandmaster must use the same value. | `1` |
 | `PTP4L_DELAY_MECHANISM`    | Path-delay mechanism: `E2E` (`Delay_Req`/`Delay_Resp`, ptp4l's default) or `P2P` (peer delay, what 802.1AS uses). The grandmaster must use the same mechanism. | Not set (`E2E`) |
 | `PTP4L_PTP_MINOR_VERSION`  | Value for `--ptp_minor_version`; only applied when `ptp4l` is version 4 or newer. | Not set |
+| `PTP4L_REARM_HWTSTAMP`     | `1` re-programs hardware timestamping on the interface before the test (`hwstamp_ctl` off then on, `phc_ctl <dev> set` from system time). Workaround for NICs whose PTP engine stays off after a device reset or resume while the driver still reports it enabled (Realtek r8126). Opt-in only: it briefly drops the link and hides a resume finding that the after-suspend job is meant to report. | Not set (off) |
 
 The two variables together select a PTP profile. The standard pairs are
 `0` + `E2E` (IEEE 1588 default profile) and `1` + `P2P` (IEEE 802.1AS /

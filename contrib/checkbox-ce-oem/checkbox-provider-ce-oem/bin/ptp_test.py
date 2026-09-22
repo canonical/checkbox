@@ -15,12 +15,21 @@ Checkbox config variables (launcher [environment]):
                             message types when the nibble is 1, so 1 + E2E
                             never gets a Delay_Req timestamp on them.
   PTP4L_PTP_MINOR_VERSION   passed as --ptp_minor_version on ptp4l >= 4.
+  PTP4L_REARM_HWTSTAMP      "1" re-programs hardware timestamping on the
+                            interface (hwstamp_ctl off/on + phc_ctl set)
+                            before the test. Off by default: a PHC that
+                            stopped after a device reset or resume is a
+                            finding, and the toggle briefly drops the link.
+
+Before ptp4l runs, the interface's PTP hardware clock is checked to be
+advancing; a frozen PHC fails the job immediately with the reason.
 """
 
 import argparse
 import os
 import re
 import subprocess
+import time
 
 # Always pass --tx_timestamp_timeout=5: a linuxptp patch increased the
 # default TX timestamp timeout from 1 ms to 5 ms because some drivers need
@@ -94,6 +103,88 @@ def build_ptp4l_args(iface, env, ptp4l_major):
     return args
 
 
+def phc_device(iface):
+    """/dev/ptpN behind iface (from `ethtool -T`), or None without a PHC."""
+    ret = subprocess.run(
+        ["ethtool", "-T", iface],
+        stdout=subprocess.PIPE,
+        stderr=subprocess.STDOUT,
+        universal_newlines=True,
+    )
+    match = re.search(
+        r"(?:PTP Hardware Clock|Hardware timestamp provider index): (\d+)",
+        ret.stdout,
+    )
+    return "/dev/ptp{}".format(match.group(1)) if match else None
+
+
+def phc_time(device):
+    """Current time of the PHC device, read through its dynamic clock id."""
+    fd = os.open(device, os.O_RDONLY)
+    try:
+        # FD_TO_CLOCKID() from linux/posix-timers: ((~fd) << 3) | CLOCKFD
+        return time.clock_gettime((~fd << 3) | 3)
+    finally:
+        os.close(fd)
+
+
+def phc_advances(device, interval=1.0):
+    """True when the PHC moved by about `interval` seconds in `interval`."""
+    t0 = phc_time(device)
+    time.sleep(interval)
+    delta = phc_time(device) - t0
+    print(
+        "PHC {} advanced {:.3f} s in {:.0f} s".format(device, delta, interval)
+    )
+    return 0.5 * interval < delta < 1.5 * interval
+
+
+def rearm_hwtstamp(iface, device):
+    """Re-program hardware timestamping and set the PHC from system time.
+
+    Opt-in workaround for NICs whose PTP engine is left disabled by a device
+    reset or resume while the driver still reports it enabled (seen on the
+    r8126): a new SIOCSHWTSTAMP with unchanged values is a no-op there, so
+    toggle it off and on. The toggle can drop the link for a few seconds.
+    """
+    print("PTP4L_REARM_HWTSTAMP=1: re-programming hardware timestamping")
+    for opts in (["-t", "0", "-r", "0"], ["-t", "1", "-r", "12"]):
+        _run_quiet(["hwstamp_ctl", "-i", iface] + opts)
+    _run_quiet(["phc_ctl", device, "set"])
+
+
+def _run_quiet(cmd):
+    ret = subprocess.run(
+        cmd,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.STDOUT,
+        universal_newlines=True,
+    )
+    print("{} -> {}".format(" ".join(cmd), ret.returncode))
+    return ret.returncode
+
+
+def check_phc_ready(iface, env):
+    """Fail early, with the reason, when the interface's PHC does not run."""
+    device = phc_device(iface)
+    if device is None:
+        print("ERROR: {} reports no PTP hardware clock".format(iface))
+        return False
+    if env.get("PTP4L_REARM_HWTSTAMP", "").strip() == "1":
+        rearm_hwtstamp(iface, device)
+    if phc_advances(device):
+        return True
+    print(
+        "ERROR: PHC {} of {} is not advancing: hardware timestamping is "
+        "disabled although the driver may still report it enabled, "
+        "typically after a device reset or suspend/resume. That is a "
+        "platform finding; to test synchronisation anyway set "
+        "PTP4L_REARM_HWTSTAMP=1 (re-programs the NIC, briefly drops the "
+        "link)".format(device, iface)
+    )
+    return False
+
+
 def run_ptp4l(args, duration):
     """Run ptp4l for duration seconds and return everything it printed."""
     print("Executing ptp4l for {}s: ptp4l {}".format(duration, " ".join(args)))
@@ -125,6 +216,8 @@ def rms_values(output, last=RMS_LINES):
 
 
 def run_sync_test(iface, duration, rms_max):
+    if not check_phc_ready(iface, os.environ):
+        return 1
     args = build_ptp4l_args(iface, os.environ, ptp4l_major_version())
     output = run_ptp4l(args, duration)
     values = rms_values(output)

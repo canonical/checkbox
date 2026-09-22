@@ -162,6 +162,7 @@ id: ce-oem-ptp/ptp4l-time-sync-for-{eth-interface}-auto
 PTP4L_TRANSPORT_SPECIFIC={0|1}   (optional, default 1; the grandmaster must use the same value)
 PTP4L_DELAY_MECHANISM={E2E|P2P}  (optional, default E2E; P2P = gPTP peer delay, same on the grandmaster)
 PTP4L_PTP_MINOR_VERSION={minor}  (optional, ptp4l >= 4 only)
+PTP4L_REARM_HWTSTAMP=1           (optional, default off; re-programs NIC timestamping + sets the PHC before the test, drops the link briefly)
 e.g. PTP4L_TRANSPORT_SPECIFIC=0
 See checkbox-provider-ce-oem/units/ptp/README.md
 ```

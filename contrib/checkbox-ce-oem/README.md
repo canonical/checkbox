@@ -157,4 +157,10 @@ e.g. TOTAL_RTC_NUM=2
 id: ce-oem-serial/rs485-list
 RS485_PORTS={port1} {port2}
 e.g. RS485_PORTS=/dev/ttymxc1 /dev/ttymxc2
+
+id: ce-oem-ptp/ptp4l-time-sync-for-{eth-interface}-auto
+PTP4L_TRANSPORT_SPECIFIC={0|1}   (optional, default 1; the grandmaster must use the same value)
+PTP4L_PTP_MINOR_VERSION={minor}  (optional, ptp4l >= 4 only)
+e.g. PTP4L_TRANSPORT_SPECIFIC=0
+See checkbox-provider-ce-oem/units/ptp/README.md
 ```

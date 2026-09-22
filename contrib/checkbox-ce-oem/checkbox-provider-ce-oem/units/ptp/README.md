@@ -81,6 +81,11 @@ first thing), so nothing is judged and the test proceeds. The frozen state
 is deliberately not repaired automatically: after-suspend PTP jobs exist to
 catch exactly that.
 
+On the r8126, enabling timestamping itself drops the link for a few seconds
+(`ptp4l` logs `port 1: link down` right after `selected /dev/ptp0 as PTP
+clock`, then `link up` about 3.5 s later and starts over). The 30 s run
+absorbs that; it is also why `PTP4L_REARM_HWTSTAMP=1` flaps the link.
+
 The DUT side is started as:
 
 ```

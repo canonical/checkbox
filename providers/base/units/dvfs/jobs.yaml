@@ -1,0 +1,54 @@
+id: dvfs/detect_dvfs_devices
+category_id: dvfs
+summary: Ensure any DVFS device is available for detection.
+purpose: |
+  Test to detect if any DVFS device is available under /sys/class/devfreq
+  If no DVFS device is available, the test will fail.
+  If DVFS devices are available, the test will pass.
+  If EXPECTED_DVFS_DEVICES environment variable is set, the test will check
+  if the expected devices and their governors are matched against the
+  actual available DVFS devices.
+  Example:
+    Single dvfs device:
+      EXPECTED_DVFS_DEVICES="13000000.gpu|userspace,powersave,performance,simple_ondemand"
+    Multiple dvfs device:
+      EXPECTED_DVFS_DEVICES="13000000.gpu|userspace,powersave,performance,simple_ondemand soc:vpu_devfreq|userspace,powersave"
+plugin: shell
+user: root
+flags:
+  - also-after-suspend
+estimated_duration: 1
+environ:
+  - EXPECTED_DVFS_DEVICES
+command: dvfs_test.py detect
+---
+id: dvfs/dvfs_resource
+category_id: dvfs
+summary: Generate resource records for DVFS devices
+purpose: |
+  Generate resource records for any DVFS device available under
+  /sys/class/devfreq path
+plugin: resource
+user: root
+estimated_duration: 1
+command: dvfs_test.py resource
+---
+unit: template
+template-engine: jinja2
+template-resource: dvfs/dvfs_resource
+template-unit: job
+template-id: dvfs/dvfs_device_governor_test
+id: dvfs/dvfs_test_{{dvfs_device_name}}-{{governor}}
+category_id: dvfs
+summary: Validate DVFS '{{dvfs_device_name}}' device with '{{governor}}' governor
+purpose: |
+  Test the DVFS '{{dvfs_device_name}}' device with '{{governor}}' governor
+  by adjusting the governor's frequency accordingly.
+plugin: shell
+user: root
+depends:
+  - dvfs/detect_dvfs_devices
+estimated_duration: 5s
+flags:
+  - also-after-suspend
+command: dvfs_test.py test -d "{{dvfs_device_name}}" -g "{{governor}}"

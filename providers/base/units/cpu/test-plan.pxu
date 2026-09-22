@@ -53,6 +53,7 @@ include:
     after-suspend-cpu/offlining_test                             certification-status=blocker
     after-suspend-cpu/topology                     certification-status=blocker
     after-suspend-cpu/clocktest
+    after-suspend-cpu/idle_state_test
 
 id: cpu-cert-blockers
 unit: test plan

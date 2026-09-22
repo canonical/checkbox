@@ -21,8 +21,10 @@ Checkbox config variables (launcher [environment]):
                             stopped after a device reset or resume is a
                             finding, and the toggle briefly drops the link.
 
-Before ptp4l runs, the interface's PTP hardware clock is checked to be
-advancing; a frozen PHC fails the job immediately with the reason.
+Before ptp4l runs, and only when the driver already reports hardware
+timestamping enabled, the interface's PTP hardware clock is checked to be
+advancing; a frozen PHC then fails the job immediately with the reason. On
+a fresh boot timestamping is off (ptp4l enables it) and nothing is judged.
 """
 
 import argparse
@@ -128,6 +130,22 @@ def phc_time(device):
         os.close(fd)
 
 
+def hwtstamp_enabled(iface):
+    """True when the driver reports TX hardware timestamping on (hwstamp_ctl).
+
+    `hwstamp_ctl -i <iface>` without -t/-r only reads the current setting
+    (SIOCGHWTSTAMP); it prints "tx_type <n>" and "rx_filter <n>".
+    """
+    ret = subprocess.run(
+        ["hwstamp_ctl", "-i", iface],
+        stdout=subprocess.PIPE,
+        stderr=subprocess.STDOUT,
+        universal_newlines=True,
+    )
+    match = re.search(r"tx_type\s+(\d+)", ret.stdout)
+    return bool(match) and match.group(1) != "0"
+
+
 def phc_advances(device, interval=1.0):
     """True when the PHC moved by about `interval` seconds in `interval`."""
     t0 = phc_time(device)
@@ -172,12 +190,21 @@ def check_phc_ready(iface, env):
         return False
     if env.get("PTP4L_REARM_HWTSTAMP", "").strip() == "1":
         rearm_hwtstamp(iface, device)
+    if not hwtstamp_enabled(iface):
+        # Fresh boot: some PHCs (r8126) only run once timestamping is
+        # enabled, which ptp4l does first thing. Nothing to judge yet.
+        print(
+            "hardware timestamping on {} is off, ptp4l will enable it; "
+            "skipping the PHC check".format(iface)
+        )
+        return True
     if phc_advances(device):
         return True
     print(
-        "ERROR: PHC {} of {} is not advancing: hardware timestamping is "
-        "disabled although the driver may still report it enabled, "
-        "typically after a device reset or suspend/resume. That is a "
+        "ERROR: PHC {} of {} is not advancing although the driver reports "
+        "hardware timestamping enabled: the NIC's PTP engine was switched "
+        "off underneath it, typically by a device reset or suspend/resume, "
+        "and re-enabling with the same settings is a no-op. That is a "
         "platform finding; to test synchronisation anyway set "
         "PTP4L_REARM_HWTSTAMP=1 (re-programs the NIC, briefly drops the "
         "link)".format(device, iface)

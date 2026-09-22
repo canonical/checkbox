@@ -230,10 +230,44 @@ class TestPhcReadiness(unittest.TestCase):
         # r8126 after a device reset / resume: the PHC stops advancing
         self.assertFalse(ptp_test.phc_advances("/dev/ptp0"))
 
+    @patch(
+        "ptp_test.subprocess.run",
+        return_value=_proc(
+            stdout="current settings:\ntx_type 1\nrx_filter 12\n"
+        ),
+    )
+    def test_hwtstamp_enabled_from_hwstamp_ctl(self, mock_run):
+        self.assertTrue(ptp_test.hwtstamp_enabled("eth0"))
+        self.assertEqual(
+            mock_run.call_args[0][0], ["hwstamp_ctl", "-i", "eth0"]
+        )
+
+    @patch(
+        "ptp_test.subprocess.run",
+        return_value=_proc(
+            stdout="current settings:\ntx_type 0\nrx_filter 0\n"
+        ),
+    )
+    def test_hwtstamp_disabled_on_fresh_boot(self, _):
+        self.assertFalse(ptp_test.hwtstamp_enabled("eth0"))
+
     @patch("ptp_test.phc_device", return_value="/dev/ptp0")
+    @patch("ptp_test.hwtstamp_enabled", return_value=False)
+    @patch("ptp_test.phc_advances", return_value=False)
+    def test_frozen_phc_is_fine_while_timestamping_is_off(self, mock_adv, *_):
+        # fresh boot on the r8126: PHC stopped until ptp4l enables timestamping
+        with patch("builtins.print") as mock_print:
+            self.assertTrue(ptp_test.check_phc_ready("eth0", {}))
+        printed = " ".join(str(c.args[0]) for c in mock_print.call_args_list)
+        self.assertIn("ptp4l will enable it", printed)
+        mock_adv.assert_not_called()
+
+    @patch("ptp_test.phc_device", return_value="/dev/ptp0")
+    @patch("ptp_test.hwtstamp_enabled", return_value=True)
     @patch("ptp_test.phc_advances", return_value=False)
     @patch("ptp_test.rearm_hwtstamp")
     def test_frozen_phc_fails_fast_without_rearm(self, mock_rearm, *_):
+        # after a reset / resume: driver says enabled, PHC does not move
         with patch("builtins.print") as mock_print:
             self.assertFalse(ptp_test.check_phc_ready("eth0", {}))
         printed = " ".join(str(c.args[0]) for c in mock_print.call_args_list)
@@ -242,6 +276,7 @@ class TestPhcReadiness(unittest.TestCase):
         mock_rearm.assert_not_called()
 
     @patch("ptp_test.phc_device", return_value="/dev/ptp0")
+    @patch("ptp_test.hwtstamp_enabled", return_value=True)
     @patch("ptp_test.phc_advances", return_value=True)
     @patch("ptp_test.rearm_hwtstamp")
     def test_rearm_only_when_opted_in(self, mock_rearm, *_):

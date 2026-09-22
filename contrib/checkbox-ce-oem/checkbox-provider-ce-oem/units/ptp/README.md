@@ -69,13 +69,17 @@ Runs `ptp4l` as a slave on the interface for 30 seconds
 the grandmaster: the job passes when the last `rms` values are all within
 1000 ns. It depends on the `verify-PTP-support` job for the same interface.
 
-Before starting `ptp4l` the script checks that the interface's PTP hardware
-clock (`/dev/ptp<N>` from `ethtool -T`) is advancing. A PHC that does not
-advance means the NIC's timestamping engine is off — seen on the Realtek
-r8126 after every device reset or suspend/resume, while the driver still
-reports timestamping enabled — and the job fails immediately with that
-reason instead of a timeout or a huge offset. This is deliberately not
-repaired automatically: after-suspend PTP jobs exist to catch exactly that.
+Before starting `ptp4l` the script reads the interface's timestamping
+setting (`hwstamp_ctl -i <interface>`). When the driver reports it enabled,
+the PTP hardware clock (`/dev/ptp<N>` from `ethtool -T`) must be advancing;
+a frozen PHC in that state means the NIC's timestamping engine was switched
+off underneath the driver — seen on the Realtek r8126 after every device
+reset or suspend/resume — and the job fails immediately with that reason
+instead of a timeout or a huge offset. On a fresh boot the setting is off
+(the r8126 PHC does not even run until it is enabled, which `ptp4l` does
+first thing), so nothing is judged and the test proceeds. The frozen state
+is deliberately not repaired automatically: after-suspend PTP jobs exist to
+catch exactly that.
 
 The DUT side is started as:
 

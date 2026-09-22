@@ -29,9 +29,7 @@ class RunLocalTests(unittest.TestCase):
 
     @patch.object(run_local.subprocess, "run")
     @patch.object(run_local.patch_checkbox_snap, "main")
-    def test_stages_launcher_and_runs_spread(
-        self, mock_patch_snap, mock_run
-    ):
+    def test_stages_launcher_and_runs_spread(self, mock_patch_snap, mock_run):
         with patch.object(run_local, "PROJECT_DIR", self.root):
             run_local.run(self.args())
 

@@ -17,9 +17,7 @@ METABOX_PROVIDER = (
     "metabox/metabox/metabox-provider",
     "metabox",
 )
-METABOX_PROVIDER_EXTRA = (
-    Path(__file__).resolve().parent / "metabox_provider"
-)
+METABOX_PROVIDER_EXTRA = Path(__file__).resolve().parent / "metabox_provider"
 
 
 def sync_dir(source, destination):
@@ -45,9 +43,7 @@ def python_package_targets(repo, snap_root):
 def provider_targets(repo, snap_root):
     targets = []
     for provider_dir in sorted((repo / "providers").iterdir()):
-        destination = (
-            snap_root / f"providers/checkbox-provider-{provider_dir.name}"
-        )
+        destination = snap_root / f"providers/checkbox-provider-{provider_dir.name}"
         if provider_dir.is_dir() and destination.is_dir():
             targets.append((provider_dir, destination))
 

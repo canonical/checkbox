@@ -18,7 +18,6 @@
 # along with Checkbox.  If not, see <http://www.gnu.org/licenses/>.
 
 import json
-import os
 import tempfile
 import unittest
 from io import StringIO
@@ -126,7 +125,7 @@ class TestGovernorsAndFrequencies(DvfsTestCaseBase):
 
 
 class TestResolveDvfsProcessors(DvfsTestCaseBase):
-    @patch.dict(os.environ, {}, clear=True)
+    @patch.object(dvfs_test, "DVFS_PROCESSORS_FILE_PATH", "")
     def test_falls_back_to_default_root_scan(self):
         self.make_device("13000000.gpu")
         self.make_device("soc:vpu_devfreq")
@@ -169,9 +168,7 @@ class TestResolveDvfsProcessors(DvfsTestCaseBase):
             "denylist": [],
         }
         config_path = self.write_config(config)
-        with patch.dict(
-            os.environ, {"DVFS_PROCESSORS_FILE_PATH": config_path}, clear=True
-        ):
+        with patch.object(dvfs_test, "DVFS_PROCESSORS_FILE_PATH", config_path):
             result = dvfs_test.resolve_dvfs_processors()
         self.assertEqual(
             result["13000000.gpu"],
@@ -199,9 +196,7 @@ class TestResolveDvfsProcessors(DvfsTestCaseBase):
             "denylist": [],
         }
         config_path = self.write_config(config)
-        with patch.dict(
-            os.environ, {"DVFS_PROCESSORS_FILE_PATH": config_path}, clear=True
-        ):
+        with patch.object(dvfs_test, "DVFS_PROCESSORS_FILE_PATH", config_path):
             result = dvfs_test.resolve_dvfs_processors()
         self.assertEqual(result["13000000.gpu"]["path"], dev_path)
 
@@ -222,20 +217,18 @@ class TestResolveDvfsProcessors(DvfsTestCaseBase):
             "denylist": ["soc:vpu_devfreq"],
         }
         config_path = self.write_config(config)
-        with patch.dict(
-            os.environ, {"DVFS_PROCESSORS_FILE_PATH": config_path}, clear=True
-        ):
+        with patch.object(dvfs_test, "DVFS_PROCESSORS_FILE_PATH", config_path):
             result = dvfs_test.resolve_dvfs_processors()
         self.assertEqual(set(result.keys()), {"13000000.gpu"})
 
 
 class TestDoCheck(DvfsTestCaseBase):
-    @patch.dict(os.environ, {}, clear=True)
+    @patch.object(dvfs_test, "DVFS_PROCESSORS_FILE_PATH", "")
     def test_fails_when_no_devices_and_no_config(self):
         with self.assertRaises(SystemExit):
             dvfs_test.do_check()
 
-    @patch.dict(os.environ, {}, clear=True)
+    @patch.object(dvfs_test, "DVFS_PROCESSORS_FILE_PATH", "")
     def test_passes_when_devices_present_and_no_config(self):
         self.make_device("13000000.gpu")
         dvfs_test.do_check()
@@ -266,9 +259,7 @@ class TestDoCheck(DvfsTestCaseBase):
             "denylist": [],
         }
         config_path = self.write_config(config)
-        with patch.dict(
-            os.environ, {"DVFS_PROCESSORS_FILE_PATH": config_path}, clear=True
-        ):
+        with patch.object(dvfs_test, "DVFS_PROCESSORS_FILE_PATH", config_path):
             dvfs_test.do_check()
 
     def test_fails_when_expected_governors_mismatch(self):
@@ -286,9 +277,7 @@ class TestDoCheck(DvfsTestCaseBase):
             "denylist": [],
         }
         config_path = self.write_config(config)
-        with patch.dict(
-            os.environ, {"DVFS_PROCESSORS_FILE_PATH": config_path}, clear=True
-        ):
+        with patch.object(dvfs_test, "DVFS_PROCESSORS_FILE_PATH", config_path):
             with self.assertRaises(SystemExit):
                 dvfs_test.do_check()
 
@@ -305,9 +294,7 @@ class TestDoCheck(DvfsTestCaseBase):
             "denylist": [],
         }
         config_path = self.write_config(config)
-        with patch.dict(
-            os.environ, {"DVFS_PROCESSORS_FILE_PATH": config_path}, clear=True
-        ):
+        with patch.object(dvfs_test, "DVFS_PROCESSORS_FILE_PATH", config_path):
             with self.assertRaises(SystemExit):
                 dvfs_test.do_check()
 
@@ -328,18 +315,16 @@ class TestDoCheck(DvfsTestCaseBase):
             "denylist": [],
         }
         config_path = self.write_config(config)
-        with patch.dict(
-            os.environ, {"DVFS_PROCESSORS_FILE_PATH": config_path}, clear=True
-        ):
+        with patch.object(dvfs_test, "DVFS_PROCESSORS_FILE_PATH", config_path):
             dvfs_test.do_check()
 
 
 class TestCmdResource(DvfsTestCaseBase):
-    @patch.dict(os.environ, {}, clear=True)
+    @patch.object(dvfs_test, "DVFS_PROCESSORS_FILE_PATH", "")
     def test_returns_none_with_no_devices(self):
         self.assertIsNone(dvfs_test.cmd_resource())
 
-    @patch.dict(os.environ, {}, clear=True)
+    @patch.object(dvfs_test, "DVFS_PROCESSORS_FILE_PATH", "")
     def test_emits_one_record_per_device_governor_pair(self):
         self.make_device(
             "dev0", available_governors=("userspace", "performance")
@@ -370,8 +355,8 @@ class TestCmdResource(DvfsTestCaseBase):
             "denylist": [],
         }
         config_path = self.write_config(config)
-        with patch.dict(
-            os.environ, {"DVFS_PROCESSORS_FILE_PATH": config_path}, clear=True
+        with patch.object(
+            dvfs_test, "DVFS_PROCESSORS_FILE_PATH", config_path
         ), patch("sys.stdout", new_callable=StringIO) as out:
             dvfs_test.cmd_resource()
         text = out.getvalue()
@@ -428,9 +413,27 @@ class TestCmdTest(DvfsTestCaseBase):
         self.make_device("dev0", available_frequencies=(100, 200, 300))
         dvfs_test.cmd_test("dev0", "gpu", "", "userspace")
 
-    def test_other_governor_only_checks_switch(self):
+    def test_simple_ondemand_only_checks_switch(self):
         self.make_device("dev0")
         dvfs_test.cmd_test("dev0", "gpu", "", "simple_ondemand")
+
+    def test_unimplemented_governor_fails_even_if_switch_succeeds(self):
+        # "conservative" is a real, switchable governor here (present
+        # in available_governors and the write/poll succeeds), but
+        # since it has no dedicated verification branch it must still
+        # be reported as a failure instead of a silent pass.
+        self.make_device(
+            "dev0",
+            available_governors=(
+                "simple_ondemand",
+                "userspace",
+                "powersave",
+                "performance",
+                "conservative",
+            ),
+        )
+        with self.assertRaises(SystemExit):
+            dvfs_test.cmd_test("dev0", "gpu", "", "conservative")
 
     def test_restores_original_state_after_test(self):
         dev_dir = self.make_device("dev0", governor="userspace", cur_freq=200)

@@ -122,18 +122,6 @@ command: cat /var/tmp/checkbox-providers/*/side-load-changes.json || true
 _description:
  attach what changed from sideloading.
 
-plugin: attachment
-category_id: com.canonical.plainbox::miscellanea
-id: miscellanea/csme-detection-tool
-estimated_duration: 5.0
-requires:
- cpuinfo.type == 'GenuineIntel'
- module.name == 'mei_me'
- package.name == 'curl'
-command: csme-detection-tool.sh
-_description:
- Attach Intel ME info.
-
 unit: template
 template-resource: dmi
 template-filter:

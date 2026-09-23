@@ -1,0 +1,10 @@
+{
+    "allowlist": [
+        {
+            "device_name": "13040000.mali",
+            "type": "gpu",
+            "governors": ["userspace", "powersave", "performance", "simple_ondemand"]
+        }
+    ],
+    "denylist": []
+}

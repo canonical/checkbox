@@ -1,0 +1,47 @@
+id: ce-oem-dvfs/dvfs_resource
+category_id: dvfs
+summary: Generate resource records for DVFS processors
+purpose: |
+  Generate resource records for DVFS processors by discovering the available processors and their governors under /sys/class/devfreq path.
+  If the DVFS_PROCESSORS_FILE_PATH environment variable is set, this resource job will use the file specified by this path to generate the resource records.
+plugin: resource
+user: root
+estimated_duration: 1
+environ:
+ - PLAINBOX_PROVIDER_DATA
+ - DVFS_PROCESSORS_FILE_PATH
+command: resource_wrapper.sh -- dvfs_test.py resource
+---
+id: ce-oem-dvfs/check_dvfs_resource
+category_id: dvfs
+summary: Check resource records for DVFS processors
+purpose: |
+  Check the resource job, ce-oem-dvfs/dvfs_resource, records correctness for DVFS processors.
+plugin: shell
+user: root
+estimated_duration: 1
+environ:
+ - PLAINBOX_PROVIDER_DATA
+ - DVFS_PROCESSORS_FILE_PATH
+command: dvfs_test.py resource --debug
+---
+unit: template
+template-engine: jinja2
+template-resource: ce-oem-dvfs/dvfs_resource
+template-unit: job
+template-id: ce-oem-dvfs/dvfs_processor_governor_test
+id: ce-oem-dvfs/dvfs_processor_{{dvfs_processor_type}}_{{dvfs_processor_name}}-{{governor}}
+category_id: dvfs
+summary: Validate DVFS '{{dvfs_processor_type}}' '{{dvfs_processor_name}}' processor with '{{governor}}' governor
+template-summary: Validate DVFS processor with governor
+purpose: |
+  Test the DVFS '{{dvfs_processor_type}}' '{{dvfs_processor_name}}' processor with '{{governor}}' governor
+  by adjusting the governor's frequency accordingly.
+plugin: shell
+user: root
+depends:
+  - ce-oem-dvfs/check_dvfs_resource
+estimated_duration: 5s
+flags:
+  - also-after-suspend
+command: dvfs_test.py test -t "{{dvfs_processor_type}}" -d "{{dvfs_processor_name}}" -g "{{governor}}" -p "{{sysfs_path}}"

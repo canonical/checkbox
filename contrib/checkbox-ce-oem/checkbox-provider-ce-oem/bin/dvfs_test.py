@@ -18,29 +18,23 @@
 # along with Checkbox. If not, see <http://www.gnu.org/licenses/>.
 
 """
-DVFS (Dynamic Voltage and Frequency Scaling) GPU helper for Checkbox.
+DVFS (Dynamic Voltage and Frequency Scaling) helper for Checkbox.
 
-This script only deals with GPU devfreq devices. By default it looks for
-them under /sys/class/devfreq/, exactly like any other devfreq device.
-Some GPU drivers (e.g. proprietary Mali/Verisilicon stacks) instead
-expose their devfreq node under a different sysfs path (for example
-/sys/class/misc/mali0/device/devfreq/<name>); the DVFS_GPU_DEVICES
-environment variable lets the board configuration point at the right
-place, and/or restrict which device(s) are exercised, and/or assert
-which governors are expected to be available.
+The processor(s) to exercise are described by a per-platform JSON file
+(see data/dynamic-voltage-and-frequency-scaling/*.json and its schema)
+pointed at by the DVFS_PROCESSORS_FILE_PATH environment variable. When
+that variable isn't set, every devfreq processor found under
+/sys/class/devfreq/ is used instead, with its type defaulting to
+"other".
 
 Subcommands:
-  detect    Fail if no DVFS GPU device is available. If the
-            DVFS_GPU_DEVICES environment variable is set, also check
-            that every listed device (and its governors) is present.
-  resource  Emit one resource record per (device, governor) pair for the
-            GPU device(s) selected by DVFS_GPU_DEVICES (or every devfreq
-            device under /sys/class/devfreq/ if it isn't set), used to
-            generate the per-device, per-governor test jobs via the
-            "dvfs/dvfs_gpu_resource" template.
-  test      Switch a single DVFS GPU device to the given governor and
-            verify the switch took effect, restoring the original state
-            afterwards.
+  resource  Emit one resource record per (processor, governor) pair
+            for the selected processor(s), used to generate the
+            per-processor, per-governor test jobs via the
+            "ce-oem-dvfs/dvfs_resource" template.
+  test      Switch a single DVFS processor to the given governor and
+            verify the switch took effect, restoring the original
+            state afterwards.
 """
 
 import argparse
@@ -51,13 +45,21 @@ from contextlib import contextmanager
 from pathlib import Path
 from typing import Dict, Generator, List, Optional, Tuple
 
+from general_utils import load_json_file
+
 logger = logging.getLogger(__name__)
 
 DEVFREQ_ROOT = Path("/sys/class/devfreq")
 
-# Environment variable used to select/describe the GPU devfreq device(s),
-# see the module docstring and parse_dvfs_gpu_devices() for its format.
-DVFS_GPU_DEVICES = "DVFS_GPU_DEVICES"
+# Environment variable pointing at the JSON processor map to use.
+# Relative paths are resolved under PLAINBOX_PROVIDER_DATA by
+# general_utils.load_json_file().
+DVFS_PROCESSORS_FILE_PATH = "DVFS_PROCESSORS_FILE_PATH"
+
+# Available processor types are gpu, vpu and npu now. A processor is classified
+# as "other" if it doesn't match any of these types in the JSON allowlist.
+DEFAULT_PROCESSOR_TYPE = "other"
+
 
 # Polling defaults used while waiting for a governor/frequency change
 # requested through sysfs to take effect.
@@ -78,7 +80,7 @@ def _write_node(path: Path, value) -> bool:
         path.write_text(str(value))
         return True
     except OSError as exc:
-        logger.debug(f"write {path}={value} failed: {exc}")
+        logger.error(f"write {path}={value} failed: {exc}")
         return False
 
 
@@ -97,12 +99,12 @@ def _poll_until(read_fn, is_done) -> Optional[str]:
     return value
 
 
-def list_devfreq_devices() -> List[str]:
+def list_devfreq_processors() -> List[str]:
     """Return the sorted list of device names under /sys/class/devfreq/.
 
     Only entries that actually expose a "governor" node are considered
     valid devfreq devices. This is only used as the fallback when
-    DVFS_GPU_DEVICES isn't set; see resolve_dvfs_gpu_devices().
+    DVFS_PROCESSORS_FILE_PATH isn't set.
     """
     if not DEVFREQ_ROOT.is_dir():
         return []
@@ -130,125 +132,101 @@ def get_available_frequencies(dev_path: Path) -> List[int]:
     return [int(token) for token in raw.split()]
 
 
-def parse_dvfs_gpu_devices(spec: str) -> Dict[str, Dict]:
-    """Parse the DVFS_GPU_DEVICES environment variable.
+def resolve_dvfs_processors() -> Dict[str, Dict]:
+    """Return {processor_name: {"path", "type", "governors"}} for every
+    processor to use.
 
-    Each whitespace-separated entry describes one GPU devfreq device:
-        <name-or-absolute-path>[|<governor1>,<governor2>,...]
-
-    - If the identifier starts with "/", it is an absolute path to the
-      device's devfreq directory (e.g.
-      /sys/class/misc/mali0/device/devfreq/13000000.gpu), used when the
-      GPU driver doesn't expose its node under /sys/class/devfreq/. The
-      device's name is taken from the last path component.
-    - Otherwise, it is a device name resolved under the default
-      /sys/class/devfreq/<name> directory.
-    - The optional "|<governors>" suffix lists the governors expected to
-      be available for that device; it is only used by the "detect"
-      check (resource/test always read the live available_governors).
-
-    Returns {name: {"path": Path, "governors": [str, ...]}}.
+    If DVFS_PROCESSORS_FILE_PATH is set, its "allowlist" (minus any
+    "denylist" entries) is the sole source of truth for which
+    processor(s) to use, their type, and their expected governors.
+    Otherwise, fall back to every devfreq device found under the
+    default /sys/class/devfreq root, with type defaulting to "other"
+    and its expected governors taken from the live
+    available_governors sysfs value.
     """
-    devices = {}
-    for entry in spec.split():
-        identifier, _, governors_part = entry.partition("|")
-        if not identifier:
-            raise SystemExit(
-                f"invalid {DVFS_GPU_DEVICES} entry: {entry!r}"
-            )
-        if identifier.startswith("/"):
-            dev_path = Path(identifier)
-            name = dev_path.name
-        else:
-            name = identifier
-            dev_path = DEVFREQ_ROOT / name
-        governors = [g for g in governors_part.split(",") if g]
-        devices[name] = {"path": dev_path, "governors": governors}
-    return devices
-
-
-def resolve_dvfs_gpu_devices() -> Dict[str, Path]:
-    """Return {device_name: device_path} for the GPU device(s) to use.
-
-    If DVFS_GPU_DEVICES is set, it is the sole source of truth for which
-    device(s) to use and where to find them. Otherwise, fall back to
-    every devfreq device found under the default /sys/class/devfreq
-    root.
-    """
-    spec = os.environ.get(DVFS_GPU_DEVICES, "").strip()
-    if spec:
+    config_path = os.environ.get(DVFS_PROCESSORS_FILE_PATH, "").strip()
+    config = load_json_file(config_path, enable_logger=True)
+    if not config:
         return {
-            name: info["path"]
-            for name, info in parse_dvfs_gpu_devices(spec).items()
+            name: {
+                "path": DEVFREQ_ROOT / name,
+                "type": DEFAULT_PROCESSOR_TYPE,
+                "governors": get_available_governors(DEVFREQ_ROOT / name),
+            }
+            for name in list_devfreq_processors()
         }
-    return {name: DEVFREQ_ROOT / name for name in list_devfreq_devices()}
 
-
-def cmd_detect() -> None:
-    """
-    Detect DVFS GPU devices.
-
-    If no DVFS GPU device is available, the test will fail.
-    If DVFS GPU devices are available, the test will pass.
-    If DVFS_GPU_DEVICES environment variable is set, the test will check
-    if the expected devices and their governors are matched against the
-    actual available DVFS GPU devices.
-    """
-    spec = os.environ.get(DVFS_GPU_DEVICES, "").strip()
-    if spec:
-        logger.info(f"{DVFS_GPU_DEVICES}={spec!r}")
-
-    devices = resolve_dvfs_gpu_devices()
-    if not devices:
-        raise SystemExit(f"No DVFS GPU device found under {DEVFREQ_ROOT}")
-
-    errors = []
-    logger.info(f"Detected {len(devices)} DVFS device(s):")
-    for name, dev_path in sorted(devices.items()):
-        if not (dev_path / "governor").exists():
-            errors.append(
-                f"expected DVFS GPU device {name!r} not found at {dev_path}"
-            )
+    denylist = set(config.get("denylist", []))
+    processors = {}
+    for entry in config.get("allowlist", []):
+        name = entry["device_name"]
+        if name in denylist:
+            logger.info(f"skip denylisted processor {name!r}")
             continue
-        governors = get_available_governors(dev_path)
-        logger.info(f"  {name} ({dev_path}): {','.join(governors)}")
+        sysfs_path = entry.get("sysfs_path")
+        dev_path = Path(sysfs_path) if sysfs_path else DEVFREQ_ROOT / name
+        processors[name] = {
+            "path": dev_path,
+            "type": entry.get("type", DEFAULT_PROCESSOR_TYPE),
+            "governors": entry.get("governors", []),
+        }
+    return processors
 
-    if spec:
-        expected = parse_dvfs_gpu_devices(spec)
-        for name, info in expected.items():
-            if not info["governors"] or name not in devices:
+
+def do_check() -> None:
+    """
+    Detect and check the DVFS processors.
+
+    Check Scenarios:
+    1. If DVFS_PROCESSORS_FILE_PATH is not set, check if there's any
+       DVFS devices under the /sys/class/devfreq/ path.
+    2. If DVFS_PROCESSORS_FILE_PATH is set, check if the specified DVFS
+       processors exist and their governors match exactly.
+    """
+    config_path = os.environ.get(DVFS_PROCESSORS_FILE_PATH, "").strip()
+    config = load_json_file(config_path, enable_logger=True)
+    errors = []
+
+    if not config:
+        if not list_devfreq_processors():
+            err_msg = f"no DVFS processors found under {DEVFREQ_ROOT}"
+            logger.error(err_msg)
+            errors.append(err_msg)
+    else:
+        for name, info in sorted(resolve_dvfs_processors().items()):
+            dev_path = info["path"]
+            if not (dev_path / "governor").exists():
+                err_msg = f"processor {name!r} not found at {dev_path}"
+                logger.error(err_msg)
+                errors.append(err_msg)
                 continue
-            actual_governors = get_available_governors(devices[name])
-            if set(actual_governors) != set(info["governors"]):
-                expected_governors = sorted(info["governors"])
-                actual_sorted = sorted(actual_governors)
+            expected_governors = set(info["governors"])
+            actual_governors = set(get_available_governors(dev_path))
+            if actual_governors != expected_governors:
                 errors.append(
-                    f"device {name!r} governor mismatch: "
-                    f"expected={expected_governors} actual={actual_sorted}"
+                    f"processor {name!r} governors mismatch: "
+                    f"expected={sorted(expected_governors)} "
+                    f"actual={sorted(actual_governors)}"
                 )
 
     if errors:
-        raise SystemExit("\n".join(errors))
+        raise SystemExit(1)
+    logger.info("DVFS processor check passed")
 
 
 def cmd_resource() -> None:
     """
-    Print the DVFS GPU device and governor resource records for the
-    device(s) selected by DVFS_GPU_DEVICES (or every devfreq device
-    under /sys/class/devfreq/ if it isn't set).
+    Print the DVFS processor and governor resource records for every
+    selected processor.
 
-    Always return 0 even there's no DVFS GPU resource available.
-
-    Note: these records are printed to stdout (not logged) because
-    Checkbox parses a resource job's stdout as RFC822 key: value
-    records; logging them would corrupt the format with timestamps and
-    log levels.
+    Always return 0 even there's no DVFS resource available.
     """
-    for name, dev_path in sorted(resolve_dvfs_gpu_devices().items()):
-        if not (dev_path / "governor").exists():
-            continue
+    for name, info in sorted(resolve_dvfs_processors().items()):
+        dev_path = info["path"]
         for governor in get_available_governors(dev_path):
-            print(f"dvfs_device_name: {name}")
+            print(f"dvfs_processor_name: {name}")
+            print(f"dvfs_processor_type: {info['type']}")
+            print(f"sysfs_path: {dev_path}")
             print(f"governor: {governor}")
             print()
 
@@ -302,32 +280,43 @@ def _dvfs_state_guard(
         )
 
 
-def cmd_test(dvfs_device: str, governor: str) -> None:
+def cmd_test(
+    dvfs_processor: str,
+    dvfs_processor_type: str,
+    sysfs_path: str,
+    governor: str,
+) -> None:
     """
-    Switch the given DVFS GPU device to the given governor and verify
-    the change actually took effect, adjusting (and checking) frequency
-    as appropriate for that governor:
+    Switch the given DVFS processor to the given governor and verify
+    the change actually took effect, adjusting (and checking)
+    frequency as appropriate for that governor:
       * performance -> cur_freq must settle at max(available_frequencies).
       * powersave   -> cur_freq must settle at min(available_frequencies).
       * userspace   -> every entry of available_frequencies is written in
                        turn and cur_freq must match each one.
       * any other governor (e.g. simple_ondemand) -> only the governor
         switch itself is verified.
-    The device's original governor/frequency is always restored, even if
-    a check fails. The device's location is resolved via
-    DVFS_GPU_DEVICES if set (falling back to /sys/class/devfreq/<name>
-    otherwise), since jobs only pass the device name on the command
-    line.
+    The processor's original governor/frequency is always restored,
+    even if a check fails. ``sysfs_path`` is the processor's devfreq
+    directory as resolved by the "ce-oem-dvfs/dvfs_resource" job
+    (falling back to /sys/class/devfreq/<dvfs_processor> when not
+    given), since jobs only pass the processor name, type and sysfs
+    path on the command line.
     """
-    dev_path = resolve_dvfs_gpu_devices().get(
-        dvfs_device, DEVFREQ_ROOT / dvfs_device
+    dev_path = (
+        Path(sysfs_path) if sysfs_path else DEVFREQ_ROOT / dvfs_processor
     )
     gov_node = dev_path / "governor"
     cur_freq_node = dev_path / "cur_freq"
 
+    logger.info(
+        f"testing processor={dvfs_processor} type={dvfs_processor_type} "
+        f"path={dev_path} governor={governor}"
+    )
+
     if not gov_node.exists():
         raise SystemExit(
-            f"DVFS GPU device {dvfs_device!r} not found at {dev_path}"
+            f"DVFS processor {dvfs_processor!r} not found at {dev_path}"
         )
 
     available_governors = get_available_governors(dev_path)
@@ -335,7 +324,7 @@ def cmd_test(dvfs_device: str, governor: str) -> None:
         joined_governors = ",".join(available_governors)
         raise SystemExit(
             f"governor {governor!r} not in available_governors "
-            f"({joined_governors}) for device {dvfs_device!r}"
+            f"({joined_governors}) for processor {dvfs_processor!r}"
         )
 
     errors = []
@@ -355,7 +344,7 @@ def cmd_test(dvfs_device: str, governor: str) -> None:
         available_freqs = get_available_frequencies(dev_path)
         if not available_freqs:
             raise SystemExit(
-                f"no available_frequencies for device {dvfs_device!r}"
+                f"no available_frequencies for processor {dvfs_processor!r}"
             )
 
         if governor in ("performance", "powersave"):
@@ -415,22 +404,37 @@ def build_parser() -> argparse.ArgumentParser:
         help="enable debug logging",
     )
 
-    subparsers.add_parser("detect", parents=[common_parser])
-
     subparsers.add_parser("resource", parents=[common_parser])
 
     test_parser = subparsers.add_parser("test", parents=[common_parser])
     test_parser.add_argument(
+        "-p",
+        "--sysfs-path",
+        dest="sysfs_path",
+        default="",
+        help=(
+            "Absolute sysfs path to the DVFS processor's devfreq "
+            "directory (defaults to /sys/class/devfreq/<processor>)"
+        ),
+    )
+    test_parser.add_argument(
+        "-t",
+        "--dvfs-processor-type",
+        default=DEFAULT_PROCESSOR_TYPE,
+        choices=["gpu", "npu", "vpu", "other"],
+        help="DVFS processor type",
+    )
+    test_parser.add_argument(
         "-d",
-        "--dvfs-device",
+        "--dvfs-processor",
         required=True,
-        help="DVFS GPU device name",
+        help="DVFS processor name",
     )
     test_parser.add_argument(
         "-g",
         "--governor",
         required=True,
-        help="DVFS GPU device governor",
+        help="DVFS processor governor",
     )
 
     return parser
@@ -449,12 +453,17 @@ def main() -> None:
     if args.debug:
         logger.setLevel(logging.DEBUG)
 
-    if args.action == "detect":
-        cmd_detect()
-    elif args.action == "resource":
+    if args.action == "resource":
+        if args.debug:
+            do_check()
         cmd_resource()
     elif args.action == "test":
-        cmd_test(dvfs_device=args.dvfs_device, governor=args.governor)
+        cmd_test(
+            dvfs_processor=args.dvfs_processor,
+            dvfs_processor_type=args.dvfs_processor_type,
+            sysfs_path=args.sysfs_path,
+            governor=args.governor,
+        )
 
 
 if __name__ == "__main__":

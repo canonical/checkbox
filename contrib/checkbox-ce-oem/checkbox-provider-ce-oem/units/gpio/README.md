@@ -45,10 +45,10 @@ jobs come from the `ce-oem-gpiod-gpio/simple-resource` resource job.
 This job is **not** part of `ce-oem-gpio-automated`. A line that `gpioinfo`
 reports as `unused` only has no kernel consumer; the pad can still be owned by
 firmware or wired to board control logic, and driving it breaks the device
-under test. On a Jetson Orin NX (CNX130 carrier) the generated jobs pulsed
-`PK.03` (`PEX_L1_RST_N`), which reset the PCIe network controller and took the
-device off the network, and `PQ.03` (`SOC_GPIO30`), after which the board
-powered off, on two consecutive certification runs. Because no one can vouch
+On a Jetson Orin NX (CNX130 carrier), generated jobs pulsed
+`PK.03` (`PEX_L1_RST_N`) in one run, resetting the PCIe network controller
+and taking the device off the network, and `PQ.03` (`SOC_GPIO30`) in two
+runs, after which the board powered off. Because no one can vouch
 for every unclaimed line of a carrier, use this template only in a dedicated
 test plan or launcher that selects it explicitly, with `GPIOD_GPIO_IGNORE`
 covering every line that must not be driven; the loopback jobs below verify

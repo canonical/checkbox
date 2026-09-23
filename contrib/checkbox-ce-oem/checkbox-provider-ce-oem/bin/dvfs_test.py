@@ -54,7 +54,9 @@ DEVFREQ_ROOT = Path("/sys/class/devfreq")
 # Environment variable pointing at the JSON processor map to use.
 # Relative paths are resolved under PLAINBOX_PROVIDER_DATA by
 # general_utils.load_json_file().
-DVFS_PROCESSORS_FILE_PATH = os.environ.get("DVFS_PROCESSORS_FILE_PATH", "").strip()
+DVFS_PROCESSORS_FILE_PATH = os.environ.get(
+    "DVFS_PROCESSORS_FILE_PATH", ""
+).strip()
 
 # Available processor types are gpu, vpu and npu now. A processor is classified
 # as "other" if it doesn't match any of these types in the JSON allowlist.
@@ -200,9 +202,11 @@ def do_check() -> None:
             expected_governors = set(info["governors"])
             actual_governors = set(get_available_governors(dev_path))
             if actual_governors != expected_governors:
-                err_msg = (f"processor {name!r} governors mismatch: "
-                           f"expected={sorted(expected_governors)} "
-                           f"actual={sorted(actual_governors)}")
+                err_msg = (
+                    f"processor {name!r} governors mismatch: "
+                    f"expected={sorted(expected_governors)} "
+                    f"actual={sorted(actual_governors)}"
+                )
                 logger.error(err_msg)
                 errors.append(err_msg)
 
@@ -285,18 +289,21 @@ def cmd_test(
     Switch the given DVFS processor to the given governor and verify
     the change actually took effect, adjusting (and checking)
     frequency as appropriate for that governor:
-      * performance -> cur_freq must settle at max(available_frequencies).
-      * powersave   -> cur_freq must settle at min(available_frequencies).
-      * userspace   -> every entry of available_frequencies is written in
-                       turn and cur_freq must match each one.
-      * any other governor (e.g. simple_ondemand) -> only the governor
-        switch itself is verified.
-    The processor's original governor/frequency is always restored,
-    even if a check fails. ``sysfs_path`` is the processor's devfreq
-    directory as resolved by the "ce-oem-dvfs/dvfs_resource" job
-    (falling back to /sys/class/devfreq/<dvfs_processor> when not
-    given), since jobs only pass the processor name, type and sysfs
-    path on the command line.
+      * performance
+        - cur_freq must settle at max(available_frequencies).
+      * powersave
+        - cur_freq must settle at min(available_frequencies).
+      * userspace
+        - every entry of available_frequencies is written
+        in turn and cur_freq must match each one.
+      * simple_ondemand
+        - only the governor switch itself is verified, since it's a load-driven
+        governor with no deterministic target frequency to assert on.
+      * any other governor -> rejected with an error. Only the
+        governors above have an actual verification implemented; a
+        new or custom governor must not silently report a pass just
+        because its name is in available_governors and the governor
+        switch happened to succeed.
     """
     dev_path = (
         Path(sysfs_path) if sysfs_path else DEVFREQ_ROOT / dvfs_processor
@@ -378,10 +385,17 @@ def cmd_test(
                     errors.append(
                         f"frequency={freq} -> FAIL (cur_freq={cur_freq})"
                     )
-        else:
+        elif governor == "simple_ondemand":
             status = "PASS" if cur_gov == governor else "FAIL"
             logger.info(
                 f"governor={governor} -> {status} (governor={cur_gov})"
+            )
+        else:
+            raise SystemExit(
+                f"governor {governor!r} has no verification implemented "
+                "in cmd_test(); only performance, powersave, userspace "
+                "and simple_ondemand are supported now, to avoid a new or "
+                "custom governor being silently reported as passed"
             )
 
     if errors:

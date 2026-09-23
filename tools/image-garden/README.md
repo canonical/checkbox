@@ -11,13 +11,12 @@ First, Install Image Garden:
 sudo snap install image-garden
 ```
 
-The patching tool also requires `python3`, `snap`, and `unsquashfs` on the
-host.
+The patching tool also requires `python3`, `snap`, and `unsquashfs` on the host.
 
 ## Run a patched snap locally
 
-Run `run_local.py` from this directory. Pass the launcher that Checkbox
-should use and, optionally, the Ubuntu Core series:
+Run `run_local.py` from this directory. Pass the launcher that Checkbox should
+use and, optionally, the Ubuntu Core series:
 
 ```bash
 cd tools/image-garden
@@ -25,10 +24,10 @@ python3 run_local.py launchers/metabox-smoke-automated-passing.conf \
     --series 24
 ```
 
-The series defaults to `24`; supported values are `18`, `20`, `22`, `24`,
-and `26`. The series selects both the snap name, such as `checkbox24`, and
-the matching Image Garden system, such as `ubuntu-core-24`. The script
-performs the following steps:
+The series defaults to `24`; supported values are `18`, `20`, `22`, `24`, and
+`26`. The series selects both the snap name, such as `checkbox24`, and the
+matching Image Garden system, such as `ubuntu-core-24`. The script performs the
+following steps:
 
 1. Downloads the matching Checkbox snap from the `edge` channel.
 2. Creates a `local_run_<series>/` directory, such as `local_run_24/`.
@@ -46,8 +45,6 @@ python3 run_local.py \
     --snap-file path/to/checkbox24.snap
 ```
 
-Results are written under `local_run_<series>/artifacts/`. Image Garden logs
-are written under `.image-garden/`. Both directories are ignored by Git.
 
 ## Run the store smoke tests locally
 

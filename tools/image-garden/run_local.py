@@ -49,13 +49,21 @@ def run(args):
         snap_file=args.snap_file,
     )
 
+    # Run Image Garden from run_dir so its VM state (images, logs,
+    # locks) is written under local_run_<series>/ instead of here.
+    shutil.copy2(PROJECT_DIR / "spread.yaml", run_dir / "spread.yaml")
+    shutil.copytree(
+        PROJECT_DIR / "tests", run_dir / "tests", dirs_exist_ok=True
+    )
+
     subprocess.run(
         [
             "image-garden.spread",
             "-vv",
-            f"-artifacts={artifacts_dir}",
+            "-artifacts=artifacts",
             f"garden:ubuntu-core-{args.series}:tests/run-patched-snap",
         ],
+        cwd=run_dir,
         check=True,
     )
 

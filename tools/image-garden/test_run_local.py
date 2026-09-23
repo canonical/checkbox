@@ -30,17 +30,23 @@ class RunLocalTests(unittest.TestCase):
     @patch.object(run_local.subprocess, "run")
     @patch.object(run_local.patch_checkbox_snap, "main")
     def test_stages_launcher_and_runs_spread(self, mock_patch_snap, mock_run):
+        (self.root / "spread.yaml").write_text("project: x\n")
+        (self.root / "tests/run-patched-snap").mkdir(parents=True)
+
         with patch.object(run_local, "PROJECT_DIR", self.root):
             run_local.run(self.args())
 
+        run_dir = self.root / "local_run_24"
         self.assertEqual(
-            (self.root / "local_run_24/launcher.conf").read_text(),
+            (run_dir / "launcher.conf").read_text(),
             "[launcher]\n",
         )
+        self.assertEqual((run_dir / "spread.yaml").read_text(), "project: x\n")
+        self.assertTrue((run_dir / "tests/run-patched-snap").is_dir())
         mock_patch_snap.assert_called_once_with(
             snap="checkbox24",
             channel="edge",
-            output_dir=self.root / "local_run_24/checkbox24",
+            output_dir=run_dir / "checkbox24",
             force=True,
             snap_file=None,
         )
@@ -48,9 +54,10 @@ class RunLocalTests(unittest.TestCase):
             [
                 "image-garden.spread",
                 "-vv",
-                f"-artifacts={self.root / 'local_run_24/artifacts'}",
+                "-artifacts=artifacts",
                 "garden:ubuntu-core-24:tests/run-patched-snap",
             ],
+            cwd=run_dir,
             check=True,
         )
 

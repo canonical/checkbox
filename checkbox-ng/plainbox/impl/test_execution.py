@@ -17,7 +17,10 @@
 # along with Checkbox.  If not, see <http://www.gnu.org/licenses/>.
 
 import contextlib
+import functools
 import os
+import subprocess
+import time
 from pathlib import Path
 from unittest import TestCase, mock
 
@@ -33,6 +36,7 @@ from plainbox.impl.execution import (
     get_execution_environment,
 )
 from plainbox.impl.unit.job import InvalidJob
+from plainbox.vendor import extcmd
 
 
 @contextlib.contextmanager
@@ -326,6 +330,91 @@ class UnifiedRunnerTests(TestCase):
                 self_mock, job_mock, {}, mock.Mock(), as_systemd_unit=True
             )
         self.assertEqual(str(e.exception), "systemd")
+
+    @mock.patch("plainbox.impl.execution.get_execution_environment")
+    @mock.patch("plainbox.impl.execution.get_execution_command_subshell")
+    @mock.patch("getpass.getuser")
+    def test_execute_job_reaps_orphans_holding_output_open(
+        self,
+        getuser_mock,
+        get_execution_command_subshell_mock,
+        get_execution_environment_mock,
+    ):
+        """
+        A job's own process can exit while a grandchild it left behind (e.g.
+        a daemonized worker, see LEVA-638) keeps stdout/stderr open. The
+        readers would then never see EOF even though the job is otherwise
+        done. execute_job() must not hang forever in that case: it should
+        give the readers a grace period and then kill the job's whole
+        process group.
+        """
+        marker = "checkbox-test-leva-638-orphan"
+
+        @contextlib.contextmanager
+        def empty_ctx_manager(self, *args, **kwargs):
+            yield
+
+        @contextlib.contextmanager
+        def cmd_ctx_manager(*args, **kwargs):
+            # Backgrounds a grandchild that outlives this shell and keeps
+            # writing to stdout, without ever getting reaped by the job's
+            # own (already-exited) process.
+            yield [
+                "bash",
+                "-c",
+                '(exec -a "{0}" sleep 12345 &) ; echo done'.format(marker),
+            ]
+
+        get_execution_command_subshell_mock.side_effect = cmd_ctx_manager
+        get_execution_environment_mock.return_value = dict(os.environ)
+        getuser_mock.return_value = "ubuntu"
+
+        self_mock = mock.Mock(
+            configured_filesystem=empty_ctx_manager,
+            get_proper_job_cwd=empty_ctx_manager,
+            _extra_env=None,
+            _session_id="session",
+            _running_jobs_pid=None,
+            _ORPHAN_REAP_GRACE_PERIOD=0.2,
+        )
+        self_mock._user_provider.return_value = None
+        self_mock.send_signal = functools.partial(
+            UnifiedRunner.send_signal, self_mock
+        )
+
+        job_mock = mock.Mock(id="test-job", user="ubuntu")
+        job_mock.get_flag_set.return_value = set()
+
+        extcmd_popen = extcmd.ExternalCommandWithDelegate(mock.Mock())
+
+        try:
+            start = time.time()
+            with open(os.devnull) as devnull:
+                return_code = UnifiedRunner.execute_job(
+                    self_mock, job_mock, {}, extcmd_popen, stdin=devnull
+                )
+            elapsed = time.time() - start
+
+            self.assertEqual(return_code, 0)
+            # Bounded by the grace period, not by the orphan's own
+            # (much longer) sleep duration.
+            self.assertLess(elapsed, 10)
+
+            # give the killed process a moment to actually disappear
+            for _ in range(50):
+                leftover = subprocess.run(
+                    ["pgrep", "-f", marker], stdout=subprocess.DEVNULL
+                )
+                if leftover.returncode != 0:
+                    break
+                time.sleep(0.1)
+            self.assertNotEqual(
+                leftover.returncode,
+                0,
+                "orphaned process was not reaped",
+            )
+        finally:
+            subprocess.run(["pkill", "-9", "-f", marker])
 
     @mock.patch("os.geteuid")
     def test_prepare_systemd_based_runner_already_prepared(self, mock_geteuid):

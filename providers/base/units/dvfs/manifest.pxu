@@ -1,4 +1,4 @@
 unit: manifest entry
-id: has_dvfs_device_support
-_name: Support Dynamic Voltage and Frequency Scaling (DVFS) Devices?
+id: has_dvfs_gpu_device_support
+_name: Does the device support GPU Dynamic Voltage and Frequency Scaling (DVFS)?
 value-type: bool

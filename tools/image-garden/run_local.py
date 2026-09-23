@@ -44,7 +44,6 @@ def run(args):
     patch_checkbox_snap.main(
         snap=checkbox,
         channel=args.channel,
-        repo_root_path=PROJECT_DIR,
         output_dir=patched_snap,
         force=True,
         snap_file=args.snap_file,

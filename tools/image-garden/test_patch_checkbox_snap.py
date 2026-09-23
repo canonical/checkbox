@@ -69,20 +69,22 @@ class PatchCheckboxSnapTests(unittest.TestCase):
         self.write_file(snap_file)
         output = self.root / "patched"
 
-        def fake_unsquash(source, destination):
-            self.assertEqual(source, snap_file)
+        def fake_run(cmd, **kwargs):
+            self.assertEqual(cmd[0], "unsquashfs")
+            self.assertEqual(cmd[-1], str(snap_file))
             for name in patch_checkbox_snap.PYTHON_PACKAGES.values():
-                (destination / f"lib/python3.12/site-packages/{name}").mkdir(
+                (output / f"lib/python3.12/site-packages/{name}").mkdir(
                     parents=True
                 )
-            (destination / "providers/checkbox-provider-base").mkdir(parents=True)
+            (output / "providers/checkbox-provider-base").mkdir(parents=True)
 
-        with patch.object(patch_checkbox_snap, "unsquash", fake_unsquash):
+        with patch.object(
+            patch_checkbox_snap.subprocess, "run", fake_run
+        ), patch.object(patch_checkbox_snap, "REPO_ROOT", self.repo):
             patch_checkbox_snap.patch_snap(
                 snap="checkbox24",
                 snap_file=snap_file,
                 output_dir=output,
-                repo_root_path=self.repo,
             )
 
         self.assertTrue((output / "providers/checkbox-provider-metabox").is_dir())
@@ -91,12 +93,13 @@ class PatchCheckboxSnapTests(unittest.TestCase):
         output = self.root / "patched"
         output.mkdir()
 
-        with self.assertRaises(FileExistsError):
+        with patch.object(
+            patch_checkbox_snap, "REPO_ROOT", self.repo
+        ), self.assertRaises(FileExistsError):
             patch_checkbox_snap.patch_snap(
                 snap="checkbox24",
                 snap_file=self.root / "checkbox24.snap",
                 output_dir=output,
-                repo_root_path=self.repo,
             )
 
 

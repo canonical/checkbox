@@ -40,7 +40,6 @@ class RunLocalTests(unittest.TestCase):
         mock_patch_snap.assert_called_once_with(
             snap="checkbox24",
             channel="edge",
-            repo_root_path=self.root,
             output_dir=self.root / "local_run_24/checkbox24",
             force=True,
             snap_file=None,

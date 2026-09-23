@@ -13,11 +13,11 @@ PYTHON_PACKAGES = {
     "checkbox-support/checkbox_support": "checkbox_support",
 }
 
-METABOX_PROVIDER = (
-    "metabox/metabox/metabox-provider",
-    "metabox",
-)
-METABOX_PROVIDER_EXTRA = Path(__file__).resolve().parent / "metabox_provider"
+# This script lives at "<repo>/tools/image-garden/patch_checkbox_snap.py",
+# both in a real checkout and in a Spread-synced guest copy, so the repo
+# root can always be derived from the script's own location.
+SCRIPT_DIR = Path(__file__).parent
+REPO_ROOT = SCRIPT_DIR.parent.parent
 
 
 def sync_dir(source, destination):
@@ -42,16 +42,17 @@ def python_package_targets(repo, snap_root):
 
 def provider_targets(repo, snap_root):
     targets = []
+    # Get the list of providers
     for provider_dir in sorted((repo / "providers").iterdir()):
-        destination = snap_root / f"providers/checkbox-provider-{provider_dir.name}"
-        if provider_dir.is_dir() and destination.is_dir():
-            targets.append((provider_dir, destination))
+        dest = snap_root / f"providers/checkbox-provider-{provider_dir.name}"
+        if provider_dir.is_dir() and dest.is_dir():
+            targets.append((provider_dir, dest))
 
-    metabox_source, metabox_name = METABOX_PROVIDER
+    # Append also the metabox provider
     targets.append(
         (
-            repo / metabox_source,
-            snap_root / f"providers/checkbox-provider-{metabox_name}",
+            repo / "metabox/metabox/metabox-provider",
+            snap_root / "providers/checkbox-provider-metabox",
         )
     )
     return targets
@@ -64,25 +65,10 @@ def sync_dirs(repo, snap_root):
     for source, destination in targets:
         sync_dir(source, destination)
 
-    metabox_dir = snap_root / "providers/checkbox-provider-metabox"
-    sync_dir(METABOX_PROVIDER_EXTRA, metabox_dir)
+    metabox_src = SCRIPT_DIR / "metabox_provider"
+    metabox_dest = snap_root / "providers/checkbox-provider-metabox"
+    sync_dir(metabox_src, metabox_dest)
     return [destination for _, destination in targets]
-
-
-def repo_root(path):
-    # Prefer the git top-level, so this can be invoked from any
-    # subdirectory of a checkout. Spread syncs the repo without ".git",
-    # so fall back to using the given path directly in that case.
-    try:
-        output = subprocess.check_output(
-            ["git", "rev-parse", "--show-toplevel"],
-            cwd=path,
-            text=True,
-            stderr=subprocess.DEVNULL,
-        )
-        return Path(output.strip())
-    except (subprocess.CalledProcessError, FileNotFoundError):
-        return path.resolve()
 
 
 def download_snap(name, channel, work_dir):
@@ -102,13 +88,6 @@ def download_snap(name, channel, work_dir):
     return snap_file
 
 
-def unsquash(snap_file, output_dir):
-    subprocess.run(
-        ["unsquashfs", "-d", str(output_dir), str(snap_file)],
-        check=True,
-    )
-
-
 def patch_snap(
     *,
     snap=None,
@@ -117,11 +96,9 @@ def patch_snap(
     snap_file=None,
     output_dir=None,
     force=False,
-    repo_root_path=None,
 ):
-    repo = repo_root(repo_root_path or Path.cwd())
     name = snap or f"checkbox{series}"
-    output_dir = (output_dir or Path(name)).resolve()
+    output_dir = output_dir or Path(name)
 
     # Create the output directory if it doesn't exist. Only remove it if
     # --force is specified.
@@ -135,13 +112,20 @@ def patch_snap(
 
     # Unsquash the snap into the output directory.
     if snap_file:
-        unsquash(snap_file.resolve(), output_dir)
+        source = snap_file
+        subprocess.run(
+            ["unsquashfs", "-d", str(output_dir), str(source)],
+            check=True,
+        )
     else:
         with tempfile.TemporaryDirectory() as work_dir:
-            downloaded = download_snap(name, channel, Path(work_dir))
-            unsquash(downloaded, output_dir)
+            source = download_snap(name, channel, Path(work_dir))
+            subprocess.run(
+                ["unsquashfs", "-d", str(output_dir), str(source)],
+                check=True,
+            )
 
-    synced = sync_dirs(repo, output_dir)
+    synced = sync_dirs(REPO_ROOT, output_dir)
 
     print(f"Patched {output_dir}")
     print(f"Synced directories: {len(synced)}")
@@ -166,7 +150,6 @@ def build_parser():
         help="Where to unsquash the patched snap. Defaults to ./<snap-name>.",
     )
     parser.add_argument("--force", action="store_true")
-    parser.add_argument("--repo-root", type=Path, default=Path.cwd())
     return parser
 
 
@@ -186,7 +169,6 @@ def main(args=None, **kwargs):
         snap_file=parsed.snap_file,
         output_dir=parsed.output_dir,
         force=parsed.force,
-        repo_root_path=parsed.repo_root,
     )
 
 

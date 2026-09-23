@@ -1,0 +1,8 @@
+id: ce-oem-dvfs-automated
+unit: test plan
+name: Dynamic Voltage and Frequency Scaling (DVFS) tests (Automated)
+bootstrap_include:
+  - ce-oem-dvfs/dvfs_resource
+include:
+  - ce-oem-dvfs/check_dvfs_resource
+  - ce-oem-dvfs/dvfs_processor_governor_test

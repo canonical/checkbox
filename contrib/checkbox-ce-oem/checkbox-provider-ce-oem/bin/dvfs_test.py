@@ -54,7 +54,7 @@ DEVFREQ_ROOT = Path("/sys/class/devfreq")
 # Environment variable pointing at the JSON processor map to use.
 # Relative paths are resolved under PLAINBOX_PROVIDER_DATA by
 # general_utils.load_json_file().
-DVFS_PROCESSORS_FILE_PATH = "DVFS_PROCESSORS_FILE_PATH"
+DVFS_PROCESSORS_FILE_PATH = os.environ.get("DVFS_PROCESSORS_FILE_PATH", "").strip()
 
 # Available processor types are gpu, vpu and npu now. A processor is classified
 # as "other" if it doesn't match any of these types in the JSON allowlist.
@@ -144,8 +144,7 @@ def resolve_dvfs_processors() -> Dict[str, Dict]:
     and its expected governors taken from the live
     available_governors sysfs value.
     """
-    config_path = os.environ.get(DVFS_PROCESSORS_FILE_PATH, "").strip()
-    config = load_json_file(config_path, enable_logger=True)
+    config = load_json_file(DVFS_PROCESSORS_FILE_PATH, enable_logger=True)
     if not config:
         return {
             name: {
@@ -183,11 +182,9 @@ def do_check() -> None:
     2. If DVFS_PROCESSORS_FILE_PATH is set, check if the specified DVFS
        processors exist and their governors match exactly.
     """
-    config_path = os.environ.get(DVFS_PROCESSORS_FILE_PATH, "").strip()
-    config = load_json_file(config_path, enable_logger=True)
     errors = []
 
-    if not config:
+    if not DVFS_PROCESSORS_FILE_PATH:
         if not list_devfreq_processors():
             err_msg = f"no DVFS processors found under {DEVFREQ_ROOT}"
             logger.error(err_msg)
@@ -203,11 +200,11 @@ def do_check() -> None:
             expected_governors = set(info["governors"])
             actual_governors = set(get_available_governors(dev_path))
             if actual_governors != expected_governors:
-                errors.append(
-                    f"processor {name!r} governors mismatch: "
-                    f"expected={sorted(expected_governors)} "
-                    f"actual={sorted(actual_governors)}"
-                )
+                err_msg = (f"processor {name!r} governors mismatch: "
+                           f"expected={sorted(expected_governors)} "
+                           f"actual={sorted(actual_governors)}")
+                logger.error(err_msg)
+                errors.append(err_msg)
 
     if errors:
         raise SystemExit(1)
@@ -218,8 +215,6 @@ def cmd_resource() -> None:
     """
     Print the DVFS processor and governor resource records for every
     selected processor.
-
-    Always return 0 even there's no DVFS resource available.
     """
     for name, info in sorted(resolve_dvfs_processors().items()):
         dev_path = info["path"]

@@ -19,5 +19,9 @@ include:
   - va-api/va-initialize
   - va-api/va-profile-.*
   - va-api/va-manifest-vs-driver
+  - setup/install_media_samples
+  - va-api/ffmpeg_hw_vaapi_device
+  - va-api/ffmpeg_hw_decode_.*
+  - va-api/ffmpeg_hw_encode_.*
 bootstrap_include:
   - va-api/vainfo

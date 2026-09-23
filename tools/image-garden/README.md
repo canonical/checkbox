@@ -20,9 +20,11 @@ use and, optionally, the Ubuntu Core series:
 
 ```bash
 cd tools/image-garden
-python3 run_local.py launchers/metabox-smoke-automated-passing.conf \
-    --series 24
+python3 run_local.py tests/run-patched-snap/launcher.conf --series 24
 ```
+
+`tests/run-patched-snap/launcher.conf` runs the metabox
+`smoke-automated-passing` test plan, but you can use a different launcher to run other test plans.
 
 The series defaults to `24`; supported values are `18`, `20`, `22`, `24`, and
 `26`. The series selects both the snap name, such as `checkbox24`, and the

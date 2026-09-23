@@ -17,7 +17,9 @@ execute: |
   . /etc/os-release
   SERIES="$(echo "$VERSION_ID" | grep -Po '^\d{2}')"
   CHECKBOX="checkbox$SERIES"
-  RUN_DIR="../../local_run_$SERIES"
+  # run_local.py syncs the patched snap and launcher directly at the
+  # staged project root, two levels up from here.
+  RUN_DIR="../.."
   PATCHED_SNAP="$RUN_DIR/$CHECKBOX"
   LAUNCHER="$RUN_DIR/launcher.conf"
 
@@ -54,11 +56,15 @@ execute: |
   } > snap-debug.txt
 
   # Launch the Checkbox snap and run the test plan, capturing its output.
+  # PYTHONUNBUFFERED forces checkbox-cli's stdout to be unbuffered, since
+  # Python block-buffers stdout by default once it is piped into tee
+  # instead of connected to a terminal, which otherwise delays output
+  # until the process exits.
   # pipefail (set above) already makes $? reflect checkbox's exit status
   # rather than tee's, so no need to index PIPESTATUS explicitly.
   set +e
-  "$CHECKBOX.checkbox" control 127.0.0.1 "$LAUNCHER" 2>&1 \
-    | tee checkbox-output.txt
+  PYTHONUNBUFFERED=1 "$CHECKBOX.checkbox" control 127.0.0.1 "$LAUNCHER" \
+    2>&1 | tee checkbox-output.txt
   checkbox_status=$?
   set -e
 

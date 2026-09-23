@@ -21,7 +21,9 @@ class PatchCheckboxSnapTests(unittest.TestCase):
             (self.repo / source).mkdir(parents=True)
         (self.repo / "providers/base/units").mkdir(parents=True)
         (self.repo / "providers/docker/units").mkdir(parents=True)
-        (self.repo / "metabox/metabox/metabox-provider/units").mkdir(parents=True)
+        (self.repo / "metabox/metabox/metabox-provider/units").mkdir(
+            parents=True
+        )
 
         for name in patch_checkbox_snap.PYTHON_PACKAGES.values():
             (self.site_packages / name).mkdir(parents=True)
@@ -40,20 +42,29 @@ class PatchCheckboxSnapTests(unittest.TestCase):
         self.write_file(self.repo / "checkbox-support/checkbox_support/foo.py")
         self.write_file(self.repo / "providers/base/units/jobs.yaml")
         self.write_file(self.repo / "providers/docker/units/jobs.yaml")
-        self.write_file(self.repo / "metabox/metabox/metabox-provider/units/jobs.yaml")
+        self.write_file(
+            self.repo / "metabox/metabox/metabox-provider/units/jobs.yaml"
+        )
 
         patch_checkbox_snap.sync_dirs(self.repo, self.snap)
 
         self.assertTrue((self.site_packages / "checkbox_ng/foo.py").is_file())
         self.assertTrue((self.site_packages / "plainbox/foo.py").is_file())
-        self.assertTrue((self.site_packages / "checkbox_support/foo.py").is_file())
         self.assertTrue(
-            (self.snap / "providers/checkbox-provider-base/units/jobs.yaml").is_file()
+            (self.site_packages / "checkbox_support/foo.py").is_file()
         )
-        self.assertFalse((self.snap / "providers/checkbox-provider-docker").exists())
         self.assertTrue(
             (
-                self.snap / "providers/checkbox-provider-metabox/units/jobs.yaml"
+                self.snap / "providers/checkbox-provider-base/units/jobs.yaml"
+            ).is_file()
+        )
+        self.assertFalse(
+            (self.snap / "providers/checkbox-provider-docker").exists()
+        )
+        self.assertTrue(
+            (
+                self.snap
+                / "providers/checkbox-provider-metabox/units/jobs.yaml"
             ).is_file()
         )
         self.assertTrue(
@@ -87,7 +98,9 @@ class PatchCheckboxSnapTests(unittest.TestCase):
                 output_dir=output,
             )
 
-        self.assertTrue((output / "providers/checkbox-provider-metabox").is_dir())
+        self.assertTrue(
+            (output / "providers/checkbox-provider-metabox").is_dir()
+        )
 
     def test_patch_snap_requires_force_for_existing_output(self):
         output = self.root / "patched"

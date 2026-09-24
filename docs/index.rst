@@ -131,7 +131,7 @@ follow its release processes.
 How this documentation is organised
 -----------------------------------
 
-This documentation uses the `Diataxis documentation structure
+This documentation uses the `Diátaxis documentation structure
 <https://diataxis.fr/>`_.
 
 * :doc:`Tutorial <tutorial/index>` takes you step-by-step from installing

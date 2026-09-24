@@ -69,7 +69,7 @@ POLL_TIMEOUT_S = 2.0
 POLL_INTERVAL_S = 0.05
 
 
-def _read_node(path: Path) -> 'str | None':
+def _read_node(path: Path) -> "str | None":
     """Read and strip a sysfs node, returning None if it doesn't exist."""
     if not path.exists():
         return None
@@ -86,7 +86,7 @@ def _write_node(path: Path, value) -> bool:
         return False
 
 
-def _poll_until(read_fn, is_done) -> 'str | None':
+def _poll_until(read_fn, is_done) -> "str | None":
     """Poll ``read_fn`` until ``is_done(value)`` or a timeout elapses.
 
     This replaces a fixed sleep-then-read with a bounded poll loop, so
@@ -101,7 +101,7 @@ def _poll_until(read_fn, is_done) -> 'str | None':
     return value
 
 
-def list_devfreq_processors() -> 'list[str]':
+def list_devfreq_processors() -> "list[str]":
     """Return the sorted list of device names under /sys/class/devfreq/.
 
     Only entries that actually expose a "governor" node are considered
@@ -119,12 +119,12 @@ def list_devfreq_processors() -> 'list[str]':
     return sorted(devices)
 
 
-def get_available_governors(dev_path: Path) -> 'list[str]':
+def get_available_governors(dev_path: Path) -> "list[str]":
     raw = _read_node(dev_path / "available_governors")
     return raw.split() if raw else []
 
 
-def get_available_frequencies(dev_path: Path) -> 'list[int]':
+def get_available_frequencies(dev_path: Path) -> "list[int]":
     raw = _read_node(dev_path / "available_frequencies")
     if not raw:
         return []
@@ -134,7 +134,7 @@ def get_available_frequencies(dev_path: Path) -> 'list[int]':
     return [int(token) for token in raw.split()]
 
 
-def resolve_dvfs_processors() -> 'dict[str, dict]':
+def resolve_dvfs_processors() -> "dict[str, dict]":
     """Return {processor_name: {"path", "type", "governors"}} for every
     processor to use.
 
@@ -243,7 +243,7 @@ def _userspace_freq_node(dev_path: Path, cur_freq_node: Path) -> Path:
 @contextmanager
 def _dvfs_state_guard(
     dev_path: Path, gov_node: Path, cur_freq_node: Path
-) -> 'Generator[tuple[str | None, str | None], None, None]':
+) -> "Generator[tuple[str | None, str | None], None, None]":
     """Back up a device's governor/frequency and restore them on exit.
 
     The original state is restored even if the code inside the ``with``

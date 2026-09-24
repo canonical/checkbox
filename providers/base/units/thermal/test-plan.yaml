@@ -1,0 +1,25 @@
+id: thermal-cert-automated
+unit: test plan
+_name: Thermal management tests (automated)
+_description:
+ Automated thermal management tests for Intel platforms, covering thermald,
+ RAPL, P-State, powerclamp, thermal zones and platform thermal policy.
+include:
+  - thermal/thermald:
+      certification-status: blocker
+  - thermal/thermald-cpu-support
+  - thermal/intel-rapl
+  - thermal/intel-rapl-mmio_.*
+  - thermal/intel-p-state
+  - thermal/intel-powerclamp
+  - thermal/intel-cpu-thermal
+  - thermal/intel-x86-pkg-temp-thermal
+  - thermal/valid-thermal-zone-trip-points
+  - thermal/proc_thermal_.*
+  - thermal/thermal-policy-set_.*
+  - thermal/adaptive-fallback
+  - thermal/check-thermald-unknown-cond
+bootstrap_include:
+  - device
+mandatory_include:
+  - com.canonical.plainbox::manifest

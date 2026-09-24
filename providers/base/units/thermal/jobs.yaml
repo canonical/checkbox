@@ -1,0 +1,210 @@
+unit: job
+category_id: thermal
+id: thermal/thermald
+plugin: shell
+imports:
+  - from com.canonical.plainbox import manifest
+requires:
+  - manifest.has_thermald_support == 'True'
+estimated_duration: 1s
+command: thermal_test.py thermald
+summary: Check if thermald is active
+purpose: |
+  Check if the Intel thermal daemon (thermald) systemd service is active.
+  Whether a platform is expected to run thermald is declared by the
+  has_thermald_support manifest entry: there is no generic rule to derive it
+  from the CPU model, because supported client SKUs and unsupported server
+  SKUs share CPU family 6. Lenovo machines with in-firmware thermal
+  management are skipped at runtime.
+---
+unit: job
+category_id: thermal
+id: thermal/thermald-cpu-support
+plugin: shell
+depends:
+  - thermal/thermald
+estimated_duration: 1s
+command: thermal_test.py cpu-support
+summary: Check running thermald supports this CPU and platform
+purpose: |
+  Check the thermald journal for the "Unsupported cpu model or platform" (or
+  the equivalent default-engine) message, which the daemon logs when the CPU
+  is absent from its built-in id_table. This reflects the actually installed
+  daemon, so it stays accurate even when Ubuntu backports CPU enablement into
+  an older thermald version via the SRU process. A failure indicates the CPU
+  enablement should be backported into the Ubuntu thermald package.
+---
+unit: job
+category_id: thermal
+id: thermal/intel-rapl
+plugin: shell
+depends:
+  - thermal/thermald
+estimated_duration: 1s
+command: thermal_test.py rapl
+summary: Check if Intel RAPL power capping driver is installed
+purpose: |
+  Check if the Intel RAPL (Running Average Power Limit) power capping driver
+  is installed under /sys/class/powercap/intel-rapl.
+---
+unit: template
+template-resource: device
+template-filter: |
+  device.path == '/devices/pci0000:00/0000:00:04.0' and device.vendor_id == '32902'
+template-unit: job
+category_id: thermal
+id: thermal/intel-rapl-mmio_{product_id}
+template-id: thermal/intel-rapl-mmio_product_id
+plugin: shell
+depends:
+  - thermal/thermald
+estimated_duration: 1s
+command: thermal_test.py rapl-mmio
+summary: Check if Intel RAPL-mmio power capping driver is installed
+purpose: |
+  Intel RAPL (Running Average Power Limit) relies on the proc_thermal driver
+  to provide the MMIO interface for power capping.
+---
+unit: job
+category_id: thermal
+id: thermal/intel-p-state
+plugin: shell
+depends:
+  - thermal/thermald
+estimated_duration: 1s
+command: thermal_test.py pstate
+summary: Check if Intel P-State driver is installed
+purpose: |
+  Check if the Intel P-State driver is installed under
+  /sys/devices/system/cpu/intel_pstate. The driver is required by thermald.
+---
+unit: job
+category_id: thermal
+id: thermal/intel-powerclamp
+plugin: shell
+depends:
+  - thermal/thermald
+estimated_duration: 1s
+command: thermal_test.py powerclamp
+summary: Check if Intel Power clamp driver is installed
+purpose: |
+  Report whether the Intel Power clamp cooling device is registered under
+  /sys/class/thermal/cooling_device*. thermald treats powerclamp as optional
+  and falls back to RAPL, so this check is advisory and does not fail when it
+  is absent.
+---
+unit: job
+category_id: thermal
+id: thermal/intel-cpu-thermal
+plugin: shell
+depends:
+  - thermal/thermald
+estimated_duration: 1s
+command: thermal_test.py cpu-thermal
+summary: Check if Intel cpu thermal zone registered
+purpose: |
+  Thermald checks if /sys/class/thermal/thermal_zone* contains type B0D4,
+  B0DB, or TCPU. They are devices defined in BIOS and enumerated by the
+  int340x thermal driver. If those devices are not defined in BIOS, thermald
+  captures coretemp under /sys/class/hwmon/hwmon* to create a cpu thermal
+  zone named cpu.
+---
+unit: job
+category_id: thermal
+id: thermal/intel-x86-pkg-temp-thermal
+plugin: shell
+depends:
+  - thermal/thermald
+estimated_duration: 1s
+command: thermal_test.py x86-pkg-temp
+summary: Check if X86 package temperature thermal driver is installed
+purpose: |
+  Check if a CPU package temperature thermal zone is present under
+  /sys/class/thermal/thermal_zone*. Any of the equivalent sensor zone types
+  (x86_pkg_temp, pkg-temp-0, soc_dts0) is accepted.
+---
+unit: job
+category_id: thermal
+id: thermal/valid-thermal-zone-trip-points
+plugin: shell
+depends:
+  - thermal/thermald
+estimated_duration: 1s
+command: thermal_test.py trip-points
+summary: Check if thermal zone contains valid trip point
+purpose: |
+  Check if the system contains valid trip points. The iwlwifi, INT3400
+  Thermal, x86_pkg_temp and TCPU_PCI zones are ignored.
+---
+unit: template
+template-resource: device
+template-filter: |
+  device.path == '/devices/pci0000:00/0000:00:04.0' and device.vendor_id == '32902'
+template-unit: job
+category_id: thermal
+id: thermal/proc_thermal_{product_id}
+template-id: thermal/proc_thermal_product_id
+plugin: shell
+depends:
+  - thermal/thermald
+estimated_duration: 1s
+command: thermal_test.py proc-thermal {path}
+summary: Check if processor thermal driver is loaded
+purpose: |
+  Intel PCI device 4 function 0 is DTT (Dynamic Tuning Technology), which
+  should be probed by the processor thermal driver. The driver helps create
+  the CPU thermal zone for doing CPU thermal control on Intel platforms.
+---
+unit: template
+template-resource: device
+template-filter: device.driver == 'int3400 thermal'
+template-unit: job
+category_id: thermal
+id: thermal/thermal-policy-set_{path}
+template-id: thermal/thermal-policy-set_path
+plugin: shell
+depends:
+  - thermal/thermald
+estimated_duration: 1s
+command: thermal_test.py thermal-policy {path}
+summary: Check if the system has thermal policy applied
+purpose: |
+  Intel introduces a thermal policy for systems with a designated platform
+  device (the INT3400 DPTF policy device). Such devices are bound to the
+  kernel int3400_thermal driver, which is the only driver that exposes the
+  uuids/current_uuid node, so matching on the driver rather than an
+  enumerated list of ACPI HIDs keeps this test in sync with the mainline
+  kernel automatically. The test checks if the thermal policy is set by
+  thermald (the current_uuid is not INVALID).
+---
+unit: job
+category_id: thermal
+id: thermal/adaptive-fallback
+plugin: shell
+depends:
+  - thermal/thermald
+estimated_duration: 1s
+command: thermal_test.py adaptive-fallback
+summary: Check thermald did not fall back from adaptive mode
+purpose: |
+  When adaptive mode installs a table that produces zero active thermal
+  zones, thermald creates an ignore_adaptive sentinel in its runtime
+  directory and falls back to the non-adaptive default engine. This test
+  fails if that sentinel is present, indicating degraded thermal management.
+---
+unit: job
+category_id: thermal
+id: thermal/check-thermald-unknown-cond
+plugin: shell
+requires:
+  - cpuinfo.model_number in ['6', '15']
+  - package.name == 'systemd'
+depends:
+  - thermal/thermald
+estimated_duration: 0.5
+command: thermal_test.py unknown-cond
+summary: Check out-of-bound values in thermal condition tables
+purpose: |
+  This test checks if any out-of-bound value is found when thermald parses
+  the condition tables in the sysfs data_vault (GDDV), by looking into its
+  journal entries.

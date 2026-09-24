@@ -20,6 +20,10 @@ purpose: |
 plugin: shell
 user: root
 estimated_duration: 1
+imports:
+ - from com.canonical.plainbox import manifest
+requires:
+ - manifest.has_processor_dvfs_support == 'True'
 environ:
  - PLAINBOX_PROVIDER_DATA
  - DVFS_PROCESSORS_FILE_PATH
@@ -32,7 +36,7 @@ template-unit: job
 template-id: ce-oem-dvfs/dvfs_processor_governor_test
 id: ce-oem-dvfs/dvfs_processor_{{dvfs_processor_type}}_{{dvfs_processor_name}}-{{governor}}
 category_id: dvfs
-summary: Validate DVFS '{{dvfs_processor_type}}' '{{dvfs_processor_name}}' processor with '{{governor}}' governor
+summary: Validate DVFS '{{dvfs_processor_name}}' processor with '{{governor}}' governor
 template-summary: Validate DVFS processor with governor
 purpose: |
   Test the DVFS '{{dvfs_processor_type}}' '{{dvfs_processor_name}}' processor with '{{governor}}' governor
@@ -42,6 +46,10 @@ user: root
 depends:
   - ce-oem-dvfs/check_dvfs_resource
 estimated_duration: 5s
+imports:
+ - from com.canonical.plainbox import manifest
+requires:
+ - manifest.has_processor_dvfs_support == 'True'
 flags:
   - also-after-suspend
 command: dvfs_test.py test -t "{{dvfs_processor_type}}" -d "{{dvfs_processor_name}}" -g "{{governor}}" -p "{{sysfs_path}}"

@@ -138,13 +138,13 @@ def resolve_dvfs_processors() -> "dict[str, dict]":
     """Return {processor_name: {"path", "type", "governors"}} for every
     processor to use.
 
-    If DVFS_PROCESSORS_FILE_PATH is set, its "allowlist" (minus any
-    "denylist" entries) is the sole source of truth for which
-    processor(s) to use, their type, and their expected governors.
-    Otherwise, fall back to every devfreq device found under the
-    default /sys/class/devfreq root, with type defaulting to "other"
-    and its expected governors taken from the live
-    available_governors sysfs value.
+    If DVFS_PROCESSORS_FILE_PATH is set, its "allowlist" entries take
+    priority and keep their configured type, sysfs_path and governors.
+    Any other devfreq device found under the default /sys/class/devfreq
+    root is also included, typed as "other" with its live
+    available_governors, unless it's in the "denylist". Without
+    DVFS_PROCESSORS_FILE_PATH, every devfreq device is discovered this
+    way.
     """
 
     config = load_json_file(DVFS_PROCESSORS_FILE_PATH, enable_logger=True)
@@ -153,20 +153,6 @@ def resolve_dvfs_processors() -> "dict[str, dict]":
             "failed to load a non-empty DVFS processor map from "
             f"{DVFS_PROCESSORS_FILE_PATH!r}"
         )
-
-    # default to scanning the devfreq devices if no DVFS_PROCESSORS_FILE_PATH is set
-    if not DVFS_PROCESSORS_FILE_PATH:
-        logger.debug(
-            f"Scanning devfreq devices under the {DEVFREQ_ROOT} path"
-        )
-        return {
-            name: {
-                "path": DEVFREQ_ROOT / name,
-                "type": DEFAULT_PROCESSOR_TYPE,
-                "governors": get_available_governors(DEVFREQ_ROOT / name),
-            }
-            for name in list_devfreq_processors()
-        }
 
     denylist = set(config.get("denylist", []))
     processors = {}
@@ -181,6 +167,16 @@ def resolve_dvfs_processors() -> "dict[str, dict]":
             "path": dev_path,
             "type": entry.get("type", DEFAULT_PROCESSOR_TYPE),
             "governors": entry.get("governors", []),
+        }
+
+    logger.debug(f"scanning devfreq devices under the {DEVFREQ_ROOT} path")
+    for name in list_devfreq_processors():
+        if name in processors or name in denylist:
+            continue
+        processors[name] = {
+            "path": DEVFREQ_ROOT / name,
+            "type": DEFAULT_PROCESSOR_TYPE,
+            "governors": get_available_governors(DEVFREQ_ROOT / name),
         }
     return processors
 

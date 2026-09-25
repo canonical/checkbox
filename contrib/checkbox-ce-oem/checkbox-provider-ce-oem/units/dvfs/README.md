@@ -36,10 +36,11 @@ Processors are resolved by `resolve_dvfs_processors()` in
   `type` defaulting to `other` and the expected governors taken
   directly from that node's live `available_governors` value.
 - **Per-platform JSON file**: when the `DVFS_PROCESSORS_FILE_PATH`
-  environment variable is set, its `allowlist` (minus any `denylist`
-  entries) becomes the sole source of truth for which processor(s) to
-  use, their `type`, and the governors expected to be available for
-  each of them.
+  environment variable is set, entries in its `allowlist` take
+  precedence for the configured processor type, optional sysfs path, and
+  expected governors. Other valid processors discovered under
+  `/sys/class/devfreq/` are included as type `other` unless they are in
+  the `denylist`.
 
 ### Per-platform JSON file format
 
@@ -79,7 +80,7 @@ directory for real platform examples (e.g. `cix_p1.json`,
 - `governors` (required): the list of governors expected to be
   available for this processor; `ce-oem-dvfs/check_dvfs_resource`
   fails if the node's live `available_governors` doesn't match this
-  list exactly.
+  list exactly. Resource records use the node's live governor list.
 - `denylist` (optional, top-level): device names to always exclude,
   even if they would otherwise be picked up.
 

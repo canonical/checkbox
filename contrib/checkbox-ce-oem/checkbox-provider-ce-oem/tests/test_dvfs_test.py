@@ -122,6 +122,16 @@ class TestGovernorsAndFrequencies(DvfsTestCaseBase):
 
 
 class TestResolveDvfsProcessors(DvfsTestCaseBase):
+    def test_missing_or_malformed_config_fails(self):
+        malformed = self.tmp_path / "malformed.json"
+        malformed.write_text("{")
+        for config in (self.tmp_path / "missing.json", malformed):
+            with self.subTest(config=config), patch.object(
+                dvfs_test, "DVFS_PROCESSORS_FILE_PATH", str(config)
+            ):
+                with self.assertRaisesRegex(SystemExit, "failed to load"):
+                    dvfs_test.resolve_dvfs_processors()
+
     @patch.object(dvfs_test, "DVFS_PROCESSORS_FILE_PATH", "")
     def test_falls_back_to_default_root_scan(self):
         self.make_device("13000000.gpu")

@@ -24,7 +24,14 @@ To inspect the `devfreq` nodes available on the target device, run:
 ```bash
 ls /sys/class/devfreq/
 cat /sys/class/devfreq/<node>/available_governors
+cat /sys/class/devfreq/<node>/available_frequencies
 ```
+
+Every processor tested by this suite must expose a non-empty
+`available_frequencies` node. The test reads this frequency table as a
+common prerequisite for all governors, including `simple_ondemand`.
+`simple_ondemand` does not require a particular frequency to be selected,
+but the processor must still provide at least one available frequency.
 
 ## Discovering processors
 
@@ -140,7 +147,8 @@ governor via `dvfs_test.py test` and verifies the switch, adjusting
   turn and `cur_freq` must match each one.
 - `simple_ondemand` — only the governor switch itself is verified,
   since it's a load-driven governor with no deterministic target
-  frequency to assert on.
+  frequency to assert on. The common non-empty `available_frequencies`
+  prerequisite still applies.
 - any other governor — the job fails even if the governor switch
   itself succeeds, since there's no dedicated verification logic for
   it yet. This is intentional: a new or custom governor must not be

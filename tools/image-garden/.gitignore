@@ -1,6 +1,9 @@
 *.snap
 *.assert
 /artifacts/
+/local_run_*/
+/.image-garden/*
+!/.image-garden/README.md
 /.spread-reuse*.yaml
 *.lock
 *.img

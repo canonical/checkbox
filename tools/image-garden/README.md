@@ -20,11 +20,13 @@ use and, optionally, the Ubuntu Core series:
 
 ```bash
 cd tools/image-garden
-python3 run_local.py tests/run-patched-snap/launcher.conf --series 24
+python3 run_local.py launchers/metabox-smoke-automated-passing.conf \
+    --series 24
 ```
 
-`tests/run-patched-snap/launcher.conf` runs the metabox
-`smoke-automated-passing` test plan, but you can use a different launcher to run other test plans.
+`launchers/metabox-smoke-automated-passing.conf` runs the metabox
+`smoke-automated-passing` test plan, but you can use a different launcher
+to run other test plans.
 
 The series defaults to `24`; supported values are `18`, `20`, `22`, `24`, and
 `26`. The series selects both the snap name, such as `checkbox24`, and the
@@ -47,6 +49,25 @@ python3 run_local.py \
     --snap-file path/to/checkbox24.snap
 ```
 
+## Patch only the metabox provider
+
+`patch_checkbox_snap.py --metabox-only` only overlays the metabox
+provider, leaving the rest of the snap untouched. This is what CI uses to
+validate the metabox provider against a snap exactly as published:
+
+```bash
+python3 patch_checkbox_snap.py --series 24 --metabox-only \
+    --output-dir local_run_24/checkbox24 --force
+image-garden.spread -vv -artifacts=artifacts \
+    "garden:ubuntu-core-24:tests/run-metabox-smoke"
+```
+
+On CI, we run both the passing and full phases of the metabox smoke tests. Then
+we check the full phase's submission against the golden results:
+
+```bash
+python3 check_submission.py submission.json golden-full.json
+```
 
 ## Run the store smoke tests locally
 

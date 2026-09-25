@@ -146,8 +146,20 @@ def resolve_dvfs_processors() -> "dict[str, dict]":
     and its expected governors taken from the live
     available_governors sysfs value.
     """
+
     config = load_json_file(DVFS_PROCESSORS_FILE_PATH, enable_logger=True)
+    if DVFS_PROCESSORS_FILE_PATH and not config:
+        raise SystemExit(
+            "failed to load a non-empty DVFS processor map from "
+            f"{DVFS_PROCESSORS_FILE_PATH!r}"
+        )
+
+    # default to scanning the devfreq devices if no config is provided
     if not config:
+        logger.debug(
+            "no DVFS processor config found, scanning devfreq devices "
+            f"under the {DEVFREQ_ROOT} path"
+        )
         return {
             name: {
                 "path": DEVFREQ_ROOT / name,
@@ -162,7 +174,7 @@ def resolve_dvfs_processors() -> "dict[str, dict]":
     for entry in config.get("allowlist", []):
         name = entry["device_name"]
         if name in denylist:
-            logger.info(f"skip denylisted processor {name!r}")
+            logger.debug(f"skip denylisted processor {name!r}")
             continue
         sysfs_path = entry.get("sysfs_path")
         dev_path = Path(sysfs_path) if sysfs_path else DEVFREQ_ROOT / name

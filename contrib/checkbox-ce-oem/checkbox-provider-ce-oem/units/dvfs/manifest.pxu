@@ -1,0 +1,4 @@
+unit: manifest entry
+id: has_processor_dvfs_support
+_name: Does this device support processor-level Dynamic Voltage and Frequency Scaling (DVFS)?
+value-type: bool

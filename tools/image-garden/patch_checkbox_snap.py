@@ -42,29 +42,33 @@ def python_package_targets(repo, snap_root):
 
 def provider_targets(repo, snap_root):
     targets = []
-    # Get the list of providers
+    # Get the list of providers already present in the snap
     for provider_dir in sorted((repo / "providers").iterdir()):
         dest = snap_root / f"providers/checkbox-provider-{provider_dir.name}"
         if provider_dir.is_dir() and dest.is_dir():
             targets.append((provider_dir, dest))
-
-    # Append also the metabox provider
-    targets.append(
-        (
-            repo / "metabox/metabox/metabox-provider",
-            snap_root / "providers/checkbox-provider-metabox",
-        )
-    )
     return targets
 
 
-def sync_dirs(repo, snap_root):
-    targets = python_package_targets(repo, snap_root) + provider_targets(
-        repo, snap_root
+def sync_dirs(repo, snap_root, metabox_only=False):
+    # For the CI pipelines, we only need to patch the metabox provider.
+    metabox_target = (
+        repo / "metabox/metabox/metabox-provider",
+        snap_root / "providers/checkbox-provider-metabox",
     )
+    targets = [metabox_target]
+    if not metabox_only:
+        targets = (
+            python_package_targets(repo, snap_root)
+            + provider_targets(repo, snap_root)
+            + targets
+        )
+
     for source, destination in targets:
         sync_dir(source, destination)
 
+    # Always add checkbox's own manifest for the metabox provider, since
+    # the metabox-provider source tree doesn't ship one.
     metabox_src = SCRIPT_DIR / "metabox_provider"
     metabox_dest = snap_root / "providers/checkbox-provider-metabox"
     sync_dir(metabox_src, metabox_dest)
@@ -96,6 +100,7 @@ def patch_snap(
     snap_file=None,
     output_dir=None,
     force=False,
+    metabox_only=False,
 ):
     name = snap or f"checkbox{series}"
     output_dir = output_dir or Path(name)
@@ -125,7 +130,7 @@ def patch_snap(
                 check=True,
             )
 
-    synced = sync_dirs(REPO_ROOT, output_dir)
+    synced = sync_dirs(REPO_ROOT, output_dir, metabox_only=metabox_only)
 
     print(f"Patched {output_dir}")
     print(f"Synced directories: {len(synced)}")
@@ -150,6 +155,12 @@ def build_parser():
         help="Where to unsquash the patched snap. Defaults to ./<snap-name>.",
     )
     parser.add_argument("--force", action="store_true")
+    parser.add_argument(
+        "--metabox-only",
+        action="store_true",
+        help="Only patch the metabox provider, leaving the rest of the "
+        "snap untouched.",
+    )
     return parser
 
 
@@ -169,6 +180,7 @@ def main(args=None, **kwargs):
         snap_file=parsed.snap_file,
         output_dir=parsed.output_dir,
         force=parsed.force,
+        metabox_only=parsed.metabox_only,
     )
 
 

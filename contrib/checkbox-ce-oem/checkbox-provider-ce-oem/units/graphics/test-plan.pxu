@@ -15,11 +15,14 @@ _description:
     Graphics tests (Automated)
 bootstrap_include:
     opencl_clinfo_resource
+    opengl_eglinfo_resource
 include:
     ce-oem-graphics/nvidia-drm-modeset-check
     ce-oem-graphics/detect_opencl
     ce-oem-graphics/check-opencl_clinfo_resource
     ce-oem-graphics/opencl-property-validation
+    ce-oem-graphics/check-opengl_eglinfo_resource
+    ce-oem-graphics/opengl-eglinfo-platform-validation
 
 id: ce-oem-graphics-manual
 unit: test plan

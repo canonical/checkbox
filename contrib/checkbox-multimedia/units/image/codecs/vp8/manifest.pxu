@@ -1,0 +1,9 @@
+unit: manifest entry
+id: has_vp8_version0_3_decoder_vaapi
+_name: Has VA-API support for VP8 decode
+value-type: bool
+
+unit: manifest entry
+id: has_vp8_encoder_vaapi
+_name: Has VA-API support for VP8 encoding
+value-type: bool

@@ -248,8 +248,8 @@ def _userspace_freq_node(dev_path: Path, cur_freq_node: Path) -> Path:
     Some MediaTek kernels expose a dedicated userspace/set_freq node
     instead of accepting writes directly to cur_freq.
     """
-    mtk_node = dev_path / "userspace" / "set_freq"
-    return mtk_node if mtk_node.exists() else cur_freq_node
+    set_freq_node = dev_path / "userspace" / "set_freq"
+    return set_freq_node if set_freq_node.exists() else cur_freq_node
 
 
 @contextmanager
@@ -285,6 +285,14 @@ def _dvfs_state_guard(
                 )
         restored_gov = _read_node(gov_node)
         restored_freq = _read_node(cur_freq_node)
+        if restored_gov != orig_gov or (
+            orig_gov == "userspace" and restored_freq != orig_freq
+        ):
+            raise SystemExit(
+                f"failed to restore {dev_path.name}: "
+                f"governor={restored_gov!r} (expected {orig_gov!r}), "
+                f"freq={restored_freq!r} (original {orig_freq!r})"
+            )
         logger.info(
             f"restored {dev_path.name} -> governor={restored_gov} "
             f"freq={restored_freq}"

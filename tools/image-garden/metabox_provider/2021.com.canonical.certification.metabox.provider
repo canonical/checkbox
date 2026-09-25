@@ -1,0 +1,6 @@
+[PlainBox Provider]
+description = The 2021.com.canonical.certification:metabox provider
+gettext_domain = 2021_com_canonical_certification_metabox
+name = 2021.com.canonical.certification:metabox
+relocatable = True
+version = 1.0

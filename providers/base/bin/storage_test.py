@@ -11,6 +11,7 @@
 import json
 import os
 import subprocess as sp
+import sys
 import tempfile
 from argparse import ArgumentParser
 from contextlib import ExitStack
@@ -19,6 +20,17 @@ from typing import NamedTuple
 
 import psutil
 
+ACCEPTED_DEVICE_TYPES = (
+    "part",
+    "raid0",
+    "raid1",
+    "raid4",
+    "raid5",
+    "raid6",
+    "raid10",
+    "linear",
+)
+
 
 class BlockDevice(NamedTuple):
     # warning: these types are not enforced without explicit checks at runtime
@@ -26,6 +38,35 @@ class BlockDevice(NamedTuple):
     size: int
     type: str  # lvm, part, crypt
     fstype: str  # ext4, vfat, crypto_LUKS
+
+
+def get_mountable_fstypes() -> "list[str]":
+    """
+    from 'man 8 mount'
+
+    If no -t option is given, or if the auto type is specified,
+    mount will try to guess the desired type. mount uses the
+    libblkid(3) library for guessing the filesystem type; if that
+    does not turn up anything that looks familiar, mount will try
+    to read the file /etc/filesystems, or, if that does not exist,
+    /proc/filesystems. All of the filesystem types listed there
+    will be tried, except for those that are labeled "nodev" (e.g.
+    devpts, proc and nfs).
+    """
+    proc_filesystems_raw = Path("/proc/filesystems").read_text()
+    mountable_fstypes: "list[str]" = []
+    for line in proc_filesystems_raw.splitlines():
+        words = line.strip().split()
+        if len(words) == 1:
+            # each line is either just the fstype or starts with "nodev"
+            # examples:
+            # nodev	debugfs <--- not mountable
+            # ext4 <--- mountable
+
+            # every line with nodev is unmountable
+            # because they are not disk-backed filesystems, so we skip them
+            mountable_fstypes.append(words[0])
+    return mountable_fstypes
 
 
 def mountpoint(device: Path) -> "Path | None":
@@ -73,11 +114,25 @@ def find_largest_partition(device: Path) -> Path:
         )
         # skip the "raw" disks, LUKS partitions, and partitions with no
         # filesystem (fstype is None means it's not formatted)
-        if block_device.type in ("part", "md") and block_device.fstype not in (
-            None,
-            "crypto_LUKS",
-        ):
-            block_devices.append(block_device)
+
+        if block_device.type not in ACCEPTED_DEVICE_TYPES:
+            print(
+                f"Skipping {block_device.name}",
+                f"because it's of type '{block_device.type}',",
+                f"but we need {ACCEPTED_DEVICE_TYPES}",
+                file=sys.stderr,
+            )
+            continue
+        if block_device.fstype not in get_mountable_fstypes():
+            print(
+                f"Skipping {block_device.name}",
+                f"because it has unmountable fstype '{block_device.fstype}',",
+                f"but we need {get_mountable_fstypes()}",
+                file=sys.stderr,
+            )
+            continue
+
+        block_devices.append(block_device)
 
     if not block_devices:
         raise SystemExit(
@@ -124,9 +179,19 @@ def run_bonnie(test_dir: Path, user: str = "root"):
     free = free_space(test_dir)
     print(f"{free}MB of free space available")
     if (force_mem_mb * 2) > free:
-        force_mem_mb = free / 4
+        force_mem_mb = round(free / 4)
     print(f"Forcing memory setting to {force_mem_mb}MB")
-    cmd = ["bonnie++", "-d", test_dir, "-u", user, "-r", str(force_mem_mb)]
+    cmd = [
+        "bonnie++",
+        "-d",
+        test_dir,
+        "-u",
+        user,
+        "-r",
+        str(force_mem_mb),
+        # bypass the page cache, O_DIRECT
+        "-D",
+    ]
     print("+", " ".join(map(str, cmd)), flush=True)
     sp.check_call(cmd)
 

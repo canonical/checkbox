@@ -1,0 +1,325 @@
+#!/usr/bin/env python3
+"""PTP clock synchronisation test with ptp4l (linuxptp).
+
+Runs ptp4l as a slave on one Ethernet interface for a fixed time and checks
+the offset it reports against the grandmaster ("rms" lines).
+
+Checkbox config variables (launcher [environment]):
+
+  PTP4L_TRANSPORT_SPECIFIC  transportSpecific nibble of the PTP header,
+                            0 (IEEE 1588) or 1 (IEEE 802.1AS / gPTP).
+                            Default 0. The grandmaster must use the same.
+  PTP4L_DELAY_MECHANISM     E2E (Delay_Req/Delay_Resp) or P2P (peer delay).
+                            Unset = the mechanism of the selected profile:
+                            E2E for 0, P2P for 1. The pair must be a
+                            defined profile: 0 + E2E (IEEE 1588 default),
+                            0 + P2P (IEEE 1588 peer-to-peer) or 1 + P2P
+                            (802.1AS); 1 + E2E is rejected because 802.1AS
+                            has no Delay_Req and strict NICs will not
+                            timestamp one carrying the 802.1AS marker.
+  PTP4L_PTP_MINOR_VERSION   passed as --ptp_minor_version, which exists
+                            from linuxptp 4.0 (Ubuntu 24.04 noble); the
+                            series-22 runtime carries jammy's 3.1.1, where
+                            the option is skipped with a message.
+  PTP4L_REARM_HWTSTAMP      "1" re-programs hardware timestamping on the
+                            interface (hwstamp_ctl off/on + phc_ctl set)
+                            before the test. Off by default: a PHC that
+                            stopped after a device reset or resume is a
+                            finding, and the toggle briefly drops the link.
+
+Before ptp4l runs, and only when the driver already reports hardware
+timestamping enabled, the interface's PTP hardware clock is checked to be
+advancing; a frozen PHC then fails the job immediately with the reason. On
+a fresh boot timestamping is off (ptp4l enables it) and nothing is judged.
+"""
+
+import argparse
+import os
+import re
+import subprocess
+import time
+
+# Always pass --tx_timestamp_timeout=5: a linuxptp patch increased the
+# default TX timestamp timeout from 1 ms to 5 ms because some drivers need
+# longer than 1 ms to deliver the hardware TX timestamp, see
+# https://www.mail-archive.com/linuxptp-devel@lists.sourceforge.net/msg05015.html
+# That patch is only in ptp4l versions later than v2.0, so older versions
+# would otherwise still use 1 ms and fail on those drivers.
+TX_TIMESTAMP_TIMEOUT_MS = 5
+DEFAULT_TRANSPORT_SPECIFIC = "0"
+# delay mechanism of the profile each transportSpecific value stands for:
+# 0 = IEEE 1588 default profile (E2E), 1 = IEEE 802.1AS / gPTP (P2P only)
+PROFILE_DELAY_MECHANISM = {"0": "E2E", "1": "P2P"}
+RMS_LINES = 5
+
+
+def ptp4l_major_version():
+    """Major version of the ptp4l binary, or None when it cannot be read."""
+    ret = subprocess.run(
+        ["ptp4l", "-v"],
+        stdout=subprocess.PIPE,
+        stderr=subprocess.STDOUT,
+        universal_newlines=True,
+    )
+    match = re.search(r"(\d+)", ret.stdout)
+    return int(match.group(1)) if match else None
+
+
+def build_ptp4l_args(iface, env, ptp4l_major):
+    """ptp4l slave command line for iface, from the checkbox config env."""
+    transport_specific = env.get(
+        "PTP4L_TRANSPORT_SPECIFIC", DEFAULT_TRANSPORT_SPECIFIC
+    ).strip()
+    if transport_specific not in ("0", "1"):
+        raise SystemExit(
+            "ERROR: PTP4L_TRANSPORT_SPECIFIC must be 0 or 1, got {!r}".format(
+                transport_specific
+            )
+        )
+    args = [
+        "-i",
+        iface,
+        "-m",
+        "-s",
+        "--network_transport=L2",
+        "--tx_timestamp_timeout={}".format(TX_TIMESTAMP_TIMEOUT_MS),
+        "--transportSpecific={}".format(transport_specific),
+    ]
+    delay_mechanism = env.get("PTP4L_DELAY_MECHANISM", "").strip().upper()
+    if delay_mechanism and delay_mechanism not in ("E2E", "P2P"):
+        raise SystemExit(
+            "ERROR: PTP4L_DELAY_MECHANISM must be E2E or P2P, got {!r}".format(
+                delay_mechanism
+            )
+        )
+    if transport_specific == "1" and delay_mechanism == "E2E":
+        raise SystemExit(
+            "ERROR: PTP4L_TRANSPORT_SPECIFIC=1 marks IEEE 802.1AS (gPTP), "
+            "which only uses the peer-delay mechanism; 1 + E2E is not a "
+            "defined profile and strict NICs never timestamp its Delay_Req. "
+            "Use PTP4L_DELAY_MECHANISM=P2P (gPTP, grandmaster on the same "
+            "link) or PTP4L_TRANSPORT_SPECIFIC=0 (IEEE 1588)."
+        )
+    if not delay_mechanism:
+        delay_mechanism = PROFILE_DELAY_MECHANISM[transport_specific]
+    if delay_mechanism == "P2P":
+        # E2E is ptp4l's own default: the 1588 command line stays minimal
+        args.append("--delay_mechanism=P2P")
+    minor = env.get("PTP4L_PTP_MINOR_VERSION", "").strip()
+    if minor:
+        if ptp4l_major is not None and ptp4l_major >= 4:
+            args.append("--ptp_minor_version={}".format(minor))
+        else:
+            print(
+                "ptp4l version {} does not support --ptp_minor_version "
+                "(linuxptp >= 4.0, Ubuntu 24.04; jammy has 3.1.1), "
+                "skipping this option.".format(ptp4l_major)
+            )
+    return args
+
+
+def phc_device(iface):
+    """/dev/ptpN behind iface (from `ethtool -T`), or None without a PHC."""
+    ret = subprocess.run(
+        ["ethtool", "-T", iface],
+        stdout=subprocess.PIPE,
+        stderr=subprocess.STDOUT,
+        universal_newlines=True,
+    )
+    match = re.search(
+        r"(?:PTP Hardware Clock|Hardware timestamp provider index): (\d+)",
+        ret.stdout,
+    )
+    return "/dev/ptp{}".format(match.group(1)) if match else None
+
+
+def phc_time(device):
+    """Current time of the PHC device, read through its dynamic clock id."""
+    fd = os.open(device, os.O_RDONLY)
+    try:
+        # FD_TO_CLOCKID() from linux/posix-timers: ((~fd) << 3) | CLOCKFD
+        return time.clock_gettime((~fd << 3) | 3)
+    finally:
+        os.close(fd)
+
+
+def hwtstamp_enabled(iface):
+    """True when the driver reports TX hardware timestamping on (hwstamp_ctl).
+
+    `hwstamp_ctl -i <iface>` without -t/-r only reads the current setting
+    (SIOCGHWTSTAMP); it prints "tx_type <n>" and "rx_filter <n>".
+    """
+    ret = subprocess.run(
+        ["hwstamp_ctl", "-i", iface],
+        stdout=subprocess.PIPE,
+        stderr=subprocess.STDOUT,
+        universal_newlines=True,
+    )
+    match = re.search(r"tx_type\s+(\d+)", ret.stdout)
+    return bool(match) and match.group(1) != "0"
+
+
+def phc_advances(device, interval=1.0):
+    """True when the PHC moved by about `interval` seconds in `interval`."""
+    t0 = phc_time(device)
+    time.sleep(interval)
+    delta = phc_time(device) - t0
+    print(
+        "PHC {} advanced {:.3f} s in {:.0f} s".format(device, delta, interval)
+    )
+    return 0.5 * interval < delta < 1.5 * interval
+
+
+def rearm_hwtstamp(iface, device):
+    """Re-program hardware timestamping and set the PHC from system time.
+
+    Opt-in workaround for NICs whose PTP engine is left disabled by a device
+    reset or resume while the driver still reports it enabled (seen on the
+    r8126): a new SIOCSHWTSTAMP with unchanged values is a no-op there, so
+    toggle it off and on. The toggle can drop the link for a few seconds.
+    """
+    print("PTP4L_REARM_HWTSTAMP=1: re-programming hardware timestamping")
+    for opts in (["-t", "0", "-r", "0"], ["-t", "1", "-r", "12"]):
+        _run_quiet(["hwstamp_ctl", "-i", iface] + opts)
+    _run_quiet(["phc_ctl", device, "set"])
+
+
+def _run_quiet(cmd):
+    ret = subprocess.run(
+        cmd,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.STDOUT,
+        universal_newlines=True,
+    )
+    print("{} -> {}".format(" ".join(cmd), ret.returncode))
+    return ret.returncode
+
+
+def check_phc_ready(iface, env):
+    """Fail early, with the reason, when the interface's PHC does not run."""
+    device = phc_device(iface)
+    if device is None:
+        print("ERROR: {} reports no PTP hardware clock".format(iface))
+        return False
+    if env.get("PTP4L_REARM_HWTSTAMP", "").strip() == "1":
+        rearm_hwtstamp(iface, device)
+    if not hwtstamp_enabled(iface):
+        # Fresh boot: some PHCs (r8126) only run once timestamping is
+        # enabled, which ptp4l does first thing. Nothing to judge yet.
+        print(
+            "hardware timestamping on {} is off, ptp4l will enable it; "
+            "skipping the PHC check".format(iface)
+        )
+        return True
+    if phc_advances(device):
+        return True
+    print(
+        "ERROR: PHC {} of {} is not advancing although the driver reports "
+        "hardware timestamping enabled: the NIC's PTP engine was switched "
+        "off underneath it, typically by a device reset or suspend/resume, "
+        "and re-enabling with the same settings is a no-op. That is a "
+        "platform finding; to test synchronisation anyway set "
+        "PTP4L_REARM_HWTSTAMP=1 (re-programs the NIC, briefly drops the "
+        "link)".format(device, iface)
+    )
+    return False
+
+
+def run_ptp4l(args, duration):
+    """Run ptp4l for duration seconds and return everything it printed."""
+    print("Executing ptp4l for {}s: ptp4l {}".format(duration, " ".join(args)))
+    proc = subprocess.Popen(
+        ["ptp4l"] + args,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.STDOUT,
+        universal_newlines=True,
+    )
+    try:
+        output, _ = proc.communicate(timeout=duration)
+    except subprocess.TimeoutExpired:
+        # ptp4l never exits on its own: the timeout is the normal path.
+        proc.terminate()
+        output, _ = proc.communicate()
+    print(output)
+    return output
+
+
+def rms_values(output, last=RMS_LINES):
+    """rms offsets (ns) reported in the last `last` lines of ptp4l output."""
+    lines = output.strip().splitlines()[-last:]
+    values = []
+    for line in lines:
+        match = re.search(r"\brms\s+(-?\d+)", line)
+        if match:
+            values.append(abs(int(match.group(1))))
+    return values
+
+
+def run_sync_test(iface, duration, rms_max):
+    if not check_phc_ready(iface, os.environ):
+        return 1
+    args = build_ptp4l_args(iface, os.environ, ptp4l_major_version())
+    output = run_ptp4l(args, duration)
+    values = rms_values(output)
+    if not values:
+        print("ERROR: unable to get rms value from the ptp4l output")
+        print(
+            "HINT: make sure a ptp4l grandmaster runs on the same network "
+            "segment with the same --transportSpecific value and "
+            "--delay_mechanism, and a large enough --logSyncInterval"
+        )
+        if "timed out while polling for tx timestamp" in output:
+            print(
+                "HINT: the NIC did not return a hardware TX timestamp for "
+                "ptp4l's event message within {} ms. The driver's PTP "
+                "engine is off or too slow (check the driver's timestamp "
+                "counters, e.g. /proc/net/r8126/<iface>/debug/driver_var), "
+                "or the NIC refuses that message type with that "
+                "transportSpecific value".format(TX_TIMESTAMP_TIMEOUT_MS)
+            )
+        elif "--delay_mechanism=P2P" in args and "UNCALIBRATED" in output:
+            print(
+                "HINT: the peer-delay exchange never completed. P2P "
+                "messages go to the link-local MAC 01:80:C2:00:00:0E, which "
+                "bridges/switches do not forward: the grandmaster must be on "
+                "the same link (direct cable or an 802.1AS-capable switch)"
+            )
+        return 1
+    print()
+    for rms in values:
+        if rms > rms_max:
+            print(
+                "FAIL: rms value {}ns too big (greater than {}ns)".format(
+                    rms, rms_max
+                )
+            )
+            return 1
+    print("PASS: rms value is valid. Clock sync succeed.")
+    return 0
+
+
+def main(argv=None):
+    parser = argparse.ArgumentParser(description=__doc__)
+    sub = parser.add_subparsers(dest="action", required=True)
+    sync = sub.add_parser(
+        "sync", help="synchronise to a grandmaster with ptp4l and check rms"
+    )
+    sync.add_argument("iface", help="Ethernet interface to run ptp4l on")
+    sync.add_argument(
+        "--duration", type=int, default=30, help="seconds to run ptp4l"
+    )
+    sync.add_argument(
+        "--rms-max",
+        type=int,
+        default=1000,
+        help="largest acceptable rms offset in ns",
+    )
+    args = parser.parse_args(argv)
+    if args.action == "sync":
+        raise SystemExit(
+            run_sync_test(args.iface, args.duration, args.rms_max)
+        )
+
+
+if __name__ == "__main__":
+    main()

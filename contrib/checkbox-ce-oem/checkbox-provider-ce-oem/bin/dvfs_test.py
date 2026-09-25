@@ -154,11 +154,10 @@ def resolve_dvfs_processors() -> "dict[str, dict]":
             f"{DVFS_PROCESSORS_FILE_PATH!r}"
         )
 
-    # default to scanning the devfreq devices if no config is provided
-    if not config:
+    # default to scanning the devfreq devices if no DVFS_PROCESSORS_FILE_PATH is set
+    if not DVFS_PROCESSORS_FILE_PATH:
         logger.debug(
-            "no DVFS processor config found, scanning devfreq devices "
-            f"under the {DEVFREQ_ROOT} path"
+            f"Scanning devfreq devices under the {DEVFREQ_ROOT} path"
         )
         return {
             name: {

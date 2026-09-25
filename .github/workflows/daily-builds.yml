@@ -64,9 +64,10 @@ jobs:
     secrets:
       LP_CREDS: ${{ secrets.LP_CREDS }}
 
-  smoke-spread-store-daily:
-    # Validate the freshly published edge snaps in Ubuntu Core VMs.
+  smoke-spread-metabox-daily:
+    # Validate the metabox provider against the freshly published edge
+    # snaps in Ubuntu Core VMs.
     needs: snap-native-build-upload-daily
-    uses: ./.github/workflows/smoke-spread-store.yaml
+    uses: ./.github/workflows/smoke-spread-metabox.yaml
     with:
       channel: edge

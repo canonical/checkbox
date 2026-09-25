@@ -1,0 +1,109 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
+summary: >
+  Try a Checkbox snap patched with only the metabox provider and run the
+  metabox smoke-automated test plans in two phases
+kill-timeout: 30m
+# Warn timeout is still needed to catch realtime logs
+warn-timeout: 1m
+artifacts:
+  - checkbox-output-passing.txt
+  - checkbox-output-full.txt
+  - submission-passing.json
+  - submission-passing.tar.xz
+  - submission-full.json
+  - submission-full.tar.xz
+  - snap-debug.txt
+execute: |
+  set -euo pipefail
+
+  # Determine the Checkbox version
+  . /etc/os-release
+  SERIES="$(echo "$VERSION_ID" | grep -Po '^\d{2}')"
+  CHECKBOX="checkbox$SERIES"
+  # The CI workflow runs patch_checkbox_snap.py --metabox-only on the
+  # host, before Spread boots the VM, staging its output the same way
+  # run_local.py does for local dev: at the project root, two levels up
+  # from here.
+  RUN_DIR="../.."
+  PATCHED_SNAP="$RUN_DIR/local_run_$SERIES/$CHECKBOX"
+  PASSING_LAUNCHER="$RUN_DIR/launchers/metabox-smoke-automated-passing.conf"
+  FULL_LAUNCHER="$RUN_DIR/launchers/metabox-smoke-automated-full.conf"
+
+  if [ ! -d "$PATCHED_SNAP" ]; then
+    echo "Missing $PATCHED_SNAP, run patch_checkbox_snap.py --metabox-only first" >&2
+    exit 1
+  fi
+
+  echo "Installing patched $CHECKBOX from $PATCHED_SNAP"
+
+  # Wait for the system to finish any boot-time changes before proceeding.
+  snap wait system seed.loaded
+
+  # Install the already-patched snap without repacking it.
+  snap try "$PATCHED_SNAP" --devmode
+
+  # Ensure the Checkbox agent is started and enabled
+  snap start --enable "$CHECKBOX.agent"
+
+  # Gather snap debug information
+  {
+    echo "# snap list"
+    snap list "$CHECKBOX"
+    echo
+    echo "# snap services"
+    snap services "$CHECKBOX"
+    echo
+    echo "# snap warnings"
+    snap warnings
+  } > snap-debug.txt
+
+  # Phase 1: only the passing/xfail/root jobs. A full run is expected to
+  # exit 0.
+  set +e
+  PYTHONUNBUFFERED=1 "$CHECKBOX.checkbox" control 127.0.0.1 \
+    "$PASSING_LAUNCHER" 2>&1 | tee checkbox-output-passing.txt
+  passing_status=$?
+  mv -f submission.json submission-passing.json
+  mv -f submission.tar.xz submission-passing.tar.xz
+  set -e
+
+  echo "Passing phase exited with $passing_status"
+
+  # Phase 2: the full nested plan (passing + crashing). A full run is
+  # expected to exit 1. This runs regardless of phase 1's result, so
+  # both phases' diagnostics are always collected in one boot.
+  set +e
+  PYTHONUNBUFFERED=1 "$CHECKBOX.checkbox" control 127.0.0.1 \
+    "$FULL_LAUNCHER" 2>&1 | tee checkbox-output-full.txt
+  full_status=$?
+  mv -f submission.json submission-full.json || true
+  mv -f submission.tar.xz submission-full.tar.xz || true
+  set -e
+
+  echo "Full phase exited with $full_status"
+
+  failed=0
+
+  if [ "$passing_status" -ne 0 ]; then
+    echo "FAIL: smoke-automated-passing exited $passing_status, expected 0" >&2
+    failed=1
+  fi
+
+  if [ "$full_status" -ne 1 ]; then
+    echo "FAIL: smoke-automated exited $full_status, expected 1" >&2
+    failed=1
+  fi
+
+  # Compare the full phase's submission.json against its golden results,
+  # so we verify both that every job got the expected outcome and that
+  # its output wasn't lost, not just that the exit code matched. The
+  # passing phase's jobs are a subset of the full phase's, so a single
+  # check here covers both.
+  CHECK_SUBMISSION="$RUN_DIR/check_submission.py"
+
+  if ! python3 "$CHECK_SUBMISSION" submission-full.json golden-full.json
+  then
+    failed=1
+  fi
+
+  exit "$failed"

@@ -1,4 +1,4 @@
-name: Run smoke plan via spread (store snaps)
+name: Run metabox smoke plan via spread (patched snaps)
 
 permissions:
   contents: read
@@ -8,7 +8,8 @@ on:
     branches: [ main ]
     paths:
       - tools/image-garden/**
-      - .github/workflows/smoke-spread-store.yaml
+      - metabox/metabox/metabox-provider/**
+      - .github/workflows/smoke-spread-metabox.yaml
   workflow_dispatch:
     inputs:
       channel:
@@ -24,8 +25,8 @@ on:
         required: false
 
 jobs:
-  smoke-spread-store:
-    name: Smoke via spread on ${{ matrix.garden-system }}
+  smoke-spread-metabox:
+    name: Metabox smoke via spread on ${{ matrix.garden-system }}
     runs-on: ubuntu-latest
     timeout-minutes: 120
     env:
@@ -59,13 +60,26 @@ jobs:
             echo "::warning::/dev/kvm is missing, falling back to emulation"
           fi
 
-      - name: Run the smoke spread suite
+      - name: Patch the metabox provider onto the snap
+        working-directory: tools/image-garden
+        env:
+          GARDEN_SYSTEM: ${{ matrix.garden-system }}
+        run: |
+          SERIES="${GARDEN_SYSTEM##*-}"
+          python3 patch_checkbox_snap.py \
+            --series "$SERIES" \
+            --channel "$CHECKBOX_CHANNEL" \
+            --metabox-only \
+            --output-dir "local_run_$SERIES/checkbox$SERIES" \
+            --force
+
+      - name: Run the metabox smoke spread suite
         working-directory: tools/image-garden
         run: |
           # -vv allows the checkbox output to be output in full during the run
           image-garden.spread -vv \
             -artifacts=artifacts \
-            "garden:${{ matrix.garden-system }}:tests/run-smoke"
+            "garden:${{ matrix.garden-system }}:tests/run-metabox-smoke"
 
       - name: Rename artifacts for GitHub compatibility
         if: always()
@@ -82,7 +96,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
         with:
-          name: spread-artifacts-${{ matrix.garden-system }}
+          name: spread-artifacts-metabox-${{ matrix.garden-system }}
           path: tools/image-garden/artifacts
           if-no-files-found: ignore
 
@@ -90,6 +104,6 @@ jobs:
         if: failure()
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
         with:
-          name: image-garden-logs-${{ matrix.garden-system }}
+          name: image-garden-logs-metabox-${{ matrix.garden-system }}
           path: tools/image-garden/.image-garden/*.log
           if-no-files-found: ignore

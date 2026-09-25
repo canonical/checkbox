@@ -1,0 +1,60 @@
+[
+  {
+    "id": "smoke-automated-bootstrap-pass",
+    "outcome": "pass",
+    "output_contains": "SMOKE_BOOTSTRAP_PASS"
+  },
+  {
+    "id": "smoke-automated-bootstrap-fail",
+    "outcome": "xfail_pass",
+    "output_contains": "SMOKE_BOOTSTRAP_FAIL"
+  },
+  {
+    "id": "smoke-automated-bootstrap-root",
+    "outcome": "pass",
+    "output_contains": "SMOKE_BOOTSTRAP_ROOT"
+  },
+  {
+    "id": "smoke-automated-setup-pass",
+    "outcome": "pass",
+    "output_contains": "SMOKE_SETUP_PASS"
+  },
+  {
+    "id": "smoke-automated-setup-fail",
+    "outcome": "xfail_pass",
+    "output_contains": "SMOKE_SETUP_FAIL"
+  },
+  {
+    "id": "smoke-automated-setup-root",
+    "outcome": "pass",
+    "output_contains": "SMOKE_SETUP_ROOT"
+  },
+  {
+    "id": "smoke-automated-normal-pass",
+    "outcome": "pass",
+    "output_contains": "SMOKE_NORMAL_PASS"
+  },
+  {
+    "id": "smoke-automated-normal-fail",
+    "outcome": "xfail_pass",
+    "output_contains": "SMOKE_NORMAL_FAIL"
+  },
+  {
+    "id": "smoke-automated-normal-root",
+    "outcome": "pass",
+    "output_contains": "SMOKE_NORMAL_ROOT"
+  },
+  {
+    "id": "smoke-automated-normal-resume-pass",
+    "outcome": "pass"
+  },
+  {
+    "id": "smoke-automated-normal-crash",
+    "outcome": "crash",
+    "output_contains": "SMOKE_NORMAL_CRASH"
+  },
+  {
+    "id": "smoke-automated-normal-resume-crash",
+    "outcome": "crash"
+  }
+]

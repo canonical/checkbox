@@ -40,6 +40,7 @@ class SupportedCamera(Enum):
     """
 
     OV_5645 = "ov_5645"  # OV_5645 sensor
+    AR0234 = "ar0234"  # AR0234 sensor
 
     def __str__(self):
         return self.value
@@ -69,6 +70,7 @@ def rz_camera_factory(
 
     camera_handlers = {
         str(SupportedCamera.OV_5645): Ov5645Camera,
+        str(SupportedCamera.AR0234): Ar0234Camera,
     }
 
     handler_class = camera_handlers.get(camera_module)
@@ -347,3 +349,10 @@ class Ov5645Camera(RzBaseCamera):
     def __init__(self, v4l2_devices: str):
         super().__init__(v4l2_devices)
         self._camera = SupportedCamera.OV_5645
+
+class Ar0234Camera(RzBaseCamera):
+    """Handler for AR 0234 camera."""
+
+    def __init__(self, v4l2_devices: str):
+        super().__init__(v4l2_devices)
+        self._camera = SupportedCamera.AR0234

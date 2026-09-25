@@ -35,12 +35,9 @@ class DvfsTestCaseBase(unittest.TestCase):
         self._tmpdir = tempfile.TemporaryDirectory()
         self.addCleanup(self._tmpdir.cleanup)
         self.tmp_path = Path(self._tmpdir.name)
-        self._orig_root = dvfs_test.DEVFREQ_ROOT
-        dvfs_test.DEVFREQ_ROOT = self.tmp_path
-        self.addCleanup(self._restore_root)
-
-    def _restore_root(self):
-        dvfs_test.DEVFREQ_ROOT = self._orig_root
+        patcher = patch.object(dvfs_test, "DEVFREQ_ROOT", self.tmp_path)
+        self.addCleanup(patcher.stop)
+        patcher.start()
 
     def make_device(
         self,

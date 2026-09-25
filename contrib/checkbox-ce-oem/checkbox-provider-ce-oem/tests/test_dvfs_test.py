@@ -197,6 +197,44 @@ class TestResolveDvfsProcessors(DvfsTestCaseBase):
             result = dvfs_test.resolve_dvfs_processors()
         self.assertEqual(result["13000000.gpu"]["path"], dev_path)
 
+    def test_includes_unlisted_devfreq_devices(self):
+        # "13000000.gpu" is in the allowlist and keeps its configured
+        # metadata; "soc:vpu_devfreq" is present under DEVFREQ_ROOT but
+        # not listed, so it must still be discovered and typed "other".
+        self.make_device("13000000.gpu", available_governors=("userspace",))
+        self.make_device(
+            "soc:vpu_devfreq", available_governors=("simple_ondemand",)
+        )
+        config = {
+            "allowlist": [
+                {
+                    "device_name": "13000000.gpu",
+                    "type": "gpu",
+                    "governors": ["userspace"],
+                }
+            ],
+            "denylist": [],
+        }
+        config_path = self.write_config(config)
+        with patch.object(dvfs_test, "DVFS_PROCESSORS_FILE_PATH", config_path):
+            result = dvfs_test.resolve_dvfs_processors()
+        self.assertEqual(
+            result["13000000.gpu"],
+            {
+                "path": self.tmp_path / "13000000.gpu",
+                "type": "gpu",
+                "governors": ["userspace"],
+            },
+        )
+        self.assertEqual(
+            result["soc:vpu_devfreq"],
+            {
+                "path": self.tmp_path / "soc:vpu_devfreq",
+                "type": "other",
+                "governors": ["simple_ondemand"],
+            },
+        )
+
     def test_denylist_excludes_device(self):
         config = {
             "allowlist": [
@@ -334,7 +372,7 @@ class TestCmdResource(DvfsTestCaseBase):
         self.assertIn("governor: userspace", text)
         self.assertIn("governor: performance", text)
 
-    def test_uses_config_file_to_scope_devices(self):
+    def test_uses_config_file_metadata_and_discovers_unlisted(self):
         self.make_device(
             "gpu0", available_governors=("userspace", "performance")
         )
@@ -359,6 +397,35 @@ class TestCmdResource(DvfsTestCaseBase):
         text = out.getvalue()
         self.assertIn("dvfs_processor_name: gpu0", text)
         self.assertIn("dvfs_processor_type: gpu", text)
+        # "vpu0" isn't in the allowlist, but it's still discovered and
+        # tested, typed as "other" since it has no configured metadata.
+        self.assertIn("dvfs_processor_name: vpu0", text)
+        self.assertIn("dvfs_processor_type: other", text)
+
+    def test_denylisted_unlisted_device_excluded(self):
+        self.make_device(
+            "gpu0", available_governors=("userspace", "performance")
+        )
+        self.make_device(
+            "vpu0", available_governors=("userspace", "performance")
+        )
+        config = {
+            "allowlist": [
+                {
+                    "device_name": "gpu0",
+                    "type": "gpu",
+                    "governors": ["userspace", "performance"],
+                }
+            ],
+            "denylist": ["vpu0"],
+        }
+        config_path = self.write_config(config)
+        with patch.object(
+            dvfs_test, "DVFS_PROCESSORS_FILE_PATH", config_path
+        ), patch("sys.stdout", new_callable=StringIO) as out:
+            dvfs_test.cmd_resource()
+        text = out.getvalue()
+        self.assertIn("dvfs_processor_name: gpu0", text)
         self.assertNotIn("dvfs_processor_name: vpu0", text)
 
 

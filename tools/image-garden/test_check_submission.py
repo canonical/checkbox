@@ -30,29 +30,21 @@ class CheckSubmissionTests(unittest.TestCase):
             {"id": "smoke-fail", "outcome": "fail"},
         ]
 
-        failures = check_submission.check_submission(
-            golden, self.submission
-        )
+        failures = check_submission.check_submission(golden, self.submission)
 
         self.assertEqual(failures, [])
 
     def test_fails_when_job_missing_from_submission(self):
         golden = [{"id": "smoke-missing", "outcome": "pass"}]
 
-        failures = check_submission.check_submission(
-            golden, self.submission
-        )
+        failures = check_submission.check_submission(golden, self.submission)
 
-        self.assertEqual(
-            failures, ["smoke-missing: missing from submission"]
-        )
+        self.assertEqual(failures, ["smoke-missing: missing from submission"])
 
     def test_fails_when_outcome_mismatches(self):
         golden = [{"id": "smoke-pass", "outcome": "fail"}]
 
-        failures = check_submission.check_submission(
-            golden, self.submission
-        )
+        failures = check_submission.check_submission(golden, self.submission)
 
         self.assertEqual(len(failures), 1)
         self.assertIn("expected outcome 'fail'", failures[0])
@@ -67,9 +59,7 @@ class CheckSubmissionTests(unittest.TestCase):
             }
         ]
 
-        failures = check_submission.check_submission(
-            golden, self.submission
-        )
+        failures = check_submission.check_submission(golden, self.submission)
 
         self.assertEqual(len(failures), 1)
         self.assertIn("expected output to contain", failures[0])

@@ -50,7 +50,7 @@
   },
   {
     "id": "smoke-automated-normal-crash",
-    "outcome": "crash",
+    "outcome": "fail",
     "output_contains": "SMOKE_NORMAL_CRASH"
   },
   {

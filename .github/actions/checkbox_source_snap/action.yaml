@@ -1,0 +1,87 @@
+name: Submit a Checkbox snap test plan to the lab
+
+inputs:
+  data_source:
+    description: "Target image and provisioning data (ex. `url:` or `distro:`)"
+    required: false
+    default: null
+  queue:
+    description: "Queue that will run the testing (ex. 202012-28526)"
+    required: true
+  test_plan:
+    description: "Test plan to run (ex. com.canonical.certification::sru)"
+    required: true
+  match:
+    description: "Subset of jobs to run (ex. .*wireless.*)"
+    required: false
+    default: ".*"
+  launcher_override:
+    description: "Launcher with additional values that take priority"
+    default: ""
+    required: false
+  checkbox_revision:
+    description: "Revision of Checkbox to clone on the test device"
+    required: true
+  checkbox_channel:
+    description: "Checkbox snap channel to patch and install"
+    required: true
+    default: edge
+
+runs:
+  using: composite
+  steps:
+    - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+
+    - name: Install dependencies
+      shell: bash
+      run: |
+        sudo apt install -y -qq gettext
+
+    - name: Build the test resource
+      shell: bash
+      env:
+        INPUT_DATA_SOURCE: ${{ inputs.data_source }}
+        INPUT_QUEUE: ${{ inputs.queue }}
+        INPUT_MATCH: ${{ inputs.match || '.*' }}
+        INPUT_TEST_PLAN: ${{ inputs.test_plan }}
+        INPUT_LAUNCHER_OVERRIDE: ${{ inputs.launcher_override }}
+        INPUT_CHECKBOX_REVISION: ${{ inputs.checkbox_revision }}
+        INPUT_CHECKBOX_CHANNEL: ${{ inputs.checkbox_channel }}
+      working-directory: ${{ github.action_path }}/../../../tools/lab_dispatch
+      run: |
+        echo "::group::Building the testflinger job"
+        if [ -n "$INPUT_DATA_SOURCE" ]; then
+          INPUT_DATA_SOURCE="provision_data: $INPUT_DATA_SOURCE"
+        fi
+        envsubst \
+          '$INPUT_CHECKBOX_REVISION $INPUT_CHECKBOX_CHANNEL \
+          $INPUT_DATA_SOURCE $INPUT_QUEUE' \
+          < generic_snap.yaml | tee job.yaml
+        echo "::endgroup::"
+
+        echo "::group::Building the Checkbox launcher"
+        envsubst '$INPUT_TEST_PLAN $INPUT_MATCH' \
+          < resources/checkbox.no-manifest.template.conf \
+          | tee resources/checkbox.no-manifest.partial.conf
+        echo "::endgroup::"
+
+        echo "::group::Dumping launcher overrides"
+        echo "$INPUT_LAUNCHER_OVERRIDE" | tee launcher_override.conf
+        echo "::endgroup::"
+
+    - name: Work around relative attachment paths
+      shell: bash
+      run: |
+        action_path=$(realpath "${{ github.action_path }}/../../../tools/")
+        workdir_path=$(realpath tools/)
+        if [ "$action_path" = "$workdir_path" ]; then
+          echo "Skipping copy as the action is already running in workdir"
+        else
+          cp -rT "$action_path" "$workdir_path"
+        fi
+
+    - name: Submit and monitor job
+      uses: canonical/testflinger/.github/actions/submit@2c10f8bbb78532c12034dc668971ae3b44edc9
+      with:
+        poll: true
+        job-path: tools/lab_dispatch/job.yaml

@@ -1,0 +1,54 @@
+name: Dispatch Checkbox snap jobs in the lab
+
+permissions:
+  contents: read
+
+on:
+  workflow_dispatch:
+    inputs:
+      checkbox_channel:
+        description: Checkbox snap channel to patch and install
+        required: true
+        type: string
+        default: edge
+      matrix_to_create:
+        description: Json formatted description of the jobs to dispatch
+        required: true
+        type: string
+
+jobs:
+  run-matrix:
+    runs-on: self-hosted-linux-amd64-jammy-private-endpoint-medium
+    strategy:
+      fail-fast: false
+      matrix:
+        spec: ${{ fromJson(inputs.matrix_to_create) }}
+    defaults:
+      run:
+        working-directory: tools/lab_dispatch
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          persist-credentials: false
+
+      - name: Get current commit SHA
+        id: get_sha
+        run: echo "sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
+
+      - name: Run the spec with a patched snap
+        uses: ./.github/actions/checkbox_source_snap
+        with:
+          data_source: ${{ matrix.spec.data_source }}
+          queue: ${{ matrix.spec.queue }}
+          test_plan: ${{ matrix.spec.test_plan }}
+          match: ${{ matrix.spec.match }}
+          launcher_override: |
+            [environment]
+            WPA_BG_PSK = ${{ secrets.INPUT_PASSWORD_SECRET }}
+            WPA_N_PSK = ${{ secrets.INPUT_PASSWORD_SECRET }}
+            WPA_AC_PSK = ${{ secrets.INPUT_PASSWORD_SECRET }}
+            WPA_AX_PSK = ${{ secrets.INPUT_PASSWORD_SECRET }}
+            WPA3_AX_PSK = ${{ secrets.INPUT_PASSWORD_SECRET }}
+          checkbox_revision: ${{ steps.get_sha.outputs.sha }}
+          checkbox_channel: ${{ inputs.checkbox_channel }}

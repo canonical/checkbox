@@ -517,6 +517,38 @@ class TestCmdTest(DvfsTestCaseBase):
         )
         self.assertEqual(dvfs_test._read_node(dev_dir / "cur_freq"), "200")
 
+    def test_userspace_frequency_write_rejected(self):
+        self.make_device(
+            "dev0", available_frequencies=(100, 200), cur_freq=100
+        )
+        write_node = dvfs_test._write_node
+
+        def reject_current_frequency(path, value):
+            if path.name == "cur_freq" and str(value) == "100":
+                return False
+            return write_node(path, value)
+
+        with patch.object(
+            dvfs_test, "_write_node", side_effect=reject_current_frequency
+        ):
+            with self.assertRaisesRegex(SystemExit, "write frequency=100"):
+                dvfs_test.cmd_test("dev0", "gpu", "", "userspace")
+
+    def test_fails_when_governor_restore_rejected(self):
+        self.make_device("dev0")
+        write_node = dvfs_test._write_node
+
+        def reject_restore(path, value):
+            if path.name == "governor" and value == "simple_ondemand":
+                return False
+            return write_node(path, value)
+
+        with patch.object(
+            dvfs_test, "_write_node", side_effect=reject_restore
+        ), patch.object(dvfs_test, "POLL_TIMEOUT_S", 0):
+            with self.assertRaisesRegex(SystemExit, "failed to restore"):
+                dvfs_test.cmd_test("dev0", "gpu", "", "performance")
+
     def test_fails_when_governor_write_rejected(self):
         self.make_device("dev0")
         with patch.object(dvfs_test, "_write_node", return_value=False):

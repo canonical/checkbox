@@ -14,8 +14,8 @@ Generates a IIO sensors mapping for IIO sensor test
 ```
 A IIO sensors mapping. By giving an IIO sensors on machnie to generates test jobs.
 Usage of parameter:
-    IIO_SENSORS=device:sensor_type device:sensor_type ...
-e.g. IIO_SENSORS=0:pressure 1:accelerometer 2:humidityrelative
+    IIO_SENSORS=sensor_name:sensor_type|sensor_name:sensor_type:total_input_num(if sensor_type is adc) ...
+e.g. IIO_SENSORS=adc128s052:adc:7|lps25h-press:pressure
 ```
 
 - **file:**

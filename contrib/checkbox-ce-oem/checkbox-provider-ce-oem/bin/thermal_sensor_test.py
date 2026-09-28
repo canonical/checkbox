@@ -57,6 +57,18 @@ class ThermalMonitor:
         if node.exists():
             try:
                 return node.read_text().strip("\n")
+            except OSError as e:
+                if e.errno == errno.ENODATA and node == self.temp_node:
+                    raise SystemExit(
+                        "Error: The {}-{} temperature is not available "
+                        "(ENODATA): the sensor's power domain is off. Check "
+                        "that its driver is running; if the zone is "
+                        "power-gated by design, list its type in "
+                        "TZ_ALLOW_NO_DATA.".format(self._name, self.type)
+                    )
+                raise SystemExit(
+                    "Failed to read node: {}\n{}".format(str(node), e)
+                )
             except Exception as e:
                 raise SystemExit(
                     "Failed to read node: {}\n{}".format(str(node), e)
@@ -256,16 +268,25 @@ def check_temperature(current, initial):
     return int(current) != 0 and current != initial
 
 
-def ignore_temp_check_enabled(zone_type):
-    value = os.getenv("TZ_IGNORE_TEMP_CHECK", "").strip()
+def _zone_type_listed(env_name, zone_type):
+    """True when env_name is "all" or a |-separated list containing type."""
+    value = os.getenv(env_name, "").strip()
     if not value:
         return False
 
     if value.lower() == "all":
         return True
 
-    ignored_types = {entry.strip() for entry in value.split("|")}
-    return zone_type in ignored_types
+    listed_types = {entry.strip() for entry in value.split("|")}
+    return zone_type in listed_types
+
+
+def ignore_temp_check_enabled(zone_type):
+    return _zone_type_listed("TZ_IGNORE_TEMP_CHECK", zone_type)
+
+
+def no_data_allowed(zone_type):
+    return _zone_type_listed("TZ_ALLOW_NO_DATA", zone_type)
 
 
 def check_temperature_readable(target_name, thermal_op):
@@ -372,7 +393,8 @@ def dump_thermal_zones(args):
         node = ThermalMonitor(thermal.name)
         stable_id = node.stable_id
         available = node.temperature_available
-        # readable_stable_id lets a job gate on its own zone with a single
+        skip = not available and no_data_allowed(node.type)
+        # testable_stable_id lets a job gate on its own zone with a single
         # comparison; plainbox evaluates each comparison of a requires
         # expression against any record, not against the same record.
         print(
@@ -380,7 +402,7 @@ def dump_thermal_zones(args):
                 "name: {}\nmode: {}\ntype: {}\nstable_id: {}\n"
                 "sysfs_path: {}\ndevice_path: {}\nof_node_path: {}\n"
                 "firmware_node_path: {}\ncdev_types: {}\n"
-                "temp_available: {}\nreadable_stable_id: {}\n"
+                "temp_available: {}\ntestable_stable_id: {}\n"
             ).format(
                 node.name,
                 node.mode,
@@ -392,7 +414,7 @@ def dump_thermal_zones(args):
                 node.firmware_node_path,
                 "|".join(node.cdev_types),
                 available,
-                stable_id if available else "none",
+                "none" if skip else stable_id,
             )
         )
 

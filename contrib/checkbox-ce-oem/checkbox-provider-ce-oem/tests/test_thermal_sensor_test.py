@@ -337,21 +337,59 @@ class StableIdentityTest(unittest.TestCase):
             thermal_sensor_test.dump_thermal_zones(None)
         self.assertIn("temp_available: True", out.getvalue())
         self.assertIn(
-            "readable_stable_id: {}".format(node.stable_id), out.getvalue()
+            "testable_stable_id: {}".format(node.stable_id), out.getvalue()
         )
 
-    def test_dump_marks_enodata_zone_unreadable(self):
+    def _dump_enodata_zone(self, env):
         self._zone("thermal_zone0", "gpu-thermal")
+        node = thermal_sensor_test.ThermalMonitor("thermal_zone0")
+        with mock.patch.dict("os.environ", env, clear=True):
+            with mock.patch.object(
+                thermal_sensor_test.ThermalMonitor,
+                "temperature_available",
+                new_callable=PropertyMock,
+                return_value=False,
+            ):
+                with mock.patch("sys.stdout", new_callable=io.StringIO) as out:
+                    thermal_sensor_test.dump_thermal_zones(None)
+        return node, out.getvalue()
+
+    def test_dump_keeps_enodata_zone_testable_by_default(self):
+        node, output = self._dump_enodata_zone({})
+        self.assertIn("temp_available: False", output)
+        self.assertIn("testable_stable_id: {}".format(node.stable_id), output)
+
+    def test_dump_skips_enodata_zone_when_allowed(self):
+        _, output = self._dump_enodata_zone(
+            {"TZ_ALLOW_NO_DATA": "cv0-thermal|gpu-thermal"}
+        )
+        self.assertIn("temp_available: False", output)
+        self.assertIn("testable_stable_id: none", output)
+
+    def test_monitor_fails_clearly_on_enodata(self):
+        self._zone("thermal_zone0", "gpu-thermal")
+        args = argparse.Namespace(
+            name="thermal_zone0",
+            stable_id=None,
+            zone_type=None,
+            duration=1,
+            extra_commands="true",
+        )
+        real_read_text = Path.read_text
+
+        def read_text(path, *a, **kw):
+            if path.name == "temp":
+                raise OSError(errno.ENODATA, "No data available")
+            return real_read_text(path, *a, **kw)
+
         with mock.patch.object(
-            thermal_sensor_test.ThermalMonitor,
-            "temperature_available",
-            new_callable=PropertyMock,
-            return_value=False,
+            Path, "read_text", autospec=True, side_effect=read_text
         ):
-            with mock.patch("sys.stdout", new_callable=io.StringIO) as out:
-                thermal_sensor_test.dump_thermal_zones(None)
-        self.assertIn("temp_available: False", out.getvalue())
-        self.assertIn("readable_stable_id: none", out.getvalue())
+            with self.assertRaises(SystemExit) as ctx:
+                thermal_sensor_test.thermal_monitor_test(args)
+        self.assertIn("ENODATA", str(ctx.exception))
+        self.assertIn("gpu-thermal", str(ctx.exception))
+        self.assertIn("TZ_ALLOW_NO_DATA", str(ctx.exception))
 
     def test_temperature_available_false_on_enodata(self):
         self._zone("thermal_zone0", "gpu-thermal")

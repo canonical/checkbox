@@ -67,13 +67,12 @@ During execution the script logs both:
 - the current zone name, for example `thermal_zone42`
 - the thermal type, for example `camera0-thermal`
 
-A zone whose `temp` read returns `ENODATA` at discovery (for example a
-sensor whose power domain is off) gets `temp_available: False` and
-`readable_stable_id: none`. Its temperature job requires
-`thermal_zones.readable_stable_id == "<its stable_id>"`, so it is skipped
-instead of failing on the read. (A single comparison is used because
-plainbox evaluates each comparison of a `requires:` expression against any
-resource record, not against one record.)
+A zone whose `temp` read returns `ENODATA` (the sensor's power domain is
+off) gets `temp_available: False`. By default its temperature job still runs
+and fails with an explicit "temperature is not available (ENODATA)" message:
+a GPU whose driver failed to start looks exactly like this. Zones that are
+power-gated by design can be skipped instead with `TZ_ALLOW_NO_DATA` (see
+below).
 
 ### Suspend and resume identity check
 
@@ -183,6 +182,31 @@ Recommended approach:
 Using `all` is broader and should usually be reserved for bring-up or
 special debugging scenarios.
 
+## Configuring `TZ_ALLOW_NO_DATA`
+
+Some sensors report no temperature (`ENODATA`) while their power domain is
+off, for example an engine that is power-gated when idle. The same error is
+returned when a driver failed to power the domain on, so these zones fail by
+default.
+
+For zones that are power-gated by design, list their types in
+`TZ_ALLOW_NO_DATA` (same syntax as `TZ_IGNORE_TEMP_CHECK`: `all` or a
+`|`-separated list of exact thermal types):
+
+```text
+TZ_ALLOW_NO_DATA=cv0-thermal|cv1-thermal|cv2-thermal
+```
+
+The `thermal_zones` resource then reports `testable_stable_id: none` for a
+listed zone that has no data at discovery, and its temperature job, which
+requires `thermal_zones.testable_stable_id == "<its stable_id>"`, is skipped.
+Listed zones that do report data are tested normally.
+
+A single comparison is used in that `requires:` on purpose: plainbox
+evaluates each comparison of a `requires:` expression against any resource
+record, so `stable_id == "X" and temp_available == "True"` would be satisfied
+by two different zones.
+
 ## Manual helper commands
 
 When debugging outside Checkbox, these helper commands are useful.
@@ -241,5 +265,7 @@ The after-suspend automated plan includes:
   The type and stable ID are the more meaningful identifiers.
 - `TZ_IGNORE_TEMP_CHECK` is a test-policy override, not a fix for broken
   thermal hardware.
+- `TZ_ALLOW_NO_DATA` is also a policy override: only list zones whose power
+  domain is expected to be off during the test.
 - If a zone is both unreadable and static, the readability-only path will
   still fail because it must be able to read the temperature node.

@@ -67,12 +67,8 @@ During execution the script logs both:
 - the current zone name, for example `thermal_zone42`
 - the thermal type, for example `camera0-thermal`
 
-A zone whose `temp` read returns `ENODATA` (the sensor's power domain is
-off) gets `temp_available: False`. By default its temperature job still runs
-and fails with an explicit "temperature is not available (ENODATA)" message:
-a GPU whose driver failed to start looks exactly like this. Zones that are
-power-gated by design can be skipped instead with `TZ_ALLOW_NO_DATA` (see
-below).
+A zone with no temperature data (`ENODATA`) fails by default; see
+`TZ_ALLOW_NO_DATA` below.
 
 ### Suspend and resume identity check
 
@@ -201,11 +197,6 @@ The `thermal_zones` resource then reports `testable_stable_id: none` for a
 listed zone that has no data at discovery, and its temperature job, which
 requires `thermal_zones.testable_stable_id == "<its stable_id>"`, is skipped.
 Listed zones that do report data are tested normally.
-
-A single comparison is used in that `requires:` on purpose: plainbox
-evaluates each comparison of a `requires:` expression against any resource
-record, so `stable_id == "X" and temp_available == "True"` would be satisfied
-by two different zones.
 
 ## Manual helper commands
 

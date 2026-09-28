@@ -57,8 +57,9 @@ class ThermalMonitor:
         if node.exists():
             try:
                 return node.read_text().strip("\n")
-            except OSError as e:
-                if e.errno == errno.ENODATA and node == self.temp_node:
+            except Exception as e:
+                enodata = getattr(e, "errno", None) == errno.ENODATA
+                if enodata and node == self.temp_node:
                     raise SystemExit(
                         "Error: The {}-{} temperature is not available "
                         "(ENODATA): the sensor's power domain is off. Check "
@@ -66,10 +67,6 @@ class ThermalMonitor:
                         "power-gated by design, list its type in "
                         "TZ_ALLOW_NO_DATA.".format(self._name, self.type)
                     )
-                raise SystemExit(
-                    "Failed to read node: {}\n{}".format(str(node), e)
-                )
-            except Exception as e:
                 raise SystemExit(
                     "Failed to read node: {}\n{}".format(str(node), e)
                 )
@@ -171,8 +168,6 @@ class ThermalMonitor:
 
     @property
     def stable_source(self):
-        # A unique zone type identifies the sensor on its own; cdev
-        # bindings only disambiguate zones that share a type.
         return (
             self.of_node_path
             or self.firmware_node_path
@@ -190,11 +185,8 @@ class ThermalMonitor:
 
 def _zone_type_is_unique(zone_type):
     """True when no other thermal zone reports the same type."""
-    types = []
-    for zone in Path(SYS_THERMAL_PATH).glob("thermal_zone*"):
-        type_node = zone.joinpath("type")
-        if type_node.exists():
-            types.append(type_node.read_text().strip("\n"))
+    zones = Path(SYS_THERMAL_PATH).glob("thermal_zone*")
+    types = [ThermalMonitor(zone.name).type for zone in zones]
     return types.count(zone_type) == 1
 
 
@@ -283,10 +275,6 @@ def _zone_type_listed(env_name, zone_type):
 
 def ignore_temp_check_enabled(zone_type):
     return _zone_type_listed("TZ_IGNORE_TEMP_CHECK", zone_type)
-
-
-def no_data_allowed(zone_type):
-    return _zone_type_listed("TZ_ALLOW_NO_DATA", zone_type)
 
 
 def check_temperature_readable(target_name, thermal_op):
@@ -393,7 +381,9 @@ def dump_thermal_zones(args):
         node = ThermalMonitor(thermal.name)
         stable_id = node.stable_id
         available = node.temperature_available
-        skip = not available and no_data_allowed(node.type)
+        skip = not available and _zone_type_listed(
+            "TZ_ALLOW_NO_DATA", node.type
+        )
         # testable_stable_id lets a job gate on its own zone with a single
         # comparison; plainbox evaluates each comparison of a requires
         # expression against any record, not against the same record.

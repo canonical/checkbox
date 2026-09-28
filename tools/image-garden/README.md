@@ -20,11 +20,10 @@ use and, optionally, the Ubuntu Core series:
 
 ```bash
 cd tools/image-garden
-python3 run_local.py launchers/metabox-smoke-automated-passing.conf \
-    --series 24
+python3 run_local.py tests/run-patched-snap/launcher.conf --series 24
 ```
 
-`launchers/metabox-smoke-automated-passing.conf` runs the metabox
+`tests/run-patched-snap/launcher.conf` runs the metabox
 `smoke-automated-passing` test plan, but you can use a different launcher
 to run other test plans.
 

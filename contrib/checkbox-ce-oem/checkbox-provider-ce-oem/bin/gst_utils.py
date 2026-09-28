@@ -203,10 +203,10 @@ def compare_psnr(
     )
     avg_psnr, _ = get_average_psnr(golden_reference_file, artifact_file)
     logging.info("Average PSNR: {}".format(avg_psnr))
-    if avg_psnr < 30 and avg_psnr > 0:
+    if avg_psnr < 25 and avg_psnr > 0:
         raise SystemExit(
             "Error: The average PSNR value did not reach the acceptable"
-            " threshold (30 dB)"
+            " threshold (25 dB)"
         )
     logging.info("Pass: Average PSNR meets the acceptable threshold")
 

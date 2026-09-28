@@ -26,9 +26,9 @@ The value of $N$ and $K$ can be controlled by `STRESS_S3_ITERATIONS` and `STRESS
 If we are doing 5 suspends per reboot for 3 reboots ($N = 5, K = 3$), it means we have these jobs:
 
 - `suspend_cycles_1_reboot1`: $S_{1,1}$
-- `suspend_cycles_1_reboot{{suspend_reboot_id}}`: $S_{1,k}$, where $k = 2,3$
-- `suspend_cycles_{{suspend_id}}_reboot{{suspend_reboot_id}}`: $S_{n, k}$, where $n = 2,3,4,5$ and $k=1,2,3$
-- `suspend_cycles_reboot{{suspend_reboot_id}}`: $R_k$, where $k=1,2,3$
+- `suspend_cycles_1_reboot{suspend_reboot_id}`: $S_{1,k}$, where $k = 2,3$
+- `suspend_cycles_{suspend_id}_reboot{suspend_reboot_id}`: $S_{n, k}$, where $n = 2,3,4,5$ and $k=1,2,3$
+- `suspend_cycles_reboot{suspend_reboot_id}`: $R_k$, where $k=1,2,3$
 
 The execution flow will look like the following:
 
@@ -52,7 +52,7 @@ To define the dependency relationship between these jobs, we first need the base
 Now we can consider jobs with a single variable $k$
 - `suspend_cycles_1_reboot{2...K}`: template jobs
   - For example: $S_{1,2}$, $S_{1,3}$
-  - They need to run after `suspend_cycles_reboot{{suspend_reboot_previous}}`
+  - They need to run after `suspend_cycles_reboot{suspend_reboot_previous}`
     - For example: $R_1$, $R_2$
 
 To generate $k = 2,\dots,K$, we use the resource job `stress_s3_cycles_iterations_1`. It gives us 2 values

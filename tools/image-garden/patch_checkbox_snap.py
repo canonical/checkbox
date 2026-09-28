@@ -42,11 +42,19 @@ def python_package_targets(repo, snap_root):
 
 def provider_targets(repo, snap_root):
     targets = []
-    # Get the list of providers already present in the snap
+    # Get the list of providers
     for provider_dir in sorted((repo / "providers").iterdir()):
         dest = snap_root / f"providers/checkbox-provider-{provider_dir.name}"
         if provider_dir.is_dir() and dest.is_dir():
             targets.append((provider_dir, dest))
+
+    # Append also the metabox provider
+    targets.append(
+        (
+            repo / "metabox/metabox/metabox-provider",
+            snap_root / "providers/checkbox-provider-metabox",
+        )
+    )
     return targets
 
 
@@ -56,12 +64,11 @@ def sync_dirs(repo, snap_root, metabox_only=False):
         repo / "metabox/metabox/metabox-provider",
         snap_root / "providers/checkbox-provider-metabox",
     )
-    targets = [metabox_target]
-    if not metabox_only:
-        targets = (
-            python_package_targets(repo, snap_root)
-            + provider_targets(repo, snap_root)
-            + targets
+    if metabox_only:
+        targets = [metabox_target]
+    else:
+        targets = python_package_targets(repo, snap_root) + provider_targets(
+            repo, snap_root
         )
 
     for source, destination in targets:

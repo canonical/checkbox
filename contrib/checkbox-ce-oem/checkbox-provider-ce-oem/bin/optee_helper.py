@@ -103,7 +103,7 @@ def launch_xtest(test_suite, test_id):
         pid, cmdline = _find_supplicant()
         if not _supplicant_serves_ta_dir(cmdline):
             stage_ta_for_supplicant(
-                find_ta_path(), "/proc/{}/root".format(pid)
+                find_ta_path(snap_name), "/proc/{}/root".format(pid)
             )
 
     ret = _run_command(

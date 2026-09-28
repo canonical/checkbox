@@ -33,6 +33,8 @@ class MergeSubmissions(MergeReports):
     name = "merge-submissions"
 
     def register_arguments(self, parser):
+        parser.description = "Merge multiple submissions together."
+        parser.epilog = "⚠️ The resulting submission MUST NOT be uploaded to the Certification website!"
         parser.add_argument(
             "submission",
             nargs="*",

@@ -1,3 +1,4 @@
+import errno
 import unittest
 import argparse
 import tempfile
@@ -276,3 +277,97 @@ class ThermalMonitorTest(unittest.TestCase):
             "new_after: type=ddr stable_id=sid-c name=thermal_zone3",
             output,
         )
+
+
+class StableIdentityTest(unittest.TestCase):
+    """stable_id must not follow cdev bindings when the type is unique."""
+
+    def setUp(self):
+        self.tmp = tempfile.TemporaryDirectory()
+        self.root = Path(self.tmp.name)
+        patcher = mock.patch.object(
+            thermal_sensor_test, "SYS_THERMAL_PATH", self.tmp.name
+        )
+        patcher.start()
+        self.addCleanup(patcher.stop)
+        self.addCleanup(self.tmp.cleanup)
+
+    def _zone(self, name, zone_type, cdevs=(), temp="42000"):
+        zone = self.root / name
+        zone.mkdir()
+        (zone / "type").write_text(zone_type + "\n")
+        (zone / "temp").write_text(temp + "\n")
+        (zone / "mode").write_text("enabled\n")
+        for index, cdev_type in enumerate(cdevs):
+            cdev = zone / "cdev{}".format(index)
+            cdev.mkdir()
+            (cdev / "type").write_text(cdev_type + "\n")
+        return zone
+
+    def test_stable_id_ignores_cdev_change_for_unique_type(self):
+        zone = self._zone(
+            "thermal_zone0",
+            "cpu-thermal",
+            ("cpufreq-cpu0", "devfreq-17000000.gpu"),
+        )
+        self._zone("thermal_zone1", "tj-thermal", ("pwm-fan",))
+        node = thermal_sensor_test.ThermalMonitor("thermal_zone0")
+        before = node.stable_id
+
+        # the GPU devfreq cooling device goes away with its driver
+        (zone / "cdev1" / "type").unlink()
+        (zone / "cdev1").rmdir()
+
+        self.assertEqual(node.stable_source, "cpu-thermal")
+        self.assertEqual(node.stable_id, before)
+
+    def test_stable_id_uses_cdev_for_duplicate_type(self):
+        self._zone("thermal_zone0", "acpitz", ("Processor",))
+        self._zone("thermal_zone1", "acpitz", ("Fan",))
+        first = thermal_sensor_test.ThermalMonitor("thermal_zone0")
+        second = thermal_sensor_test.ThermalMonitor("thermal_zone1")
+
+        self.assertEqual(first.stable_source, "Processor")
+        self.assertNotEqual(first.stable_id, second.stable_id)
+
+    def test_dump_reports_temp_available(self):
+        self._zone("thermal_zone0", "cpu-thermal")
+        node = thermal_sensor_test.ThermalMonitor("thermal_zone0")
+        with mock.patch("sys.stdout", new_callable=io.StringIO) as out:
+            thermal_sensor_test.dump_thermal_zones(None)
+        self.assertIn("temp_available: True", out.getvalue())
+        self.assertIn(
+            "readable_stable_id: {}".format(node.stable_id), out.getvalue()
+        )
+
+    def test_dump_marks_enodata_zone_unreadable(self):
+        self._zone("thermal_zone0", "gpu-thermal")
+        with mock.patch.object(
+            thermal_sensor_test.ThermalMonitor,
+            "temperature_available",
+            new_callable=PropertyMock,
+            return_value=False,
+        ):
+            with mock.patch("sys.stdout", new_callable=io.StringIO) as out:
+                thermal_sensor_test.dump_thermal_zones(None)
+        self.assertIn("temp_available: False", out.getvalue())
+        self.assertIn("readable_stable_id: none", out.getvalue())
+
+    def test_temperature_available_false_on_enodata(self):
+        self._zone("thermal_zone0", "gpu-thermal")
+        node = thermal_sensor_test.ThermalMonitor("thermal_zone0")
+        with mock.patch(
+            "pathlib.Path.read_text",
+            side_effect=OSError(errno.ENODATA, "No data available"),
+        ):
+            self.assertFalse(node.temperature_available)
+
+    def test_temperature_available_reraises_other_errors(self):
+        self._zone("thermal_zone0", "gpu-thermal")
+        node = thermal_sensor_test.ThermalMonitor("thermal_zone0")
+        with mock.patch(
+            "pathlib.Path.read_text",
+            side_effect=OSError(errno.EIO, "I/O error"),
+        ):
+            with self.assertRaises(OSError):
+                node.temperature_available

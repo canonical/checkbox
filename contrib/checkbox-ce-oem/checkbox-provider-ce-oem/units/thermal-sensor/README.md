@@ -37,6 +37,13 @@ collects metadata including:
 - sysfs path
 - device / firmware / DT identity hints
 - bound cooling-device types
+- whether the temperature is readable (`temp_available`)
+
+The stable ID is derived from the first available of: DT node, firmware
+node, device node, the zone type when no other zone shares it, and the
+bound cooling-device types. Cooling-device bindings come and go with their
+drivers (for example a GPU devfreq cooling device), so they are only used
+to tell apart zones that share a type.
 
 ### Per-zone temperature test
 
@@ -59,6 +66,14 @@ During execution the script logs both:
 
 - the current zone name, for example `thermal_zone42`
 - the thermal type, for example `camera0-thermal`
+
+A zone whose `temp` read returns `ENODATA` at discovery (for example a
+sensor whose power domain is off) gets `temp_available: False` and
+`readable_stable_id: none`. Its temperature job requires
+`thermal_zones.readable_stable_id == "<its stable_id>"`, so it is skipped
+instead of failing on the read. (A single comparison is used because
+plainbox evaluates each comparison of a `requires:` expression against any
+resource record, not against one record.)
 
 ### Suspend and resume identity check
 

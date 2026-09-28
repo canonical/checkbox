@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+import errno
 import os
 import sys
 import time
@@ -79,6 +80,21 @@ class ThermalMonitor:
         return temp
 
     @property
+    def temperature_available(self):
+        """False when the zone reports no data (ENODATA).
+
+        Some sensors (e.g. Jetson gpu/cv zones) return ENODATA while their
+        power domain is off; there is no temperature to monitor then.
+        """
+        try:
+            self.temp_node.read_text()
+        except OSError as e:
+            if e.errno == errno.ENODATA:
+                return False
+            raise
+        return True
+
+    @property
     def mode(self):
         return self._read_node(self.mode_node)
 
@@ -127,8 +143,9 @@ class ThermalMonitor:
         on zones that have no physical device node.
 
         Note: cdev bindings can change at runtime if cooling devices
-        are rebound, so this value is less stable than
-        of_node/firmware_node/device.
+        are rebound (e.g. a GPU devfreq or CPU-cluster cpufreq cooling
+        device appears or disappears with its driver), so stable_source
+        only uses them when the zone type is not unique.
         """
         types = []
         for entry in sorted(self.root_node.glob("cdev[0-9]*")):
@@ -142,10 +159,13 @@ class ThermalMonitor:
 
     @property
     def stable_source(self):
+        # A unique zone type identifies the sensor on its own; cdev
+        # bindings only disambiguate zones that share a type.
         return (
             self.of_node_path
             or self.firmware_node_path
             or self.device_path
+            or (self.type if _zone_type_is_unique(self.type) else "")
             or "|".join(self.cdev_types)
             or self.type
         )
@@ -154,6 +174,16 @@ class ThermalMonitor:
     def stable_id(self):
         stable_data = "{}|{}".format(self.type, self.stable_source)
         return hashlib.sha1(stable_data.encode()).hexdigest()[:12]
+
+
+def _zone_type_is_unique(zone_type):
+    """True when no other thermal zone reports the same type."""
+    types = []
+    for zone in Path(SYS_THERMAL_PATH).glob("thermal_zone*"):
+        type_node = zone.joinpath("type")
+        if type_node.exists():
+            types.append(type_node.read_text().strip("\n"))
+    return types.count(zone_type) == 1
 
 
 def _load_snapshot(snapshot_path):
@@ -340,21 +370,29 @@ def dump_thermal_zones(args):
 
     for thermal in sorted(Path(SYS_THERMAL_PATH).glob("thermal_zone*")):
         node = ThermalMonitor(thermal.name)
+        stable_id = node.stable_id
+        available = node.temperature_available
+        # readable_stable_id lets a job gate on its own zone with a single
+        # comparison; plainbox evaluates each comparison of a requires
+        # expression against any record, not against the same record.
         print(
             (
                 "name: {}\nmode: {}\ntype: {}\nstable_id: {}\n"
                 "sysfs_path: {}\ndevice_path: {}\nof_node_path: {}\n"
                 "firmware_node_path: {}\ncdev_types: {}\n"
+                "temp_available: {}\nreadable_stable_id: {}\n"
             ).format(
                 node.name,
                 node.mode,
                 node.type,
-                node.stable_id,
+                stable_id,
                 node.sysfs_path,
                 node.device_path,
                 node.of_node_path,
                 node.firmware_node_path,
                 "|".join(node.cdev_types),
+                available,
+                stable_id if available else "none",
             )
         )
 

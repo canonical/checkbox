@@ -54,6 +54,8 @@ user: root
 estimated_duration: 5m
 environ:
     TZ_IGNORE_TEMP_CHECK
+requires:
+    thermal_zones.readable_stable_id == "{{ stable_id }}"
 flags: also-after-suspend
 command:
     thermal_sensor_test.py monitor --stable-id {{ stable_id }} --zone-type "{{ type }}"

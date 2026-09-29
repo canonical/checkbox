@@ -10,7 +10,7 @@ id: iiotg-tgpio-manual
 _name: Iiotg TGPIO Tests (Manual)
 unit: test plan
 include:
-    iiotg-tgpio/kernel-module-exists
+    iiotg-tgpio/driver-available
     iiotg-tgpio/ptp-virtual-device-node-detect
     iiotg-tgpio/ptp-time-check-send-.*
     iiotg-tgpio/ptp-time-check-receive-.*
@@ -21,7 +21,7 @@ id: iiotg-tgpio-automated
 _name: Iiotg TGPIO Tests (Automated)
 unit: test plan
 include:
-    iiotg-tgpio/kernel-module-exists
+    iiotg-tgpio/driver-available
     iiotg-tgpio/ptp-virtual-device-node-detect
     iiotg-tgpio/intc-driver-loaded
     iiotg-tgpio/ptp-time-check-loopback-.*

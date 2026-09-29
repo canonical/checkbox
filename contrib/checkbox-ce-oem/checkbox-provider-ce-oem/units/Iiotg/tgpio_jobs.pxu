@@ -1,22 +1,28 @@
 unit: job
 category_id: iiotg-tgpio
-id: iiotg-tgpio/kernel-module-exists
+id: iiotg-tgpio/driver-available
 plugin: shell
 imports: from com.canonical.plainbox import manifest
 requires:
     manifest.is_Iiotg == 'True'
     manifest.has_iiotg_tgpio == 'True'
-    manifest.has_iiotg_tgpio_kernel_module == 'True'
-_summary: Check that the TGPIO kernel module (ptp-intel-pmc-tgpio) exists
+_summary: Check that the kernel provides a TGPIO driver
 _description:
-    This test checks that the running kernel provides the
-    ptp-intel-pmc-tgpio module, either as a loadable module or built-in.
+    This test checks that the running kernel provides a driver for the
+    Intel PMC Time-Aware GPIO (TGPIO / Timed I/O) hardware, either the
+    out-of-tree ptp-intel-pmc-tgpio driver or the upstream pps_gen_tio
+    driver (Linux 6.15+).
 user: root
 command:
-    if modinfo ptp-intel-pmc-tgpio; then
-        echo "PASS: ptp-intel-pmc-tgpio is available in kernel $(uname -r)"
-    else
-        echo "FAIL: ptp-intel-pmc-tgpio is not available in kernel $(uname -r)" >&2
+    found=0
+    for m in ptp_intel_pmc_tgpio pps_gen_tio; do
+        if modinfo "$m" > /dev/null 2>&1; then
+            echo "PASS: $m is available in kernel $(uname -r)"
+            found=1
+        fi
+    done
+    if [ "$found" -eq 0 ]; then
+        echo "FAIL: no TGPIO driver (ptp_intel_pmc_tgpio or pps_gen_tio) in kernel $(uname -r)" >&2
         exit 1
     fi
 estimated_duration: 1s
@@ -25,16 +31,18 @@ unit: job
 category_id: iiotg-tgpio
 id: iiotg-tgpio/ptp-virtual-device-node-detect
 plugin: shell
-imports: from com.canonical.plainbox import manifest
+imports:
+    from com.canonical.plainbox import manifest
+    from com.canonical.contrib import iiotg_tgpio_driver_info
 requires:
     manifest.is_Iiotg == 'True'
     manifest.has_iiotg_tgpio == 'True'
-    manifest.has_iiotg_tgpio_kernel_module == 'True'
+    iiotg_tgpio_driver_info.ptp_intel_pmc_tgpio == 'True'
 _summary: Check if there's at least one virtual ptp device node
 _description:
     This test is to check if there's at least one virtual ptp device node
 user: root
-depends: iiotg-tgpio/kernel-module-exists
+depends: iiotg-tgpio/driver-available
 command:
     udevadm info /dev/ptp* | grep -E 'P: /devices/virtual/ptp/ptp[0-9]+' -A 5 | grep -Po 'DEVNAME=\K[^[:space:]]+' 
 
@@ -46,14 +54,16 @@ _summary: Verify if all the Intel Controller(INTC) for TGPIO is loaded
 _description:
     This test is to enumerate the loaded TGPIO driver. It's hardcoded, so it should
     always be INTC1021, INTC1022, INTC1023, INTC1024.
-imports: from com.canonical.plainbox import manifest
+imports:
+    from com.canonical.plainbox import manifest
+    from com.canonical.contrib import iiotg_tgpio_driver_info
 requires:
     manifest.is_Iiotg == 'True'
     manifest.has_iiotg_tgpio == 'True'
-    manifest.has_iiotg_tgpio_kernel_module == 'True'
+    iiotg_tgpio_driver_info.ptp_intel_pmc_tgpio == 'True'
 user: root
 depends:
-    iiotg-tgpio/kernel-module-exists
+    iiotg-tgpio/driver-available
     iiotg-tgpio/ptp-virtual-device-node-detect
 command:
     expected_modules='INTC1021 INTC1022 INTC1023 INTC1024'
@@ -80,15 +90,17 @@ plugin: shell
 _summary:  Check PTP device node function on {ptp_device_node}
 _description:
     This test is to check if the ptp device can send and receive time stamp on {ptp_device_node}.
-imports: from com.canonical.plainbox import manifest
+imports:
+    from com.canonical.plainbox import manifest
+    from com.canonical.contrib import iiotg_tgpio_driver_info
 requires:
     manifest.is_Iiotg == 'True'
     manifest.has_iiotg_tgpio == 'True'
-    manifest.has_iiotg_tgpio_kernel_module == 'True'
+    iiotg_tgpio_driver_info.ptp_intel_pmc_tgpio == 'True'
     manifest.iiotg_tgpio_loopback_capability == 'True'
 user: root
 depends:
-    iiotg-tgpio/kernel-module-exists
+    iiotg-tgpio/driver-available
     iiotg-tgpio/ptp-virtual-device-node-detect
 command:
     timestamp_count=10
@@ -119,15 +131,17 @@ _steps:
     3. Run `checkbox-Iiotg-classic.checkbox-cli  run com.canonical.contrib::iiotg-tgpio/ptp-time-receive-host` and follow the steps on another DUT to receive timestamps.
 _verification:
     Is the output of another machine pass?
-imports: from com.canonical.plainbox import manifest
+imports:
+    from com.canonical.plainbox import manifest
+    from com.canonical.contrib import iiotg_tgpio_driver_info
 requires:
     manifest.is_Iiotg == 'True'
     manifest.has_iiotg_tgpio == 'True'
-    manifest.has_iiotg_tgpio_kernel_module == 'True'
+    iiotg_tgpio_driver_info.ptp_intel_pmc_tgpio == 'True'
     manifest.iiotg_tgpio_loopback_capability == 'False'
 user: root
 depends:
-    iiotg-tgpio/kernel-module-exists
+    iiotg-tgpio/driver-available
     iiotg-tgpio/ptp-virtual-device-node-detect
 command:
     testptp -d {ptp_device_node} -i 0 -L 0,2 -p 1000000000
@@ -153,15 +167,17 @@ _steps:
 _verification:
     The verification of this test is automated.
     Do not change the automatically selected result.
-imports: from com.canonical.plainbox import manifest
+imports:
+    from com.canonical.plainbox import manifest
+    from com.canonical.contrib import iiotg_tgpio_driver_info
 requires:
     manifest.is_Iiotg == 'True'
     manifest.has_iiotg_tgpio == 'True'
-    manifest.has_iiotg_tgpio_kernel_module == 'True'
+    iiotg_tgpio_driver_info.ptp_intel_pmc_tgpio == 'True'
     manifest.iiotg_tgpio_loopback_capability == 'False'
 user: root
 depends:
-    iiotg-tgpio/kernel-module-exists
+    iiotg-tgpio/driver-available
     iiotg-tgpio/ptp-virtual-device-node-detect
 command:
     timestamp_count=10
@@ -184,13 +200,15 @@ _steps:
     3. Press enter on the other DUT to start receiving timestamps.
 _verification:
     There's no test here. You can mark it pass after you finishing your test(iiotg-tgpio/ptp-time-receive-.*) on the other machine.
-imports: from com.canonical.plainbox import manifest
+imports:
+    from com.canonical.plainbox import manifest
+    from com.canonical.contrib import iiotg_tgpio_driver_info
 requires:
     manifest.is_Iiotg == 'True'
     manifest.has_iiotg_tgpio == 'True'
-    manifest.has_iiotg_tgpio_kernel_module == 'True'
+    iiotg_tgpio_driver_info.ptp_intel_pmc_tgpio == 'True'
 user: root
-depends: iiotg-tgpio/kernel-module-exists
+depends: iiotg-tgpio/driver-available
 command:
     ptp_device_node=$(udevadm info /dev/ptp* | grep -E 'P: /devices/virtual/ptp/ptp[0-9]+' -A 5 | grep -Po 'DEVNAME=\K[^[:space:]]+')
     testptp -d "$ptp_device_node" -i 0 -L 0,2 -p 1000000000
@@ -213,13 +231,15 @@ _steps:
     3. Press enter on this machine to start receiving timestamps.
 _verification:
     There's no test here. You can mark it pass after you finishing your test(iiotg-tgpio/ptp-time-check-send-.*) on the other machine.
-imports: from com.canonical.plainbox import manifest
+imports:
+    from com.canonical.plainbox import manifest
+    from com.canonical.contrib import iiotg_tgpio_driver_info
 requires:
     manifest.is_Iiotg == 'True'
     manifest.has_iiotg_tgpio == 'True'
-    manifest.has_iiotg_tgpio_kernel_module == 'True'
+    iiotg_tgpio_driver_info.ptp_intel_pmc_tgpio == 'True'
 user: root
-depends: iiotg-tgpio/kernel-module-exists
+depends: iiotg-tgpio/driver-available
 command:
     timestamp_count=10
     ptp_device_node=$(udevadm info /dev/ptp* | grep -E 'P: /devices/virtual/ptp/ptp[0-9]+' -A 5 | grep -Po 'DEVNAME=\K[^[:space:]]+')

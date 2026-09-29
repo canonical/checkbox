@@ -9,9 +9,3 @@ id: has_iiotg_tgpio
 _name: Iiotg TGPIO support (at least 1 pin)
 _prompt: Iiotg specific?
 value-type: bool
-
-unit: manifest entry
-id: has_iiotg_tgpio_kernel_module
-_name: Kernel provides the Iiotg TGPIO driver (ptp-intel-pmc-tgpio)
-_prompt: Iiotg specific?
-value-type: bool

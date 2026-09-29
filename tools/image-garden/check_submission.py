@@ -26,7 +26,13 @@ import sys
 def check_submission(golden, submission):
     results = {result["id"]: result for result in submission["results"]}
 
-    failures = []
+    # Add also any unexpected jobs in the submission as failures
+    expected_ids = {expected["id"] for expected in golden}
+    failures = [
+        f"{job_id}: unexpected in submission"
+        for job_id in sorted(results.keys() - expected_ids)
+    ]
+
     for expected in golden:
         # Check that all the expected jobs are present
         job_id = expected["id"]

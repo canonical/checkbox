@@ -1,15 +1,40 @@
 unit: job
 category_id: iiotg-tgpio
+id: iiotg-tgpio/kernel-module-exists
+plugin: shell
+imports: from com.canonical.plainbox import manifest
+requires:
+    manifest.is_Iiotg == 'True'
+    manifest.has_iiotg_tgpio == 'True'
+    manifest.has_iiotg_tgpio_kernel_module == 'True'
+_summary: Check that the TGPIO kernel module (ptp-intel-pmc-tgpio) exists
+_description:
+    This test checks that the running kernel provides the
+    ptp-intel-pmc-tgpio module, either as a loadable module or built-in.
+user: root
+command:
+    if modinfo ptp-intel-pmc-tgpio; then
+        echo "PASS: ptp-intel-pmc-tgpio is available in kernel $(uname -r)"
+    else
+        echo "FAIL: ptp-intel-pmc-tgpio is not available in kernel $(uname -r)" >&2
+        exit 1
+    fi
+estimated_duration: 1s
+
+unit: job
+category_id: iiotg-tgpio
 id: iiotg-tgpio/ptp-virtual-device-node-detect
 plugin: shell
 imports: from com.canonical.plainbox import manifest
 requires:
     manifest.is_Iiotg == 'True'
     manifest.has_iiotg_tgpio == 'True'
+    manifest.has_iiotg_tgpio_kernel_module == 'True'
 _summary: Check if there's at least one virtual ptp device node
 _description:
     This test is to check if there's at least one virtual ptp device node
 user: root
+depends: iiotg-tgpio/kernel-module-exists
 command:
     udevadm info /dev/ptp* | grep -E 'P: /devices/virtual/ptp/ptp[0-9]+' -A 5 | grep -Po 'DEVNAME=\K[^[:space:]]+' 
 
@@ -25,8 +50,11 @@ imports: from com.canonical.plainbox import manifest
 requires:
     manifest.is_Iiotg == 'True'
     manifest.has_iiotg_tgpio == 'True'
+    manifest.has_iiotg_tgpio_kernel_module == 'True'
 user: root
-depends: iiotg-tgpio/ptp-virtual-device-node-detect
+depends:
+    iiotg-tgpio/kernel-module-exists
+    iiotg-tgpio/ptp-virtual-device-node-detect
 command:
     expected_modules='INTC1021 INTC1022 INTC1023 INTC1024'
     EXIT=0
@@ -56,9 +84,12 @@ imports: from com.canonical.plainbox import manifest
 requires:
     manifest.is_Iiotg == 'True'
     manifest.has_iiotg_tgpio == 'True'
+    manifest.has_iiotg_tgpio_kernel_module == 'True'
     manifest.iiotg_tgpio_loopback_capability == 'True'
 user: root
-depends: iiotg-tgpio/ptp-virtual-device-node-detect
+depends:
+    iiotg-tgpio/kernel-module-exists
+    iiotg-tgpio/ptp-virtual-device-node-detect
 command:
     timestamp_count=10
     echo "Sending timestamps from pin 0 to pin 1..."
@@ -92,9 +123,12 @@ imports: from com.canonical.plainbox import manifest
 requires:
     manifest.is_Iiotg == 'True'
     manifest.has_iiotg_tgpio == 'True'
+    manifest.has_iiotg_tgpio_kernel_module == 'True'
     manifest.iiotg_tgpio_loopback_capability == 'False'
 user: root
-depends: iiotg-tgpio/ptp-virtual-device-node-detect
+depends:
+    iiotg-tgpio/kernel-module-exists
+    iiotg-tgpio/ptp-virtual-device-node-detect
 command:
     testptp -d {ptp_device_node} -i 0 -L 0,2 -p 1000000000
     sleep 15
@@ -123,9 +157,12 @@ imports: from com.canonical.plainbox import manifest
 requires:
     manifest.is_Iiotg == 'True'
     manifest.has_iiotg_tgpio == 'True'
+    manifest.has_iiotg_tgpio_kernel_module == 'True'
     manifest.iiotg_tgpio_loopback_capability == 'False'
 user: root
-depends: iiotg-tgpio/ptp-virtual-device-node-detect
+depends:
+    iiotg-tgpio/kernel-module-exists
+    iiotg-tgpio/ptp-virtual-device-node-detect
 command:
     timestamp_count=10
     testptp -d {ptp_device_node} -i 0 -L 0,1 -e 100 -o "$timestamp_count" -E | tee "$PLAINBOX_SESSION_SHARE"/ptp-time-check-receive.stdout
@@ -151,7 +188,9 @@ imports: from com.canonical.plainbox import manifest
 requires:
     manifest.is_Iiotg == 'True'
     manifest.has_iiotg_tgpio == 'True'
+    manifest.has_iiotg_tgpio_kernel_module == 'True'
 user: root
+depends: iiotg-tgpio/kernel-module-exists
 command:
     ptp_device_node=$(udevadm info /dev/ptp* | grep -E 'P: /devices/virtual/ptp/ptp[0-9]+' -A 5 | grep -Po 'DEVNAME=\K[^[:space:]]+')
     testptp -d "$ptp_device_node" -i 0 -L 0,2 -p 1000000000
@@ -178,7 +217,9 @@ imports: from com.canonical.plainbox import manifest
 requires:
     manifest.is_Iiotg == 'True'
     manifest.has_iiotg_tgpio == 'True'
+    manifest.has_iiotg_tgpio_kernel_module == 'True'
 user: root
+depends: iiotg-tgpio/kernel-module-exists
 command:
     timestamp_count=10
     ptp_device_node=$(udevadm info /dev/ptp* | grep -E 'P: /devices/virtual/ptp/ptp[0-9]+' -A 5 | grep -Po 'DEVNAME=\K[^[:space:]]+')

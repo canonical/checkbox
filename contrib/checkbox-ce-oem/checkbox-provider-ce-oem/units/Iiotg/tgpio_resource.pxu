@@ -14,10 +14,12 @@ plugin: shell
 _summary: Check TGPIO PTP device node resource generation
 _description: Verify PTP device node resource generation command executes directly.
 user: root
+depends: iiotg-tgpio/kernel-module-exists
 imports: from com.canonical.plainbox import manifest
 requires:
     manifest.is_Iiotg == 'True'
     manifest.has_iiotg_tgpio == 'True'
+    manifest.has_iiotg_tgpio_kernel_module == 'True'
 command: resource_tgpio_ptp_device_node_info.sh
 estimated_duration: 1s
 flags: preserve-locale

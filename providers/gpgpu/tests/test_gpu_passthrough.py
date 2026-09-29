@@ -19,6 +19,7 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """
 
+from subprocess import CalledProcessError
 from unittest import TestCase
 from unittest.mock import MagicMock, patch
 
@@ -37,15 +38,16 @@ class TestMain(TestCase):
     def test_run_gpu_test_success(self, time_mock, logging_mock):
         instance = MagicMock()
         try:
-            run_gpu_test(instance, "test", run_count=1, threshold_sec=2)
+            run_gpu_test(instance, "test")
         except SystemExit:
             self.fail("run_gpu_test raised SystemExit")
 
     @patch("time.time", side_effect=[0, 2])
     def test_run_gpu_test_failure(self, time_mock, logging_mock):
         instance = MagicMock()
-        with self.assertRaises(SystemExit):
-            run_gpu_test(instance, "test", run_count=1, threshold_sec=1)
+        instance.run.side_effect = CalledProcessError(1, "gpu-burn 30")
+        with self.assertRaises(CalledProcessError):
+            run_gpu_test(instance, "test")
 
     @patch("gpu_passthrough.run_gpu_test")
     @patch("gpu_passthrough.LXD")

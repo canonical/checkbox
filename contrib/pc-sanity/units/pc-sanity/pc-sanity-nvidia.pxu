@@ -2,6 +2,7 @@ plugin: shell
 category_id: com.canonical.plainbox::miscellanea
 requires:
  graphics_card.driver == 'nvidia'
+ package.name == 'lsb-release'
 id: miscellanea/check-nvidia
 command:
  set -x

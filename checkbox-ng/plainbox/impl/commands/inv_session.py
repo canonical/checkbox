@@ -102,7 +102,7 @@ class SessionInvocation:
             if storage is None:
                 print(_("No such session"), session_id)
             else:
-                print("[{}]".format(session_id))
+                print(f"[{session_id}]")
                 print(_("location:"), storage.location)
                 data = storage.load_checkpoint()
                 if len(data) == 0:

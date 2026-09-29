@@ -41,23 +41,23 @@ class ModuleLoadedTest:
         # attempt a load of the module
         if not self.load_module(args.module):
             raise SystemExit(
-                "ERROR: attempt to load module {} failed".format(args.module)
+                f"ERROR: attempt to load module {args.module} failed"
             )
 
     def is_module_loaded(self, module):
-        with open("/proc/modules", "r") as modules:
+        with open("/proc/modules") as modules:
             for line in modules:
                 if line.split(" ")[0] == module:
-                    print("Found kernel module {}".format(module))
+                    print(f"Found kernel module {module}")
                     return True
-        print("Couldn't find kernel module {}".format(module))
+        print(f"Couldn't find kernel module {module}")
         return False
 
     def load_module(self, module):
         if subprocess.call(["modprobe", module]) == 0:
-            print("Module {} was loaded".format(module))
+            print(f"Module {module} was loaded")
             return True
-        print("Module {} failed to load".format(module))
+        print(f"Module {module} failed to load")
         return False
 
 

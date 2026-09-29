@@ -63,7 +63,7 @@ def netplan_renderer():
         if os.path.exists(basedir):
             files = glob.glob(os.path.join(basedir, "*.yaml"))
             for f in files:
-                with open(f, "r") as file:
+                with open(f) as file:
                     data = yaml.safe_load(file)
                     if "renderer" in data["network"]:
                         return data["network"]["renderer"]
@@ -107,7 +107,7 @@ def netplan_config_backup():
 
     for f in config_files:
         basedir = os.path.dirname(f)
-        print("Backing up from {}".format(basedir))
+        print(f"Backing up from {basedir}")
         backup_loc = os.path.join(TMP_PATH, *basedir.split("/"))
         os.makedirs(backup_loc, exist_ok=True)
         print(" ", f)
@@ -136,7 +136,7 @@ def netplan_config_wipe():
 
 def netplan_config_restore():
     print_head("Restore configuration files")
-    files = glob.glob("{}/**/*.yaml".format(TMP_PATH), recursive=True)
+    files = glob.glob(f"{TMP_PATH}/**/*.yaml", recursive=True)
     if files:
         print("Restoring:")
         for f in files:
@@ -145,7 +145,7 @@ def netplan_config_restore():
             try:
                 shutil.move(f, restore_loc)
             except shutil.Error:
-                raise SystemExit("Failed to restore {}".format(f))
+                raise SystemExit(f"Failed to restore {f}")
 
 
 def generate_test_config(interface, ssid, psk, address, dhcp, wpa3, renderer):
@@ -222,7 +222,7 @@ def delete_test_config():
     try:
         os.remove(NETPLAN_TEST_CFG)
     except FileNotFoundError:
-        print("Test config {} not found, ignoring...".format(NETPLAN_TEST_CFG))
+        print(f"Test config {NETPLAN_TEST_CFG} not found, ignoring...")
     print()
 
 
@@ -243,13 +243,13 @@ def netplan_apply_config():
 
 def get_interface_info(interface, renderer):
     if renderer == "networkd":
-        cmd = "networkctl status --no-pager --no-legend {}".format(interface)
+        cmd = f"networkctl status --no-pager --no-legend {interface}"
         key_map = {"State": "state", "Gateway": "gateway"}
     elif renderer == "NetworkManager":
-        cmd = "nmcli device show {}".format(interface)
+        cmd = f"nmcli device show {interface}"
         key_map = {"GENERAL.STATE": "state", "IP4.GATEWAY": "gateway"}
     else:
-        raise ValueError("Unknown renderer: {}".format(renderer))
+        raise ValueError(f"Unknown renderer: {renderer}")
 
     return _get_cmd_info(cmd, key_map, renderer)
 
@@ -268,7 +268,7 @@ def _get_cmd_info(cmd, key_map, renderer):
             if key in key_map:
                 info[key_map[key]] = val
     except sp.CalledProcessError as e:
-        print("Error running {} command: {}".format(renderer, e))
+        print(f"Error running {renderer} command: {e}")
     return info
 
 
@@ -285,7 +285,7 @@ def _check_routable_state(interface, renderer):
     elif renderer == "NetworkManager":
         routable = "connected" in state and "disconnected" not in state
     else:
-        raise ValueError("Unknown renderer: {}".format(renderer))
+        raise ValueError(f"Unknown renderer: {renderer}")
     return (routable, state)
 
 
@@ -310,7 +310,7 @@ def wait_for_routable(interface, renderer, max_wait=30):
 
 
 def print_address_info(interface):
-    cmd = "ip address show dev {}".format(interface)
+    cmd = f"ip address show dev {interface}"
     print_cmd(cmd)
     sp.call(cmd, shell=True)
     print()
@@ -342,8 +342,8 @@ def get_gateway(interface, renderer):
     info = get_interface_info(interface, renderer)
     gateway = info.get("gateway") or ""
     validated_gateway = _validate_gateway_ip(gateway)
-    print("Got gateway address: {}".format(gateway))
-    print("Validated gateway address: {}".format(validated_gateway))
+    print(f"Got gateway address: {gateway}")
+    print(f"Validated gateway address: {validated_gateway}")
     return validated_gateway
 
 
@@ -353,7 +353,7 @@ def perform_ping_test(interface, renderer):
     if target:
         count = 5
         result = ping(target, interface, count, 10)
-        print("Ping result: {}".format(result))
+        print(f"Ping result: {result}")
         if result["received"] == result["transmitted"]:
             return True
 
@@ -366,7 +366,7 @@ def print_journal_entries(start, renderer):
     elif renderer == "NetworkManager":
         render_service = "NetworkManager.service"
     else:
-        raise ValueError("Unknown renderer: {}".format(renderer))
+        raise ValueError(f"Unknown renderer: {renderer}")
     print_head("Journal Entries")
     cmd = (
         "journalctl -q --no-pager "

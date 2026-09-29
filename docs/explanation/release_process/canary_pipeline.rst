@@ -21,10 +21,6 @@ This is an example on how the whole pipeline can be implemented in Jenkins.
                             "Checkbox series-22 for arm64": {
                                 echo 'Running canary on core22 arm64'
                                 build job: 'checkbox-edge-validation-core22-arm64', wait: true, propagate: true
-                            },
-                            "Checkbox series-16 for amd64": {
-                                echo 'Running canary on core16 amd64'
-                                build job: 'checkbox-edge-validation-core16-amd64', wait: true, propagate: true
                             }
 
                         )

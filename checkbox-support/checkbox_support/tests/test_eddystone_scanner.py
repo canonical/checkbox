@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# encoding: UTF-8
 # Copyright (c) 2024 Canonical Ltd.
 #
 # Authors:
@@ -117,6 +116,5 @@ class TestEddystoneScanner(unittest.TestCase):
         eddystone_scanner.init_bluetooth()
         mock_command.assert_called_with("bluetoothctl")
         mock_btctl.writeline.assert_any_call("power on")
-        mock_btctl.writeline.assert_any_call("scan on")
         mock_btctl.writeline.assert_any_call("exit")
-        self.assertEqual(mock_sleep.call_count, 2)
+        self.assertEqual(mock_sleep.call_count, 1)

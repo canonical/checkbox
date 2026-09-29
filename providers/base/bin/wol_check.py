@@ -26,10 +26,10 @@ import sys
 
 
 def get_timestamp(file):
-    with open(file, "r") as f:
+    with open(file) as f:
         saved_timestamp = float(f.read())
     readable_start_time = datetime.datetime.fromtimestamp(saved_timestamp)
-    logging.debug("Test started at: {}".format(readable_start_time))
+    logging.debug(f"Test started at: {readable_start_time}")
     return saved_timestamp
 
 
@@ -54,7 +54,7 @@ def get_wakeup_timestamp():
             readable_back_time = datetime.datetime.fromtimestamp(
                 latest_system_back_time
             )
-            logging.debug("System back time: {}".format(readable_back_time))
+            logging.debug(f"System back time: {readable_back_time}")
             return latest_system_back_time
 
     return None
@@ -66,12 +66,12 @@ def get_system_boot_time():
     return the system boot timestamp (Unix timestamp, in seconds).
     """
 
-    with open("/proc/stat", "r") as f:
+    with open("/proc/stat") as f:
         for line in f:
             if line.startswith("btime"):
                 btime = int(line.split()[1])
                 back_time = datetime.datetime.fromtimestamp(btime)
-                logging.debug("System back time: {}".format(back_time))
+                logging.debug(f"System back time: {back_time}")
                 return btime
     logging.error("cannot find btime")
     return None
@@ -123,7 +123,7 @@ def main():
     delay = args.delay
     max_retries = args.retry
 
-    logging.info("PowerType: {}".format(powertype))
+    logging.info(f"PowerType: {powertype}")
 
     test_start_time = get_timestamp(timestamp_file)
     if test_start_time is None:
@@ -138,7 +138,7 @@ def main():
         raise SystemExit("Couldn't get system back time.")
 
     time_difference = system_back_time - test_start_time
-    logging.debug("time difference: {} seconds".format(time_difference))
+    logging.debug(f"time difference: {time_difference} seconds")
 
     # system_back_time - test_start_time > 1.5*max_retries*delay which meanse
     # the system was bring up by rtc other than Wake-on-LAN

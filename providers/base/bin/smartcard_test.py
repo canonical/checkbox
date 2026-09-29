@@ -165,7 +165,7 @@ class SmartcardTest:
             try:
                 connection = sc_reader.createConnection()
                 connection.connect()
-                self.logger.info("[{}] connected".format(sc_reader))
+                self.logger.info(f"[{sc_reader}] connected")
                 return connection
             except (NoCardException, CardConnectionException):
                 raise SystemExit("no card inserted or card is unsupported")
@@ -315,7 +315,7 @@ class SmartcardTest:
             # send_apdu_test("Broadcom 58200")
             return self.send_apdu_test(args.reader)
         else:
-            raise SystemExit("Unknown test type: {}".format(args.test_type))
+            raise SystemExit(f"Unknown test type: {args.test_type}")
 
 
 def main():

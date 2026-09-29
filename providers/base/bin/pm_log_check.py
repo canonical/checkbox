@@ -17,9 +17,7 @@ def main():
     args = parse_args()
 
     if not os.path.isfile(args.input_log_filename):
-        sys.stderr.write(
-            "Log file {0!r} not found\n".format(args.input_log_filename)
-        )
+        sys.stderr.write(f"Log file {args.input_log_filename!r} not found\n")
         sys.exit(NOT_FOUND)
 
     LoggingConfiguration.set(args.log_level, args.output_log_filename)
@@ -32,7 +30,7 @@ def main():
     sys.exit(SUCCESS)
 
 
-class Parser(object):
+class Parser:
     """
     Reboot test log file parser
     """
@@ -167,7 +165,7 @@ class LineIterator:
         self.buffer.append(line)
 
 
-class LoggingConfiguration(object):
+class LoggingConfiguration:
     @classmethod
     def set(cls, log_level, log_filename):
         """
@@ -215,9 +213,7 @@ def compare_results(results):
                 if baseline_field != result_field:
                     differ = difflib.Differ()
 
-                    message = [
-                        "** {field!r} field doesn't match:".format(field=field)
-                    ]
+                    message = [f"** {field!r} field doesn't match:"]
                     comparison = differ.compare(
                         baseline_field.splitlines(), result_field.splitlines()
                     )
@@ -225,20 +221,18 @@ def compare_results(results):
                     error_messages.append("\n".join(message))
 
             if not error_messages:
-                logging.debug(
-                    "[Iteration {0}] {1}...\t[OK]".format(index + 1, command)
-                )
+                logging.debug(f"[Iteration {index + 1}] {command}...\t[OK]")
             else:
                 success = False
                 if command.startswith("fwts"):
                     logging.error(
-                        "[Iteration {0}] {1}...\t[FAIL]".format(
+                        "[Iteration {}] {}...\t[FAIL]".format(
                             index + 1, command
                         )
                     )
                 else:
                     logging.error(
-                        "[Iteration {0}] {1}...\t[FAIL]\n".format(
+                        "[Iteration {}] {}...\t[FAIL]\n".format(
                             index + 1, command
                         )
                     )
@@ -273,7 +267,7 @@ def parse_args():
         choices=log_levels,
         help=(
             "Log level. "
-            "One of {0} or {1} (%(default)s by default)".format(
+            "One of {} or {} (%(default)s by default)".format(
                 ", ".join(log_levels[:-1]), log_levels[-1]
             )
         ),

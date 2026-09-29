@@ -33,7 +33,7 @@ def main():
             cmd = "findfs LABEL=ubuntu-data"
         else:
             cmd = "findfs LABEL=writable"
-    print("+ {}".format(cmd))
+    print(f"+ {cmd}")
     try:
         source = (
             sp.check_output(cmd, shell=True)
@@ -47,7 +47,7 @@ def main():
     print(source, "\n")
 
     # resolve the source to an actual device node
-    print("+ realpath {}".format(source))
+    print(f"+ realpath {source}")
     device = os.path.realpath(source)
     print(device, "\n")
 
@@ -55,8 +55,8 @@ def main():
     # the type 'crypt'
     kname = os.path.basename(device)
     while True:
-        cmd = 'lsblk -r -n -i -o KNAME,TYPE,PKNAME | grep "^{}"'.format(kname)
-        print("+ {}".format(cmd))
+        cmd = f'lsblk -r -n -i -o KNAME,TYPE,PKNAME | grep "^{kname}"'
+        print(f"+ {cmd}")
         try:
             lsblk = (
                 sp.check_output(cmd, shell=True)
@@ -81,8 +81,8 @@ def main():
     # but to be really sure lets check to see it is found by cryptsetup
 
     # first we need to know its mapper name
-    cmd = 'dmsetup info /dev/{} | grep "^Name:"'.format(kname)
-    print("+ {}".format(cmd))
+    cmd = f'dmsetup info /dev/{kname} | grep "^Name:"'
+    print(f"+ {cmd}")
     try:
         mapper_name = (
             sp.check_output(cmd, shell=True)
@@ -91,14 +91,12 @@ def main():
             .split()[-1]
         )
     except sp.CalledProcessError:
-        raise SystemExit(
-            "ERROR: dmsetup info on device {} failed".format(kname)
-        )
+        raise SystemExit(f"ERROR: dmsetup info on device {kname} failed")
     print(mapper_name, "\n")
 
     # then query the info in cryptsetup
-    cmd = "cryptsetup status {}".format(mapper_name)
-    print("+ {}".format(cmd))
+    cmd = f"cryptsetup status {mapper_name}"
+    print(f"+ {cmd}")
     try:
         cryptinfo = (
             sp.check_output(cmd, shell=True)

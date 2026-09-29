@@ -119,10 +119,10 @@ class Netplan:
         for ifname in changed_ifaces:
             iface = new.pop(ifname)
             if ifname in orig:
-                logging.debug("{} exists in {}".format(ifname, orig))
+                logging.debug(f"{ifname} exists in {orig}")
                 orig[ifname].update(iface)
             else:
-                logging.debug("{} not found in {}".format(ifname, orig))
+                logging.debug(f"{ifname} not found in {orig}")
                 orig[ifname] = iface
                 new_interfaces.add(ifname)
 
@@ -167,6 +167,6 @@ class Netplan:
                         "renderer"
                     )
             return new_interfaces
-        except (IOError, yaml.YAMLError):
+        except (OSError, yaml.YAMLError):
             logging.error("Error while loading yaml")
             self.config = {}

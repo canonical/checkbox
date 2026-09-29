@@ -275,7 +275,7 @@ class InstallCommand(ManageCommand):
                 (
                     "    * {:10} => {}".format(src, _("not installed"))
                     if dest is None
-                    else "    * {:10} => {}".format(src, dest)
+                    else f"    * {src:10} => {dest}"
                 )
                 for src, dest in sorted(layout.items())
             )
@@ -357,7 +357,7 @@ class InstallCommand(ManageCommand):
         dest_bin_dir = root + dest_map["bin"]
         try:
             os.makedirs(dest_bin_dir, exist_ok=True)
-        except IOError:
+        except OSError:
             pass
         for executable in executable_list:
             shutil.copy(executable, dest_bin_dir)
@@ -378,7 +378,7 @@ class InstallCommand(ManageCommand):
                     shutil.rmtree(dst_name, ignore_errors=True)
                 try:
                     os.makedirs(os.path.dirname(dst_name), exist_ok=True)
-                except IOError:
+                except OSError:
                     pass
                 _logger.info(_("copying: %s => %s"), src_name, dst_name)
                 shutil.copytree(src_name, dst_name)
@@ -439,9 +439,9 @@ class InstallCommand(ManageCommand):
     def _write_to_file(self, root, pathname, callback):
         try:
             os.makedirs(root + os.path.dirname(pathname), exist_ok=True)
-        except IOError:
+        except OSError:
             pass
-        with open(root + pathname, "wt", encoding="UTF-8") as stream:
+        with open(root + pathname, "w", encoding="UTF-8") as stream:
             callback(stream)
 
 
@@ -519,9 +519,7 @@ class SourceDistributionCommand(ManageCommand):
 
     @property
     def tarball_name(self):
-        return os.path.join(
-            self.dist_dir, "{}.tar.gz".format(self.toplevel_name)
-        )
+        return os.path.join(self.dist_dir, f"{self.toplevel_name}.tar.gz")
 
     def invoked(self, ns):
         """
@@ -655,7 +653,7 @@ class DevelopCommand(ManageCommand):
             else:
                 _logger.info(_("Creating provider file: %s"), pathname)
                 os.makedirs(os.path.dirname(pathname), exist_ok=True)
-                with open(pathname, "wt", encoding="UTF-8") as stream:
+                with open(pathname, "w", encoding="UTF-8") as stream:
                     self.definition.write(stream)
 
 
@@ -978,19 +976,17 @@ class InfoCommand(ManageCommand):
         unit_list, problem_list = provider.unit_list, provider.problem_list
         print(_("[Job Definitions]"))
         self._display_units(
-            (unit for unit in unit_list if unit.Meta.name == "job")
+            unit for unit in unit_list if unit.Meta.name == "job"
         )
         print(_("[Test Plans]"))
         self._display_units(
-            (unit for unit in unit_list if unit.Meta.name == "test plan")
+            unit for unit in unit_list if unit.Meta.name == "test plan"
         )
         print(_("[Other Units]"))
         self._display_units(
-            (
-                unit
-                for unit in unit_list
-                if unit.Meta.name not in ("job", "test plan")
-            )
+            unit
+            for unit in unit_list
+            if unit.Meta.name not in ("job", "test plan")
         )
         if problem_list:
             print("\t" + _("Some units could not be parsed correctly"))
@@ -998,7 +994,7 @@ class InfoCommand(ManageCommand):
             print("\t" + _("Please run `manage.py validate` for details"))
         print(_("[Executables]"))
         for executable in provider.executable_list:
-            print("\t{0!a}".format(os.path.basename(executable)))
+            print(f"\t{os.path.basename(executable)!a}")
 
     def _display_units(self, unit_list):
         for unit in unit_list:
@@ -1198,7 +1194,7 @@ class ValidateCommand(ManageCommand):
                         )
                     )
                 else:
-                    print("{}".format(exc))
+                    print(f"{exc}")
             print(
                 _(
                     "NOTE: subsequent units from problematic"
@@ -1298,8 +1294,7 @@ class ValidateCommand(ManageCommand):
     def validate_units_in_context(self, context, unit_list):
         for unit in unit_list:
             _logger.info(_("Validating unit %s"), unit)
-            for issue in unit.check(context=context, live=True):
-                yield issue
+            yield from unit.check(context=context, live=True)
 
     def get_provider(self):
         """
@@ -1433,7 +1428,7 @@ class I18NCommand(ManageCommand):
         self._cmd(
             [
                 "intltool-update",
-                "--gettext-package={}".format(self.definition.gettext_domain),
+                f"--gettext-package={self.definition.gettext_domain}",
                 "--pot",
             ],
             self.po_dir,
@@ -1473,7 +1468,7 @@ class I18NCommand(ManageCommand):
             self._cmd(
                 [
                     "msgfmt",
-                    "{}/{}.po".format(os.path.relpath(self.po_dir), lang),
+                    f"{os.path.relpath(self.po_dir)}/{lang}.po",
                     "-o",
                     os.path.relpath(
                         "{}/{}.mo".format(
@@ -1671,7 +1666,7 @@ class TestCommand(ManageCommand):
         # create unittest for each bin/*.sh file
         for file in glob.glob(self.scripts_dir + "/*.sh"):
             test_method = create_shellcheck_test(file)
-            test_method.__name__ = "test_shellcheck[{}]".format(file)
+            test_method.__name__ = f"test_shellcheck[{file}]"
             setattr(ShellcheckTests, test_method.__name__, test_method)
         return ShellcheckTests
 
@@ -1679,7 +1674,7 @@ class TestCommand(ManageCommand):
         # create unittest for each bin/*.py file
         for file in glob.glob(self.scripts_dir + "/*.py"):
             test_method = create_flake8_test(file)
-            test_method.__name__ = "test_flake8_{}".format(file)
+            test_method.__name__ = f"test_flake8_{file}"
             setattr(Flake8Tests, test_method.__name__, test_method)
         return Flake8Tests
 

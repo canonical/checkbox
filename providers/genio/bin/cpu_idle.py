@@ -70,7 +70,7 @@ def output_checker(cpu, state, name, disable, usage):
     @param:usage
     """
     fail = 0
-    print("CPU node: cpu/{}/cpuidle/state{}".format(cpu, state))
+    print(f"CPU node: cpu/{cpu}/cpuidle/state{state}")
     print(
         "Got name: {}, disable: {}, usage: {}".format(
             name[0], disable[0], usage
@@ -105,7 +105,7 @@ def test_wfi():
 
 def test_mcdi_cpu(soc):
     if soc != "mt8365":
-        print("Isn't supported for '{}'".format(soc))
+        print(f"Isn't supported for '{soc}'")
         return
 
     cpu = 0
@@ -124,7 +124,7 @@ def test_mcdi_cpu(soc):
 
 def test_mcdi_cluster(soc):
     if soc != "mt8365":
-        print("Isn't supported for '{}'".format(soc))
+        print(f"Isn't supported for '{soc}'")
         return
 
     cpu = 0
@@ -143,7 +143,7 @@ def test_mcdi_cluster(soc):
 
 def test_dpidle(soc):
     if soc != "mt8365":
-        print("Isn't supported for '{}'".format(soc))
+        print(f"Isn't supported for '{soc}'")
         return
 
     cpu = 0
@@ -158,7 +158,7 @@ def test_dpidle(soc):
 
 def test_clusteroff_l(soc):
     if soc == "mt8365":
-        print("Isn't supported for '{}'".format(soc))
+        print(f"Isn't supported for '{soc}'")
         return
 
     cpu = 0
@@ -177,7 +177,7 @@ def test_clusteroff_l(soc):
 
 def test_clusteroff_b(soc):
     if soc == "mt8365":
-        print("Isn't supported for '{}'".format(soc))
+        print(f"Isn't supported for '{soc}'")
         return
 
     cpu = 6 if soc == "mt8390" else 4
@@ -196,7 +196,7 @@ def test_clusteroff_b(soc):
 
 def test_cpuoff_l(soc):
     if soc == "mt8365":
-        print("Isn't supported for '{}'".format(soc))
+        print(f"Isn't supported for '{soc}'")
         return
 
     cpu = 0
@@ -215,7 +215,7 @@ def test_cpuoff_l(soc):
 
 def test_cpuoff_b(soc):
     if soc == "mt8365":
-        print("Isn't supported for '{}'".format(soc))
+        print(f"Isn't supported for '{soc}'")
         return
 
     cpu = 6 if soc == "mt8390" else 4

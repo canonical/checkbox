@@ -1,5 +1,5 @@
 id: ce-oem-device-tree/dump
-plugin: resource
+plugin: shell
 _summary: Dump the device tree from runtime system
 imports: from com.canonical.certification import cpuinfo
 requires: cpuinfo.platform in ("aarch64", "armv7l")

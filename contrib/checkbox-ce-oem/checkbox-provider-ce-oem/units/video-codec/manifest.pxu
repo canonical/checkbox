@@ -1,5 +1,5 @@
 unit: manifest entry
 id: has_video_codec
-_prompt: Does this machine have the Video Decoder and Encoder?
-_name: Video Decoder
+_prompt: Does this machine have the Hardware Video Encoder and Decoder and Encoder?
+_name: Hardware Video Encoder and Decoder
 value-type: bool

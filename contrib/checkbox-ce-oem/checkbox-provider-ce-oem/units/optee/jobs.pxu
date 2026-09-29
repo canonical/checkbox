@@ -70,8 +70,20 @@ user: root
 category_id: optee
 environ: OPTEE_CASES
 command:
-    optee_helper.py generate
+    resource_wrapper.sh -- optee_helper.py generate
 _summary: Collect the test cases support by OP-TEE test(xtest)
+
+id: ce-oem-optee/check-test-list-resource
+estimated_duration: 1
+plugin: shell
+user: root
+category_id: optee
+environ: OPTEE_CASES
+requires: manifest.has_optee == 'True'
+imports: from com.canonical.plainbox import manifest
+command:
+    optee_helper.py generate
+_summary: Check OP-TEE xtest resource generation
 
 id: ce-oem-optee-test-list-pkcs11
 estimated_duration: 1
@@ -80,8 +92,20 @@ user: root
 category_id: optee
 environ: OPTEE_CASES
 command:
-    optee_helper.py generate -p
+    resource_wrapper.sh -- optee_helper.py generate -p
 _summary: Collect the test cases related with PKCS11 support by OP-TEE test(xtest)
+
+id: ce-oem-optee/check-test-list-pkcs11-resource
+estimated_duration: 1
+plugin: shell
+user: root
+category_id: optee
+environ: OPTEE_CASES
+requires: manifest.has_optee == 'True'
+imports: from com.canonical.plainbox import manifest
+command:
+    optee_helper.py generate -p
+_summary: Check OP-TEE PKCS11 resource generation
 
 unit: template
 template-resource: ce-oem-optee-test-list

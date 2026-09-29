@@ -62,20 +62,20 @@ class Defaults:
                     print("#", end="")
                     print(*args, **kwargs)
 
-                printer("# [{}:{}_name]".format(section_name, section_name))
+                printer(f"# [{section_name}:{section_name}_name]")
 
             else:
-                printer("[{}]".format(section_name))
+                printer(f"[{section_name}]")
 
             for key, value in section_spec.items():
                 if not context.args.no_help:
-                    printer("# {}".format(value.help))
+                    printer(f"# {value.help}")
                 if not context.args.no_type_hints:
-                    printer("# type: {}".format(value.kind.__name__))
-                printer("{} = {}".format(key, value.default))
+                    printer(f"# type: {value.kind.__name__}")
+                printer(f"{key} = {value.default}")
             # also provide an example for dynamic sections assignment
             if isinstance(section_spec, DynamicSection):
-                printer("# {}_example = example_value".format(section_name))
+                printer(f"# {section_name}_example = example_value")
 
     @staticmethod
     def register_arguments(parser):
@@ -100,17 +100,17 @@ class CheckConfig:
         config = load_configs(context.args.launcher)
         print("Configuration files:")
         for source in config.sources:
-            print(" - {}".format(source))
+            print(f" - {source}")
         for sect_name, section in config.sections.items():
-            print("   [{0}]".format(sect_name))
+            print(f"   [{sect_name}]")
             for var_name in section.keys():
                 value = config.get_value(sect_name, var_name)
                 if isinstance(value, list):
                     value = ", ".join(value)
                 origin = config.get_origin(sect_name, var_name)
-                origin = "From {}".format(origin) if origin else "(Default)"
-                key_val = "{}={}".format(var_name, value)
-                print("     {0: <34} {1}".format(key_val, origin))
+                origin = f"From {origin}" if origin else "(Default)"
+                key_val = f"{var_name}={value}"
+                print(f"     {key_val: <34} {origin}")
         problems = config.get_problems()
         if not problems:
             print("No problems with config(s) found!")

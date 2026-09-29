@@ -45,7 +45,7 @@ def get_recovery_package():
         for line in output.split("\n"):
             if line.startswith("  Installed:"):
                 ver = line.split(": ")[1]
-                return "{}_{}".format(pkg, ver.strip())
+                return f"{pkg}_{ver.strip()}"
     return None
 
 
@@ -97,7 +97,7 @@ def get_recovery_partition():
         return (recovery_type, recovery_partition)
 
 
-class MountedPartition(object):
+class MountedPartition:
     """
     Mount Manager to mount partition on tempdir.
 
@@ -186,14 +186,14 @@ class RecoveryInfo:
 
         if subcommand == "version":
             if os.path.isfile("/etc/buildstamp"):
-                with open("/etc/buildstamp", "rt", encoding="UTF-8") as stream:
+                with open("/etc/buildstamp", encoding="UTF-8") as stream:
                     data = stream.readlines()
-                    print("image_version: {}".format(data[1].strip()))
+                    print(f"image_version: {data[1].strip()}")
 
             with MountedPartition(recovery_partition) as mntdir:
-                fname = "{}/bto.xml".format(mntdir)
+                fname = f"{mntdir}/bto.xml"
                 if os.path.isfile(fname):
-                    o = minidom.parse("{}/bto.xml".format(mntdir))
+                    o = minidom.parse(f"{mntdir}/bto.xml")
                     bto_platform = o.getElementsByTagName("platform")
                     bto_revision = o.getElementsByTagName("revision")
                     if bto_platform and bto_revision:
@@ -203,7 +203,7 @@ class RecoveryInfo:
                     else:
                         bto_iso = o.getElementsByTagName("iso")
                         bto_version = bto_iso[0].firstChild.data
-                    print("bto_version: {}".format(bto_version))
+                    print(f"bto_version: {bto_version}")
 
 
 if __name__ == "__main__":

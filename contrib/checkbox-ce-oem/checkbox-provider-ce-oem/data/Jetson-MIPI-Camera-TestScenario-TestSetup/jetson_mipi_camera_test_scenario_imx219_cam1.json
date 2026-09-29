@@ -1,0 +1,48 @@
+{
+    "capture_image": [
+        {
+            "camera": "imx219",
+            "method": "nvargus_nvraw",
+            "physical_interface": "cam1",
+            "camera_id": "0",
+            "formats": ["NVRAW"],
+            "resolutions": [
+                {"width": 3280, "height": 2464, "mode": 0},
+                {"width": 3280, "height": 1848, "mode": 1},
+                {"width": 1920, "height": 1080, "mode": 2},
+                {"width": 1640, "height": 1232, "mode": 3},
+                {"width": 1280, "height": 720, "mode": 4}
+            ]
+        },
+        {
+            "camera": "imx219",
+            "method": "gstreamer",
+            "physical_interface": "cam1",
+            "camera_id": "0",
+            "formats": ["NV12"],
+            "resolutions": [
+                {"width": 3280, "height": 2464, "fps": 21, "mode": 0},
+                {"width": 3280, "height": 1848, "fps": 28, "mode": 1},
+                {"width": 1920, "height": 1080, "fps": 30, "mode": 2},
+                {"width": 1640, "height": 1232, "fps": 30, "mode": 3},
+                {"width": 1280, "height": 720, "fps": 60, "mode": 4}
+            ]
+        }
+    ],
+    "record_video": [
+        {
+            "camera": "imx219",
+            "method": "gstreamer",
+            "physical_interface": "cam1",
+            "camera_id": "0",
+            "formats": ["NV12"],
+            "resolutions": [
+                {"width": 3280, "height": 2464, "fps": 21, "mode": 0},
+                {"width": 3280, "height": 1848, "fps": 28, "mode": 1},
+                {"width": 1920, "height": 1080, "fps": 30, "mode": 2},
+                {"width": 1640, "height": 1232, "fps": 30, "mode": 3},
+                {"width": 1280, "height": 720, "fps": 60, "mode": 4}
+            ]
+        }
+    ]
+}

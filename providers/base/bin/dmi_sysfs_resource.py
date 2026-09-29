@@ -34,9 +34,9 @@ def main():
             continue
         if not os.access(dmi_filename, os.R_OK):
             continue
-        with open(dmi_filename, "rt", encoding="utf-8") as stream:
+        with open(dmi_filename, encoding="utf-8") as stream:
             dmi_data = stream.read().strip()
-        print("{}: {}".format(dmi_attr, dmi_data))
+        print(f"{dmi_attr}: {dmi_data}")
 
 
 if __name__ == "__main__":

@@ -6,6 +6,11 @@ _name: A SocketCAN Echo Server
 value-type: bool
 
 unit: manifest entry
+id: has_socket_can
+_name: SocketCAN capable devices
+value-type: bool
+
+unit: manifest entry
 id: has_socket_can_fd
 _name: CAN FD capable devices
 value-type: bool

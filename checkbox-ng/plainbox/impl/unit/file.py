@@ -22,17 +22,12 @@
 """
 
 import logging
-import os
 
-from plainbox.i18n import gettext as _
 from plainbox.i18n import gettext_noop as N_
 from plainbox.impl.symbol import SymbolDef
 from plainbox.impl.unit.job import propertywithsymbols
 from plainbox.impl.unit.unit import Unit, UnitValidator
-from plainbox.impl.unit.validators import CorrectFieldValueValidator
 from plainbox.impl.unit.validators import MemberOfFieldValidator
-from plainbox.impl.validation import Problem
-from plainbox.impl.validation import Severity
 
 __all__ = ["FileRole", "FileUnit"]
 
@@ -100,7 +95,7 @@ class FileUnit(Unit):
         return self.path
 
     def __repr__(self):
-        return "<FileUnit path:{!r}, role:{!r}>".format(self.path, self.role)
+        return f"<FileUnit path:{self.path!r}, role:{self.role!r}>"
 
     @property
     def path(self):

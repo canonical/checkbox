@@ -67,7 +67,7 @@ class ManualController(ControllerInterface):
             print("\n\nREMOVE NOW\n\n", flush=True)
         else:
             raise SystemExit("Invalid test case")
-        print("Timeout: {} seconds".format(ACTION_TIMEOUT), flush=True)
+        print(f"Timeout: {ACTION_TIMEOUT} seconds", flush=True)
 
 
 class StorageInterface(ABC):
@@ -84,7 +84,7 @@ class StorageInterface(ABC):
         :param line_str: str of the scanned log lines.
         """
 
-        print(line_str)
+        print(line_str, flush=True)
 
     @abstractmethod
     def _validate_insertion(self):
@@ -196,7 +196,7 @@ class USBStorage(StorageWatcher):
                     self.device, self.driver, self.number
                 )
             )
-            logger.info("usable partition: {}".format(self.mounted_partition))
+            logger.info(f"usable partition: {self.mounted_partition}")
             # judge the detection by the expectation
             if self.storage_type == "usb2" and self.device == "high_speed_usb":
                 logger.info("USB2 insertion test passed.")
@@ -283,7 +283,7 @@ class MediacardStorage(StorageWatcher):
 
     def _validate_insertion(self):
         if self.mounted_partition and self.action == "insertion":
-            logger.info("usable partition: {}".format(self.mounted_partition))
+            logger.info(f"usable partition: {self.mounted_partition}")
             logger.info(
                 "{} card inserted. Address: {}".format(
                     self.device, self.address
@@ -346,14 +346,14 @@ class MediacardComboStorage(MediacardStorage, USBStorage):
 
     def _validate_insertion(self):
         if self.mounted_partition and self.action == "insertion":
-            logger.info("usable partition: {}".format(self.mounted_partition))
-            logger.info("Device: {}".format(self.device))
+            logger.info(f"usable partition: {self.mounted_partition}")
+            logger.info(f"Device: {self.device}")
             if self.address:
-                logger.info("Address: {}".format(self.address))
+                logger.info(f"Address: {self.address}")
             if self.driver:
-                logger.info("Controller: {}".format(self.driver))
+                logger.info(f"Controller: {self.driver}")
             if self.number:
-                logger.info("Number: {}".format(self.number))
+                logger.info(f"Number: {self.number}")
             logger.info("Mediacard insertion test passed.")
             self.test_passed = True
 
@@ -403,7 +403,7 @@ class ThunderboltStorage(StorageWatcher):
         # The insertion will be valid if the insertion action is detected and
         # the mounted partition is found.
         if self.action == "insertion" and self.mounted_partition:
-            logger.info("usable partition: {}".format(self.mounted_partition))
+            logger.info(f"usable partition: {self.mounted_partition}")
             logger.info("Thunderbolt insertion test passed.")
             self.test_passed = True
 
@@ -425,11 +425,11 @@ class ThunderboltStorage(StorageWatcher):
         # Prefix of the thunderbolt device for regex matching
         RE_PREFIX = r"thunderbolt \d+-\d+:"
 
-        insertion_re = re.compile(r"{} new device found".format(RE_PREFIX))
+        insertion_re = re.compile(rf"{RE_PREFIX} new device found")
         if re.search(insertion_re, line_str):
             self.action = "insertion"
 
-        removal_re = re.compile(r"{} device disconnected".format(RE_PREFIX))
+        removal_re = re.compile(rf"{RE_PREFIX} device disconnected")
         if re.search(removal_re, line_str):
             self.action = "removal"
 
@@ -474,14 +474,44 @@ def main():
         watcher = USBStorage(args.storage_type)
 
     if args.testcase == "insertion":
-        mounted_partition = watcher.run_insertion()
-        watcher.run_removal(mounted_partition)
+        try:
+            mounted_partition = watcher.run_insertion()
+        except TimeoutError:
+            raise SystemExit(
+                "The {} insertion could not be detected in time.".format(
+                    args.storage_type
+                )
+            )
+
+        try:
+            watcher.run_removal(mounted_partition)
+        except TimeoutError:
+            raise SystemExit(
+                "The {} removal could not be detected in time.".format(
+                    args.storage_type
+                )
+            )
+
     elif args.testcase == "storage":
-        mounted_partition = watcher.run_insertion()
+        try:
+            mounted_partition = watcher.run_insertion()
+        except TimeoutError:
+            raise SystemExit(
+                "The {} insertion could not be detected in time.".format(
+                    args.storage_type
+                )
+            )
         watcher.run_storage(mounted_partition)
         print("Press Enter to start removal", flush=True)
         input()
-        watcher.run_removal(mounted_partition)
+        try:
+            watcher.run_removal(mounted_partition)
+        except TimeoutError:
+            raise SystemExit(
+                "The {} removal could not be detected in time.".format(
+                    args.storage_type
+                )
+            )
     else:
         raise SystemExit("Invalid test case")
 

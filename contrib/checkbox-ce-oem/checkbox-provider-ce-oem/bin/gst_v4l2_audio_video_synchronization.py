@@ -23,9 +23,43 @@ import os
 import shlex
 import subprocess
 from typing import Any
+
+from codec_base import BaseCodecProject
+from codec_platforms import create_scenario_project
 from gst_utils import manage_test_file_by_name
 
 logging.basicConfig(level=logging.INFO)
+
+
+class GenericAudioVideoSyncProject(BaseCodecProject):
+    """
+    Generic AV-synchronization pipeline project; builds the command
+    through the module's build_gst_command.
+    """
+
+    def __init__(self, args: argparse.Namespace) -> None:
+        super().__init__(
+            platform=args.platform,
+            codec=args.decoder_plugin,
+            width=0,
+            height=0,
+            framerate=0,
+        )
+        self._golden_sample = args.golden_sample_path
+        self._video_sink = args.video_sink
+        self._capssetter_pipeline = args.capssetter_pipeline
+        self._pipeline_builders = {
+            args.decoder_plugin: self._av_sync_pipeline_builder,
+        }
+
+    def _av_sync_pipeline_builder(self) -> str:
+        return build_gst_command(
+            gst_bin=os.getenv("GST_LAUNCH_BIN", "gst-launch-1.0"),
+            golden_sample_path=self._golden_sample,
+            decoder=self._codec,
+            video_sink=self._video_sink,
+            capssetter_pipeline=self._capssetter_pipeline,
+        )
 
 
 def register_arguments():
@@ -71,6 +105,14 @@ def register_arguments():
         default="",
         type=str,
         help=("Specific value for caps setting. (Default: " ")"),
+    )
+
+    parser.add_argument(
+        "-p",
+        "--platform",
+        required=True,
+        type=str,
+        help="device platform uses for choosing pipeline builder e.g. imx8mp",
     )
 
     args = parser.parse_args()
@@ -174,14 +216,16 @@ def play_video_for_av_synchronization_test(args: Any) -> None:
         file_name=os.path.basename(args.golden_sample_path),
         target_dir=os.path.dirname(args.golden_sample_path),
     ):
-        gst_launch_bin = os.getenv("GST_LAUNCH_BIN", "gst-launch-1.0")
-        cmd = build_gst_command(
-            gst_bin=gst_launch_bin,
-            golden_sample_path=args.golden_sample_path,
-            decoder=args.decoder_plugin,
-            video_sink=args.video_sink,
-            capssetter_pipeline=args.capssetter_pipeline,
+        # Platforms with their own AV-sync pipeline provide a
+        # create_audio_video_sync_project in their codec_<family>.py
+        # module; everyone else uses the generic pipeline.
+        project = create_scenario_project(
+            args.platform,
+            "create_audio_video_sync_project",
+            GenericAudioVideoSyncProject,
+            args,
         )
+        cmd = project.build_pipeline()
         # The video will be displayed on the real display
         execute_command(cmd)
 

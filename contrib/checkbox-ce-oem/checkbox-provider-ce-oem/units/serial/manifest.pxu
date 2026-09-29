@@ -9,6 +9,11 @@ _name: Does serial console port loopback to itself?
 value-type: bool
 
 unit: manifest entry
+id: has_serial_raw_uart_self_loopback
+_name: Has raw UART ports connected for self-loopback?
+value-type: bool
+
+unit: manifest entry
 id: has_rs485_modbus_peripheral
 _name: Has RS485 Modbus peripheral connected?
 value-type: bool

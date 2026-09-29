@@ -285,11 +285,11 @@ class SessionStorage:
                 # Read session data
                 data = os.read(session_fd, session_stat.st_size)
                 if len(data) != session_stat.st_size:
-                    raise IOError(_("partial read?"))
+                    raise OSError(_("partial read?"))
             finally:
                 # Close the session file
                 os.close(session_fd)
-        except IOError as exc:
+        except OSError as exc:
             if exc.errno == errno.ENOENT:
                 # Treat lack of 'session' file as an empty file
                 return b""
@@ -387,7 +387,7 @@ class SessionStorage:
                     next_session_fd,
                 )
                 if num_written != len(data):
-                    raise IOError(_("partial write?"))
+                    raise OSError(_("partial write?"))
             except Exception as exc:
                 logger.warning(_("Unable to complete write: %r"), exc)
                 # If anything goes wrong we should unlink the next file. As

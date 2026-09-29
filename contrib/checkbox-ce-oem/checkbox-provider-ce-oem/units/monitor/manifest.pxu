@@ -1,0 +1,5 @@
+unit: manifest entry
+id: has_built_in_panel
+_name: Built-in display monitor or panel
+_prompt: Does this machine have built-in monitor or panel (not hot-pluggable)?
+value-type: bool

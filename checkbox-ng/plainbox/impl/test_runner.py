@@ -29,13 +29,11 @@ from tempfile import TemporaryDirectory
 from unittest import TestCase
 import os
 
-from plainbox.abc import IJobDefinition
 from plainbox.impl.runner import CommandOutputWriter
 from plainbox.impl.runner import FallbackCommandOutputPrinter
 from plainbox.impl.runner import IOLogRecordGenerator
 from plainbox.impl.runner import slugify
 from plainbox.testing_utils.io import TestIO
-from plainbox.vendor.mock import Mock
 
 
 class SlugifyTests(TestCase):

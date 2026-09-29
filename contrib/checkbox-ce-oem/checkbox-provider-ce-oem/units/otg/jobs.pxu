@@ -10,11 +10,23 @@ environ: OTG
 flags: preserve-locale
 user: root
 command:
-    if [ "$OTG" ]; then
-        multiple-otg.sh -c "$OTG"
-    else
-        echo "OTG config variable: not found"
-    fi
+    resource_wrapper.sh -- multiple-otg.sh -c "$OTG"
+
+id: check_otg_ports_resource
+plugin: shell
+_summary: Check OTG ports resource generation
+_description:
+    Verify OTG ports resource generation command executes directly.
+estimated_duration: 1s
+environ: OTG
+flags: preserve-locale
+imports:
+    from com.canonical.plainbox import manifest
+requires:
+    manifest.has_otg == 'True'
+user: root
+command:
+    multiple-otg.sh -c "$OTG"
 
 unit: template
 template-resource: otg_ports
@@ -142,11 +154,27 @@ environ: USB_OTG_MAPPING
 flags: preserve-locale
 user: root
 command:
-    if [ "$USB_OTG_MAPPING" ]; then
-        multiple_otg.py info -c "$USB_OTG_MAPPING"
-    else
-        echo "USB_OTG_MAPPING config variable: not found"
+    if [ -n "$USB_OTG_MAPPING" ]; then
+        resource_wrapper.sh -- multiple_otg.py info -c "$USB_OTG_MAPPING"
     fi
+
+id: check_otg_port_mapping_resource
+category_id: com.canonical.plainbox::usb
+plugin: shell
+_summary: Check OTG port mapping resource generation
+_description:
+    Verify OTG port mapping resource generation command executes directly.
+estimated_duration: 1s
+environ: USB_OTG_MAPPING
+imports:
+    from com.canonical.plainbox import manifest
+requires:
+    manifest.has_otg == 'True'
+    manifest.has_rpyc_otg_server == 'True'
+flags: preserve-locale
+user: root
+command:
+    multiple_otg.py info -c "$USB_OTG_MAPPING"
 
 unit: template
 template-resource: otg_port_mapping
@@ -160,13 +188,14 @@ _purpose:
 _description:
     The test will setup the OTG configuration within {{ UDC_NODE }} on the device under test (DUT)
     Then setup the USB network interface on both DUT and RPYC server and perform ping test on DUT
+    Usage: set RPYC_SERVER to the hostname or IP address of the RPYC server to ping.
 category_id: com.canonical.plainbox::usb
 id: ce-oem-otg/OTG-Ethernet-on-port-{{ USB_CONNECTOR }}
 estimated_duration: 60
 plugin: shell
 user: root
 environ:
-    RYPC_SERVER
+    RPYC_SERVER
 imports:
     from com.canonical.plainbox import manifest
     from com.canonical.certification import cpuinfo
@@ -194,13 +223,14 @@ _purpose:
 _description:
     The test will setup the OTG configuration within {{ UDC_NODE }} on the device under test (DUT)
     Then start serial server on RPYC server and perform data read/write test via serial interface
+    Usage: set RPYC_SERVER to the hostname or IP address of the RPYC server running the serial server.
 category_id: com.canonical.plainbox::usb
 id: ce-oem-otg/OTG-Serial-on-port-{{ USB_CONNECTOR }}
 estimated_duration: 60
 plugin: shell
 user: root
 environ:
-    RYPC_SERVER
+    RPYC_SERVER
 imports:
     from com.canonical.plainbox import manifest
     from com.canonical.certification import cpuinfo
@@ -228,13 +258,14 @@ _purpose:
 _description:
     The test will setup the OTG configuration within {{ UDC_NODE }} on the device under test (DUT)
     the USB interface will be detected as a mass storage and perform data read/write test
+    Usage: set RPYC_SERVER to the hostname or IP address of the RPYC server used to coordinate the test.
 category_id: com.canonical.plainbox::usb
 id: ce-oem-otg/OTG-Mass-Storage-on-port-{{ USB_CONNECTOR }}
 estimated_duration: 60
 plugin: shell
 user: root
 environ:
-    RYPC_SERVER
+    RPYC_SERVER
 imports:
     from com.canonical.plainbox import manifest
     from com.canonical.certification import cpuinfo

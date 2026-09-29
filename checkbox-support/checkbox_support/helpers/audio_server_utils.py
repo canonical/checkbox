@@ -48,7 +48,7 @@ from typing import Dict, Generator, List, Optional
 logger = logging.getLogger(__name__)
 
 
-class Node(object):
+class Node:
     """Represents an audio node (sink or source)."""
 
     def __init__(
@@ -179,11 +179,9 @@ class PipewireUtils(AudioServerUtils):
                     )
                     return json.loads(result)
                 except subprocess.CalledProcessError as e:
-                    raise RuntimeError("Failed to run pw-dump: {}".format(e))
+                    raise RuntimeError(f"Failed to run pw-dump: {e}")
                 except json.JSONDecodeError as e:
-                    raise RuntimeError(
-                        "Failed to parse pw-dump output: {}".format(e)
-                    )
+                    raise RuntimeError(f"Failed to parse pw-dump output: {e}")
             except RuntimeError as e:
                 exc = e
                 time.sleep(1)
@@ -203,7 +201,7 @@ class PipewireUtils(AudioServerUtils):
             for obj in self._load_pw_dump()
             if obj.get("type") == "PipeWire:Interface:Node"
             and obj.get("info", {}).get("props", {}).get("media.class")
-            == "Audio/{}".format(node_type.name.capitalize())
+            == f"Audio/{node_type.name.capitalize()}"
         }
 
     def _get_available_profiles(
@@ -216,10 +214,7 @@ class PipewireUtils(AudioServerUtils):
 
             classes = profile_classes[1:]
             for profile_class in classes:
-                if (
-                    "Audio/{}".format(profile_type.name.capitalize())
-                    in profile_class
-                ):
+                if f"Audio/{profile_type.name.capitalize()}" in profile_class:
                     return True
 
             return False
@@ -286,7 +281,7 @@ class PipewireUtils(AudioServerUtils):
                 "s",
                 device_id,
                 "Profile",
-                "{{ index: {} }}".format(profile_id),
+                f"{{ index: {profile_id} }}",
             ]
             logger.debug("[shell] %s", " ".join(cmd))
             subprocess.check_output(cmd)
@@ -416,7 +411,7 @@ class PipewireUtils(AudioServerUtils):
             subprocess.check_output(cmd)
         except subprocess.CalledProcessError as e:
             raise RuntimeError(
-                "Cannot set volume of {} at {}".format(node.name, volume)
+                f"Cannot set volume of {node.name} at {volume}"
             ) from e
 
 
@@ -428,9 +423,7 @@ class PulseaudioUtils(AudioServerUtils):
                 ["pactl", "list", target_type], universal_newlines=True
             )
         except subprocess.CalledProcessError as e:
-            raise RuntimeError(
-                "Failed to run pactl list {}: {}".format(target_type, e)
-            )
+            raise RuntimeError(f"Failed to run pactl list {target_type}: {e}")
 
         nodes = []
         current_item = {}
@@ -439,7 +432,7 @@ class PulseaudioUtils(AudioServerUtils):
         for line in lines:
             line = line.strip()
 
-            if line.startswith("{} #".format(target_type.capitalize()[:-1])):
+            if line.startswith(f"{target_type.capitalize()[:-1]} #"):
                 # New sink/source entry
                 if current_item:
                     nodes.append(self._create_node_from_pactl(current_item))
@@ -485,7 +478,7 @@ class PulseaudioUtils(AudioServerUtils):
                 ["pactl", "list", "cards"], universal_newlines=True
             )
         except subprocess.CalledProcessError as e:
-            raise RuntimeError("Failed to run pactl list cards: {}".format(e))
+            raise RuntimeError(f"Failed to run pactl list cards: {e}")
 
         cards = []
         current_card = {}
@@ -618,7 +611,7 @@ class PulseaudioUtils(AudioServerUtils):
             subprocess.check_output(cmd)
         except subprocess.CalledProcessError as e:
             raise RuntimeError(
-                "Failed to set sink '{}' as default: {}".format(sink.name, e)
+                f"Failed to set sink '{sink.name}' as default: {e}"
             ) from e
 
     def set_source(self, source: Node) -> None:
@@ -663,7 +656,7 @@ class PulseaudioUtils(AudioServerUtils):
                     "pactl",
                     "set-sink-volume",
                     node_id,
-                    "{}%".format(volume_percent),
+                    f"{volume_percent}%",
                 ]
                 logger.debug("[shell] %s", " ".join(cmd))
                 subprocess.check_output(cmd)
@@ -675,7 +668,7 @@ class PulseaudioUtils(AudioServerUtils):
                         "pactl",
                         "set-source-volume",
                         node_id,
-                        "{}%".format(volume_percent),
+                        f"{volume_percent}%",
                     ]
                     logger.debug("[shell] %s", " ".join(cmd))
                     subprocess.check_output(cmd)
@@ -683,9 +676,7 @@ class PulseaudioUtils(AudioServerUtils):
                 except subprocess.CalledProcessError:
                     continue
 
-        raise RuntimeError(
-            "Cannot set volume of {} to {}".format(node.name, volume)
-        )
+        raise RuntimeError(f"Cannot set volume of {node.name} to {volume}")
 
 
 if __name__ == "__main__":
@@ -724,7 +715,7 @@ if __name__ == "__main__":
             nodes = audio.list_sources()
 
         for i, node in enumerate(nodes):
-            print("{}: {} - {}".format(i, node.name, node.description))
+            print(f"{i}: {node.name} - {node.description}")
 
     elif args.command == "iter":
         node_type = "sink" if args.type == "sinks" else "source"
@@ -741,8 +732,8 @@ if __name__ == "__main__":
             else:
                 audio.set_source(node)
 
-            print("\n[{}] Now active: {}".format(i, node.name))
-            print("    Description: {}".format(node.description))
+            print(f"\n[{i}] Now active: {node.name}")
+            print(f"    Description: {node.description}")
 
             choice = (
                 input("Keep this one? (y to keep, n for next, q to quit): ")
@@ -751,7 +742,7 @@ if __name__ == "__main__":
             )
 
             if choice == "y":
-                print("Kept {}: {}".format(node_type, node.name))
+                print(f"Kept {node_type}: {node.name}")
                 break
             elif choice == "q":
                 print("Cancelled")

@@ -2,6 +2,7 @@
 
 # execute this test file by `bats test/test-check-nvidia.bats`
 BIN_FOLDER="contrib/pc-sanity/bin"
+release_number=$(lsb_release -rs)
 
 function setup() {
     # shellcheck source=/dev/null
@@ -30,15 +31,16 @@ function setup() {
     current_mode="on-demand"
     run check_behavior_of_current_mode
     [ "$status" -eq $on_demand_mode ]
-    echo "testing recognizing nvidia mode"
-    current_mode="nvidia"
-    run check_behavior_of_current_mode
-    [ "$status" -eq $nvidia_mode ]
-    echo "testing recognizing intel mode"
-    current_mode="intel"
-    run check_behavior_of_current_mode
-    [ "$status" -eq $intel_mode ]
-
+    if [ "$(echo "$release_number < 26.04" | bc -l)" -eq 1 ]; then
+        echo "testing recognizing nvidia mode"
+        current_mode="nvidia"
+        run check_behavior_of_current_mode
+        [ "$status" -eq $nvidia_mode ]
+        echo "testing recognizing intel mode"
+        current_mode="intel"
+        run check_behavior_of_current_mode
+        [ "$status" -eq $intel_mode ]
+    fi
 }
 
 @test "Check renderer when OpenGL renderer string: Mesa Intel(R)" {

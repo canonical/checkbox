@@ -30,7 +30,7 @@ class MEI_INTERFACE:
         mei_path = self._get_mei()
         if mei_path is None:
             raise SystemExit("MEI interface not found")
-        print("connecting to {}".format(mei_path))
+        print(f"connecting to {mei_path}")
         self._mei_obj = os.open(mei_path, os.O_RDWR)
 
     def connect(self, str_uuid):
@@ -78,7 +78,7 @@ def get_mei_firmware_version():
             str_ver[8],
             str_ver[7],
         )
-        print("MEI firmware version: {}".format(str_ver))
+        print(f"MEI firmware version: {str_ver}")
     except Exception as err:
         err_msg = (
             "Unable to retrieve MEI firmware version" " due to {}".format(err)

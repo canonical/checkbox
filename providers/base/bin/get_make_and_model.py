@@ -5,11 +5,11 @@ from subprocess import check_output
 
 
 def print_header(value):
-    print("{}:".format(value))
+    print(f"{value}:")
 
 
 def print_data(key, value):
-    print("  {}: {}".format(key, value))
+    print(f"  {key}: {value}")
 
 
 def run_cmd(option):

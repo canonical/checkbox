@@ -2,3 +2,8 @@ unit: manifest entry
 id: has_gpio_slot_been_defined
 _name: Does platform has GPIO slots been defined in Gadget snap?
 value-type: bool
+
+unit: manifest entry
+id: has_gpiod_gpio
+_name: Does platform support GPIO testing through libgpiod?
+value-type: bool

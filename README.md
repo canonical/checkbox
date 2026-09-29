@@ -25,7 +25,7 @@ Check the [contributing guide] to learn how to:
 
 [Checkbox] is composed of a number of parts:
 
-- `checkbox-core-snap`: snapcraft recipe to build the Checkbox core snap which contains the Checkbox runtime and the public providers (i.e. the `checkbox[16|18|20|22]` snaps in the Snap store)
+- `checkbox-core-snap`: snapcraft recipe to build the Checkbox core snap which contains the Checkbox runtime and the public providers (i.e. the `checkbox[18|20|22|24|26]` snaps in the Snap store)
 - `checkbox-ng`: the core application
 - `checkbox-snap`: snapcraft recipe to build the Checkbox test runner (i.e. the `checkbox` snap in the Snap store)
 - `checkbox-support`: Python scripts and helper modules (for instance information parsers for different Linux utilities) used by Checkbox and its providers

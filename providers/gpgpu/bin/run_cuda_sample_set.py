@@ -239,7 +239,7 @@ def clone_and_build(orig_dir, test_set, cuda_samples_version):
     """
     test_set_dir = Path(orig_dir) / test_set
     if test_set_dir.exists():
-        raise FileExistsError("Error: folder {} exists".format(test_set_dir))
+        raise FileExistsError(f"Error: folder {test_set_dir} exists")
 
     logging.info(
         "Cloning CUDA Samples v%s. Version can be set in the manifest.",

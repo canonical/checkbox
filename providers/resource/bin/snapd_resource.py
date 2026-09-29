@@ -28,7 +28,7 @@ class ModelAssertion:
         for m in models:
             r = model_to_resource(m)
             for key, val in r.items():
-                print("{}: {}".format(key, val))
+                print(f"{key}: {val}")
             print()
 
 
@@ -39,7 +39,7 @@ class SerialAssertion:
         for s in serials:
             r = serial_to_resource(s)
             for key, val in r.items():
-                print("{}: {}".format(key, val))
+                print(f"{key}: {val}")
             print()
 
 
@@ -70,7 +70,7 @@ class Snaps:
                 except KeyError:
                     val = ""
                 if val != "":
-                    print("{}: {}".format(key, val))
+                    print(f"{key}: {val}")
 
             #  Whitelist of information that is of interest
             keys = [
@@ -101,7 +101,7 @@ class Endpoints:
                 def print_field(key):
                     val = plug[key]
                     if val != "":
-                        print("{}: {}".format(key, val))
+                        print(f"{key}: {val}")
 
                 keys = ["snap", "interface"]
                 for f in keys:
@@ -110,7 +110,7 @@ class Endpoints:
                 print("name: {}".format(plug["plug"]))
                 if "attrs" in plug:
                     for attr, val in plug["attrs"].items():
-                        print("attr_{}: {}".format(slugify(attr), val))
+                        print(f"attr_{slugify(attr)}: {val}")
                 print()
 
         if "slots" in data:
@@ -119,7 +119,7 @@ class Endpoints:
                 def print_field(key):
                     val = slot[key]
                     if val != "":
-                        print("{}: {}".format(key, val))
+                        print(f"{key}: {val}")
 
                 keys = ["snap", "interface"]
                 for f in keys:
@@ -128,7 +128,7 @@ class Endpoints:
                 print("name: {}".format(slot["slot"]))
                 if "attrs" in slot:
                     for attr, val in slot["attrs"].items():
-                        print("attr_{}: {}".format(slugify(attr), val))
+                        print(f"attr_{slugify(attr)}: {val}")
                 print()
 
 
@@ -159,8 +159,8 @@ class Connections:
 
     def invoked(self):
         for conn in get_connections():
-            print("slot: {}:{}".format(conn.target_snap, conn.target_slot))
-            print("plug: {}:{}".format(conn.plug_snap, conn.plug_plug))
+            print(f"slot: {conn.target_snap}:{conn.target_slot}")
+            print(f"plug: {conn.plug_snap}:{conn.plug_plug}")
             print()
 
 

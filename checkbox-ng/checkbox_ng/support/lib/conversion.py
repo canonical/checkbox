@@ -128,7 +128,7 @@ def string_to_datetime(string):
 
 def sizeof_bytes(bytes):
     for x in ["bytes", "KB", "MB", "GB", "TB"]:
-        string = "%3.1f%s" % (bytes, x)
+        string = f"{bytes:3.1f}{x}"
         if bytes < 1024.0:
             break
         bytes /= 1024.0
@@ -138,7 +138,7 @@ def sizeof_bytes(bytes):
 
 def sizeof_hertz(hertz):
     for x in ["Hz", "KHz", "MHz", "GHz"]:
-        string = "%3.1f%s" % (hertz, x)
+        string = f"{hertz:3.1f}{x}"
         if hertz < 1000.0:
             break
         hertz /= 1000.0

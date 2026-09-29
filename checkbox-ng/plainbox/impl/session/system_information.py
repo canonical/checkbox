@@ -209,7 +209,7 @@ class Collector(metaclass=CollectorMeta):
                 stderr=STDOUT,
             )
         except CalledProcessError as e:
-            return "Failed to collect with error: {}".format(e)
+            return f"Failed to collect with error: {e}"
 
     def collect_outputs(self) -> "(OutputSuccess|OutputFailure)":
         """
@@ -416,6 +416,16 @@ class BiosCollector(Collector):
     def __init__(self):
         super().__init__(
             collection_cmd=["device-info", "bios"],
+            version_cmd=["echo", "-n", checkbox_version],
+        )
+
+
+class ChassisCollector(Collector):
+    COLLECTOR_NAME = "chassis"
+
+    def __init__(self):
+        super().__init__(
+            collection_cmd=["device-info", "chassis"],
             version_cmd=["echo", "-n", checkbox_version],
         )
 

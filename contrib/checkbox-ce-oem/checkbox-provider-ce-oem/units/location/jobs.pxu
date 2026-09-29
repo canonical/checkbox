@@ -21,6 +21,19 @@ estimated_duration: 0.02
 plugin: resource
 environ: GPS_DEVICES
 command:
+    resource_wrapper.sh -- location_test.py resource "$GPS_DEVICES"
+
+id: check_gps_resource
+_summary: Check GPS resource generation
+_description:
+    Verify GPS resource generation command executes directly.
+category_id: com.canonical.certification::location
+estimated_duration: 0.02
+plugin: shell
+environ: GPS_DEVICES
+imports: from com.canonical.plainbox import manifest
+requires: manifest.has_gps == 'True'
+command:
     location_test.py resource "$GPS_DEVICES"
 
 unit: template

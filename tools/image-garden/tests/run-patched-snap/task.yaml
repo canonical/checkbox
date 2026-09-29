@@ -1,0 +1,72 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
+summary: >
+  Try the patched Checkbox snap prepared by patch_checkbox_snap.py and
+  run the supplied launcher
+kill-timeout: 20m
+# Warn timeout is still needed to catch realtime logs
+warn-timeout: 1m
+artifacts:
+  - checkbox-output.txt
+  - snap-debug.txt
+  - submission.json
+  - submission.tar.xz
+execute: |
+  set -euo pipefail
+
+  # Determine the Checkbox version
+  . /etc/os-release
+  SERIES="$(echo "$VERSION_ID" | grep -Po '^\d{2}')"
+  CHECKBOX="checkbox$SERIES"
+  # run_local.py syncs the patched snap and launcher directly at the
+  # staged project root, two levels up from here.
+  RUN_DIR="../.."
+  PATCHED_SNAP="$RUN_DIR/$CHECKBOX"
+  LAUNCHER="$RUN_DIR/launcher.conf"
+
+  if [ ! -d "$PATCHED_SNAP" ]; then
+    echo "Missing $PATCHED_SNAP, run run_local.py first" >&2
+    exit 1
+  fi
+  if [ ! -f "$LAUNCHER" ]; then
+    echo "Missing $LAUNCHER, run run_local.py with a launcher" >&2
+    exit 1
+  fi
+
+  echo "Installing patched $CHECKBOX from $PATCHED_SNAP"
+
+  # Wait for the system to finish any boot-time changes before proceeding.
+  snap wait system seed.loaded
+
+  # Install the already-patched snap without repacking it.
+  snap try "$PATCHED_SNAP" --devmode
+
+  # Ensure the Checkbox agent is started and enabled
+  snap start --enable "$CHECKBOX.agent"
+
+  # Gather snap debug information
+  {
+    echo "# snap list"
+    snap list "$CHECKBOX"
+    echo
+    echo "# snap services"
+    snap services "$CHECKBOX"
+    echo
+    echo "# snap warnings"
+    snap warnings
+  } > snap-debug.txt
+
+  # Launch the Checkbox snap and run the test plan, capturing its output.
+  # PYTHONUNBUFFERED forces checkbox-cli's stdout to be unbuffered, since
+  # Python block-buffers stdout by default once it is piped into tee
+  # instead of connected to a terminal, which otherwise delays output
+  # until the process exits.
+  # pipefail (set above) already makes $? reflect checkbox's exit status
+  # rather than tee's, so no need to index PIPESTATUS explicitly.
+  set +e
+  PYTHONUNBUFFERED=1 "$CHECKBOX.checkbox" control 127.0.0.1 "$LAUNCHER" \
+    2>&1 | tee checkbox-output.txt
+  checkbox_status=$?
+  set -e
+
+  echo "Checkbox exited with $checkbox_status"
+  exit "$checkbox_status"

@@ -47,6 +47,7 @@ plugin: user-interact-verify
 category_id: com.canonical.plainbox::camera
 id: camera/display_{name}
 template-id: camera/display_name
+group: camera_basic
 flags: also-after-suspend
 _summary: Webcam video display test for {product_slug}
 estimated_duration: 120.0
@@ -68,6 +69,7 @@ plugin: user-interact-verify
 category_id: com.canonical.plainbox::camera
 id: camera/led_{name}
 template-id: camera/led_name
+group: camera_basic
 _summary: Webcam LED test for {product_slug}
 estimated_duration: 120.0
 imports: from com.canonical.plainbox import manifest
@@ -93,6 +95,7 @@ plugin: user-interact-verify
 category_id: com.canonical.plainbox::camera
 id: camera/still_{name}
 template-id: camera/still_name
+group: camera_basic
 flags: also-after-suspend
 _summary: Webcam still image capture test for {product_slug}
 estimated_duration: 120.0

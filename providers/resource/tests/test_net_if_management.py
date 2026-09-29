@@ -43,7 +43,7 @@ class NetIfMngrTest:
             "test_net_if_management_data",
             filename,
         )
-        with open(full_path, "rt", encoding="UTF-8") as stream:
+        with open(full_path, encoding="UTF-8") as stream:
             return stream.read()
 
     def get_results(self):

@@ -2,15 +2,13 @@
   "gst_video_decoder_performance_fakesink": [
     {
       "decoder_plugin": "omxh264dec",
-      "golden_sample_file": "1080p_30fps_h264.mp4",
-      "minimum_fps": 30,
-      "enable_performance_mode": false
+      "golden_sample_file": "1920x1080_30fps_h264.mp4",
+      "minimum_fps": 30
     },
     {
       "decoder_plugin": "omxh265dec",
-      "golden_sample_file": "1080p_30fps_h265.mp4",
-      "minimum_fps": 30,
-      "enable_performance_mode": false
+      "golden_sample_file": "1920x1080_30fps_h265.mp4",
+      "minimum_fps": 30
     }
   ],
   "gst_encoder_psnr": [

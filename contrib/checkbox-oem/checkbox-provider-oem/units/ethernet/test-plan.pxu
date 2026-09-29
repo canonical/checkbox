@@ -1,0 +1,6 @@
+id: oem-ethernet-automated
+unit: test plan
+_name: TCP connection test plan
+_description: TCP connection test
+estimated_duration: 300
+include:

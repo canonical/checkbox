@@ -85,7 +85,7 @@ class BtAdapter:
     def scan(self, timeout=10):
         """Scan for BT devices."""
         dbus.Interface(self._adapter, ADAPTER_INTERFACE).StartDiscovery()
-        logger.info("Adapter scan on ({}s)".format(timeout))
+        logger.info(f"Adapter scan on ({timeout}s)")
         GObject.timeout_add_seconds(timeout, self._scan_timeout)
         self._main_loop.run()
 
@@ -150,7 +150,7 @@ class BtGATTRemoteService:
             service = self._bus.get_object("org.bluez", path)
             props = dbus.Interface(service, PROP_INTERFACE)
             if props.Get(GATT_SERVICE_INTERFACE, "UUID") == self.SVC_UUID:
-                logger.info("Service found: {}".format(path))
+                logger.info(f"Service found: {path}")
                 return service
         self._adapter.remove_device(self._device)
         raise SystemExit("Bluetooth Service not found!")
@@ -162,7 +162,7 @@ class BtGATTRemoteService:
             chrc = self._bus.get_object("org.bluez", path)
             props = dbus.Interface(chrc, PROP_INTERFACE)
             if props.Get(GATT_CHRC_INTERFACE, "UUID") == MSRMT_UUID:
-                logger.info("Characteristic found: {}".format(path))
+                logger.info(f"Characteristic found: {path}")
                 return chrc
         self._adapter.remove_device(self._device)
         raise SystemExit("Bluetooth Characteristic not found!")

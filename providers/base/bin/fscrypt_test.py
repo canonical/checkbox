@@ -82,9 +82,7 @@ def main():
                 text=True,
             )
             found = False
-            pattern = re.compile(
-                "^{}.*supported\\s*Yes$".format(re.escape(str(mnt)))
-            )
+            pattern = re.compile(f"^{re.escape(str(mnt))}.*supported\\s*Yes$")
             for line in output.splitlines():
                 if pattern.match(line):
                     found = True
@@ -107,7 +105,7 @@ def main():
                     "--quiet",
                     "--source=raw_key",
                     "--name=test_key",
-                    "--key={}".format(str(key_file)),
+                    f"--key={str(key_file)}",
                     str(test_dir),
                 ]
             )
@@ -129,7 +127,7 @@ def main():
                 [
                     "fscrypt",
                     "unlock",
-                    "--key={}".format(str(key_file)),
+                    f"--key={str(key_file)}",
                     str(test_dir),
                 ]
             )
@@ -137,7 +135,7 @@ def main():
             with test_file.open("r") as f:
                 content = f.read().strip()
             if content != test_content:
-                print("Expected: {} / Got: {}".format(test_content, content))
+                print(f"Expected: {test_content} / Got: {content}")
                 raise SystemExit("File contents not correct after unlock")
             print("File is accessible and content is correct after unlock")
         finally:

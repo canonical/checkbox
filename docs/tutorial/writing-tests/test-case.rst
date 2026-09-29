@@ -1065,15 +1065,6 @@ for exactly one situation, if possible. Consider the following:
             with self.assertRaises(SystemExit):
                 network_available.network_available("wlan0", "0")
 
-.. note::
-   We use ``self.assertTrue(check_output_mock.called)`` instead of
-   ``check_output_mock.assert_called_once()``. The reason is that we have to be
-   compatible (in tests as well!) with Python 3.5 and
-   ``Mock.assert_called_once`` was introduced in Python 3.6. If you don't know
-   when a function was introduced, refer to `the Python documentation
-   <https://docs.python.org/3/library/unittest.mock.html#unittest.mock.Mock.assert_called_once>`_.
-   For example, if you check the documentation you will see *Added in version 3.6.*
-
 To run the tests go to the root of the provider and run the following:
 
 .. code-block:: none

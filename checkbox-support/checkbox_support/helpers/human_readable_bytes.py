@@ -70,7 +70,7 @@ class HumanReadableBytes(int):
         return int(num) * suffixes[s.lower()]
 
     def __repr__(self):
-        return "HumanReadableBytes({})".format(super().__repr__())
+        return f"HumanReadableBytes({super().__repr__()})"
 
     def __str__(self):
         my_bytes = float(self)
@@ -97,6 +97,6 @@ class HumanReadableBytes(int):
             return "(Number too large)"
         scalar = my_bytes / (1024 ** int(exponent))
         if scalar - trunc(scalar) < sys.float_info.epsilon:
-            return "{:.0f}{}".format(sign * scalar, suffix)
+            return f"{sign * scalar:.0f}{suffix}"
         else:
-            return "{:.2f}{}".format(sign * scalar, suffix)
+            return f"{sign * scalar:.2f}{suffix}"

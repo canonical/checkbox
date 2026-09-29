@@ -1,0 +1,4 @@
+unit: manifest entry
+id: has_hardware_audio_codec_support
+_name: Has hardware audio codec support?
+value-type: bool

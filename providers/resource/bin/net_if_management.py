@@ -147,7 +147,7 @@ def identify_managers(
             global_scope_manager = netplan_conf.network["renderer"]
 
     for n in results:
-        log("=={}==".format(n))
+        log(f"=={n}==")
         category_scope_manager = States.unspecified.value
         if has_netplan:
             log("has netplan")
@@ -220,7 +220,7 @@ def main():
         has_wifiap=is_wifiap_available(),
     )
     for interface, data in results.items():
-        print("device: {}".format(interface))
+        print(f"device: {interface}")
         print("managed_by: {}".format(data["manager"].value))
         print("master_mode_managed_by: {}".format(data["mastermode"].value))
         print()

@@ -1,0 +1,41 @@
+unit: manifest entry
+id: has_genio_uart_loopback
+_prompt: Genio specific?
+_name: UART Loopback Connector
+value-type: bool
+
+unit: manifest entry
+id: has_genio_g1200_j34_short
+_prompt: Genio specific?
+_name: Is there a jumper or wire connected on J43 (short J43)?
+value-type: bool
+
+unit: manifest entry
+id: has_genio_g1200_j52_txd_rxd_connection
+_prompt: Genio specific?
+_name: Is there a jumper or wire connected TXD and RXD on J52?
+value-type: bool
+
+unit: manifest entry
+id: has_genio_g700_j4202_as_rpi_mode
+_prompt: Genio specific?
+_name: Is J4202 configured as Raspberry Pi mode?
+value-type: bool
+
+unit: manifest entry
+id: has_genio_g700_j4203_as_rpi_mode
+_prompt: Genio specific?
+_name: Is J4203 configured as Raspberry Pi mode?
+value-type: bool
+
+unit: manifest entry
+id: has_genio_g510_j4202_as_rpi_mode
+_prompt: Genio specific?
+_name: Is J4202 configured as Raspberry Pi mode?
+value-type: bool
+
+unit: manifest entry
+id: has_genio_g510_j4203_as_rpi_mode
+_prompt: Genio specific?
+_name: Is J4203 configured as Raspberry Pi mode?
+value-type: bool

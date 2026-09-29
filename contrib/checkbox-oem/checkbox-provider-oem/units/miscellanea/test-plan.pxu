@@ -1,0 +1,8 @@
+id: oem-miscellanea-automated
+unit: test plan
+_name: Miscellanea auto tests
+_description: Automated miscellanea tests for devices
+bootstrap_include:
+include:
+  oem-miscellanea/checkbox-provider-oem-smoke-test
+  oem-miscellanea/hello-misc

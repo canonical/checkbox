@@ -30,7 +30,7 @@ class KernelCmdlineResult:
         self.params[name] = val
 
 
-class KernelCmdlineParser(object):
+class KernelCmdlineParser:
     """Parser for kernel cmdline information."""
 
     def __init__(self, stream):

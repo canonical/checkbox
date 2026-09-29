@@ -109,7 +109,7 @@ class Node:
             type(self).__name__,
             ", ".join(
                 [
-                    "{}={!r}".format(attr, getattr(self, attr))
+                    f"{attr}={getattr(self, attr)!r}"
                     for attr in self.__fragments__
                 ]
             ),
@@ -607,7 +607,7 @@ class Record(Node):
             type(self).__name__,
             ", ".join(
                 [
-                    "{}={!r}".format(attr, getattr(self, attr))
+                    f"{attr}={getattr(self, attr)!r}"
                     for attr in ["name", "attribute_list"]
                 ]
             ),

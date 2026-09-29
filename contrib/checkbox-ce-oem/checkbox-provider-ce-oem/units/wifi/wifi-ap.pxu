@@ -11,23 +11,18 @@ _description:
 estimated_duration: 0.02
 plugin: resource
 environ: WIFI_AP_MODE
-command:
-    # We will generate a default set of WIFI_AP_MODE to test both a and bg
-    # band in open and wpa-psk with the first avaliable interface
-    # if WIFI_AP_MODE has not been set.
-    if [ -z "$WIFI_AP_MODE" ]; then
-      interface=$(iw dev|grep Interface|awk 'NR==1{print $2 }')
-      if [ -n "$interface" ]; then
-        WIFI_AP_MODE="$interface:a:36:none:none $interface:bg:5:none:none $interface:a:36:wpa-psk:ccmp $interface:bg:5:wpa-psk:ccmp"
-      fi
-    fi
-    awk '{
-        split($0, record, " ")
-        for (i in record) {
-            split(record[i], data, ":")
-            printf "interface: %s\nband: %s\nchannel: %s\nkey_mgmt: %s\ngroup: %s\n\n", data[1], data[2], data[3], data[4], data[5]
-        }
-    }' <<< "$WIFI_AP_MODE"
+command: resource_wrapper.sh -- resource_wifi_ap_mode.sh
+
+id: check_wifi_ap_mode_resource
+_summary: Check WiFi AP mode resource generation
+plugin: shell
+estimated_duration: 0.02
+environ: WIFI_AP_MODE
+imports:
+  from com.canonical.plainbox import manifest
+requires:
+  manifest.has_wifi_ap_host == 'True'
+command: resource_wifi_ap_mode.sh
 
 unit: template
 template-resource: ce_oem_wifi_ap_mode

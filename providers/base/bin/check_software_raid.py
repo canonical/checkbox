@@ -65,7 +65,7 @@ def dump_raid_info(nodes: list) -> None:
         nodes (list): the name of MD devices
     """
     for node in nodes:
-        subprocess.run(shlex.split("mdadm -D /dev/{}".format(node)))
+        subprocess.run(shlex.split(f"mdadm -D /dev/{node}"))
 
 
 def check_raid_mode_test(modes: str) -> None:

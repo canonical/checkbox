@@ -70,7 +70,7 @@ class Key:
         return _("Tested")
 
 
-class Reporter(object):
+class Reporter:
 
     exit_code = EXIT_WITH_FAILURE
 
@@ -184,7 +184,7 @@ class Reporter(object):
 class CLIReporter(Reporter):
 
     def __init__(self, *args, **kwargs):
-        super(CLIReporter, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
         self.show_text(_("Please press each key on your keyboard."))
         self.show_text(
@@ -213,10 +213,8 @@ class CLIReporter(Reporter):
             )
 
     def found_key(self, key):
-        super(CLIReporter, self).found_key(key)
-        self.show_text(
-            _("%(key_name)s key has been pressed" % {"key_name": key.name})
-        )
+        super().found_key(key)
+        self.show_text(_(f"{key.name} key has been pressed"))
 
         self.show_keys()
         if self.required_keys_tested:
@@ -224,14 +222,14 @@ class CLIReporter(Reporter):
             self.quit(EXIT_WITH_SUCCESS)
 
     def toggle_key(self, key):
-        super(CLIReporter, self).toggle_key(key)
+        super().toggle_key(key)
         self.show_keys()
 
 
 class GtkReporter(Reporter):
 
     def __init__(self, *args, **kwargs):
-        super(GtkReporter, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
         gi.require_version("Gdk", "3.0")
         gi.require_version("Gtk", "3.0")
@@ -338,7 +336,7 @@ class GtkReporter(Reporter):
             self.quit(EXIT_WITH_SUCCESS)
 
     def found_key(self, key):
-        super(GtkReporter, self).found_key(key)
+        super().found_key(key)
         self.icons[key].set_from_icon_name(
             self.ICON_TESTED, size=self.ICON_SIZE
         )

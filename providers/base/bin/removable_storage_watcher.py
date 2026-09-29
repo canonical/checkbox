@@ -70,7 +70,7 @@ def format_bytes(size):
         factor = 10 ** (index * 3)
         if size // factor <= 1000:
             break
-    return "{}{}B".format(size // factor, prefix.strip())
+    return f"{size // factor}{prefix.strip()}B"
 
 
 class UDisks1StorageDeviceListener:
@@ -510,9 +510,9 @@ class UDisks2StorageDeviceListener:
         self._desired_minimum_speed = minimum_speed / 10**6
         # Compute the allowed UDisks2.Drive.ConnectionBus value based on the
         # legacy arguments passed from the command line.
-        self._desired_connection_buses = set(
-            [map_udisks1_connection_bus(device) for device in devices]
-        )
+        self._desired_connection_buses = {
+            map_udisks1_connection_bus(device) for device in devices
+        }
         # Check if we are explicitly looking for memory cards
         self._desired_memory_card = memorycard
         # Store information whether we also want detected, but unmounted
@@ -525,7 +525,7 @@ class UDisks2StorageDeviceListener:
         elif action == "remove":
             self._desired_delta_dir = DELTA_DIR_MINUS
         else:
-            raise ValueError("Unsupported action: {}".format(action))
+            raise ValueError(f"Unsupported action: {action}")
         # Store DBus bus object as we need to pass it to UDisks2 observer
         self._bus = system_bus
         # Store event loop object
@@ -664,7 +664,7 @@ class UDisks2StorageDeviceListener:
             # Skip objects we already ignored and complained about before
             if object_path in self._ignored_objects:
                 continue
-            needs = set(("block-fs", "partition", "non-empty"))
+            needs = {"block-fs", "partition", "non-empty"}
             if not self._allow_unmounted:
                 needs.add("mounted")
 
@@ -729,7 +729,7 @@ class UDisks2StorageDeviceListener:
                     found.add("mounted")
                     # On some systems partition are reported as mounted
                     # filesystems, without 'partition' record
-                    if set(["partition"]).issubset(needs):
+                    if {"partition"}.issubset(needs):
                         needs.remove("partition")
                 # Finally memorize the drive the block device belongs to
                 elif (
@@ -925,10 +925,8 @@ class UDisks2StorageDeviceListener:
             )
             # Skip any job objects as they just add noise
             if any(
-                (
-                    record.value.iface_name == "org.freedesktop.UDisks2.Job"
-                    for record in records_for_object
-                )
+                record.value.iface_name == "org.freedesktop.UDisks2.Job"
+                for record in records_for_object
             ):
                 continue
             logging.info("For object %s", object_path)
@@ -1089,7 +1087,7 @@ def main(argv=sys.argv[1:]):
         )
     # Run the actual listener and wait till it either times out of discovers
     # the appropriate media changes
-    print("\n\n{} NOW\n\n".format(args.action.upper()), flush=True)
+    print(f"\n\n{args.action.upper()} NOW\n\n", flush=True)
     try:
         return listener.check(args.timeout)
     except KeyboardInterrupt:

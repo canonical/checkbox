@@ -25,7 +25,6 @@ from gettext import dgettext
 from plainbox.impl.providers.special import get_manifest_def
 from plainbox.provider_manager import DevelopCommand
 from plainbox.provider_manager import InstallCommand
-from plainbox.provider_manager import ManageCommand
 from plainbox.provider_manager import N_
 from plainbox.provider_manager import manage_py_extension
 from plainbox.provider_manager import setup

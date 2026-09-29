@@ -88,7 +88,7 @@ class Jinja2SessionStateExporterTests(TestCase):
             )
             stream = BytesIO()
             exporter.dump_from_session_manager(self.manager_single_job, stream)
-            expected_bytes = "     fail      : job name\n".encode("UTF-8")
+            expected_bytes = b"     fail      : job name\n"
             self.assertEqual(stream.getvalue(), expected_bytes)
 
     def test_validation_chooses_json(self):

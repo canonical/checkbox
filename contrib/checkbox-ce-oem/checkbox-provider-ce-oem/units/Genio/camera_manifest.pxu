@@ -1,0 +1,23 @@
+unit: manifest entry
+id: has_genio_onsemi_ap1302_isp_and_ar0430_camera_module_as_yuv_sensor
+_name: Onsemi AP1302 ISP with AR0430 camera module as YUV Sensor
+_prompt: Genio specific?
+value-type: bool
+
+unit: manifest entry
+id: has_genio_onsemi_ar0430_camera_module_as_raw_sensor
+_name: Onsemi AR0430 camera module as RAW Sensor
+_prompt: Genio specific?
+value-type: bool
+
+unit: manifest entry
+id: has_genio_onsemi_ap1302_isp_and_ar0830_camera_module_as_yuv_sensor
+_name: Onsemi AP1302 ISP with AR0830 camera module as YUV Sensor
+_prompt: Genio specific?
+value-type: bool
+
+unit: manifest entry
+id: has_genio_sony_imx214_camera_module_as_raw_sensor
+_name: Sony IMX214 camera module as RAW Sensor
+_prompt: Genio specific?
+value-type: bool

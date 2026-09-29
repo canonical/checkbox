@@ -185,10 +185,10 @@ def get_fwts_base_cmd() -> str:
         if not fwts_json_data_dir.exists():
             raise SystemExit(
                 "We are in a snap environment, "
-                + "but '{}' ".format(fwts_json_data_dir)
+                + f"but '{fwts_json_data_dir}' "
                 + "doesn't exist"
             )
-        return "fwts -j '{}'".format(fwts_json_data_dir)
+        return f"fwts -j '{fwts_json_data_dir}'"
     else:
         # deb, use the original command
         return "fwts"
@@ -229,7 +229,7 @@ def get_available_fwts_tests():
 def get_sleep_times(log, start_marker):
     suspend_time = ""
     resume_time = ""
-    with open(log, "r", encoding="UTF-8", errors="ignore") as f:
+    with open(log, encoding="UTF-8", errors="ignore") as f:
         line = ""
         while start_marker not in line:
             line = f.readline()
@@ -254,7 +254,7 @@ def average_times(runs):
     resume_run_count = 0
     resume_total = 0.0
     print()
-    print("{} iterations total.".format(len(runs)))
+    print(f"{len(runs)} iterations total.")
     for i in runs.values():
         if type(i[0]) == float:
             sleep_run_count += 1
@@ -558,7 +558,7 @@ def main(args=None):
                 detect_progress_indicator(), stdin=PIPE, stderr=DEVNULL
             )
         for iteration in range(1, iterations + 1):
-            marker = "{:=^80}\n".format(" Iteration {} ".format(iteration))
+            marker = "{:=^80}\n".format(f" Iteration {iteration} ")
             with open(args.log, "a") as f:
                 f.write(marker)
             command = "{} -q --stdout-summary -r {} {}".format(
@@ -582,30 +582,28 @@ def main(args=None):
                         "Cycle %s/%s - Suspend: %0.2f s - Resume: %0.2f s"
                         % (iteration, iterations, suspend_time, resume_time)
                     )
-                progress_pct = "{}".format(int(100 * iteration / iterations))
+                progress_pct = f"{int(100 * iteration / iterations)}"
                 if "zenity" in detect_progress_indicator():
                     progress_indicator.stdin.write(
-                        "# {}\n".format(progress_string).encode("utf-8")
+                        f"# {progress_string}\n".encode()
                     )
                     progress_indicator.stdin.write(
-                        "{}\n".format(progress_pct).encode("utf-8")
+                        f"{progress_pct}\n".encode()
                     )
                     if progress_indicator.poll() is None:
                         # LP: #1741217 process may have already terminated
                         # flushing its stdin would yield broken pipe
                         progress_indicator.stdin.flush()
                 elif "dialog" in detect_progress_indicator():
-                    progress_indicator.stdin.write("XXX\n".encode("utf-8"))
+                    progress_indicator.stdin.write(b"XXX\n")
                     progress_indicator.stdin.write(
                         progress_pct.encode("utf-8")
                     )
-                    progress_indicator.stdin.write(
-                        "\nTest progress\n".encode("utf-8")
-                    )
+                    progress_indicator.stdin.write(b"\nTest progress\n")
                     progress_indicator.stdin.write(
                         progress_string.encode("utf-8")
                     )
-                    progress_indicator.stdin.write("\nXXX\n".encode("utf-8"))
+                    progress_indicator.stdin.write(b"\nXXX\n")
                     if progress_indicator.poll() is None:
                         progress_indicator.stdin.flush()
                 else:

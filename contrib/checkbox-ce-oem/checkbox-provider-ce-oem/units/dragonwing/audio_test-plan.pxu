@@ -1,0 +1,68 @@
+id: dragonwing-audio-full
+unit: test plan
+_name: Dragonwing audio tests
+_description: Full audio tests for dragonwing
+include:
+nested_part:
+    dragonwing-audio-manual
+    dragonwing-audio-automated
+
+id: dragonwing-audio-manual
+unit: test plan
+_name: Dragonwing manual audio tests
+_description: Manual audio tests for dragonwing
+include:
+    dragonwing-audio/record-16-bit-48000Hz-stereo
+    dragonwing-audio/playback-16-bit-44100Hz-mono
+    dragonwing-audio/decode-offload-CBR-stereo-mp3
+    dragonwing-audio/decode-offload-VBR-mono-mp3
+nested_part:
+    dragonwing-audio-gstreamer-manual
+
+id: dragonwing-audio-automated
+unit: test plan
+_name: Dragonwing automated audio tests
+_description: Automated audio tests for dragonwing
+include:
+    dragonwing-audio/check-pulseaudio-running
+    dragonwing-audio/check-diag-router-running
+    dragonwing-audio/check-acdb-files-exist
+
+id: dragonwing-audio-gstreamer-manual
+unit: test plan
+_name: Dragonwing manual gstreamer audio tests
+_description: manual gstreamer audio tests for dragonwing
+include:
+    dragonwing-audio/gst-play-trickmode
+    dragonwing-audio/gst-play-trickmode-multifiles
+    dragonwing-audio/gst-play-trickmode-volume
+    dragonwing-audio/decode-16bit-8000hz-mono-wav
+    dragonwing-audio/decode-16bit-44100hz-stereo-wav
+    dragonwing-audio/decode-24bit-48000hz-stereo-wav
+    dragonwing-audio/decode-24bit-192000hz-mono-wav
+    dragonwing-audio/decode-16bit-96000hz-51ch-wav
+    dragonwing-audio/decode-24bit-32000hz-71ch-wav
+    dragonwing-audio/encode-16bit-8000Hz-mono-wav
+    dragonwing-audio/encode-32bit-192000Hz-stereo-wav
+    dragonwing-audio/encode-24bit-44100Hz-stereo-wav
+    dragonwing-audio/encode-24bit-48000Hz-mono-wav
+    dragonwing-audio/encode-16bit-44100Hz-mono-wav
+    dragonwing-audio/decode-320kbps-48000Hz-stereo-CBR-mp3
+    dragonwing-audio/decode-80kbps-8000Hz-mono-CBR-mp3
+    dragonwing-audio/decode-64kbps-32000Hz-mono-CBR-mp3
+    dragonwing-audio/decode-48000Hz-quailty9-stereo-VBR-mp3
+    dragonwing-audio/decode-8000Hz-quailty6-mono-VBR-mp3
+    dragonwing-audio/decode-22050Hz-quailty8-stereo-VBR-mp3
+    dragonwing-audio/decode-192bs-8000hz-mono-cl0-flac
+    dragonwing-audio/decode-4608bs-192000hz-stereo-cl8-flac
+    dragonwing-audio/decode-2304bs-44100hz-mono-cl3-flac
+    dragonwing-audio/decode-4096bs-48000hz-stereo-cl5-flac
+    dragonwing-audio/decode-1024bs-32000hz-ch51-cl5-flac
+    dragonwing-audio/decode-VBR-350000bps-48000hz-stereo-ogg
+    dragonwing-audio/decode-VBR-160000bps-44100hz-stereo-ogg
+    dragonwing-audio/decode-VBR-8000bps-8000hz-mono-ogg
+    dragonwing-audio/decode-CBR-256000bps-48000hz-stereo-ogg
+    dragonwing-audio/decode-CBR-45000bps-8000hz-mono-ogg
+    dragonwing-audio/decode-ABR-48000bps-22050hz-mono-ogg
+    dragonwing-audio/decode-ABR-240000bps-48000hz-stereo-ogg
+

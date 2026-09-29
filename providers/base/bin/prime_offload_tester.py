@@ -30,6 +30,7 @@ import re
 import os
 import typing as T
 from shlex import split as sh_split
+import ctypes
 
 
 class PrimeOffloader:
@@ -70,7 +71,7 @@ class PrimeOffloader:
                 file_path = os.path.join(root, file_name)
                 # Check if the search string is in the file
                 with open(
-                    file_path, "r", encoding="utf-8", errors="ignore"
+                    file_path, encoding="utf-8", errors="ignore"
                 ) as file:
                     if search_string in file.read():
                         return file_path
@@ -91,10 +92,10 @@ class PrimeOffloader:
             card_path = self.find_file_containing_string(
                 "/sys/kernel/debug/dri", "name", pci_bdf
             )
-            assert card_path, "Couldn't find a card named: {}".format(pci_bdf)
+            assert card_path, f"Couldn't find a card named: {pci_bdf}"
             return card_path.split("/")[5]
         except IndexError as e:
-            raise SystemExit("return value format error {}".format(repr(e)))
+            raise SystemExit(f"return value format error {repr(e)}")
 
     def find_card_name(self, pci_bdf: str) -> str:
         """
@@ -115,11 +116,9 @@ class PrimeOffloader:
                     return info["product"]
             raise SystemExit("Card name not found")
         except (KeyError, TypeError, json.decoder.JSONDecodeError) as e:
-            raise SystemExit("return value format error {}".format(e))
+            raise SystemExit(f"return value format error {e}")
         except (subprocess.CalledProcessError, FileNotFoundError) as e:
-            raise SystemExit(
-                "Running command:{} failed due to {}".format(cmd, repr(e))
-            )
+            raise SystemExit(f"Running command:{cmd} failed due to {repr(e)}")
 
     def get_clients(self, card_id: str) -> str:
         """
@@ -136,8 +135,8 @@ class PrimeOffloader:
 
         :param card_id: card id shows in debugfs
         """
-        filename = "/sys/kernel/debug/dri/{}/clients".format(card_id)
-        with open(filename, "r") as f:
+        filename = f"/sys/kernel/debug/dri/{card_id}/clients"
+        with open(filename) as f:
             return f.read()
         return ""
 
@@ -166,12 +165,12 @@ class PrimeOffloader:
             # doesn't include arguments. Therefore cmd[0] is used to search
             if clients and cmd[0] in clients:
                 self.logger.info("Checking success:")
-                self.logger.info("  Offload process:[{}]".format(cmd))
-                self.logger.info("  Card ID:[{}]".format(card_id))
-                self.logger.info("  Device Name:[{}]".format(card_name))
+                self.logger.info(f"  Offload process:[{cmd}]")
+                self.logger.info(f"  Card ID:[{card_id}]")
+                self.logger.info(f"  Device Name:[{card_name}]")
                 return
         self.logger.info("Checking fail:")
-        self.logger.info("  Couldn't find process {}".format(cmd))
+        self.logger.info(f"  Couldn't find process {cmd}")
         self.check_result = True
 
     def _find_bdf(self, card_id: str):
@@ -180,8 +179,8 @@ class PrimeOffloader:
 
         :param card_id: card id shows in debugfs
         """
-        filename = "/sys/kernel/debug/dri/{}/name".format(card_id)
-        with open(filename, "r") as f:
+        filename = f"/sys/kernel/debug/dri/{card_id}/name"
+        with open(filename) as f:
             data_in_name = f.read()
         return data_in_name.split()[1].split("=")[1]
 
@@ -221,22 +220,115 @@ class PrimeOffloader:
                     card_id = first_card.split("/")[5]
                     bdf = self._find_bdf(card_id)
                     self.logger.info("Process is running on:")
-                    self.logger.info("  process:[{}]".format(cmd[0]))
+                    self.logger.info(f"  process:[{cmd[0]}]")
+                    self.logger.info(f"  Card ID:[{self.find_card_id(bdf)}]")
                     self.logger.info(
-                        "  Card ID:[{}]".format(self.find_card_id(bdf))
-                    )
-                    self.logger.info(
-                        "  Device Name:[{}]".format(self.find_card_name(bdf))
+                        f"  Device Name:[{self.find_card_name(bdf)}]"
                     )
                     return
                 except IndexError as e:
                     self.logger.info(
-                        "Finding card information failed {}".format(repr(e))
+                        f"Finding card information failed {repr(e)}"
                     )
 
         self.logger.info("Checking fail:")
-        self.logger.info("  Couldn't find process {}".format(cmd))
+        self.logger.info(f"  Couldn't find process {cmd}")
         self.check_result = True
+
+    def check_nv_link_status(self) -> bool:
+        """
+        Check NVLink status using ctypes binding to libnvml.
+
+        Returns True if NVLink is active/detected, False otherwise.
+        Returns False if nvml library is not available.
+        """
+        try:
+            # Try to load the NVIDIA Management Library
+            try:
+                nvml = ctypes.CDLL("libnvidia-ml.so.1")
+            except OSError:
+                # Library not found, assume no NVLink
+                self.logger.info(
+                    "libnvidia-ml.so.1 not found, assuming no NVLink"
+                )
+                return False
+
+            # Define NVML return codes
+            # https://github.com/NVIDIA/nvidia-settings/blob/5b341a9e54f08ac324e148e1e7e102030e42b1c4/src/nvml.h#L1293
+            NVML_SUCCESS = 0
+            NVML_ERROR_NOT_SUPPORTED = 3
+
+            # Initialize NVML
+            nvmlInit = nvml.nvmlInit_v2
+            nvmlInit.restype = ctypes.c_int
+
+            # https://github.com/NVIDIA/nvidia-settings/blob/5b341a9e54f08ac324e148e1e7e102030e42b1c4/src/nvml.h#L3974-L4000
+            ret = nvmlInit()
+            if ret != NVML_SUCCESS:
+                self.logger.info("NVML initialization failed")
+                return False
+
+            # Get device count
+            nvmlDeviceGetCount = nvml.nvmlDeviceGetCount_v2
+            nvmlDeviceGetCount.argtypes = [ctypes.POINTER(ctypes.c_uint)]
+            nvmlDeviceGetCount.restype = ctypes.c_int
+
+            device_count = ctypes.c_uint()
+            ret = nvmlDeviceGetCount(ctypes.byref(device_count))
+            if ret != NVML_SUCCESS:
+                nvml.nvmlShutdown()
+                return False
+
+            # Check each device for NVLink
+            # https://github.com/NVIDIA/nvidia-settings/blob/5b341a9e54f08ac324e148e1e7e102030e42b1c4/src/nvml.h#L4593-L4639
+            nvmlDeviceGetHandleByIndex = nvml.nvmlDeviceGetHandleByIndex_v2
+            nvmlDeviceGetHandleByIndex.argtypes = [
+                ctypes.c_uint,
+                ctypes.POINTER(ctypes.c_void_p),
+            ]
+            # https://github.com/NVIDIA/nvidia-settings/blob/5b341a9e54f08ac324e148e1e7e102030e42b1c4/src/nvml.h#L9486-L9504
+            nvmlDeviceGetHandleByIndex.restype = ctypes.c_int
+
+            nvmlDeviceGetNvLinkState = nvml.nvmlDeviceGetNvLinkState
+            nvmlDeviceGetNvLinkState.argtypes = [
+                ctypes.c_void_p,
+                ctypes.c_uint,
+                ctypes.POINTER(ctypes.c_uint),
+            ]
+            nvmlDeviceGetNvLinkState.restype = ctypes.c_int
+
+            nvlink_detected = False
+            for i in range(device_count.value):
+                handle = ctypes.c_void_p()
+                ret = nvmlDeviceGetHandleByIndex(i, ctypes.byref(handle))
+                if ret != NVML_SUCCESS:
+                    continue
+
+                # Check NVLink links (typically 0-5 for modern GPUs)
+                for link in range(6):
+                    state = ctypes.c_uint()
+                    ret = nvmlDeviceGetNvLinkState(
+                        handle, link, ctypes.byref(state)
+                    )
+                    # Skip if not supported
+                    if ret == NVML_ERROR_NOT_SUPPORTED:
+                        continue
+                    # Check if link is active (state == 1)
+                    if ret == NVML_SUCCESS and state.value == 1:
+                        nvlink_detected = True
+                        break
+
+                if nvlink_detected:
+                    break
+
+            # Shutdown NVML
+            nvml.nvmlShutdown()
+
+            return nvlink_detected
+
+        except Exception as e:
+            self.logger.info(f"Error checking NVLink status: {e}")
+            return False
 
     def check_nv_offload_env(self):
         """
@@ -254,13 +346,8 @@ class PrimeOffloader:
                 raise SystemExit("System isn't on-demand mode")
 
             # prime offload couldn't running on nvlink active or inactive
-            # Therefore, only return empty string is supported environment.
-            nvlink = subprocess.check_output(
-                ["nvidia-smi", "nvlink", "-s"], universal_newlines=True
-            )
-            if nvlink:
-                if "error" in nvlink.lower():
-                    raise SystemExit("nvidia driver error")
+            # Use ctypes binding to libnvml to check NVLink status
+            if self.check_nv_link_status():
                 raise SystemExit("NVLINK detected")
         except FileNotFoundError:
             self.logger.info(
@@ -284,7 +371,7 @@ class PrimeOffloader:
                 universal_newlines=True,
             ) as runner:
 
-                self.logger.info("running command:[{}]".format(cmd))
+                self.logger.info(f"running command:[{cmd}]")
 
                 # redirect command output real time
                 while runner.poll() is None:
@@ -292,7 +379,7 @@ class PrimeOffloader:
                     line = runner.stdout.readline().strip()  # type: ignore
                     self.logger.info(line)
         except subprocess.CalledProcessError as e:
-            raise SystemExit("run command failed {}".format(repr(e)))
+            raise SystemExit(f"run command failed {repr(e)}")
 
     def cmd_finder(self, cmd: str, timeout: int):
         """
@@ -349,10 +436,14 @@ class PrimeOffloader:
                 "__GLX_VENDOR_LIBRARY_NAME": "nvidia",
             }
         else:
-            offload_env = {"DRI_PRIME": "pci-{}".format(dri_pci_bdf_format)}
+            offload_env = {"DRI_PRIME": f"pci-{dri_pci_bdf_format}"}
+            offload_env = {
+                "DRI_PRIME": f"pci-{dri_pci_bdf_format}",
+                "__GLX_VENDOR_LIBRARY_NAME": "mesa",
+            }
 
         env.update(offload_env)
-        self.logger.info("prime offload env: {}".format(offload_env))
+        self.logger.info(f"prime offload env: {offload_env}")
 
         # if nv driver under nvidia mode, prime/reverse prime couldn't work.
         self.check_nv_offload_env()
@@ -370,9 +461,7 @@ class PrimeOffloader:
         check_thread.join()
 
         if self.check_result:
-            raise SystemExit(
-                "offload to specific GPU: {} failed".format(pci_bdf)
-            )
+            raise SystemExit(f"offload to specific GPU: {pci_bdf} failed")
 
     def parse_args(self, args=sys.argv[1:]):
         """

@@ -13,7 +13,7 @@ import time
 
 
 def get_ifaces():
-    return set([i.name for i in Path("/sys/class/net").iterdir()])
+    return {i.name for i in Path("/sys/class/net").iterdir()}
 
 
 def main():

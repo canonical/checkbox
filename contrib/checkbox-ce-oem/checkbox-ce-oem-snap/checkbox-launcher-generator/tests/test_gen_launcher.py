@@ -1,0 +1,1040 @@
+"""Unit tests for gen_launcher data layer."""
+
+import importlib
+import importlib.util
+import sys
+import tempfile
+import textwrap
+import types
+import unittest
+from pathlib import Path
+
+_SCRIPT = Path(__file__).parent.parent / "src" / "gen_launcher.py"
+
+
+def _load_module():
+    sys.path.insert(0, str(_SCRIPT.parent))
+    spec = importlib.util.spec_from_file_location("gen_launcher", _SCRIPT)
+    mod = importlib.util.module_from_spec(spec)
+    # urwid may not be available in test environment; stub it out
+    urwid_stub = types.ModuleType("urwid")
+
+    class _WidgetWrap:
+        def __init__(self, widget=None):
+            self._w = widget
+
+    class _Widget:
+        def __init__(self):
+            pass
+
+        def _invalidate(self):
+            pass
+
+    class _Columns:
+        """Minimal stand-in for urwid.Columns' focus-switching behaviour,
+        just enough for _SwitchColumns (module-level subclass) to import
+        and for its keypress-diffing logic to be exercised in tests."""
+
+        def __init__(self, widget_list, dividechars=0, **kwargs):
+            self.contents = list(widget_list)
+            self.focus_position = 0
+
+        def keypress(self, size, key):
+            if key == "right" and self.focus_position < len(self.contents) - 1:
+                self.focus_position += 1
+                return None
+            if key == "left" and self.focus_position > 0:
+                self.focus_position -= 1
+                return None
+            return key
+
+    urwid_stub.WidgetWrap = _WidgetWrap  # minimal stub for import
+    urwid_stub.Columns = _Columns
+    urwid_stub.Widget = _Widget
+    sys.modules.setdefault("urwid", urwid_stub)
+    sys.modules["gen_launcher"] = mod
+    spec.loader.exec_module(mod)
+    return mod
+
+
+gl = _load_module()
+
+# ── urwid stubs needed by ItemRow ────────────────────────────────
+_urwid_stub = sys.modules["urwid"]
+
+
+class _FakeEdit:
+    def __init__(self, caption="", edit_text=""):
+        self._text = edit_text
+
+    @property
+    def edit_text(self):
+        return self._text
+
+    def get_edit_text(self):
+        return self._text
+
+    def set_edit_text(self, t):
+        self._text = t
+
+    def set_edit_pos(self, pos):
+        pass
+
+    def get_text(self):
+        return self._text, []
+
+    def rows(self, size, focus=False):
+        return 1
+
+    def keypress(self, size, key):
+        return key
+
+    def render(self, size, focus=False):
+        return None
+
+
+class _FakeText:
+    def __init__(self, *args, **kwargs):
+        pass
+
+    def rows(self, size, focus=False):
+        return 1
+
+
+class _FakeAttrMap:
+    def __init__(self, *args, **kwargs):
+        pass
+
+    def rows(self, size, focus=False):
+        return 1
+
+    def keypress(self, size, key):
+        return key
+
+
+_urwid_stub.Edit = _FakeEdit
+_urwid_stub.Text = _FakeText
+_urwid_stub.AttrMap = _FakeAttrMap
+
+
+class TestCollectItems(unittest.TestCase):
+    def _cache(self):
+        return {
+            "manifest_entries": {
+                "has_gpio": {
+                    "full_id": "ns::has_gpio",
+                    "name": "GPIO",
+                    "prompt": "Has GPIO?",
+                    "value_type": "bool",
+                }
+            },
+            "test_plans": {},
+            "jobs": {
+                "ns::j1": {
+                    "id": "ns::j1",
+                    "summary": "J1",
+                    "description": "",
+                    "environ": ["MY_VAR"],
+                    "manifest": ["has_gpio"],
+                    "command": "",
+                    "provider": "ns",
+                    "unit_type": "job",
+                },
+            },
+        }
+
+    def test_manifest_item_created(self):
+        items = gl.collect_items("ns::p", {"ns::j1"}, self._cache())
+        manifest = [i for i in items if i.kind == "manifest"]
+        self.assertEqual(len(manifest), 1)
+        self.assertEqual(manifest[0].key, "ns::has_gpio")
+        self.assertEqual(manifest[0].name, "GPIO")
+        self.assertEqual(manifest[0].value_type, "bool")
+
+    def test_environ_item_created(self):
+        items = gl.collect_items("ns::p", {"ns::j1"}, self._cache())
+        environ = [i for i in items if i.kind == "environ"]
+        self.assertEqual(len(environ), 1)
+        self.assertEqual(environ[0].key, "MY_VAR")
+
+    def test_manifest_before_environ(self):
+        items = gl.collect_items("ns::p", {"ns::j1"}, self._cache())
+        kinds = [i.kind for i in items]
+        self.assertLess(kinds.index("manifest"), kinds.index("environ"))
+
+    def test_hidden_manifest_key_excluded_even_if_job_requires_it(self):
+        """A job may reference a hidden manifest key (bare id starting
+        with '_') via `requires:` even though no `manifest entry` unit
+        defines it (since it was filtered out of manifest_entries by
+        build_cache). collect_items must still exclude it."""
+        cache = self._cache()
+        cache["jobs"]["ns::j2"] = {
+            "id": "ns::j2",
+            "summary": "J2",
+            "description": "",
+            "environ": [],
+            "manifest": ["_hidden_flag"],
+            "command": "",
+            "provider": "ns",
+            "unit_type": "job",
+        }
+        items = gl.collect_items("ns::p", {"ns::j1", "ns::j2"}, cache)
+        manifest_keys = [i.bare_key for i in items if i.kind == "manifest"]
+        self.assertNotIn("_hidden_flag", manifest_keys)
+
+
+class TestWriteLauncher(unittest.TestCase):
+    def _items(self):
+        return [
+            gl.Item(
+                kind="manifest",
+                key="ns::has_gpio",
+                bare_key="has_gpio",
+                value="True",
+                value_type="bool",
+            ),
+            gl.Item(
+                kind="environ",
+                key="MYVAR",
+                bare_key="MYVAR",
+                value="hello",
+            ),
+        ]
+
+    def test_writes_file(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            out = Path(tmp) / "ce-oem-test"
+            gl.write_launcher("ns::ce-oem-test", self._items(), out)
+            self.assertTrue(out.exists())
+
+    def test_no_shebang_line(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            out = Path(tmp) / "ce-oem-test"
+            gl.write_launcher("ns::ce-oem-test", self._items(), out)
+            lines = out.read_text().splitlines()
+            self.assertEqual(lines[0], "[launcher]")
+            self.assertNotIn("checkbox-cli-wrapper", out.read_text())
+
+    def test_sections_present(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            out = Path(tmp) / "ce-oem-test"
+            gl.write_launcher("ns::ce-oem-test", self._items(), out)
+            text = out.read_text()
+            for section in (
+                "[launcher]",
+                "[test plan]",
+                "[manifest]",
+                "[environment]",
+            ):
+                self.assertIn(section, text)
+            # [ui] (like every other non-fixed section) only ever comes
+            # from a template — nothing here supplies one by default.
+            self.assertNotIn("[ui]", text)
+
+    def test_plan_unit_line(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            out = Path(tmp) / "ce-oem-test"
+            gl.write_launcher("ns::ce-oem-test", self._items(), out)
+            self.assertIn("unit = ns::ce-oem-test", out.read_text())
+
+    def test_manifest_value_written(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            out = Path(tmp) / "ce-oem-test"
+            gl.write_launcher("ns::ce-oem-test", self._items(), out)
+            self.assertIn("ns::has_gpio = True", out.read_text())
+
+    def test_empty_manifest_written_as_false(self):
+        items = [
+            gl.Item(
+                kind="manifest",
+                key="ns::has_gpio",
+                bare_key="has_gpio",
+                value="",
+            )
+        ]
+        with tempfile.TemporaryDirectory() as tmp:
+            out = Path(tmp) / "ce-oem-test"
+            gl.write_launcher("ns::ce-oem-test", items, out)
+            self.assertIn("ns::has_gpio = false\n", out.read_text())
+
+    def test_no_manifest_section_when_empty(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            out = Path(tmp) / "ce-oem-test"
+            gl.write_launcher("ns::ce-oem-test", [], out)
+            self.assertNotIn("[manifest]", out.read_text())
+
+    def test_empty_environ_omitted(self):
+        items = self._items() + [
+            gl.Item(
+                kind="environ",
+                key="UNSET_VAR",
+                bare_key="UNSET_VAR",
+                value="",
+            )
+        ]
+        with tempfile.TemporaryDirectory() as tmp:
+            out = Path(tmp) / "ce-oem-test"
+            gl.write_launcher("ns::ce-oem-test", items, out)
+            text = out.read_text()
+            self.assertIn("MYVAR = hello", text)
+            self.assertNotIn("UNSET_VAR", text)
+
+    def test_no_environment_section_when_all_empty(self):
+        items = [
+            gl.Item(
+                kind="environ",
+                key="UNSET_VAR",
+                bare_key="UNSET_VAR",
+                value="",
+            )
+        ]
+        with tempfile.TemporaryDirectory() as tmp:
+            out = Path(tmp) / "ce-oem-test"
+            gl.write_launcher("ns::ce-oem-test", items, out)
+            self.assertNotIn("[environment]", out.read_text())
+
+    def test_default_no_forced_and_no_ui_section(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            out = Path(tmp) / "ce-oem-test"
+            gl.write_launcher("ns::ce-oem-test", self._items(), out)
+            text = out.read_text()
+            self.assertNotIn("forced =", text)
+            self.assertNotIn("[ui]", text)
+            self.assertNotIn("filter =", text)
+
+    def test_filter_plans_written(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            out = Path(tmp) / "ce-oem-test"
+            gl.write_launcher(
+                "ns::ce-oem-test-automated",
+                self._items(),
+                out,
+                filter_plans=[
+                    "ns::ce-oem-test-manual",
+                    "ns::ce-oem-test-automated",
+                    "ns::ce-oem-test-stress",
+                ],
+            )
+            text = out.read_text()
+            self.assertIn("unit = ns::ce-oem-test-automated", text)
+            self.assertIn(
+                "filter = ns::ce-oem-test-manual\n"
+                "         ns::ce-oem-test-automated\n"
+                "         ns::ce-oem-test-stress",
+                text,
+            )
+            # No "forced"/"[ui]" line is ever generated here — both are
+            # entirely up to the launcher template (see write_launcher()).
+            self.assertNotIn("forced =", text)
+            self.assertNotIn("[ui]", text)
+
+    def test_template_sections_merged_verbatim(self):
+        template = gl.OrderedDict(
+            {
+                "ui": gl.OrderedDict({"type": "interactive"}),
+                "restart": gl.OrderedDict({"strategy": "systemd"}),
+            }
+        )
+        with tempfile.TemporaryDirectory() as tmp:
+            out = Path(tmp) / "ce-oem-test"
+            gl.write_launcher(
+                "ns::ce-oem-test",
+                self._items(),
+                out,
+                template_sections=template,
+            )
+            text = out.read_text()
+            self.assertIn("[ui]", text)
+            self.assertIn("type = interactive", text)
+            self.assertIn("[restart]", text)
+            self.assertIn("strategy = systemd", text)
+
+    def test_template_can_add_test_plan_forced(self):
+        # [test plan] is not a forbidden/special section any more — a
+        # template can add a "forced" key to it (or override "unit"/
+        # "filter") the same as any other ini merge.
+        template = gl.OrderedDict(
+            {"test plan": gl.OrderedDict({"forced": "yes"})}
+        )
+        with tempfile.TemporaryDirectory() as tmp:
+            out = Path(tmp) / "ce-oem-test"
+            gl.write_launcher(
+                "ns::ce-oem-test-automated",
+                self._items(),
+                out,
+                filter_plans=[
+                    "ns::ce-oem-test-manual",
+                    "ns::ce-oem-test-automated",
+                ],
+                template_sections=template,
+            )
+            text = out.read_text()
+            self.assertIn("unit = ns::ce-oem-test-automated", text)
+            self.assertIn("forced = yes", text)
+
+    def test_template_overrides_generated_unit(self):
+        # Same-section/same-key template values win, ini-merge style —
+        # even for a key gen_launcher.py itself generates.
+        template = gl.OrderedDict(
+            {"test plan": gl.OrderedDict({"unit": "ns::overridden"})}
+        )
+        with tempfile.TemporaryDirectory() as tmp:
+            out = Path(tmp) / "ce-oem-test"
+            gl.write_launcher(
+                "ns::ce-oem-test",
+                self._items(),
+                out,
+                template_sections=template,
+            )
+            text = out.read_text()
+            self.assertIn("unit = ns::overridden", text)
+            self.assertNotIn("unit = ns::ce-oem-test\n", text)
+
+    def test_template_overrides_manifest_value(self):
+        template = gl.OrderedDict(
+            {"manifest": gl.OrderedDict({"ns::has_gpio": "False"})}
+        )
+        with tempfile.TemporaryDirectory() as tmp:
+            out = Path(tmp) / "ce-oem-test"
+            gl.write_launcher(
+                "ns::ce-oem-test",
+                self._items(),
+                out,
+                template_sections=template,
+            )
+            text = out.read_text()
+            self.assertIn("ns::has_gpio = False", text)
+            self.assertNotIn("ns::has_gpio = True", text)
+
+    def test_template_adds_new_manifest_key(self):
+        template = gl.OrderedDict(
+            {"manifest": gl.OrderedDict({"ns::extra_flag": "true"})}
+        )
+        with tempfile.TemporaryDirectory() as tmp:
+            out = Path(tmp) / "ce-oem-test"
+            gl.write_launcher(
+                "ns::ce-oem-test",
+                self._items(),
+                out,
+                template_sections=template,
+            )
+            text = out.read_text()
+            # original item is kept...
+            self.assertIn("ns::has_gpio = True", text)
+            # ...and the template-only key is added alongside it.
+            self.assertIn("ns::extra_flag = true", text)
+
+    def test_template_can_add_manifest_section_when_no_items(self):
+        template = gl.OrderedDict(
+            {"manifest": gl.OrderedDict({"ns::only_from_template": "true"})}
+        )
+        with tempfile.TemporaryDirectory() as tmp:
+            out = Path(tmp) / "ce-oem-test"
+            gl.write_launcher(
+                "ns::ce-oem-test",
+                [],
+                out,
+                template_sections=template,
+            )
+            text = out.read_text()
+            self.assertIn("[manifest]", text)
+            self.assertIn("ns::only_from_template = true", text)
+
+    def test_template_overrides_launcher_section(self):
+        template = gl.OrderedDict(
+            {"launcher": gl.OrderedDict({"app_id": "com.example:custom"})}
+        )
+        with tempfile.TemporaryDirectory() as tmp:
+            out = Path(tmp) / "ce-oem-test"
+            gl.write_launcher(
+                "ns::ce-oem-test",
+                self._items(),
+                out,
+                template_sections=template,
+            )
+            text = out.read_text()
+            self.assertIn("app_id = com.example:custom", text)
+            self.assertNotIn("app_id = com.canonical.contrib:checkbox", text)
+
+    def test_template_extra_sections_not_added_when_none(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            out = Path(tmp) / "ce-oem-test"
+            gl.write_launcher("ns::ce-oem-test", self._items(), out)
+            text = out.read_text()
+            self.assertEqual(text.count("[manifest]"), 1)
+
+
+class TestLoadLauncherTemplate(unittest.TestCase):
+    def test_missing_file_returns_empty(self):
+        result = gl.load_launcher_template(Path("/no/such/file.ini"))
+        self.assertEqual(result, gl.OrderedDict())
+
+    def test_loads_extra_sections(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            p = Path(tmp) / "tmpl.ini"
+            p.write_text(textwrap.dedent("""\
+                    [ui]
+                    type = interactive
+                    verbosity = verbose
+
+                    [restart]
+                    strategy = systemd
+                    """))
+            result = gl.load_launcher_template(p)
+            self.assertEqual(result["ui"]["type"], "interactive")
+            self.assertEqual(result["ui"]["verbosity"], "verbose")
+            self.assertEqual(result["restart"]["strategy"], "systemd")
+
+    def test_all_sections_loaded_no_forbidden_names(self):
+        # No section name is off-limits any more — [launcher],
+        # [test plan], [manifest], [environment] can all be defined in
+        # a template; write_launcher() merges them ini-style on top of
+        # what it generates rather than load_launcher_template()
+        # dropping them up front.
+        with tempfile.TemporaryDirectory() as tmp:
+            p = Path(tmp) / "tmpl.ini"
+            p.write_text(textwrap.dedent("""\
+                    [launcher]
+                    app_id = com.example:custom
+
+                    [test plan]
+                    forced = yes
+
+                    [manifest]
+                    ns::extra_flag = true
+
+                    [environment]
+                    EXTRA_VAR = yes
+
+                    [ui]
+                    type = interactive
+                    """))
+            result = gl.load_launcher_template(p)
+            self.assertEqual(
+                list(result.keys()),
+                ["launcher", "test plan", "manifest", "environment", "ui"],
+            )
+            self.assertEqual(result["test plan"]["forced"], "yes")
+
+    def test_invalid_ini_returns_empty_without_raising(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            p = Path(tmp) / "tmpl.ini"
+            p.write_text("not valid ini [[[")
+            result = gl.load_launcher_template(p)
+            self.assertEqual(result, gl.OrderedDict())
+
+    def test_default_path_used_when_none_given(self):
+        # gen_launcher.py bundles its own default template next to the
+        # script; loading with no path should find and parse it.
+        result = gl.load_launcher_template()
+        self.assertIsInstance(result, gl.OrderedDict)
+
+
+class TestParseExistingLauncher(unittest.TestCase):
+    _SAMPLE = textwrap.dedent("""\
+        #!/usr/bin/env checkbox-cli-wrapper
+        [launcher]
+        app_id = com.canonical.contrib:checkbox
+
+        [manifest]
+        com.canonical.contrib::has_gpio = True
+        com.canonical.certification::has_edac_module = false
+
+        [environment]
+        RS485_CONFIG = /dev/ttyS0
+        OTG =
+    """)
+
+    def test_parses_manifest_values(self):
+        with tempfile.NamedTemporaryFile(
+            mode="w", suffix=".launcher", delete=False
+        ) as f:
+            f.write(self._SAMPLE)
+            p = Path(f.name)
+        try:
+            d = gl.parse_existing_launcher(p)
+            self.assertEqual(d["com.canonical.contrib::has_gpio"], "True")
+            self.assertEqual(
+                d["com.canonical.certification::has_edac_module"], "false"
+            )
+        finally:
+            p.unlink(missing_ok=True)
+
+    def test_parses_environment_values(self):
+        with tempfile.NamedTemporaryFile(
+            mode="w", suffix=".launcher", delete=False
+        ) as f:
+            f.write(self._SAMPLE)
+            p = Path(f.name)
+        try:
+            d = gl.parse_existing_launcher(p)
+            self.assertEqual(d["RS485_CONFIG"], "/dev/ttyS0")
+            self.assertEqual(d["OTG"], "")
+        finally:
+            p.unlink(missing_ok=True)
+
+    def test_missing_file_returns_empty(self):
+        d = gl.parse_existing_launcher(Path("/nonexistent/launcher"))
+        self.assertEqual(d, {})
+
+    def test_ignores_other_sections(self):
+        with tempfile.NamedTemporaryFile(
+            mode="w", suffix=".launcher", delete=False
+        ) as f:
+            f.write(self._SAMPLE)
+            p = Path(f.name)
+        try:
+            d = gl.parse_existing_launcher(p)
+            self.assertNotIn("app_id", d)
+        finally:
+            p.unlink(missing_ok=True)
+
+
+class TestApplyLauncherDefaults(unittest.TestCase):
+    def _items(self):
+        return [
+            gl.Item(
+                kind="manifest",
+                key="ns::has_gpio",
+                bare_key="has_gpio",
+                value="",
+            ),
+            gl.Item(
+                kind="environ",
+                key="RS485_CONFIG",
+                bare_key="RS485_CONFIG",
+                value="",
+            ),
+        ]
+
+    def test_applies_full_key_match(self):
+        items = self._items()
+        gl.apply_launcher_defaults(items, {"ns::has_gpio": "True"})
+        self.assertEqual(items[0].value, "True")
+
+    def test_applies_bare_key_match(self):
+        items = self._items()
+        gl.apply_launcher_defaults(items, {"has_gpio": "True"})
+        self.assertEqual(items[0].value, "True")
+
+    def test_applies_environ_match(self):
+        items = self._items()
+        gl.apply_launcher_defaults(items, {"RS485_CONFIG": "/dev/ttyS0"})
+        self.assertEqual(items[1].value, "/dev/ttyS0")
+
+    def test_unmatched_key_leaves_value_unchanged(self):
+        items = self._items()
+        gl.apply_launcher_defaults(items, {"other::key": "x"})
+        self.assertEqual(items[0].value, "")
+
+    def test_empty_defaults_is_noop(self):
+        items = self._items()
+        gl.apply_launcher_defaults(items, {})
+        self.assertEqual(items[0].value, "")
+
+
+class TestItemRowEditMode(unittest.TestCase):
+    def _make_item(self, value="original"):
+        return gl.Item(
+            kind="manifest",
+            key="ns::has_gpio",
+            bare_key="has_gpio",
+            value=value,
+        )
+
+    def test_e_activates_edit_mode(self):
+        item = self._make_item()
+        row = gl.ItemRow(item)
+        self.assertFalse(row._editing)
+        row.keypress((40,), "e")
+        self.assertTrue(row._editing)
+
+    def test_enter_commits_edit(self):
+        item = self._make_item("original")
+        row = gl.ItemRow(item)
+        row.keypress((40,), "e")
+        row._edit.set_edit_text("new value")
+        row.keypress((40,), "enter")
+        self.assertFalse(row._editing)
+        self.assertEqual(item.value, "new value")
+
+    def test_esc_cancels_edit(self):
+        item = self._make_item("original")
+        row = gl.ItemRow(item)
+        row.keypress((40,), "e")
+        row._edit.set_edit_text("discarded")
+        row.keypress((40,), "esc")
+        self.assertFalse(row._editing)
+        self.assertEqual(item.value, "original")
+
+
+class TestDescForItem(unittest.TestCase):
+    """_desc_for_item() surfaces related jobs' _purpose for environ items."""
+
+    def _desc(self, item):
+        # The method only reads *item*, so it can be called unbound.
+        return gl.LauncherEditorScreen._desc_for_item(None, item)
+
+    def test_manifest_shows_name_and_prompt(self):
+        item = gl.Item(
+            kind="manifest",
+            key="ns::has_gpio",
+            bare_key="has_gpio",
+            name="GPIO",
+            prompt="Does this board have GPIO?",
+        )
+        desc = self._desc(item)
+        self.assertIn("Name   : GPIO", desc)
+        self.assertIn("Prompt : Does this board have GPIO?", desc)
+
+    def test_environ_includes_related_job_purposes(self):
+        item = gl.Item(
+            kind="environ",
+            key="GADGET_INTERFACE_FILE",
+            bare_key="GADGET_INTERFACE_FILE",
+            related_jobs=[
+                {
+                    "id": "com.canonical.certification::gadget/check",
+                    "summary": "Check gadget",
+                    "description": "Check if gadget interface is defined",
+                    "purpose": "Check if gadget interface is defined",
+                }
+            ],
+        )
+        desc = self._desc(item)
+        self.assertIn("- com.canonical.certification::gadget/check", desc)
+        self.assertIn(
+            "Purpose    : Check if gadget interface is defined", desc
+        )
+        # Job count is already shown in the right-top pane header, so it
+        # shouldn't be repeated in the bottom description pane.
+        self.assertNotIn("used by", desc)
+
+    def test_environ_shows_both_purpose_and_description(self):
+        """Real jobs like gadget/check-snap-interface-conf define both a
+        short `_purpose` and a longer, different `_description`; the
+        environ pane should show both, not let one shadow the other."""
+        item = gl.Item(
+            kind="environ",
+            key="GADGET_INTERFACE_FILE",
+            bare_key="GADGET_INTERFACE_FILE",
+            related_jobs=[
+                {
+                    "id": "ns::gadget-job",
+                    "summary": "",
+                    "description": "Usage: create a JSON file with...",
+                    "purpose": "Check if gadget interface file is defined",
+                }
+            ],
+        )
+        desc = self._desc(item)
+        self.assertIn(
+            "Purpose    : Check if gadget interface file is defined", desc
+        )
+        self.assertIn("Description: Usage: create a JSON file with...", desc)
+
+    def test_environ_omits_description_line_when_identical_to_purpose(self):
+        item = gl.Item(
+            kind="environ",
+            key="VAR",
+            bare_key="VAR",
+            related_jobs=[
+                {
+                    "id": "ns::a",
+                    "summary": "",
+                    "description": "Same text",
+                    "purpose": "Same text",
+                }
+            ],
+        )
+        desc = self._desc(item)
+        self.assertEqual(desc.count("Same text"), 1)
+        self.assertNotIn("Description:", desc)
+
+    def test_environ_falls_back_to_description_without_purpose(self):
+        item = gl.Item(
+            kind="environ",
+            key="VAR",
+            bare_key="VAR",
+            related_jobs=[
+                {"id": "ns::a", "summary": "", "description": "Fallback desc"}
+            ],
+        )
+        desc = self._desc(item)
+        self.assertIn("Description: Fallback desc", desc)
+        self.assertNotIn("Purpose", desc)
+
+    def test_environ_multiple_jobs_shows_hint_instead_of_details(self):
+        """When more than one job uses a var, don't guess which job's
+        purpose/description applies — point the user at the right-top
+        pane to pick a specific job instead."""
+        item = gl.Item(
+            kind="environ",
+            key="VAR",
+            bare_key="VAR",
+            related_jobs=[
+                {"id": "ns::a", "summary": "", "purpose": "Purpose A"},
+                {"id": "ns::b", "summary": "", "purpose": "Purpose B"},
+            ],
+        )
+        desc = self._desc(item)
+        self.assertIn("right pane", desc)
+        self.assertNotIn("Purpose A", desc)
+        self.assertNotIn("Purpose B", desc)
+
+    def test_environ_no_related_jobs(self):
+        item = gl.Item(
+            kind="environ", key="VAR", bare_key="VAR", related_jobs=[]
+        )
+        desc = self._desc(item)
+        self.assertEqual(desc, "(no related jobs found)")
+
+    def test_environ_without_descriptions_has_no_purpose_section(self):
+        item = gl.Item(
+            kind="environ",
+            key="VAR",
+            bare_key="VAR",
+            related_jobs=[{"id": "ns::a", "summary": "", "description": ""}],
+        )
+        desc = self._desc(item)
+        self.assertNotIn("Purpose:", desc)
+
+
+class TestFormatJobPurpose(unittest.TestCase):
+    """_format_job_purpose() is the single source used by both the
+    environ item-level view (single related job) and the per-job-row
+    view (job focused in the right-top pane), so it's tested directly."""
+
+    def test_shows_both_when_distinct(self):
+        job = {
+            "id": "ns::j",
+            "purpose": "Check the thing",
+            "description": "Usage: do the thing with FOO=bar",
+        }
+        text = gl._format_job_purpose(job)
+        self.assertIn("Purpose    : Check the thing", text)
+        self.assertIn("Description: Usage: do the thing with FOO=bar", text)
+
+    def test_omits_description_when_identical_to_purpose(self):
+        job = {"id": "ns::j", "purpose": "Same", "description": "Same"}
+        text = gl._format_job_purpose(job)
+        self.assertEqual(text.count("Same"), 1)
+        self.assertNotIn("Description:", text)
+
+    def test_no_text_available(self):
+        job = {"id": "ns::j", "purpose": "", "description": ""}
+        text = gl._format_job_purpose(job)
+        self.assertEqual(text, "(no description available)")
+
+
+class TestSwitchColumns(unittest.TestCase):
+    """_SwitchColumns notifies a callback when left/right arrow keys move
+    focus between panes — this is the only route for pane switching,
+    since urwid.Columns handles left/right internally before the key
+    would ever reach MainLoop's unhandled_input."""
+
+    def _make(self):
+        calls = []
+        cols = gl._SwitchColumns(
+            ["left-widget", "right-widget"],
+            on_switch=lambda pos: calls.append(pos),
+        )
+        return cols, calls
+
+    def test_right_arrow_switches_and_notifies(self):
+        cols, calls = self._make()
+        cols.keypress((80,), "right")
+        self.assertEqual(cols.focus_position, 1)
+        self.assertEqual(calls, [1])
+
+    def test_left_arrow_switches_and_notifies(self):
+        cols, calls = self._make()
+        cols.keypress((80,), "right")
+        cols.keypress((80,), "left")
+        self.assertEqual(cols.focus_position, 0)
+        self.assertEqual(calls, [1, 0])
+
+    def test_unrelated_key_does_not_notify(self):
+        cols, calls = self._make()
+        cols.keypress((80,), "down")
+        self.assertEqual(calls, [])
+
+    def test_no_op_switch_does_not_notify(self):
+        """Pressing left while already at position 0 shouldn't fire."""
+        cols, calls = self._make()
+        cols.keypress((80,), "left")
+        self.assertEqual(calls, [])
+
+
+class _FakeRightWalker(list):
+    """Minimal stand-in for urwid.SimpleFocusListWalker's focus API."""
+
+    def __init__(self, items, focus=0):
+        super().__init__(items)
+        self._focus_idx = focus
+
+    def get_focus(self):
+        return self[self._focus_idx], self._focus_idx
+
+    def set_focus(self, i):
+        self._focus_idx = i
+
+
+class TestEnsureRightFocusSelectable(unittest.TestCase):
+    """Switching into the right pane must land the cursor on the first
+    job row, not the unselectable header/divider — otherwise no focus
+    highlight is visible until the user presses up/down once."""
+
+    def _make_screen(self, walker):
+        screen = gl.LauncherEditorScreen.__new__(gl.LauncherEditorScreen)
+        screen._right_walker = walker
+        return screen
+
+    def test_moves_focus_from_header_to_first_job_row(self):
+        header = object()
+        divider = object()
+        row1 = gl._JobRow.__new__(gl._JobRow)
+        row2 = gl._JobRow.__new__(gl._JobRow)
+        walker = _FakeRightWalker([header, divider, row1, row2], focus=0)
+        screen = self._make_screen(walker)
+
+        screen._ensure_right_focus_selectable()
+
+        self.assertEqual(walker._focus_idx, 2)
+
+    def test_leaves_focus_unchanged_when_already_on_job_row(self):
+        header = object()
+        row1 = gl._JobRow.__new__(gl._JobRow)
+        row2 = gl._JobRow.__new__(gl._JobRow)
+        walker = _FakeRightWalker([header, row1, row2], focus=2)
+        screen = self._make_screen(walker)
+
+        screen._ensure_right_focus_selectable()
+
+        self.assertEqual(walker._focus_idx, 2)
+
+    def test_no_op_when_no_job_rows_present(self):
+        header = object()
+        divider = object()
+        walker = _FakeRightWalker([header, divider], focus=0)
+        screen = self._make_screen(walker)
+
+        screen._ensure_right_focus_selectable()  # must not raise
+
+        self.assertEqual(walker._focus_idx, 0)
+
+
+class TestSaveMergesManualAutoStress(unittest.TestCase):
+    """`_save` must write a single merged launcher (filter, defaulting to
+    the base plan) when sub_plans contains a manual/automated/stress
+    trio, and fall back to a single plain launcher otherwise. Neither
+    case writes a `forced` line — that's entirely up to the template."""
+
+    def _make_screen(self, output_dir, sub_plans, template_sections=None):
+        screen = gl.LauncherEditorScreen.__new__(gl.LauncherEditorScreen)
+        screen.plan_full_id = "ns::ce-oem-iot-ubuntucore-26"
+        screen.items = []
+        screen.output_dir = output_dir
+        screen.sub_plans = sub_plans
+        screen.template_sections = template_sections
+        screen._saved_paths = []
+        screen._status_text = _FakeText()
+        screen._status_text.set_text = lambda *a, **k: None
+        return screen
+
+    def _call_save(self, screen):
+        # _save() ends its success path with `raise urwid.ExitMainLoop()`;
+        # ensure the stub urwid module has that attribute, then swallow it.
+        if not hasattr(gl.urwid, "ExitMainLoop"):
+            gl.urwid.ExitMainLoop = type("ExitMainLoop", (Exception,), {})
+        try:
+            screen._save()
+        except gl.urwid.ExitMainLoop:
+            pass
+
+    def test_writes_single_merged_launcher(self):
+        sub_plans = [
+            (
+                "ns::ce-oem-iot-ubuntucore-26-manual",
+                "ce-oem-iot-ubuntucore-26-manual",
+            ),
+            (
+                "ns::ce-oem-iot-ubuntucore-26-automated",
+                "ce-oem-iot-ubuntucore-26-automated",
+            ),
+            (
+                "ns::ce-oem-iot-ubuntucore-26-stress",
+                "ce-oem-iot-ubuntucore-26-stress",
+            ),
+            ("ns::ce-oem-iot-ubuntucore-26-rt", "ce-oem-iot-ubuntucore-26-rt"),
+        ]
+        with tempfile.TemporaryDirectory() as tmp:
+            out_dir = Path(tmp)
+            screen = self._make_screen(out_dir, sub_plans)
+            self._call_save(screen)
+
+            self.assertEqual(len(screen._saved_paths), 1)
+            out = out_dir / "ce-oem-iot-ubuntucore-26-launcher"
+            self.assertEqual(screen._saved_paths[0], out)
+            text = out.read_text()
+            self.assertIn("unit = ns::ce-oem-iot-ubuntucore-26", text)
+            self.assertIn(
+                "filter = ns::ce-oem-iot-ubuntucore-26\n"
+                "         ns::ce-oem-iot-ubuntucore-26-manual\n"
+                "         ns::ce-oem-iot-ubuntucore-26-automated\n"
+                "         ns::ce-oem-iot-ubuntucore-26-stress",
+                text,
+            )
+            self.assertNotIn("forced =", text)
+            # No template was passed to this screen, so [ui] is not
+            # written at all — that's now entirely the template's job.
+            self.assertNotIn("[ui]", text)
+            filter_block = text.split("filter = ")[1]
+            self.assertNotIn("-rt", filter_block)
+
+    def test_no_sub_plans_writes_plain_launcher(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            out_dir = Path(tmp)
+            screen = self._make_screen(out_dir, [])
+            self._call_save(screen)
+
+            self.assertEqual(len(screen._saved_paths), 1)
+            out = out_dir / "ce-oem-iot-ubuntucore-26-launcher"
+            text = out.read_text()
+            self.assertIn("unit = ns::ce-oem-iot-ubuntucore-26", text)
+            self.assertNotIn("forced =", text)
+            self.assertNotIn("filter =", text)
+            self.assertNotIn("[ui]", text)
+
+    def test_no_matching_sub_plans_writes_plain_launcher(self):
+        sub_plans = [
+            ("ns::ce-oem-iot-ubuntucore-26-rt", "ce-oem-iot-ubuntucore-26-rt")
+        ]
+        with tempfile.TemporaryDirectory() as tmp:
+            out_dir = Path(tmp)
+            screen = self._make_screen(out_dir, sub_plans)
+            self._call_save(screen)
+
+            out = out_dir / "ce-oem-iot-ubuntucore-26-launcher"
+            text = out.read_text()
+            self.assertIn("unit = ns::ce-oem-iot-ubuntucore-26", text)
+            self.assertNotIn("forced =", text)
+            self.assertNotIn("filter =", text)
+
+    def test_template_sections_passed_through_to_write_launcher(self):
+        template = gl.OrderedDict(
+            {"restart": gl.OrderedDict({"strategy": "systemd"})}
+        )
+        with tempfile.TemporaryDirectory() as tmp:
+            out_dir = Path(tmp)
+            screen = self._make_screen(out_dir, [], template_sections=template)
+            self._call_save(screen)
+
+            out = out_dir / "ce-oem-iot-ubuntucore-26-launcher"
+            text = out.read_text()
+            self.assertIn("[restart]", text)
+            self.assertIn("strategy = systemd", text)
+
+
+if __name__ == "__main__":
+    unittest.main()

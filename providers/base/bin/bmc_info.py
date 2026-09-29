@@ -17,7 +17,7 @@ def main():
         )
         return 1
     except CalledProcessError as e:
-        print("Problem running %s.  Error was %s" % (cmd, e), file=sys.stderr)
+        print(f"Problem running {cmd}.  Error was {e}", file=sys.stderr)
         return 1
     result = result.split("\n")
 

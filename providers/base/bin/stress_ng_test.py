@@ -73,11 +73,9 @@ class StressNg:
     def run(self):
         """Run a stress-ng test, storing results in self.results."""
 
-        stressor_list = "--" + " {} --".format(self.thread_count).join(
-            self.stressors
-        )
+        stressor_list = "--" + f" {self.thread_count} --".join(self.stressors)
         # LP:1983122 ensure the final stressor in the list is properly defined
-        stressor_list = stressor_list + " {}".format(self.thread_count)
+        stressor_list = stressor_list + f" {self.thread_count}"
 
         command = (
             "stress-ng --aggressive --verify --oom-avoid-bytes {} "
@@ -88,7 +86,7 @@ class StressNg:
             self.extra_options,
             stressor_list,
         )
-        print("Running command: {}".format(command))
+        print(f"Running command: {command}")
         time_str = time.strftime("%d %b %H:%M", time.gmtime())
         if len(self.stressors) == 1:
             print(
@@ -107,7 +105,7 @@ class StressNg:
                 shlex.split(command), timeout=self.wrapper_timeout
             ).decode(encoding=sys.stdout.encoding)
         except CalledProcessError as err:
-            print("** stress-ng exited with code {}".format(err.returncode))
+            print(f"** stress-ng exited with code {err.returncode}")
             self.results = err.stdout.decode(encoding="utf-8")
             self.returncode = err.returncode
         except TimeoutExpired:
@@ -200,7 +198,7 @@ def swap_space_ok(swap_size):
     min_swap_space = 0
 
     swap_size = max(os.environ.get("STRESS_NG_MIN_SWAP_SPACE", 0), swap_size)
-    print("Minimum swap space is set to {} GiB".format(swap_size))
+    print(f"Minimum swap space is set to {swap_size} GiB")
     min_swap_space = swap_size * 1024**3
     swap = psutil.swap_memory()
     if swap.total < min_swap_space:
@@ -208,7 +206,7 @@ def swap_space_ok(swap_size):
             "Swap space too small! Attempting to add more (this may take "
             + "a while)...."
         )
-        my_swap = "/swap-{}.img".format(uuid.uuid1())
+        my_swap = f"/swap-{uuid.uuid1()}.img"
         # Create swap file 10KiB bigger than minimum because there's a 4KiB
         # overhead in the file, so if it were exactly the minimum, it would
         # still be too small....
@@ -259,12 +257,10 @@ def stress_memory(args):
     else:
         oom_avoid_bytes = "10%"
     vrt = args.base_time + total_mem_in_gb * args.time_per_gig
-    print("Total memory is {:.1f} GiB".format(total_mem_in_gb))
-    print(
-        "Constant run time is {} seconds per stressor".format(args.base_time)
-    )
-    print("Variable run time is {:.0f} seconds per stressor".format(vrt))
-    print("Number of NUMA nodes is {}".format(num_numa_nodes()))
+    print(f"Total memory is {total_mem_in_gb:.1f} GiB")
+    print(f"Constant run time is {args.base_time} seconds per stressor")
+    print(f"Variable run time is {vrt:.0f} seconds per stressor")
+    print(f"Number of NUMA nodes is {num_numa_nodes()}")
 
     # Constant-run-time stressors -- run them for the same length of time on
     # all systems....
@@ -303,9 +299,7 @@ def stress_memory(args):
     est_runtime = (
         len(crt_stressors) * args.base_time + len(vrt_stressors) * vrt
     )
-    print(
-        "Estimated total run time is {:.0f} minutes\n".format(est_runtime / 60)
-    )
+    print(f"Estimated total run time is {est_runtime / 60:.0f} minutes\n")
     for stressor in crt_stressors:
         test_object = StressNg(
             stressors=stressor.split(),
@@ -338,7 +332,7 @@ def stress_memory(args):
         print(test_object.results)
     if my_swap is not None and args.keep_swap is False:
         print("Deleting temporary swap file....")
-        cmd = "swapoff {}".format(my_swap)
+        cmd = f"swapoff {my_swap}"
         Popen(shlex.split(cmd), stderr=STDOUT, stdout=PIPE).communicate()[0]
         os.remove(my_swap)
     return retval
@@ -382,11 +376,11 @@ def stress_disk(args):
 
     test_disk = Disk(args.device)
     if not test_disk.is_block_device():
-        print("** {} is not a block device! Aborting!".format(args.device))
+        print(f"** {args.device} is not a block device! Aborting!")
         return 1
     if test_disk.mount_filesystem(args.simulate):
         est_runtime = len(disk_stressors) * args.base_time
-        print("Using test directory: '{}'".format(test_disk.test_dir))
+        print(f"Using test directory: '{test_disk.test_dir}'")
         print(
             "Estimated total run time is {:.0f} minutes\n".format(
                 est_runtime / 60
@@ -396,7 +390,7 @@ def stress_disk(args):
         if not args.simulate:
             for stressor in disk_stressors:
                 disk_options = (
-                    "--temp-path {} ".format(test_disk.test_dir)
+                    f"--temp-path {test_disk.test_dir} "
                     + "--hdd-opts dsync --readahead-bytes 16M -k"
                 )
                 test_object = StressNg(
@@ -510,7 +504,7 @@ def main():
         return 1
 
     retval = args.func(args)
-    print("retval is {}".format(retval))
+    print(f"retval is {retval}")
     print("*" * 62)
     if retval == 0:
         print("* stress-ng test passed!")

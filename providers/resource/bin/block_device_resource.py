@@ -24,7 +24,7 @@ def device_state(name):
             for device_bus in os.listdir("/sys/bus/%s/devices" % bus):
                 device_link = rootdir_pattern.sub(
                     "",
-                    os.readlink("/sys/bus/%s/devices/%s" % (bus, device_bus)),
+                    os.readlink(f"/sys/bus/{bus}/devices/{device_bus}"),
                 )
                 if re.search(device_link, path):
                     return "removable"
@@ -43,12 +43,12 @@ def usb_support(name, version):
         hub_port_path = m.group(2)
 
         # Check the highest version of USB the device supports
-        with open("/sys/devices/%s/version" % device_path, "rt") as f:
+        with open("/sys/devices/%s/version" % device_path) as f:
             if float(f.readline()) < version:
                 return "unsupported"
 
         # Check the highest version of USB the hub supports
-        with open("/sys/devices/%s/version" % hub_port_path, "rt") as f:
+        with open("/sys/devices/%s/version" % hub_port_path) as f:
             if float(f.readline()) < version:
                 return "unsupported"
 
@@ -63,10 +63,10 @@ def device_fstrim(name):
     not supported; if it's anything else, fstrim should work. Assume a
     missing file is equivalent to a 0 value (no support).
     """
-    path = "/sys/block/{}/queue/discard_max_bytes".format(name)
+    path = f"/sys/block/{name}/queue/discard_max_bytes"
     if not os.path.exists(path):
         return "False"
-    with open(path, "rt") as f:
+    with open(path) as f:
         if int(f.read()) > 0:
             return "True"
 
@@ -145,7 +145,7 @@ def smart_support(name):
         return "True"
     # Try to check if the disk is in a raid configuration
     for type in raid_types:
-        if any("-d {},N".format(type) in s for s in diskinfo):
+        if any(f"-d {type},N" in s for s in diskinfo):
             return smart_support_raid(name, type)
     return "False"
 

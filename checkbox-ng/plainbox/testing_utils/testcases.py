@@ -84,13 +84,13 @@ class TestCaseParameters:
     def __str__(self):
         return ", ".join(
             [
-                "{}: {}".format(name, value)
+                f"{name}: {value}"
                 for name, value in zip(self._names, self._values)
             ]
         )
 
     def __repr__(self):
-        return "<{} {}>".format(self.__class__.__name__, str(self))
+        return f"<{self.__class__.__name__} {str(self)}>"
 
 
 class TestCaseWithParameters(TestCase):
@@ -150,7 +150,7 @@ class TestCaseWithParameters(TestCase):
         creates the 'unparameterized' version which spawns real test cases
         (with the bound parameter) when .run() is called.
         """
-        super(TestCaseWithParameters, self).__init__(methodName)
+        super().__init__(methodName)
         self._parameters = parameters
 
     @property
@@ -270,13 +270,9 @@ class TestCaseWithParameters(TestCase):
         <unparameterized> is used.
         """
         if self.parameters is None:
-            return "{} [<unparameterized>]".format(
-                super(TestCaseWithParameters, self).__str__()
-            )
+            return f"{super().__str__()} [<unparameterized>]"
         else:
-            return "{} [{}]".format(
-                super(TestCaseWithParameters, self).__str__(), self.parameters
-            )
+            return f"{super().__str__()} [{self.parameters}]"
 
     def __repr__(self):
         """

@@ -152,6 +152,12 @@
           "items": {
             "type": "string"
           }
+        },
+        "xfail": {
+          "title": "Expected Failure (Job Unit)",
+          "description": "Whether this job is expected to fail. When true, a failure is considered expected and not treated as an error.",
+          "type": "boolean",
+          "default": false
         }
       }
     }

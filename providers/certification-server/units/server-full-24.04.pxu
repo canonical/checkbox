@@ -35,7 +35,7 @@ include:
     miscellanea/check_prerelease                certification-status=blocker
     miscellanea/cpuid                           certification-status=non-blocker
     miscellanea/cpus_are_not_samples            certification-status=blocker
-    miscellanea/debsums                         certification-status=non-blocker
+    miscellanea/debsums                         certification-status=blocker
     miscellanea/dmitest_server                  certification-status=blocker
     miscellanea/efi_boot_mode                   certification-status=blocker
     miscellanea/efi_pxeboot                     certification-status=non-blocker

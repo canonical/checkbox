@@ -106,7 +106,7 @@ class CPUID_struct(ctypes.Structure):
     _fields_ = [(r, c_uint32) for r in ("eax", "ebx", "ecx", "edx")]
 
 
-class CPUID(object):
+class CPUID:
     def __init__(self):
         if platform.machine() not in ("AMD64", "x86_64", "x86", "i686"):
             print("ERROR: Only available for x86")
@@ -185,6 +185,7 @@ def cpuid_to_human_friendly(cpuid: str) -> str:
         "AMD Sorano SP6":   ['0xb00f20'],                                # 2026
         "AMD Turin":        ['0xb00f21', '0xb10f10'],                    # 2024
         "AMD Grado":        ['0xb40f40'],                                # 2025
+        "AMD Venice":       ['0xb50f10'],                                # 2026
 
         # Hygon
         "Hygon Dhyana Plus": ["0x900f22"],                               # 2019
@@ -242,7 +243,7 @@ def cpuid_to_human_friendly(cpuid: str) -> str:
         for value in CPUIDS[key]:
             if value.lower() in cpuid.lower():
                 return key
-    raise ValueError("No processor found with the CPUID of {}".format(cpuid))
+    raise ValueError(f"No processor found with the CPUID of {cpuid}")
 
 
 def main():
@@ -263,7 +264,7 @@ def main():
             my_id, nice_name))
     except ValueError:
         raise SystemExit(
-            "Unable to determine CPU Family for this CPUID: {}".format(my_id))
+            f"Unable to determine CPU Family for this CPUID: {my_id}")
 
 
 if __name__ == "__main__":

@@ -19,3 +19,13 @@ flag_management:
           informational: true
         - type: project
           informational: true
+    # non-blocking status check for oem provider in contrib area
+    - name: contrib-provider-oem
+      paths:
+      - contrib/checkbox-oem/checkbox-provider-oem
+      carryforward: true
+      statuses:
+        - type: patch
+          informational: true
+        - type: project
+          informational: true

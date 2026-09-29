@@ -42,7 +42,7 @@ import glob
 from subprocess import Popen, PIPE, check_output, CalledProcessError
 
 
-class XorgLog(object):
+class XorgLog:
 
     def __init__(self, logfile=None):
         self.modules = []
@@ -253,19 +253,23 @@ class XorgLog(object):
                 r"Max Image Size \[(.*)\]: *horiz.: (.*) *vert.: (.*)", line
             )
             if m:
-                display["size max horizontal"] = "%s %s" % (
+                display["size max horizontal"] = "{} {}".format(
                     m.group(2),
                     m.group(1),
                 )
-                display["size max vertical"] = "%s %s" % (
+                display["size max vertical"] = "{} {}".format(
                     m.group(3),
                     m.group(1),
                 )
 
             m = re.search(r"Image Size: *(.*) x (.*) (.*)", line)
             if m:
-                display["size horizontal"] = "%s %s" % (m.group(1), m.group(3))
-                display["size vertical"] = "%s %s" % (m.group(2), m.group(3))
+                display["size horizontal"] = "{} {}".format(
+                    m.group(1), m.group(3)
+                )
+                display["size vertical"] = "{} {}".format(
+                    m.group(2), m.group(3)
+                )
 
             m = re.search(r"(.*) is preferred mode", line)
             if m:
@@ -273,7 +277,9 @@ class XorgLog(object):
 
             m = re.search(r"Modeline \"(\d+)x(\d+)\"x([0-9\.]+) *(.*)$", line)
             if m:
-                key = "mode %sx%s@%s" % (m.group(1), m.group(2), m.group(3))
+                key = "mode {}x{}@{}".format(
+                    m.group(1), m.group(2), m.group(3)
+                )
                 display[key] = m.group(4)
                 continue
 
@@ -282,30 +288,26 @@ class XorgLog(object):
         in_file.close()
 
     def errors_filtered(self):
-        excludes = set(
-            [
-                "error, (NI) not implemented, (??) unknown.",
-                'Failed to load module "fglrx" (module does not exist, 0)',
-                'Failed to load module "nv" (module does not exist, 0)',
-            ]
-        )
+        excludes = {
+            "error, (NI) not implemented, (??) unknown.",
+            'Failed to load module "fglrx" (module does not exist, 0)',
+            'Failed to load module "nv" (module does not exist, 0)',
+        }
         return [err for err in self.errors if err not in excludes]
 
     def warnings_filtered(self):
-        excludes = set(
-            [
-                "warning, (EE) error, (NI) not implemented, (??) unknown.",
-                'The directory "/usr/share/fonts/X11/cyrillic" does not exist.',  # noqa: E501
-                'The directory "/usr/share/fonts/X11/100dpi/" does not exist.',
-                'The directory "/usr/share/fonts/X11/75dpi/" does not exist.',
-                'The directory "/usr/share/fonts/X11/100dpi" does not exist.',
-                'The directory "/usr/share/fonts/X11/75dpi" does not exist.',
-                "Warning, couldn't open module nv",
-                "Warning, couldn't open module fglrx",
-                "Falling back to old probe method for vesa",
-                "Falling back to old probe method for fbdev",
-            ]
-        )
+        excludes = {
+            "warning, (EE) error, (NI) not implemented, (??) unknown.",
+            'The directory "/usr/share/fonts/X11/cyrillic" does not exist.',  # noqa: E501
+            'The directory "/usr/share/fonts/X11/100dpi/" does not exist.',
+            'The directory "/usr/share/fonts/X11/75dpi/" does not exist.',
+            'The directory "/usr/share/fonts/X11/100dpi" does not exist.',
+            'The directory "/usr/share/fonts/X11/75dpi" does not exist.',
+            "Warning, couldn't open module nv",
+            "Warning, couldn't open module fglrx",
+            "Falling back to old probe method for vesa",
+            "Falling back to old probe method for fbdev",
+        }
         return [err for err in self.warnings if err not in excludes]
 
 
@@ -362,7 +364,7 @@ def hybrid_graphics_check(xlog):
     for card in cards:
         formatted_name = cards_dict.get(card.split(":")[0], "Unknown")
         formatted_cards.append(formatted_name)
-        print("Graphics Chipset: %s (%s)" % (formatted_name, card))
+        print(f"Graphics Chipset: {formatted_name} ({card})")
 
     for module in xlog.modules:
         if module["ddx"] and module["name"] not in drivers:

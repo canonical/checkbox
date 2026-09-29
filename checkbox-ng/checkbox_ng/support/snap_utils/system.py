@@ -55,7 +55,7 @@ def get_gadget_snap():
 
 def get_bootloader():
     bootloader = None
-    gadget_yaml = "/snap/{}/current/meta/gadget.yaml".format(get_gadget_snap())
+    gadget_yaml = f"/snap/{get_gadget_snap()}/current/meta/gadget.yaml"
     with open(gadget_yaml) as f:
         data = yaml.load(f)
         for k in data["volumes"].keys():
@@ -64,7 +64,7 @@ def get_bootloader():
 
 
 def get_lk_bootimg_path():
-    with open("/proc/cmdline", "r") as f:
+    with open("/proc/cmdline") as f:
         cmdline = f.readline()
     result = parse_kernel_cmdline(cmdline)
     try:
@@ -76,7 +76,7 @@ def get_lk_bootimg_path():
             stdout=sp.PIPE,
         ).stdout.decode()
         match = re.search(
-            r"bootimg_matrix\s+\[(.*?)\]\[{}\]".format(snap_kernel),
+            rf"bootimg_matrix\s+\[(.*?)\]\[{snap_kernel}\]",
             snap_boot_selection,
             re.M,
         )

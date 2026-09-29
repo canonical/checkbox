@@ -73,7 +73,7 @@ class IssueMixIn:
         else:
             msg = "no issue matching:\n{}\nwas found in:\n{}".format(
                 "\n".join(
-                    " * {} is {!r}".format(issue_attr, value)
+                    f" * {issue_attr} is {value!r}"
                     for issue_attr, value in [
                         ("field", field),
                         ("severity", severity),
@@ -82,7 +82,7 @@ class IssueMixIn:
                     ]
                     if value is not None
                 ),
-                "\n".join(" - {!r}".format(issue) for issue in issue_list),
+                "\n".join(f" - {issue!r}" for issue in issue_list),
             )
             return self.fail(msg)
 
@@ -118,7 +118,7 @@ class IssueMixIn:
             return self.fail("Issue matching the given criteria found!")
             msg = "Issue matching:\n{}\nwas found in:\n{}".format(
                 "\n".join(
-                    " * {} is {!r}".format(issue_attr, value)
+                    f" * {issue_attr} is {value!r}"
                     for issue_attr, value in [
                         ("field", field),
                         ("severity", severity),
@@ -127,7 +127,7 @@ class IssueMixIn:
                     ]
                     if value is not None
                 ),
-                "\n".join(" - {!r}".format(issue) for issue in issue_list),
+                "\n".join(f" - {issue!r}" for issue in issue_list),
             )
             return self.fail(msg)
         else:

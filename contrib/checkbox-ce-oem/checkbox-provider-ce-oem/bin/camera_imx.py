@@ -64,10 +64,15 @@ class SupportedCamera(Enum):
 
     IMX_OS0820 = "imx_os08a20"  # IMX OS08A20 sensor
     OV_5640 = "ov5640"  # OV5640 sensor
+    AP_1302 = "ap1302"  # AP1302 sensor
     GENERAL = "general"  # General camera module placeholder for testing only
 
     def __str__(self):
         return self.value
+
+
+def _is_imx_platform(platform: str) -> bool:
+    return "imx8m" in platform or "imx9" in platform
 
 
 def imx_camera_factory(
@@ -97,12 +102,13 @@ def imx_camera_factory(
             )
         )
 
-    if "imx8m" in platform:
-        handler = Imx8mBaseCamera
+    if _is_imx_platform(platform):
+        handler = ImxBaseCamera
     else:
+        supported_platforms = ["imx8m", "imx9"]
         raise CameraError(
-            "Unsupported platform: {}. Supported platform is: imx8m".format(
-                platform
+            "Unsupported platform: {}. Supported platforms are: {}".format(
+                platform, ", ".join(supported_platforms)
             )
         )
     setattr(handler, "_camera", camera)
@@ -188,9 +194,9 @@ class ImxVideoNodeResolver(VideoMediaNodeResolver):
             )
 
 
-class Imx8mBaseCamera(CameraInterface):
+class ImxBaseCamera(CameraInterface):
     """
-    Base class for Genio camera implementations.
+    Base class for NXP i.MX camera implementations.
     """
 
     def __init__(self, v4l2_devices: str):

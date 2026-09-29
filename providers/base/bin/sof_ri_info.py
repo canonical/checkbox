@@ -3348,7 +3348,7 @@ def change_color(color):
         "white": 98,
         "none": 0,
     }
-    return "\033[{}m".format(color_code[color])
+    return f"\033[{color_code[color]}m"
 
 
 def uint_to_string(uint, both=False):
@@ -3371,7 +3371,7 @@ def chararr_to_string(chararr, max_len):
     for i in range(0, max_len):
         if chararr[i] == 0:
             return out
-        out += "{:c}".format(chararr[i])
+        out += f"{chararr[i]:c}"
     return out
 
 
@@ -3433,7 +3433,7 @@ def parse_extended_manifest_ae1(reader):
     # (need to use it for further parsing)
     reader.ext_mft_length = reader.read_dw()
     hdr.add_a(Auint("length", reader.ext_mft_length))
-    hdr.add_a(Astring("ver", "{}.{}".format(reader.read_w(), reader.read_w())))
+    hdr.add_a(Astring("ver", f"{reader.read_w()}.{reader.read_w()}"))
     hdr.add_a(Auint("entries", reader.read_dw()))
 
     reader.ff_data(reader.ext_mft_length - 16)
@@ -3460,7 +3460,7 @@ def parse_extended_manifest_xman(reader):
     patch = hdr_ver & 0xFFF
 
     hdr.add_a(Auint("length", reader.ext_mft_length))
-    hdr.add_a(Astring("ver", "{}.{}.{}".format(major, minor, patch)))
+    hdr.add_a(Astring("ver", f"{major}.{minor}.{patch}"))
     hdr.add_a(Auint("hdr_length", hdr_length))
 
     reader.ff_data(reader.ext_mft_length - 16)
@@ -3507,7 +3507,7 @@ def parse_cse_manifest(reader):
     hdr.add_a(Astring("sig", sig))
     # read number of entries
     nb_entries = reader.read_dw()
-    reader.info("# of entries {}".format(nb_entries))
+    reader.info(f"# of entries {nb_entries}")
     hdr.add_a(Adec("nb_entries", nb_entries))
     # read version (1byte for header ver and 1 byte for entry ver)
     ver = reader.read_w()
@@ -3534,9 +3534,7 @@ def parse_cse_manifest(reader):
         hdr_entry.add_a(Ahex("entry_length", entry_length))
         hdr.add_comp(hdr_entry)
 
-        reader.info(
-            "CSE Entry name {} length {}".format(entry_name, entry_length)
-        )
+        reader.info(f"CSE Entry name {entry_name} length {entry_length}")
 
         if ".man" in entry_name:
             entry = CssManifest(
@@ -3552,7 +3550,7 @@ def parse_cse_manifest(reader):
         elif ".met" in entry_name:
             cur_off = reader.set_offset(reader.ext_mft_length + entry_offset)
             entry = parse_mft_extension(reader, 0)
-            entry.name = "{} ({})".format(entry_name, entry.name)
+            entry.name = f"{entry_name} ({entry.name})"
             reader.set_offset(cur_off)
         else:
             # indicate the place, the entry is enumerated. mft parsed later
@@ -3625,13 +3623,11 @@ def parse_css_manifest_4(css_mft, reader, size_limit):
     #   that could be parsed if extension type is recognized
     #
     #   or series of 0xffffffff that should be skipped
-    reader.info(
-        "Parsing CSS Manifest extensions end 0x{:x}".format(size_limit)
-    )
+    reader.info(f"Parsing CSS Manifest extensions end 0x{size_limit:x}")
     ext_idx = 0
     while reader.get_offset() < size_limit:
         ext_type = reader.read_dw()
-        reader.info("Reading extension type 0x{:x}".format(ext_type))
+        reader.info(f"Reading extension type 0x{ext_type:x}")
         if ext_type == 0xFFFFFFFF:
             continue
         reader.set_offset(reader.get_offset() - 4)
@@ -3872,17 +3868,12 @@ class BinReader:
 
     def read_uuid(self):
         """Reads a UUID from the stream and returns as string"""
-        out = "{:08x}".format(self.read_dw())
-        out += "-" + "{:04x}".format(self.read_w())
-        out += "-" + "{:04x}".format(self.read_w())
-        out += (
-            "-"
-            + "{:02x}".format(self.read_b())
-            + "{:02x}".format(self.read_b())
-            + "-"
-        )
+        out = f"{self.read_dw():08x}"
+        out += "-" + f"{self.read_w():04x}"
+        out += "-" + f"{self.read_w():04x}"
+        out += "-" + f"{self.read_b():02x}" + f"{self.read_b():02x}" + "-"
         for _ in range(0, 6):
-            out += "{:02x}".format(self.read_b())
+            out += f"{self.read_b():02x}"
         return out
 
     def offset_to_string(self, delta=0):
@@ -3971,15 +3962,13 @@ class Abytes(Attribute):
         if Attribute.no_colors:
             out = ""
         else:
-            out = "{}".format(change_color(self.color))
+            out = f"{change_color(self.color)}"
         if Attribute.full_bytes or length <= 16:
-            out += " ".join(["{:02x}".format(b) for b in self.val])
+            out += " ".join([f"{b:02x}" for b in self.val])
         else:
-            out += " ".join("{:02x}".format(b) for b in self.val[:8])
+            out += " ".join(f"{b:02x}" for b in self.val[:8])
             out += " ... "
-            out += " ".join(
-                "{:02x}".format(b) for b in self.val[length - 8 : length]
-            )
+            out += " ".join(f"{b:02x}" for b in self.val[length - 8 : length])
         if not Attribute.no_colors:
             out += "{}".format(change_color("none"))
         return out
@@ -4012,7 +4001,7 @@ class Aversion(Attribute):
 
     def __init__(self, name, major, minor, hotfix, build):
         self.name = name
-        self.val = "{:d}.{:d}.{:d}.{:d}".format(major, minor, hotfix, build)
+        self.val = f"{major:d}.{minor:d}.{hotfix:d}.{build:d}"
 
     def __str__(self):
         return self.val
@@ -4029,7 +4018,7 @@ class Amodulus(Abytes):
         out = super().__str__()
         if not Attribute.full_bytes:
             if Attribute.no_colors:
-                out += " ({})".format(self.val_type)
+                out += f" ({self.val_type})"
             else:
                 out += " {}({}){}".format(
                     change_color("red"), self.val_type, change_color("none")
@@ -4105,15 +4094,13 @@ class ExtendedManifestAE1(Component):
     """Extended manifest"""
 
     def __init__(self):
-        super(ExtendedManifestAE1, self).__init__(
-            "ext_mft", "Extended Manifest", 0
-        )
+        super().__init__("ext_mft", "Extended Manifest", 0)
 
     def dump_info(self, pref, comp_filter):
         hdr = self.cdir["ext_mft_hdr"]
         if hdr.adir["length"].val == 0:
             return
-        out = "{}{}".format(pref, self.name)
+        out = f"{pref}{self.name}"
         out += " ver {}".format(hdr.adir["ver"])
         out += " entries {}".format(hdr.adir["entries"])
         print(out)
@@ -4124,15 +4111,13 @@ class ExtendedManifestXMan(Component):
     """Extended manifest"""
 
     def __init__(self):
-        super(ExtendedManifestXMan, self).__init__(
-            "ext_mft", "Extended Manifest", 0
-        )
+        super().__init__("ext_mft", "Extended Manifest", 0)
 
     def dump_info(self, pref, comp_filter):
         hdr = self.cdir["ext_mft_hdr"]
         if hdr.adir["length"].val == 0:
             return
-        out = "{}{}".format(pref, self.name)
+        out = f"{pref}{self.name}"
         out += " ver {}".format(hdr.adir["ver"])
         out += " length {}".format(hdr.adir["length"].val)
         print(out)
@@ -4143,7 +4128,7 @@ class CseManifest(Component):
     """CSE Manifest"""
 
     def __init__(self, offset):
-        super(CseManifest, self).__init__("cse_mft", "CSE Manifest", offset)
+        super().__init__("cse_mft", "CSE Manifest", offset)
 
     def dump_info(self, pref, comp_filter):
         hdr = self.cdir["cse_mft_hdr"]
@@ -4163,11 +4148,11 @@ class CssManifest(Component):
     """CSS Manifest"""
 
     def __init__(self, name, offset):
-        super(CssManifest, self).__init__("css_mft", name, offset)
+        super().__init__("css_mft", name, offset)
 
     def dump_info(self, pref, comp_filter):
         hdr = self.cdir["css_mft_hdr"]
-        out = "{}{} (CSS Manifest)".format(pref, self.name)
+        out = f"{pref}{self.name} (CSS Manifest)"
         out += " type {}".format(hdr.adir["type"])
         out += " ver {}".format(hdr.adir["header_version"])
         out += " date {}".format(hdr.adir["date"])
@@ -4185,7 +4170,7 @@ class CssManifest(Component):
             )
         )
         print("{}    {}".format(pref, hdr.adir["exponent"]))
-        print("{}  Signature".format(pref))
+        print(f"{pref}  Signature")
         print("{}    {}".format(pref, hdr.adir["signature"]))
         # super().dump_info(pref)
         self.dump_comp_info(pref, comp_filter + ["Header"])
@@ -4195,9 +4180,7 @@ class MftExtension(Component):
     """Manifest Extension"""
 
     def __init__(self, ext_id, name, offset):
-        super(MftExtension, self).__init__(
-            "mft_ext" + repr(ext_id), name, offset
-        )
+        super().__init__("mft_ext" + repr(ext_id), name, offset)
 
     def dump_info(self, pref, comp_filter):
         print(
@@ -4211,12 +4194,10 @@ class PlatFwAuthExtension(MftExtension):
     """Platform FW Auth Extension"""
 
     def __init__(self, ext_id, offset):
-        super(PlatFwAuthExtension, self).__init__(
-            ext_id, "Plat Fw Auth Extension", offset
-        )
+        super().__init__(ext_id, "Plat Fw Auth Extension", offset)
 
     def dump_info(self, pref, comp_filter):
-        out = "{}{}".format(pref, self.name)
+        out = f"{pref}{self.name}"
         out += " name {}".format(self.adir["name"])
         out += " vcn {}".format(self.adir["vcn"])
         out += " bitmap {}".format(self.adir["bitmap"])
@@ -4228,18 +4209,16 @@ class AdspMetadataFileExt(MftExtension):
     """ADSP Metadata File Extension"""
 
     def __init__(self, ext_id, offset):
-        super(AdspMetadataFileExt, self).__init__(
-            ext_id, "ADSP Metadata File Extension", offset
-        )
+        super().__init__(ext_id, "ADSP Metadata File Extension", offset)
 
     def dump_info(self, pref, comp_filter):
-        out = "{}{}".format(pref, self.name)
+        out = f"{pref}{self.name}"
         out += " ver {}".format(self.adir["version"])
         out += " base offset {}".format(self.adir["base_offset"])
         out += " limit offset {}".format(self.adir["limit_offset"])
         print(out)
         print("{}  IMR type {}".format(pref, self.adir["adsp_imr_type"]))
-        print("{}  Attributes".format(pref))
+        print(f"{pref}  Attributes")
         print("{}    {}".format(pref, self.adir["attributes"]))
 
 
@@ -4247,11 +4226,11 @@ class AdspManifest(Component):
     """ADSP Manifest"""
 
     def __init__(self, name, offset):
-        super(AdspManifest, self).__init__("adsp_mft", name, offset)
+        super().__init__("adsp_mft", name, offset)
 
     def dump_info(self, pref, comp_filter):
         hdr = self.cdir["adsp_mft_hdr"]
-        out = "{}{} (ADSP Manifest)".format(pref, self.name)
+        out = f"{pref}{self.name} (ADSP Manifest)"
         out += " name {}".format(hdr.adir["name"])
         out += " build ver {}".format(hdr.adir["build_version"])
         out += " feature mask {}".format(hdr.adir["feature_mask"])
@@ -4270,7 +4249,7 @@ class AdspModuleEntry(Component):
     """ADSP Module Entry"""
 
     def __init__(self, uid, offset):
-        super(AdspModuleEntry, self).__init__(uid, "Module Entry", offset)
+        super().__init__(uid, "Module Entry", offset)
 
     def dump_info(self, pref, comp_filter):
         print(
@@ -4346,7 +4325,7 @@ class FwBin(Component):
     """Parsed sof binary"""
 
     def __init__(self):
-        super(FwBin, self).__init__("bin", "SOF Binary", 0)
+        super().__init__("bin", "SOF Binary", 0)
 
     def dump_info(self, pref, comp_filter):
         """Print out the content"""
@@ -4394,7 +4373,7 @@ def add_lmap_mem_info(ri_path, mem_map):
         return
 
 
-class DspMemorySegment(object):
+class DspMemorySegment:
     """Single continuous memory space"""
 
     def __init__(self, name, base_address, size):
@@ -4421,19 +4400,19 @@ class DspMemorySegment(object):
 
     def dump_info(self, pref):
         free_size = self.size - self.used_size
-        out = "{}{:<35} 0x{:x}".format(pref, self.name, self.base_address)
+        out = f"{pref}{self.name:<35} 0x{self.base_address:x}"
         if self.used_size > 0:
             out += " ({} + {}  {:.2f}% used)".format(
                 self.used_size, free_size, self.used_size * 100 / self.size
             )  # noqa: 501
         else:
-            out += " ({})".format(free_size)
+            out += f" ({free_size})"
         print(out)
         for seg in self.inner_segments:
             seg.dump_info(pref + "  ")
 
 
-class DspMemory(object):
+class DspMemory:
     """Dsp Memory, all top-level segments"""
 
     def __init__(self, platform_name, segments):

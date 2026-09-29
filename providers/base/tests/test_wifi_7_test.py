@@ -48,7 +48,7 @@ class TestWifi7Tests(ut.TestCase):
         def make_fake_check_output(previous_conn_is_mlo_ap=False):
             def fake_check_output(args: "list[str]", *other_args, **kwargs):
                 if args[0:3] == ["nmcli", "connection", "delete"]:
-                    return "Deleted {}".format(args[3])
+                    return f"Deleted {args[3]}"
                 if args[0:5] == [
                     "nmcli",
                     "--get-values",

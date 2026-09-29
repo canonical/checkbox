@@ -108,7 +108,7 @@ class TestVerifyAptCacheShowpkg(unittest.TestCase):
 
         self.assertTrue(result)
         mock_get_apt_cache_information.assert_called_with(
-            "apt-cache showpkg linux-image-{}".format(test_kernel)
+            f"apt-cache showpkg linux-image-{test_kernel}"
         )
 
     @patch("check_prerelease.get_apt_cache_information")
@@ -123,7 +123,7 @@ class TestVerifyAptCacheShowpkg(unittest.TestCase):
 
         self.assertTrue(result)
         mock_get_apt_cache_information.assert_called_with(
-            "apt-cache showpkg linux-image-{}".format(test_kernel)
+            f"apt-cache showpkg linux-image-{test_kernel}"
         )
 
     @patch("check_prerelease.get_apt_cache_information")
@@ -138,7 +138,7 @@ class TestVerifyAptCacheShowpkg(unittest.TestCase):
 
         self.assertFalse(result)
         mock_get_apt_cache_information.assert_called_with(
-            "apt-cache showpkg linux-image-{}".format(test_kernel)
+            f"apt-cache showpkg linux-image-{test_kernel}"
         )
 
     @patch("check_prerelease.get_apt_cache_information")
@@ -153,7 +153,7 @@ class TestVerifyAptCacheShowpkg(unittest.TestCase):
 
         self.assertFalse(result)
         mock_get_apt_cache_information.assert_called_with(
-            "apt-cache showpkg linux-image-{}".format(test_kernel)
+            f"apt-cache showpkg linux-image-{test_kernel}"
         )
 
 

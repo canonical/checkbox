@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 #
 #  brightness_test.py
 #
@@ -31,7 +30,7 @@ import time
 from glob import glob
 
 
-class Brightness(object):
+class Brightness:
     def __init__(self, path="/sys/class/backlight"):
         self.sysfs_path = path
         self.interfaces = self._get_interfaces_from_path()
@@ -46,7 +45,7 @@ class Brightness(object):
         else:
             # It's a file
             if not hasattr(file, "write"):
-                myfile = open(file, "r")
+                myfile = open(file)
                 lines_list = myfile.readlines()
                 myfile.close()
             # It's a file object

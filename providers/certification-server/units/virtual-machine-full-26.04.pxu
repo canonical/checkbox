@@ -35,7 +35,7 @@ include:
     miscellanea/apport-directory            certification-status=non-blocker
     miscellanea/check_prerelease            certification-status=blocker
     miscellanea/cpuid                       certification-status=blocker
-    miscellanea/debsums                     certification-status=non-blocker
+    miscellanea/debsums                     certification-status=blocker
     miscellanea/kernel_taint_test           certification-status=blocker
     miscellanea/submission-resources        certification-status=non-blocker
     networking/predictable_names            certification-status=blocker

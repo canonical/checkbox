@@ -26,7 +26,7 @@ class MeminfoResult:
 
     def setMemory(self, memory):
         for key, value in sorted(memory.items()):
-            print("%s: %s" % (key, value))
+            print(f"{key}: {value}")
 
 
 def main():

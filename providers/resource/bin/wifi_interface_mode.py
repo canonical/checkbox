@@ -50,7 +50,7 @@ def print_supported_modes() -> str:
     wiphy_info = get_wiphy_info()
     for wiphy_index, modes in wiphy_info.items():
         interface = interfaces[int(wiphy_index)][1]
-        print("interface: {}".format(interface))
+        print(f"interface: {interface}")
         for mode in modes:
             print(
                 "{}: supported".format(

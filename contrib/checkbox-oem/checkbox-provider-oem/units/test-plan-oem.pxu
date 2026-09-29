@@ -1,0 +1,61 @@
+# Copyright 2026 Canonical Ltd.
+# All rights reserved.
+#
+# Test plans and (optionally) jobs unique to the Ubuntu Core and Classic devices.
+#
+
+id: oem-automated
+unit: test plan
+_name: OEM - Automated OEM tests for Ubuntu Core and Classic
+_description:
+  Ubuntu Core and Classic OEM test plan for the hardware. This test plan contains
+  all of the automated tests used to validate the device.
+estimated_duration: 120
+include:
+nested_part:
+  oem-audio-automated
+  oem-barcode-scanner-automated
+  oem-bios-automated
+  oem-bluetooth-automated
+  oem-boot-automated
+  oem-button-automated
+  oem-buzzer-automated
+  oem-camera-automated
+  oem-cash-drawer-automated
+  oem-cpu-automated
+  oem-crypto-automated
+  oem-device-automated
+  oem-digital-io-automated
+  oem-eeprom-automated
+  oem-ethernet-automated
+  oem-fan-automated
+  oem-gadget-automated
+  oem-gpio-automated
+  oem-gps-automated
+  oem-graphics-automated
+  oem-iio-sensors-automated
+  oem-installation-info-automated
+  oem-kernel-automated
+  oem-led-automated
+  oem-mir-automated
+  oem-miscellanea-automated
+  oem-mtd-automated
+  oem-optee-automated
+  oem-otg-automated
+  oem-power-management-automated
+  oem-printer-automated
+  oem-ptp-automated
+  oem-regulator-automated
+  oem-rpmsg-automated
+  oem-rtc-automated
+  oem-serial-automated
+  oem-spi-automated
+  oem-strict-confinement-automated
+  oem-thermal-automated
+  oem-touchpad-automated
+  oem-video-codec-automated
+  oem-vpu-automated
+  oem-wifi-automated
+  oem-wwan-automated
+certification_status_overrides:
+  apply blocker to .*

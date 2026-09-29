@@ -42,25 +42,25 @@ from checkbox_ng.support.parsers.udevadm import (
 from checkbox_ng.support.parsers.udevadm import parse_udevadm_output
 
 
-class UdevadmDataMixIn(object):
+class UdevadmDataMixIn:
     """
     Mix in with a helper method to load sample udevadm data
     """
 
     def get_text(self, name):
-        resource = "parsers/tests/udevadm_data/{}.txt".format(name)
+        resource = f"parsers/tests/udevadm_data/{name}.txt"
         filename = resource_filename("checkbox_ng.support", resource)
-        with open(filename, "rt", encoding="UTF-8") as stream:
+        with open(filename, encoding="UTF-8") as stream:
             return stream.read()
 
     def get_lsblk(self, name):
-        resource = "parsers/tests/udevadm_data/{}.lsblk.json".format(name)
+        resource = f"parsers/tests/udevadm_data/{name}.lsblk.json"
         filename = resource_filename("checkbox_ng.support", resource)
         try:
-            with open(filename, "rt", encoding="UTF-8") as f:
+            with open(filename, encoding="UTF-8") as f:
                 data = json.load(f)
                 return data
-        except (IOError, OSError):
+        except OSError:
             return None
 
 
@@ -272,6 +272,14 @@ class TestUdevadmParser(TestCase, UdevadmDataMixIn):
         parser = UdevadmParser(stream)
         devices = parser.run()
         self.assertEqual(devices[0].category, "NETWORK")
+
+    def test_bmc_network_vs_network_count(self):
+        """
+        bmc-created virtual networks should be in their own category
+        """
+        devices = self.parse("bmc_network_vs_network")
+        self.assertEqual(self.count(devices, "NETWORK"), 3)
+        self.assertEqual(self.count(devices, "BMC_NETWORK"), 1)
 
     def test_KIOXIA_TransMemory(self):
         # this is a non-regression test to check that the KIOXIA TransMemory
@@ -1458,6 +1466,22 @@ class TestUdevadmParser(TestCase, UdevadmDataMixIn):
         self.assertEqual(self.count(devices, "PARTITION"), 1)
         self.assertEqual(self.count(devices, "DISK"), 1)
 
+    def test_physical_cdrom_not_ignored_with_iso9660_disc(self):
+        """
+        Physical CDROM drives must NOT be ignored even when the inserted disc
+        uses an iso9660 filesystem or is smaller than 100 MiB.
+
+        Regression test: PR #2154 introduced is_readonly_partition() and
+        is_small_partition() to filter out Recovery USB partitions, but did
+        not exempt CDROM devices. This caused physical optical drives with
+        an iso9660 disc to be silently dropped from the device list.
+        """
+        devices = self.parse(
+            "HP_DVDRW_WITH_ISO9660_DISC",
+            with_lsblk=True,
+        )
+        self.assertEqual(self.count(devices, "CDROM"), 1)
+
     def test_VRAID_machine(self):
         """
         The machine with VRAID will have the different _stack length.
@@ -1523,27 +1547,27 @@ class TestUdevadmParser(TestCase, UdevadmDataMixIn):
                 self.assertEqual(
                     devices[indices[0]].product,
                     device[0],
-                    "Bad product name for {}".format(device[0]),
+                    f"Bad product name for {device[0]}",
                 )
             self.assertEqual(
                 devices[indices[0]].category,
                 device[1],
-                "Bad category for {}".format(device[0]),
+                f"Bad category for {device[0]}",
             )
             self.assertEqual(
                 devices[indices[0]].bus,
                 device[2],
-                "Bad bus for {}".format(device[0]),
+                f"Bad bus for {device[0]}",
             )
             self.assertEqual(
                 devices[indices[0]].vendor_id,
                 device[3],
-                "Bad vendor_id for {}".format(device[0]),
+                f"Bad vendor_id for {device[0]}",
             )
             self.assertEqual(
                 devices[indices[0]].product_id,
                 device[4],
-                "Bad product_id for {}".format(device[0]),
+                f"Bad product_id for {device[0]}",
             )
 
 

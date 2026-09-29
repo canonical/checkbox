@@ -1,0 +1,6 @@
+id: oem-eeprom-automated
+unit: test plan
+_name: EEPROM auto tests
+_description: Automated EEPROM tests for devices
+include:
+nested_part:

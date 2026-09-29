@@ -40,7 +40,7 @@ def run_command(command: List[str]) -> str:
         return result.strip()
     except subprocess.CalledProcessError as e:
         raise SystemExit(
-            "Command '{0}' failed with exit code {1}:\n{2}".format(
+            "Command '{}' failed with exit code {}:\n{}".format(
                 e.cmd, e.returncode, e.stdout
             )
         )
@@ -52,7 +52,7 @@ def parse_version(ver: str) -> version.Version:
     if match:
         parsed_version = version.parse(match.group(1))
     else:
-        raise SystemExit("Invalid version string: {0}".format(ver))
+        raise SystemExit(f"Invalid version string: {ver}")
     return parsed_version
 
 
@@ -66,8 +66,8 @@ def parse_dkms_status(dkms_status: str, ubuntu_release: str) -> List[Dict]:
         if " " in fullstatus:
             status, rest = fullstatus.split(maxsplit=1)
             logger.warning("dkms status included warning:")
-            logger.warning(" module: {}".format(details))
-            logger.warning(" message: {}".format(rest))
+            logger.warning(f" module: {details}")
+            logger.warning(f" message: {rest}")
         else:
             status = fullstatus
         # will only get comma separated info on two statuses
@@ -108,7 +108,7 @@ def check_kernel_version(
             )
         )
         logger.error(msg)
-        logger.error("=== DKMS status ===\n{0}".format(dkms_status))
+        logger.error(f"=== DKMS status ===\n{dkms_status}")
         return 1
     return 0
 
@@ -137,7 +137,7 @@ def check_dkms_module_count(sorted_kernel_info: List[Dict], dkms_status: str):
             )
         )
         logger.warning(msg)
-        logger.warning("=== DKMS status ===\n{0}".format(dkms_status))
+        logger.warning(f"=== DKMS status ===\n{dkms_status}")
         return 1
     return 0
 
@@ -160,13 +160,11 @@ def has_dkms_build_errors(kernel_ver_current: str) -> int:
     err_msg = "Bad return status for module build on kernel: {}".format(
         kernel_ver_current
     )
-    with open(log_path, "r") as f:
+    with open(log_path) as f:
         log = f.readlines()
         err_line_numbers = {i for i, line in enumerate(log) if err_msg in line}
         if err_line_numbers:
-            logger.error(
-                "Found dkms build error messages in {}".format(log_path)
-            )
+            logger.error(f"Found dkms build error messages in {log_path}")
             logger.error("\n=== build log ===")
             err_with_context = get_context_lines(log, err_line_numbers)
             logger.error("".join(err_with_context))

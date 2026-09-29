@@ -21,13 +21,13 @@ import unittest
 from unittest.mock import MagicMock, patch
 
 import crucible_host
-from checkbox_support.helpers.host_utils import VulkanDetectionError
+from checkbox_support.helpers.host_utils import HostGPUDetectionError
 
 
 class TestCmdResource(unittest.TestCase):
     @patch(
         "crucible_host.find_plz_run",
-        side_effect=VulkanDetectionError("plz-run not found"),
+        side_effect=HostGPUDetectionError("plz-run not found"),
     )
     @patch("crucible_host.get_arch_triple", return_value="x86_64-linux-gnu")
     def test_returns_1_when_plz_run_not_found(self, _arch, _plz):
@@ -73,7 +73,7 @@ class TestCmdRunTest(unittest.TestCase):
         self.assertEqual(
             mock_run.call_args[0][0],
             [
-                "{}/test".format(self.SNAP),
+                f"{self.SNAP}/test",
                 "--no-confinement",
                 "--no-fork",
                 self.FILTER_PATTERN,

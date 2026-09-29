@@ -107,7 +107,6 @@ nested_part:
     networking-base-26-04-automated
     misc-client-base-26-04-automated
     acpi-base-26-04-automated
-    power-management-precheck-base-26-04-automated
     snappy-snap-base-26-04-automated
     cpu-base-26-04-automated
     memory-base-26-04-automated
@@ -131,7 +130,7 @@ nested_part:
     usb-dwc3-base-26-04-automated
     before-after-suspend-reference-base-26-04-automated
     firmware-fwupdmgr-base-26-04-automated
-    power-base-26-04-automated
+    power-management-base-26-04-automated
     tpm-base-26-04-automated
     after-suspend-audio-automated
     after-suspend-bluez-automated

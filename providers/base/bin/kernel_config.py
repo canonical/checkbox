@@ -42,8 +42,8 @@ def get_kernel_config_path():
     # boot partition
     path_list.extend(
         [
-            "/var/lib/snapd/hostfs/boot/config-{}".format(kernel_version),
-            "/boot/config-{}".format(kernel_version),
+            f"/var/lib/snapd/hostfs/boot/config-{kernel_version}",
+            f"/boot/config-{kernel_version}",
         ]
     )
 
@@ -73,9 +73,9 @@ def check_flag(flag, min_version):
         min_version
     ):
         print(
-            "Kernel version is {}.".format(kernel_version),
-            "Versions lower than {} don't require ".format(min_version),
-            "the flag {} to be set.".format(flag),
+            f"Kernel version is {kernel_version}.",
+            f"Versions lower than {min_version} don't require ",
+            f"the flag {flag} to be set.",
         )
         return
 
@@ -89,11 +89,11 @@ def check_flag(flag, min_version):
             line = line.strip()
             if line.startswith("#"):
                 continue  # Ignore commented lines
-            if "{}=y".format(flag) in line:
-                print("Flag {} is present and set to 'y'.".format(flag))
+            if f"{flag}=y" in line:
+                print(f"Flag {flag} is present and set to 'y'.")
                 return
 
-    raise SystemExit("Flag {} not found in the kernel config.".format(flag))
+    raise SystemExit(f"Flag {flag} not found in the kernel config.")
 
 
 def parse_args():

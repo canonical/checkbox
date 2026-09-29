@@ -20,7 +20,7 @@ import re
 from checkbox_ng.support.lib.conversion import string_to_type
 
 
-class CpuinfoParser(object):
+class CpuinfoParser:
     """Parser for the /proc/cpuinfo file."""
 
     def __init__(self, stream, machine=None):

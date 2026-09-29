@@ -114,7 +114,7 @@ def get_partition_info():
     file_lines = ""
     info_path = os.path.join(PLAINBOX_SESSION_SHARE, USB_INSERT_INFO)
     try:
-        with open(info_path, "r") as file_usb_insert_info:
+        with open(info_path) as file_usb_insert_info:
             file_lines = file_usb_insert_info.readlines()
     except OSError as e:
         if e.errno == errno.ENOENT:
@@ -187,7 +187,9 @@ def mount_usb_storage(partition):
         # quit this script and return a non-zero value to plainbox
         if subprocess.call(["mount", device_to_mount, FOLDER_TO_MOUNT]):
             logging.error(
-                "mount %s on %s failed." % (device_to_mount, FOLDER_TO_MOUNT)
+                "mount {} on {} failed.".format(
+                    device_to_mount, FOLDER_TO_MOUNT
+                )
             )
             sys.exit(1)
         else:
@@ -240,10 +242,8 @@ def read_test_unit(random_source_file, idx=""):
         ["md5sum", random_source_file.tfile.name], stdout=subprocess.PIPE
     )
     source_md5sum = process.communicate()[0].decode().split(" ")[0]
-    logging.debug("%s %s (verified)" % (tfile_md5sum, path_random_file))
-    logging.debug(
-        "%s %s (source)" % (source_md5sum, random_source_file.tfile.name)
-    )
+    logging.debug(f"{tfile_md5sum} {path_random_file} (verified)")
+    logging.debug(f"{source_md5sum} {random_source_file.tfile.name} (source)")
     # Clean the target file
     os.remove(path_random_file)
     # verify the md5sum
@@ -376,7 +376,7 @@ def get_md5sum(file_to_check):
         # will be returned by communicate() in this case
         md5sum = process.communicate()[0].decode().split(" ")[0]
         if md5sum:
-            logging.debug("MD5SUM of %s: %s" % (file_to_check, md5sum))
+            logging.debug(f"MD5SUM of {file_to_check}: {md5sum}")
             return md5sum
         else:
             logging.error("Could not found file to check its MD5SUM. \

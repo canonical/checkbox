@@ -18,6 +18,7 @@ import argparse
 import os
 import time
 from typing import Dict, List, Optional
+from checkbox_support.helpers.slugify import slugify
 
 
 def get_all_sensors() -> List[Dict[str, str]]:
@@ -38,9 +39,9 @@ def get_all_sensors() -> List[Dict[str, str]]:
         sensor_name = None
         if os.path.exists(name_file):
             try:
-                with open(name_file, "r") as f:
+                with open(name_file) as f:
                     sensor_name = f.read().strip()
-            except IOError:
+            except OSError:
                 continue
 
         is_light = False
@@ -60,6 +61,7 @@ def get_all_sensors() -> List[Dict[str, str]]:
             sensors.append(
                 {
                     "name": sensor_name if sensor_name else device,
+                    "device": slugify(device),
                     "path": dev_path,
                 }
             )
@@ -74,9 +76,9 @@ def read_illuminance(sensor_path: str) -> Optional[float]:
         file_path = os.path.join(sensor_path, target)
         if os.path.exists(file_path):
             try:
-                with open(file_path, "r") as f:
+                with open(file_path) as f:
                     return float(f.read().strip())
-            except (ValueError, IOError):
+            except (ValueError, OSError):
                 continue
     return None
 
@@ -90,6 +92,7 @@ def main():
     subparsers.add_parser("detect", help="Detect if light sensors exist")
 
     test_parser = subparsers.add_parser("test", help="Test specific sensor")
+    test_parser.add_argument("--device", required=True, help="Device index")
     test_parser.add_argument("--name", required=True, help="Device name")
     test_parser.add_argument(
         "--rounds", type=int, default=5, help="Test rounds"
@@ -116,6 +119,7 @@ def main():
         sensors = get_all_sensors()
         for s in sensors:
             print("name: {}".format(s["name"]))
+            print("device: {}".format(s["device"]))
             print()
 
     elif args.command == "detect":
@@ -126,14 +130,20 @@ def main():
     elif args.command == "test":
         sensors = get_all_sensors()
         sensors_with_matching_name = [
-            s for s in sensors if s["name"] == args.name
+            s
+            for s in sensors
+            if s["name"] == args.name and s["device"] == args.device
         ]
         if len(sensors_with_matching_name) == 0:
-            raise SystemExit("Error: Sensor '{}' not found.".format(args.name))
+            raise SystemExit(
+                "Error: Sensor '{}/{}' not found.".format(
+                    args.device, args.name
+                )
+            )
         elif len(sensors_with_matching_name) > 1:
             raise SystemExit(
-                "Warning: More than 1 sensor has the name '{}'.".format(
-                    args.name
+                "Warning: More than 1 sensor has the name '{}/{}'.".format(
+                    args.device, args.name
                 )
             )
         target_sensor = sensors_with_matching_name[0]
@@ -143,15 +153,13 @@ def main():
         print("Press enter to start test ")
         input()
         for i in range(1, args.rounds + 1):
-            print("\n--- ROUND {}/{} ---".format(i, args.rounds), flush=True)
+            print(f"\n--- ROUND {i}/{args.rounds} ---", flush=True)
             val1 = read_illuminance(path)
             if val1 is None:
                 print("Error: Could not read sensor.", flush=True)
                 continue
 
-            print(
-                "Initial: {:.2f}. Change light now!".format(val1), flush=True
-            )
+            print(f"Initial: {val1:.2f}. Change light now!", flush=True)
             time.sleep(args.period)
 
             val2 = read_illuminance(path)
@@ -168,9 +176,9 @@ def main():
                 else (100.0 if val2 > 0 else 0)
             )
 
-            print("Catch new value: {:.2f}.".format(val2), flush=True)
+            print(f"Catch new value: {val2:.2f}.", flush=True)
             if pct >= args.threshold:
-                print("Result: PASS ({:.1f}%)".format(pct), flush=True)
+                print(f"Result: PASS ({pct:.1f}%)", flush=True)
                 passes += 1
             else:
                 print(
@@ -183,7 +191,7 @@ def main():
                 time.sleep(args.delay)
 
         print(
-            "\nFINAL RESULTS: {}/{} Passed".format(passes, args.rounds),
+            f"\nFINAL RESULTS: {passes}/{args.rounds} Passed",
             flush=True,
         )
         if passes != args.rounds:

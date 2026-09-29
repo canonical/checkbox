@@ -23,7 +23,7 @@ class MemoryTest:
         return os.path.join(directory, "threaded_memtest")
 
     def _get_memory(self):
-        mem_info = open("/proc/meminfo", "r")
+        mem_info = open("/proc/meminfo")
         try:
             while True:
                 line = mem_info.readline()

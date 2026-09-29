@@ -36,7 +36,7 @@ def check_state(device):
 
     os.environ["PULSE_SINK"] = sink
     logging.info("[ Pulse sink ]".center(80, "="))
-    logging.info("Device: %s %s" % (device_name.strip(), status.strip()))
+    logging.info(f"Device: {device_name.strip()} {status.strip()}")
     return status
 
 
@@ -76,7 +76,7 @@ def main():
         element = Gst.parse_launch(args.PIPELINE)
     except GLib.GError as error:
         print("Specified pipeline couldn't be processed.")
-        print("Error when processing pipeline: {}".format(error))
+        print(f"Error when processing pipeline: {error}")
         # Exit harmlessly
         return 2
 

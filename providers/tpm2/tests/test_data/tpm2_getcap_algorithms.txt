@@ -1,0 +1,280 @@
+rsa:
+  value:      0x1
+  asymmetric: 1
+  symmetric:  0
+  hash:       0
+  object:     1
+  reserved:   0x0
+  signing:    0
+  encrypting: 0
+  method:     0
+sha1:
+  value:      0x4
+  asymmetric: 0
+  symmetric:  0
+  hash:       1
+  object:     0
+  reserved:   0x0
+  signing:    0
+  encrypting: 0
+  method:     0
+hmac:
+  value:      0x5
+  asymmetric: 0
+  symmetric:  0
+  hash:       1
+  object:     0
+  reserved:   0x0
+  signing:    1
+  encrypting: 0
+  method:     0
+aes:
+  value:      0x6
+  asymmetric: 0
+  symmetric:  1
+  hash:       0
+  object:     0
+  reserved:   0x0
+  signing:    0
+  encrypting: 0
+  method:     0
+mgf1:
+  value:      0x7
+  asymmetric: 0
+  symmetric:  0
+  hash:       1
+  object:     0
+  reserved:   0x0
+  signing:    0
+  encrypting: 0
+  method:     1
+keyedhash:
+  value:      0x8
+  asymmetric: 0
+  symmetric:  0
+  hash:       1
+  object:     1
+  reserved:   0x0
+  signing:    1
+  encrypting: 1
+  method:     0
+xor:
+  value:      0xA
+  asymmetric: 0
+  symmetric:  1
+  hash:       1
+  object:     0
+  reserved:   0x0
+  signing:    0
+  encrypting: 0
+  method:     0
+sha256:
+  value:      0xB
+  asymmetric: 0
+  symmetric:  0
+  hash:       1
+  object:     0
+  reserved:   0x0
+  signing:    0
+  encrypting: 0
+  method:     0
+sha384:
+  value:      0xC
+  asymmetric: 0
+  symmetric:  0
+  hash:       1
+  object:     0
+  reserved:   0x0
+  signing:    0
+  encrypting: 0
+  method:     0
+rsassa:
+  value:      0x14
+  asymmetric: 1
+  symmetric:  0
+  hash:       0
+  object:     0
+  reserved:   0x0
+  signing:    1
+  encrypting: 0
+  method:     0
+rsaes:
+  value:      0x15
+  asymmetric: 1
+  symmetric:  0
+  hash:       0
+  object:     0
+  reserved:   0x0
+  signing:    0
+  encrypting: 1
+  method:     0
+rsapss:
+  value:      0x16
+  asymmetric: 1
+  symmetric:  0
+  hash:       0
+  object:     0
+  reserved:   0x0
+  signing:    1
+  encrypting: 0
+  method:     0
+oaep:
+  value:      0x17
+  asymmetric: 1
+  symmetric:  0
+  hash:       0
+  object:     0
+  reserved:   0x0
+  signing:    0
+  encrypting: 1
+  method:     0
+ecdsa:
+  value:      0x18
+  asymmetric: 1
+  symmetric:  0
+  hash:       0
+  object:     0
+  reserved:   0x0
+  signing:    1
+  encrypting: 0
+  method:     0
+ecdh:
+  value:      0x19
+  asymmetric: 1
+  symmetric:  0
+  hash:       0
+  object:     0
+  reserved:   0x0
+  signing:    0
+  encrypting: 0
+  method:     1
+ecdaa:
+  value:      0x1A
+  asymmetric: 1
+  symmetric:  0
+  hash:       0
+  object:     0
+  reserved:   0x0
+  signing:    1
+  encrypting: 0
+  method:     0
+ecschnorr:
+  value:      0x1C
+  asymmetric: 1
+  symmetric:  0
+  hash:       0
+  object:     0
+  reserved:   0x0
+  signing:    1
+  encrypting: 0
+  method:     0
+kdf1_sp800_56a:
+  value:      0x20
+  asymmetric: 0
+  symmetric:  0
+  hash:       1
+  object:     0
+  reserved:   0x0
+  signing:    0
+  encrypting: 0
+  method:     1
+kdf2:
+  value:      0x21
+  asymmetric: 0
+  symmetric:  0
+  hash:       1
+  object:     0
+  reserved:   0x0
+  signing:    0
+  encrypting: 0
+  method:     1
+kdf1_sp800_108:
+  value:      0x22
+  asymmetric: 0
+  symmetric:  0
+  hash:       1
+  object:     0
+  reserved:   0x0
+  signing:    0
+  encrypting: 0
+  method:     1
+ecc:
+  value:      0x23
+  asymmetric: 1
+  symmetric:  0
+  hash:       0
+  object:     1
+  reserved:   0x0
+  signing:    0
+  encrypting: 0
+  method:     0
+symcipher:
+  value:      0x25
+  asymmetric: 0
+  symmetric:  0
+  hash:       0
+  object:     1
+  reserved:   0x0
+  signing:    0
+  encrypting: 0
+  method:     0
+cmac:
+  value:      0x3F
+  asymmetric: 0
+  symmetric:  1
+  hash:       0
+  object:     0
+  reserved:   0x0
+  signing:    1
+  encrypting: 0
+  method:     0
+ctr:
+  value:      0x40
+  asymmetric: 0
+  symmetric:  1
+  hash:       0
+  object:     0
+  reserved:   0x0
+  signing:    0
+  encrypting: 1
+  method:     0
+ofb:
+  value:      0x41
+  asymmetric: 0
+  symmetric:  1
+  hash:       0
+  object:     0
+  reserved:   0x0
+  signing:    0
+  encrypting: 1
+  method:     0
+cbc:
+  value:      0x42
+  asymmetric: 0
+  symmetric:  1
+  hash:       0
+  object:     0
+  reserved:   0x0
+  signing:    0
+  encrypting: 1
+  method:     0
+cfb:
+  value:      0x43
+  asymmetric: 0
+  symmetric:  1
+  hash:       0
+  object:     0
+  reserved:   0x0
+  signing:    0
+  encrypting: 1
+  method:     0
+ecb:
+  value:      0x44
+  asymmetric: 0
+  symmetric:  1
+  hash:       0
+  object:     0
+  reserved:   0x0
+  signing:    0
+  encrypting: 1
+  method:     0

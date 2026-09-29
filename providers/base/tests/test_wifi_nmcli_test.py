@@ -711,8 +711,8 @@ class TestNetplanBackupFunctions(unittest.TestCase):
             # Existing files to remove
             [str(self.TEST_NETPLAN_DIR.name) + "/old1.yaml"],
             [
-                "{}/config1.yaml".format(str(self.TEST_BACKUP_DIR.name)),
-                "{}/config2.yaml".format(str(self.TEST_BACKUP_DIR.name)),
+                f"{str(self.TEST_BACKUP_DIR.name)}/config1.yaml",
+                f"{str(self.TEST_BACKUP_DIR.name)}/config2.yaml",
             ],  # Backup files
         ]
 
@@ -738,7 +738,7 @@ class TestNetplanBackupFunctions(unittest.TestCase):
             # Existing files to remove
             [str(self.TEST_NETPLAN_DIR.name) + "/old1.yaml"],
             # Backup files
-            ["{}/config1.yaml".format(str(self.TEST_BACKUP_DIR.name))],
+            [f"{str(self.TEST_BACKUP_DIR.name)}/config1.yaml"],
         ]
         mock_remove.side_effect = OSError("Permission denied")
         with self.assertRaises(OSError):
@@ -757,7 +757,7 @@ class TestNetplanBackupFunctions(unittest.TestCase):
         mock_exists.return_value = True
         mock_glob.side_effect = [
             [],
-            ["{}/config1.yaml".format(str(self.TEST_BACKUP_DIR.name))],
+            [f"{str(self.TEST_BACKUP_DIR.name)}/config1.yaml"],
         ]
         mock_makedirs.side_effect = OSError("Permission denied")
 

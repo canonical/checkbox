@@ -285,6 +285,21 @@ class TestLXD(TestCase):
         self_mock = MagicMock()
         LXD.wait_until_running(self_mock)
 
+    def test_wait_until_running_degraded(self, logging_mock):
+        self_mock = MagicMock()
+        self_mock.run = MagicMock(
+            side_effect=subprocess.CalledProcessError(1, "", "degraded")
+        )
+        with self.assertRaises(subprocess.CalledProcessError):
+            LXD.wait_until_running(self_mock, allow_degraded=False)
+
+    def test_wait_until_running_allow_degraded(self, logging_mock):
+        self_mock = MagicMock()
+        self_mock.run = MagicMock(
+            side_effect=subprocess.CalledProcessError(1, "", "degraded")
+        )
+        LXD.wait_until_running(self_mock, allow_degraded=True)
+
     @patch.object(LXD, "cleanup")
     @patch.object(LXD, "init_lxd")
     def test_context_manager(self, init_lxd_mock, cleanup_mock, logging_mock):

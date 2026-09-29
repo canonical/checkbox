@@ -1,0 +1,36 @@
+{
+  "blockdevices": [
+    {
+      "kname": "sda",
+      "type": "disk",
+      "mountpoint": null,
+      "fstype": null,
+      "size": 1000204886016,
+      "uuid": null
+    },
+    {
+      "kname": "sda1",
+      "type": "part",
+      "mountpoint": "/boot/efi",
+      "fstype": "vfat",
+      "size": 1127219200,
+      "uuid": "FB36-EE51"
+    },
+    {
+      "kname": "sda3",
+      "type": "part",
+      "mountpoint": "/",
+      "fstype": "ext4",
+      "size": 986189922304,
+      "uuid": "cd4e7960-9887-4269-a8df-6438f8d9c7d7"
+    },
+    {
+      "kname": "sr0",
+      "type": "rom",
+      "mountpoint": null,
+      "fstype": "iso9660",
+      "size": 1343488,
+      "uuid": "2026-03-10-08-31-42-00"
+    }
+  ]
+}

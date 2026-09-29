@@ -1,0 +1,5 @@
+id: oem-button-automated
+unit: test plan
+_name: Button auto tests
+_description: Automated button tests for devices
+include:

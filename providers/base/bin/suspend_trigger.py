@@ -21,7 +21,7 @@ def wait_for_suspend_jobs_to_finish():
     ).strip()
     if output not in ("No jobs running.", "No jobs listed."):
         raise RuntimeError(
-            "Suspend jobs ongoing.\nActive jobs list:\n{}".format(output)
+            f"Suspend jobs ongoing.\nActive jobs list:\n{output}"
         )
 
 
@@ -54,7 +54,7 @@ def main(args=sys.argv[1:]):
     )
     args = parser.parse_args(args)
     if args.wait:
-        print("Waiting for {} seconds...".format(args.wait))
+        print(f"Waiting for {args.wait} seconds...")
         time.sleep(args.wait)
     if platform.machine() in ["i386", "x86_64"]:
         print("Running FWTS to trigger suspend...")
@@ -99,7 +99,7 @@ def main(args=sys.argv[1:]):
     # Clean up the FWTS log file from its default path.
     log_path = "/tmp/fwts_results.log"
     if os.path.exists(log_path):
-        print("Removing {}...".format(log_path))
+        print(f"Removing {log_path}...")
         os.remove(log_path)
 
 

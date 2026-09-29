@@ -43,7 +43,9 @@ class PacmdAudioDevice:
     def __str__(self):
         retstr = "Device: %s\n" % self._name
         if self._driver:
-            retstr += "Driver: %s (%s)" % (self._driver, self._driver_version)
+            retstr += "Driver: {} ({})".format(
+                self._driver, self._driver_version
+            )
         else:
             retstr += "Driver: Unknown"
         return retstr
@@ -90,7 +92,7 @@ def list_device_info():
             )
         except Exception as e:
             print(
-                "Error when running pacmd list-%ss: %s" % (vtype, e),
+                f"Error when running pacmd list-{vtype}s: {e}",
                 file=sys.stderr,
             )
             return 1

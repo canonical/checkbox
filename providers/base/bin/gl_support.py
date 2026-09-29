@@ -102,9 +102,7 @@ class GLSupportTester:
                 break
 
         if gl_renderer_line is None:
-            raise SystemExit(
-                "{} was not in glmark2's output".format(gl_variable_name)
-            )
+            raise SystemExit(f"{gl_variable_name} was not in glmark2's output")
 
         return gl_renderer_line.split(":")[-1].strip()
 
@@ -124,7 +122,7 @@ class GLSupportTester:
             # usually it's tty if we get here,
             # happens when gnome failed to start or not using graphical session
             raise SystemExit(
-                "Unsupported session type: '{}'. ".format(XDG_SESSION_TYPE)
+                f"Unsupported session type: '{XDG_SESSION_TYPE}'. "
                 + "Expected either 'x11' or 'wayland'"
             )
 
@@ -241,12 +239,12 @@ def main() -> None:
     if not tester.gl_renderer_str_is_hardware_renderer(gl_renderer):
         raise SystemExit(
             "This machine is not using a hardware renderer. "
-            + "Got GL_RENDERER={}".format(gl_renderer)
+            + f"Got GL_RENDERER={gl_renderer}"
         )
 
     print(
         "OK! This machine meets the minimum OpenGL version requirement",
-        "({} >= 3.0)".format(gl_version_str),
+        f"({gl_version_str} >= 3.0)",
         "and is using a hardware renderer for {} apps".format(
             os.environ["XDG_SESSION_TYPE"]
         ),  # wayland working doesn't necessarily imply Xwayland working

@@ -272,13 +272,13 @@ class TestDKMSValidation(unittest.TestCase):
         )
 
     def test_get_context_lines_center(self):
-        log = ["L{}".format(i) for i in range(0, 20)]
+        log = [f"L{i}" for i in range(0, 20)]
         line_idx = {10, 11}
-        expected_output = ["L{}".format(i) for i in range(5, 17)]
+        expected_output = [f"L{i}" for i in range(5, 17)]
         self.assertEqual(get_context_lines(log, line_idx), expected_output)
 
     def test_get_context_lines_edges(self):
-        log = ["L{}".format(i) for i in range(0, 20)]
+        log = [f"L{i}" for i in range(0, 20)]
         line_idx = {0, 18}
         expected_output = [
             "L0",

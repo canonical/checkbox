@@ -55,6 +55,7 @@ bootstrap_include:
     environment
 include:
     firmware/fwupdmgr_get_devices
+    firmware/fwupdmgr_get_bios_setting
 
 id: firmware-fwupdmgr-manual
 unit: test plan

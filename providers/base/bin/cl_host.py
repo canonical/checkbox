@@ -31,20 +31,14 @@ Subcommands:
 """
 
 import os
-import shutil
 import subprocess
 import sys
-import sysconfig
 
-
-def get_arch_triple():
-    """Return the Debian multiarch triple for the current architecture."""
-    return sysconfig.get_config_var("MULTIARCH")
-
-
-def find_plz_run():
-    """Return the path to plz-run from the running checkbox snap."""
-    return shutil.which("plz-run")
+from checkbox_support.helpers.host_utils import (
+    HostGPUDetectionError,
+    find_plz_run,
+    get_arch_triple,
+)
 
 
 def check_host_gpu(plz_run, arch_triple):
@@ -56,7 +50,7 @@ def check_host_gpu(plz_run, arch_triple):
     if not os.path.isfile("/usr/bin/clinfo"):
         print("FAIL: /usr/bin/clinfo not found", file=sys.stderr)
         return False
-    ld_library_path = "/usr/lib/{arch}:/usr/lib".format(arch=arch_triple)
+    ld_library_path = f"/usr/lib/{arch_triple}:/usr/lib"
     try:
         return "CL_DEVICE_TYPE_GPU" in subprocess.check_output(
             [
@@ -66,7 +60,7 @@ def check_host_gpu(plz_run, arch_triple):
                 "-g",
                 "root",
                 "-E",
-                "LD_LIBRARY_PATH={}".format(ld_library_path),
+                f"LD_LIBRARY_PATH={ld_library_path}",
                 "--",
                 "/usr/bin/clinfo",
                 "--prop",
@@ -82,9 +76,10 @@ def check_host_gpu(plz_run, arch_triple):
 def cmd_resource():
     arch_triple = get_arch_triple()
 
-    plz_run = find_plz_run()
-    if plz_run is None:
-        print("FAIL: plz-run not found in any checkbox snap", file=sys.stderr)
+    try:
+        plz_run = find_plz_run()
+    except HostGPUDetectionError as exc:
+        print(f"FAIL: {exc}", file=sys.stderr)
         return 1
 
     if check_host_gpu(plz_run, arch_triple):
@@ -100,12 +95,12 @@ def cmd_resource():
 
 def cmd_validate_install():
     arch_triple = get_arch_triple()
-    host_ocl = "/usr/lib/{}/libOpenCL.so.1".format(arch_triple)
+    host_ocl = f"/usr/lib/{arch_triple}/libOpenCL.so.1"
     if os.path.isfile(host_ocl):
         print("ocl_icd_available: True")
         return 0
     print(
-        "FAIL: Host OpenCL ICD loader not found at {}".format(host_ocl),
+        f"FAIL: Host OpenCL ICD loader not found at {host_ocl}",
         file=sys.stderr,
     )
     print(
@@ -119,7 +114,7 @@ def cmd_validate_install():
 def cmd_run_test(test_args):
     snap = "/snap/opencl-cts/current"
     result = subprocess.run(
-        ["{}/test".format(snap), "--no-confinement"] + test_args,
+        [f"{snap}/test", "--no-confinement"] + test_args,
         env=dict(os.environ, SNAP=snap),
     )
     return result.returncode
@@ -140,7 +135,7 @@ def main():
     elif command == "run-test":
         return cmd_run_test(sys.argv[2:])
     else:
-        print("Unknown command: {}".format(command), file=sys.stderr)
+        print(f"Unknown command: {command}", file=sys.stderr)
         return 1
 
 

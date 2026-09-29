@@ -24,7 +24,6 @@
 Test definitions for :mod:`plainbox.impl.session.suspend` module
 """
 
-from functools import partial
 from unittest import TestCase
 import gzip
 
@@ -123,7 +122,7 @@ class SuspendMemoryJobResultTests(BaseJobResultTestsTestsMixIn, TestCase):
     HELPER_CLS = SessionSuspendHelper1
 
     def setUp(self):
-        super(SuspendMemoryJobResultTests, self).setUp()
+        super().setUp()
         self.repr_method = self.helper._repr_MemoryJobResult
 
     def test_repr_MemoryJobResult_empty(self):
@@ -167,7 +166,7 @@ class SuspendDiskJobResultTests(BaseJobResultTestsTestsMixIn, TestCase):
     HELPER_CLS = SessionSuspendHelper1
 
     def setUp(self):
-        super(SuspendDiskJobResultTests, self).setUp()
+        super().setUp()
         self.repr_method = self.helper._repr_DiskJobResult
 
     def test_repr_DiskJobResult_empty(self):

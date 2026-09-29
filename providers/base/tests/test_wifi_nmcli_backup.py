@@ -68,12 +68,9 @@ class WifiNmcliBackupTests(unittest.TestCase):
         ]
 
         save_connections(keyfile_list)
-        expected_calls = [
-            call("Save connection {}".format(f)) for f in keyfile_list
-        ]
+        expected_calls = [call(f"Save connection {f}") for f in keyfile_list]
         expected_calls += [
-            call("  No stored connection found at {}".format(f))
-            for f in keyfile_list
+            call(f"  No stored connection found at {f}") for f in keyfile_list
         ]
         mock_print.assert_has_calls(expected_calls, any_order=True)
         self.assertEqual(mock_makedirs.call_count, 1)

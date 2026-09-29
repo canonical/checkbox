@@ -1,0 +1,5 @@
+unit: manifest entry
+id: is_Iiotg
+_name: Is this an Iiotg platform?
+_prompt: Iiotg specific?
+value-type: bool

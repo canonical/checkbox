@@ -1,5 +1,13 @@
 """All low level structures used for parsing ibeacon packets."""
-from checkbox_support.vendor.construct import Struct, Byte, Const, Int8sl, Array, Int16ub
+
+from checkbox_support.vendor.construct import (
+    Struct,
+    Byte,
+    Const,
+    Int8sl,
+    Array,
+    Int16ub,
+)
 from ..const import IBEACON_PROXIMITY_TYPE
 
 # pylint: disable=invalid-name

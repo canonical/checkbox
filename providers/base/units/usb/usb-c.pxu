@@ -1,4 +1,5 @@
 id: usb-c/c-to-a-adapter/hid
+group: peripherals_manual
 _summary: USB HID work on USB Type-C port using a "USB Type-C to Type-A" adapter
 _purpose:
      This test will check that you can use a USB HID device plugged in a USB
@@ -17,6 +18,7 @@ requires: manifest.has_usbc_data == 'True'
 estimated_duration: 60
 
 id: usb-c/c-to-a-adapter/storage-manual
+group: peripherals_manual
 _summary: 
     Test USB 3 storage device insertion + read/write + removal using a "Type-C to Type-A" adapter.
 _purpose:
@@ -52,6 +54,7 @@ requires:
 estimated_duration: 120
 
 id: usb-c/storage-manual
+group: peripherals_manual
 _summary: USB 3.0 storage device insertion + read/write + removal on USB Type-C port
 _purpose:
     This test will check that the system correctly detects the insertion of
@@ -84,6 +87,7 @@ requires:
 estimated_duration: 120
 
 id: usb-c/c-to-ethernet-adapter-insert
+group: peripherals_manual
 plugin: user-interact
 flags: also-after-suspend
 category_id: com.canonical.plainbox::usb

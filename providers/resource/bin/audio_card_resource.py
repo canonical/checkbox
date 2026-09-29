@@ -23,10 +23,10 @@ def get_audio_cards():
     audio_cards = []
     PCM_FILE = "/proc/asound/pcm"
     try:
-        with open(PCM_FILE, "r") as f:
+        with open(PCM_FILE) as f:
             data = f.readlines()
     except OSError:
-        print("Failed to access {}".format(PCM_FILE))
+        print(f"Failed to access {PCM_FILE}")
         return []
 
     for line in data:

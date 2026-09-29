@@ -16,7 +16,6 @@
 
 from argparse import ArgumentParser
 from subprocess import check_output, check_call, CalledProcessError
-from io import open
 import configparser
 import logging
 import os
@@ -92,7 +91,7 @@ def _guess_hdmi_profile(pactl_list):
     logging.info("[ HDMI / DisplayPort ports ]".center(80, "="))
     for card, ports in hdmi_ports.items():
         for card_port in ports:
-            logging.info("Card #{} Port: {}".format(card, card_port))
+            logging.info(f"Card #{card} Port: {card_port}")
 
     # Check the ports availability in the list of pulseaudio sinks
     # if the status is not already available in the cards section.
@@ -129,7 +128,7 @@ def _guess_hdmi_profile(pactl_list):
             key=len,
         )
         logging.info("[ Selected profile ]".center(80, "="))
-        logging.info("Card #{} Profile: {}".format(card, profile))
+        logging.info(f"Card #{card} Profile: {profile}")
         return (card, profile)
     else:
         return (None, None)
@@ -152,9 +151,7 @@ def set_profile_hdmi():
     try:
         check_call(["pactl", "set-card-profile", card, profile])
     except CalledProcessError as error:
-        logging.error(
-            "Failed setting audio output to:{}: {}".format(profile, error)
-        )
+        logging.error(f"Failed setting audio output to:{profile}: {error}")
 
 
 def get_current_profiles_settings(profiles_file):
@@ -179,7 +176,7 @@ def get_current_profiles_settings(profiles_file):
     try:
         with open(profiles_file, "w") as active_profiles:
             config.write(active_profiles)
-    except IOError:
+    except OSError:
         logging.error(
             "Failed to save active profiles information: {}".format(
                 sys.exc_info()[1]
@@ -191,7 +188,7 @@ def restore_profiles_settings(profiles_file):
     config = configparser.ConfigParser()
     try:
         config.read(profiles_file)
-    except IOError:
+    except OSError:
         logging.error("Failed to retrieve previous profiles information")
 
     for card in config.sections():
@@ -228,9 +225,7 @@ def move_sinks(name):
                     stdout=DEVNULL,
                 )
         except CalledProcessError:
-            logging.error(
-                "Failed to move input {} to sink {}".format(input_index, name)
-            )
+            logging.error(f"Failed to move input {input_index} to sink {name}")
             sys.exit(1)
 
 
@@ -243,7 +238,7 @@ def get_audio_settings(type, name="default"):
         name = default_regex.search(pactl_status).group()
 
     pactl_list = check_output(
-        ["pactl", "list", "{}s".format(type)],
+        ["pactl", "list", f"{type}s"],
         universal_newlines=True,
         env=unlocalized_env(),
     )
@@ -273,8 +268,8 @@ def store_audio_settings(file):
     logging.info("[ Saving audio settings ]".center(80, "="))
     try:
         settings_file = open(file, "w")
-    except IOError:
-        logging.error("Failed to save settings: {}".format(sys.exc_info()[1]))
+    except OSError:
+        logging.error(f"Failed to save settings: {sys.exc_info()[1]}")
         sys.exit(1)
 
     for type in TYPES:
@@ -298,7 +293,7 @@ def store_audio_settings(file):
 def set_audio_settings(device, mute, volume):
     for type in TYPES:
         pactl_entries = check_output(
-            ["pactl", "list", "{}s".format(type)],
+            ["pactl", "list", f"{type}s"],
             universal_newlines=True,
             env=unlocalized_env(),
         )
@@ -311,14 +306,14 @@ def set_audio_settings(device, mute, volume):
             if device in name and DIRECTIONS[type] in name:
                 try:
                     logging.info("[ Fallback sink ]".center(80, "="))
-                    logging.info("Name: {}".format(name))
+                    logging.info(f"Name: {name}")
                     with open(os.devnull, "wb") as DEVNULL:
                         check_call(
-                            ["pactl", "set-default-{}".format(type), name],
+                            ["pactl", f"set-default-{type}", name],
                             stdout=DEVNULL,
                         )
                 except CalledProcessError:
-                    logging.error("Failed to set default {}".format(type))
+                    logging.error(f"Failed to set default {type}")
                     sys.exit(1)
 
                 if type == "sink":
@@ -328,26 +323,26 @@ def set_audio_settings(device, mute, volume):
                     check_call(
                         [
                             "pactl",
-                            "set-{}-mute".format(type),
+                            f"set-{type}-mute",
                             name,
                             str(int(mute)),
                         ]
                     )
                 except CalledProcessError:
-                    logging.error("Failed to set mute for {}".format(name))
+                    logging.error(f"Failed to set mute for {name}")
                     sys.exit(1)
 
                 try:
                     check_call(
                         [
                             "pactl",
-                            "set-{}-volume".format(type),
+                            f"set-{type}-volume",
                             name,
-                            "{}%".format(str(volume)),
+                            f"{str(volume)}%",
                         ]
                     )
                 except CalledProcessError:
-                    logging.error("Failed to set volume for {}".format(name))
+                    logging.error(f"Failed to set volume for {name}")
                     sys.exit(1)
 
 
@@ -356,7 +351,7 @@ def restore_audio_settings(file):
     try:
         with open(file) as f:
             settings_file = f.read().split()
-    except IOError:
+    except OSError:
         logging.error(
             "Unable to open existing settings file: {}".format(
                 sys.exc_info()[1]
@@ -369,15 +364,9 @@ def restore_audio_settings(file):
         # If we fail to get any of them, it means the file's format
         # is incorrect, so we just abort.
         try:
-            name = settings_file[
-                settings_file.index("default_{}:".format(type)) + 1
-            ]
-            muted = settings_file[
-                settings_file.index("{}_muted:".format(type)) + 1
-            ]
-            volume = settings_file[
-                settings_file.index("{}_volume:".format(type)) + 1
-            ]
+            name = settings_file[settings_file.index(f"default_{type}:") + 1]
+            muted = settings_file[settings_file.index(f"{type}_muted:") + 1]
+            volume = settings_file[settings_file.index(f"{type}_volume:") + 1]
         except ValueError:
             logging.error(
                 "Unable to restore settings because settings "
@@ -388,26 +377,26 @@ def restore_audio_settings(file):
         try:
             with open(os.devnull, "wb") as DEVNULL:
                 check_call(
-                    ["pactl", "set-default-{}".format(type), name],
+                    ["pactl", f"set-default-{type}", name],
                     stdout=DEVNULL,
                 )
         except CalledProcessError:
-            logging.error("Failed to restore default {}".format(name))
+            logging.error(f"Failed to restore default {name}")
             return 1
 
         if type == "sink":
             move_sinks(name)
 
         try:
-            check_call(["pactl", "set-{}-mute".format(type), name, muted])
+            check_call(["pactl", f"set-{type}-mute", name, muted])
         except CalledProcessError:
-            logging.error("Failed to restore mute for {}".format(name))
+            logging.error(f"Failed to restore mute for {name}")
             return 1
 
         try:
-            check_call(["pactl", "set-{}-volume".format(type), name, volume])
+            check_call(["pactl", f"set-{type}-volume", name, volume])
         except CalledProcessError:
-            logging.error("Failed to restore volume for {}".format(name))
+            logging.error(f"Failed to restore volume for {name}")
             return 1
 
 
@@ -452,7 +441,7 @@ def main():
             logging.error("No file specified to store audio settings!")
             return 1
         settings_file = args.file
-        profiles_file = "{}.profiles".format(args.file)
+        profiles_file = f"{args.file}.profiles"
 
     if args.verbose:
         logging.basicConfig(
@@ -480,7 +469,7 @@ def main():
             set_profile_hdmi()
         set_audio_settings(args.device, args.mute, args.volume)
     else:
-        logging.error("{} is not a valid action".format(args.action))
+        logging.error(f"{args.action} is not a valid action")
         return 1
 
     return 0

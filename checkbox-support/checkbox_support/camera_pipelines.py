@@ -113,9 +113,7 @@ def get_launch_line(device: Gst.Device) -> T.Optional[str]:
         if not serialized_value:
             continue  # ignore non-serializable ones
 
-        launch_line_components.append(
-            "{}={}".format(prop.name, serialized_value)
-        )
+        launch_line_components.append(f"{prop.name}={serialized_value}")
 
     # example: pipewiresrc target-object=49
     return " ".join(launch_line_components)
@@ -163,7 +161,7 @@ def elem_to_str(
         if not serialized_value:
             continue
 
-        prop_strings.append("{}={}".format(prop.name, serialized_value))
+        prop_strings.append(f"{prop.name}={serialized_value}")
 
     return "{} {}".format(
         element_name, " ".join(prop_strings)
@@ -248,7 +246,7 @@ def run_pipeline(
         if run_n_seconds <= 0 or int(run_n_seconds) != run_n_seconds:
             raise ValueError(
                 "run_n_seconds must be a positive integer if specified, "
-                + "got {}".format(run_n_seconds)
+                + f"got {run_n_seconds}"
             )
 
         def send_eos():
@@ -340,7 +338,7 @@ def take_photo(
     """
     if not str(file_path).endswith(("jpeg", "jpg")):
         raise ValueError(
-            "File name should end with jpeg or jpg. Got {}".format(file_path)
+            f"File name should end with jpeg or jpg. Got {file_path}"
         )
 
     # the 2nd condition is a workaround for <object>.is_integer on older python
@@ -373,7 +371,7 @@ def take_photo(
     # they are filtered out at parse_launch
     if caps:
         if not caps.is_fixed():
-            raise ValueError('"{}" is not fixed.'.format(caps.to_string()))
+            raise ValueError(f'"{caps.to_string()}" is not fixed.')
 
         str_elements["caps"] = str_elements["caps"].format(caps.to_string())
         mime_type = caps.get_structure(0).get_name()
@@ -425,15 +423,13 @@ def take_photo(
         )
 
     if not head_elem or not source.link(head_elem):
-        raise RuntimeError(
-            "Could not link source element to {}".format(head_elem)
-        )
+        raise RuntimeError(f"Could not link source element to {head_elem}")
 
     if delay_seconds == 0:
         intermediate_calls = []
         logger.info(
             "Created photo pipeline with no delay. "
-            + '"{} ! {}"'.format(elem_to_str(source), partial)
+            + f'"{elem_to_str(source)} ! {partial}"'
         )
     else:
         valve = pipeline.get_by_name("photo-valve")
@@ -449,7 +445,7 @@ def take_photo(
             "Created photo pipeline with {} second delay. ".format(
                 delay_seconds
             )
-            + '"{} ! {}"'.format(elem_to_str(source), partial)
+            + f'"{elem_to_str(source)} ! {partial}"'
         )
 
     run_pipeline(

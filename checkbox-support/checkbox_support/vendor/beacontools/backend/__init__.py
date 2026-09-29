@@ -1,4 +1,5 @@
 """Load a different backend depending on the OS."""
+
 import sys
 
 if sys.platform.startswith("linux"):

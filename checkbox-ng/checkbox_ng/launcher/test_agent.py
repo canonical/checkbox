@@ -16,22 +16,19 @@
 # You should have received a copy of the GNU General Public License
 # along with Checkbox.  If not, see <http://www.gnu.org/licenses/>.
 
-import json
 from unittest import TestCase, mock
 
 from checkbox_ng.launcher.agent import exit_if_port_unavailable
 from checkbox_ng.launcher.agent import RemoteAgent
-from plainbox.impl.session.assistant import ResumeCandidate
-from plainbox.impl.session.state import SessionMetaData
 
 
 @mock.patch("checkbox_ng.launcher.agent._")
 @mock.patch("checkbox_ng.launcher.agent._logger")
 @mock.patch("checkbox_ng.launcher.agent.is_passwordless_sudo")
 @mock.patch("checkbox_ng.launcher.agent.SessionAssistantAgent")
-@mock.patch("checkbox_ng.launcher.agent.RemoteDebRestartStrategy")
 @mock.patch("checkbox_ng.launcher.agent.RemoteSessionAssistant")
 @mock.patch("checkbox_ng.launcher.agent.ThreadedServer")
+@mock.patch("checkbox_ng.launcher.agent.set_all_loggers_level")
 @mock.patch("os.geteuid")
 @mock.patch("os.getenv")
 class AgentTests(TestCase):
@@ -40,16 +37,18 @@ class AgentTests(TestCase):
         self,
         getenv_mock,
         geteuid_mock,
+        set_all_loggers_level_mock,
         threaded_server_mock,
         remote_assistant_mock,
-        remote_strategy_mock,
         session_assistant_mock,
         pwdless_sudo_mock,
         logger_mock,
         gettext_mock,
     ):
         ctx_mock = mock.MagicMock()
+        ctx_mock.args.debug = False
         ctx_mock.args.resume = False
+        ctx_mock.args.log_level = "INFO"
 
         self_mock = mock.MagicMock()
 
@@ -65,15 +64,49 @@ class AgentTests(TestCase):
         server = threaded_server_mock.return_value
         # the server was started
         self.assertTrue(server.start.called)
+        self.assertTrue(set_all_loggers_level_mock.called)
+
+    def test_invoked_ok_noset_log(
+        self,
+        getenv_mock,
+        geteuid_mock,
+        set_all_loggers_level_mock,
+        threaded_server_mock,
+        remote_assistant_mock,
+        session_assistant_mock,
+        pwdless_sudo_mock,
+        logger_mock,
+        gettext_mock,
+    ):
+        ctx_mock = mock.MagicMock()
+        ctx_mock.args.debug = True
+        ctx_mock.args.resume = False
+        ctx_mock.args.log_level = "INFO"
+
+        self_mock = mock.MagicMock()
+
+        geteuid_mock.return_value = 0  # agent will not run as non-root
+        pwdless_sudo_mock.return_value = True  # agent needs pwd-less sudo
+        getenv_mock.return_value = None
+
+        with mock.patch("builtins.open"):
+            RemoteAgent.invoked(self_mock, ctx_mock)
+
+        # agent server was created
+        self.assertTrue(threaded_server_mock.called)
+        server = threaded_server_mock.return_value
+        # the server was started
+        self.assertTrue(server.start.called)
+        self.assertFalse(set_all_loggers_level_mock.called)
 
     # used to load an empty launcher with no error
     def test_invoked_with_resume_warns(
         self,
         getenv_mock,
         geteuid_mock,
+        set_all_loggers_level_mock,
         threaded_server_mock,
         remote_assistant_mock,
-        remote_strategy_mock,
         session_assistant_mock,
         pwdless_sudo_mock,
         logger_mock,
@@ -102,9 +135,9 @@ class AgentTests(TestCase):
         self,
         getenv_mock,
         geteuid_mock,
+        set_all_loggers_level_mock,
         threaded_server_mock,
         remote_assistant_mock,
-        remote_strategy_mock,
         sa_mock,
         pwdless_sudo_mock,
         logger_mock,

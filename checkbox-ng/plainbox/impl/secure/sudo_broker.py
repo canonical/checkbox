@@ -23,14 +23,11 @@ transmitted over network in plaintext, so it's up to the operator to use
 secure connection.
 """
 
-import gc
 import getpass
-import hashlib
 import logging
 import os
 import sys
 
-from plainbox.i18n import gettext as _
 from subprocess import (
     check_output,
     check_call,
@@ -73,7 +70,7 @@ def is_passwordless_sudo():
                 print(exc.output)
             except AttributeError:
                 pass
-            raise SystemExit("Checkbox is unable to run sudo: {}".format(exc))
+            raise SystemExit(f"Checkbox is unable to run sudo: {exc}")
         return True
     try:
         check_output(check_passwordless_sudo_cmd, stderr=STDOUT)

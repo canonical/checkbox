@@ -1,0 +1,264 @@
+# tests originally copied from 
+# git.launchpad.net/plainbox-provider-pc-sanity/tree/units/pc-sanity/pc-sanity-thermal.pxu
+
+_summary: Check if Intel RAPL power capping driver is installed
+_description:
+    Check if Intel RAPL power capping  driver is installed
+plugin: shell
+category_id: iiotg-thermal
+id: iiotg-thermal/intel-rapl
+imports:
+    from com.canonical.certification import cpuinfo 
+    from com.canonical.plainbox import manifest
+requires:
+    manifest.is_Iiotg == 'True'
+    cpuinfo.type == 'GenuineIntel'
+command:
+    if test -d /sys/class/powercap/intel-rapl; then
+        exit 0
+    else
+        echo "Is CONFIG_INTEL_RAPL configured?"
+        echo "List nodes under /sys/class/powercap"
+        ls /sys/class/powercap
+        exit 1
+    fi
+
+_summary: Check if Intel RAPL-mmio power capping driver is installed
+_description:
+    Intel RAPL (Running Average Power Limit) relies on proc_thermal
+    driver to provide MMIO interface for power capping
+plugin: shell
+category_id: iiotg-thermal
+id: iiotg-thermal/intel-rapl-mmio
+imports:
+    from com.canonical.certification import cpuinfo
+    from com.canonical.plainbox import manifest
+requires:
+    manifest.is_Iiotg == 'True'
+    cpuinfo.type == 'GenuineIntel'
+depends: iiotg-thermal/proc_thermal
+command:
+    if test -d /sys/class/powercap/intel-rapl-mmio; then
+        exit 0
+    else
+        echo "Lack of MMIO interface for power capping."
+        echo "It depends on proc_thermal, please check if processor thermal device exists"
+        echo "and proc_thermal driver has probed properly."
+        lspci -nnk
+        exit 1
+    fi
+
+_summary: Check if Intel P State driver is installed
+_description:
+    Check if Intel P State driver is installed
+plugin: shell
+category_id: iiotg-thermal
+id: iiotg-thermal/intel-p-state
+imports:
+    from com.canonical.certification import cpuinfo
+    from com.canonical.plainbox import manifest
+requires:
+    manifest.is_Iiotg == 'True'
+    cpuinfo.type == 'GenuineIntel'
+command:
+    if test -d /sys/devices/system/cpu/intel_pstate; then
+        exit 0
+    else
+        echo "Is CONFIG_X86_INTEL_PSTATE configured?"
+        echo "List node under /sys/devices/system/cpu"
+        ls /sys/devices/system/cpu
+        echo "The intel_pstate driver is required by thermald."
+        exit 1
+    fi
+
+_summary: Check if Intel Power clamp driver is installed
+_description:
+    Check if Intel Power clamp driver is installed
+plugin: shell
+category_id: iiotg-thermal
+id: iiotg-thermal/intel-powerclamp
+imports:
+    from com.canonical.certification import cpuinfo
+    from com.canonical.plainbox import manifest
+requires:
+    manifest.is_Iiotg == 'True'
+    cpuinfo.type == 'GenuineIntel'
+command:
+    if grep -q 'intel_powerclamp' /sys/class/thermal/cooling_device*/type; then
+        exit 0
+    else
+        echo "Is CONFIG_INTEL_POWERCLAMP configured?"
+        echo "List node type under /sys/class/thermal/cooling_device*"
+        grep . /sys/class/thermal/cooling_device*/type
+        exit 1
+    fi
+
+_summary: Check if Intel cpu thermal zone registered
+_description:
+    Thermald checks if /sys/class/thermal/thermal_zone* contains type B0D4, B0DB,
+    and TCPU.
+    They are devices defined in BIOS and enumerated by int340x thermal driver.
+    If those devices aren't defined in BIOS, thermald will capture coretemp under
+    /sys/class/hwmon/hwmon* to create cpu thermal zone named cpu.
+plugin: shell
+category_id: iiotg-thermal
+id: iiotg-thermal/intel-cpu-thermal
+imports:
+    from com.canonical.certification import cpuinfo
+    from com.canonical.plainbox import manifest
+requires:
+    manifest.is_Iiotg == 'True'
+    cpuinfo.type == 'GenuineIntel'
+command:
+    if grep -q 'B0D4\|B0DB\|TCPU' /sys/class/thermal/thermal_zone*/type; then
+        exit 0
+    elif grep -q 'coretemp' /sys/class/hwmon/hwmon*/name; then
+        exit 0
+    else
+        echo "No valid sysfs node to create cpu thermal zone"
+        lspci -nnk
+        echo "node in thermal class"
+        paste <(ls -d /sys/class/thermal/thermal_zone*) \
+            <(cat /sys/class/thermal/thermal_zone*/type) \
+            <(cat /sys/class/thermal/thermal_zone*/temp) \
+            | column -s $'\t' -t | sed 's/\(.\)..$/.\1°C/'
+         echo "node in hwmon class"
+         cat /sys/class/hwmon/hwmon*/name
+         exit 1
+    fi
+
+_summary: Check if X86 package temperature thermal driver is installed
+_description:
+    Check if X86 package temperature thermal driver is installed
+plugin: shell
+category_id: iiotg-thermal
+id: iiotg-thermal/intel-x86-pkg-temp-thermal
+imports:
+    from com.canonical.certification import cpuinfo
+    from com.canonical.plainbox import manifest
+requires:
+    manifest.is_Iiotg == 'True'
+    cpuinfo.type == 'GenuineIntel'
+command:
+    if grep -q 'x86_pkg_temp' /sys/class/thermal/thermal_zone*/type; then
+        exit 0
+    else
+        echo "The system has no x86_pkg_thermal zone."
+        exit 1
+    fi
+
+_summary: Check if thermal zone contains valid trip point
+_description:
+    Check if the system contains valid trip points, 
+    iwlwifi/INT3400, Thermal/x86_pkg_temp are ignored.
+plugin: shell
+category_id: iiotg-thermal
+id: iiotg-thermal/valid-thermal-zone-trip-points
+imports:
+    from com.canonical.certification import cpuinfo
+    from com.canonical.plainbox import manifest
+requires:
+    manifest.is_Iiotg == 'True'
+    cpuinfo.type == 'GenuineIntel'
+command:
+    for zone in /sys/class/thermal/thermal_zone*
+    do
+        pass=0
+        tp_type=$(cat "$zone"/type)
+        if [ "${tp_type:0:7}" = "iwlwifi" ]; then
+            continue
+        elif [ "${tp_type:0:15}" = "INT3400 Thermal" ]; then
+            continue
+        elif [ "${tp_type:0:12}" = "x86_pkg_temp" ]; then
+            continue
+        elif [ "${tp_type:0:8}" = "TCPU_PCI" ]; then
+            continue
+        fi
+        # shellcheck disable=SC2013
+        for tp_temp in $(cat "$zone"/trip_point_*_temp)
+        do
+            if [ "$tp_temp" -gt 0 ]; then
+                pass=1
+                break
+            fi
+        done
+        if [ "$pass" -eq 0 ]; then
+            echo "$tp_type contains no valid trip point"
+            tail "$zone"/trip_point_*_temp
+            exit 1
+        fi
+    done
+
+_summary: Check if thermal driver be loaded.
+_description:
+    Check if thermal driver be loaded. Which also checked if the CPU id be
+    recognized by kernel.
+    Thermal zone TCPU will not be created without this driver which also impacts
+    thermald operation.
+plugin: shell
+category_id: iiotg-thermal
+id: iiotg-thermal/proc_thermal
+imports:
+    from com.canonical.certification import cpuinfo
+    from com.canonical.certification import device
+    from com.canonical.plainbox import manifest
+requires:
+    manifest.is_Iiotg == 'True'
+    cpuinfo.type == 'GenuineIntel'
+    device.path in ['/devices/platform/INTC1040:00','/devices/platform/INT3400:00']
+command:
+    set -x
+    report_folder="$HOME/submission-report-$(date +%Y%m%d%H%M)"
+    mkdir -p "$report_folder"
+    if lspci -nnk  | grep driver | grep proc_thermal;then
+        true;
+    else
+        journalctl -k > "$report_folder"/dmesg.log
+        lspci -nnk > "$report_folder"/lspci-nnk.log
+        lsmod > "$report_folder"/lsmod.log
+        false;
+        echo "proc_thermal driver is not loaded."
+        exit 1
+    fi
+
+_summary: Check if thermald is active
+_description:
+    Check if thermald is active in classic image and inactive in core image
+plugin: shell
+category_id: iiotg-thermal
+id: iiotg-thermal/thermald
+template-engine: jinja2
+imports:
+    from com.canonical.certification import cpuinfo
+    from com.canonical.plainbox import manifest
+user: root
+requires:
+    manifest.is_Iiotg == 'True'
+    cpuinfo.type == 'GenuineIntel'
+    cpuinfo.model_number == '6'
+    cpuinfo.model_version not in ['85', '108', '143', '150']
+command:
+    systemctl is-active --quiet thermald
+    RETVAL=$?
+    {%- if __on_ubuntucore__ %}
+        # 0 means active, all other error values are considered OK
+        # because we only want to make sure that thermald is not running
+        if [ "$RETVAL" -eq 0 ];
+        then
+            echo "FAIL: thermald is active in core image."
+            exit 1
+        fi
+        echo "PASS: thermald is inactive in core image"
+    {%- else %}
+        if [ "$RETVAL" -ne 0 ];
+        then
+            echo "FAIL: thermald is not active"
+            echo "==="
+            echo "# journalctl -b -u thermald"
+            journalctl -b -u thermald --no-pager
+            echo "==="
+            exit "$RETVAL"
+        fi
+        echo "PASS: thermald is active in classic image"
+    {% endif -%}
+    exit 0

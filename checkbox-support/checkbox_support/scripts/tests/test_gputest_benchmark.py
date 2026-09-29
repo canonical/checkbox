@@ -16,12 +16,7 @@
 # You should have received a copy of the GNU General Public License
 # along with Checkbox.  If not, see <http://www.gnu.org/licenses/>.
 
-from __future__ import absolute_import
-from __future__ import division
-from __future__ import print_function
-from __future__ import unicode_literals
 
-from io import open
 from tempfile import NamedTemporaryFile
 import os
 import unittest
@@ -48,7 +43,7 @@ class LogParserTest(unittest.TestCase):
         )
 
     def test_logfile_with_score(self):
-        with open(self.logfile.name, "wt") as f:
+        with open(self.logfile.name, "w") as f:
             f.write("FurMark : init OK.\n")
             f.write(
                 "[Benchmark_Score] - module: FurMark - Score: 8 points"
@@ -59,7 +54,7 @@ class LogParserTest(unittest.TestCase):
         os.unlink(self.logfile.name)
 
     def test_logfile_without_score(self):
-        with open(self.logfile.name, "wt") as f:
+        with open(self.logfile.name, "w") as f:
             f.write("FurMark : init OK.\n")
             f.write(
                 "[No_Score] - module: FurMark - Score: _ points"

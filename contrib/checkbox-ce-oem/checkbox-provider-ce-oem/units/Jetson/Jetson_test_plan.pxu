@@ -1,0 +1,125 @@
+id: jetson-server
+unit: test plan
+_name: Jetson server tests
+_description:
+    Combined manual and automated Jetson project-specific tests for Ubuntu Server images.
+include:
+nested_part:
+    jetson-server-manual
+    jetson-server-automated
+certification_status_overrides:
+    apply blocker to .*
+
+id: jetson-server-manual
+unit: test plan
+_name: Jetson server manual tests
+_description:
+    Manual Jetson project-specific tests for Ubuntu Server images.
+include:
+certification_status_overrides:
+    apply blocker to .*
+
+id: jetson-server-automated
+unit: test plan
+_name: Jetson server automated tests
+_description:
+    Automated Jetson project-specific tests for Ubuntu Server images.
+include:
+nested_part:
+    jetson-camera-automated
+    jetson-container-automated
+    jetson-core-container-automated
+    jetson-gpu-automated
+    jetson-cuda-automated
+    jetson-tensorrt-automated
+    jetson-cudnn-automated
+    jetson-nvpmodel-automated
+    jetson-video-codec-automated
+    jetson-tegra-tests-automated
+    jetson-vpi-automated
+certification_status_overrides:
+    apply blocker to .*
+
+id: jetson-desktop
+unit: test plan
+_name: Jetson desktop tests
+_description:
+    Combined manual and automated Jetson project-specific tests for Ubuntu Desktop images.
+include:
+nested_part:
+    jetson-desktop-manual
+    jetson-desktop-automated
+certification_status_overrides:
+    apply blocker to .*
+
+id: jetson-desktop-manual
+unit: test plan
+_name: Jetson desktop manual tests
+_description:
+    Manual Jetson project-specific tests for Ubuntu Desktop images.
+include:
+certification_status_overrides:
+    apply blocker to .*
+
+id: jetson-desktop-automated
+unit: test plan
+_name: Jetson desktop automated tests
+_description:
+    Automated Jetson project-specific tests for Ubuntu Desktop images.
+include:
+nested_part:
+    jetson-camera-automated
+    jetson-container-automated
+    jetson-core-container-automated
+    jetson-gpu-automated
+    jetson-cuda-automated
+    jetson-tensorrt-automated
+    jetson-cudnn-automated
+    jetson-nvpmodel-automated
+    jetson-video-codec-automated
+    jetson-tegra-tests-automated
+    jetson-vpi-automated
+certification_status_overrides:
+    apply blocker to .*
+
+id: jetson-core
+unit: test plan
+_name: Jetson core tests
+_description:
+    Combined manual and automated Jetson project-specific tests for Ubuntu Core images.
+include:
+nested_part:
+    jetson-core-manual
+    jetson-core-automated
+certification_status_overrides:
+    apply blocker to .*
+
+id: jetson-core-manual
+unit: test plan
+_name: Jetson core manual tests
+_description:
+    Manual Jetson project-specific tests for Ubuntu Core images.
+include:
+certification_status_overrides:
+    apply blocker to .*
+
+id: jetson-core-automated
+unit: test plan
+_name: Jetson core automated tests
+_description:
+    Automated Jetson project-specific tests for Ubuntu Core images.
+include:
+nested_part:
+    jetson-core-camera-automated
+    jetson-container-automated
+    jetson-core-container-automated
+    jetson-gpu-automated
+    jetson-cuda-automated
+    jetson-tensorrt-automated
+    jetson-cudnn-automated
+    jetson-core-nvpmodel-automated
+    jetson-core-video-codec-automated
+    jetson-tegra-tests-automated
+    jetson-core-vpi-automated
+certification_status_overrides:
+    apply blocker to .*

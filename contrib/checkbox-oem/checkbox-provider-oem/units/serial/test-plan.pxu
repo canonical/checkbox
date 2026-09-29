@@ -1,0 +1,8 @@
+id: oem-serial-automated
+unit: test plan
+_name: Serial automated tests
+_description:
+    Automated serial tests for devices
+    including before and after suspend
+bootstrap_include:
+include:

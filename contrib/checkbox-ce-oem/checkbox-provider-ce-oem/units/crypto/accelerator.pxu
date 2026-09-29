@@ -94,6 +94,18 @@ estimated_duration: 0.02
 category_id: crypto
 plugin: resource
 command:
+    resource_wrapper.sh -- check_crypto_profile.py resource -t caam
+
+id: ce-oem-crypto/check-caam-crypto-profiles-resource
+_summary: Check generation of CAAM crypto profiles resource
+_description:
+    Verify CAAM crypto profile resource generation command executes directly.
+estimated_duration: 0.02
+category_id: crypto
+plugin: shell
+requires: manifest.has_caam == 'True'
+imports: from com.canonical.plainbox import manifest
+command:
     check_crypto_profile.py resource -t caam
 
 unit: template
@@ -120,6 +132,18 @@ estimated_duration: 0.02
 category_id: crypto
 plugin: resource
 command:
+    resource_wrapper.sh -- check_crypto_profile.py resource -t mcrc
+
+id: ce-oem-crypto/check-mcrc-crypto-profiles-resource
+_summary: Check generation of MCRC crypto profiles resource
+_description:
+    Verify MCRC crypto profile resource generation command executes directly.
+estimated_duration: 0.02
+category_id: crypto
+plugin: shell
+requires: manifest.has_mcrc_engine == 'True'
+imports: from com.canonical.plainbox import manifest
+command:
     check_crypto_profile.py resource -t mcrc
 
 unit: template
@@ -145,6 +169,18 @@ _description:
 estimated_duration: 0.02
 category_id: crypto
 plugin: resource
+command:
+    resource_wrapper.sh -- check_crypto_profile.py resource -t sa2ul
+
+id: ce-oem-crypto/check-sa2ul-crypto-profiles-resource
+_summary: Check generation of SA2UL crypto profiles resource
+_description:
+    Verify SA2UL crypto profile resource generation command executes directly.
+estimated_duration: 0.02
+category_id: crypto
+plugin: shell
+requires: manifest.has_sa2ul_engine == 'True'
+imports: from com.canonical.plainbox import manifest
 command:
     check_crypto_profile.py resource -t sa2ul
 

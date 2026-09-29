@@ -1,0 +1,5 @@
+unit: manifest entry
+id: is_Xilinx
+_name: Is this a Xilinx platform?
+_prompt: Xilinx specific:
+value-type: bool

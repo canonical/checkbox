@@ -1,0 +1,7 @@
+id: oem-spi-automated
+unit: test plan
+_name: Serial Peripheral Interface (SPI) Automated Tests
+_description:
+  Serial Peripheral Interface (SPI) Automated Tests
+bootstrap_include:
+include:

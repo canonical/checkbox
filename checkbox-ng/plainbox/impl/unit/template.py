@@ -199,17 +199,17 @@ class TemplateUnit(UnitWithId):
         # called with correctly-ordered arguments.
         assert (
             cls is TemplateUnit
-        ), "{}.instantiate_template() not customized".format(cls.__name__)
+        ), f"{cls.__name__}.instantiate_template() not customized"
         return cls(
             data, raw_data, origin, provider, parameters, field_offset_map
         )
 
     def __str__(self):
         """String representation of Template unit objects."""
-        return "{} <~ {}".format(self.template_id, self.resource_id)
+        return f"{self.template_id} <~ {self.resource_id}"
 
     def __repr__(self):
-        return "<TemplateUnit template_id:{!r}>".format(self.template_id)
+        return f"<TemplateUnit template_id:{self.template_id!r}>"
 
     @property
     def unit(self):
@@ -252,7 +252,7 @@ class TemplateUnit(UnitWithId):
         if resource_namespace is None:
             return resource_partial_id
         else:
-            return "{}::{}".format(resource_namespace, resource_partial_id)
+            return f"{resource_namespace}::{resource_partial_id}"
 
     @classmethod
     def slugify_template_id(cls, _string=None):
@@ -265,7 +265,7 @@ class TemplateUnit(UnitWithId):
         """
         if _string:
             valid_chars = frozenset(
-                "-_.:/\\{}{}".format(string.ascii_letters, string.digits)
+                f"-_.:/\\{string.ascii_letters}{string.digits}"
             )
             return "".join(c if c in valid_chars else "" for c in _string)
 

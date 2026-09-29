@@ -28,7 +28,7 @@ class DkmsInfoResult:
         self.dkms_info[pkg] = details
 
 
-class DkmsInfoParser(object):
+class DkmsInfoParser:
     """
     Parser for output from the dkms_info script.
 

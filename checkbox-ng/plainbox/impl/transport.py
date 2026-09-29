@@ -175,11 +175,11 @@ class _OAuthTransport(TransportBase):
                 self.url, files=form_payload, data=form_data, headers=headers
             )
         except requests.exceptions.Timeout as exc:
-            raise TransportError("Request to timed out: {}".format(exc))
+            raise TransportError(f"Request to timed out: {exc}")
         except requests.exceptions.InvalidSchema as exc:
-            raise TransportError("Invalid destination URL: {0}".format(exc))
+            raise TransportError(f"Invalid destination URL: {exc}")
         except requests.exceptions.ConnectionError as exc:
-            raise TransportError("Unable to connect: {0}".format(exc))
+            raise TransportError(f"Unable to connect: {exc}")
         if response is not None:
             try:
                 # This will raise HTTPError for status != 20x
@@ -251,7 +251,7 @@ class FileTransport(TransportBase):
         """
         with open(self._path, "wb") as f:
             copyfileobj(data, f)
-        return {"url": "file://{}".format(self._path)}
+        return {"url": f"file://{self._path}"}
 
 
 if oauth_available():

@@ -92,7 +92,7 @@ class SubmissionServiceTransport(TransportBase):
         self._validate_secure_id(secure_id)
         logger.debug(_("Sending to %s, Secure ID is %s"), self.url, secure_id)
         try:
-            response = requests.post(self.url, data=data)
+            response = requests.post(self.url, files={"file": data})
         except requests.exceptions.Timeout as exc:
             raise TransportError(
                 _("Request to {0} timed out: {1}").format(self.url, exc)

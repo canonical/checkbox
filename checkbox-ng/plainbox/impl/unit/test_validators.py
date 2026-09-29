@@ -23,16 +23,21 @@ plainbox.impl.unit.test_validators
 Test definitions for plainbox.impl.validators
 """
 
+from textwrap import dedent
 from unittest import TestCase
+from unittest.mock import MagicMock
 
-from plainbox.impl.unit.validators import CorrectFieldValueValidator
-from plainbox.impl.unit.validators import DeprecatedFieldValidator
-from plainbox.impl.unit.validators import IFieldValidator
-from plainbox.impl.unit.validators import PresentFieldValidator
-from plainbox.impl.unit.validators import TemplateInvariantFieldValidator
-from plainbox.impl.unit.validators import TemplateVariantFieldValidator
-from plainbox.impl.unit.validators import UniqueValueValidator
-from plainbox.impl.unit.validators import UnitReferenceValidator
+from plainbox.impl.unit.validators import (
+    CorrectFieldValueValidator,
+    DeprecatedFieldValidator,
+    IFieldValidator,
+    OverrideFieldValueValidator,
+    PresentFieldValidator,
+    TemplateInvariantFieldValidator,
+    TemplateVariantFieldValidator,
+    UniqueValueValidator,
+    UnitReferenceValidator,
+)
 
 
 class NoTestsForAllThatCode(TestCase):
@@ -48,3 +53,49 @@ class NoTestsForAllThatCode(TestCase):
         UniqueValueValidator
         UnitReferenceValidator
         self.assertTrue(True)
+
+
+class OverrideFieldValueValidatorTests(TestCase):
+    def test_check_ok_legacy(self):
+        xfail_validators = OverrideFieldValueValidator(["true", "false"])
+        parent = MagicMock()
+        testplan = MagicMock(xfail_overrides=dedent("""
+            apply true to com.canonical.certification::other_id
+            apply false to some_id
+        """).strip())
+
+        self.assertFalse(
+            xfail_validators.check(parent, testplan, "xfail_overrides")
+        )
+
+    def test_check_ok_yaml(self):
+        xfail_validators = OverrideFieldValueValidator(["true", "false"])
+        parent = MagicMock()
+        testplan = MagicMock(
+            xfail_overrides=[
+                "apply true to com.canonical.certification::other_id",
+                "apply false to some_id",
+            ]
+        )
+
+        self.assertFalse(
+            xfail_validators.check(parent, testplan, "xfail_overrides")
+        )
+
+    def test_check_wrong_value(self):
+        xfail_validators = OverrideFieldValueValidator(["true", "false"])
+        parent = MagicMock()
+        testplan = MagicMock(xfail_overrides=["apply wrong_value to some"])
+
+        self.assertTrue(
+            xfail_validators.check(parent, testplan, "xfail_overrides")
+        )
+
+    def test_check_wrong_grammar(self):
+        xfail_validators = OverrideFieldValueValidator(["true", "false"])
+        parent = MagicMock()
+        testplan = MagicMock(xfail_overrides=["wrong_value to some"])
+
+        self.assertTrue(
+            xfail_validators.check(parent, testplan, "xfail_overrides")
+        )

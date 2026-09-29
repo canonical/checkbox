@@ -122,7 +122,7 @@ def get_test_name_from_line(line: str) -> T.Tuple[str, bool]:
     """
     assert line.startswith(
         "test"
-    ), "This line doesn't describe a test output. Line is {}".format(line)
+    ), f"This line doesn't describe a test output. Line is {line}"
     test_name = line.split("test ", maxsplit=1)[1].split(": ", maxsplit=1)[0]
     return test_name, test_name.startswith("VIDIOC")
 

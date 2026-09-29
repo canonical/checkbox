@@ -23,7 +23,7 @@ Build-Depends:
  python3-numpy,
  python3-opencv,
 Standards-Version: 3.9.6
-X-Python3-Version: >= 3.5
+X-Python3-Version: >= 3.6
 XS-Testsuite: autopkgtest
 
 Package: python3-checkbox-support

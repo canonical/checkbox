@@ -24,24 +24,19 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        release: [16, 18, 20, 22, 24]
+        release: [18, 20, 22, 24]
         arch: [armhf]
         include:
           # other confs built natively in checkbox-daily-native-builds.yaml
-          - release: 16
-            arch: amd64
-          - release: 16
-            arch: arm64
           - release: 22
             arch: riscv64
           - release: 24
             arch: riscv64
-    # uc16 needs ubuntu20 because we need cgroup v1 to build it
-    runs-on: ${{ matrix.release == 16 && fromJson('["self-hosted", "focal"]') || 'ubuntu-latest' }}
+    runs-on: ubuntu-latest
     timeout-minutes: 1200 #20h, this will timeout sooner due to inner timeouts
     name: Runtime ${{ matrix.release }} (${{ matrix.arch }})
     steps:
-      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
         with:
           fetch-depth: 0
           persist-credentials: false
@@ -53,7 +48,7 @@ jobs:
           ./prepare.sh series${{ matrix.release }}
 
       - name: Set up QEMU
-        uses: docker/setup-qemu-action@06116385d9baf250c9f4dcb4858b16962ea869c3
+        uses: docker/setup-qemu-action@99012661954931238ded8c8b007157a8430204e1
 
       - id: snap_build
         name: Build (retries on fail)
@@ -95,7 +90,7 @@ jobs:
       fail-fast: false
       matrix:
         type: [classic, uc]
-        release: [16, 18, 20, 22, 24]
+        release: [18, 20, 22, 24]
         arch: [armhf, amd64, arm64]
         exclude:
           # other confs built natively in checkbox-daily-native-builds.yaml
@@ -122,12 +117,11 @@ jobs:
           - release: 24
             arch: riscv64
             type: uc
-    # uc16 needs ubuntu20 because we need cgroup v1 to build it
-    runs-on: ${{ matrix.release == 16 && fromJson('["self-hosted", "focal"]') || 'ubuntu-latest' }}
+    runs-on: ubuntu-latest
     timeout-minutes: 1200 #20h, this will timeout sooner due to inner timeouts
     name: Frontend ${{ matrix.type }}${{ matrix.release }} (${{ matrix.arch }})
     steps:
-      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
         with:
           fetch-depth: 0
           persist-credentials: false
@@ -139,7 +133,7 @@ jobs:
           ./prepare_${{ matrix.type }}.sh series_${{ matrix.type }}${{ matrix.release }}
 
       - name: Set up QEMU
-        uses: docker/setup-qemu-action@06116385d9baf250c9f4dcb4858b16962ea869c3
+        uses: docker/setup-qemu-action@99012661954931238ded8c8b007157a8430204e1
 
       - id: snap_build
         name: Build (retries on fail)

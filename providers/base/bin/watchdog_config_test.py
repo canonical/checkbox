@@ -31,15 +31,13 @@ def get_systemd_wdt_usec():
     try:
         result = subprocess.check_output(cmd, universal_newlines=True)
     except Exception as err:
-        raise SystemExit("Error: {}".format(err))
+        raise SystemExit(f"Error: {err}")
 
     if result:
         runtime_watchdog_usec = result.split("=")[1].strip()
         return runtime_watchdog_usec
     else:
-        raise SystemExit(
-            "Unexpected failure occurred when executing: {}".format(cmd)
-        )
+        raise SystemExit(f"Unexpected failure occurred when executing: {cmd}")
 
 
 def watchdog_service_check():
@@ -50,7 +48,7 @@ def watchdog_service_check():
     try:
         return not subprocess.run(cmd).returncode
     except Exception as err:
-        raise SystemExit("Error: {}".format(err))
+        raise SystemExit(f"Error: {err}")
 
 
 def main():

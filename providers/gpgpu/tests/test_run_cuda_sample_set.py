@@ -175,7 +175,7 @@ class TestCudaSamples(unittest.TestCase):
 
         run_cuda_sample_set.remove_add_subdirectory_line(filepath, text)
 
-        with open(filepath, "r") as f:
+        with open(filepath) as f:
             lines = f.readlines()
 
         self.assertEqual(lines[0], "first line\n")

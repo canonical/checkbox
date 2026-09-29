@@ -59,31 +59,23 @@ class Transform(IntEnum):
 
 
 # A plain 4-tuple with some basic info about the monitor
-MonitorInfo = NamedTuple(
-    "MonitorInfo",
-    [
-        ("connector", str),  # HDMI-1, eDP-1, ...
-        ("vendor", str),  # vendor string like BOE, Asus, etc.
-        ("product", str),
-        ("serial", str),
-    ],
-)
+class MonitorInfo(NamedTuple):
+    connector: str  # HDMI-1, eDP-1, ...
+    vendor: str  # vendor string like BOE, Asus, etc.
+    product: str
+    serial: str
 
 
 # py3.5 can't use inline type annotations,
 # otherwise the _*T types should be merged with their non-underscore versions
-_MutterDisplayModeT = NamedTuple(
-    "_MutterDisplayModeT",
-    [
-        ("id", str),
-        ("width", int),
-        ("height", int),
-        ("refresh_rate", float),
-        ("preferred_scale", float),
-        ("supported_scales", List[float]),
-        ("properties", Mapping[str, Any]),
-    ],
-)
+class _MutterDisplayModeT(NamedTuple):
+    id: str
+    width: int
+    height: int
+    refresh_rate: float
+    preferred_scale: float
+    supported_scales: List[float]
+    properties: Mapping[str, Any]
 
 
 class MutterDisplayMode(_MutterDisplayModeT):
@@ -103,19 +95,15 @@ class MutterDisplayMode(_MutterDisplayModeT):
         !! This is only here for code that expects a string, new code should
         !! use the width and height numbers
         """
-        return "{}x{}".format(self.width, self.height)
+        return f"{self.width}x{self.height}"
 
 
-_PhysicalMonitorT = NamedTuple(
-    "_PhysicalMonitorT",
-    [
-        ("info", MonitorInfo),
-        ("modes", List[MutterDisplayMode]),
-        # See: https://gitlab.gnome.org/GNOME/mutter/-/blob/main/data/
-        # dbus-interfaces/org.gnome.Mutter.DisplayConfig.xml#L414
-        ("properties", Mapping[str, Any]),
-    ],
-)
+class _PhysicalMonitorT(NamedTuple):
+    info: MonitorInfo
+    modes: List[MutterDisplayMode]
+    # See: https://gitlab.gnome.org/GNOME/mutter/-/blob/main/data/
+    # dbus-interfaces/org.gnome.Mutter.DisplayConfig.xml#L414
+    properties: Mapping[str, Any]
 
 
 class PhysicalMonitor(_PhysicalMonitorT):
@@ -132,19 +120,51 @@ class PhysicalMonitor(_PhysicalMonitorT):
     def is_builtin(self) -> bool:
         return self.properties.get("is-builtin", False)
 
+    def get_max_resolution(self) -> "tuple[int, int]":
+        """Get the maximum physcial resolution of this monitor
 
-_LogicalMonitorT = NamedTuple(
-    "_LogicalMonitorT",
-    [
-        ("x", int),
-        ("y", int),
-        ("scale", float),
-        ("transform", Transform),
-        ("is_primary", bool),
-        ("monitors", List[MonitorInfo]),
-        ("properties", Mapping[str, Any]),
-    ],
-)
+        :raises ValueError: if there's no supported modes
+        :raises RuntimeError: if all modes are 0
+        :return: (width, height) pair like (1920, 1080)
+        """
+
+        if len(self.modes) == 0:
+            raise ValueError(
+                f"Monitor {self.info.connector} supports 0 modes!"
+            )
+        # mirror gnome settings sorting logic
+        # https://github.com/GNOME/gnome-control-center/blob/d4ac269200c1d3cbd886507acdd4fe54ac19cb31/panels/display/cc-display-settings.c#L313-L328
+
+        # sort by width, then tie-break by height
+        max_w, max_h = 0, 0
+        for mode in self.modes:
+            if (mode.width > max_w) or (
+                mode.width == max_w and mode.height > max_h
+            ):
+                max_w, max_h = mode.width, mode.height
+                continue
+
+        if (max_w, max_h) == (0, 0):
+            raise RuntimeError("Unexpected mode with width=0, height=0!")
+
+        return max_w, max_h
+
+    def get_current_mode(self) -> "MutterDisplayMode | None":
+        # it' possible to return none
+        # if somehow all monitors are turned off
+        for mode in self.modes:
+            if mode.is_current:
+                return mode
+
+
+class _LogicalMonitorT(NamedTuple):
+    x: int
+    y: int
+    scale: float
+    transform: Transform
+    is_primary: bool
+    monitors: List[MonitorInfo]
+    properties: Mapping[str, Any]
 
 
 class LogicalMonitor(_LogicalMonitorT):
@@ -158,17 +178,13 @@ class LogicalMonitor(_LogicalMonitorT):
         )
 
 
-_MutterDisplayConfigT = NamedTuple(
-    "_MutterDisplayConfigT",
-    [
-        ("serial", int),
-        ("physical_monitors", List[PhysicalMonitor]),
-        ("logical_monitors", List[LogicalMonitor]),
-        # technically value type is GLib.Variant
-        # but it acts like a readonly map in this case
-        ("properties", Mapping[str, Any]),
-    ],
-)
+class _MutterDisplayConfigT(NamedTuple):
+    serial: int
+    physical_monitors: List[PhysicalMonitor]
+    logical_monitors: List[LogicalMonitor]
+    # technically value type is GLib.Variant
+    # but it acts like a readonly map in this case
+    properties: Mapping[str, Any]
 
 
 class MutterDisplayConfig(_MutterDisplayConfigT):
@@ -344,7 +360,7 @@ class MonitorConfigGnome(MonitorConfig):
         cycle_transforms: bool = False,
         resolution_filter: Optional[ResolutionFilter] = None,
         post_cycle_action: Callable[..., Any] = lambda *a, **k: sleep(5),
-        **post_cycle_action_kwargs: Any
+        **post_cycle_action_kwargs: Any,
     ):
         """Automatically cycle through the supported monitor configurations.
 

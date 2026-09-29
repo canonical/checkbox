@@ -1,0 +1,26 @@
+id: genio-aiml-full
+unit: test plan
+_name: Genio AIML tests
+_description: Full Genio AIML tests for devices
+include:
+nested_part:
+    genio-aiml-manual
+    genio-aiml-automated
+
+id: genio-aiml-manual
+unit: test plan
+_name: Genio AIML manual tests
+_description: Manual before suspend Genio AIML tests for devices
+include:
+
+id: genio-aiml-automated
+unit: test plan
+_name: Genio AIML auto tests
+_description: Automated before suspend Genio AIML tests for devices
+include:
+    genio-aiml/benchmark_dla
+    genio-aiml/apu_mdw_test
+    genio-aiml/edma_test
+    genio-aiml/vpu5_test
+    genio-aiml/mdla2_player
+    genio-aiml/mdla3_player

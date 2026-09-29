@@ -180,4 +180,11 @@ temperature test of that thermal type and restored afterwards, so a
 power-gated zone is tested instead of skipped. See
 checkbox-provider-ce-oem/units/thermal-sensor/README.md.
 e.g. TZ_KEEP_POWERED=gpu-thermal:/sys/bus/pci/devices/0000:01:00.0
+
+id: thermal_zones
+TZ_SKIP=all | {thermal-type1}|{thermal-type2}|...
+Thermal zones of these types are not tested at all; their temperature
+jobs are reported as not run. Only for zones that cannot be tested
+safely (e.g. a known platform bug); name the reason next to it.
+e.g. TZ_SKIP=gpu-thermal
 ```

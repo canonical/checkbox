@@ -263,6 +263,24 @@ TZ_KEEP_POWERED=cv0-thermal:/sys/devices/platform/bus@0/13e00000.host1x/16000000
 A board without the engine (for example Orin Nano has no DLA/PVA, so its
 cv zones never report data) should use `TZ_ALLOW_NO_DATA` instead.
 
+## Configuring `TZ_SKIP`
+
+`TZ_SKIP` lists zone types that must not be tested at all, for example a
+zone whose device crashes the driver when it is powered (a known platform
+bug). Same syntax as `TZ_ALLOW_NO_DATA`:
+
+```text
+# known GPU runtime-resume crash on this image (add the bug link)
+TZ_SKIP=gpu-thermal
+```
+
+The `thermal_zones` resource reports `testable_stable_id: none` for a listed
+zone whether or not it has data, so its temperature job is reported as not
+run (`requires` not met) instead of disappearing from the results.
+`TZ_SKIP` wins over `TZ_KEEP_POWERED`. Unlike a test-plan `exclude`, it
+matches the zone type, so it does not depend on the job id. Name the reason
+next to it and remove the entry when the reason is gone.
+
 ## Manual helper commands
 
 When debugging outside Checkbox, these helper commands are useful.

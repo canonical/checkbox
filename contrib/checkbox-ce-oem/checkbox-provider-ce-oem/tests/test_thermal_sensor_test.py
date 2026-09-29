@@ -357,6 +357,18 @@ class StableIdentityTest(unittest.TestCase):
         self.assertIn("temp_available: False", output)
         self.assertIn("testable_stable_id: none", output)
 
+    def test_dump_skips_tz_skip_zone_even_with_data(self):
+        self._zone("thermal_zone0", "gpu-thermal")
+        env = {
+            "TZ_SKIP": "gpu-thermal",
+            "TZ_KEEP_POWERED": "gpu-thermal:/x",
+        }
+        with mock.patch.dict("os.environ", env, clear=True):
+            with mock.patch("sys.stdout", new_callable=io.StringIO) as out:
+                thermal_sensor_test.dump_thermal_zones(None)
+        self.assertIn("temp_available: True", out.getvalue())
+        self.assertIn("testable_stable_id: none", out.getvalue())
+
     def test_dump_keeps_keep_powered_zone_testable(self):
         node, output = self._dump_enodata_zone(
             {"TZ_ALLOW_NO_DATA": "all", "TZ_KEEP_POWERED": "cv0-thermal:/x"}

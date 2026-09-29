@@ -469,9 +469,9 @@ def dump_thermal_zones(args):
         node = ThermalMonitor(thermal.name)
         stable_id = node.stable_id
         available = node.temperature_available
-        # zones in TZ_KEEP_POWERED are powered for the test, so no data
-        # while idle does not make them skippable
-        skip = (
+        # TZ_SKIP always skips; zones in TZ_KEEP_POWERED are powered for
+        # the test, so no data while idle does not make them skippable
+        skip = _zone_type_listed("TZ_SKIP", node.type) or (
             not available
             and _zone_type_listed("TZ_ALLOW_NO_DATA", node.type)
             and not _keep_powered_devices(node.type)

@@ -7,6 +7,7 @@ estimated_duration: 1s
 environ:
     TZ_ALLOW_NO_DATA
     TZ_KEEP_POWERED
+    TZ_SKIP
 command: resource_wrapper.sh -- thermal_sensor_test.py dump
 
 id: check_thermal_zones_resource

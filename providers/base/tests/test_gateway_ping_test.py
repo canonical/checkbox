@@ -453,6 +453,18 @@ class TestPingFunction(unittest.TestCase):
         self.assertEqual(result["transmitted"], 4)
         self.assertEqual(result["received"], 4)
         self.assertEqual(result["pct_loss"], 0)
+        mock_check_output.return_value = (
+            "6 packets transmitted, 5 received, 16.6667% packet loss"
+        )
+        result = ping("8.8.8.8", "eth0")
+        self.assertEqual(result["transmitted"], 6)
+        self.assertEqual(result["received"], 5)
+        self.assertEqual(result["pct_loss"], 17)
+        mock_check_output.return_value = "7 packets transmitted, 4 received, +2 duplicates, 23.3333% packet loss"
+        result = ping("8.8.8.8", "eth0")
+        self.assertEqual(result["transmitted"], 7)
+        self.assertEqual(result["received"], 4)
+        self.assertEqual(result["pct_loss"], 23)
 
     @patch("subprocess.check_output")
     def test_ping_malformed_output(self, mock_check_output):

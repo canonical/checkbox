@@ -127,16 +127,16 @@ class Address:
                 state = line[offset : offset + 2].strip() or None
         if state is None:
             raise SystemExit(
-                "Test failed, address 0x{:02x} was not scanned by i2cdetect "
+                "Test failed, address {:#x} was not scanned by i2cdetect "
                 "on bus {}".format(address, args.bus)
             )
         if state == "--":
             raise SystemExit(
-                "Test failed, no device detected at address 0x{:02x} on "
+                "Test failed, no device detected at address {:#x} on "
                 "bus {}".format(address, args.bus)
             )
         print(
-            "Device detected at address 0x{:02x} on bus {} ({})".format(
+            "Device detected at address {:#x} on bus {} ({})".format(
                 address, args.bus, state
             )
         )
@@ -146,12 +146,17 @@ class ExpectedDeviceResource:
     """Print expected I2C devices from configuration as resource records."""
 
     def invoked(self, args):
-        entries = os.environ.get("EXPECTED_I2C_DEVICES", "")
-        for entry in filter(None, map(str.strip, entries.split(","))):
+        entries_envvar = os.environ.get("EXPECTED_I2C_DEVICES", "")
+        entries = [
+            entry.strip()
+            for entry in entries_envvar.split(",")
+            if entry.strip()
+        ]
+        for entry in entries:
             try:
-                bus, _, address = entry.partition(":")
+                bus, address = entry.split(":")
                 print("bus: {}".format(int(bus)))
-                print("address: 0x{:02x}".format(int(address, 16)))
+                print("address: {:#x}".format(int(address, 16)))
                 print()
             except ValueError:
                 raise SystemExit(

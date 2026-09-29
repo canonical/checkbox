@@ -94,15 +94,12 @@ execute: |
     failed=1
   fi
 
-  # Compare the full phase's submission.json against its golden results,
-  # so we verify both that every job got the expected outcome and that
-  # its output wasn't lost, not just that the exit code matched. The
-  # passing phase's jobs are a subset of the full phase's, so a single
-  # check here covers both.
-  CHECK_SUBMISSION="$RUN_DIR/check_submission.py"
-
-  if ! python3 "$CHECK_SUBMISSION" submission-full.json golden-full.json
-  then
+  # Ubuntu Core images do not guarantee a host python3 binary, so the
+  # GitHub runner performs the golden submission comparison after Spread
+  # copies the artifacts back. Keep a local guard here so the workflow
+  # still fails if the expected output is missing from the guest.
+  if [ ! -f submission-full.json ]; then
+    echo "FAIL: missing submission-full.json" >&2
     failed=1
   fi
 

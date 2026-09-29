@@ -81,6 +81,18 @@ jobs:
             -artifacts=artifacts \
             "garden:${{ matrix.garden-system }}:tests/run-metabox-smoke"
 
+      - name: Compare the full submission against the golden results
+        working-directory: tools/image-garden
+        run: |
+          submission="$(find artifacts -path '*/submission-full.json' -print -quit)"
+          if [ -z "$submission" ]; then
+            echo "submission-full.json not found in spread artifacts" >&2
+            exit 1
+          fi
+          python3 check_submission.py \
+            "$submission" \
+            tests/run-metabox-smoke/golden-full.json
+
       - name: Rename artifacts for GitHub compatibility
         if: always()
         working-directory: tools/image-garden

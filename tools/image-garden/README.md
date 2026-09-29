@@ -57,11 +57,13 @@ validate the metabox provider against a snap exactly as published:
 ```bash
 python3 patch_checkbox_snap.py --series 24 --metabox-only \
     --output-dir local_run_24/checkbox24 --force
-cp spread.yaml check_submission.py local_run_24/ && \
-    cp -r tests launchers local_run_24/
+cp spread.yaml local_run_24/ && cp -r tests launchers local_run_24/
 cd local_run_24
 image-garden.spread -vv -artifacts=artifacts \
     "garden:ubuntu-core-24:tests/run-metabox-smoke"
+python3 ../check_submission.py \
+    artifacts/garden:ubuntu-core-24:tests/run-metabox-smoke/submission-full.json \
+    tests/run-metabox-smoke/golden-full.json
 ```
 
 Running Spread from `local_run_24/` keeps its VM state (images, logs,

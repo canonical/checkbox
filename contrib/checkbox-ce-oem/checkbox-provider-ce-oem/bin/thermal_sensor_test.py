@@ -8,6 +8,7 @@ import shlex
 import subprocess
 import argparse
 import hashlib
+from contextlib import contextmanager
 from pathlib import Path
 
 SYS_THERMAL_PATH = "/sys/class/thermal"
@@ -264,6 +265,78 @@ def ignore_temp_check_enabled(zone_type):
     return _zone_type_listed("TZ_IGNORE_TEMP_CHECK", zone_type)
 
 
+KEEP_POWERED_TIMEOUT = 20
+
+
+def _keep_powered_devices(zone_type):
+    """Devices listed for zone_type in TZ_KEEP_POWERED.
+
+    Format: "<type>:<dev>[,<dev>]|<type>:<dev>...", device paths may
+    contain ":" (e.g. PCI 0000:01:00.0), so only the first ":" splits.
+    """
+    for entry in os.getenv("TZ_KEEP_POWERED", "").split("|"):
+        name, _, devices = entry.strip().partition(":")
+        if name.strip() == zone_type:
+            return [d.strip() for d in devices.split(",") if d.strip()]
+    return []
+
+
+def _write_power_control(device, value, timeout):
+    """Write power/control in a child process.
+
+    Setting "on" runs the driver's runtime resume; if that hangs, the
+    test fails after timeout instead of blocking the whole session.
+    """
+    control = os.path.join(device, "power", "control")
+    proc = subprocess.Popen(
+        ["sh", "-c", 'echo "$1" > "$2"', "sh", value, control]
+    )
+    try:
+        rc = proc.wait(timeout=timeout)
+    except subprocess.TimeoutExpired:
+        raise SystemExit(
+            "Error: {} did not respond within {} s after setting "
+            "power/control={} (driver runtime resume failed?)".format(
+                device, timeout, value
+            )
+        )
+    if rc != 0:
+        raise SystemExit(
+            "Error: failed to set {} to {}".format(control, value)
+        )
+
+
+@contextmanager
+def keep_powered(zone_type, timeout=KEEP_POWERED_TIMEOUT):
+    """Keep the TZ_KEEP_POWERED devices of zone_type powered on.
+
+    A device whose power/control is already "on" is left untouched;
+    otherwise it is set to "on" and restored to its original value
+    afterwards, also when the test fails.
+    """
+    restore = []
+    try:
+        for device in _keep_powered_devices(zone_type):
+            control = Path(device, "power", "control")
+            if not control.exists():
+                raise SystemExit(
+                    "Error: TZ_KEEP_POWERED device {} has no "
+                    "power/control".format(device)
+                )
+            original = control.read_text().strip()
+            if original == "on":
+                logging.info("# %s is already powered on", device)
+                continue
+            logging.info("# Power on %s (was %s)", device, original)
+            _write_power_control(device, "on", timeout)
+            restore.append((device, original))
+        yield
+    finally:
+        for device, original in reversed(restore):
+            logging.info("# Restore %s to %s", device, original)
+            _write_power_control(device, original, timeout)
+
+
 def check_temperature_readable(target_name, thermal_op):
     current_value = thermal_op.temperature
     logging.info(
@@ -336,7 +409,8 @@ def thermal_monitor_test(args):
         cmd = args.extra_commands
 
     thermal_op = ThermalMonitor(target_name)
-    ignore_temp_check = ignore_temp_check_enabled(thermal_op.type)
+    zone_type = thermal_op.type
+    ignore_temp_check = ignore_temp_check_enabled(zone_type)
     logging.info(
         "# Monitor the temperature of %s (%s) thermal around %s seconds",
         target_name,
@@ -350,16 +424,17 @@ def thermal_monitor_test(args):
             )
         )
 
-    if ignore_temp_check:
-        check_temperature_readable(target_name, thermal_op)
-        return
+    with keep_powered(zone_type):
+        if ignore_temp_check:
+            check_temperature_readable(target_name, thermal_op)
+            return
 
-    monitor_temperature_change(
-        target_name,
-        thermal_op,
-        args.duration,
-        cmd,
-    )
+        monitor_temperature_change(
+            target_name,
+            thermal_op,
+            args.duration,
+            cmd,
+        )
 
 
 def dump_thermal_zones(args):
@@ -368,8 +443,12 @@ def dump_thermal_zones(args):
         node = ThermalMonitor(thermal.name)
         stable_id = node.stable_id
         available = node.temperature_available
-        skip = not available and _zone_type_listed(
-            "TZ_ALLOW_NO_DATA", node.type
+        # zones in TZ_KEEP_POWERED are powered for the test, so no data
+        # while idle does not make them skippable
+        skip = (
+            not available
+            and _zone_type_listed("TZ_ALLOW_NO_DATA", node.type)
+            and not _keep_powered_devices(node.type)
         )
         # testable_stable_id lets a job gate on its own zone with a single
         # comparison; plainbox evaluates each comparison of a requires

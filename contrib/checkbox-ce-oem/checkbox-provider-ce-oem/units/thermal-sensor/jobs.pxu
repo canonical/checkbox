@@ -6,6 +6,7 @@ _description:
 estimated_duration: 1s
 environ:
     TZ_ALLOW_NO_DATA
+    TZ_KEEP_POWERED
 command: resource_wrapper.sh -- thermal_sensor_test.py dump
 
 id: check_thermal_zones_resource
@@ -56,6 +57,7 @@ user: root
 estimated_duration: 5m
 environ:
     TZ_IGNORE_TEMP_CHECK
+    TZ_KEEP_POWERED
 requires:
     thermal_zones.testable_stable_id == "{{ stable_id }}"
 flags: also-after-suspend

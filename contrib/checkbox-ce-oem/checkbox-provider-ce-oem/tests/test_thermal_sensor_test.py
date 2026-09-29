@@ -400,3 +400,121 @@ class StableIdentityTest(unittest.TestCase):
         ):
             with self.assertRaises(OSError):
                 node.temperature_available
+
+
+class KeepPoweredTest(unittest.TestCase):
+    """TZ_KEEP_POWERED: power the zone's devices on for the test."""
+
+    def setUp(self):
+        self.tmp = tempfile.TemporaryDirectory()
+        self.addCleanup(self.tmp.cleanup)
+
+    def _device(self, name, control):
+        dev = Path(self.tmp.name, name)
+        (dev / "power").mkdir(parents=True)
+        (dev / "power" / "control").write_text(control + "\n")
+        return dev
+
+    def _control(self, dev):
+        return (dev / "power" / "control").read_text().strip()
+
+    def test_devices_parsed_with_pci_paths(self):
+        env = {
+            "TZ_KEEP_POWERED": "gpu-thermal:/sys/bus/pci/devices/0000:01:00.0"
+            "|cv0-thermal:/a/pva0,/a/nvdla0"
+        }
+        with mock.patch.dict("os.environ", env, clear=True):
+            self.assertEqual(
+                thermal_sensor_test._keep_powered_devices("gpu-thermal"),
+                ["/sys/bus/pci/devices/0000:01:00.0"],
+            )
+            self.assertEqual(
+                thermal_sensor_test._keep_powered_devices("cv0-thermal"),
+                ["/a/pva0", "/a/nvdla0"],
+            )
+            self.assertEqual(
+                thermal_sensor_test._keep_powered_devices("cpu-thermal"), []
+            )
+
+    def test_powers_on_and_restores(self):
+        dev = self._device("gpu", "auto")
+        env = {"TZ_KEEP_POWERED": "gpu-thermal:{}".format(dev)}
+        with mock.patch.dict("os.environ", env, clear=True):
+            with thermal_sensor_test.keep_powered("gpu-thermal"):
+                self.assertEqual(self._control(dev), "on")
+        self.assertEqual(self._control(dev), "auto")
+
+    def test_already_on_is_left_untouched(self):
+        dev = self._device("gpu", "on")
+        env = {"TZ_KEEP_POWERED": "gpu-thermal:{}".format(dev)}
+        with mock.patch.dict("os.environ", env, clear=True):
+            with mock.patch.object(
+                thermal_sensor_test, "_write_power_control"
+            ) as write:
+                with thermal_sensor_test.keep_powered("gpu-thermal"):
+                    pass
+        write.assert_not_called()
+        self.assertEqual(self._control(dev), "on")
+
+    def test_restores_when_test_fails(self):
+        dev = self._device("pva0", "auto")
+        env = {"TZ_KEEP_POWERED": "cv0-thermal:{}".format(dev)}
+        with mock.patch.dict("os.environ", env, clear=True):
+            with self.assertRaises(SystemExit):
+                with thermal_sensor_test.keep_powered("cv0-thermal"):
+                    raise SystemExit(1)
+        self.assertEqual(self._control(dev), "auto")
+
+    def test_missing_power_control_fails(self):
+        env = {"TZ_KEEP_POWERED": "gpu-thermal:/nonexistent/device"}
+        with mock.patch.dict("os.environ", env, clear=True):
+            with self.assertRaises(SystemExit) as ctx:
+                with thermal_sensor_test.keep_powered("gpu-thermal"):
+                    pass
+        self.assertIn("no power/control", str(ctx.exception))
+
+    def test_hung_resume_fails_after_timeout(self):
+        dev = self._device("gpu", "auto")
+        proc = mock.Mock()
+        proc.wait.side_effect = thermal_sensor_test.subprocess.TimeoutExpired(
+            "sh", 1
+        )
+        env = {"TZ_KEEP_POWERED": "gpu-thermal:{}".format(dev)}
+        with mock.patch.dict("os.environ", env, clear=True):
+            with mock.patch.object(
+                thermal_sensor_test.subprocess, "Popen", return_value=proc
+            ):
+                with self.assertRaises(SystemExit) as ctx:
+                    with thermal_sensor_test.keep_powered("gpu-thermal", 1):
+                        pass
+        self.assertIn("did not respond", str(ctx.exception))
+
+    def test_keep_powered_zone_not_skipped_by_allow_no_data(self):
+        sysfs = Path(self.tmp.name, "thermal")
+        zone = sysfs / "thermal_zone0"
+        zone.mkdir(parents=True)
+        (zone / "type").write_text("gpu-thermal\n")
+        (zone / "temp").write_text("40000\n")
+        (zone / "mode").write_text("enabled\n")
+        env = {
+            "TZ_ALLOW_NO_DATA": "all",
+            "TZ_KEEP_POWERED": "gpu-thermal:/sys/bus/pci/devices/0000:01:00.0",
+        }
+        with mock.patch.object(
+            thermal_sensor_test, "SYS_THERMAL_PATH", str(sysfs)
+        ):
+            node = thermal_sensor_test.ThermalMonitor("thermal_zone0")
+            with mock.patch.dict("os.environ", env, clear=True):
+                with mock.patch.object(
+                    thermal_sensor_test.ThermalMonitor,
+                    "temperature_available",
+                    new_callable=PropertyMock,
+                    return_value=False,
+                ):
+                    with mock.patch(
+                        "sys.stdout", new_callable=io.StringIO
+                    ) as out:
+                        thermal_sensor_test.dump_thermal_zones(None)
+        self.assertIn(
+            "testable_stable_id: {}".format(node.stable_id), out.getvalue()
+        )

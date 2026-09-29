@@ -196,6 +196,64 @@ listed zone that has no data at discovery, and its temperature job, which
 requires `thermal_zones.testable_stable_id == "<its stable_id>"`, is skipped.
 Listed zones that do report data are tested normally.
 
+## Configuring `TZ_KEEP_POWERED`
+
+Instead of skipping a power-gated zone, `TZ_KEEP_POWERED` powers the device
+that owns its power domain for the duration of the temperature test, so the
+zone is really tested. Map each thermal type to one or more device sysfs
+paths:
+
+```text
+TZ_KEEP_POWERED=<type>:<device>[,<device>]|<type>:<device>
+```
+
+Only the first `:` separates the type, so PCI paths such as
+`0000:01:00.0` are fine.
+
+For each listed device the test reads `<device>/power/control`:
+
+- `on`: the device is already kept powered and is left untouched.
+- anything else (normally `auto`): it is set to `on` before the zone is
+  read, and the original value is written back after the test, also when
+  the test fails.
+
+The test fails if a listed device has no `power/control`, or if the write
+does not return within 20 s (a driver whose runtime resume hangs). A zone
+listed here is always tested, even if `TZ_ALLOW_NO_DATA` also lists it.
+
+### Finding the device
+
+1. Find a zone that reports `ENODATA` while the system is idle:
+   `cat /sys/class/thermal/thermal_zone*/temp`.
+2. Find the device that powers it, for example the GPU for `gpu-thermal`,
+   and check that it is runtime-suspended:
+   `cat <device>/power/runtime_status` shows `suspended`.
+3. Check by hand that powering it makes the zone readable, then restore it:
+
+   ```shell
+   cat <device>/power/control              # remember it, usually "auto"
+   echo on | sudo tee <device>/power/control
+   cat /sys/class/thermal/thermal_zoneN/temp
+   echo auto | sudo tee <device>/power/control
+   ```
+
+Only list devices whose resume works. Powering a device runs its driver's
+runtime resume. If the manual check above hangs or logs a kernel error,
+file a bug for the driver and use `TZ_ALLOW_NO_DATA` for that zone instead.
+
+### Examples
+
+```text
+# AGX Thor: the GPU (PCI) powers gpu-thermal
+TZ_KEEP_POWERED=gpu-thermal:/sys/bus/pci/devices/0000:01:00.0
+
+# AGX Orin: cv0/cv1/cv2 share one CV power domain, one CV engine is enough
+TZ_KEEP_POWERED=cv0-thermal:/sys/devices/platform/bus@0/13e00000.host1x/16000000.pva0|cv1-thermal:/sys/devices/platform/bus@0/13e00000.host1x/16000000.pva0|cv2-thermal:/sys/devices/platform/bus@0/13e00000.host1x/16000000.pva0
+```
+
+A board without the engine (for example Orin Nano has no DLA/PVA, so its
+cv zones never report data) should use `TZ_ALLOW_NO_DATA` instead.
+
 ## Manual helper commands
 
 When debugging outside Checkbox, these helper commands are useful.

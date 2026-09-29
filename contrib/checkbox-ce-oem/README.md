@@ -170,4 +170,12 @@ TZ_IGNORE_TEMP_CHECK=all | {thermal-type1}|{thermal-type2}|...
 Thermal zones of these types only need a readable temperature; the
 "temperature must change" check is skipped.
 e.g. TZ_IGNORE_TEMP_CHECK=cpu-thermal|camera0-thermal
+
+id: thermal_zones, ce-oem-thermal/temperature-test
+TZ_KEEP_POWERED={thermal-type1}:{device}[,{device}]|{thermal-type2}:{device}|...
+Devices whose power/control is not "on" are set to "on" for the
+temperature test of that thermal type and restored afterwards, so a
+power-gated zone is tested instead of skipped. See
+checkbox-provider-ce-oem/units/thermal-sensor/README.md.
+e.g. TZ_KEEP_POWERED=gpu-thermal:/sys/bus/pci/devices/0000:01:00.0
 ```

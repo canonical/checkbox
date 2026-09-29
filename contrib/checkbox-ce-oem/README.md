@@ -157,4 +157,17 @@ e.g. TOTAL_RTC_NUM=2
 id: ce-oem-serial/rs485-list
 RS485_PORTS={port1} {port2}
 e.g. RS485_PORTS=/dev/ttymxc1 /dev/ttymxc2
+
+id: thermal_zones
+TZ_ALLOW_NO_DATA=all | {thermal-type1}|{thermal-type2}|...
+Thermal zones of these types that return no data (ENODATA, power domain
+off) when thermal_zones runs are skipped instead of failing. Only list
+zones that are power-gated by design.
+e.g. TZ_ALLOW_NO_DATA=cv0-thermal|cv1-thermal|cv2-thermal
+
+id: ce-oem-thermal/temperature-test
+TZ_IGNORE_TEMP_CHECK=all | {thermal-type1}|{thermal-type2}|...
+Thermal zones of these types only need a readable temperature; the
+"temperature must change" check is skipped.
+e.g. TZ_IGNORE_TEMP_CHECK=cpu-thermal|camera0-thermal
 ```

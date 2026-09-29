@@ -352,10 +352,16 @@ class StableIdentityTest(unittest.TestCase):
 
     def test_dump_skips_enodata_zone_when_allowed(self):
         _, output = self._dump_enodata_zone(
-            {"TZ_ALLOW_NO_DATA": "cv0-thermal|gpu-thermal"}
+            {"TZ_ALLOW_NO_DATA": "cv0-thermal|cv1-thermal"}
         )
         self.assertIn("temp_available: False", output)
         self.assertIn("testable_stable_id: none", output)
+
+    def test_dump_keeps_keep_powered_zone_testable(self):
+        node, output = self._dump_enodata_zone(
+            {"TZ_ALLOW_NO_DATA": "all", "TZ_KEEP_POWERED": "cv0-thermal:/x"}
+        )
+        self.assertIn("testable_stable_id: {}".format(node.stable_id), output)
 
     def test_monitor_fails_clearly_on_enodata(self):
         self._zone("thermal_zone0", "gpu-thermal")
@@ -483,13 +489,18 @@ class KeepPoweredTest(unittest.TestCase):
         with mock.patch.dict("os.environ", env, clear=True):
             with mock.patch.object(
                 thermal_sensor_test.subprocess, "Popen", return_value=proc
-            ):
+            ) as popen:
                 with self.assertRaises(SystemExit) as ctx:
-                    with thermal_sensor_test.keep_powered("gpu-thermal", 1):
+                    with thermal_sensor_test.keep_powered("gpu-thermal"):
                         pass
         # the power-on error is reported, not the failed restore after it
         self.assertIn("did not respond", str(ctx.exception))
-        self.assertIn("power/control=on", str(ctx.exception))
+        self.assertIn("after writing on", str(ctx.exception))
+        # a hung child must not hold the job's stdout open
+        self.assertIs(
+            popen.call_args.kwargs["stdout"],
+            thermal_sensor_test.subprocess.DEVNULL,
+        )
 
     def _keep_powered_with_writes(self, fake_write, body_error=None):
         dev = self._device("gpu", "auto")
@@ -509,7 +520,7 @@ class KeepPoweredTest(unittest.TestCase):
     def test_restores_when_power_on_fails(self):
         writes = []
 
-        def fake_write(device, value, timeout):
+        def fake_write(control, value):
             writes.append(value)
             if value == "on":
                 raise SystemExit("Error: failed to set gpu to on")
@@ -518,7 +529,7 @@ class KeepPoweredTest(unittest.TestCase):
         self.assertIn("failed to set gpu to on", error)
         self.assertEqual(writes, ["on", "auto"])
 
-    def _failing_restore(self, device, value, timeout):
+    def _failing_restore(self, control, value):
         if value != "on":
             raise SystemExit("Error: failed to set gpu to auto")
 
@@ -531,33 +542,3 @@ class KeepPoweredTest(unittest.TestCase):
             self._failing_restore, body_error="Error: test failed"
         )
         self.assertEqual(error, "Error: test failed")
-
-    def test_keep_powered_zone_not_skipped_by_allow_no_data(self):
-        sysfs = Path(self.tmp.name, "thermal")
-        zone = sysfs / "thermal_zone0"
-        zone.mkdir(parents=True)
-        (zone / "type").write_text("cv0-thermal\n")
-        (zone / "temp").write_text("40000\n")
-        (zone / "mode").write_text("enabled\n")
-        env = {
-            "TZ_ALLOW_NO_DATA": "all",
-            "TZ_KEEP_POWERED": "cv0-thermal:/sys/devices/platform/pva0",
-        }
-        with mock.patch.object(
-            thermal_sensor_test, "SYS_THERMAL_PATH", str(sysfs)
-        ):
-            node = thermal_sensor_test.ThermalMonitor("thermal_zone0")
-            with mock.patch.dict("os.environ", env, clear=True):
-                with mock.patch.object(
-                    thermal_sensor_test.ThermalMonitor,
-                    "temperature_available",
-                    new_callable=PropertyMock,
-                    return_value=False,
-                ):
-                    with mock.patch(
-                        "sys.stdout", new_callable=io.StringIO
-                    ) as out:
-                        thermal_sensor_test.dump_thermal_zones(None)
-        self.assertIn(
-            "testable_stable_id: {}".format(node.stable_id), out.getvalue()
-        )

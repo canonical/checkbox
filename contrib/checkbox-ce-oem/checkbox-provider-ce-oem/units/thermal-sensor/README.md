@@ -245,8 +245,9 @@ also lists it.
 
 Powering a device runs its driver's runtime resume. If the manual check
 above hangs or logs a kernel error, that is a driver bug: file it. With the
-device listed, the zone's test then fails with that error (after at most
-20 s) instead of blocking the run, and the board may need a reboot
+device listed, the zone's test then fails with that error instead of
+blocking the run (each write gets 20 s, so a hung device can take about
+40 s including the restore attempt), and the board may need a reboot
 afterwards.
 
 ### Examples

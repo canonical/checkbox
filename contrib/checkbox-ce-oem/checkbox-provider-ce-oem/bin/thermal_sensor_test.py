@@ -283,45 +283,51 @@ def _keep_powered_devices(zone_type):
     return []
 
 
-def _write_power_control(device, value, timeout):
+def _write_power_control(control, value):
     """Write power/control in a child process.
 
     Setting "on" runs the driver's runtime resume; if that hangs, the
-    test fails after timeout instead of blocking the whole session.
+    test fails after KEEP_POWERED_TIMEOUT instead of blocking the whole
+    session. The child gets no inherited stdout/stderr: checkbox waits
+    for EOF on the job's pipes, which a child stuck in D state would
+    keep open.
     """
-    control = os.path.join(device, "power", "control")
     proc = subprocess.Popen(
-        ["sh", "-c", 'echo "$1" > "$2"', "sh", value, control]
+        ["sh", "-c", 'echo "$1" > "$2"', "sh", value, str(control)],
+        stdout=subprocess.DEVNULL,
+        stderr=subprocess.PIPE,
     )
     try:
-        rc = proc.wait(timeout=timeout)
+        rc = proc.wait(timeout=KEEP_POWERED_TIMEOUT)
     except subprocess.TimeoutExpired:
         raise SystemExit(
-            "Error: {} did not respond within {} s after setting "
-            "power/control={} (driver runtime resume failed?)".format(
-                device, timeout, value
+            "Error: {} did not respond within {} s after writing {} "
+            "(driver runtime resume failed?)".format(
+                control, KEEP_POWERED_TIMEOUT, value
             )
         )
     if rc != 0:
         raise SystemExit(
-            "Error: failed to set {} to {}".format(control, value)
+            "Error: failed to set {} to {}: {}".format(
+                control, value, proc.stderr.read().decode().strip()
+            )
         )
 
 
-def _restore_power(restore, timeout):
+def _restore_power(restore):
     """Restore every device; collect the errors instead of stopping."""
     errors = []
-    for device, original in reversed(restore):
-        logging.info("# Restore %s to %s", device, original)
+    for control, original in reversed(restore):
+        logging.info("# Restore %s to %s", control, original)
         try:
-            _write_power_control(device, original, timeout)
+            _write_power_control(control, original)
         except SystemExit as e:
             errors.append(str(e))
     return errors
 
 
 @contextmanager
-def keep_powered(zone_type, timeout=KEEP_POWERED_TIMEOUT):
+def keep_powered(zone_type):
     """Keep the TZ_KEEP_POWERED devices of zone_type powered on.
 
     A device whose power/control is already "on" is left untouched;
@@ -345,14 +351,14 @@ def keep_powered(zone_type, timeout=KEEP_POWERED_TIMEOUT):
             logging.info("# Power on %s (was %s)", device, original)
             # queued before the write: a failed driver resume can still
             # leave power/control set to "on"
-            restore.append((device, original))
-            _write_power_control(device, "on", timeout)
+            restore.append((control, original))
+            _write_power_control(control, "on")
         yield
     except BaseException:
-        for error in _restore_power(restore, timeout):
+        for error in _restore_power(restore):
             logging.error(error)
         raise
-    errors = _restore_power(restore, timeout)
+    errors = _restore_power(restore)
     if errors:
         raise SystemExit("\n".join(errors))
 

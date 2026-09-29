@@ -332,7 +332,7 @@ class StableIdentityTest(unittest.TestCase):
         )
 
     def _dump_enodata_zone(self, env):
-        self._zone("thermal_zone0", "gpu-thermal")
+        self._zone("thermal_zone0", "cv0-thermal")
         node = thermal_sensor_test.ThermalMonitor("thermal_zone0")
         with mock.patch.dict("os.environ", env, clear=True):
             with mock.patch.object(
@@ -380,7 +380,7 @@ class StableIdentityTest(unittest.TestCase):
                 thermal_sensor_test.thermal_monitor_test(args)
         self.assertIn("ENODATA", str(ctx.exception))
         self.assertIn("gpu-thermal", str(ctx.exception))
-        self.assertIn("TZ_ALLOW_NO_DATA", str(ctx.exception))
+        self.assertIn("TZ_KEEP_POWERED", str(ctx.exception))
 
     def test_temperature_available_false_on_enodata(self):
         self._zone("thermal_zone0", "gpu-thermal")
@@ -487,18 +487,61 @@ class KeepPoweredTest(unittest.TestCase):
                 with self.assertRaises(SystemExit) as ctx:
                     with thermal_sensor_test.keep_powered("gpu-thermal", 1):
                         pass
+        # the power-on error is reported, not the failed restore after it
         self.assertIn("did not respond", str(ctx.exception))
+        self.assertIn("power/control=on", str(ctx.exception))
+
+    def _keep_powered_with_writes(self, fake_write, body_error=None):
+        dev = self._device("gpu", "auto")
+        env = {"TZ_KEEP_POWERED": "gpu-thermal:{}".format(dev)}
+        with mock.patch.dict("os.environ", env, clear=True):
+            with mock.patch.object(
+                thermal_sensor_test,
+                "_write_power_control",
+                side_effect=fake_write,
+            ):
+                with self.assertRaises(SystemExit) as ctx:
+                    with thermal_sensor_test.keep_powered("gpu-thermal"):
+                        if body_error:
+                            raise SystemExit(body_error)
+        return str(ctx.exception)
+
+    def test_restores_when_power_on_fails(self):
+        writes = []
+
+        def fake_write(device, value, timeout):
+            writes.append(value)
+            if value == "on":
+                raise SystemExit("Error: failed to set gpu to on")
+
+        error = self._keep_powered_with_writes(fake_write)
+        self.assertIn("failed to set gpu to on", error)
+        self.assertEqual(writes, ["on", "auto"])
+
+    def _failing_restore(self, device, value, timeout):
+        if value != "on":
+            raise SystemExit("Error: failed to set gpu to auto")
+
+    def test_restore_error_fails_passing_test(self):
+        error = self._keep_powered_with_writes(self._failing_restore)
+        self.assertIn("failed to set gpu to auto", error)
+
+    def test_restore_error_keeps_test_error(self):
+        error = self._keep_powered_with_writes(
+            self._failing_restore, body_error="Error: test failed"
+        )
+        self.assertEqual(error, "Error: test failed")
 
     def test_keep_powered_zone_not_skipped_by_allow_no_data(self):
         sysfs = Path(self.tmp.name, "thermal")
         zone = sysfs / "thermal_zone0"
         zone.mkdir(parents=True)
-        (zone / "type").write_text("gpu-thermal\n")
+        (zone / "type").write_text("cv0-thermal\n")
         (zone / "temp").write_text("40000\n")
         (zone / "mode").write_text("enabled\n")
         env = {
             "TZ_ALLOW_NO_DATA": "all",
-            "TZ_KEEP_POWERED": "gpu-thermal:/sys/bus/pci/devices/0000:01:00.0",
+            "TZ_KEEP_POWERED": "cv0-thermal:/sys/devices/platform/pva0",
         }
         with mock.patch.object(
             thermal_sensor_test, "SYS_THERMAL_PATH", str(sysfs)

@@ -183,9 +183,12 @@ off, for example an engine that is power-gated when idle. The same error is
 returned when a driver failed to power the domain on, so these zones fail by
 default.
 
-For zones that are power-gated by design, list their types in
-`TZ_ALLOW_NO_DATA` (same syntax as `TZ_IGNORE_TEMP_CHECK`: `all` or a
-`|`-separated list of exact thermal types):
+For zones that are power-gated by design and cannot be powered for the test
+(for example, the engine behind the zone does not exist on this board), list
+their types in `TZ_ALLOW_NO_DATA` (same syntax as `TZ_IGNORE_TEMP_CHECK`:
+`all` or a `|`-separated list of exact thermal types). If the device exists,
+use `TZ_KEEP_POWERED` instead. Do not list a zone whose missing data can mean
+a broken driver, such as a GPU zone: skipping it hides that failure.
 
 ```text
 TZ_ALLOW_NO_DATA=cv0-thermal|cv1-thermal|cv2-thermal
@@ -215,11 +218,14 @@ For each listed device the test reads `<device>/power/control`:
 - `on`: the device is already kept powered and is left untouched.
 - anything else (normally `auto`): it is set to `on` before the zone is
   read, and the original value is written back after the test, also when
-  the test fails.
+  the test or the power-on fails (a failed driver resume can still leave
+  `on` set).
 
-The test fails if a listed device has no `power/control`, or if the write
-does not return within 20 s (a driver whose runtime resume hangs). A zone
-listed here is always tested, even if `TZ_ALLOW_NO_DATA` also lists it.
+The test fails if a listed device has no `power/control`, if a write does
+not return within 20 s (a driver whose runtime resume hangs), or if the
+original value cannot be written back; an earlier error is still the one
+reported. A zone listed here is always tested, even if `TZ_ALLOW_NO_DATA`
+also lists it.
 
 ### Finding the device
 
@@ -237,9 +243,11 @@ listed here is always tested, even if `TZ_ALLOW_NO_DATA` also lists it.
    echo auto | sudo tee <device>/power/control
    ```
 
-Only list devices whose resume works. Powering a device runs its driver's
-runtime resume. If the manual check above hangs or logs a kernel error,
-file a bug for the driver and use `TZ_ALLOW_NO_DATA` for that zone instead.
+Powering a device runs its driver's runtime resume. If the manual check
+above hangs or logs a kernel error, that is a driver bug: file it. With the
+device listed, the zone's test then fails with that error (after at most
+20 s) instead of blocking the run, and the board may need a reboot
+afterwards.
 
 ### Examples
 
@@ -313,6 +321,7 @@ The after-suspend automated plan includes:
 - `TZ_IGNORE_TEMP_CHECK` is a test-policy override, not a fix for broken
   thermal hardware.
 - `TZ_ALLOW_NO_DATA` is also a policy override: only list zones whose power
-  domain is expected to be off during the test.
+  domain is expected to be off during the test and cannot be powered with
+  `TZ_KEEP_POWERED`.
 - If a zone is both unreadable and static, the readability-only path will
   still fail because it must be able to read the temperature node.

@@ -64,8 +64,10 @@ class ThermalMonitor:
                     raise SystemExit(
                         "Error: The {}-{} temperature is not available "
                         "(ENODATA): the sensor's power domain is off. Check "
-                        "that its driver is running; if the zone is "
-                        "power-gated by design, list its type in "
+                        "that its driver is running; if the domain is "
+                        "power-gated while idle, list the device that "
+                        "powers it in TZ_KEEP_POWERED. A zone that can "
+                        "never be powered can be skipped with "
                         "TZ_ALLOW_NO_DATA.".format(self._name, self.type)
                     )
                 raise SystemExit(
@@ -306,13 +308,26 @@ def _write_power_control(device, value, timeout):
         )
 
 
+def _restore_power(restore, timeout):
+    """Restore every device; collect the errors instead of stopping."""
+    errors = []
+    for device, original in reversed(restore):
+        logging.info("# Restore %s to %s", device, original)
+        try:
+            _write_power_control(device, original, timeout)
+        except SystemExit as e:
+            errors.append(str(e))
+    return errors
+
+
 @contextmanager
 def keep_powered(zone_type, timeout=KEEP_POWERED_TIMEOUT):
     """Keep the TZ_KEEP_POWERED devices of zone_type powered on.
 
     A device whose power/control is already "on" is left untouched;
     otherwise it is set to "on" and restored to its original value
-    afterwards, also when the test fails.
+    afterwards, also when the test or the power-on itself fails. A
+    restore error fails the test, but never hides an earlier error.
     """
     restore = []
     try:
@@ -328,13 +343,18 @@ def keep_powered(zone_type, timeout=KEEP_POWERED_TIMEOUT):
                 logging.info("# %s is already powered on", device)
                 continue
             logging.info("# Power on %s (was %s)", device, original)
-            _write_power_control(device, "on", timeout)
+            # queued before the write: a failed driver resume can still
+            # leave power/control set to "on"
             restore.append((device, original))
+            _write_power_control(device, "on", timeout)
         yield
-    finally:
-        for device, original in reversed(restore):
-            logging.info("# Restore %s to %s", device, original)
-            _write_power_control(device, original, timeout)
+    except BaseException:
+        for error in _restore_power(restore, timeout):
+            logging.error(error)
+        raise
+    errors = _restore_power(restore, timeout)
+    if errors:
+        raise SystemExit("\n".join(errors))
 
 
 def check_temperature_readable(target_name, thermal_op):

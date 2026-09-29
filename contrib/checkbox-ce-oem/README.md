@@ -162,7 +162,9 @@ id: thermal_zones
 TZ_ALLOW_NO_DATA=all | {thermal-type1}|{thermal-type2}|...
 Thermal zones of these types that return no data (ENODATA, power domain
 off) when thermal_zones runs are skipped instead of failing. Only list
-zones that are power-gated by design.
+zones that are power-gated by design and cannot be powered with
+TZ_KEEP_POWERED; never a zone whose missing data can mean a broken
+driver, such as a GPU zone.
 e.g. TZ_ALLOW_NO_DATA=cv0-thermal|cv1-thermal|cv2-thermal
 
 id: ce-oem-thermal/temperature-test

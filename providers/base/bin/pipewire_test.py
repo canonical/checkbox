@@ -57,7 +57,7 @@ SAMPLING_FREQUENCY = 44100
 # The default test frequency is in the middle of the band that contains 5000Hz
 # This frequency was determined experimentally to be high enough but more
 # reliable than others we tried.
-DEFAULT_TEST_FREQUENCY = 5035
+DEFAULT_TEST_FREQUENCY = 512
 # only sample a signal when peak level is in this range (in dB attenuation,
 # 0 means no attenuation (and horrible clipping).
 REC_LEVEL_RANGE = (-2.0, -12.0)

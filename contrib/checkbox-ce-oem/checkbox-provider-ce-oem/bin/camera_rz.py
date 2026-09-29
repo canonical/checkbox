@@ -350,6 +350,7 @@ class Ov5645Camera(RzBaseCamera):
         super().__init__(v4l2_devices)
         self._camera = SupportedCamera.OV_5645
 
+
 class Ar0234Camera(RzBaseCamera):
     """Handler for AR 0234 camera."""
 

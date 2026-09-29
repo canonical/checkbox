@@ -147,14 +147,10 @@ class ThermalMonitor:
 
         cdev* entries are part of the official thermal sysfs ABI and
         are present whenever a cooling device is associated with the
-        zone. They provide a richer identity signal than falling all
-        the way back to just ``type``
-        on zones that have no physical device node.
-
-        Note: cdev bindings can change at runtime if cooling devices
-        are rebound (e.g. a GPU devfreq or CPU-cluster cpufreq cooling
-        device appears or disappears with its driver), so stable_source
-        only uses them when the zone type is not unique.
+        zone. They are reported for diagnostics only: bindings change at
+        runtime (e.g. a GPU devfreq or CPU-cluster cpufreq cooling device
+        appears or disappears with its driver), so they are not part of
+        stable_source.
         """
         types = []
         for entry in sorted(self.root_node.glob("cdev[0-9]*")):
@@ -172,8 +168,6 @@ class ThermalMonitor:
             self.of_node_path
             or self.firmware_node_path
             or self.device_path
-            or (self.type if _zone_type_is_unique(self.type) else "")
-            or "|".join(self.cdev_types)
             or self.type
         )
 
@@ -181,13 +175,6 @@ class ThermalMonitor:
     def stable_id(self):
         stable_data = "{}|{}".format(self.type, self.stable_source)
         return hashlib.sha1(stable_data.encode()).hexdigest()[:12]
-
-
-def _zone_type_is_unique(zone_type):
-    """True when no other thermal zone reports the same type."""
-    zones = Path(SYS_THERMAL_PATH).glob("thermal_zone*")
-    types = [ThermalMonitor(zone.name).type for zone in zones]
-    return types.count(zone_type) == 1
 
 
 def _load_snapshot(snapshot_path):

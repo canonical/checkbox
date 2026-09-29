@@ -39,12 +39,6 @@ collects metadata including:
 - bound cooling-device types
 - whether the temperature is readable (`temp_available`)
 
-The stable ID is derived from the first available of: DT node, firmware
-node, device node, the zone type when no other zone shares it, and the
-bound cooling-device types. Cooling-device bindings come and go with their
-drivers (for example a GPU devfreq cooling device), so they are only used
-to tell apart zones that share a type.
-
 ### Per-zone temperature test
 
 The template job `ce-oem-thermal/temperature_{stable_id}_{type}` runs:
@@ -102,8 +96,12 @@ identity in this order:
 1. `device/of_node`
 2. `device/firmware_node/path`
 3. `device`
-4. bound cooling-device types (`cdev*`)
-5. thermal `type`
+4. thermal `type`
+
+Bound cooling-device types (`cdev*`) are not used: they change with driver
+state (for example a GPU devfreq cooling device appears or disappears with
+its driver), which would change the stable ID between the resource job and
+the test, or between boots.
 
 The final `stable_id` is a hash of:
 

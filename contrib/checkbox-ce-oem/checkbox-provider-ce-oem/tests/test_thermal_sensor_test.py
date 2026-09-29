@@ -304,7 +304,7 @@ class StableIdentityTest(unittest.TestCase):
             (cdev / "type").write_text(cdev_type + "\n")
         return zone
 
-    def test_stable_id_ignores_cdev_change_for_unique_type(self):
+    def test_stable_id_ignores_cdev_change(self):
         zone = self._zone(
             "thermal_zone0",
             "cpu-thermal",
@@ -320,15 +320,6 @@ class StableIdentityTest(unittest.TestCase):
 
         self.assertEqual(node.stable_source, "cpu-thermal")
         self.assertEqual(node.stable_id, before)
-
-    def test_stable_id_uses_cdev_for_duplicate_type(self):
-        self._zone("thermal_zone0", "acpitz", ("Processor",))
-        self._zone("thermal_zone1", "acpitz", ("Fan",))
-        first = thermal_sensor_test.ThermalMonitor("thermal_zone0")
-        second = thermal_sensor_test.ThermalMonitor("thermal_zone1")
-
-        self.assertEqual(first.stable_source, "Processor")
-        self.assertNotEqual(first.stable_id, second.stable_id)
 
     def test_dump_reports_temp_available(self):
         self._zone("thermal_zone0", "cpu-thermal")

@@ -1,7 +1,7 @@
 id: thermal-cert-automated
 unit: test plan
-_name: Thermal management tests (automated)
-_description:
+name: Thermal management tests (automated)
+description:
  Automated thermal management tests for Intel platforms, covering thermald,
  RAPL, P-State, powerclamp, thermal zones and platform thermal policy.
 include:

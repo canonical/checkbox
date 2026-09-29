@@ -51,8 +51,8 @@ purpose: |
 ---
 unit: template
 template-resource: device
-template-filter: |
-  device.path == '/devices/pci0000:00/0000:00:04.0' and device.vendor_id == '32902'
+template-filter:
+  - device.path == '/devices/pci0000:00/0000:00:04.0' and device.vendor_id == '32902'
 template-unit: job
 category_id: thermal
 id: thermal/intel-rapl-mmio_{product_id}
@@ -140,8 +140,8 @@ purpose: |
 ---
 unit: template
 template-resource: device
-template-filter: |
-  device.path == '/devices/pci0000:00/0000:00:04.0' and device.vendor_id == '32902'
+template-filter:
+  - device.path == '/devices/pci0000:00/0000:00:04.0' and device.vendor_id == '32902'
 template-unit: job
 category_id: thermal
 id: thermal/proc_thermal_{product_id}
@@ -159,7 +159,8 @@ purpose: |
 ---
 unit: template
 template-resource: device
-template-filter: device.driver == 'int3400 thermal'
+template-filter:
+  - device.driver == 'int3400 thermal'
 template-unit: job
 category_id: thermal
 id: thermal/thermal-policy-set_{path}

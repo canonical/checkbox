@@ -21,8 +21,10 @@ unit: job
 category_id: thermal
 id: thermal/thermald-cpu-support
 plugin: shell
-depends:
-  - thermal/thermald
+imports:
+  - from com.canonical.plainbox import manifest
+requires:
+  - manifest.has_thermald_support == 'True'
 estimated_duration: 1s
 command: thermal_test.py cpu-support
 summary: Check running thermald supports this CPU and platform

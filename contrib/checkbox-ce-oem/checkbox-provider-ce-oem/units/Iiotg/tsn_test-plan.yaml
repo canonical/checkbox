@@ -38,7 +38,7 @@ name: IIOTG Time Sensitive Networking Test Plan for IEEE 802.1AS-2011
 description: |
   This test plan checks for IEEE 802.1AS-2011 compliance.
    - To achieve time synchronization between two platforms.
-   - To synchronize each platforms's system clock with PHC (Physical hardware clock)
+   - To synchronize each platform's system clock with PHC (Physical hardware clock)
      using hardware cross-timestamping (which is selected by phc2sys automatically).
 unit: test plan
 bootstrap_include:

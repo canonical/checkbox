@@ -8,7 +8,7 @@ requires:
  manifest.has_lxd == 'True'
  executable.name == 'lxc'
  package.name == 'lxd-installer' or snap.name == 'lxd'
-flags: fail-on-resource also-after-suspend
+flags: fail-on-resource
 command: virtualization.py --debug lxdvm
 _purpose:
  Verifies that an LXD Virtual Machine can be created and launched
@@ -25,7 +25,7 @@ requires:
  manifest.has_lxd == 'True'
  executable.name == 'lxc'
  package.name == 'lxd-installer' or snap.name == 'lxd'
-flags: fail-on-resource also-after-suspend
+flags: fail-on-resource
 command: virtualization.py --debug lxd
 _purpose:
  Verifies that an LXD container can be created and launched

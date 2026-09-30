@@ -1,5 +1,5 @@
 id: iiotg-tsn-full
-name: Iiotg Time Sensitive Networking (TSN) tests
+name: IIOTG Time Sensitive Networking (TSN) tests
 unit: test plan
 include: []
 bootstrap_include:
@@ -9,7 +9,7 @@ nested_part:
   - iiotg-tsn-automated
 ---
 id: iiotg-tsn-manual
-name: Iiotg Time Sensitive Networking (TSN) test (manual)
+name: IIOTG Time Sensitive Networking (TSN) test (manual)
 unit: test plan
 bootstrap_include:
   - iiotg-tsn/tsn-device-ip-match
@@ -20,7 +20,7 @@ include:
 nested_part: []
 ---
 id: iiotg-tsn-automated
-name: Iiotg Time Sensitive Networking (TSN) test (automated)
+name: IIOTG Time Sensitive Networking (TSN) test (automated)
 unit: test plan
 bootstrap_include:
   - iiotg-tsn/tsn-device-ip-match
@@ -34,7 +34,7 @@ nested_part:
   - iiotg-tsn-ieee802-1qbv
 ---
 id: iiotg-tsn/ieee802-1as-2011
-name: Iiotg Time Sensitive Networking Test Plan for IEEE 802.1AS-2011
+name: IIOTG Time Sensitive Networking Test Plan for IEEE 802.1AS-2011
 description: |
   This testplan is to check if it could follow IEEE 802.1AS-2011.
    - To achieve time synchronization between two platforms.
@@ -49,7 +49,7 @@ include:
   - iiotg-tsn/ieee802-1as-2011/phc2sys-interfaces
 ---
 id: iiotg-tsn-ieee802-1qav
-name: Iiotg Time Sensitive Networking Test Plan for IEEE 802.1Qav
+name: IIOTG Time Sensitive Networking Test Plan for IEEE 802.1Qav
 description: This testplan is to check if it could follow IEEE 802.1Qav Credit-Based Shaper.
 unit: test plan
 bootstrap_include:
@@ -59,7 +59,7 @@ include:
   - iiotg-tsn/ieee802-1qav/credit-based-shaper
 ---
 id: iiotg-tsn-ieee802-1qbv
-name: Iiotg Time Sensitive Networking Test Plan for IEEE 802.1Qbv
+name: IIOTG Time Sensitive Networking Test Plan for IEEE 802.1Qbv
 description: This testplan is to check if it could follow IEEE 802.1Qbv Time Aware Shaper (TAS).
 unit: test plan
 bootstrap_include:
@@ -69,7 +69,7 @@ include:
   - iiotg-tsn/ieee802-1qbv/traffic-scheduling
 ---
 id: iiotg-tsn-ieee802-1qbu
-name: Iiotg Time Sensitive Networking Test Plan for IEEE 802.1Qbu
+name: IIOTG Time Sensitive Networking Test Plan for IEEE 802.1Qbu
 description: This testplan is to check if it could follow IEEE 802.1Qbu Frame Preemption.
 unit: test plan
 bootstrap_include:

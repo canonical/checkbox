@@ -5,7 +5,7 @@ plugin: shell
 imports:
   - from com.canonical.plainbox import manifest
 requires:
-  - manifest.is_Iiotg == 'True'
+  - manifest.is_iiotg == 'True'
   - manifest.has_iiotg_tgpio == 'True'
 summary: Check that a TGPIO driver is bound to the TGPIO devices
 purpose: |
@@ -41,7 +41,7 @@ imports:
   - from com.canonical.plainbox import manifest
   - from com.canonical.contrib import iiotg_tgpio_driver_info
 requires:
-  - manifest.is_Iiotg == 'True'
+  - manifest.is_iiotg == 'True'
   - manifest.has_iiotg_tgpio == 'True'
   - iiotg_tgpio_driver_info.ptp_intel_pmc_tgpio == 'True'
 summary: Check if there's at least one virtual ptp device node
@@ -63,7 +63,7 @@ imports:
   - from com.canonical.plainbox import manifest
   - from com.canonical.contrib import iiotg_tgpio_driver_info
 requires:
-  - manifest.is_Iiotg == 'True'
+  - manifest.is_iiotg == 'True'
   - manifest.has_iiotg_tgpio == 'True'
   - iiotg_tgpio_driver_info.ptp_intel_pmc_tgpio == 'True'
 user: root
@@ -98,7 +98,7 @@ imports:
   - from com.canonical.plainbox import manifest
   - from com.canonical.contrib import iiotg_tgpio_driver_info
 requires:
-  - manifest.is_Iiotg == 'True'
+  - manifest.is_iiotg == 'True'
   - manifest.has_iiotg_tgpio == 'True'
   - iiotg_tgpio_driver_info.ptp_intel_pmc_tgpio == 'True'
   - manifest.iiotg_tgpio_loopback_capability == 'True'
@@ -135,7 +135,7 @@ imports:
   - from com.canonical.plainbox import manifest
   - from com.canonical.contrib import iiotg_tgpio_driver_info
 requires:
-  - manifest.is_Iiotg == 'True'
+  - manifest.is_iiotg == 'True'
   - manifest.has_iiotg_tgpio == 'True'
   - iiotg_tgpio_driver_info.ptp_intel_pmc_tgpio == 'True'
   - manifest.iiotg_tgpio_loopback_capability == 'False'
@@ -170,7 +170,7 @@ imports:
   - from com.canonical.plainbox import manifest
   - from com.canonical.contrib import iiotg_tgpio_driver_info
 requires:
-  - manifest.is_Iiotg == 'True'
+  - manifest.is_iiotg == 'True'
   - manifest.has_iiotg_tgpio == 'True'
   - iiotg_tgpio_driver_info.ptp_intel_pmc_tgpio == 'True'
   - manifest.iiotg_tgpio_loopback_capability == 'False'
@@ -202,7 +202,7 @@ imports:
   - from com.canonical.plainbox import manifest
   - from com.canonical.contrib import iiotg_tgpio_driver_info
 requires:
-  - manifest.is_Iiotg == 'True'
+  - manifest.is_iiotg == 'True'
   - manifest.has_iiotg_tgpio == 'True'
   - iiotg_tgpio_driver_info.ptp_intel_pmc_tgpio == 'True'
 user: root
@@ -233,7 +233,7 @@ imports:
   - from com.canonical.plainbox import manifest
   - from com.canonical.contrib import iiotg_tgpio_driver_info
 requires:
-  - manifest.is_Iiotg == 'True'
+  - manifest.is_iiotg == 'True'
   - manifest.has_iiotg_tgpio == 'True'
   - iiotg_tgpio_driver_info.ptp_intel_pmc_tgpio == 'True'
 user: root

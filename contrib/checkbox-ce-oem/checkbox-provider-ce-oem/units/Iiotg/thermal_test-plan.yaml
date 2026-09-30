@@ -1,5 +1,5 @@
 id: iiotg-thermal-full
-name: Iiotg CPU Thermal tests
+name: IIOTG CPU Thermal tests
 unit: test plan
 include: []
 bootstrap_include: []
@@ -8,7 +8,7 @@ nested_part:
   - iiotg-thermal-automated
 ---
 id: iiotg-thermal-manual
-name: Iiotg CPU Thermal tests (manual)
+name: IIOTG CPU Thermal tests (manual)
 unit: test plan
 bootstrap_include:
   - com.canonical.certification::device
@@ -16,7 +16,7 @@ bootstrap_include:
 include: []
 ---
 id: iiotg-thermal-automated
-name: Iiotg CPU Thermal tests (automated)
+name: IIOTG CPU Thermal tests (automated)
 unit: test plan
 bootstrap_include:
   - com.canonical.certification::device

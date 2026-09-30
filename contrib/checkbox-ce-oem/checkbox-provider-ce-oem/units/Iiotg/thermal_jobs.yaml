@@ -9,7 +9,7 @@ imports:
   - from com.canonical.certification import cpuinfo
   - from com.canonical.plainbox import manifest
 requires:
-  - manifest.is_Iiotg == 'True'
+  - manifest.is_iiotg == 'True'
   - cpuinfo.type == 'GenuineIntel'
 command: |
   if test -d /sys/class/powercap/intel-rapl; then
@@ -32,7 +32,7 @@ imports:
   - from com.canonical.certification import cpuinfo
   - from com.canonical.plainbox import manifest
 requires:
-  - manifest.is_Iiotg == 'True'
+  - manifest.is_iiotg == 'True'
   - cpuinfo.type == 'GenuineIntel'
 depends:
   - iiotg-thermal/proc_thermal
@@ -56,7 +56,7 @@ imports:
   - from com.canonical.certification import cpuinfo
   - from com.canonical.plainbox import manifest
 requires:
-  - manifest.is_Iiotg == 'True'
+  - manifest.is_iiotg == 'True'
   - cpuinfo.type == 'GenuineIntel'
 command: |
   if test -d /sys/devices/system/cpu/intel_pstate; then
@@ -78,7 +78,7 @@ imports:
   - from com.canonical.certification import cpuinfo
   - from com.canonical.plainbox import manifest
 requires:
-  - manifest.is_Iiotg == 'True'
+  - manifest.is_iiotg == 'True'
   - cpuinfo.type == 'GenuineIntel'
 command: |
   if grep -q 'intel_powerclamp' /sys/class/thermal/cooling_device*/type; then
@@ -104,7 +104,7 @@ imports:
   - from com.canonical.certification import cpuinfo
   - from com.canonical.plainbox import manifest
 requires:
-  - manifest.is_Iiotg == 'True'
+  - manifest.is_iiotg == 'True'
   - cpuinfo.type == 'GenuineIntel'
 command: |
   if grep -q 'B0D4\|B0DB\|TCPU' /sys/class/thermal/thermal_zone*/type; then
@@ -133,7 +133,7 @@ imports:
   - from com.canonical.certification import cpuinfo
   - from com.canonical.plainbox import manifest
 requires:
-  - manifest.is_Iiotg == 'True'
+  - manifest.is_iiotg == 'True'
   - cpuinfo.type == 'GenuineIntel'
 command: |
   if grep -q 'x86_pkg_temp' /sys/class/thermal/thermal_zone*/type; then
@@ -154,7 +154,7 @@ imports:
   - from com.canonical.certification import cpuinfo
   - from com.canonical.plainbox import manifest
 requires:
-  - manifest.is_Iiotg == 'True'
+  - manifest.is_iiotg == 'True'
   - cpuinfo.type == 'GenuineIntel'
 command: |
   for zone in /sys/class/thermal/thermal_zone*
@@ -199,7 +199,7 @@ imports:
   - from com.canonical.certification import device
   - from com.canonical.plainbox import manifest
 requires:
-  - manifest.is_Iiotg == 'True'
+  - manifest.is_iiotg == 'True'
   - cpuinfo.type == 'GenuineIntel'
   - device.path in ['/devices/platform/INTC1040:00','/devices/platform/INT3400:00']
 command: |
@@ -228,7 +228,7 @@ imports:
   - from com.canonical.plainbox import manifest
 user: root
 requires:
-  - manifest.is_Iiotg == 'True'
+  - manifest.is_iiotg == 'True'
   - cpuinfo.type == 'GenuineIntel'
   - cpuinfo.model_number == '6'
   - cpuinfo.model_version not in ['85', '108', '143', '150']

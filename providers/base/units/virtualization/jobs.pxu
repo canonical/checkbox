@@ -1,11 +1,23 @@
 plugin: shell
 category_id: com.canonical.plainbox::virtualization
+id: virtualization/detect_lxd
+estimated_duration: 1
+imports: from com.canonical.plainbox import manifest
+requires: manifest.has_lxd == 'True'
+command: virtualization.py --detect-executable lxd
+_purpose:
+ Verify the executable of LXD is detected and available on system 
+_summary:
+ Verify the executable of LXD is detected and available on system
+
+plugin: shell
+category_id: com.canonical.plainbox::virtualization
 id: virtualization/verify_lxd_vm
 environ: LXD_TEMPLATE KVM_IMAGE
 estimated_duration: 60.0
-requires:
- executable.name == 'lxc'
- package.name == 'lxd-installer' or snap.name == 'lxd'
+depends: virtualization/detect_lxd
+imports: from com.canonical.plainbox import manifest
+requires: manifest.has_lxd == 'True'
 command: virtualization.py --debug lxdvm
 _purpose:
  Verifies that an LXD Virtual Machine can be created and launched
@@ -17,9 +29,9 @@ category_id: com.canonical.plainbox::virtualization
 id: virtualization/verify_lxd
 environ: LXD_TEMPLATE LXD_ROOTFS
 estimated_duration: 30.0
-requires:
- executable.name == 'lxc'
- package.name == 'lxd' or package.name == 'lxd-installer' or snap.name == 'lxd'
+depends: virtualization/detect_lxd
+imports: from com.canonical.plainbox import manifest
+requires: manifest.has_lxd == 'True'
 command: virtualization.py --debug lxd
 _purpose:
  Verifies that an LXD container can be created and launched

@@ -19,7 +19,27 @@ import itertools
 from unittest import TestCase
 from unittest.mock import patch, MagicMock
 
-from virtualization import LXDTest, LXDTest_vm
+from virtualization import LXDTest, LXDTest_vm, detect_executable
+
+
+class TestDetectExecutable(TestCase):
+    @patch("virtualization.which", return_value="/usr/bin/lxd")
+    def test_detect_executable_found(self, which_mock):
+        detect_executable("lxd")
+
+        which_mock.assert_called_once_with("lxd")
+
+    @patch("virtualization.logging")
+    @patch("virtualization.which", return_value=None)
+    def test_detect_executable_missing(self, which_mock, logging_mock):
+        with self.assertRaises(SystemExit) as context:
+            detect_executable("lxd")
+
+        self.assertEqual(context.exception.code, 1)
+        which_mock.assert_called_once_with("lxd")
+        logging_mock.error.assert_called_once_with(
+            "Executable '%s' not found in PATH", "lxd"
+        )
 
 
 class TestLXDTest(TestCase):

@@ -29,6 +29,7 @@ import os
 import logging
 import requests
 import shlex
+from shutil import which
 from subprocess import (
     Popen,
     PIPE,
@@ -1102,6 +1103,15 @@ def test_kvm(args):
     sys.exit(result)
 
 
+def detect_executable(executable):
+    """Detect if an executable is available in the system PATH."""
+
+    path = which(executable)
+    if path is None:
+        logging.error("Executable '%s' not found in PATH", executable)
+        sys.exit(1)
+
+
 def main():
 
     parser = ArgumentParser(description="Virtualization Test")
@@ -1123,6 +1133,12 @@ def main():
         action="store_const",
         const=logging.DEBUG,
         default=logging.INFO,
+    ),
+
+    parser.add_argument(
+        "--detect-executable",
+        type=str,
+        help="Detect if an executable is available in the system PATH",
     )
 
     # Sub test options
@@ -1158,6 +1174,10 @@ def main():
     logging.getLogger("urllib3").setLevel(logging.WARNING)
 
     # Verify args
+    if args.detect_executable:
+        detect_executable(args.detect_executable)
+        return 0
+
     try:
         args.func(args)
     except AttributeError:

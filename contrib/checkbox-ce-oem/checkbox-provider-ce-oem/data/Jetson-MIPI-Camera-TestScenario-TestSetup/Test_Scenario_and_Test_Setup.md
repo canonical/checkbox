@@ -155,18 +155,26 @@ Jetson configurations only require test scenario files (no test setup needed).
 > needed — the Orin Nano supports video recording on all five modes like any
 > other board.
 
-### e-CAM200 Quad
+### e-CAM200
 
 **Test Scenario:**
 
-- Hardware: 4x e-con Systems e-CAM200_CUONX (onsemi AR2020 20MP), one
-  camera per CSI port in the 2-lane configuration
+- Hardware: e-con Systems e-CAM200_CUONX (onsemi AR2020 20MP), one camera
+  per CSI port in the 2-lane configuration: four fitted (`cam0`..`cam3`)
+  or a single one on `cam0`
 - Board: Jetson Orin NX on a custom carrier exposing four 2-lane CSI ports
   (`cam0`..`cam3`, Argus source index 0..3)
 - Documentation: [e-CAM200_CUONX product page](https://www.e-consystems.com/nvidia-cameras/jetson-orin-nx-cameras/20mp-ar2020-high-resolution-camera.asp)
   (datasheet rev 1.2 / GStreamer Usage Guide downloads; 2-lane frame-rate
   table)
-- Configuration: [`jetson_mipi_camera_test_scenario_ecam200_quad.json`](jetson_mipi_camera_test_scenario_ecam200_quad.json)
+- Configuration (one file per fitted-camera layout):
+  - [`jetson_mipi_camera_test_scenario_ecam200_quad.json`](jetson_mipi_camera_test_scenario_ecam200_quad.json): all four cameras
+  - [`jetson_mipi_camera_test_scenario_ecam200_cam0.json`](jetson_mipi_camera_test_scenario_ecam200_cam0.json): a single camera on `cam0`
+
+> **Note:** the single-camera file is the quad file's `cam0` items (same
+> methods, same modes) and nothing else; `camera_id` stays `0`, as Argus
+> indexes the sensors it detects. A single module on another connector
+> needs its own file, as for the IMX219.
 
 | Argus mode | Resolution | FPS (2-lane) |
 | --- | --- | --- |
@@ -201,3 +209,4 @@ Jetson configurations only require test scenario files (no test setup needed).
 | IMX274 Dual | Jetson AGX Orin Developer Kit | ✅ Required | ❌ Not needed | 2 |
 | IMX219 | Jetson Orin NX, Jetson Orin Nano | ✅ Required | ❌ Not needed | 1 |
 | e-CAM200 Quad | Jetson Orin NX (custom 4x 2-lane carrier) | ✅ Required | ❌ Not needed | 4 |
+| e-CAM200 single | Jetson Orin NX (custom 4x 2-lane carrier, one camera on `cam0`) | ✅ Required | ❌ Not needed | 1 |

@@ -161,7 +161,7 @@ purpose: |
   You need another machine to send the timestamps.
 steps: |
   1. Connect TGPIO pin on DUT to another TGPIO pin on another machine.
-  2. Run `checkbox-Iiotg-classic.checkbox-cli  run com.canonical.contrib::iiotg-tgpio/ptp-time-send-host` and follow the steps on another DUT to send timestamps.
+  2. Run `checkbox-ce-oem.checkbox-cli run com.canonical.contrib::iiotg-tgpio/ptp-time-send-host` and follow the steps on another DUT to send timestamps.
   3. Press enter to start receiving timestamps.
 verification: |
   The verification of this test is automated.

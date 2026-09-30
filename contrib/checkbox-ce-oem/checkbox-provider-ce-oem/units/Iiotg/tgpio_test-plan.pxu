@@ -15,6 +15,7 @@ include:
     iiotg-tgpio/ptp-time-check-send-.*
     iiotg-tgpio/ptp-time-check-receive-.*
 bootstrap_include:
+    iiotg_tgpio_driver_info
     iiotg-tgpio/ptp-device-node-info
 
 id: iiotg-tgpio-automated
@@ -26,4 +27,5 @@ include:
     iiotg-tgpio/intc-driver-loaded
     iiotg-tgpio/ptp-time-check-loopback-.*
 bootstrap_include:
+    iiotg_tgpio_driver_info
     iiotg-tgpio/ptp-device-node-info

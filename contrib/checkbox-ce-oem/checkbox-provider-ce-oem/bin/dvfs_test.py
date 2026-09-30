@@ -386,7 +386,10 @@ def cmd_test(
         elif governor == "userspace":
             freq_node = _userspace_freq_node(dev_path, cur_freq_node)
             for freq in available_freqs:
-                _write_node(freq_node, freq)
+                if not _write_node(freq_node, freq):
+                    raise SystemExit(
+                        f"write frequency={freq} rejected by kernel"
+                    )
                 cur_freq = _poll_until(
                     lambda: _read_node(cur_freq_node),
                     lambda v: v == str(freq),

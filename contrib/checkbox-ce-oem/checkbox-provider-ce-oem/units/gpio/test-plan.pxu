@@ -29,5 +29,12 @@ include:
     ce-oem-gpio/node-export-test
     ce-oem-gpiod-gpio/check-simple-resource
     ce-oem-gpiod-gpio/simple-input-GPIO_CHIP-GPIO_LINE
-    ce-oem-gpiod-gpio/simple-output-GPIO_CHIP-GPIO_LINE
+# ce-oem-gpiod-gpio/simple-output-GPIO_CHIP-GPIO_LINE is deliberately not
+# included: it drives every line gpioinfo reports as "unused", but "unused"
+# only means no kernel consumer - the pad can still be owned by firmware or
+# wired to board control logic. On a Jetson Orin NX CNX130 (202606-38921,
+# 2026-09-22/23) the generated jobs reset the PCIe NIC through PK.03
+# (PEX_L1_RST_N) and powered the board off through PQ.03 (SOC_GPIO30), on
+# consecutive certification runs. Select the template explicitly, with
+# GPIOD_GPIO_IGNORE, only when a carrier's unclaimed lines are known to be safe.
     ce-oem-gpiod-gpio/loopback-input-GPIO_INPUT_CHIP-GPIO_INPUT_LINE-output-GPIO_OUTPUT_CHIP-GPIO_OUTPUT_LINE

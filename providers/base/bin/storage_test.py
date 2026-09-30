@@ -37,36 +37,22 @@ class BlockDevice(NamedTuple):
     name: str  # nvme0n1p3, dm_crypt-0
     size: int
     type: str  # lvm, part, crypt
-    fstype: str  # ext4, vfat, crypto_LUKS
+    fstype: str | None  # ext4, vfat, crypto_LUKS
 
 
-def get_mountable_fstypes() -> "list[str]":
-    """
-    from 'man 8 mount'
-
-    If no -t option is given, or if the auto type is specified,
-    mount will try to guess the desired type. mount uses the
-    libblkid(3) library for guessing the filesystem type; if that
-    does not turn up anything that looks familiar, mount will try
-    to read the file /etc/filesystems, or, if that does not exist,
-    /proc/filesystems. All of the filesystem types listed there
-    will be tried, except for those that are labeled "nodev" (e.g.
-    devpts, proc and nfs).
-    """
-    proc_filesystems_raw = Path("/proc/filesystems").read_text()
-    mountable_fstypes: "list[str]" = []
-    for line in proc_filesystems_raw.splitlines():
-        words = line.strip().split()
-        if len(words) == 1:
-            # each line is either just the fstype or starts with "nodev"
-            # examples:
-            # nodev	debugfs <--- not mountable
-            # ext4 <--- mountable
-
-            # every line with nodev is unmountable
-            # because they are not disk-backed filesystems, so we skip them
-            mountable_fstypes.append(words[0])
-    return mountable_fstypes
+# lsblk FSTYPE values that are not writable filesystems.
+# None means lsblk found no filesystem signature.
+# squashfs and iso9660 are mountable but read-only, so bonnie++ would fail
+REJECTED_FSTYPES = (
+    None,
+    "swap",
+    "crypto_LUKS",
+    "LVM2_member",
+    "linux_raid_member",
+    "zfs_member",
+    "squashfs",
+    "iso9660",
+)
 
 
 def mountpoint(device: Path) -> "Path | None":
@@ -123,11 +109,11 @@ def find_largest_partition(device: Path) -> Path:
                 file=sys.stderr,
             )
             continue
-        if block_device.fstype not in get_mountable_fstypes():
+        if block_device.fstype in REJECTED_FSTYPES:
             print(
                 f"Skipping {block_device.name}",
-                f"because it has unmountable fstype '{block_device.fstype}',",
-                f"but we need {get_mountable_fstypes()}",
+                f"because its fstype '{block_device.fstype}'",
+                "is not a writable filesystem",
                 file=sys.stderr,
             )
             continue
@@ -190,6 +176,7 @@ def run_bonnie(test_dir: Path, user: str = "root"):
         "-r",
         str(force_mem_mb),
         # bypass the page cache, O_DIRECT
+        # see `man bonnie++`
         "-D",
     ]
     print("+", " ".join(map(str, cmd)), flush=True)

@@ -1123,7 +1123,7 @@ def main():
         action="store_const",
         const=logging.DEBUG,
         default=logging.INFO,
-    ),
+    )
 
     # Sub test options
     kvm_test_parser.add_argument("-i", "--image", type=str, default=None)
@@ -1157,6 +1157,7 @@ def main():
     logging.getLogger("requests").setLevel(logging.WARNING)
     logging.getLogger("urllib3").setLevel(logging.WARNING)
 
+    # Verify args
     try:
         args.func(args)
     except AttributeError:

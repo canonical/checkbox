@@ -20,22 +20,57 @@ inputs:
     default: ""
     required: false
   checkbox_revision:
-    description: "Revision of Checkbox to clone on the test device"
+    description: "Checkbox revision installed on the Testflinger agent as the controller"
     required: true
   checkbox_channel:
     description: "Checkbox snap channel to patch and install"
     required: true
     default: edge
+  checkbox_series:
+    description: "Checkbox snap series to patch (ex. 24 for checkbox24)"
+    required: true
+  architecture:
+    description: "Target machine's snap architecture (ex. arm64)"
+    required: true
 
 runs:
   using: composite
   steps:
-    - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
-
     - name: Install dependencies
       shell: bash
       run: |
-        sudo apt install -y -qq gettext
+        sudo apt install -y -qq gettext jq squashfs-tools snapd
+
+    - name: Download and patch the target snap
+      shell: bash
+      env:
+        CHECKBOX_SERIES: ${{ inputs.checkbox_series }}
+        CHECKBOX_CHANNEL: ${{ inputs.checkbox_channel || 'edge' }}
+        CHECKBOX_ARCHITECTURE: ${{ inputs.architecture }}
+      working-directory: ${{ github.action_path }}/../../..
+      run: |
+        set -euo pipefail
+        SNAP="checkbox$CHECKBOX_SERIES"
+        SNAP_PATH=tools/lab_dispatch
+        SNAP_URL=$(curl -fsSL \
+          -H 'Snap-Device-Series: 16' \
+          -H "Snap-Device-Architecture: $CHECKBOX_ARCHITECTURE" \
+          "https://api.snapcraft.io/v2/snaps/info/$SNAP" \
+          | jq -er --arg channel "$CHECKBOX_CHANNEL" \
+            --arg architecture "$CHECKBOX_ARCHITECTURE" \
+            '[."channel-map"[] |
+              select(.channel.name == $channel and
+                     .channel.architecture == $architecture) |
+              .download.url] |
+             if length == 1 then .[0] else error("snap channel/architecture not found") end')
+        curl -fLsS --output "$SNAP_PATH/checkbox-base.snap" "$SNAP_URL"
+        python3 tools/image-garden/patch_checkbox_snap.py \
+          --series "$CHECKBOX_SERIES" \
+          --snap-file "$SNAP_PATH/checkbox-base.snap" \
+          --output-dir "$SNAP_PATH/patched-checkbox" \
+          --force
+        snap pack "$SNAP_PATH/patched-checkbox" "$SNAP_PATH" \
+          --filename=patched-checkbox.snap
 
     - name: Build the test resource
       shell: bash
@@ -46,7 +81,7 @@ runs:
         INPUT_TEST_PLAN: ${{ inputs.test_plan }}
         INPUT_LAUNCHER_OVERRIDE: ${{ inputs.launcher_override }}
         INPUT_CHECKBOX_REVISION: ${{ inputs.checkbox_revision }}
-        INPUT_CHECKBOX_CHANNEL: ${{ inputs.checkbox_channel }}
+        INPUT_CHECKBOX_SERIES: ${{ inputs.checkbox_series }}
       working-directory: ${{ github.action_path }}/../../../tools/lab_dispatch
       run: |
         echo "::group::Building the testflinger job"
@@ -54,8 +89,7 @@ runs:
           INPUT_DATA_SOURCE="provision_data: $INPUT_DATA_SOURCE"
         fi
         envsubst \
-          '$INPUT_CHECKBOX_REVISION $INPUT_CHECKBOX_CHANNEL \
-          $INPUT_DATA_SOURCE $INPUT_QUEUE' \
+          '$INPUT_CHECKBOX_REVISION $INPUT_CHECKBOX_SERIES $INPUT_DATA_SOURCE $INPUT_QUEUE' \
           < generic_snap.yaml | tee job.yaml
         echo "::endgroup::"
 

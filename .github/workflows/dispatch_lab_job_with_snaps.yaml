@@ -4,6 +4,9 @@ permissions:
   contents: read
 
 on:
+  # Temporary single-machine lab validation; remove after the PR has passed.
+  pull_request:
+    types: [opened, synchronize, reopened]
   workflow_dispatch:
     inputs:
       checkbox_channel:
@@ -12,17 +15,28 @@ on:
         type: string
         default: edge
       matrix_to_create:
-        description: Json formatted description of the jobs to dispatch
+        description: 'JSON jobs: data_source, queue, checkbox_series, architecture, test_plan, match'
         required: true
         type: string
 
 jobs:
   run-matrix:
+    if: >-
+      github.event_name != 'pull_request' ||
+      (github.event.pull_request.head.ref == 'dispatch-job-with-snaps' &&
+       github.event.pull_request.head.repo.full_name == github.repository)
     runs-on: self-hosted-linux-amd64-jammy-private-endpoint-medium
     strategy:
       fail-fast: false
       matrix:
-        spec: ${{ fromJson(inputs.matrix_to_create) }}
+        spec: >-
+          ${{
+            fromJson(
+              github.event_name == 'pull_request' &&
+              '[{"data_source":"{url: https://tel-image-cache.canonical.com/cdimage/ubuntu-core/24/dangerous-stable/pending/ubuntu-core-24-arm64+raspi.img.xz}","queue":"cert-rpi4b1g","checkbox_series":"24","architecture":"arm64","test_plan":"2021.com.canonical.certification::smoke-automated-passing"}]' ||
+              inputs.matrix_to_create
+            )
+          }}
     defaults:
       run:
         working-directory: tools/lab_dispatch
@@ -30,11 +44,12 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
         with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
           persist-credentials: false
 
       - name: Get current commit SHA
         id: get_sha
-        run: echo "sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
+        run: echo "sha=${{ github.event.pull_request.head.sha || github.sha }}" >> "$GITHUB_OUTPUT"
 
       - name: Run the spec with a patched snap
         uses: ./.github/actions/checkbox_source_snap
@@ -52,3 +67,5 @@ jobs:
             WPA3_AX_PSK = ${{ secrets.INPUT_PASSWORD_SECRET }}
           checkbox_revision: ${{ steps.get_sha.outputs.sha }}
           checkbox_channel: ${{ inputs.checkbox_channel }}
+          checkbox_series: ${{ matrix.spec.checkbox_series }}
+          architecture: ${{ matrix.spec.architecture }}

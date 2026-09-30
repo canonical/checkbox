@@ -55,7 +55,7 @@ unit: job
 category_id: iiotg-tgpio
 id: iiotg-tgpio/intc-driver-loaded
 plugin: shell
-_summary: Verify if all the Intel Controller(INTC) for TGPIO is loaded
+_summary: Verify if all the Intel Controller(INTC) for TGPIO is loaded (Legacy)
 _description:
     This test is to enumerate the loaded TGPIO driver. It's hardcoded, so it should
     always be INTC1021, INTC1022, INTC1023, INTC1024.

@@ -478,11 +478,9 @@ imx-8mp imx8-gst_encoder_psnr-v4l2h265enc-1280x720@30fps-YUY2
 imx-8mp imx8-gst_encoder_psnr-v4l2h265enc-1280x720@30fps-NV12
 imx-8mp imx8-gst_encoder_psnr-v4l2h265enc-1280x720@30fps-NV21
 imx-8mp imx8-gst_encoder_psnr-v4l2h265enc-1280x720@30fps-I420
-rzg2l gst_video_decoder_performance_fakesink-omxh264dec
-rzg2l renesas-gst_encoder_psnr-omxh264enc-1920x1080@30fps-NV12
-rzg3e gst_video_decoder_performance_fakesink-omxh264dec
-rzg3e gst_video_decoder_performance_fakesink-omxh265dec
-rzg3e renesas-gst_encoder_psnr-omxh264enc-1920x1080@30fps-NV12
-rzg3e renesas-gst_encoder_psnr-omxh265enc-1920x1080@30fps-NV12
-rzv2l gst_video_decoder_performance_fakesink-omxh264dec
-rzv2l renesas-gst_encoder_psnr-omxh264enc-1920x1080@30fps-NV12
+rzg2l_v2l gst_video_decoder_performance_fakesink-omxh264dec
+rzg2l_v2l renesas-gst_encoder_psnr-omxh264enc-1920x1080@30fps-NV12
+rzg3e_v2h_n gst_video_decoder_performance_fakesink-omxh264dec
+rzg3e_v2h_n gst_video_decoder_performance_fakesink-omxh265dec
+rzg3e_v2h_n renesas-gst_encoder_psnr-omxh264enc-1920x1080@30fps-NV12
+rzg3e_v2h_n renesas-gst_encoder_psnr-omxh265enc-3840x2160@30fps-NV12

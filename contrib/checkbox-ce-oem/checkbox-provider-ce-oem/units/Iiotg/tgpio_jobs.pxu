@@ -6,23 +6,24 @@ imports: from com.canonical.plainbox import manifest
 requires:
     manifest.is_Iiotg == 'True'
     manifest.has_iiotg_tgpio == 'True'
-_summary: Check that the kernel provides a TGPIO driver
+_summary: Check that a TGPIO driver is bound to the TGPIO devices
 _description:
-    This test checks that the running kernel provides a driver for the
-    Intel PMC Time-Aware GPIO (TGPIO / Timed I/O) hardware, either the
-    out-of-tree ptp-intel-pmc-tgpio driver or the upstream pps_gen_tio
-    driver (Linux 6.15+).
+    This test checks that a driver for the Intel PMC Time-Aware GPIO
+    (TGPIO / Timed I/O) hardware is bound to at least one TGPIO ACPI
+    device (INTC1021-INTC1024). Either ptp-intel-pmc-tgpio
+    or the upstream pps_gen_tio driver (6.15+) is accepted.
 user: root
 command:
     found=0
-    for m in ptp_intel_pmc_tgpio pps_gen_tio; do
-        if modinfo "$m" > /dev/null 2>&1; then
-            echo "PASS: $m is available in kernel $(uname -r)"
+    for drv in intel-pmc-tgpio intel-pps-gen-tio; do
+        for dev in /sys/bus/platform/drivers/"$drv"/INTC102*; do
+            [ -e "$dev" ] || continue
+            echo "PASS: $drv is bound to $(basename "$dev") on kernel $(uname -r)"
             found=1
-        fi
+        done
     done
     if [ "$found" -eq 0 ]; then
-        echo "FAIL: no TGPIO driver (ptp_intel_pmc_tgpio or pps_gen_tio) in kernel $(uname -r)" >&2
+        echo "FAIL: no TGPIO driver (intel-pmc-tgpio or intel-pps-gen-tio) is bound to an INTC102x device on kernel $(uname -r)" >&2
         exit 1
     fi
 estimated_duration: 1s

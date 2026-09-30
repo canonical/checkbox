@@ -36,7 +36,7 @@ nested_part:
 id: iiotg-tsn/ieee802-1as-2011
 name: IIOTG Time Sensitive Networking Test Plan for IEEE 802.1AS-2011
 description: |
-  This testplan is to check if it could follow IEEE 802.1AS-2011.
+  This test plan checks for IEEE 802.1AS-2011 compliance.
    - To achieve time synchronization between two platforms.
    - To synchronize each platforms's system clock with PHC (Physical hardware clock)
      using hardware cross-timestamping (which is selected by phc2sys automatically).
@@ -50,7 +50,8 @@ include:
 ---
 id: iiotg-tsn-ieee802-1qav
 name: IIOTG Time Sensitive Networking Test Plan for IEEE 802.1Qav
-description: This testplan is to check if it could follow IEEE 802.1Qav Credit-Based Shaper.
+description: |
+  This test plan checks if the platform supports IEEE 802.1Qav Credit-Based Shaper (CBS).
 unit: test plan
 bootstrap_include:
   - iiotg-tsn/tsn-device-ip-match
@@ -60,7 +61,8 @@ include:
 ---
 id: iiotg-tsn-ieee802-1qbv
 name: IIOTG Time Sensitive Networking Test Plan for IEEE 802.1Qbv
-description: This testplan is to check if it could follow IEEE 802.1Qbv Time Aware Shaper (TAS).
+description: |
+  This test plan checks if the platform supports IEEE 802.1Qbv Time Aware Shaper (TAS).
 unit: test plan
 bootstrap_include:
   - iiotg-tsn/tsn-device-ip-match
@@ -70,7 +72,8 @@ include:
 ---
 id: iiotg-tsn-ieee802-1qbu
 name: IIOTG Time Sensitive Networking Test Plan for IEEE 802.1Qbu
-description: This testplan is to check if it could follow IEEE 802.1Qbu Frame Preemption.
+description: |
+  This test plan checks if the platform supports IEEE 802.1Qbu Frame Preemption.
 unit: test plan
 bootstrap_include:
   - iiotg-tsn/tsn-device-ip-match

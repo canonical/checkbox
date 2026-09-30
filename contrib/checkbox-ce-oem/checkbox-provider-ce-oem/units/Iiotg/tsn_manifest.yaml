@@ -1,5 +1,5 @@
 unit: manifest entry
 id: has_iiotg_tsn
 name: Has support for Time Sensitive Networking
-prompt: Iiotg specific?
+prompt: Does this device support Time Sensitive Networking (TSN)?
 value-type: bool

@@ -115,7 +115,7 @@ runs:
         fi
 
     - name: Submit and monitor job
-      uses: canonical/testflinger/.github/actions/submit@2c10f8bbb78532c12034dc668971ae3b44edc9
+      uses: canonical/testflinger/.github/actions/submit@2c10f8bbb78532c12034dc668971ddae3b44edc9
       with:
         poll: true
         job-path: tools/lab_dispatch/job.yaml

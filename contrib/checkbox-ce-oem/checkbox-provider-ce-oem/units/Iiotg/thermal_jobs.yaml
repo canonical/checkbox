@@ -222,7 +222,6 @@ purpose: Check if thermald is active in classic image and inactive in core image
 plugin: shell
 category_id: iiotg-thermal
 id: iiotg-thermal/thermald
-template-engine: jinja2
 imports:
   - from com.canonical.certification import cpuinfo
   - from com.canonical.plainbox import manifest
@@ -235,18 +234,17 @@ requires:
 command: |
   systemctl is-active --quiet thermald
   RETVAL=$?
-  {%- if __on_ubuntucore__ %}
+  # mirror on_ubuntucore()
+  if [ -n "$SNAP" ] && ! grep -qx "confinement: classic" "$SNAP/meta/snap.yaml"; then
       # 0 means active, all other error values are considered OK
       # because we only want to make sure that thermald is not running
-      if [ "$RETVAL" -eq 0 ];
-      then
+      if [ "$RETVAL" -eq 0 ]; then
           echo "FAIL: thermald is active in core image."
           exit 1
       fi
       echo "PASS: thermald is inactive in core image"
-  {%- else %}
-      if [ "$RETVAL" -ne 0 ];
-      then
+  else
+      if [ "$RETVAL" -ne 0 ]; then
           echo "FAIL: thermald is not active"
           echo "==="
           echo "# journalctl -b -u thermald"
@@ -255,5 +253,5 @@ command: |
           exit "$RETVAL"
       fi
       echo "PASS: thermald is active in classic image"
-  {% endif -%}
+  fi
   exit 0

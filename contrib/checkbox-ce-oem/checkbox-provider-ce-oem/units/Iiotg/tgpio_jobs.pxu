@@ -14,6 +14,10 @@ _description:
     or the upstream pps_gen_tio driver (6.15+) is accepted.
 user: root
 command:
+    # the INTC102* check comes from here
+    # https://github.com/torvalds/linux/blob/master/drivers/pps/generators/pps_gen_tio.c#L242-L248
+    # for older kernels
+    # https://github.com/intel/linux-intel-lts/blob/2533aa36ba52e96057d68a4ab377a6293b91c1fc/drivers/ptp/ptp-intel-pmc-tgpio.c#L49-L52
     found=0
     for drv in intel-pmc-tgpio intel-pps-gen-tio; do
         for dev in /sys/bus/platform/drivers/"$drv"/INTC102*; do

@@ -196,7 +196,8 @@ steps: |
   1. Connect this DUT another machine via TGPIO pins.
   2. Press enter on this DUT to start sending timestamps.
   3. Press enter on the other DUT to start receiving timestamps.
-verification: There's no test here. You can mark it pass after you finishing your test(iiotg-tgpio/ptp-time-receive-.*) 
+verification:
+  There's no test here. You can mark it pass after you finishing your test(iiotg-tgpio/ptp-time-receive-.*)
   on the other machine.
 imports:
   - from com.canonical.plainbox import manifest
@@ -227,7 +228,8 @@ steps: |
   1. Connect this DUT another machine via TGPIO pins.
   2. Press enter on the other DUT to send timestamps.
   3. Press enter on this machine to start receiving timestamps.
-verification: There's no test here. You can mark it pass after you finishing your 
+verification:
+  There's no test here. You can mark it pass after you finishing your
   test(iiotg-tgpio/ptp-time-check-send-.*) on the other machine.
 imports:
   - from com.canonical.plainbox import manifest

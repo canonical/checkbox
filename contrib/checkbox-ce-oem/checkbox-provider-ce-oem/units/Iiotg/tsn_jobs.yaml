@@ -164,7 +164,7 @@ user: root
 purpose: To check if the system can send packets in the certain rate
 environ:
   - TSN_CREDIT_BASED_SHAPER_TESTING_TIME
-command: iiotg_tsn.py client credit-based-shaper --interface {{interface}}  -t 
+command: iiotg_tsn.py client credit-based-shaper --interface {{interface}}  -t
   "${TSN_CREDIT_BASED_SHAPER_TESTING_TIME:-10}" --server-ip {{server_ip}}
 ---
 unit: template

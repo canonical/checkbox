@@ -129,7 +129,7 @@ purpose: This test will send timestamps for 15 seconds. You need another machine
 steps: |
   1. Connect TGPIO pin on DUT to another TGPIO pin on another machine.
   2. Press enter to start sending timestamps.
-  3. Run `checkbox-Iiotg-classic.checkbox-cli  run com.canonical.contrib::iiotg-tgpio/ptp-time-receive-host` and follow the steps on another DUT to receive timestamps.
+  3. Run `checkbox-ce-oem.checkbox-cli run com.canonical.contrib::iiotg-tgpio/ptp-time-receive-host` and follow the steps on another DUT to receive timestamps.
 verification: Is the output of another machine pass?
 imports:
   - from com.canonical.plainbox import manifest

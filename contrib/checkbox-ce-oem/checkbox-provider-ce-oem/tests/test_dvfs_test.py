@@ -122,6 +122,16 @@ class TestGovernorsAndFrequencies(DvfsTestCaseBase):
 
 
 class TestResolveDvfsProcessors(DvfsTestCaseBase):
+    def test_missing_or_malformed_config_fails(self):
+        malformed = self.tmp_path / "malformed.json"
+        malformed.write_text("{")
+        for config in (self.tmp_path / "missing.json", malformed):
+            with self.subTest(config=config), patch.object(
+                dvfs_test, "DVFS_PROCESSORS_FILE_PATH", str(config)
+            ):
+                with self.assertRaisesRegex(SystemExit, "failed to load"):
+                    dvfs_test.resolve_dvfs_processors()
+
     @patch.object(dvfs_test, "DVFS_PROCESSORS_FILE_PATH", "")
     def test_falls_back_to_default_root_scan(self):
         self.make_device("13000000.gpu")
@@ -506,6 +516,38 @@ class TestCmdTest(DvfsTestCaseBase):
             dvfs_test._read_node(dev_dir / "governor"), "userspace"
         )
         self.assertEqual(dvfs_test._read_node(dev_dir / "cur_freq"), "200")
+
+    def test_userspace_frequency_write_rejected(self):
+        self.make_device(
+            "dev0", available_frequencies=(100, 200), cur_freq=100
+        )
+        write_node = dvfs_test._write_node
+
+        def reject_current_frequency(path, value):
+            if path.name == "cur_freq" and str(value) == "100":
+                return False
+            return write_node(path, value)
+
+        with patch.object(
+            dvfs_test, "_write_node", side_effect=reject_current_frequency
+        ):
+            with self.assertRaisesRegex(SystemExit, "write frequency=100"):
+                dvfs_test.cmd_test("dev0", "gpu", "", "userspace")
+
+    def test_fails_when_governor_restore_rejected(self):
+        self.make_device("dev0")
+        write_node = dvfs_test._write_node
+
+        def reject_restore(path, value):
+            if path.name == "governor" and value == "simple_ondemand":
+                return False
+            return write_node(path, value)
+
+        with patch.object(
+            dvfs_test, "_write_node", side_effect=reject_restore
+        ), patch.object(dvfs_test, "POLL_TIMEOUT_S", 0):
+            with self.assertRaisesRegex(SystemExit, "failed to restore"):
+                dvfs_test.cmd_test("dev0", "gpu", "", "performance")
 
     def test_fails_when_governor_write_rejected(self):
         self.make_device("dev0")

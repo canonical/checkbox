@@ -1,0 +1,144 @@
+name: Diagnose snapd refresh
+
+permissions:
+  contents: read
+
+on:
+  workflow_dispatch:
+  # TEMPORARY: remove before merging to main. Allows testing the diagnostic
+  # on this branch, as workflow_dispatch only works once merged.
+  push:
+    branches:
+      - agents/action-failure-analysis-environments
+    paths:
+      - .github/workflows/snapd-refresh-diagnostic.yaml
+
+jobs:
+  refresh-snapd:
+    name: Refresh snapd (${{ matrix.arch }})
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - arch: amd64
+            tag: X64
+          - arch: arm64
+            tag: ARM64
+    runs-on:
+      group: "Canonical self-hosted runners"
+      labels: ["self-hosted", "linux", "large", "${{ matrix.tag }}", "noble"]
+    timeout-minutes: 20
+    steps:
+      - name: Capture pre-refresh diagnostics
+        env:
+          SNAP_ARCH: ${{ matrix.arch }}
+        run: |
+          set +e
+          mkdir -p diagnostics
+          date --iso-8601=seconds | tee diagnostics/started-at.txt
+          {
+            echo "runner=${RUNNER_NAME}"
+            echo "architecture=${RUNNER_ARCH}"
+            echo "os=${RUNNER_OS}"
+            echo "boot_id=$(cat /proc/sys/kernel/random/boot_id)"
+            uname -a
+          } | tee diagnostics/runner.txt
+          snap version | tee diagnostics/snap-version-before.txt
+          snap list snapd --all | tee diagnostics/snapd-before.txt
+          snap changes | tee diagnostics/snap-changes-before.txt
+          systemctl status snapd --no-pager \
+            > diagnostics/snapd-service-before.txt 2>&1 || true
+          snap debug connectivity \
+            > diagnostics/connectivity-before.txt 2>&1 || true
+          curl --silent --show-error \
+            --connect-timeout 10 \
+            --max-time 30 \
+            --dump-header diagnostics/store-before.headers \
+            --output diagnostics/store-before.json \
+            --write-out \
+            'http=%{http_code}\nremote_ip=%{remote_ip}\nconnect=%{time_connect}\ntls=%{time_appconnect}\nfirst_byte=%{time_starttransfer}\ntotal=%{time_total}\n' \
+            --request POST \
+            --header "Content-Type: application/json" \
+            --header "Snap-Device-Series: 16" \
+            --header "Snap-Device-Architecture: ${SNAP_ARCH}" \
+            --data '{"context":[],"actions":[{"action":"install","name":"snapd","channel":"latest/stable","instance-key":"diagnostic-test"}]}' \
+            https://api.snapcraft.io/v2/snaps/refresh \
+            > diagnostics/store-before.metrics 2> diagnostics/store-before.stderr || true
+          grep -iE \
+            '^(HTTP/|date:|snap-store-version:|x-request-id:)' \
+            diagnostics/store-before.headers || true
+          cat diagnostics/store-before.metrics
+          cat diagnostics/store-before.stderr
+          exit 0
+
+      - name: Refresh snapd to latest/stable
+        id: refresh
+        continue-on-error: true
+        run: |
+          set +e
+          set -o pipefail
+          sudo snap refresh snapd --channel=latest/stable 2>&1 \
+            | tee diagnostics/snapd-refresh.txt
+          refresh_status=${PIPESTATUS[0]}
+          echo "status=${refresh_status}" | tee diagnostics/refresh-status.txt
+          exit "${refresh_status}"
+
+      - name: Capture post-refresh diagnostics
+        if: always()
+        env:
+          SNAP_ARCH: ${{ matrix.arch }}
+        run: |
+          set +e
+          date --iso-8601=seconds | tee diagnostics/completed-at.txt
+          {
+            echo "boot_id=$(cat /proc/sys/kernel/random/boot_id)"
+            snap version
+            snap list snapd --all
+            snap changes --abs-time
+            for change_id in $(snap changes --abs-time \
+              | awk 'NR > 1 && $1 ~ /^[0-9]+$/ {print $1}' \
+              | tail -n 5); do
+              echo "Tasks for change ${change_id}:"
+              snap tasks "${change_id}"
+            done
+          } | tee diagnostics/snapd-after.txt
+          systemctl status snapd --no-pager \
+            > diagnostics/snapd-service-after.txt 2>&1 || true
+          sudo journalctl -u snapd \
+            --since "$(cat diagnostics/started-at.txt)" \
+            --no-pager > diagnostics/snapd-journal.txt 2>&1 || true
+          snap debug connectivity \
+            > diagnostics/connectivity-after.txt 2>&1 || true
+          curl --silent --show-error \
+            --connect-timeout 10 \
+            --max-time 30 \
+            --dump-header diagnostics/store-after.headers \
+            --output diagnostics/store-after.json \
+            --write-out \
+            'http=%{http_code}\nremote_ip=%{remote_ip}\nconnect=%{time_connect}\ntls=%{time_appconnect}\nfirst_byte=%{time_starttransfer}\ntotal=%{time_total}\n' \
+            --request POST \
+            --header "Content-Type: application/json" \
+            --header "Snap-Device-Series: 16" \
+            --header "Snap-Device-Architecture: ${SNAP_ARCH}" \
+            --data '{"context":[],"actions":[{"action":"install","name":"snapd","channel":"latest/stable","instance-key":"diagnostic-test"}]}' \
+            https://api.snapcraft.io/v2/snaps/refresh \
+            > diagnostics/store-after.metrics 2> diagnostics/store-after.stderr || true
+          grep -iE \
+            '^(HTTP/|date:|snap-store-version:|x-request-id:)' \
+            diagnostics/store-after.headers || true
+          cat diagnostics/store-after.metrics
+          cat diagnostics/store-after.stderr
+          exit 0
+
+      - name: Upload diagnostics
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
+        with:
+          name: snapd-refresh-${{ matrix.arch }}
+          path: diagnostics/
+
+      - name: Report refresh failure
+        if: always() && steps.refresh.outcome == 'failure'
+        run: |
+          echo "snapd refresh failed with $(cat diagnostics/refresh-status.txt)"
+          exit 1

@@ -45,6 +45,7 @@ jobs:
           } | tee diagnostics/runner.txt
           snap version | tee diagnostics/snap-version-before.txt
           snap list snapd --all | tee diagnostics/snapd-before.txt
+          snap list aproxy --all | tee diagnostics/aproxy-before.txt
           snap changes | tee diagnostics/snap-changes-before.txt
           systemctl status snapd --no-pager \
             > diagnostics/snapd-service-before.txt 2>&1 || true
@@ -71,6 +72,10 @@ jobs:
           cat diagnostics/store-before.stderr
           exit 0
 
+      - name: Refresh aproxy to stable
+        run: |
+          sudo snap refresh aproxy --devmode --stable
+
       - name: Refresh snapd to latest/stable
         id: refresh
         continue-on-error: true
@@ -94,6 +99,7 @@ jobs:
             echo "boot_id=$(cat /proc/sys/kernel/random/boot_id)"
             snap version
             snap list snapd --all
+            snap list aproxy --all
             snap changes --abs-time
             for change_id in $(snap changes --abs-time \
               | awk 'NR > 1 && $1 ~ /^[0-9]+$/ {print $1}' \

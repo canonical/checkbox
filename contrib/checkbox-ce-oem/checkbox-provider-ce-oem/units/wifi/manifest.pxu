@@ -2,3 +2,8 @@ unit: manifest entry
 id: has_wifi_ap_host
 _name: Does WiFi AP paring HOST machine available for testing WiFi AP mode?
 value-type: bool
+
+unit: manifest entry
+id: has_wifi_ap_control_host
+_name: Is a control host available to join the DUT-hosted WiFi AP under test?
+value-type: bool

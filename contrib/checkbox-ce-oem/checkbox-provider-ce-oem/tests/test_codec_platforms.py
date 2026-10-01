@@ -1,7 +1,9 @@
+import argparse
 import os
 import unittest
 from unittest import mock
 
+import codec_cix_tool
 import codec_dragonwing
 import codec_genio
 import codec_imx
@@ -24,6 +26,7 @@ class TestCodecFactory(unittest.TestCase):
         self.assertIs(codec_factory("dragonwing"), codec_dragonwing)
         self.assertIs(codec_factory("imx-8mp"), codec_imx)
         self.assertIs(codec_factory("rzg2l"), codec_rz)
+        self.assertIs(codec_factory("cix-tool-p1"), codec_cix_tool)
 
     def test_factory_returns_none_for_unknown_platform(self):
         self.assertIsNone(codec_factory("newplatform"))
@@ -66,6 +69,34 @@ class TestCodecFactory(unittest.TestCase):
         )
         self.assertFalse(
             hasattr(codec_dragonwing, "create_decoder_performance_project")
+        )
+
+    def test_cix_tool_module_scenario_apis(self):
+        for hook in (
+            "create_encoder_psnr_project",
+            "create_transform_resize_project",
+            "create_transform_rotate_and_flip_project",
+            "create_decoder_performance_project",
+        ):
+            self.assertTrue(hasattr(codec_cix_tool, hook))
+
+    def test_cix_tool_encoder_psnr_pins_bt709(self):
+        args = argparse.Namespace(
+            platform="cix-tool-p1",
+            encoder_plugin="v4l2h264enc",
+            width=1920,
+            height=1080,
+            framerate=30,
+            color_space="NV12",
+            mux="mp4mux",
+        )
+        pipeline = codec_cix_tool.create_encoder_psnr_project(
+            args
+        ).build_pipeline()
+        self.assertIn(
+            "video/x-raw,format=NV12,colorimetry=bt709 ! v4l2h264enc"
+            " capture-io-mode=mmap output-io-mode=dmabuf ! h264parse",
+            pipeline,
         )
 
     def test_create_scenario_project_dispatch(self):
@@ -180,6 +211,9 @@ class TestBaseCodecProject(unittest.TestCase):
             perf_script.GenericDecoderPerformanceProject,
             codec_imx.ImxDecoderPerformanceProject,
             codec_rz.RenesasDecoderPerformanceProject,
+            codec_cix_tool.CixTransformResizeProject,
+            codec_cix_tool.CixTransformRotateAndFlipProject,
+            codec_cix_tool.CixDecoderPerformanceProject,
         ):
             self.assertTrue(issubclass(project_class, BaseCodecProject))
 

@@ -1,0 +1,5 @@
+unit: manifest entry
+id: is_iiotg
+name: Is this an Intel IIOTG platform?
+prompt: IIOTG specific?
+value-type: bool

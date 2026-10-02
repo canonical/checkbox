@@ -115,7 +115,9 @@ runs:
         fi
 
     - name: Submit and monitor job
-      uses: canonical/testflinger/.github/actions/submit@2c10f8bbb78532c12034dc668971ddae3b44edc9
+      uses: canonical/testflinger/.github/actions/submit@545ed69f17a5e639a2299e325f5fb199ca9f98af
       with:
         poll: true
         job-path: tools/lab_dispatch/job.yaml
+        client-id: ${{ env.TESTFLINGER_CLIENT_ID }}
+        secret-key: ${{ env.TESTFLINGER_SECRET_KEY }}

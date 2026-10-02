@@ -1,10 +1,11 @@
 name: Submit a Checkbox snap test plan to the lab
+description: Patch a Checkbox snap and submit its test plan to Testflinger
 
 inputs:
   data_source:
     description: "Target image and provisioning data (ex. `url:` or `distro:`)"
     required: false
-    default: null
+    default: ""
   queue:
     description: "Queue that will run the testing (ex. 202012-28526)"
     required: true
@@ -52,6 +53,9 @@ runs:
         set -euo pipefail
         SNAP="checkbox$CHECKBOX_SERIES"
         SNAP_PATH=tools/lab_dispatch
+        # snap download uses the runner's architecture (amd64), but the lab
+        # target may be arm64. Ask the store for the target architecture and
+        # select the exact channel/architecture entry from its response.
         SNAP_URL=$(curl -fsSL \
           -H 'Snap-Device-Series: 16' \
           -H "Snap-Device-Architecture: $CHECKBOX_ARCHITECTURE" \
@@ -94,6 +98,8 @@ runs:
         echo "::endgroup::"
 
         echo "::group::Building the Checkbox launcher"
+        # this goes from .template. (missing secret, testplan, match etc. to .partial.)
+        # this is partial as some values are filled in on the agent (like wireless access points names)
         envsubst '$INPUT_TEST_PLAN $INPUT_MATCH' \
           < resources/checkbox.no-manifest.template.conf \
           | tee resources/checkbox.no-manifest.partial.conf
@@ -106,6 +112,8 @@ runs:
     - name: Work around relative attachment paths
       shell: bash
       run: |
+        # this allows us to dispatch the action and the attachments with relative
+        # paths even when called form outside the Checkbox repo
         action_path=$(realpath "${{ github.action_path }}/../../../tools/")
         workdir_path=$(realpath tools/)
         if [ "$action_path" = "$workdir_path" ]; then

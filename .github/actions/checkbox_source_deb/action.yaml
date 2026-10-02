@@ -1,9 +1,10 @@
 name: Submit a Checkbox Test plan (or subset of it) to the lab
+description: Build Checkbox debs and submit a test plan to Testflinger
 inputs:
   data_source:
     description: "Target image and provisioning data (ex. `url:` or `distro:`)"
     required: false
-    default: null
+    default: ""
   queue:
     description: "Queue that will run the testing (ex. 202012-28526)"
     required: true

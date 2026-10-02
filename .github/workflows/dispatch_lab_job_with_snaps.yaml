@@ -1,6 +1,8 @@
-name: Dispatch Checkbox jobs in the lab
+name: Dispatch Checkbox snap jobs in the lab
+
 permissions:
   contents: read
+
 on:
   # Temporary single-machine lab validation; remove after the PR has passed.
   pull_request:
@@ -40,8 +42,13 @@ on:
       #
       # You can run it from a branch or commit using the `--ref` option:
       # gh workflow run dispatch_lab_job.yaml  --ref <branch_or_commit> -f 'matrix_to_create=[...]'
+      checkbox_channel:
+        description: Checkbox snap channel to patch and install
+        required: true
+        type: string
+        default: edge
       matrix_to_create:
-        description: 'Json formatted description of the jobs to dispatch'
+        description: 'JSON jobs: data_source, queue, checkbox_series, architecture, test_plan, match'
         required: true
         type: string
 
@@ -59,7 +66,7 @@ jobs:
           ${{
             fromJson(
               github.event_name == 'pull_request' &&
-              '[{"data_source":"{distro: desktop-22-04-2-uefi}","queue":"202506-36885","match":".*smoke/true$","test_plan":"com.canonical.certification::smoke"}]' ||
+              '[{"data_source":"{url: https://tel-image-cache.canonical.com/cdimage/ubuntu-core/24/dangerous-stable/pending/ubuntu-core-24-arm64+raspi.img.xz}","queue":"cert-rpi4b1g","checkbox_series":"24","architecture":"arm64","test_plan":"2021.com.canonical.certification::smoke-automated-passing"}]' ||
               inputs.matrix_to_create
             )
           }}
@@ -67,7 +74,6 @@ jobs:
       run:
         working-directory: tools/lab_dispatch
     steps:
-
       - name: Checkout repository
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
         with:
@@ -78,8 +84,8 @@ jobs:
         id: get_sha
         run: echo "sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
 
-      - name: Run the spec
-        uses: ./.github/actions/checkbox_source_deb
+      - name: Run the spec with a patched snap
+        uses: ./.github/actions/checkbox_source_snap
         env:
           TESTFLINGER_CLIENT_ID: ${{ secrets.TESTFLINGER_CLIENT_ID }}
           TESTFLINGER_SECRET_KEY: ${{ secrets.TESTFLINGER_SECRET_KEY }}
@@ -96,3 +102,6 @@ jobs:
             WPA_AX_PSK = ${{ secrets.INPUT_PASSWORD_SECRET }}
             WPA3_AX_PSK = ${{ secrets.INPUT_PASSWORD_SECRET }}
           checkbox_revision: ${{ steps.get_sha.outputs.sha }}
+          checkbox_channel: ${{ inputs.checkbox_channel }}
+          checkbox_series: ${{ matrix.spec.checkbox_series }}
+          architecture: ${{ matrix.spec.architecture }}

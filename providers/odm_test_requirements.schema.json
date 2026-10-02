@@ -1,0 +1,77 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "ODM preparation requirements",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["version", "categories", "requirements"],
+  "properties": {
+    "version": {"type": "integer", "const": 1},
+    "categories": {
+      "type": "array",
+      "items": {"$ref": "#/$defs/category"}
+    },
+    "requirements": {
+      "type": "array",
+      "items": {"$ref": "#/$defs/requirement"}
+    }
+  },
+  "$defs": {
+    "id": {"type": "string", "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$", "not": {"pattern": "\\s"}},
+    "title": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 80,
+      "allOf": [
+        {"pattern": "\\S"},
+        {"not": {"pattern": "[\\r\\n]"}},
+        {"not": {"pattern": "\\.\\s*$"}}
+      ]
+    },
+    "description": {"type": "string", "pattern": "\\S"},
+    "references": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {"type": "string", "minLength": 1, "not": {"pattern": "\\s"}}
+    },
+    "versions": {
+      "oneOf": [
+        {"const": []},
+        {"const": ["all"]},
+        {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "string",
+            "not": {"pattern": "[\\r\\n]"},
+            "pattern": "^[ \\t]*(?:(?:==|!=|>=|<=|>|<)[ \\t]*)?[0-9]{2}\\.(?:0[1-9]|1[0-2])[ \\t]*(?:,[ \\t]*(?:(?:==|!=|>=|<=|>|<)[ \\t]*)?[0-9]{2}\\.(?:0[1-9]|1[0-2])[ \\t]*)*$"
+          }
+        }
+      ]
+    },
+    "category": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "title", "description"],
+      "properties": {
+        "id": {"$ref": "#/$defs/id"},
+        "title": {"$ref": "#/$defs/title"},
+        "description": {"$ref": "#/$defs/description"}
+      }
+    },
+    "requirement": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "title", "category", "ubuntu_versions", "description", "required"],
+      "properties": {
+        "id": {"$ref": "#/$defs/id"},
+        "title": {"$ref": "#/$defs/title"},
+        "category": {"$ref": "#/$defs/id"},
+        "ubuntu_versions": {"$ref": "#/$defs/versions"},
+        "description": {"$ref": "#/$defs/description"},
+        "required": {"type": "boolean"},
+        "manifest": {"$ref": "#/$defs/references", "minItems": 1},
+        "related_jobs": {"$ref": "#/$defs/references"}
+      }
+    }
+  }
+}

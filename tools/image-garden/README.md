@@ -24,7 +24,8 @@ python3 run_local.py tests/run-patched-snap/launcher.conf --series 24
 ```
 
 `tests/run-patched-snap/launcher.conf` runs the metabox
-`smoke-automated-passing` test plan, but you can use a different launcher to run other test plans.
+`smoke-automated-passing` test plan, but you can use a different launcher
+to run other test plans.
 
 The series defaults to `24`; supported values are `18`, `20`, `22`, `24`, and
 `26`. The series selects both the snap name, such as `checkbox24`, and the
@@ -47,6 +48,35 @@ python3 run_local.py \
     --snap-file path/to/checkbox24.snap
 ```
 
+## Patch only the metabox provider
+
+`patch_checkbox_snap.py --metabox-only` only overlays the metabox
+provider, leaving the rest of the snap untouched. This is what CI uses to
+validate the metabox provider against a snap exactly as published:
+
+```bash
+python3 patch_checkbox_snap.py --series 24 --metabox-only \
+    --output-dir local_run_24/checkbox24 --force
+cp spread.yaml local_run_24/ && cp -r tests launchers local_run_24/
+cd local_run_24
+image-garden.spread -vv -artifacts=artifacts \
+    "garden:ubuntu-core-24:tests/run-metabox-smoke"
+python3 ../check_submission.py \
+    artifacts/garden:ubuntu-core-24:tests/run-metabox-smoke/submission-full.json \
+    tests/run-metabox-smoke/golden-full.json
+```
+
+Running Spread from `local_run_24/` keeps its VM state (images, logs,
+locks) there instead of polluting this directory.
+
+## Compare the submission against the golden results
+
+On CI, we run both the passing and full phases of the metabox smoke tests. Then
+we check the full phase's submission against the golden results:
+
+```bash
+python3 check_submission.py submission.json golden-full.json
+```
 
 ## Run the store smoke tests locally
 

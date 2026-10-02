@@ -75,6 +75,28 @@ class PatchCheckboxSnapTests(unittest.TestCase):
             ).is_file()
         )
 
+    def test_sync_dirs_metabox_only_skips_packages_and_providers(self):
+        self.write_file(self.repo / "checkbox-ng/checkbox_ng/foo.py")
+        self.write_file(self.repo / "providers/base/units/jobs.yaml")
+        self.write_file(
+            self.repo / "metabox/metabox/metabox-provider/units/jobs.yaml"
+        )
+
+        patch_checkbox_snap.sync_dirs(self.repo, self.snap, metabox_only=True)
+
+        self.assertFalse((self.site_packages / "checkbox_ng/foo.py").exists())
+        self.assertFalse(
+            (
+                self.snap / "providers/checkbox-provider-base/units/jobs.yaml"
+            ).exists()
+        )
+        self.assertTrue(
+            (
+                self.snap
+                / "providers/checkbox-provider-metabox/units/jobs.yaml"
+            ).is_file()
+        )
+
     def test_patch_snap_uses_local_snap_file(self):
         snap_file = self.root / "checkbox24.snap"
         self.write_file(snap_file)

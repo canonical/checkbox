@@ -24,21 +24,15 @@ Original script that inspired this class:
 
 import itertools
 from collections import OrderedDict
+from collections.abc import Mapping
 from enum import IntEnum
 from time import sleep
-from typing import (
-    Any,
-    Callable,
-    Dict,
-    List,
-    Mapping,
-    NamedTuple,
-    Optional,
-    Set,
-    Tuple,
-)
+from typing import Any, Callable, List, NamedTuple
 
-from gi.repository import Gio, GLib  # type: ignore
+from gi.repository import (
+    Gio,  # pyright: ignore[reportMissingModuleSource]
+    GLib,  # pyright: ignore[reportMissingModuleSource]
+)
 
 from checkbox_support.monitor_config import MonitorConfig
 
@@ -58,27 +52,42 @@ class Transform(IntEnum):
     FLIPPED_270 = 7
 
 
+class LayoutMode(IntEnum):
+    # See https://gitlab.gnome.org/GNOME/mutter/-/blob/main/data/
+    # dbus-interfaces/org.gnome.Mutter.DisplayConfig.xml#L441
+    LOGICAL = 1
+    PHYSICAL = 2
+
+
 # A plain 4-tuple with some basic info about the monitor
 class MonitorInfo(NamedTuple):
+    """
+    See the "@monitors represent connected physical monitors" section at:
+    https://gitlab.gnome.org/GNOME/mutter/-/blob/main/data/dbus-interfaces/
+        org.gnome.Mutter.DisplayConfig.xml#L355
+    """
+
     connector: str  # HDMI-1, eDP-1, ...
     vendor: str  # vendor string like BOE, Asus, etc.
     product: str
     serial: str
 
 
-# py3.5 can't use inline type annotations,
-# otherwise the _*T types should be merged with their non-underscore versions
-class _MutterDisplayModeT(NamedTuple):
+class MutterDisplayMode(NamedTuple):
+    """
+    See the "modes" struct doc at:
+    https://gitlab.gnome.org/GNOME/mutter/-/blob/main/data/dbus-interfaces/
+        org.gnome.Mutter.DisplayConfig.xml#L361
+    """
+
     id: str
     width: int
     height: int
     refresh_rate: float
     preferred_scale: float
-    supported_scales: List[float]
-    properties: Mapping[str, Any]
+    supported_scales: "list[float]"
+    properties: "Mapping[str, Any]"
 
-
-class MutterDisplayMode(_MutterDisplayModeT):
     @property
     def is_current(self) -> bool:
         return self.properties.get("is-current", False)
@@ -98,15 +107,19 @@ class MutterDisplayMode(_MutterDisplayModeT):
         return f"{self.width}x{self.height}"
 
 
-class _PhysicalMonitorT(NamedTuple):
+class PhysicalMonitor(NamedTuple):
+    """
+    See the "@monitors" doc for GetCurrentState at:
+    https://gitlab.gnome.org/GNOME/mutter/-/blob/main/data/dbus-interfaces/
+        org.gnome.Mutter.DisplayConfig.xml#L355
+    """
+
     info: MonitorInfo
-    modes: List[MutterDisplayMode]
+    modes: "list[MutterDisplayMode]"
     # See: https://gitlab.gnome.org/GNOME/mutter/-/blob/main/data/
     # dbus-interfaces/org.gnome.Mutter.DisplayConfig.xml#L414
-    properties: Mapping[str, Any]
+    properties: "Mapping[str, Any]"
 
-
-class PhysicalMonitor(_PhysicalMonitorT):
     @classmethod
     def from_variant(cls, v: GLib.Variant):
         # not going to do extensive checks here
@@ -157,40 +170,44 @@ class PhysicalMonitor(_PhysicalMonitorT):
                 return mode
 
 
-class _LogicalMonitorT(NamedTuple):
+class LogicalMonitor(NamedTuple):
+    """
+    See the "@logical_monitors" doc for GetCurrentState at:
+    https://gitlab.gnome.org/GNOME/mutter/-/blob/main/data/dbus-interfaces/
+        org.gnome.Mutter.DisplayConfig.xml#L416
+    """
+
     x: int
     y: int
     scale: float
     transform: Transform
     is_primary: bool
-    monitors: List[MonitorInfo]
-    properties: Mapping[str, Any]
+    monitors: "list[MonitorInfo]"
+    properties: "Mapping[str, Any]"
 
-
-class LogicalMonitor(_LogicalMonitorT):
     @classmethod
     def from_variant(cls, v: GLib.Variant):
         assert len(v) == 7
         return cls(
-            *v[0:5],  # the first 5 elements are flat, so just spread them
-            [MonitorInfo(*m) for m in v[5]],  # type: ignore
-            v[6],  # type: ignore
+            v[0], v[1], v[2], v[3], v[4], [MonitorInfo(*m) for m in v[5]], v[6]
         )
 
 
-class _MutterDisplayConfigT(NamedTuple):
-    serial: int
-    physical_monitors: List[PhysicalMonitor]
-    logical_monitors: List[LogicalMonitor]
-    # technically value type is GLib.Variant
-    # but it acts like a readonly map in this case
-    properties: Mapping[str, Any]
-
-
-class MutterDisplayConfig(_MutterDisplayConfigT):
+class MutterDisplayConfig(NamedTuple):
     """The top level object that represents
     the return value of the GetCurrentState dbus call
+
+    See the "GetCurrentState" method doc at:
+    https://gitlab.gnome.org/GNOME/mutter/-/blob/main/data/dbus-interfaces/
+        org.gnome.Mutter.DisplayConfig.xml#L349
     """
+
+    serial: int
+    physical_monitors: "list[PhysicalMonitor]"
+    logical_monitors: "list[LogicalMonitor]"
+    # technically value type is GLib.Variant
+    # but it acts like a readonly map in this case
+    properties: "Mapping[str, Any]"
 
     @classmethod
     def from_variant(cls, v: GLib.Variant):
@@ -206,11 +223,14 @@ class MutterDisplayConfig(_MutterDisplayConfigT):
         return self.properties.get("supports-mirroring", False)
 
     @property
-    def layout_mode(self) -> Optional[int]:
+    def layout_mode(self) -> "LayoutMode | None":
         # only 2 possible layouts
         # layout-mode = 2 => physical, 1 => logical
         # If the key doesn't exist, then layout mode can't be changed
-        return self.properties.get("layout-mode", None)
+        raw = self.properties.get("layout-mode", None)
+        if raw is None:
+            return None
+        return LayoutMode(raw)
 
     @property
     def supports_changing_layout_mode(self) -> bool:
@@ -221,29 +241,33 @@ class MutterDisplayConfig(_MutterDisplayConfigT):
         return self.properties.get("global-scale-required", False)
 
 
+# TODO: use lowercase 'list' when we move to 3.9
 ResolutionFilter = Callable[[List[MutterDisplayMode]], List[MutterDisplayMode]]
-# this only appears in apply_monitors_config
-# it's very similar to LogicalMonitor but the last list element is different
-LogicalMonitorConfig = Tuple[
-    int,  # x offset
-    int,  # y offset
-    float,  # scale, 1.0 for 100%
-    Transform,  # transformation
-    bool,  # is primary
-    List[
-        Tuple[
-            str,  # connector name, same as <MutterDisplayMode>.connector
-            str,  # monitor mode id, same as <PhysicalMonitor>.id
-            Dict[
-                # only 2 possible keys:
-                # underscanning: bool
-                # color-mode: uint32
-                str,
-                "bool|int",
-            ],
-        ]
-    ],
-]
+
+
+class LogicalMonitorConfig(NamedTuple):
+    """
+    See the "@logical_monitors" doc for ApplyMonitorsConfig at:
+    https://gitlab.gnome.org/GNOME/mutter/-/blob/main/data/dbus-interfaces/
+        org.gnome.Mutter.DisplayConfig.xml#L494
+    """
+
+    # we want to mirror (iiduba(ssa{sv})) used in _apply_monitor_config
+    # it's very similar to LogicalMonitor
+    # but the "configurations" prop is different
+
+    x_offset: int
+    y_offset: int
+    scale: float
+    transform: Transform
+    is_primary: bool
+    # each list element is a 3-tuple of:
+    # connector name from <MutterDisplayMode>.connector
+    # monitor mode id from <PhysicalMonitor>.id
+    # dict of 2 possible keys:
+    #   underscanning: bool
+    #   color-mode: uint32
+    configurations: "list[tuple[str, str, dict[str, bool | int]]]"
 
 
 class MonitorConfigGnome(MonitorConfig):
@@ -273,7 +297,7 @@ class MonitorConfigGnome(MonitorConfig):
             cancellable=None,
         )
 
-    def get_connected_monitors(self) -> Set[str]:
+    def get_connected_monitors(self) -> "set[str]":
         """
         Get the connector names of each connected monitor, even if the monitor
         is inactive
@@ -283,7 +307,7 @@ class MonitorConfigGnome(MonitorConfig):
         state = self.get_current_state()
         return {monitor.info.connector for monitor in state.physical_monitors}
 
-    def get_current_resolutions(self) -> Dict[str, str]:
+    def get_current_resolutions(self) -> "dict[str, str]":
         """
         Get current active resolutions for each monitor.
         - Key is connector name like "eDP-1",
@@ -301,7 +325,7 @@ class MonitorConfigGnome(MonitorConfig):
             if mode.is_current
         }
 
-    def set_extended_mode(self) -> Dict[str, str]:
+    def set_extended_mode(self) -> "dict[str, str]":
         """
         Set to extend mode so that each monitor can be displayed
         at preferred, or if missing, maximum resolution.
@@ -311,9 +335,9 @@ class MonitorConfigGnome(MonitorConfig):
         """
         state = self.get_current_state()
 
-        extended_logical_monitors = []  # type: list[LogicalMonitorConfig]
+        extended_logical_monitors: "list[LogicalMonitorConfig]" = []
         # key is connector name, value is resolution string
-        configuration = OrderedDict()  # type: OrderedDict[str, str]
+        configuration: "OrderedDict[str, str]" = OrderedDict()
 
         # the x offset of the current monitor
         # this will accumulate the width of each monitor as the iteration runs
@@ -335,7 +359,7 @@ class MonitorConfigGnome(MonitorConfig):
                 raise TypeError("Unexpected mode:", target_mode)
 
             extended_logical_monitors.append(
-                (
+                LogicalMonitorConfig(
                     position_x,  # x
                     0,  # y
                     1.0,  # scale
@@ -346,7 +370,7 @@ class MonitorConfigGnome(MonitorConfig):
                     [(physical_monitor.info.connector, target_mode.id, {})],
                 )
             )
-            position_x += int(target_mode.width)
+            position_x += target_mode.width
             configuration[physical_monitor.info.connector] = (
                 target_mode.resolution
             )
@@ -358,7 +382,10 @@ class MonitorConfigGnome(MonitorConfig):
         self,
         cycle_resolutions: bool = True,
         cycle_transforms: bool = False,
-        resolution_filter: Optional[ResolutionFilter] = None,
+        resolution_filter: "ResolutionFilter | None" = None,
+        # when we move to 3.12, annotate this as:
+        # def cycle[**P, R](post_cycle_action: Callable[P, R], kwarg: P.kwargs)
+        # to allow the 2 variables to have linked types
         post_cycle_action: Callable[..., Any] = lambda *a, **k: sleep(5),
         **post_cycle_action_kwargs: Any,
     ):
@@ -376,7 +403,7 @@ class MonitorConfigGnome(MonitorConfig):
             A function to call after a cycle has finished. The first argument
             to this function is always a string of the form
 
-            [monitor name]_[resolution]_[transform]_
+            [monitor name]_[resolution]_[transform]
 
             !! If specified, a delay MUST be introduced needed inside this
             callback to wait for the monitors to respond !!
@@ -385,8 +412,8 @@ class MonitorConfigGnome(MonitorConfig):
             The keyword args for post_cycle_action
 
         """
-        connectors = []  # type: list[str]
-        modes_list = []  # type: list[list[MutterDisplayMode]]
+        connectors: "list[str]" = []
+        modes_list: "list[list[MutterDisplayMode]]" = []
         transform_list = (
             (
                 Transform.NORMAL_0,
@@ -416,32 +443,36 @@ class MonitorConfigGnome(MonitorConfig):
                 modes_list.append(monitor.modes)
 
         for combined_mode in itertools.product(*modes_list):
-            for trans in transform_list:
-                logical_monitors = []  # type: list[LogicalMonitorConfig]
+            for transform in transform_list:
+                logical_monitor_configs: "list[LogicalMonitorConfig]" = []
                 position_x = 0
-                unique_str = ""  # unique string for the current monitor state
+                # unique string for the current monitor state
+                # start at nothing, then attach all the monitor configs
+                # as we loop through them
+                monitor_state_strings: "list[str]" = []
 
                 for connector, mode in zip(connectors, combined_mode):
-                    transformation_str = transformation_name_map[trans]
-                    unique_str += "{}_{}_{}_".format(
-                        connector, mode.resolution, transformation_str
+                    transformation_str = transformation_name_map[transform]
+                    monitor_state_strings.append(
+                        f"{connector}_{mode.resolution}_{transformation_str}"
                     )
-                    logical_monitors.append(
-                        (
+                    logical_monitor_configs.append(
+                        LogicalMonitorConfig(
                             position_x,  # x
                             0,  # y
                             1.0,  # scale
-                            trans,  # rotation
+                            transform,  # rotation
                             position_x == 0,  # make the first monitor primary
                             # specify target connector name and mode
+                            # for the last dict we don't need any props
+                            # but the dict itself must be present
                             [(connector, mode.id, {})],
                         )
                     )
 
                     print(
-                        "Setting {} to mode: {} transform: {}".format(
-                            connector, mode.id, transformation_str
-                        ),
+                        f"Setting {connector} to",
+                        f"mode: {mode.id} transform: {transformation_str}",
                         # checkbox runtime might buffer this,
                         # force a flush here so it doesn't look frozen
                         flush=True,
@@ -449,17 +480,25 @@ class MonitorConfigGnome(MonitorConfig):
 
                     x_offset = (
                         mode.height
-                        if trans in (Transform.NORMAL_90, Transform.NORMAL_270)
+                        if transform
+                        in (Transform.NORMAL_90, Transform.NORMAL_270)
                         else mode.width
                     )  # left and right should convert x and y
                     position_x += x_offset
                 # Sometimes the NVIDIA driver won't update the state.
                 # Get the state before applying to avoid this issue.
                 state = self.get_current_state()
-                self._apply_monitors_config(state.serial, logical_monitors)
+                # apply the config
+                self._apply_monitors_config(
+                    state.serial, logical_monitor_configs
+                )
 
                 if post_cycle_action is not None:
-                    post_cycle_action(unique_str, **post_cycle_action_kwargs)
+                    post_cycle_action(
+                        # this string contains ALL configs we walked through
+                        "_".join(monitor_state_strings),
+                        **post_cycle_action_kwargs,
+                    )
 
                 print("-" * 80, flush=True)  # just a divider
 
@@ -504,7 +543,7 @@ class MonitorConfigGnome(MonitorConfig):
         return MutterDisplayConfig.from_variant(raw)
 
     def _apply_monitors_config(
-        self, serial: int, logical_monitors: List[LogicalMonitorConfig]
+        self, serial: int, logical_monitors: "list[LogicalMonitorConfig]"
     ):
         """
         Call the DBus signal 'ApplyMonitorsConfig' to apply the config in

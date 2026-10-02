@@ -1,0 +1,28 @@
+{
+    "capture_image": [
+        {
+            "camera": "ar0234",
+            "method": "gstreamer",
+            "physical_interface": "csi2",
+            "v4l2_device_name": "RZG2L_CRU (platform:16000000.video)",
+            "formats": ["UYVY"],
+            "resolutions": [
+                {"width": 1280, "height": 720},
+                {"width": 1920, "height": 1200}
+            ]
+        }
+    ],
+    "record_video": [
+        {
+            "camera": "ar0234",
+            "method": "gstreamer",
+            "physical_interface": "csi2",
+            "v4l2_device_name": "RZG2L_CRU (platform:16000000.video)",
+            "formats": ["UYVY"],
+            "resolutions": [
+                {"width": 1280, "height": 720, "fps": 120},
+                {"width": 1920, "height": 1200, "fps": 60}
+            ]
+        }
+    ]
+}

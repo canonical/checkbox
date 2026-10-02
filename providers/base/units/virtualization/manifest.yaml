@@ -1,0 +1,4 @@
+unit: manifest entry
+id: has_lxd
+name: Does this machine support LXD?
+value-type: bool

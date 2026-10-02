@@ -48,7 +48,7 @@ def has_intel_gpu():
     for entry in sorted(entries):
         if not entry.startswith("card") or not entry[4:].isdigit():
             continue
-        vendor_path = "/sys/class/drm/{}/device/vendor".format(entry)
+        vendor_path = f"/sys/class/drm/{entry}/device/vendor"
         try:
             with open(vendor_path) as f:
                 vid = f.read().strip().lower()
@@ -71,7 +71,7 @@ def get_arch_triple():
 
 def host_ze_loader_path(arch_triple):
     """Return the host Level Zero loader path for the given arch triple."""
-    return "/usr/lib/{}/libze_loader.so.1".format(arch_triple)
+    return f"/usr/lib/{arch_triple}/libze_loader.so.1"
 
 
 def check_host_level_zero_gpu(arch_triple):

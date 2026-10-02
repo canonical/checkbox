@@ -60,7 +60,7 @@ def cmd_validate_install():
 def cmd_run_test(test_args):
     snap = "/snap/level-zero-raytracing-tests/current"
     result = subprocess.run(
-        ["{}/test".format(snap), "--no-confinement"] + test_args,
+        [f"{snap}/test", "--no-confinement"] + test_args,
         env=dict(os.environ, SNAP=snap),
     )
     return result.returncode

@@ -61,7 +61,7 @@ class TestCmdRunTest(unittest.TestCase):
         mock_run.return_value = MagicMock(returncode=0)
         lzrt_host.cmd_run_test(["embree_rthwif_cornell_box"])
         cmd = mock_run.call_args[0][0]
-        self.assertEqual(cmd[0], "{}/test".format(self.SNAP))
+        self.assertEqual(cmd[0], f"{self.SNAP}/test")
         self.assertIn("--no-confinement", cmd)
         self.assertIn("embree_rthwif_cornell_box", cmd)
         env = mock_run.call_args[1]["env"]

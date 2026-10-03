@@ -21,81 +21,21 @@ import unittest
 from unittest.mock import MagicMock, patch
 
 import lz_host
-from checkbox_support.helpers.host_utils import HostGPUDetectionError
-
-
-class TestCheckHostGpu(unittest.TestCase):
-    PLZ_RUN = "/snap/checkbox22/current/bin/plz-run"
-    ARCH_TRIPLE = "x86_64-linux-gnu"
-
-    @patch("os.path.isfile", return_value=True)
-    @patch("lz_host.glob.glob", return_value=[])
-    def test_returns_false_when_no_render_nodes(self, _glob, _isfile):
-        self.assertFalse(
-            lz_host.check_host_gpu(self.PLZ_RUN, self.ARCH_TRIPLE)
-        )
-
-    @patch("os.path.isfile", return_value=False)
-    @patch(
-        "lz_host.glob.glob",
-        return_value=["/dev/dri/renderD128"],
-    )
-    def test_returns_false_when_loader_missing(self, _glob, _isfile):
-        self.assertFalse(
-            lz_host.check_host_gpu(self.PLZ_RUN, self.ARCH_TRIPLE)
-        )
-
-    @patch("os.path.isfile", return_value=True)
-    @patch(
-        "lz_host.glob.glob",
-        return_value=["/dev/dri/renderD128"],
-    )
-    def test_returns_true_when_render_node_and_loader_found(
-        self, _glob, _isfile
-    ):
-        self.assertTrue(lz_host.check_host_gpu(self.PLZ_RUN, self.ARCH_TRIPLE))
-
-    @patch("os.path.isfile", return_value=True)
-    @patch(
-        "lz_host.glob.glob",
-        return_value=["/dev/dri/renderD128"],
-    )
-    def test_checks_correct_loader_path(self, _glob, mock_isfile):
-        lz_host.check_host_gpu(self.PLZ_RUN, self.ARCH_TRIPLE)
-        mock_isfile.assert_called_once_with(
-            "/usr/lib/x86_64-linux-gnu/libze_loader.so.1"
-        )
 
 
 class TestCmdResource(unittest.TestCase):
-    @patch("lz_host.check_host_gpu", return_value=True)
-    @patch(
-        "lz_host.find_plz_run",
-        return_value="/snap/checkbox22/current/bin/plz-run",
-    )
+    @patch("lz_host.check_host_level_zero_gpu", return_value=True)
     @patch("lz_host.get_arch_triple", return_value="x86_64-linux-gnu")
     @patch("builtins.print")
     def test_returns_0_and_prints_record_when_gpu_found(
-        self, mock_print, _arch, _plz, _check
+        self, mock_print, _arch, _check
     ):
         self.assertEqual(lz_host.cmd_resource(), 0)
         mock_print.assert_called_once_with("gpu_available: True")
 
-    @patch("lz_host.check_host_gpu", return_value=False)
-    @patch(
-        "lz_host.find_plz_run",
-        return_value="/snap/checkbox22/current/bin/plz-run",
-    )
+    @patch("lz_host.check_host_level_zero_gpu", return_value=False)
     @patch("lz_host.get_arch_triple", return_value="x86_64-linux-gnu")
-    def test_returns_1_when_no_gpu(self, _arch, _plz, _check):
-        self.assertEqual(lz_host.cmd_resource(), 1)
-
-    @patch(
-        "lz_host.find_plz_run",
-        side_effect=HostGPUDetectionError("plz-run not found in PATH"),
-    )
-    @patch("lz_host.get_arch_triple", return_value="x86_64-linux-gnu")
-    def test_returns_1_when_plz_run_not_found(self, _arch, _plz):
+    def test_returns_1_when_no_gpu(self, _arch, _check):
         self.assertEqual(lz_host.cmd_resource(), 1)
 
 
@@ -189,14 +129,6 @@ class TestMain(unittest.TestCase):
         side_effect=RuntimeError("unexpected failure"),
     )
     def test_catches_runtime_error(self, _cmd):
-        with patch("sys.argv", ["lz_host.py", "resource"]):
-            self.assertEqual(lz_host.main(), 1)
-
-    @patch(
-        "lz_host.cmd_resource",
-        side_effect=HostGPUDetectionError("plz-run gone"),
-    )
-    def test_catches_host_gpu_detection_error(self, _cmd):
         with patch("sys.argv", ["lz_host.py", "resource"]):
             self.assertEqual(lz_host.main(), 1)
 

@@ -279,9 +279,9 @@ Validates the Vulkan stack for that device by running
 
 1. There is output at all — no output means the command failed to produce a
    report.
-2. No unexpected/crash indicators are present (e.g. `Segmentation fault`,
-   `core dumped`, `Aborted`, `Illegal instruction`, `Bus error`) and the
-   command's exit code is `0`.
+2. The command exits with code `0`. A crash inside the driver (e.g. a
+   segmentation fault) kills the process with a signal and is reported as a
+   negative return code (e.g. `-11`).
 3. No software renderer (`llvmpipe`, `softpipe`, `swrast`) is reported for
    this device's own `GPU{{device_number}}:` block.
 
@@ -294,8 +294,8 @@ output means no device-specific block exists at all.
 
 #### Scenario: Pass
 
-The device's block reports a real hardware renderer and no crash indicators
-are found:
+The command exits with code `0` and the device's block reports a real
+hardware renderer:
 
 ```
 GPU0:
@@ -312,10 +312,11 @@ GPU0:
 1. No output at all (e.g. `vulkaninfo` is not installed or crashes before
    producing any text).
 
-2. A crash is reported by the invoking shell:
+2. `vulkaninfo` exits non-zero or is killed by a signal, e.g. a segfault in
+   the GPU driver:
 
 ```
-Segmentation fault (core dumped)
+FAIL: ['vulkaninfo', '--summary'] exited with returncode -11
 ```
 
 3. A software renderer is reported for the target device's block:
@@ -328,39 +329,59 @@ GPU1:
 
 ## Environment variables
 
-Use these variables in the launcher `[environment]` section when needed:
+Use these variables in the launcher `[environment]` section when needed.
+They are passed through to `vulkaninfo` unchanged.
 
 | Variable | Description | Default |
 | --- | --- | --- |
-| `EXECUTABLE_JSON_PATH` | Path to a JSON file that overrides the `vulkaninfo` executable or prepends library paths. | Not set |
+| `CUSTOM_VULKAN_COMMAND_PATH` | `vulkaninfo` executable to run (name on `PATH` or absolute path). | `vulkaninfo` |
+| `VK_ICD_FILENAMES` | Vulkan ICD manifest(s) the loader must use. | Not set |
+| `LD_LIBRARY_PATH` | Extra library paths for a host `vulkaninfo`. | Not set |
 
-### `EXECUTABLE_JSON_PATH`
+### Ubuntu Core and Classic: use a Vulkan test snap
 
-Points to a JSON file that controls how the `vulkaninfo` binary is resolved.
-If not set, the system `vulkaninfo` on `PATH` is used. When set, the file is
-read and the `vulkaninfo` key determines how the command is assembled.
+Ubuntu Core cannot install the `vulkan-tools` deb, so point
+`CUSTOM_VULKAN_COMMAND_PATH` at the `vulkaninfo` app of a strictly confined
+Vulkan test snap (written as `<vulkan-snap>` below). The same snap also works
+on Classic images, so one launcher fits both:
 
-If the path is relative, it is resolved under `PLAINBOX_PROVIDER_DATA`.
-
-**Format:**
-
-```json
-{
-  "vulkaninfo": {
-    "LD_LIBRARY_PATH": ["/path/to/lib1", "/path/to/lib2"],
-    "env1": "value1"
-  }
-}
+```ini
+[environment]
+CUSTOM_VULKAN_COMMAND_PATH = <vulkan-snap>.vulkaninfo
 ```
 
-- `LD_LIBRARY_PATH` prepends entries to `LD_LIBRARY_PATH` before the command is run.
-- Any other key/value pair is prepended as an environment variable assignment.
-- If the `vulkaninfo` key is absent from the file, the default system
-  `vulkaninfo` is used unchanged.
+The snap runs in its own mount namespace via `snap run`, so it never picks
+up libraries from the Checkbox snap and no `plz-run` escape is needed. Its
+GPU driver comes from:
 
-This is useful, for example, on systems where the Vulkan ICD is provided by a
-GPU snap rather than the base system, and `vulkaninfo` needs to be pointed at
-the snap's own library paths and ICD manifest.
+- **Ubuntu Core** (GPU driver snap): a graphics content plug connected to
+  the GPU driver snap (e.g. `gpu-2404` to
+  `mediatek-genio-g1200-gpu-drivers-core24` on UC24, `graphics-core22` to
+  `mediatek-genio-g700-gpu-drivers-core22` on UC22), plus content plugs
+  providing the Vulkan loader and the vendor ICD manifests.
+- **Classic** (GPU driver deb): a `system-files` plug giving read access to
+  the host driver under `/var/lib/snapd/hostfs`, e.g.
+  `sudo snap connect <vulkan-snap>:host-gpu`. Without it the snap only sees
+  Mesa's `llvmpipe` and the resource job fails. If the host driver lives
+  outside `/usr/lib` (e.g. `/opt/<vendor>/lib/<triplet>` on CIX), the snap
+  must also be told to search that directory.
+
+### `VK_ICD_FILENAMES` with the snap
+
+`VK_ICD_FILENAMES` is read by the loader *inside* the snap, so it must be a
+path visible in the snap's namespace, not a host path such as
+`/usr/share/vulkan/icd.d/mali.json`. For example, on Genio (Mali):
+
+| Image | `VK_ICD_FILENAMES` |
+| --- | --- |
+| Ubuntu Core | ICD shipped in the snap, e.g. `/snap/<vulkan-snap>/current/<icd-dir>/mali_icd.json` |
+| Classic (host driver) | ICD the snap generates from the host one, e.g. `/root/snap/<vulkan-snap>/common/<icd-dir>/mali.json` |
+| Classic, host `vulkaninfo` deb | `/usr/share/vulkan/icd.d/mali.json` |
+
+
+`VK_ICD_FILENAMES` is usually optional with a snap that only registers
+vendor ICDs (no Mesa `gfxstream`/`virtio` ICDs that hang or crash on Genio);
+an unusable ICD is just skipped by the loader.
 
 ## Running the jobs
 

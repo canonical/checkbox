@@ -29,13 +29,10 @@ Subcommands:
 
 import argparse
 import logging
+import os
 import subprocess
 import sys
 from typing import TypedDict
-
-from general_utils import resolve_configured_commands
-
-EXECUTABLE_CMD = "vulkaninfo"
 
 # deviceType values that represent an actual hardware GPU. Anything else
 # (e.g. PHYSICAL_DEVICE_TYPE_CPU used by Mesa's llvmpipe/lavapipe software
@@ -45,19 +42,9 @@ HARDWARE_DEVICE_TYPES = (
     "PHYSICAL_DEVICE_TYPE_INTEGRATED_GPU",
 )
 
-# Text fragments that indicate the process terminated abnormally instead of
-# producing a normal report, e.g. a crash reported by the invoking shell.
-CRASH_INDICATORS = (
-    "segmentation fault",
-    "core dumped",
-    "aborted",
-    "illegal instruction",
-    "bus error",
-)
-
 # Renderer/driver keywords that indicate a software (non-GPU) Vulkan
 # implementation is being used instead of real hardware.
-DEFAULT_SOFTWARE_RENDERERS = ("llvmpipe", "softpipe", "swrast")
+SOFTWARE_RENDERERS = ("llvmpipe", "softpipe", "swrast")
 
 logger = logging.getLogger(__name__)
 
@@ -68,17 +55,33 @@ class VulkaninfoRecord(TypedDict):
     device_type: str
 
 
-def _resolve_vulkaninfo_command(enable_logger: bool = False) -> str:
-    """Resolve vulkaninfo command from JSON config or system PATH.
+def run_vulkaninfo_summary() -> str:
+    """Run 'vulkaninfo --summary' and return its combined output.
 
-    Returns:
-        Command string if successful, empty string if failed.
+    Raises SystemExit if the command is missing, exits non-zero or is
+    killed by a signal (e.g. a driver segfault); the output is logged.
     """
-    resolved_commands = resolve_configured_commands(
-        default_commands=[EXECUTABLE_CMD],
-        enable_logger=enable_logger,
-    )
-    return resolved_commands.get(EXECUTABLE_CMD, "")
+    command = [
+        os.environ.get("CUSTOM_VULKAN_COMMAND_PATH") or "vulkaninfo",
+        "--summary",
+    ]
+    logger.info(f"Running command: {command}")
+    for name in ("VK_ICD_FILENAMES", "LD_LIBRARY_PATH"):
+        if os.environ.get(name):
+            logger.info(f"{name}={os.environ[name]}")
+    try:
+        return subprocess.check_output(
+            command, stderr=subprocess.STDOUT, universal_newlines=True
+        )
+    except FileNotFoundError as err:
+        raise SystemExit(f"vulkaninfo command not found: {err}")
+    except subprocess.CalledProcessError as err:
+        # A negative returncode means the process was killed by a signal,
+        # e.g. -11 for a segfault inside the GPU driver.
+        logger.error(f"vulkaninfo output:\n{err.output}")
+        raise SystemExit(
+            f"FAIL: {command} exited with returncode {err.returncode}"
+        )
 
 
 def _iter_gpu_blocks(output: str) -> "list[tuple[str, list[str]]]":
@@ -86,24 +89,17 @@ def _iter_gpu_blocks(output: str) -> "list[tuple[str, list[str]]]":
     'key = value' lines, keyed by the device number found in 'GPUn:'.
     """
     blocks: "list[tuple[str, list[str]]]" = []
-    device_number = None
-    field_lines: "list[str]" = []
 
     for line in output.splitlines():
         stripped_line = line.strip()
         if stripped_line.startswith("GPU") and stripped_line.endswith(":"):
             candidate = stripped_line[len("GPU") : -1].strip()
             if candidate.isdigit():
-                if device_number is not None:
-                    blocks.append((device_number, field_lines))
-                device_number, field_lines = candidate, []
+                blocks.append((candidate, []))
                 continue
 
-        if device_number is not None:
-            field_lines.append(line)
-
-    if device_number is not None:
-        blocks.append((device_number, field_lines))
+        if blocks:
+            blocks[-1][1].append(line)
 
     return blocks
 
@@ -125,13 +121,9 @@ def _build_record(
 
 
 def parse_vulkaninfo_summary(output: str) -> "list[VulkaninfoRecord]":
-    """Parse 'vulkaninfo --summary' output into a list of device records.
-
-    Only the 'Devices:' section (flat 'GPUn:' blocks with tab-indented
-    'key = value' fields) is parsed; the more verbose extension/format
-    listing produced by plain 'vulkaninfo' is not handled here. Plain
-    string operations are used instead of regexes to keep the parser
-    simple and easy to follow.
+    """Parse the 'Devices:' section of 'vulkaninfo --summary' output
+    (flat 'GPUn:' blocks with tab-indented 'key = value' fields) into a
+    list of device records.
     """
     return [
         _build_record(device_number, field_lines)
@@ -139,77 +131,24 @@ def parse_vulkaninfo_summary(output: str) -> "list[VulkaninfoRecord]":
     ]
 
 
-def extract_device_block(output: str, device_number: str) -> str:
-    """Return the raw 'GPU<device_number>:' block from a
-    'vulkaninfo --summary' output, or '' if that device isn't present.
-
-    Used to scope the software-renderer check (see cmd_test) to a single
-    device on multi-GPU systems, where one device may be the real GPU and
-    another a software fallback (e.g. Mesa's llvmpipe) both listed in the
-    same output.
-    """
-    lines: "list[str]" = []
-    collecting = False
-
-    for line in output.splitlines():
-        stripped_line = line.strip()
-        if stripped_line.startswith("GPU") and stripped_line.endswith(":"):
-            if collecting:
-                break
-            if stripped_line[len("GPU") : -1].strip() == device_number:
-                collecting = True
-                lines.append(line)
-            continue
-
-        if collecting:
-            lines.append(line)
-
-    return "\n".join(lines)
-
-
 def cmd_resource() -> int:
     """Emit one resource record per hardware GPU device found by
     'vulkaninfo --summary'. Software-only devices are skipped entirely.
     """
-    command = _resolve_vulkaninfo_command()
-    if not command:
-        logger.error("vulkaninfo command not found")
-        return 1
-
-    full_command = " ".join([command, "--summary"])
-    logger.info("Running command: '%s'", full_command)
-    # stdout and stderr are combined because a crashing driver's error
-    # (e.g. 'Segmentation fault (core dumped)') is reported by the
-    # invoking shell on stderr/stdout without a reliable, consistent
-    # stream.
-    result = subprocess.run(
-        full_command,
-        shell=True,
-        check=False,
-        text=True,
-        stdout=subprocess.PIPE,
-        stderr=subprocess.STDOUT,
-    )
-    output = result.stdout
-
-    records = parse_vulkaninfo_summary(output)
+    output = run_vulkaninfo_summary()
     hardware_records = [
         record
-        for record in records
+        for record in parse_vulkaninfo_summary(output)
         if record["device_type"] in HARDWARE_DEVICE_TYPES
     ]
 
     if not hardware_records:
-        logger.error(
-            "No hardware GPU device found in '%s' output\n\n%s",
-            full_command,
-            output,
-        )
-        return 1
+        logger.error(f"vulkaninfo output:\n{output}")
+        raise SystemExit("No hardware GPU device found in vulkaninfo output")
 
     for record in hardware_records:
-        print("device_number: {}".format(record["device_number"]))
-        print("device_name: {}".format(record["device_name"]))
+        print(f"device_number: {record['device_number']}")
+        print(f"device_name: {record['device_name']}")
         print("")
 
     return 0
@@ -218,96 +157,45 @@ def cmd_resource() -> int:
 def cmd_test(device_number: str = "", device_name: str = "") -> int:
     """Validate the Vulkan stack using 'vulkaninfo --summary'.
 
-    Judgement criteria:
-      1. No output at all -> fail.
-      2. Unexpected/crash output observed (e.g. 'Segmentation fault') ->
-         fail.
-      3. A software renderer (llvmpipe, softpipe, swrast) is observed for
-         the target device -> fail.
-      Otherwise -> pass.
+    Fails when vulkaninfo crashes or exits non-zero, produces no output,
+    or reports a software renderer (llvmpipe, softpipe, swrast).
 
-    On multi-GPU systems, 'vulkaninfo --summary' lists every device in one
-    combined output (e.g. a real GPU alongside Mesa's software llvmpipe
-    fallback). When device_number is provided, the software-renderer check
-    (criterion 3) is scoped to that device's own block so an unrelated
-    software-only device listed elsewhere in the output doesn't fail this
-    device's job. Criteria 1 and 2 always apply to the whole output, since
-    a crash or empty output means no device-specific block exists at all.
+    When device_number is given, the software-renderer check is scoped to
+    that device's 'GPUn:' block, so an unrelated software fallback device
+    listed in the same output doesn't fail this device's job.
     """
-    command = _resolve_vulkaninfo_command()
-    if not command:
-        logger.error("vulkaninfo command not found")
-        return 1
-
     if device_number or device_name:
         logger.info(
-            "Validating Vulkan device number: '%s', name: '%s'",
-            device_number,
-            device_name,
+            f"Validating Vulkan device number: '{device_number}', "
+            f"name: '{device_name}'"
         )
 
-    full_command = " ".join([command, "--summary"])
-    logger.info("Running command: '%s'", full_command)
-    # stdout and stderr are combined because a crashing driver's error
-    # (e.g. 'Segmentation fault (core dumped)') is reported by the
-    # invoking shell on stderr/stdout without a reliable, consistent
-    # stream.
-    result = subprocess.run(
-        full_command,
-        shell=True,
-        check=False,
-        text=True,
-        stdout=subprocess.PIPE,
-        stderr=subprocess.STDOUT,
-    )
-    returncode = result.returncode
-    output = result.stdout
-
-    if output:
-        logger.info("vulkaninfo output:\n%s", output.rstrip())
+    output = run_vulkaninfo_summary()
+    logger.info(f"vulkaninfo output:\n{output.rstrip()}")
 
     if not output.strip():
-        logger.error("FAIL: no output from '%s'", full_command)
-        return 1
-
-    found_crash_indicators = [
-        indicator
-        for indicator in CRASH_INDICATORS
-        if indicator in output.lower()
-    ]
-    if found_crash_indicators or returncode != 0:
-        logger.error(
-            "FAIL: unexpected/crash output detected from '%s' "
-            "(returncode=%s, indicators=%s)",
-            full_command,
-            returncode,
-            ", ".join(sorted(set(found_crash_indicators))) or "n/a",
-        )
-        return 1
+        raise SystemExit("FAIL: no output from vulkaninfo")
 
     if device_number:
-        renderer_scope = extract_device_block(output, device_number)
-        if not renderer_scope:
-            logger.error(
-                "FAIL: device number '%s' not found in '%s' output",
-                device_number,
-                full_command,
+        blocks = dict(_iter_gpu_blocks(output))
+        if device_number not in blocks:
+            raise SystemExit(
+                f"FAIL: device number '{device_number}' not found in "
+                "vulkaninfo output"
             )
-            return 1
+        renderer_scope = "\n".join(blocks[device_number])
     else:
         renderer_scope = output
 
-    found_software_renderers = [
+    found = [
         keyword
-        for keyword in DEFAULT_SOFTWARE_RENDERERS
-        if keyword.lower() in renderer_scope.lower()
+        for keyword in SOFTWARE_RENDERERS
+        if keyword in renderer_scope.lower()
     ]
-    if found_software_renderers:
-        logger.error(
-            "FAIL: software renderer detected: %s",
-            ", ".join(sorted(set(found_software_renderers))),
+    if found:
+        raise SystemExit(
+            f"FAIL: software renderer detected: {', '.join(found)}"
         )
-        return 1
 
     logger.info("PASS: vulkaninfo validation passed")
     return 0
@@ -348,26 +236,22 @@ def build_parser() -> argparse.ArgumentParser:
 
 
 def main() -> int:
-    parser = build_parser()
-    args = parser.parse_args()
+    logging.basicConfig(
+        level=logging.INFO,
+        format="{levelname:<8} - {module:<10}: {funcName} "
+        "{lineno:<4} - {message}",
+        style="{",
+    )
+
+    args = build_parser().parse_args()
 
     if args.debug:
         logger.setLevel(logging.DEBUG)
 
     if args.action == "resource":
         return cmd_resource()
-    if args.action == "test":
-        return cmd_test(args.device_number, args.device_name)
-
-    parser.print_help()
-    return 1
+    return cmd_test(args.device_number, args.device_name)
 
 
 if __name__ == "__main__":
-    logging.basicConfig(
-        level=logging.INFO,
-        format="%(levelname)-8s - %(module)-10s: %(funcName)s "
-        + "%(lineno)-4d - %(message)s",
-    )
-
     sys.exit(main())

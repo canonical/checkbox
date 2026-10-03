@@ -11,6 +11,7 @@
 import json
 import os
 import subprocess as sp
+import sys
 import tempfile
 from argparse import ArgumentParser
 from contextlib import ExitStack
@@ -19,13 +20,39 @@ from typing import NamedTuple
 
 import psutil
 
+ACCEPTED_DEVICE_TYPES = (
+    "part",
+    "raid0",
+    "raid1",
+    "raid4",
+    "raid5",
+    "raid6",
+    "raid10",
+    "linear",
+)
+
 
 class BlockDevice(NamedTuple):
     # warning: these types are not enforced without explicit checks at runtime
     name: str  # nvme0n1p3, dm_crypt-0
     size: int
     type: str  # lvm, part, crypt
-    fstype: str  # ext4, vfat, crypto_LUKS
+    fstype: str | None  # ext4, vfat, crypto_LUKS
+
+
+# lsblk FSTYPE values that are not writable filesystems.
+# None means lsblk found no filesystem signature.
+# squashfs and iso9660 are mountable but read-only, so bonnie++ would fail
+REJECTED_FSTYPES = (
+    None,
+    "swap",
+    "crypto_LUKS",
+    "LVM2_member",
+    "linux_raid_member",
+    "zfs_member",
+    "squashfs",
+    "iso9660",
+)
 
 
 def mountpoint(device: Path) -> "Path | None":
@@ -73,11 +100,25 @@ def find_largest_partition(device: Path) -> Path:
         )
         # skip the "raw" disks, LUKS partitions, and partitions with no
         # filesystem (fstype is None means it's not formatted)
-        if block_device.type in ("part", "md") and block_device.fstype not in (
-            None,
-            "crypto_LUKS",
-        ):
-            block_devices.append(block_device)
+
+        if block_device.type not in ACCEPTED_DEVICE_TYPES:
+            print(
+                f"Skipping {block_device.name}",
+                f"because it's of type '{block_device.type}',",
+                f"but we need {ACCEPTED_DEVICE_TYPES}",
+                file=sys.stderr,
+            )
+            continue
+        if block_device.fstype in REJECTED_FSTYPES:
+            print(
+                f"Skipping {block_device.name}",
+                f"because its fstype '{block_device.fstype}'",
+                "is not a writable filesystem",
+                file=sys.stderr,
+            )
+            continue
+
+        block_devices.append(block_device)
 
     if not block_devices:
         raise SystemExit(
@@ -124,9 +165,20 @@ def run_bonnie(test_dir: Path, user: str = "root"):
     free = free_space(test_dir)
     print(f"{free}MB of free space available")
     if (force_mem_mb * 2) > free:
-        force_mem_mb = free / 4
+        force_mem_mb = round(free / 4)
     print(f"Forcing memory setting to {force_mem_mb}MB")
-    cmd = ["bonnie++", "-d", test_dir, "-u", user, "-r", str(force_mem_mb)]
+    cmd = [
+        "bonnie++",
+        "-d",
+        test_dir,
+        "-u",
+        user,
+        "-r",
+        str(force_mem_mb),
+        # bypass the page cache, O_DIRECT
+        # see `man bonnie++`
+        "-D",
+    ]
     print("+", " ".join(map(str, cmd)), flush=True)
     sp.check_call(cmd)
 

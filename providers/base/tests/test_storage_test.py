@@ -120,6 +120,41 @@ class TestFindLargestPartition(unittest.TestCase):
         )
 
     @patch("storage_test.sp.check_output")
+    def test_find_largest_partition_skips_rejected_fstypes(
+        self, mock_check_output
+    ):
+        rejected = [
+            "swap",
+            "LVM2_member",
+            "linux_raid_member",
+            "zfs_member",
+            "squashfs",
+            "iso9660",
+        ]
+        mock_check_output.return_value = self._lsblk_json(
+            [
+                {
+                    "name": "sda{}".format(i + 2),
+                    "size": 9999,
+                    "type": "part",
+                    "fstype": fstype,
+                }
+                for i, fstype in enumerate(rejected)
+            ]
+            + [
+                {
+                    "name": "sda1",
+                    "size": 1000,
+                    "type": "part",
+                    "fstype": "xfs",
+                },
+            ]
+        )
+        self.assertEqual(
+            find_largest_partition(Path("/dev/sda")), Path("/dev/sda1")
+        )
+
+    @patch("storage_test.sp.check_output")
     def test_find_largest_partition_no_candidates(self, mock_check_output):
         mock_check_output.return_value = self._lsblk_json(
             [
@@ -181,6 +216,7 @@ class TestRunBonnie(unittest.TestCase):
                 "root",
                 "-r",
                 "8000",
+                "-D",
             ]
         )
 
@@ -199,7 +235,8 @@ class TestRunBonnie(unittest.TestCase):
                 "-u",
                 "root",
                 "-r",
-                "250.0",
+                "250",
+                "-D",
             ]
         )
 

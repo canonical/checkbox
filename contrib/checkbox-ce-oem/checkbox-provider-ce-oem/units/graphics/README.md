@@ -329,42 +329,26 @@ GPU1:
 
 ## Environment variables
 
-Use these variables in the launcher `[environment]` section when needed.
-They are passed through to `vulkaninfo` unchanged.
+Use these variables in the launcher `[environment]` section when needed:
 
 | Variable | Description | Default |
 | --- | --- | --- |
 | `CUSTOM_VULKAN_COMMAND_PATH` | `vulkaninfo` executable to run (name on `PATH` or absolute path). | `vulkaninfo` |
 | `VK_ICD_FILENAMES` | Vulkan ICD manifest(s) the loader must use. | Not set |
-| `LD_LIBRARY_PATH` | Extra library paths for a host `vulkaninfo`. | Not set |
+| `VULKANINFO_LD_LIBRARY_PATH` | `LD_LIBRARY_PATH` to run `vulkaninfo` with. | Not set |
 
-### Ubuntu Core and Classic: use a Vulkan test snap
+### `VULKANINFO_LD_LIBRARY_PATH`
 
-Ubuntu Core cannot install the `vulkan-tools` deb, so point
-`CUSTOM_VULKAN_COMMAND_PATH` at the `vulkaninfo` app of a strictly confined
-Vulkan test snap (written as `<vulkan-snap>` below). The same snap also works
-on Classic images, so one launcher fits both:
+`vulkaninfo` is run **without** the `LD_LIBRARY_PATH` inherited from
+Checkbox, which in the Checkbox snap points at the Checkbox runtime
+libraries. A launcher `LD_LIBRARY_PATH` cannot be used instead, because
+Checkbox never overrides a variable that is already set. Set
+`VULKANINFO_LD_LIBRARY_PATH` only if the host GPU libraries are not found
+through `ld.so.conf`, e.g.:
 
-```ini
-[environment]
-CUSTOM_VULKAN_COMMAND_PATH = <vulkan-snap>.vulkaninfo
+```text
+VULKANINFO_LD_LIBRARY_PATH=/opt/<vendor>/lib/aarch64-linux-gnu
 ```
-
-The snap runs in its own mount namespace via `snap run`, so it never picks
-up libraries from the Checkbox snap and no `plz-run` escape is needed. Its
-GPU driver comes from:
-
-- **Ubuntu Core** (GPU driver snap): a graphics content plug connected to
-  the GPU driver snap (e.g. `gpu-2404` to
-  `mediatek-genio-g1200-gpu-drivers-core24` on UC24, `graphics-core22` to
-  `mediatek-genio-g700-gpu-drivers-core22` on UC22), plus content plugs
-  providing the Vulkan loader and the vendor ICD manifests.
-- **Classic** (GPU driver deb): a `system-files` plug giving read access to
-  the host driver under `/var/lib/snapd/hostfs`, e.g.
-  `sudo snap connect <vulkan-snap>:host-gpu`. Without it the snap only sees
-  Mesa's `llvmpipe` and the resource job fails. If the host driver lives
-  outside `/usr/lib` (e.g. `/opt/<vendor>/lib/<triplet>` on CIX), the snap
-  must also be told to search that directory.
 
 ### `VK_ICD_FILENAMES` with the snap
 

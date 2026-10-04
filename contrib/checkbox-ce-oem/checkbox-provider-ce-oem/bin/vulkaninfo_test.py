@@ -30,6 +30,7 @@ Subcommands:
 import argparse
 import logging
 import os
+import shutil
 import subprocess
 import sys
 from typing import TypedDict
@@ -55,23 +56,41 @@ class VulkaninfoRecord(TypedDict):
     device_type: str
 
 
+def vulkaninfo_environ() -> "dict[str, str]":
+    """Return the environment to run vulkaninfo with.
+
+    The LD_LIBRARY_PATH inherited from a Checkbox snap points at the
+    Checkbox runtime libraries, which a host vulkaninfo must not load.
+    Checkbox also refuses to override an existing LD_LIBRARY_PATH from the
+    launcher, so it is replaced here by VULKANINFO_LD_LIBRARY_PATH (or
+    dropped when unset).
+    """
+    env = dict(os.environ)
+    env.pop("LD_LIBRARY_PATH", None)
+    ld_library_path = os.environ.get("VULKANINFO_LD_LIBRARY_PATH")
+    if ld_library_path:
+        env["LD_LIBRARY_PATH"] = ld_library_path
+    return env
+
+
 def run_vulkaninfo_summary() -> str:
     """Run 'vulkaninfo --summary' and return its combined output.
 
     Raises SystemExit if the command is missing, exits non-zero or is
     killed by a signal (e.g. a driver segfault); the output is logged.
     """
-    command = [
-        os.environ.get("CUSTOM_VULKAN_COMMAND_PATH") or "vulkaninfo",
-        "--summary",
-    ]
-    logger.info(f"Running command: {command}")
+    executable = os.environ.get("CUSTOM_VULKAN_COMMAND_PATH") or "vulkaninfo"
+    command = [executable, "--summary"]
+    env = vulkaninfo_environ()
+    logger.info(f"Running command: {command} ({shutil.which(executable)})")
     for name in ("VK_ICD_FILENAMES", "LD_LIBRARY_PATH"):
-        if os.environ.get(name):
-            logger.info(f"{name}={os.environ[name]}")
+        logger.info(f"{name}={env.get(name, '')}")
     try:
         return subprocess.check_output(
-            command, stderr=subprocess.STDOUT, universal_newlines=True
+            command,
+            env=env,
+            stderr=subprocess.STDOUT,
+            universal_newlines=True,
         )
     except FileNotFoundError as err:
         raise SystemExit(f"vulkaninfo command not found: {err}")

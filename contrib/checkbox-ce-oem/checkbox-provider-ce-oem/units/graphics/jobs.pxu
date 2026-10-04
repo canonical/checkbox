@@ -88,7 +88,7 @@ _purpose:
     Emit one record per hardware GPU device (deviceType DISCRETE_GPU or
     INTEGRATED_GPU) reported by 'vulkaninfo --summary'. Software-only
     devices (e.g. Mesa's llvmpipe/lavapipe CPU device) are never emitted.
-environ: PLAINBOX_PROVIDER_DATA CUSTOM_VULKAN_COMMAND_PATH LD_LIBRARY_PATH VK_ICD_FILENAMES
+environ: CUSTOM_VULKAN_COMMAND_PATH VULKANINFO_LD_LIBRARY_PATH VK_ICD_FILENAMES
 command:
     resource_wrapper.sh -- vulkaninfo_test.py resource
 
@@ -100,7 +100,7 @@ _description:
     Raise error if no GPU type device be found.
 estimated_duration: 0.02
 category_id: com.canonical.plainbox::graphics
-environ: PLAINBOX_PROVIDER_DATA CUSTOM_VULKAN_COMMAND_PATH LD_LIBRARY_PATH VK_ICD_FILENAMES
+environ: CUSTOM_VULKAN_COMMAND_PATH VULKANINFO_LD_LIBRARY_PATH VK_ICD_FILENAMES
 imports:
     from com.canonical.plainbox import manifest
 requires:
@@ -128,7 +128,7 @@ _purpose:
 plugin: shell
 estimated_duration: 1s
 flags: also-after-suspend
-environ: PLAINBOX_PROVIDER_DATA CUSTOM_VULKAN_COMMAND_PATH LD_LIBRARY_PATH VK_ICD_FILENAMES
+environ: CUSTOM_VULKAN_COMMAND_PATH VULKANINFO_LD_LIBRARY_PATH VK_ICD_FILENAMES
 imports:
     from com.canonical.plainbox import manifest
 requires:

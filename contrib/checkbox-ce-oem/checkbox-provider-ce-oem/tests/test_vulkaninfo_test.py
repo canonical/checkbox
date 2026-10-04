@@ -95,6 +95,29 @@ class TestParsing(unittest.TestCase):
         )
 
 
+class TestVulkaninfoEnviron(unittest.TestCase):
+    @patch.dict(
+        os.environ,
+        {"LD_LIBRARY_PATH": "/snap/checkbox24/current/usr/lib", "A": "1"},
+        clear=True,
+    )
+    def test_drops_inherited_ld_library_path(self):
+        self.assertEqual(vulkaninfo_test.vulkaninfo_environ(), {"A": "1"})
+
+    @patch.dict(
+        os.environ,
+        {
+            "LD_LIBRARY_PATH": "/snap/checkbox24/current/usr/lib",
+            "VULKANINFO_LD_LIBRARY_PATH": "/opt/gpu/lib",
+        },
+        clear=True,
+    )
+    def test_uses_vulkaninfo_ld_library_path(self):
+        env = vulkaninfo_test.vulkaninfo_environ()
+
+        self.assertEqual(env["LD_LIBRARY_PATH"], "/opt/gpu/lib")
+
+
 @patch.dict(os.environ, {}, clear=True)
 @patch("vulkaninfo_test.subprocess.check_output")
 class TestRunVulkaninfoSummary(unittest.TestCase):
@@ -104,6 +127,9 @@ class TestRunVulkaninfoSummary(unittest.TestCase):
         self.assertEqual(vulkaninfo_test.run_vulkaninfo_summary(), "out")
         self.assertEqual(
             mock_check_output.call_args[0][0], ["vulkaninfo", "--summary"]
+        )
+        self.assertNotIn(
+            "LD_LIBRARY_PATH", mock_check_output.call_args[1]["env"]
         )
 
     def test_custom_command_from_environ(self, mock_check_output):

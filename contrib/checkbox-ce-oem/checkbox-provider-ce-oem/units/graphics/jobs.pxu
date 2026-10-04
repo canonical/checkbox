@@ -19,7 +19,7 @@ id: opengl_eglinfo_resource
 _summary: Collect and generate OpenGL platforms from eglinfo
 _purpose:
     Emit eglinfo platform records with an ignore flag for the ce-oem-graphics/opengl-eglinfo-platform-validation jobs.
-environ: PLAINBOX_PROVIDER_DATA CUSTOM_EGLINFO_COMMAND_PATH EGLINFO_LD_LIBRARY_PATH EGLINFO_IGNORED_PLATFORM
+environ: CUSTOM_EGLINFO_COMMAND_PATH EGLINFO_LD_LIBRARY_PATH EGLINFO_IGNORED_PLATFORM
 command: resource_wrapper.sh -- eglinfo_test.py resource
 
 
@@ -29,7 +29,11 @@ _description:
     Verify OpenGL eglinfo resource generation command executes directly.
 estimated_duration: 0.02
 category_id: com.canonical.plainbox::graphics
-environ: PLAINBOX_PROVIDER_DATA CUSTOM_EGLINFO_COMMAND_PATH EGLINFO_LD_LIBRARY_PATH EGLINFO_IGNORED_PLATFORM
+imports:
+    from com.canonical.plainbox import manifest
+requires:
+    manifest.has_opengl_support == 'True'
+environ: CUSTOM_EGLINFO_COMMAND_PATH EGLINFO_LD_LIBRARY_PATH EGLINFO_IGNORED_PLATFORM
 plugin: shell
 command: eglinfo_test.py resource
 
@@ -50,8 +54,12 @@ _purpose:
 plugin: shell
 estimated_duration: 1s
 flags: also-after-suspend
+imports:
+    from com.canonical.plainbox import manifest
+requires:
+    manifest.has_opengl_support == 'True'
 depends: ce-oem-graphics/check-opengl_eglinfo_resource
-environ: PLAINBOX_PROVIDER_DATA CUSTOM_EGLINFO_COMMAND_PATH EGLINFO_LD_LIBRARY_PATH
+environ: CUSTOM_EGLINFO_COMMAND_PATH EGLINFO_LD_LIBRARY_PATH
 command: eglinfo_test.py test -p "{{platform_name}}"
 
 

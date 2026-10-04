@@ -3,34 +3,31 @@
 import io
 import os
 import subprocess
-import sys
 import unittest
 from contextlib import redirect_stdout
 from unittest.mock import patch
 
 import eglinfo_test
 
+GBM_MALI_OUTPUT = (
+    "GBM platform:\n"
+    "EGL vendor string: ARM\n"
+    "OpenGL ES profile vendor: ARM\n"
+    "OpenGL ES profile renderer: Mali-G57\n"
+)
 
-class TestEglinfoTest(unittest.TestCase):
-    @patch(
-        "eglinfo_test.resolve_configured_commands",
-        return_value={"eglinfo": "configured-eglinfo"},
-    )
-    def test_resolve_eglinfo_command_delegates_to_general_utils(
-        self, mock_resolve
-    ):
-        result = eglinfo_test._resolve_eglinfo_command(enable_logger=True)
+SURFACELESS_LLVMPIPE_OUTPUT = (
+    "Surfaceless platform:\n"
+    "libEGL warning: egl: failed to create dri2 screen\n"
+    "EGL vendor string: Mesa Project\n"
+    "OpenGL core profile renderer: llvmpipe (LLVM 20.1.2, 128 bits)\n"
+)
 
-        self.assertEqual(result, "configured-eglinfo")
-        mock_resolve.assert_called_once_with(
-            default_commands=[eglinfo_test.EXECUTABLE_CMD],
-            enable_logger=True,
-        )
 
+class TestResource(unittest.TestCase):
     @patch.dict(
         os.environ,
         {eglinfo_test.EGLINFO_IGNORED_PLATFORM: " X11, surfaceless, ,GBM "},
-        clear=False,
     )
     def test_parse_ignored_set_normalizes_platform_names(self):
         self.assertEqual(
@@ -43,9 +40,7 @@ class TestEglinfoTest(unittest.TestCase):
         self.assertEqual(eglinfo_test.parse_ignored_set(), set())
 
     @patch.dict(
-        os.environ,
-        {eglinfo_test.EGLINFO_IGNORED_PLATFORM: "wayland,x11"},
-        clear=False,
+        os.environ, {eglinfo_test.EGLINFO_IGNORED_PLATFORM: "wayland,x11"}
     )
     def test_cmd_resource_prints_all_platforms_and_ignore_flags(self):
         output = io.StringIO()
@@ -66,83 +61,103 @@ class TestEglinfoTest(unittest.TestCase):
             "ignore: false\n\n",
         )
 
-    def _completed_process(
-        self, returncode: int, stdout: str
-    ) -> subprocess.CompletedProcess:
-        return subprocess.CompletedProcess(
-            args="eglinfo", returncode=returncode, stdout=stdout
+
+class TestEglinfoEnviron(unittest.TestCase):
+    @patch.dict(
+        os.environ,
+        {"LD_LIBRARY_PATH": "/snap/checkbox24/current/usr/lib", "A": "1"},
+        clear=True,
+    )
+    def test_drops_inherited_ld_library_path(self):
+        self.assertEqual(eglinfo_test.eglinfo_environ(), {"A": "1"})
+
+    @patch.dict(
+        os.environ,
+        {
+            "LD_LIBRARY_PATH": "/snap/checkbox24/current/usr/lib",
+            "EGLINFO_LD_LIBRARY_PATH": "/opt/gpu/lib",
+        },
+        clear=True,
+    )
+    def test_uses_eglinfo_ld_library_path(self):
+        env = eglinfo_test.eglinfo_environ()
+
+        self.assertEqual(env["LD_LIBRARY_PATH"], "/opt/gpu/lib")
+
+
+@patch.dict(os.environ, {}, clear=True)
+@patch("eglinfo_test.subprocess.check_output")
+class TestRunEglinfo(unittest.TestCase):
+    def test_default_command(self, mock_check_output):
+        mock_check_output.return_value = "out"
+
+        self.assertEqual(eglinfo_test.run_eglinfo("gbm"), "out")
+        self.assertEqual(
+            mock_check_output.call_args[0][0],
+            ["eglinfo", "-B", "-p", "gbm"],
+        )
+        self.assertNotIn(
+            "LD_LIBRARY_PATH", mock_check_output.call_args[1]["env"]
         )
 
-    @patch("eglinfo_test._resolve_eglinfo_command", return_value="")
-    def test_cmd_test_fails_when_eglinfo_is_missing(self, _mock_resolve):
-        self.assertEqual(eglinfo_test.cmd_test("gbm"), 1)
+    def test_custom_command_from_environ(self, mock_check_output):
+        os.environ["CUSTOM_EGLINFO_COMMAND_PATH"] = "snap.eglinfo"
 
-    @patch("eglinfo_test._resolve_eglinfo_command", return_value="eglinfo")
-    @patch("eglinfo_test.subprocess.run")
-    def test_cmd_test_fails_without_output(self, mock_run, _mock_resolve):
-        mock_run.return_value = self._completed_process(0, "")
+        eglinfo_test.run_eglinfo("wayland")
 
-        self.assertEqual(eglinfo_test.cmd_test("wayland"), 1)
-        mock_run.assert_called_once_with(
-            "eglinfo -B -p wayland",
-            shell=True,
-            check=False,
-            text=True,
-            stdout=subprocess.PIPE,
-            stderr=subprocess.STDOUT,
+        self.assertEqual(
+            mock_check_output.call_args[0][0],
+            ["snap.eglinfo", "-B", "-p", "wayland"],
         )
 
-    @patch("eglinfo_test._resolve_eglinfo_command", return_value="eglinfo")
-    @patch("eglinfo_test.subprocess.run")
-    def test_cmd_test_fails_on_egl_initialize_error(
-        self, mock_run, _mock_resolve
-    ):
-        mock_run.return_value = self._completed_process(
-            1, "eglInitialize failed for platform\n"
+    def test_command_not_found(self, mock_check_output):
+        mock_check_output.side_effect = FileNotFoundError("eglinfo")
+
+        with self.assertRaises(SystemExit):
+            eglinfo_test.run_eglinfo("gbm")
+
+    def test_egl_initialize_failed(self, mock_check_output):
+        mock_check_output.side_effect = subprocess.CalledProcessError(
+            1, ["eglinfo"], output="eglinfo: eglInitialize failed\n"
         )
 
-        self.assertEqual(eglinfo_test.cmd_test("x11"), 1)
+        with self.assertRaises(SystemExit):
+            eglinfo_test.run_eglinfo("wayland")
 
-    @patch("eglinfo_test._resolve_eglinfo_command", return_value="eglinfo")
-    @patch("eglinfo_test.subprocess.run")
-    def test_cmd_test_fails_on_software_renderer(
-        self, mock_run, _mock_resolve
-    ):
-        mock_run.return_value = self._completed_process(
-            0, "OpenGL renderer: Mesa llvmpipe (LLVM 18.0.0)\n"
-        )
 
-        self.assertEqual(eglinfo_test.cmd_test("surfaceless"), 1)
+@patch("eglinfo_test.run_eglinfo")
+class TestCmdTest(unittest.TestCase):
+    def test_fails_without_renderer(self, mock_run):
+        mock_run.return_value = ""
 
-    @patch("eglinfo_test._resolve_eglinfo_command", return_value="eglinfo")
-    @patch("eglinfo_test.subprocess.run")
-    def test_cmd_test_passes_for_hardware_renderer(
-        self, mock_run, _mock_resolve
-    ):
-        mock_run.return_value = self._completed_process(
-            0, "OpenGL renderer: Mali-G610\n"
-        )
+        with self.assertRaises(SystemExit):
+            eglinfo_test.cmd_test("x11")
+
+    def test_fails_on_software_renderer(self, mock_run):
+        mock_run.return_value = SURFACELESS_LLVMPIPE_OUTPUT
+
+        with self.assertRaises(SystemExit):
+            eglinfo_test.cmd_test("surfaceless")
+
+    def test_passes_for_hardware_renderer(self, mock_run):
+        mock_run.return_value = GBM_MALI_OUTPUT
 
         self.assertEqual(eglinfo_test.cmd_test("gbm"), 0)
-        mock_run.assert_called_once_with(
-            "eglinfo -B -p gbm",
-            shell=True,
-            check=False,
-            text=True,
-            stdout=subprocess.PIPE,
-            stderr=subprocess.STDOUT,
-        )
+        mock_run.assert_called_once_with("gbm")
 
-    def test_build_parser_parses_resource_and_test_actions(self):
-        parser = eglinfo_test.build_parser()
 
-        resource_args = parser.parse_args(["resource", "--debug"])
-        test_args = parser.parse_args(["test", "-p", "gbm"])
+class TestMain(unittest.TestCase):
+    @patch("eglinfo_test.cmd_resource", return_value=0)
+    @patch("sys.argv", ["eglinfo_test.py", "resource", "--debug"])
+    def test_main_routes_resource(self, mock_cmd_resource):
+        self.assertEqual(eglinfo_test.main(), 0)
+        mock_cmd_resource.assert_called_once_with()
 
-        self.assertEqual(resource_args.action, "resource")
-        self.assertTrue(resource_args.debug)
-        self.assertEqual(test_args.action, "test")
-        self.assertEqual(test_args.platform, "gbm")
+    @patch("eglinfo_test.cmd_test", return_value=0)
+    @patch("sys.argv", ["eglinfo_test.py", "test", "-p", "gbm"])
+    def test_main_routes_test(self, mock_cmd_test):
+        self.assertEqual(eglinfo_test.main(), 0)
+        mock_cmd_test.assert_called_once_with("gbm")
 
 
 if __name__ == "__main__":

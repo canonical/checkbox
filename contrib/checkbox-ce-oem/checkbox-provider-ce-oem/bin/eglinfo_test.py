@@ -26,54 +26,33 @@ Subcommands:
             names, e.g. "x11,surfaceless") to mark platforms that should
             be skipped. Platform support is not auto-detected; every
             platform in PLATFORMS is emitted unless explicitly ignored.
-  test      Validate a single EGL platform using 'eglinfo -p <platform>'.
+  test      Validate a single EGL platform using 'eglinfo -B -p <platform>'.
+
+The eglinfo executable is taken from CUSTOM_EGLINFO_COMMAND_PATH (default:
+'eglinfo'), e.g. the 'eglinfo' app of an OpenGL test snap.
 """
 
 import argparse
 import logging
 import os
+import shutil
 import subprocess
 import sys
-from typing import TypedDict
-
-from general_utils import resolve_configured_commands
-
-EXECUTABLE_CMD = "eglinfo"
 
 # Platforms this suite cares about, in a stable, deterministic order.
 # Android (and any other eglinfo-supported platform) is intentionally
 # excluded from resource generation.
 PLATFORMS = ("gbm", "wayland", "x11", "surfaceless")
 
-EGL_INITIALIZE_FAILED = "eglInitialize failed"
-
 # Comma-separated list of platform names (e.g. "x11,surfaceless") that
 # should be marked ignored in the resource output.
 EGLINFO_IGNORED_PLATFORM = "EGLINFO_IGNORED_PLATFORM"
 
-# Default set of software renderer keywords that indicate the GPU is not
-# actually being used, e.g. Mesa's llvmpipe/softpipe or Gallium's swrast.
-DEFAULT_SOFTWARE_RENDERERS = ("llvmpipe", "softpipe", "swrast")
+# Software renderer keywords that indicate the GPU is not actually being
+# used, e.g. Mesa's llvmpipe/softpipe or Gallium's swrast.
+SOFTWARE_RENDERERS = ("llvmpipe", "softpipe", "swrast")
 
 logger = logging.getLogger(__name__)
-
-
-class EglinfoRecord(TypedDict):
-    platform: str
-    platform_name: str
-
-
-def _resolve_eglinfo_command(enable_logger: bool = False) -> str:
-    """Resolve eglinfo command from JSON config or system PATH.
-
-    Returns:
-        Command string if successful, empty string if failed.
-    """
-    resolved_commands = resolve_configured_commands(
-        default_commands=[EXECUTABLE_CMD],
-        enable_logger=enable_logger,
-    )
-    return resolved_commands.get(EXECUTABLE_CMD, "")
 
 
 def parse_ignored_set() -> "set[str]":
@@ -105,65 +84,78 @@ def cmd_resource() -> int:
     return 0
 
 
-def cmd_test(platform_name: str) -> int:
-    """Validate a single EGL platform using 'eglinfo -p <platform_name>'.
+def eglinfo_environ() -> "dict[str, str]":
+    """Return the environment to run eglinfo with.
 
-    Judgement criteria:
-      1. No output at all -> fail.
-      2. 'eglInitialize failed' found in the output -> fail.
-      3. A software renderer (llvmpipe, softpipe, swrast) is observed ->
-         fail.
-      Otherwise -> pass.
+    The LD_LIBRARY_PATH inherited from a Checkbox snap points at the
+    Checkbox runtime, which ships its own libEGL/Mesa: a host eglinfo
+    would load them and fall back to llvmpipe. Checkbox also refuses to
+    override an existing LD_LIBRARY_PATH from the launcher, so it is
+    replaced here by EGLINFO_LD_LIBRARY_PATH (or dropped when unset).
     """
-    command = _resolve_eglinfo_command()
-    if not command:
-        logger.error("eglinfo command not found")
-        return 1
+    env = dict(os.environ)
+    env.pop("LD_LIBRARY_PATH", None)
+    ld_library_path = os.environ.get("EGLINFO_LD_LIBRARY_PATH")
+    if ld_library_path:
+        env["LD_LIBRARY_PATH"] = ld_library_path
+    return env
 
-    full_command = " ".join([command, "-B", "-p", platform_name])
-    logger.info(f"Running command: '{full_command}'")
-    # stdout and stderr are combined because 'eglinfo' prints error
-    # messages such as 'eglInitialize failed' without a reliable,
-    # consistent stream.
-    result = subprocess.run(
-        full_command,
-        shell=True,
-        check=False,
-        text=True,
-        stdout=subprocess.PIPE,
-        stderr=subprocess.STDOUT,
-    )
-    output = result.stdout
 
-    if output:
-        logger.info(f"eglinfo output:\n{output.rstrip()}")
+def run_eglinfo(platform_name: str) -> str:
+    """Run 'eglinfo -B -p <platform_name>' and return its combined output.
 
-    if not output.strip():
-        logger.error(
-            f"FAIL: no output from '{full_command}' "
-            f"for platform '{platform_name}'"
+    Raises SystemExit if the command is missing, exits non-zero (e.g.
+    'eglInitialize failed') or is killed by a signal; the output is logged.
+    """
+    executable = os.environ.get("CUSTOM_EGLINFO_COMMAND_PATH") or "eglinfo"
+    command = [executable, "-B", "-p", platform_name]
+    env = eglinfo_environ()
+    logger.info(f"Running command: {command} ({shutil.which(executable)})")
+    logger.info(f"LD_LIBRARY_PATH={env.get('LD_LIBRARY_PATH', '')}")
+    try:
+        return subprocess.check_output(
+            command,
+            env=env,
+            stderr=subprocess.STDOUT,
+            universal_newlines=True,
         )
-        return 1
-
-    if EGL_INITIALIZE_FAILED in output:
-        logger.error(
-            f"FAIL: found '{EGL_INITIALIZE_FAILED}' error message "
-            f"for platform '{platform_name}'"
+    except FileNotFoundError as err:
+        raise SystemExit(f"eglinfo command not found: {err}")
+    except subprocess.CalledProcessError as err:
+        logger.error(f"eglinfo output:\n{err.output}")
+        raise SystemExit(
+            f"FAIL: {command} exited with returncode {err.returncode}"
         )
-        return 1
 
-    software_renderer_keywords = DEFAULT_SOFTWARE_RENDERERS
-    found_keywords = [
-        keyword
-        for keyword in software_renderer_keywords
-        if keyword.lower() in output.lower()
+
+def cmd_test(platform_name: str) -> int:
+    """Validate a single EGL platform using 'eglinfo -B -p <platform_name>'.
+
+    Fails when eglinfo exits non-zero, reports no renderer (e.g. the
+    platform is unsupported and nothing is printed), or reports a software
+    renderer (llvmpipe, softpipe, swrast).
+    """
+    output = run_eglinfo(platform_name)
+    logger.info(f"eglinfo output:\n{output.rstrip()}")
+
+    renderers = [
+        line.strip() for line in output.splitlines() if "renderer:" in line
     ]
-    if found_keywords:
-        logger.error(
-            f"FAIL: software renderer detected for platform "
-            f"'{platform_name}': {', '.join(sorted(set(found_keywords)))}"
+    if not renderers:
+        raise SystemExit(
+            f"FAIL: no renderer reported for platform '{platform_name}'"
         )
-        return 1
+
+    found = [
+        keyword
+        for keyword in SOFTWARE_RENDERERS
+        if any(keyword in renderer.lower() for renderer in renderers)
+    ]
+    if found:
+        raise SystemExit(
+            f"FAIL: software renderer detected for platform "
+            f"'{platform_name}': {', '.join(found)}"
+        )
 
     logger.info(
         f"PASS: eglinfo validation passed for platform '{platform_name}'"
@@ -196,25 +188,22 @@ def build_parser() -> argparse.ArgumentParser:
 
 
 def main() -> int:
-    parser = build_parser()
-    args = parser.parse_args()
+    logging.basicConfig(
+        level=logging.INFO,
+        format="{levelname:<8} - {module:<10}: {funcName} "
+        "{lineno:<4} - {message}",
+        style="{",
+    )
+
+    args = build_parser().parse_args()
 
     if args.debug:
         logger.setLevel(logging.DEBUG)
 
     if args.action == "resource":
         return cmd_resource()
-    if args.action == "test":
-        return cmd_test(args.platform)
-
-    parser.print_help()
-    return 1
+    return cmd_test(args.platform)
 
 
 if __name__ == "__main__":
-    logging.basicConfig(
-        level=logging.INFO,
-        format="%(levelname)-8s - %(module)-10s: %(funcName)s "
-        + "%(lineno)-4d - %(message)s",
-    )
     sys.exit(main())

@@ -543,6 +543,7 @@ group:
   - nested_groups_cycle_B
 command: 'true'
 ---
+# "Dependency problem: dependency cycle detected" should occur for this test
 id: ordering_nested_groups_cycle
 name: ordering_nested_groups_cycle
 unit: test plan

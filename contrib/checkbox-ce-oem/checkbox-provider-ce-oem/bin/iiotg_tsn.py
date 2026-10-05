@@ -13,25 +13,27 @@ from contextlib import contextmanager
 from ipaddress import ip_address
 from pathlib import Path
 from threading import Event
+from typing import Literal
 
 # comes with linuxptp since 25.10 and newer
 # this forces phc2sys to use ptp4l's read only socket, see phc2sys()
 PHC2SYS_APPARMOR_PROFILE = Path("/etc/apparmor.d/usr.sbin.phc2sys")
 
 
-def get_ptp4l_binary() -> str:
+def get_linuxptp_binary(name: "Literal['ptp4l', 'phc2sys']") -> str:
     """
-    Prefer the ptp4l shipped in the snap over the host's /usr/sbin/ptp4l.
-    This is used to get around ptp4l's apparmor profile.
+    Prefer the linuxptp binary shipped in the snap over the host's copy.
+    This is used to get around the host's linuxptp apparmor profiles.
 
-    :return: absolute path to the snap's ptp4l if it exists, else "ptp4l"
+    :param name: name of the linuxptp binary, like ptp4l or phc2sys
+    :return: absolute path to the snap's binary if it exists, else name
     """
     snap = os.environ.get("SNAP")
     if snap:
-        snap_ptp4l = Path(snap) / "usr" / "sbin" / "ptp4l"
-        if snap_ptp4l.is_file():
-            return str(snap_ptp4l)
-    return "ptp4l"
+        snap_binary = Path(snap) / "usr" / "sbin" / name
+        if snap_binary.is_file():
+            return str(snap_binary)
+    return name
 
 
 def clear_qdisc_settings(interface: str) -> None:
@@ -86,6 +88,10 @@ def ptp4l(
     :return: the ptp4l process object
     """
 
+    # only the grandmaster needs to bypass the host's apparmor profile,
+    # clients rely on PATH so ptp4l and phc2sys come from the same linuxptp
+    ptp4l_binary = get_linuxptp_binary("ptp4l") if server_mode else "ptp4l"
+
     if cfg:
         print(
             f"Using ptp4l config file at {cfg.absolute()}".center(80, "-"),
@@ -98,7 +104,7 @@ def ptp4l(
             # i.e. options are recognized by ptp4l
             "timeout",
             str(timeout),
-            get_ptp4l_binary(),
+            ptp4l_binary,
             "-i",
             interface,
             "-f",
@@ -112,7 +118,7 @@ def ptp4l(
         ptp4l_command = [
             "timeout",
             str(timeout),
-            get_ptp4l_binary(),
+            ptp4l_binary,
             "-i",
             interface,
             "-m",  # print msg to stdout

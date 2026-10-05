@@ -717,7 +717,7 @@ class DependencySolver:
                 if len(path) <= level:
                     yield job
                     continue
-                    
+
                 group_name = self._get_group_name(path[: level + 1])
 
                 # Already in a group: skip

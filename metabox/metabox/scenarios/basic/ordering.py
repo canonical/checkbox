@@ -206,3 +206,126 @@ class OrderingGroupsTemplate(Scenario):
             r".*teardown_order_2\n"
         ),
     ]
+
+
+@tag("ordering")
+class OrderingNestedGroups(Scenario):
+    launcher = textwrap.dedent("""
+        [launcher]
+        launcher_version = 1
+        stock_reports = text
+        [test plan]
+        unit = 2021.com.canonical.certification::ordering_nested_groups
+        forced = yes
+        [test selection]
+        forced = yes
+        [ui]
+        type = silent
+        """)
+    steps = [
+        Start(),
+        AssertPrinted(
+            r"(?m)"
+            r".*nested_groups_with_depends_setup\n"
+            r".*nested_groups_with_depends_hdmi_A\n"
+            r".*nested_groups_with_depends_hdmi_B\n"
+            r".*nested_groups_with_depends_dp_A\n"
+            r".*nested_groups_with_depends_dp_B\n"
+            r".*nested_groups_with_depends_teardown\n"
+            r".*nested_groups_with_depends_audio\n"
+        ),
+    ]
+
+
+@tag("ordering")
+class OrderingNestedGroupsPath(Scenario):
+    launcher = textwrap.dedent("""
+        [launcher]
+        launcher_version = 1
+        stock_reports = text
+        [test plan]
+        unit = 2021.com.canonical.certification::ordering_nested_groups_path
+        forced = yes
+        [test selection]
+        forced = yes
+        [ui]
+        type = silent
+        """)
+    steps = [
+        Start(),
+        AssertPrinted(
+            r"(?m)"
+            r".*nested_groups_same_name_video_1\n"
+            r".*nested_groups_same_name_video_2\n"
+            r".*nested_groups_same_name_audio_1\n"
+            r".*nested_groups_same_name_audio_2\n"
+        ),
+    ]
+
+
+@tag("ordering")
+class OrderingNestedGroupsLevels(Scenario):
+    launcher = textwrap.dedent("""
+        [launcher]
+        launcher_version = 1
+        stock_reports = text
+        [test plan]
+        unit = 2021.com.canonical.certification::ordering_nested_groups_deep
+        forced = yes
+        [test selection]
+        forced = yes
+        [ui]
+        type = silent
+        """)
+    steps = [
+        Start(),
+        AssertPrinted(
+            r"(?m)"
+            r".*nested_groups_three_levels_x_1\n"
+            r".*nested_groups_three_levels_x_2\n"
+            r".*nested_groups_three_levels_y_1\n"
+            r".*nested_groups_three_levels_y_2\n"
+            r".*nested_groups_three_levels_b_1\n"
+            r".*nested_groups_three_levels_b_2\n"
+        ),
+    ]
+
+
+@tag("ordering")
+class OrderingNestedGroupsCycle(Scenario):
+    modes = ["local"]
+    steps = [
+        Start(
+            "run 2021.com.canonical.certification::"
+            "ordering_nested_groups_cycle"
+        ),
+        AssertPrinted(r"Dependency problem: dependency cycle detected"),
+    ]
+
+
+@tag("ordering")
+class OrderingNestedGroupsTemplate(Scenario):
+    launcher = textwrap.dedent("""
+        [launcher]
+        launcher_version = 1
+        stock_reports = text
+        [test plan]
+        unit = 2021.com.canonical.certification::ordering_nested_groups_tmpl
+        forced = yes
+        [test selection]
+        forced = yes
+        [ui]
+        type = silent
+        """)
+    steps = [
+        Start(),
+        AssertPrinted(
+            r"(?m)"
+            r".*nested_groups_template_setup_1\n"
+            r".*nested_groups_template_sub_A_1\n"
+            r".*nested_groups_template_sub_B_1\n"
+            r".*nested_groups_template_setup_2\n"
+            r".*nested_groups_template_sub_A_2\n"
+            r".*nested_groups_template_sub_B_2\n"
+        ),
+    ]

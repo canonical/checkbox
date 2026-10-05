@@ -136,7 +136,7 @@ def cmd_clock(args):
     with open(since_epoch_path) as f:
         rtc_time = int(f.read().strip())
     sys_time = int(time.time())
-    diff = sys_time - rtc_time
+    diff = abs(sys_time - rtc_time)
 
     if diff <= args.tolerance:
         print(f"{rtc} Clock synchronized with System Clock")

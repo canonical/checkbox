@@ -1271,7 +1271,9 @@ class SessionState:
                     job.depends, job.id, suspend_job_id
                 )
 
-            if job.groups:
+            if isinstance(job.group, str):
+                overrides["group"] = f"{suspend_prefix}-{job.group}"
+            elif job.groups:
                 # Prefixing the level 0 group keeps the whole path unique
                 top, *subgroups = job.groups
                 overrides["group"] = [f"{suspend_prefix}-{top}"] + subgroups

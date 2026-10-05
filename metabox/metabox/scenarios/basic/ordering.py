@@ -226,13 +226,13 @@ class OrderingNestedGroups(Scenario):
         Start(),
         AssertPrinted(
             r"(?m)"
-            r".*nested_groups_with_depends_setup\n"
-            r".*nested_groups_with_depends_hdmi_A\n"
-            r".*nested_groups_with_depends_hdmi_B\n"
-            r".*nested_groups_with_depends_dp_A\n"
-            r".*nested_groups_with_depends_dp_B\n"
-            r".*nested_groups_with_depends_teardown\n"
-            r".*nested_groups_with_depends_audio\n"
+            r".*nested_groups_ordering_setup\n"
+            r".*nested_groups_ordering_hdmi_A\n"
+            r".*nested_groups_ordering_hdmi_B\n"
+            r".*nested_groups_ordering_dp_A\n"
+            r".*nested_groups_ordering_dp_B\n"
+            r".*nested_groups_ordering_teardown\n"
+            r".*nested_groups_ordering_audio\n"
         ),
     ]
 

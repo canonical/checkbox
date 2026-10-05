@@ -323,61 +323,59 @@ bootstrap_include:
 # Nested groups: jobs are included interleaved, but each subgroup must run
 # contiguously inside its parent group, and the whole parent group must run
 # before a job that depends on one of its members.
-id: nested_groups_with_depends_audio
+id: nested_groups_ordering_audio
 flags:
   - simple
 depends:
-  - nested_groups_with_depends_hdmi_A
+  - nested_groups_ordering_hdmi_A
 command: 'true'
 ---
-id: nested_groups_with_depends_setup
+id: nested_groups_ordering_setup
 flags:
   - simple
 before:
-  - nested_groups_with_depends_hdmi_A
-group:
-  - nested_groups_with_depends_monitor
+  - nested_groups_ordering_hdmi_A
 command: 'true'
 ---
-id: nested_groups_with_depends_teardown
+id: nested_groups_ordering_teardown
 flags:
   - simple
 after:
-  - nested_groups_with_depends_dp_B
+  - nested_groups_ordering_dp_B
 group:
-  - nested_groups_with_depends_monitor
+  - nested_groups_ordering_monitor
 command: 'true'
 ---
-id: nested_groups_with_depends_hdmi_A
+id: nested_groups_ordering_hdmi_A
 flags:
   - simple
 group:
-  - nested_groups_with_depends_monitor
-  - nested_groups_with_depends_hdmi
+  - nested_groups_ordering_monitor
+  - nested_groups_ordering_hdmi
 command: 'true'
 ---
-id: nested_groups_with_depends_hdmi_B
+id: nested_groups_ordering_hdmi_B
 flags:
   - simple
 group:
-  - nested_groups_with_depends_monitor
-  - nested_groups_with_depends_hdmi
+  - nested_groups_ordering_monitor
+  - nested_groups_ordering_hdmi
 command: 'true'
 ---
-id: nested_groups_with_depends_dp_A
+id: nested_groups_ordering_dp_A
 flags:
   - simple
 group:
-  - nested_groups_with_depends_monitor
-  - nested_groups_with_depends_dp
+  - nested_groups_ordering_monitor
+  - nested_groups_ordering_dp
 command: 'true'
 ---
-id: nested_groups_with_depends_dp_B
+id: nested_groups_ordering_dp_B
 flags:
   - simple
 group:
-  - nested_groups_with_depends_monitor
-  - nested_groups_with_depends_dp
+  - nested_groups_ordering_monitor
+  - nested_groups_ordering_dp
 command: 'true'
 ---
 # Expected order:
@@ -387,13 +385,13 @@ name: ordering_nested_groups
 unit: test plan
 description: Nested group order test
 include:
-  - nested_groups_with_depends_audio
-  - nested_groups_with_depends_hdmi_A
-  - nested_groups_with_depends_dp_A
-  - nested_groups_with_depends_teardown
-  - nested_groups_with_depends_hdmi_B
-  - nested_groups_with_depends_dp_B
-  - nested_groups_with_depends_setup
+  - nested_groups_ordering_audio
+  - nested_groups_ordering_hdmi_A
+  - nested_groups_ordering_dp_A
+  - nested_groups_ordering_teardown
+  - nested_groups_ordering_hdmi_B
+  - nested_groups_ordering_dp_B
+  - nested_groups_ordering_setup
 ---
 # Subgroups are identified by their full path: video/common and
 # audio/common are different groups even if they share the same name.

@@ -62,11 +62,6 @@ jobs:
 
       - name: Refresh snapd to latest/stable
         run: |
-          # This is a workaround ensure we can refresh snapd. Apparmor was
-          # denying some of the calls needed to refresh snapd.
-          # See: https://chat.canonical.com/canonical/pl/5opnp6t453b1pfey9nqzbftkhe
-          sudo snap refresh aproxy --devmode --stable
-
           # Note: snapd bug, snap install always returns 0
           sudo snap refresh snapd --channel=latest/stable || sudo snap install snapd --channel=latest/stable
 
@@ -163,11 +158,6 @@ jobs:
 
       - name: Refresh snapd to latest/stable
         run: |
-          # This is a workaround ensure we can refresh snapd. Apparmor was
-          # denying some of the calls needed to refresh snapd.
-          # See: https://chat.canonical.com/canonical/pl/5opnp6t453b1pfey9nqzbftkhe
-          sudo snap refresh aproxy --devmode --stable
-
           # Note: snapd bug, snap install always returns 0
           sudo snap refresh snapd --channel=latest/stable || sudo snap install snapd --channel=latest/stable
 

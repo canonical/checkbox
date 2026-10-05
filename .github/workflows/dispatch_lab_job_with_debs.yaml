@@ -2,9 +2,6 @@ name: Dispatch Checkbox debs jobs in the lab
 permissions:
   contents: read
 on:
-  # Temporary single-machine lab validation; remove after the PR has passed.
-  pull_request:
-    types: [opened, synchronize, reopened]
   workflow_dispatch:
     inputs:
       # matrix to create is an array where each item is a job configuration
@@ -47,22 +44,11 @@ on:
 
 jobs:
   run-matrix:
-    if: >-
-      github.event_name != 'pull_request' ||
-      (github.event.pull_request.head.ref == 'dispatch-job-with-snaps' &&
-       github.event.pull_request.head.repo.full_name == github.repository)
     runs-on: self-hosted-linux-amd64-jammy-private-endpoint-medium
     strategy:
       fail-fast: false
       matrix:
-        spec: >-
-          ${{
-            fromJson(
-              github.event_name == 'pull_request' &&
-              '[{"data_source":"{distro: desktop-22-04-2-uefi}","queue":"202506-36885","match":".*smoke/true$","test_plan":"com.canonical.certification::smoke"}]' ||
-              inputs.matrix_to_create
-            )
-          }}
+        spec: ${{ fromJson(inputs.matrix_to_create) }}
     defaults:
       run:
         working-directory: tools/lab_dispatch
@@ -71,7 +57,6 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
         with:
-          ref: ${{ github.event.pull_request.head.sha || github.sha }}
           persist-credentials: false
 
       - name: Get current commit SHA

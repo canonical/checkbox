@@ -38,10 +38,10 @@ on:
       # ]
       #
       # To run this workflow manually you can use the `gh` cli utility as follows:
-      # gh workflow run dispatch_lab_job.yaml -f 'matrix_to_create=[...]'
+      # gh workflow run dispatch_lab_job_with_snaps.yaml -f 'matrix_to_create=[...]'
       #
       # You can run it from a branch or commit using the `--ref` option:
-      # gh workflow run dispatch_lab_job.yaml  --ref <branch_or_commit> -f 'matrix_to_create=[...]'
+      # gh workflow run dispatch_lab_job_with_snaps.yaml --ref <branch_or_commit> -f 'matrix_to_create=[...]'
       checkbox_channel:
         description: Checkbox snap channel to patch and install
         required: true

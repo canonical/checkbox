@@ -1,4 +1,4 @@
-name: Dispatch Checkbox jobs in the lab
+name: Dispatch Checkbox debs jobs in the lab
 permissions:
   contents: read
 on:
@@ -36,10 +36,10 @@ on:
       # ]
       #
       # To run this workflow manually you can use the `gh` cli utility as follows:
-      # gh workflow run dispatch_lab_job.yaml -f 'matrix_to_create=[...]'
+      # gh workflow run dispatch_lab_job_with_debs.yaml -f 'matrix_to_create=[...]'
       #
       # You can run it from a branch or commit using the `--ref` option:
-      # gh workflow run dispatch_lab_job.yaml  --ref <branch_or_commit> -f 'matrix_to_create=[...]'
+      # gh workflow run dispatch_lab_job_with_debs.yaml --ref <branch_or_commit> -f 'matrix_to_create=[...]'
       matrix_to_create:
         description: 'Json formatted description of the jobs to dispatch'
         required: true

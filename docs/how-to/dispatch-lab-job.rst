@@ -6,7 +6,7 @@ Dispatch a Checkbox job in the lab
 You can use the github workflows to test a repository revision on a
 device in the certification lab. It's now supported for both deb and snap jobs:
 
-* ``dispatch_lab_job.yaml``: build and install Checkbox deb packages from
+* ``dispatch_lab_job_with_debs.yaml``: build and install Checkbox deb packages from
   the selected repository revision.
 * ``dispatch_lab_job_with_snaps.yaml``: download a Checkbox runtime snap,
   overlay the selected repository revision's Python packages and providers,
@@ -71,7 +71,7 @@ with:
 
 .. code-block:: shell
 
-   gh workflow run dispatch_lab_job.yaml \
+   gh workflow run dispatch_lab_job_with_debs.yaml \
      --repo canonical/checkbox \
      --ref main \
      -f matrix_to_create="$(cat deb-jobs.json)"
@@ -118,7 +118,7 @@ Dispatch from the GitHub UI
 ------------------------------
 
 1. Open ``canonical/checkbox`` on GitHub and select **Actions**.
-2. Select **Dispatch Checkbox jobs in the lab** for debs, or
+2. Select **Dispatch Checkbox debs jobs in the lab** for debs, or
    **Dispatch Checkbox snap jobs in the lab** for snaps.
 3. Click **Run workflow** and select the branch you want to test.
 4. Paste a JSON array like the examples above into ``matrix_to_create``.
@@ -132,7 +132,8 @@ List recent runs of the workflow you dispatched:
 
 .. code-block:: shell
 
-   gh run list --repo canonical/checkbox --workflow dispatch_lab_job.yaml
+   gh run list --repo canonical/checkbox \
+     --workflow dispatch_lab_job_with_debs.yaml
 
 Use ``dispatch_lab_job_with_snaps.yaml`` instead for snap runs. Then monitor
 the desired run using its ID:
@@ -146,5 +147,4 @@ Download ``submission.json`` from the run's **Artifacts** section, or use:
 .. code-block:: shell
 
    gh run download RUN_ID --repo canonical/checkbox --dir submissions
-
 

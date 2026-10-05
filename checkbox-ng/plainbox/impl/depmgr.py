@@ -621,7 +621,8 @@ class DependencySolver:
             # replace it with the subgroup job.
             dep_path = self._get_job_path(job_id)
             if len(dep_path) > level:
-                job_id = self._get_group_job_id(dep_path[: level + 1])
+                # Group job id of the subgroup, e.g. "_group_job_a/b"
+                job_id = GROUP_PREFIX + "/".join(dep_path[: level + 1])
 
             try:
                 # We look up the job only in the map of pulled jobs
@@ -665,7 +666,8 @@ class DependencySolver:
             # Else, add it to the group dicts
             self._jobs_in_groups[job.id] = path
             for level in range(1, len(path) + 1):
-                name = self._get_group_name(path[:level])
+                # Groups are identified by their full path, e.g. "a/b"
+                name = "/".join(path[:level])
                 if name not in self._groups:
                     self._groups[name] = Group(name, path=path[:level])
                 self._groups[name].jobs.append(job)
@@ -673,18 +675,11 @@ class DependencySolver:
         for group in self._groups.values():
             group.external_deps = self.get_external_dependencies(group)
 
-    @staticmethod
-    def _get_group_name(path):
-        return "/".join(path)
-
-    def _get_group_job_id(self, path):
-        return f"{GROUP_PREFIX}{self._get_group_name(path)}"
-
     def _get_job_path(self, job_id):
         return self._jobs_in_groups.get(job_id, [])
 
     def _is_in_group(self, job_id, path):
-        return self._get_job_path(job_id)[: len(path)] == list(path)
+        return self._get_job_path(job_id)[: len(path)] == path
 
     def get_external_dependencies(self, group):
         """
@@ -718,7 +713,7 @@ class DependencySolver:
                     yield job
                     continue
 
-                group_name = self._get_group_name(path[: level + 1])
+                group_name = "/".join(path[: level + 1])
 
                 # Already in a group: skip
                 if group_name in added_groups:

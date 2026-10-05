@@ -1,5 +1,9 @@
 name: Submit a Checkbox Test plan (or subset of it) to the lab
 description: Build Checkbox debs and submit a test plan to Testflinger
+outputs:
+  job_id:
+    description: Testflinger job ID
+    value: ${{ steps.submit.outputs.id }}
 inputs:
   data_source:
     description: "Target image and provisioning data (ex. `url:` or `distro:`)"
@@ -73,6 +77,7 @@ runs:
           cp -rT "$action_path" "$workdir_path"
         fi
     - name: Submit and monitor job
+      id: submit
       uses: canonical/testflinger/.github/actions/submit@545ed69f17a5e639a2299e325f5fb199ca9f98af
       with:
         poll: true

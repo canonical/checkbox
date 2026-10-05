@@ -79,6 +79,7 @@ jobs:
         run: echo "sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
 
       - name: Run the spec
+        id: dispatch
         uses: ./.github/actions/checkbox_source_deb
         env:
           TESTFLINGER_CLIENT_ID: ${{ secrets.TESTFLINGER_CLIENT_ID }}
@@ -96,3 +97,22 @@ jobs:
             WPA_AX_PSK = ${{ secrets.INPUT_PASSWORD_SECRET }}
             WPA3_AX_PSK = ${{ secrets.INPUT_PASSWORD_SECRET }}
           checkbox_revision: ${{ steps.get_sha.outputs.sha }}
+
+      - name: Retrieve Checkbox submission
+        if: always() && steps.dispatch.outputs.job_id != ''
+        id: submission
+        env:
+          JOB_ID: ${{ steps.dispatch.outputs.job_id }}
+          TESTFLINGER_CLIENT_ID: ${{ secrets.TESTFLINGER_CLIENT_ID }}
+          TESTFLINGER_SECRET_KEY: ${{ secrets.TESTFLINGER_SECRET_KEY }}
+        run: |
+          testflinger artifacts "$JOB_ID" --filename artifacts.tgz
+          tar -xOzf artifacts.tgz artifacts/submission.json > submission.json
+
+      - name: Upload Checkbox submission
+        if: always() && steps.submission.outcome == 'success'
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
+        with:
+          name: checkbox-deb-submission-${{ strategy.job-index }}
+          path: tools/lab_dispatch/submission.json
+          if-no-files-found: error

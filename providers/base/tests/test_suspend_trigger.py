@@ -80,6 +80,11 @@ class TestSuspendTriggerFWTS(unittest.TestCase):
 @patch("os.remove")
 @patch("os.path.exists")
 class TestSuspendTriggerRTCWake(unittest.TestCase):
+    def setUp(self):
+        sleep_patcher = patch("suspend_trigger.time.sleep")
+        sleep_patcher.start()
+        self.addCleanup(sleep_patcher.stop)
+
     def test_rtcwake_path_success_with_args(
         self,
         mock_exists,

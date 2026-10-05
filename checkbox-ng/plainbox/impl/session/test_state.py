@@ -500,7 +500,7 @@ class SessionStateAPITests(TestCase):
         self.assertEqual(
             set(session.job_list[1].depends), {"A", Suspend.AUTO_JOB_ID}
         )
-        self.assertEqual(session.job_list[1].group, "after-suspend-group1")
+        self.assertEqual(session.job_list[1].group, ["after-suspend-group1"])
 
     def test_also_after_suspend_flag_extra_fields_yaml(self):
         # Define a job
@@ -528,7 +528,22 @@ class SessionStateAPITests(TestCase):
             session.job_list[1].depends,
             ["other_job", "A", Suspend.AUTO_JOB_ID],
         )
-        self.assertEqual(session.job_list[1].group, "after-suspend-group1")
+        self.assertEqual(session.job_list[1].group, ["after-suspend-group1"])
+
+    def test_also_after_suspend_flag_nested_group(self):
+        job = make_job(
+            "A",
+            summary="foo",
+            flags=[Suspend.AUTO_FLAG],
+            group=["group1", "subgroup1"],
+        )
+        session = SessionState([])
+        session.add_unit(job)
+        self.assertEqual(
+            session.job_list[1].group,
+            ["after-suspend-group1", "subgroup1"],
+        )
+        self.assertEqual(job.groups, ["group1", "subgroup1"])
 
     def test_also_after_suspend_manual_flag(self):
         # Define a job
@@ -649,7 +664,7 @@ class SessionStateAPITests(TestCase):
             {"A", Suspend.MANUAL_JOB_ID},
         )
         self.assertEqual(
-            session.job_list[1].group, "after-suspend-manual-group1"
+            session.job_list[1].group, ["after-suspend-manual-group1"]
         )
 
     def test_get_estimated_duration_auto(self):

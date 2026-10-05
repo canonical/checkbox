@@ -751,6 +751,16 @@ class JobDefinitionFieldValidationTests(UnitWithIdFieldValidationTests):
 
 class TestJobDefinition(TestCase):
 
+    def test_groups(self):
+        self.assertEqual(JobDefinition({"id": "j"}).groups, [])
+        self.assertEqual(
+            JobDefinition({"id": "j", "group": "g1"}).groups, ["g1"]
+        )
+        self.assertEqual(
+            JobDefinition({"id": "j", "group": ["g1", "g2"]}).groups,
+            ["g1", "g2"],
+        )
+
     def setUp(self):
         self._full_record = RFC822Record(
             {

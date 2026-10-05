@@ -163,9 +163,10 @@ Following fields may be used by the job unit:
 
 .. option:: group
 
-    (optional). The id of the group this job belongs to. It allows organizing
-    jobs into named groups. Jobs in the same group are always run together. To
-    ensure this behavior, the dependencies follow these rules:
+    (optional). The id or hierarchical path of the group this job belongs to.
+    It allows organizing jobs into named groups. Jobs in the same group are
+    always run together. To ensure this behavior, the dependencies follow
+    these rules:
 
     - Dependencies between jobs inside the group are not changed.
     - If a job inside the group depends on a job outside the group, then the whole
@@ -175,6 +176,16 @@ Following fields may be used by the job unit:
     - In case this creates circular dependencies, Checkbox will output a dependency
       warning detailing the groups and jobs involved, and they will be removed from
       the test plan.
+
+    In YAML units, the group can be a nested hierarchy (a list of group names,
+    from largest to smallest). Each job is then placed in every level of its
+    path. For example, a job with ``group: [monitor, hdmi]`` belongs to both
+    the ``monitor`` group and the ``monitor/hdmi`` subgroup. Within each
+    level, the same dependency rules apply. Jobs with just a single group
+    name (as a string, or as a one-element list) work as usual.
+
+    In PXU units, only single-level groups are supported; the group field is
+    always a string.
 
 .. option:: salvages
 

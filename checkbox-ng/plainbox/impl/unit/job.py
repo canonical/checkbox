@@ -348,6 +348,20 @@ class JobDefinition(UnitWithId, IJobDefinition):
         return self.get_record_value("group")
 
     @cached_property
+    def groups(self):
+        """
+        Hierarchical group path of the job, from the biggest group to the
+        smallest one. A plain string is a single level group.
+        """
+        group = self.group
+        if not group:
+            return []
+        if isinstance(group, str):
+            return [group]
+        # Copy, so the raw record value is never shared with callers
+        return list(group)
+
+    @cached_property
     def salvages(self):
         return self.get_record_value("salvages")
 

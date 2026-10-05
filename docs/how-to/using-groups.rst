@@ -22,6 +22,44 @@ Key behaviors of groups
 - If these group-level dependencies create a cycle, Checkbox outputs a dependency
   warning and removes the involved jobs from the test plan. 
 
+Nested groups
+-------------
+
+In YAML units, the ``group`` field can also be a list of group names that
+describes a hierarchy, ordered from the largest group to the smallest one.
+This lets you keep related jobs together inside a bigger group:
+
+.. code-block:: yaml
+
+    group:
+      - monitor_tests
+      - hdmi_tests
+
+The job above belongs to the ``monitor_tests`` group and to the
+``hdmi_tests`` subgroup inside it. The rules described above apply at every
+level:
+
+- All the jobs in ``monitor_tests`` run as a contiguous block, including the
+  ones in its subgroups.
+- Inside ``monitor_tests``, the jobs of each subgroup (for example
+  ``hdmi_tests`` or ``dp_tests``) also run as a contiguous block.
+- A job with only ``group: monitor_tests`` (or ``group: [monitor_tests]``)
+  belongs directly to the ``monitor_tests`` group and is ordered together
+  with its subgroups.
+- Subgroups are identified by their full path, so ``[monitor_tests, common]``
+  and ``[audio_tests, common]`` are two different groups.
+- Dependencies between subgroups of the same parent are handled like
+  dependencies between groups, and they can also create cycles.
+
+Checkbox solves the hierarchy from the top down: it first orders the
+top-level groups and the jobs outside any group, then orders the subgroups
+inside each group, and so on until it reaches the smallest groups.
+
+.. note::
+
+  Nested groups are only supported in YAML units. In PXU units, the
+  ``group`` field is always a single group name.
+
 Viewing current groups
 ----------------------
 
@@ -212,11 +250,92 @@ Execution order::
     test_B_2
 
 
+Nested groups
+~~~~~~~~~~~~~
+
+Nested groups can be used to keep the tests for each port together, while
+sharing a setup and teardown for all the monitor tests. This example uses
+YAML units, because nested groups are not supported in PXU units.
+
+.. code-block:: yaml
+
+    id: monitor_setup
+    flags: simple
+    group: [monitor_tests]
+    before: [monitor_hdmi_1]
+    command: echo "Setting up monitor tests"
+    ---
+    id: monitor_teardown
+    flags: simple
+    group: [monitor_tests]
+    after: [monitor_dp_2]
+    command: echo "Tearing down monitor tests"
+    ---
+    id: monitor_hdmi_1
+    flags: simple
+    group: [monitor_tests, hdmi_tests]
+    command: echo "Running HDMI test 1"
+    ---
+    id: monitor_hdmi_2
+    flags: simple
+    group: [monitor_tests, hdmi_tests]
+    command: echo "Running HDMI test 2"
+    ---
+    id: monitor_dp_1
+    flags: simple
+    group: [monitor_tests, dp_tests]
+    command: echo "Running DisplayPort test 1"
+    ---
+    id: monitor_dp_2
+    flags: simple
+    group: [monitor_tests, dp_tests]
+    command: echo "Running DisplayPort test 2"
+    ---
+    id: audio_over_hdmi
+    flags: simple
+    depends: [monitor_hdmi_1]
+    command: echo "Running audio over HDMI test"
+    ---
+    id: monitor_test_plan
+    name: monitor_test_plan
+    unit: test plan
+    _summary: Nested groups test
+    include:
+      - audio_over_hdmi
+      - monitor_hdmi_1
+      - monitor_dp_1
+      - monitor_teardown
+      - monitor_hdmi_2
+      - monitor_dp_2
+      - monitor_setup
+
+Execution order::
+
+    monitor_setup
+    monitor_hdmi_1
+    monitor_hdmi_2
+    monitor_dp_1
+    monitor_dp_2
+    monitor_teardown
+    audio_over_hdmi
+
+Although the jobs are included in a mixed order, the HDMI and DisplayPort
+tests run as contiguous blocks inside the ``monitor_tests`` group. Since
+``audio_over_hdmi`` depends on a job inside ``monitor_tests``, it runs after
+the whole group.
+
+
 Groups in jobs with the "also-after-suspend" flag
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 The dependency manager can handle jobs with the "also-after-suspend"
 flag inside groups.
+
+The ``after-suspend`` sibling of a job is placed in a group with the same
+name prefixed by ``after-suspend-`` (or ``after-suspend-manual-``). For
+nested groups, only the top-level group is prefixed, so a job in
+``[group_A, subgroup_1]`` has its sibling in
+``[after-suspend-group_A, subgroup_1]``.
 
 .. note::
   

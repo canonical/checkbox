@@ -19,6 +19,21 @@ from threading import Event
 PHC2SYS_APPARMOR_PROFILE = Path("/etc/apparmor.d/usr.sbin.phc2sys")
 
 
+def get_ptp4l_binary() -> str:
+    """
+    Prefer the ptp4l shipped in the snap over the host's /usr/sbin/ptp4l.
+    This is used to get around ptp4l's apparmor profile.
+
+    :return: absolute path to the snap's ptp4l if it exists, else "ptp4l"
+    """
+    snap = os.environ.get("SNAP")
+    if snap:
+        snap_ptp4l = Path(snap) / "usr" / "sbin" / "ptp4l"
+        if snap_ptp4l.is_file():
+            return str(snap_ptp4l)
+    return "ptp4l"
+
+
 def clear_qdisc_settings(interface: str) -> None:
     """
     Delete the root qdisc settings
@@ -83,7 +98,7 @@ def ptp4l(
             # i.e. options are recognized by ptp4l
             "timeout",
             str(timeout),
-            "ptp4l",
+            get_ptp4l_binary(),
             "-i",
             interface,
             "-f",
@@ -97,7 +112,7 @@ def ptp4l(
         ptp4l_command = [
             "timeout",
             str(timeout),
-            "ptp4l",
+            get_ptp4l_binary(),
             "-i",
             interface,
             "-m",  # print msg to stdout

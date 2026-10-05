@@ -91,6 +91,7 @@ def run_vulkaninfo_summary() -> str:
             env=env,
             stderr=subprocess.STDOUT,
             universal_newlines=True,
+            timeout=30,
         )
     except FileNotFoundError as err:
         raise SystemExit(f"vulkaninfo command not found: {err}")

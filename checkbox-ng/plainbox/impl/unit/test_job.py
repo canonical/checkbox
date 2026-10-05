@@ -748,6 +748,31 @@ class JobDefinitionFieldValidationTests(UnitWithIdFieldValidationTests):
             Problem.bad_reference,
         )
 
+    def test_group__slash_in_name(self):
+        message = "field 'group', group names cannot contain '/'"
+        for group in ("a/b", ["a", "b/c"]):
+            with self.subTest(group=group):
+                issue_list = self.unit_cls(
+                    {"group": group}, provider=self.provider
+                ).check()
+                self.assertIssueFound(
+                    issue_list,
+                    self.unit_cls.Meta.fields.group,
+                    Problem.wrong,
+                    Severity.error,
+                    message,
+                )
+
+    def test_group__valid_names(self):
+        for group in ("a", ["a", "b"]):
+            with self.subTest(group=group):
+                issue_list = self.unit_cls(
+                    {"group": group}, provider=self.provider
+                ).check()
+                self.assertIssueNotFound(
+                    issue_list, self.unit_cls.Meta.fields.group
+                )
+
 
 class TestJobDefinition(TestCase):
 

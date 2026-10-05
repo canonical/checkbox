@@ -988,7 +988,16 @@ class JobDefinition(UnitWithId, IJobDefinition):
                     Problem.deprecated, Severity.warning, str, list
                 ),
             ],
-            fields.group: [],
+            fields.group: [
+                # "/" is used to join the group path into a unique group id
+                CorrectFieldValueValidator(
+                    lambda value, unit: all(
+                        "/" not in name for name in unit.groups
+                    ),
+                    message=_("group names cannot contain '/'"),
+                    onlyif=lambda unit: unit.group is not None,
+                ),
+            ],
             fields.requires: [
                 CorrectFieldValueValidator(
                     lambda value, unit: unit.get_resource_program(),

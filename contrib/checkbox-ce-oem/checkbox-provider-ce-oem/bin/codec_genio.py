@@ -100,8 +100,9 @@ class GenioProject(BaseCodecProject):
             GStreamerEncodePlugins.V4L2H265ENC.value,
         ]:
             # H.264/H.265 have no alpha channel, so the regular YUV golden
-            # samples cannot provide alpha input for the ARGB/RGBA encoder tests.
-            # Use the lossless PNG-in-MP4 RGBA sample from CodecCrafter instead,
+            # samples cannot provide alpha input for the ARGB/RGBA encoder
+            # tests. Use the lossless PNG-in-MP4 RGBA sample from CodecCrafter
+            # instead,
             # e.g. 1920x1080_30fps_png_rgba.mp4
             codec_short_name = (
                 "png_rgba" if color_space == "ARGB" else "png_rgb24"

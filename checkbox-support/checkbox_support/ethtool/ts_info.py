@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 # This file is part of Checkbox.
 #
 # Copyright 2026 Canonical Ltd.
@@ -59,13 +58,13 @@ class ethtool_ts_info(ctypes.Structure):
     ]
 
     def __str__(self) -> str:
-        words = []  # type: list[str]
+        words: "list[str]" = []
         for field in self._fields_:
             name = field[0]
             value = getattr(self, name)
             if isinstance(value, ctypes.Array):
                 value = list(value)
-            words.append("{}={}".format(name, value))
+            words.append(f"{name}={value}")
         return "ethtool_ts_info({})".format(", ".join(words))
 
 
@@ -117,15 +116,15 @@ def _is_ethernet_interface(interface: str) -> bool:
 
         # check for ARPHRD_ETHER
         if (sys_class_net_interface / "type").read_text().strip() != "1":
-            logger.debug("'{}' is not ARPHRD_ETHER".format(interface))
+            logger.debug(f"'{interface}' is not ARPHRD_ETHER")
             return False
         # skip everything not associated with a physical device
         if not (sys_class_net_interface / "device").exists():
-            logger.debug("'{}' is not a physical device".format(interface))
+            logger.debug(f"'{interface}' is not a physical device")
             return False
         # wifi interfaces (16.04+)
         if (sys_class_net_interface / "phy80211").exists():
-            logging.debug("'{}' is a wifi device".format(interface))
+            logging.debug(f"'{interface}' is a wifi device")
             return False
 
         return True
@@ -143,9 +142,7 @@ def get_ts_info(interface: str) -> ethtool_ts_info:
              because it directly maps to /dev/ptpX
     """
     if not _is_ethernet_interface(interface):
-        logger.warning(
-            "{} is not a physical ethernet interface".format(interface)
-        )
+        logger.warning(f"{interface} is not a physical ethernet interface")
 
     info = ethtool_ts_info()
     info.cmd = ETHTOOL_GET_TS_INFO
@@ -173,7 +170,7 @@ def find_ptp_device(interface: str) -> "Path | None":
     try:
         info = get_ts_info(interface)
         phc_index = int(info.phc_index)
-        expected_ptp_device_path = "/dev/ptp{}".format(phc_index)
+        expected_ptp_device_path = f"/dev/ptp{phc_index}"
         # os.path.exists is easier to patch in unit tests
         if phc_index >= 0 and os.path.exists(expected_ptp_device_path):
             return Path(expected_ptp_device_path)

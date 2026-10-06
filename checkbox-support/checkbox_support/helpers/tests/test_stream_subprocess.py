@@ -5,7 +5,10 @@ import time
 import unittest as ut
 from typing import Any
 
-from checkbox_support.helpers.stream_subprocess import stream_process_output
+from checkbox_support.helpers.stream_subprocess import (
+    MAX_PENDING_CHARS,
+    stream_process_output,
+)
 
 
 def make_proc(code: str) -> "sp.Popen[str]":
@@ -239,3 +242,66 @@ class TestHystericalSubprocesses(ut.TestCase):
             proc, stdout_maxlen=1, print_stdout=False, print_stderr=False
         )
         assert out == ["9999"]
+
+
+class TestEncodingAndBuffering(ut.TestCase):
+
+    def _run_with_encoding(self, encoding):
+        code = (
+            "import sys\n"
+            "for s in ('café', 'naïve'):\n"
+            "    sys.stdout.buffer.write((s + '\\n').encode({!r}))\n"
+        ).format(encoding)
+        proc = sp.Popen(
+            [sys.executable, "-c", code],
+            stdout=sp.PIPE,
+            stderr=sp.PIPE,
+            encoding=encoding,
+        )
+        return stream_process_output(
+            proc, print_stdout=False, print_stderr=False
+        )
+
+    def test_respects_popen_single_byte_encoding(self):
+        """Lines are decoded with the encoding configured on the Popen
+        streams rather than assuming UTF-8."""
+        _, out, _ = self._run_with_encoding("latin-1")
+        self.assertEqual(out, ["café", "naïve"])
+
+    def test_respects_popen_multibyte_encoding(self):
+        """Newlines are found after decoding, so encodings where b'\\n' is
+        not a standalone newline (UTF-16) still split correctly."""
+        _, out, _ = self._run_with_encoding("utf-16-le")
+        self.assertEqual(out, ["café", "naïve"])
+
+    def test_multibyte_char_split_across_reads(self):
+        """A multibyte character split across two reads must be decoded
+        correctly instead of producing replacement characters."""
+        proc = make_proc(
+            "import sys, time\n"
+            "data = 'é'.encode()\n"
+            "sys.stdout.buffer.write(data[:1]); sys.stdout.flush()\n"
+            "time.sleep(0.2)\n"
+            "sys.stdout.buffer.write(data[1:] + b'\\n')\n"
+        )
+        _, out, _ = stream_process_output(
+            proc, print_stdout=False, print_stderr=False
+        )
+        self.assertEqual(out, ["é"])
+
+    def test_newline_free_output_is_emitted_in_bounded_chunks(self):
+        """Output without any newline must not be buffered without bound;
+        it is force-emitted once MAX_PENDING_CHARS is reached."""
+        total = MAX_PENDING_CHARS * 3 + 10
+        proc = make_proc(
+            "import sys\n"
+            "sys.stdout.write('x' * {})\n".format(total)
+        )
+        _, out, _ = stream_process_output(
+            proc, stdout_maxlen=None, print_stdout=False, print_stderr=False
+        )
+        self.assertEqual("".join(out), "x" * total)
+        self.assertGreater(len(out), 1)
+        self.assertTrue(
+            all(len(line) < MAX_PENDING_CHARS * 2 for line in out)
+        )

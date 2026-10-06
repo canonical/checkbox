@@ -101,9 +101,11 @@ def check_rapl_mmio(args):
     if os.path.isdir("/sys/class/powercap/intel-rapl-mmio"):
         print("Intel RAPL-mmio power capping driver is present")
         return
-    print("Lack of MMIO interface for power capping.")
-    print("It depends on proc_thermal, please check if processor thermal")
-    print("device exists and proc_thermal driver has probed properly.")
+    print(
+        "Lack of MMIO interface for power capping. "
+        "It depends on proc_thermal, please check if processor thermal "
+        "device exists and proc_thermal driver has probed properly."
+    )
     print("The info of powercap driver: {}".format(KERNEL_POWERCAP))
     print("The info of Intel thermal_daemon: {}".format(THERMAL_DAEMON_README))
     raise SystemExit("Intel RAPL-mmio power capping driver is not installed")
@@ -139,9 +141,11 @@ def check_powerclamp(args):
         if "intel_powerclamp" in content:
             print("Intel powerclamp cooling device is registered")
             return
-    print("Intel powerclamp cooling device is not registered (advisory).")
-    print("thermald treats it as optional and falls back to RAPL. Is")
-    print("CONFIG_INTEL_POWERCLAMP configured? Registered cooling devices:")
+    print(
+        "Intel powerclamp cooling device is not registered (advisory). "
+        "thermald treats it as optional and falls back to RAPL. Is "
+        "CONFIG_INTEL_POWERCLAMP configured? Registered cooling devices:"
+    )
     for path, content in _glob_read("/sys/class/thermal/cooling_device*/type"):
         print("  {}: {}".format(path, content))
     print(
@@ -242,10 +246,12 @@ def check_proc_thermal(args):
     if os.path.exists(driver):
         print("Processor thermal driver is loaded ({})".format(driver))
         return
-    print("There is no processor thermal driver probed.")
-    print("Dynamic Tuning Technology (DTT) - this PCI device (Bus 0 Device 4)")
-    print("contains the configuration registers for the DPPM device.")
-    print("More detail is in Intel Document ID:640686, Processor EDS.")
+    print(
+        "There is no processor thermal driver probed. "
+        "Dynamic Tuning Technology (DTT) - this PCI device (Bus 0 Device 4) "
+        "contains the configuration registers for the DPPM device. "
+        "More detail is in Intel Document ID:640686, Processor EDS."
+    )
     raise SystemExit("Processor thermal driver is not loaded")
 
 
@@ -319,12 +325,14 @@ def check_cpu_support(args):
     print("The running thermald does not support this CPU/platform:")
     print(result.stdout.strip())
     print("")
-    print("The installed thermald has no matching entry in its id_table, so")
-    print("it cannot provide thermal management for this platform. Check the")
-    print("upstream id_table (https://github.com/intel/thermal_daemon/blob/")
-    print("master/src/thd_platform_intel.cpp) for the CPU family:model, and")
-    print("request an SRU backport of the CPU enablement into the Ubuntu")
-    print("thermald package if it is supported upstream but missing here.")
+    print(
+        "The installed thermald has no matching entry in its id_table, so "
+        "it cannot provide thermal management for this platform. Check the "
+        "upstream id_table (https://github.com/intel/thermal_daemon/blob/ "
+        "master/src/thd_platform_intel.cpp) for the CPU family:model, and "
+        "request an SRU backport of the CPU enablement into the Ubuntu "
+        "thermald package if it is supported upstream but missing here."
+    )
     raise SystemExit("thermald does not support this CPU/platform")
 
 
@@ -339,15 +347,15 @@ def check_thermal_policy(args):
         print("Thermal policy is set: {}".format(policy))
         return
     print("Check {} got INVALID.".format(uuid_path))
-    print("INVALID means the thermal policy is not set.")
-    print("The possible causes:")
-    print("a. thermald can't support the adaptive table in BIOS")
-    print("b. BIOS didn't configure any adaptive table")
-    print("c. The BIOS only supports the default passive table")
-    print("d. The platform doesn't require the OS to do thermal management")
-    print("Please consult the ODM/OEM to confirm the expected policy. See:")
     print(
-        "https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/"
+        "INVALID means the thermal policy is not set. "
+        "The possible causes: "
+        "a. thermald can't support the adaptive table in BIOS "
+        "b. BIOS didn't configure any adaptive table "
+        "c. The BIOS only supports the default passive table "
+        "d. The platform doesn't require the OS to do thermal management "
+        "Please consult the ODM/OEM to confirm the expected policy. See: "
+        "https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/ "
         "tree/drivers/thermal/intel/int340x_thermal/int3400_thermal.c"
     )
     raise SystemExit("Thermal policy is not set (INVALID)")
@@ -368,18 +376,20 @@ def check_unknown_cond(args):
         return
     print("This error occurs because OOB values appear when parsing the GDDV")
     print("")
-    print("Thermald constructs conditions by parsing the GDDV blob from")
-    print("/sys/devices/platform/INT*/data_vault and checks if the parsed")
-    print("values make sense. If the type of adaptive_condition appears to be")
-    print("an out-of-bound value, the following error shows up in journal:")
+    print(
+        "Thermald constructs conditions by parsing the GDDV blob from "
+        "/sys/devices/platform/INT*/data_vault and checks if the parsed "
+        "values make sense. If the type of adaptive_condition appears to be "
+        "an out-of-bound value, the following error shows up in journal:"
+    )
     print("")
     print("\tUnsupported condition %d (UKNKNOWN)")
     print("")
     print("This test job catches those erroneously parsed enum values.")
     print("")
-    print("See the following part of thermald source code for detail:")
-    print("  1. cthd_gddv::verify_condition in src/thd_engine_adaptive.cpp")
     print(
+        "See the following part of thermald source code for detail: "
+        "  1. cthd_gddv::verify_condition in src/thd_engine_adaptive.cpp "
         "  2. enum adaptive_condition and struct condition in src/thd_gddv.h"
     )
     raise SystemExit("Out-of-bound condition values found in thermald journal")
@@ -409,12 +419,12 @@ def check_adaptive_fallback(args):
         print("thermald is running with adaptive mode enabled")
         return
     print("Found thermald ignore_adaptive sentinel: {}".format(found[0]))
-    print("thermald installed an adaptive table that produced zero active")
-    print("zones and fell back to the non-adaptive default engine.")
-    print("The possible causes are the same as an INVALID thermal policy:")
-    print("the BIOS adaptive/DPTF table is missing or cannot be supported.")
-    print("Please consult the ODM/OEM to confirm the expected DPTF tables.")
     print(
+        "thermald installed an adaptive table that produced zero active "
+        "zones and fell back to the non-adaptive default engine. "
+        "The possible causes are the same as an INVALID thermal policy: "
+        "the BIOS adaptive/DPTF table is missing or cannot be supported. "
+        "Please consult the ODM/OEM to confirm the expected DPTF tables. "
         "See https://github.com/intel/thermal_daemon/blob/master/DEVELOPER.md"
     )
     raise SystemExit("thermald fell back from adaptive mode")

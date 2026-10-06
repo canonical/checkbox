@@ -59,6 +59,7 @@ from plainbox.impl.transport import TransportError
 from plainbox.impl.transport import get_all_transports
 from plainbox.impl.transport import SECURE_ID_PATTERN
 from plainbox.impl.unit.testplan import TestPlanUnitSupport
+from plainbox.impl.unit.unit import Unit
 from plainbox.impl.config import Configuration
 
 from checkbox_ng.config import load_configs
@@ -1476,7 +1477,14 @@ class Expand:
         )
         obj_list = []
         for unit in units_to_print:
-            obj = unit._raw_data.copy()
+            obj = (
+                {
+                    field: unit.get_record_value(field)
+                    for field in unit._raw_data
+                }
+                if unit.is_parametric
+                else unit._raw_data.copy()
+            )
             obj["unit"] = unit.unit
             obj["id"] = unit.id  # To get the fully qualified id
             # these two don't make sense for manifest units
@@ -1700,7 +1708,15 @@ def get_all_jobs(sa):
         if obj.group == "job" or (
             obj.group == "template" and obj.attrs["template_unit"] == "job"
         ):
-            attrs = dict(obj._impl._raw_data.copy())
+            unit = obj._impl
+            attrs = (
+                {
+                    field: unit.get_record_value(field)
+                    for field in unit._raw_data
+                }
+                if unit.is_parametric
+                else dict(unit._raw_data.copy())
+            )
             attrs["full_id"] = obj.name
             jobs.append(attrs)
         for child in obj.children:
@@ -1785,6 +1801,13 @@ class Show:
             raise SystemExit("Failed to find: {}".format(", ".join(failed)))
 
     def _print_obj(self, obj):
+        if isinstance(obj._impl, Unit) and obj._impl.is_parametric:
+            unit = obj._impl
+            print("origin:", unit.origin)
+            for field in unit._raw_data:
+                print("{}: {}".format(field, unit.get_record_value(field)))
+            print()
+            return
         if "origin" in obj.attrs:
             try:
                 print("origin:", obj.attrs["origin"])

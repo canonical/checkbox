@@ -6,8 +6,8 @@ Template unit
 
 The template unit is a variant of Checkbox unit types. A template is a skeleton
 for defining additional units, typically job definitions. A template is defined
-as a typical RFC822-like Checkbox unit (like a typical job definition) with the
-exception that all the fields starting with the string ``template-`` are
+in YAML or as an RFC822-like Checkbox unit (like a typical job definition). All
+the fields starting with the string ``template-`` are
 reserved for the template itself while all the other fields are a definition of
 all the eventual instances of the template.
 
@@ -85,7 +85,44 @@ The following fields are specific to the template unit:
     resource identifier matching the definition in the ``template-imports``
     field.
 
-    This field is mandatory.
+    This field is mandatory unless ``template-parameters`` is specified.
+
+.. option:: template-parameters
+
+    A list of parameter mappings. Each mapping generates one concrete unit,
+    in the order given. Values follow the existing resource interpolation
+    conventions and do not have to be strings. There is no Cartesian
+    expansion.
+
+    Define the list directly in YAML:
+
+    .. code-block:: yaml
+
+        unit: template
+        template-id: gfx_mesa_vk
+        template-engine: jinja2
+        template-parameters:
+          - test: api
+          - test: binding-model
+          - test: compute
+        id: gfx_mesa_vk_{{ test }}
+        _summary: Run the {{ test }} tests from VK-GL-CTS
+        plugin: shell
+        command: run_vulkan_cts.py --test_file {{ test }}.txt
+
+    PXU definitions can use a JSON list on this field::
+
+        template-parameters: [{"test": "api"}, {"test": "compute"}]
+
+    This field cannot be combined with ``template-resource``,
+    ``template-filter``, or ``template-imports``. An empty list generates no
+    units.
+
+    Inline templates expand when the provider loads, before validation,
+    without running a resource command. The source template remains available
+    alongside the generated units. ``checkbox-cli expand``, ``show``, and
+    ``list`` expose the concrete jobs and preserve source-template views;
+    ``list-bootstrapped`` includes the concrete jobs selected by the test plan.
 
 .. option:: template-imports
 
@@ -135,15 +172,16 @@ the template-engine (default is python formatting language. Within each field
 the record is exposed as the variable named by the ``template_resource`` field.
 Record data is exposed as attributes of that object.
 
-The special parameter ``__index__`` can be used to iterate over the devices
-matching the ``template-filter`` field.
+The special parameter ``__index__`` is the one-based index of each matching
+resource record or inline parameter mapping.
 
 .. warning::
   
-  When using templated jobs, we have to be careful with dependencies, since
-  the templated jobs are not expanded during validation. Running ``manage.py validate``
-  will fail if there are templated jobs in the depends/after/before fields of other
-  jobs. The same applies to sibling jobs.
+  Resource-driven templates are not expanded during validation. Running
+  ``manage.py validate`` will fail if their generated jobs appear in the
+  depends/after/before fields of other jobs. The same applies to sibling jobs.
+  Inline templates are expanded before validation: generated fields, duplicate
+  IDs, and references to generated IDs use the existing unit validators.
 
 Examples
 ========

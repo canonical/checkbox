@@ -12,12 +12,18 @@ def stream_process_output(
     stderr_maxlen: "int | None" = 10,
     print_stdout: bool = True,
     print_stderr: bool = True,
-) -> "tuple[list[str], list[str]]":
+) -> "tuple[int, list[str], list[str]]":
     """
     Streams subprocess stderr and stdout live to the current stdout and stderr
-    so the subprocess doesn't look frozen
+    so the subprocess doesn't look frozen.
+    
+    WARNING: Caller is responsible for ensuring process.wait() hasn't been called
 
-    Caller is responsible for ensuring process.wait() hasn't been called
+    Example usage:
+    ```py
+    some_slow_proc = subprocess.Popen([...])
+    rc, stdout_lines, stderr_lines = stream_process_output(some_slow_proc)
+    ```
 
     :param process: an sp.Popen with stdout=PIPE, stderr=PIPE
     :param stdout_lines: how many trailing stdout lines to keep and
@@ -53,7 +59,6 @@ def stream_process_output(
     sel.register(stdout_fd, selectors.EVENT_READ)
     sel.register(stderr_fd, selectors.EVENT_READ)
 
-    # raw byte buffer per fd, holding an incomplete trailing line
     pending: "dict[int, bytes]" = {stdout_fd: b"", stderr_fd: b""}
     open_fds = {stdout_fd, stderr_fd}
     lines: "dict[int, deque[str]]" = {
@@ -96,5 +101,5 @@ def stream_process_output(
                 print(clean_line, flush=True, file=sys.stderr)
             lines[fd].append(clean_line)
 
-    process.wait()
-    return list(lines[stdout_fd]), list(lines[stderr_fd])
+    rc = process.wait()
+    return rc, list(lines[stdout_fd]), list(lines[stderr_fd])

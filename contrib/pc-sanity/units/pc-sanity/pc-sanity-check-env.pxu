@@ -41,27 +41,6 @@ _description:
 
 plugin: shell
 category_id: com.canonical.plainbox::miscellanea
-id: miscellanea/check_oem_recovery_version
-requires:
- package.name == 'dell-recovery' or package.name == 'ubuntu-recovery'
- package.name == 'dpkg'
-command:
- if dpkg-query -W -f='${Version}\n' dell-recovery | grep -q somerville; then
-     exit 0
- elif dpkg-query -W -f='${Version}\n' ubuntu-recovery | grep -q -e timbuktu -e ouagadougou -e jiayi; then
-     exit 0
- else
-     echo "The recovery package version string is wrong, expect somerville for dell-recovery,"
-     echo "and ouagadougou for ubuntu-recovery."
-     exit 1
- fi
-_summary: Confirm the recovery version string is as expected.
-_description:
- based on the meeting conclusion of 4/22, we need somerville version before Mario agree Canonical take the duty of dell-recovery sru.
- Let it support ubuntu-recovery and dell-recovery.
-
-plugin: shell
-category_id: com.canonical.plainbox::miscellanea
 id: miscellanea/cvescan
 command:
  ubuntu-oval.sh "$PLAINBOX_SESSION_SHARE/oval" "/var/local/plainbox-provider-pc-sanity/clean-installed-dpkg.list"
@@ -69,23 +48,6 @@ _summary: Scan if all CVEs are fixed well.
 _description:
  Refer to https://ubuntu.com/security/oval,
  to scan if all CVEs are fixed well on the target machine.
-
-plugin: shell
-category_id: com.canonical.plainbox::miscellanea
-id: miscellanea/check_language_packages
-command:
- [ -z "$(find /var/lib/apt/periodic/update-success-stamp -mmin -10)" ] && sudo apt-get update
- pkgs="$(check-language-support -l "${LANG/.UTF-8/}")"
- if [ -z "$pkgs" ]
- then
-     exit 0
- else
-     echo Missing packages: "$pkgs"
-     exit 1
- fi
-_summary: Check if all needed language packages are installed
-_description:
- To check if all needed language packages are in the system
 
 plugin: shell
 category_id: com.canonical.plainbox::miscellanea

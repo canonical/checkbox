@@ -87,28 +87,6 @@ _description:
 unit: template
 template-resource: device
 template-filter:
- device.path == '/devices/pci0000:00/0000:00:1f.0' and device.vendor_id == '32902'
- device.product_id >= '17280' and device.product_id <= '17311'
-template-unit: job
-plugin: shell
-category_id: com.canonical.plainbox::miscellanea
-id: miscellanea/tgp-rid-check_{product_id}
-command:
- rid_hex=$(lspci -xs 00:1f.0 | grep "00: " | cut -d " " -f10)
- rid="0x$rid_hex"
- if [[ $(("$rid")) -eq $((0x10)) ]]; then
-     echo "The PCH has known issue, the detail is in lp:1909053."
-     echo "Please request another hardware to proceed the test."
-     exit 1
- fi
-_summary: PCH revision ID check
-_description:
- The specific PCH revision ID has known issue, add the test case
- for filtering out the invalid hardware.
-
-unit: template
-template-resource: device
-template-filter:
  device.category == 'TOUCHPAD'
  device.vendor_id == '1160'
  device.product_id == '4618'
@@ -140,80 +118,6 @@ _description:
 unit: template
 template-resource: cpuinfo
 template-filter:
- cpuinfo.type == 'GenuineIntel'
- cpuinfo.model_number == '6'
- cpuinfo.model_version == '151'
-template-unit: job
-plugin: shell
-category_id: com.canonical.plainbox::miscellanea
-id: miscellanea/mesa-libdrm-gating_{model_number}_{model_version}_{model_revision}
-command:
- GLX_MESA_VER=$(dpkg-query -W libglx-mesa0:amd64 | cut -f2)
- EGL_MESA_VER=$(dpkg-query -W libegl-mesa0:amd64 | cut -f2)
- GBM_VER=$(dpkg-query -W libgbm1:amd64 | cut -f2)
- DRM_VER=$(dpkg-query -W libdrm2:amd64 | cut -f2)
- dpkg --compare-versions "$GLX_MESA_VER" gt 21.0.3
- RET=$?
- if [ $RET -ne 0 ]; then
-     echo "Wrong libglx-mesa0 version $GLX_MESA_VER for supporting ADL-S"
-     exit 1
- fi
- dpkg --compare-versions "$EGL_MESA_VER" gt 21.0.3
- RET=$?
- if [ $RET -ne 0 ]; then
-     echo "Wrong libegl-mesa0 version $EGL_MESA_VER for supporting ADL-S"
-     exit 1
- fi
- dpkg --compare-versions "$GBM_VER" gt 21.0.3
- RET=$?
- if [ $RET -ne 0 ]; then
-     echo "Wrong libgbm1 version $GBM_VER for supporting ADL-S"
-     exit 1
- fi
- dpkg --compare-versions "$DRM_VER" gt 2.4.105
- RET=$?
- if [ $RET -ne 0 ]; then
-     echo "Wrong libdrm2 version $DRM_VER for supporting ADL-S"
-     exit 1
- fi
-_summary: Check libglx-mesa0 libegl-mesa0 libgbm1 libdrm2 for ADL-S
-_description:
- Gating the mesa and libdrm packages for supporting ADL-S graphic
-
-unit: template
-template-resource: device
-template-filter: device.category == 'TOUCHPAD' and device.driver == 'hid-multitouch'
-template-unit: job
-plugin: shell
-category_id: com.canonical.plainbox::miscellanea
-id: miscellanea/pressure-capability-detect_{product_slug}
-requires:
-  package.name == 'libinput-bin'
-  package.name == 'dpkg'
-estimated_duration: 5.0
-command:
- touchpad-support.sh -p
- RET=$?
- VER=$(dpkg-query -W libinput-bin | cut -f2)
- dpkg --compare-versions "$VER" gt 1.15.5-1ubuntu0.2
- VER_RET=$?
- if [ $RET -ne 0 ] && [ $VER_RET -ne 0 ]; then
-     echo "The platform touchpad reports pressure event, it requires"
-     echo "a special handle for the event, please make sure if the platform"
-     echo "should support pressure event, if not, plesae follow instruction [1] and [2]"
-     echo "to fine tune it or disable it."
-     echo "Reference:"
-     echo "[1] https://wayland.freedesktop.org/libinput/doc/latest/touchpad-pressure.html"
-     echo "[2] https://wayland.freedesktop.org/libinput/doc/latest/device-quirks.html"
-     exit $RET
- fi
-_summary: Touchpad EV_ABS pressure capability check
-_description:
- Check if touchpad support ABS_PRESSURE and MT_ABS_PRESSURE event.
-
-unit: template
-template-resource: cpuinfo
-template-filter:
  cpuinfo.type in ['GenuineIntel','AuthenticAMD']
 template-unit: job
 plugin: shell
@@ -223,19 +127,6 @@ command: acpi_bios_error.py
 _summary: Check if kernel reports ACPI BIOS Error
 _description:
  Check if the kernel reports ACPI BIOS Error
-
-unit: template
-template-resource: dmi
-template-filter:
- dmi.category == 'CHASSIS' and dmi.product not in ['Mini Tower', 'Tower', 'Main Server Chassis','Rack Mount Chassis']
-template-unit: job
-plugin: shell
-category_id: com.canonical.plainbox::miscellanea
-id: miscellanea/check-device-runtime-pm_{product}
-command: check-device-power-control.sh
-_summary: Check if devices runtime PM enabled
-_description:
- Check if devices runtime PM is enabled for power sensitive platforms
 
 unit: template
 template-resource: device

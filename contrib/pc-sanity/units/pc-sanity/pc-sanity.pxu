@@ -9,7 +9,7 @@ include:
     com.canonical.certification::miscellanea/bootstrap-pc-sanity-smoke-test
     com.canonical.certification::miscellanea/side-load-changes
     com.canonical.certification::somerville-installation
-    com.canonical.certification::somerville/platform-meta-test
+    com.canonical.certification::miscellanea/platform-meta-test
     com.canonical.certification::miscellanea/platform-userguide-test
     com.canonical.certification::miscellanea/cvescan
     com.canonical.certification::miscellanea/check-nvidia
@@ -38,17 +38,13 @@ include:
     com.canonical.certification::miscellanea/dump_libsmbios_tokens
     com.canonical.certification::miscellanea/dump_libsmbios_tokens_attachment
     com.canonical.certification::miscellanea/check-i2c-hid-existence
-    com.canonical.certification::miscellanea/tgp-rid-check_.*
     com.canonical.certification::miscellanea/touchpad-firmware-version_.*
-    com.canonical.certification::miscellanea/check_oem_recovery_version
     com.canonical.certification::miscellanea/gate_rste_raid
     com.canonical.certification::miscellanea/screen-pkg-not-public
     com.canonical.certification::miscellanea/screen-pkg-not-supported-by-canonical
     com.canonical.certification::miscellanea/screen-private-ppa
     com.canonical.certification::miscellanea/edid-continuous-frequency
     com.canonical.certification::miscellanea/bluetooth-scan
-    com.canonical.certification::miscellanea/mesa-libdrm-gating_.*
-    com.canonical.certification::miscellanea/pressure-capability-detect_.*
     com.canonical.certification::miscellanea/check_.*_unchecked_msr_access_error
     com.canonical.certification::miscellanea/check_.*_start_rt_ucode_failed
     com.canonical.certification::miscellanea/check_.*_start_wm_firmware_failed
@@ -195,14 +191,12 @@ include:
     com.canonical.certification::info/buildstamp
     com.canonical.certification::raw_devices_dmi_json
     com.canonical.certification::dmi_attachment
-    com.canonical.certification::miscellanea/dpkg-l
     com.canonical.certification::miscellanea/bootstrap-pc-sanity-smoke-test
     com.canonical.certification::miscellanea/side-load-changes
     com.canonical.certification::somerville-installation
-    com.canonical.certification::somerville/platform-meta-test
+    com.canonical.certification::miscellanea/platform-meta-test
     com.canonical.certification::miscellanea/cvescan
     com.canonical.certification::miscellanea/debsums
-    com.canonical.certification::miscellanea/check_oem_recovery_version
     com.canonical.certification::miscellanea/screen-pkg-not-public
     com.canonical.certification::miscellanea/screen-pkg-not-supported-by-canonical
     com.canonical.certification::miscellanea/ubuntu-desktop-recommends

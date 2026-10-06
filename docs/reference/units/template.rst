@@ -100,15 +100,14 @@ The following fields are specific to the template unit:
 
         unit: template
         template-id: gfx_mesa_vk
-        template-engine: jinja2
         template-parameters:
           - test: api
           - test: binding-model
           - test: compute
-        id: gfx_mesa_vk_{{ test }}
-        _summary: Run the {{ test }} tests from VK-GL-CTS
+        id: gfx_mesa_vk_{test}
+        _summary: Run the {test} tests from VK-GL-CTS
         plugin: shell
-        command: run_vulkan_cts.py --test_file {{ test }}.txt
+        command: run_vulkan_cts.py --test_file {test}.txt
 
     PXU definitions can use a JSON list on this field::
 

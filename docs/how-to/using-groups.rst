@@ -167,7 +167,9 @@ The group field can also be used in templated jobs.
 
 .. note::
   
-  Templated jobs can not be used as dependencies, See Instantiation in :ref:`Template unit<templates>`.
+  Resource-driven templated jobs cannot be used as dependencies during provider
+  validation. Jobs generated from ``template-parameters`` can be referenced by
+  their concrete IDs. See Instantiation in :ref:`Template unit<templates>`.
 
 .. code-block::
 

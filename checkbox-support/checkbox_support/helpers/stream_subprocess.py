@@ -16,7 +16,7 @@ def stream_process_output(
     """
     Streams subprocess stderr and stdout live to the current stdout and stderr
     so the subprocess doesn't look frozen.
-    
+
     WARNING: Caller is responsible for ensuring process.wait() hasn't been called
 
     Example usage:
@@ -32,7 +32,7 @@ def stream_process_output(
         return, or None to keep everything
     :param print_stdout: print each stdout line to console as it arrives
     :param print_stderr: print each stderr line to console as it arrives
-    :return: (trailing stdout lines, trailing stderr lines)
+    :return: (return code, recent stdout lines, recent stderr lines)
     """
     # they should be io.TextIO objects
     if not isinstance(process.stdout, io.TextIOBase):

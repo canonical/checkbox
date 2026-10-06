@@ -19,15 +19,10 @@
 Definition of sub-command classes for checkbox-cli
 """
 
-from argparse import ArgumentTypeError, RawDescriptionHelpFormatter, SUPPRESS
-from collections import defaultdict
-from string import Formatter
-from tempfile import TemporaryDirectory
-from functools import lru_cache
-import fnmatch
-import itertools
 import contextlib
+import fnmatch
 import gettext
+import itertools
 import json
 import logging
 import operator
@@ -37,51 +32,58 @@ import shlex
 import sys
 import tarfile
 import time
-
-from plainbox.abc import IJobResult
-from plainbox.impl.color import Colorizer
-from plainbox.impl.session.resume import (
-    IncompatibleJobError,
-    CorruptedSessionError,
-)
-
-from plainbox.impl.session import SessionMetaData
-from plainbox.impl.execution import UnifiedRunner
-from plainbox.impl.highlevel import Explorer
-from plainbox.impl.result import MemoryJobResult
-from plainbox.impl.runner import slugify
-from plainbox.impl.secure.sudo_broker import sudo_password_provider
-from plainbox.impl.secure.qualifiers import select_units
-from plainbox.impl.session.assistant import SA_RESTARTABLE, SessionAssistant
-from plainbox.impl.session.restart import detect_restart_strategy
-from plainbox.impl.session.storage import WellKnownDirsHelper
-from plainbox.impl.transport import TransportError
-from plainbox.impl.transport import get_all_transports
-from plainbox.impl.transport import SECURE_ID_PATTERN
-from plainbox.impl.unit.testplan import TestPlanUnitSupport
-from plainbox.impl.config import Configuration
+from argparse import SUPPRESS, ArgumentTypeError, RawDescriptionHelpFormatter
+from collections import defaultdict
+from functools import lru_cache
+from pathlib import Path
+from string import Formatter
+from tempfile import TemporaryDirectory
 
 from checkbox_ng.config import load_configs
+from checkbox_ng.launcher.run import Action, NormalUI
 from checkbox_ng.launcher.stages import MainLoopStage, ReportsStage
 from checkbox_ng.launcher.startprovider import (
-    EmptyProviderSkeleton,
     IQN,
+    EmptyProviderSkeleton,
     ProviderSkeleton,
 )
-from checkbox_ng.launcher.run import Action
-from checkbox_ng.launcher.run import NormalUI
 from checkbox_ng.resume_menu import ResumeMenu
-from checkbox_ng.urwid_ui import CategoryBrowser
-from checkbox_ng.urwid_ui import ManifestBrowser
-from checkbox_ng.urwid_ui import ReRunBrowser
-from checkbox_ng.urwid_ui import ResumeInstead
-from checkbox_ng.urwid_ui import TestPlanBrowser
-from checkbox_ng.utils import (
-    newline_join,
-    generate_resume_candidate_description,
-    request_comment,
+from checkbox_ng.urwid_ui import (
+    CategoryBrowser,
+    ManifestBrowser,
+    ReRunBrowser,
+    ResumeInstead,
+    TestPlanBrowser,
 )
 from checkbox_ng.user_utils import guess_normal_user
+from checkbox_ng.utils import (
+    generate_resume_candidate_description,
+    newline_join,
+    request_comment,
+)
+from plainbox.abc import IJobResult
+from plainbox.impl.color import Colorizer
+from plainbox.impl.config import Configuration
+from plainbox.impl.execution import UnifiedRunner
+from plainbox.impl.highlevel import Explorer
+from plainbox.impl.result import IOLogRecord, MemoryJobResult
+from plainbox.impl.runner import slugify
+from plainbox.impl.secure.qualifiers import select_units
+from plainbox.impl.secure.sudo_broker import sudo_password_provider
+from plainbox.impl.session import SessionMetaData
+from plainbox.impl.session.assistant import SA_RESTARTABLE, SessionAssistant
+from plainbox.impl.session.restart import detect_restart_strategy
+from plainbox.impl.session.resume import (
+    CorruptedSessionError,
+    IncompatibleJobError,
+)
+from plainbox.impl.session.storage import WellKnownDirsHelper
+from plainbox.impl.transport import (
+    SECURE_ID_PATTERN,
+    TransportError,
+    get_all_transports,
+)
+from plainbox.impl.unit.testplan import TestPlanUnitSupport
 
 _ = gettext.gettext
 
@@ -1546,7 +1548,16 @@ class ListBootstrapped:
             action="store_true",
             help="only bootstrap test-plan that exactly match fully qualified ID",
         )
-        parser.add_argument("TEST_PLAN", help=_("test-plan id to bootstrap"))
+        parser.add_argument(
+            "--from-submission",
+            help="Bootstrap from an extracted submission.tar.gz",
+            type=Path,
+        )
+        parser.add_argument(
+            "TEST_PLAN",
+            nargs="?",
+            help=_("test-plan id to bootstrap"),
+        )
         parser.add_argument(
             "-f",
             "--format",
@@ -1563,6 +1574,69 @@ class ListBootstrapped:
             help="Normal non-root user to use during bootstrap",
         )
 
+    def bootstrap_from_args(self, ctx):
+        if not ctx.args.TEST_PLAN:
+            raise SystemExit(
+                "TEST_PLAN is required unless --from-submission is given"
+            )
+        tps = self.sa.get_test_plans()
+        testplan_id = get_testplan_id_by_id(
+            tps, ctx.args.TEST_PLAN, self.sa, ctx.args.exact
+        )
+        if testplan_id not in tps:
+            raise SystemExit("Test plan not found")
+        self.sa.select_test_plan(testplan_id)
+        self.sa.bootstrap()
+
+    def bootstrap_from_submission(self, submission_path: Path):
+        submission_json = submission_path / "submission.json"
+        with submission_json.open("r") as f:
+            submission_json_dict = json.load(f)
+
+        testplan_id = submission_json_dict["testplan_id"]
+        tps = self.sa.get_test_plans()
+        if testplan_id not in tps:
+            raise SystemExit(
+                f"Submission test plan '{testplan_id}' is not installed"
+            )
+
+        self.sa.select_test_plan(testplan_id)
+        bootstrap_jobs_ids = self.sa.start_bootstrap()
+        test_outputs_dir = submission_path / "test_output"
+        submission_results = {
+            result["full_id"]: result
+            for result in (
+                submission_json_dict["results"]
+                # backward compatiblity
+                + submission_json_dict.get("resource-results", [])
+            )
+        }
+        for job_id in bootstrap_jobs_ids:
+            result_stdout_path = test_outputs_dir / slugify(job_id)
+            # get_job_state to enable us to record the job result
+            # small abuse of the code path of manual jobs!
+            _ = self.sa.get_job_state(job_id)
+            job_output = (
+                result_stdout_path.read_bytes()
+                if result_stdout_path.exists()
+                else b""
+            )
+            submission_result = submission_results[job_id]
+            result = MemoryJobResult(
+                {
+                    "outcome": submission_result["outcome"],
+                    "return_code": (
+                        0 if submission_result["status"] == "pass" else 1
+                    ),
+                    "io_log": [
+                        IOLogRecord(0.0, "stdout", line)
+                        for line in job_output.splitlines()
+                    ],
+                }
+            )
+            self.sa.use_job_result(job_id, result)
+        self.sa.finish_bootstrap()
+
     def invoked(self, ctx):
         self.ctx = ctx
         runner_kwargs = {
@@ -1574,14 +1648,10 @@ class ListBootstrapped:
             "checkbox-listing-ephemeral", UnifiedRunner, runner_kwargs
         )
 
-        tps = self.sa.get_test_plans()
-        testplan_id = get_testplan_id_by_id(
-            tps, ctx.args.TEST_PLAN, self.sa, ctx.args.exact
-        )
-        if testplan_id not in tps:
-            raise SystemExit("Test plan not found")
-        self.sa.select_test_plan(testplan_id)
-        self.sa.bootstrap()
+        if ctx.args.from_submission:
+            self.bootstrap_from_submission(ctx.args.from_submission)
+        else:
+            self.bootstrap_from_args(ctx)
 
         jobs = []
         for job in self.sa.get_static_todo_list():

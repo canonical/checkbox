@@ -116,6 +116,37 @@ _description:
  The test case is for gating invalid touchpad firmware.
 
 unit: template
+template-resource: device
+template-filter: device.category == 'TOUCHPAD' and device.driver == 'hid-multitouch'
+template-unit: job
+plugin: shell
+category_id: com.canonical.plainbox::miscellanea
+id: miscellanea/pressure-capability-detect_{product_slug}
+requires:
+  package.name == 'libinput-bin'
+  package.name == 'dpkg'
+estimated_duration: 5.0
+command:
+ touchpad-support.sh -p
+ RET=$?
+ VER=$(dpkg-query -W libinput-bin | cut -f2)
+ dpkg --compare-versions "$VER" gt 1.15.5-1ubuntu0.2
+ VER_RET=$?
+ if [ $RET -ne 0 ] && [ $VER_RET -ne 0 ]; then
+     echo "The platform touchpad reports pressure event, it requires"
+     echo "a special handle for the event, please make sure if the platform"
+     echo "should support pressure event, if not, plesae follow instruction [1] and [2]"
+     echo "to fine tune it or disable it."
+     echo "Reference:"
+     echo "[1] https://wayland.freedesktop.org/libinput/doc/latest/touchpad-pressure.html"
+     echo "[2] https://wayland.freedesktop.org/libinput/doc/latest/device-quirks.html"
+     exit $RET
+ fi
+_summary: Touchpad EV_ABS pressure capability check
+_description:
+ Check if touchpad support ABS_PRESSURE and MT_ABS_PRESSURE event.
+
+unit: template
 template-resource: cpuinfo
 template-filter:
  cpuinfo.type in ['GenuineIntel','AuthenticAMD']
@@ -127,6 +158,19 @@ command: acpi_bios_error.py
 _summary: Check if kernel reports ACPI BIOS Error
 _description:
  Check if the kernel reports ACPI BIOS Error
+
+unit: template
+template-resource: dmi
+template-filter:
+ dmi.category == 'CHASSIS' and dmi.product not in ['Mini Tower', 'Tower', 'Main Server Chassis','Rack Mount Chassis']
+template-unit: job
+plugin: shell
+category_id: com.canonical.plainbox::miscellanea
+id: miscellanea/check-device-runtime-pm_{product}
+command: check-device-power-control.sh
+_summary: Check if devices runtime PM enabled
+_description:
+ Check if devices runtime PM is enabled for power sensitive platforms
 
 unit: template
 template-resource: device

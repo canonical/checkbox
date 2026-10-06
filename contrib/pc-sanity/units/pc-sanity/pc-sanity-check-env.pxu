@@ -1,7 +1,9 @@
 plugin: shell
 id: miscellanea/platform-meta-test
 category_id: com.canonical.plainbox::miscellanea
-requires: lsb.release >= "20.04"
+requires:
+ lsb.release >= "22.04"
+ lsb.release < "26.04"
 command:
  platform_meta_test.py --oem-codename "$(get-oem-info.sh --oem-codename)"
 _description: Check if the platform metapackage is installed.
@@ -48,37 +50,6 @@ _summary: Scan if all CVEs are fixed well.
 _description:
  Refer to https://ubuntu.com/security/oval,
  to scan if all CVEs are fixed well on the target machine.
-
-plugin: shell
-category_id: com.canonical.plainbox::miscellanea
-id: miscellanea/check_secureboot_fish_not_installed
-requires:
- lsb.release >= "22.04"
- package.name == 'dell-recovery' or package.name == 'ubuntu-recovery'
-user: root
-command:
- if dpkg-query -W -f='${Status}\n' dell-recovery 2>&1 | grep "install ok installed" >/dev/null 2>&1; then
-    TARGET=$(python3 -c "import Dell.recovery_common as magic; target=magic.find_partition(); print(target.decode('utf8')) if type(target) is bytes else print(target)")
- elif dpkg-query -W -f='${Status}\n' ubuntu-recovery 2>&1 | grep "install ok installed" >/dev/null 2>&1; then
-    TARGET=$(python3 -c "import ubunturecovery.recovery_common as magic; target=magic.find_partition('PQSERVICE'); print(target.decode('utf8')) if type(target) is bytes else print(target)")
- fi
- sudo mount "$TARGET" /cdrom
- RET=$?
- if [ $RET -eq 0 ] || [ $RET -eq 32 ]; then
-     if [ -d /cdrom/secureboot ]; then
-         echo "Found the recovery contains file from secureboot fish"
-         echo "The FVR image no longer requires to install dkms, so that we don't need secureboot fish"
-         echo "please remove it before FVR release."
-         exit 1
-     fi
- else
-     echo "Mount $TARGET to /cdrom failed, can't check content"
-     exit 1
- fi
-_summary: Check secureboot fish is not installed
-_description:
- The FVR image no longer require dkms, so check if the secureboot fish
- has removed.
 
 unit: template
 template-resource: dmi

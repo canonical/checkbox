@@ -45,11 +45,11 @@ include:
     com.canonical.certification::miscellanea/screen-private-ppa
     com.canonical.certification::miscellanea/edid-continuous-frequency
     com.canonical.certification::miscellanea/bluetooth-scan
+    com.canonical.certification::miscellanea/pressure-capability-detect_.*
     com.canonical.certification::miscellanea/check_.*_unchecked_msr_access_error
     com.canonical.certification::miscellanea/check_.*_start_rt_ucode_failed
     com.canonical.certification::miscellanea/check_.*_start_wm_firmware_failed
     com.canonical.certification::miscellanea/check_.*_wifi6e_enabled
-    com.canonical.certification::miscellanea/check_secureboot_fish_not_installed
     com.canonical.certification::miscellanea/acpi-bios-error_.*                        certification-status=blocker
     com.canonical.certification::miscellanea/intel-vtd-enabled_.*
     com.canonical.certification::miscellanea/ac-automatic-suspend-estar-settings_.*

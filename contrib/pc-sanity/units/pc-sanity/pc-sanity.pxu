@@ -3,7 +3,7 @@ _name: pc-sanity-base
 unit: test plan
 _description:
     This test plan created by Commercial Engineering team, including kenrel error detection,
-    devices check, GPU check and thermal check. It will be used to qualify OEM image before
+    devices check and GPU check. It will be used to qualify OEM image before
     release the image to QA team.
 include:
     com.canonical.certification::miscellanea/bootstrap-pc-sanity-smoke-test
@@ -23,18 +23,7 @@ include:
     com.canonical.certification::power-management/check-turbostat-s2i-s0ix-residency
     com.canonical.certification::power-management/check-turbostat-s2i-gfxrc6-residency
     com.canonical.certification::power-management/switch_power_mode
-    com.canonical.certification::miscellanea/intel-rapl
-    com.canonical.certification::miscellanea/intel-rapl-mmio_.*
-    com.canonical.certification::miscellanea/intel-p-state
-    com.canonical.certification::miscellanea/intel-powerclamp
-    com.canonical.certification::miscellanea/intel-cpu-thermal
-    com.canonical.certification::miscellanea/intel-x86-pkg-temp-thermal
     com.canonical.certification::miscellanea/intel_pmc_core
-    com.canonical.certification::miscellanea/valid-thermal-zone-trip-points
-    com.canonical.certification::miscellanea/proc_thermal_.*
-    com.canonical.certification::miscellanea/thermald
-    com.canonical.certification::miscellanea/thermal-policy-set_.*
-    com.canonical.certification::miscellanea/check-thermald-unknown-cond
     com.canonical.certification::miscellanea/dump_libsmbios_tokens
     com.canonical.certification::miscellanea/dump_libsmbios_tokens_attachment
     com.canonical.certification::miscellanea/check-i2c-hid-existence
@@ -88,6 +77,7 @@ nested_part:
     com.canonical.certification::pc-sanity-base
     com.canonical.certification::client-cert-desktop-22-04-automated
     com.canonical.certification::power-management-cpu-cstate-cert-automated
+    com.canonical.certification::thermal-cert-automated
 bootstrap_include:
     device
     graphics_card
@@ -115,6 +105,7 @@ nested_part:
     com.canonical.certification::pc-sanity-base
     com.canonical.certification::client-cert-desktop-24-04-automated
     com.canonical.certification::power-management-cpu-cstate-cert-automated
+    com.canonical.certification::thermal-cert-automated
 bootstrap_include:
     device
     graphics_card
@@ -142,6 +133,7 @@ nested_part:
     com.canonical.certification::pc-sanity-base
     com.canonical.certification::client-cert-desktop-26-04-automated
     com.canonical.certification::power-management-cpu-cstate-cert-automated
+    com.canonical.certification::thermal-cert-automated
 bootstrap_include:
     device
     graphics_card
@@ -161,6 +153,7 @@ include:
 nested_part:
     com.canonical.certification::pc-sanity-base
     com.canonical.certification::power-management-cpu-cstate-cert-automated
+    com.canonical.certification::thermal-cert-automated
 bootstrap_include:
     device
     graphics_card

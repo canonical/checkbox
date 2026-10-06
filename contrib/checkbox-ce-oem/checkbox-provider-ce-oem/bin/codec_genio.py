@@ -81,11 +81,7 @@ class GenioProject(BaseCodecProject):
             GStreamerEncodePlugins.V4L2H264ENC.value: "h264parse",
             GStreamerEncodePlugins.V4L2H265ENC.value: "h265parse",
         }
-        # This sample video file will be consumed by any gstreamer piple as
-        # input video.
-        file_name = get_test_file_path_by_params(
-            width, height, framerate, codec
-        )
+
         # For v4l2jpegenc / v4l2jpegdec, using the MJPEG sample video.
         # https://genio.mediatek.com/doc/iot-yocto/latest/sw/yocto/app-dev/image/image-common.html#motion-jpeg-video
         if codec == GStreamerEncodePlugins.V4L2JPEGENC.value:
@@ -98,6 +94,33 @@ class GenioProject(BaseCodecProject):
                     codec_short_name="mjpeg",
                     ext="mov",
                 ),
+            )
+        elif color_space in ["ARGB", "RGB"] and codec in [
+            GStreamerEncodePlugins.V4L2H264ENC.value,
+            GStreamerEncodePlugins.V4L2H265ENC.value,
+        ]:
+            # H.264/H.265 have no alpha channel, so the regular YUV golden
+            # samples cannot provide alpha input for the ARGB/RGBA encoder tests.
+            # Use the lossless PNG-in-MP4 RGBA sample from CodecCrafter instead,
+            # e.g. 1920x1080_30fps_png_rgba.mp4
+            codec_short_name = (
+                "png_rgba" if color_space == "ARGB" else "png_rgb24"
+            )
+            file_name = os.path.join(
+                VIDEO_CODEC_TESTING_DATA,
+                file_name_placeholder(
+                    width=width,
+                    height=height,
+                    framerate=framerate,
+                    codec_short_name=codec_short_name,
+                    ext="mp4",
+                ),
+            )
+        else:
+            # Default sample video (YUV) file be consumed by most of
+            # gstreamer pipelines as input video.
+            file_name = get_test_file_path_by_params(
+                width, height, framerate, codec
             )
 
         self._golden_sample = file_name

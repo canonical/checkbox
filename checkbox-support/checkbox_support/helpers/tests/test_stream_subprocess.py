@@ -1,12 +1,3 @@
-"""
-Tests for stream_proc.stream_process_output focused on:
-- running the function inside worker threads (not just the main thread)
-- "hysterical" subprocesses: huge stderr floods, bare \\r spinner output with
-  no trailing newline, garbage/invalid bytes, and processes that die abruptly
-
-All subprocesses are spawned with `python3 -c "..."` so the tests have no
-external dependencies.
-"""
 import subprocess as sp
 import sys
 import threading
@@ -41,40 +32,50 @@ class TestRunningInSeparateThread(ut.TestCase):
         result = {}
 
         def worker():
-            result["out"], result["err"] = stream_process_output(
-                proc, stdout_maxlen=None, stderr_maxlen=None,
-                print_stdout=False, print_stderr=False,
+            result["rc"], result["out"], result["err"] = stream_process_output(
+                proc,
+                stdout_maxlen=None,
+                stderr_maxlen=None,
+                print_stdout=False,
+                print_stderr=False,
             )
 
         t = threading.Thread(target=worker)
         t.start()
         t.join(timeout=10)
 
-        assert not t.is_alive(), "stream_process_output hung/deadlocked in a thread"
+        assert (
+            not t.is_alive()
+        ), "stream_process_output hung/deadlocked in a thread"
         assert result["out"] == [f"out-{i}" for i in range(50)]
         assert result["err"] == [f"err-{i}" for i in range(50)]
+        assert result["rc"] == 0
         assert proc.returncode == 0
-
 
     def test_multiple_concurrent_threads_each_draining_own_subprocess(self):
         """Several threads each streaming a different subprocess concurrently
         should not interfere with each other (no shared global selector state
         leaking between calls)."""
         n_threads = 8
-        results: 'list[Any]' = [None] * n_threads
+        results: "list[Any]" = [None] * n_threads
         errors = []
 
         def worker(idx):
             try:
                 proc = make_proc(f"print('hello-{idx}')")
-                out, _ = stream_process_output(
+                rc, out, _ = stream_process_output(
                     proc, print_stdout=False, print_stderr=False
                 )
-                results[idx] = out
-            except Exception as e:  # pragma: no cover - failure surfaced via assert
+                results[idx] = (rc, out)
+            except (
+                Exception
+            ) as e:  # pragma: no cover - failure surfaced via assert
                 errors.append(e)
 
-        threads = [threading.Thread(target=worker, args=(i,)) for i in range(n_threads)]
+        threads = [
+            threading.Thread(target=worker, args=(i,))
+            for i in range(n_threads)
+        ]
         for t in threads:
             t.start()
         for t in threads:
@@ -83,8 +84,7 @@ class TestRunningInSeparateThread(ut.TestCase):
         assert not errors
         assert all(not t.is_alive() for t in threads)
         for i in range(n_threads):
-            assert results[i] == [f"hello-{i}"]
-
+            assert results[i] == (0, [f"hello-{i}"])
 
     def test_caller_thread_not_blocked_forever_by_slow_subprocess(self):
         """A subprocess that trickles output slowly should still be drained
@@ -97,7 +97,9 @@ class TestRunningInSeparateThread(ut.TestCase):
             "    time.sleep(0.2)\n"
         )
         start = time.monotonic()
-        out, _ = stream_process_output(proc, print_stdout=False, print_stderr=False)
+        _, out, _ = stream_process_output(
+            proc, print_stdout=False, print_stderr=False
+        )
         elapsed = time.monotonic() - start
 
         assert out == ["0", "1", "2"]
@@ -119,7 +121,9 @@ class TestHystericalSubprocesses(ut.TestCase):
             "    sys.stdout.flush()\n"
             "    time.sleep(0.01)\n"
         )
-        out, _ = stream_process_output(proc, print_stdout=False, print_stderr=False)
+        _, out, _ = stream_process_output(
+            proc, print_stdout=False, print_stderr=False
+        )
 
         assert len(out) == 1
         # strip() only removes leading/trailing whitespace, so internal \r's
@@ -127,22 +131,22 @@ class TestHystericalSubprocesses(ut.TestCase):
         assert out[0].endswith("progress 19/20")
         assert "\r" in out[0]
 
-
     def test_crlf_line_endings_are_stripped_cleanly(self):
         """\\r\\n endings should collapse to clean lines because .strip() trims
         the trailing \\r left over after splitting on \\n."""
         proc = make_proc(
-            "import sys\n"
-            "sys.stdout.write('line1\\r\\nline2\\r\\n')\n"
+            "import sys\n" "sys.stdout.write('line1\\r\\nline2\\r\\n')\n"
         )
-        out, _ = stream_process_output(proc, print_stdout=False, print_stderr=False)
+        _, out, _ = stream_process_output(
+            proc, print_stdout=False, print_stderr=False
+        )
         assert out == ["line1", "line2"]
-
 
     def test_massive_stderr_flood_does_not_deadlock_or_lose_stdout(self):
         """A subprocess that dumps megabytes to stderr rapidly while stdout is
         comparatively quiet must not deadlock (this is exactly what the
-        selectors-based design is meant to prevent vs. naive sequential reads)."""
+        selectors-based design is meant to prevent vs. naive sequential reads).
+        """
         proc = make_proc(
             "import sys\n"
             "print('stdout-line')\n"
@@ -151,9 +155,12 @@ class TestHystericalSubprocesses(ut.TestCase):
             "print('stdout-line-2')\n"
         )
         start = time.monotonic()
-        out, err = stream_process_output(
-            proc, stdout_maxlen=None, stderr_maxlen=5,
-            print_stdout=False, print_stderr=False,
+        rc, out, err = stream_process_output(
+            proc,
+            stdout_maxlen=None,
+            stderr_maxlen=5,
+            print_stdout=False,
+            print_stderr=False,
         )
         elapsed = time.monotonic() - start
 
@@ -161,8 +168,8 @@ class TestHystericalSubprocesses(ut.TestCase):
         assert out == ["stdout-line", "stdout-line-2"]
         assert len(err) == 5  # maxlen truncation kept only the trailing lines
         assert all(line == "E" * 100 for line in err)
+        assert rc == 0
         assert proc.returncode == 0
-
 
     def test_rapid_interleaved_stdout_and_stderr(self):
         """High-frequency interleaved writes on both streams should all be
@@ -173,31 +180,38 @@ class TestHystericalSubprocesses(ut.TestCase):
             "    print(f'o{i}')\n"
             "    print(f'e{i}', file=sys.stderr)\n"
         )
-        out, err = stream_process_output(
-            proc, stdout_maxlen=None, stderr_maxlen=None,
-            print_stdout=False, print_stderr=False,
+        _, out, err = stream_process_output(
+            proc,
+            stdout_maxlen=None,
+            stderr_maxlen=None,
+            print_stdout=False,
+            print_stderr=False,
         )
         assert out == [f"o{i}" for i in range(5000)]
         assert err == [f"e{i}" for i in range(5000)]
-
 
     def test_invalid_utf8_bytes_are_replaced_not_fatal(self):
         """Garbage / non-UTF8 bytes on the wire must not raise; decode uses
         errors='replace'."""
         proc = sp.Popen(
-            [sys.executable, "-c", (
-                "import sys\n"
-                "sys.stdout.buffer.write(b'good\\xff\\xfeline\\n')\n"
-                "sys.stdout.buffer.flush()\n"
-            )],
+            [
+                sys.executable,
+                "-c",
+                (
+                    "import sys\n"
+                    "sys.stdout.buffer.write(b'good\\xff\\xfeline\\n')\n"
+                    "sys.stdout.buffer.flush()\n"
+                ),
+            ],
             stdout=sp.PIPE,
             stderr=sp.PIPE,
             text=True,
         )
-        out, _ = stream_process_output(proc, print_stdout=False, print_stderr=False)
+        _, out, _ = stream_process_output(
+            proc, print_stdout=False, print_stderr=False
+        )
         assert len(out) == 1
         assert "good" in out[0] and "line" in out[0]
-
 
     def test_process_dies_abruptly_mid_stream_still_returns(self):
         """A subprocess that gets killed/crashes partway through (pipes close
@@ -210,22 +224,18 @@ class TestHystericalSubprocesses(ut.TestCase):
             "sys.stdout.flush()\n"
             "os._exit(1)\n"
         )
-        out, _ = stream_process_output(proc, print_stdout=False, print_stderr=False)
+        rc, out, _ = stream_process_output(
+            proc, print_stdout=False, print_stderr=False
+        )
         assert out == ["before-crash", "partial-no-newline"]
+        assert rc == 1
         assert proc.returncode == 1
-
 
     def test_maxlen_zero_and_small_bound_under_flood(self):
         """stdout_maxlen/stderr_maxlen bound memory even under a flood; verify
         a very small maxlen keeps only the most recent lines."""
-        proc = make_proc(
-            "for i in range(10000):\n"
-            "    print(i)\n"
-        )
-        out, _ = stream_process_output(
+        proc = make_proc("for i in range(10000):\n" "    print(i)\n")
+        _, out, _ = stream_process_output(
             proc, stdout_maxlen=1, print_stdout=False, print_stderr=False
         )
         assert out == ["9999"]
-
-
-

@@ -70,9 +70,7 @@ class TestRunningInSeparateThread(ut.TestCase):
                     proc, print_stdout=False, print_stderr=False
                 )
                 results[idx] = (rc, out)
-            except (
-                Exception
-            ) as e:  # pragma: no cover - failure surfaced via assert
+            except Exception as e:
                 errors.append(e)
 
         threads = [
@@ -294,14 +292,11 @@ class TestEncodingAndBuffering(ut.TestCase):
         it is force-emitted once MAX_PENDING_CHARS is reached."""
         total = MAX_PENDING_CHARS * 3 + 10
         proc = make_proc(
-            "import sys\n"
-            "sys.stdout.write('x' * {})\n".format(total)
+            "import sys\n" "sys.stdout.write('x' * {})\n".format(total)
         )
         _, out, _ = stream_process_output(
             proc, stdout_maxlen=None, print_stdout=False, print_stderr=False
         )
         self.assertEqual("".join(out), "x" * total)
         self.assertGreater(len(out), 1)
-        self.assertTrue(
-            all(len(line) < MAX_PENDING_CHARS * 2 for line in out)
-        )
+        self.assertTrue(all(len(line) < MAX_PENDING_CHARS * 2 for line in out))

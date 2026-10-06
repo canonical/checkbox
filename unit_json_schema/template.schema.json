@@ -4,7 +4,22 @@
   "title": "Template Unit",
   "description": "Schema that describes a Checkbox Template unit",
   "type": "object",
-  "allOf": [{ "$ref": "job.schema.json#/$defs/jobFields" }],
+  "allOf": [
+    { "$ref": "job.schema.json#/$defs/jobFields" },
+    {
+      "if": { "required": ["template-parameters"] },
+      "then": {
+        "not": {
+          "anyOf": [
+            { "required": ["template-resource"] },
+            { "required": ["template-filter"] },
+            { "required": ["template-imports"] }
+          ]
+        }
+      },
+      "else": { "required": ["template-resource"] }
+    }
+  ],
   "properties": {
     "unit": {
       "title": "Unit (Template Unit)",
@@ -36,6 +51,14 @@
       "description": "Name of the resource job to use to parametrize the template.",
       "type": "string"
     },
+    "template-parameters": {
+      "title": "Template Parameters (Template Unit)",
+      "description": "List of parameter mappings. Each mapping generates one concrete unit, without Cartesian expansion. Cannot be combined with template-resource, template-filter, or template-imports.",
+      "type": "array",
+      "items": {
+        "type": "object"
+      }
+    },
     "template-imports": {
       "title": "Template Imports (Template Unit)",
       "description": "List of resource import statements.",
@@ -60,6 +83,6 @@
       "default": "default"
     }
   },
-  "required": ["unit", "id", "template-resource"],
+  "required": ["unit", "id"],
   "unevaluatedProperties": false
 }

@@ -124,7 +124,7 @@ def _is_ethernet_interface(interface: str) -> bool:
             return False
         # wifi interfaces (16.04+)
         if (sys_class_net_interface / "phy80211").exists():
-            logging.debug(f"'{interface}' is a wifi device")
+            logger.debug(f"'{interface}' is a wifi device")
             return False
 
         return True

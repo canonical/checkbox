@@ -72,6 +72,11 @@ slots:
     interface: content
     read:
       - $SNAP/providers/checkbox-provider-ce-oem
+  custom-frontend:
+    interface: content
+    content: custom-frontend
+    read:
+      - /
 
 parts:
   checkbox-provider-ce-oem:

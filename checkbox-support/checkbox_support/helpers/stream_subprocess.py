@@ -24,6 +24,7 @@ def stream_process_output(
     so the subprocess doesn't look frozen.
 
     WARNING: Caller is responsible for ensuring process.wait() hasn't been called
+    process.stdout and process.stderr are closed when this function returns.
 
     Example usage:
     ```py
@@ -174,6 +175,10 @@ def stream_process_output(
                 feed(fd, decoders[fd].decode(chunk))
     finally:
         sel.close()
+        # like communicate(), we now own the pipes
+        # so we need to manually close them
+        process.stdout.close()
+        process.stderr.close()
 
     flush_all_pending()
 

@@ -426,6 +426,24 @@ class TestTimeout(ut.TestCase):
         # a closed selector has no map
         self.assertIsNone(created[0].get_map())
 
+    def test_pipes_are_closed_on_timeout(self):
+        proc = make_proc("import time\ntime.sleep(60)\n")
+        with self.assertRaises(sp.TimeoutExpired):
+            stream_process_output(
+                proc, timeout=0.2, print_stdout=False, print_stderr=False
+            )
+        self.assertTrue(proc.stdout.closed)
+        self.assertTrue(proc.stderr.closed)
+
+
+class TestResourceCleanup(ut.TestCase):
+
+    def test_pipes_are_closed_after_normal_exit(self):
+        proc = make_proc("print('x')\n")
+        stream_process_output(proc, print_stdout=False, print_stderr=False)
+        self.assertTrue(proc.stdout.closed)
+        self.assertTrue(proc.stderr.closed)
+
 
 if __name__ == "__main__":
     ut.main()

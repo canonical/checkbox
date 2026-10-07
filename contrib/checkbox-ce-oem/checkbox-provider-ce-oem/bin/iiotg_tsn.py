@@ -184,10 +184,11 @@ def phc2sys(
     :return: phc2sys process object
     """
 
+    phc2sys_binary = get_linuxptp_binary("phc2sys")
     command = [
         "timeout",
         str(timeout),
-        get_linuxptp_binary("phc2sys"),
+        phc2sys_binary,
         "-s",  # the interface to sync
         interface,
         # -O 0 sets the offset between system clock and hardware clock to 0
@@ -204,7 +205,8 @@ def phc2sys(
         "--transportSpecific=1",  # see ptp4l()
     ]
 
-    if PHC2SYS_APPARMOR_PROFILE.exists():
+    # only applies if we are somehow using the host's phc2sys
+    if phc2sys_binary == "phc2sys" and PHC2SYS_APPARMOR_PROFILE.exists():
         # This profile only allows phc2sys to open @{run}/ptp4lro, so
         # talking to ptp4l's default read-write socket at /var/run/ptp4l
         # is denied and -w hangs on "Waiting for ptp4l..." forever.

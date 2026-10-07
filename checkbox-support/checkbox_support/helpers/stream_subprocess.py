@@ -17,8 +17,7 @@ def stream_process_output(
     print_stdout: bool = True,
     print_stderr: bool = True,
 ) -> "tuple[int, list[str], list[str]]":
-    """
-    Streams subprocess stderr and stdout live to the current stdout and stderr
+    """Streams subprocess stderr and stdout live to the current stdout and stderr
     so the subprocess doesn't look frozen.
 
     WARNING: Caller is responsible for ensuring process.wait() hasn't been called
@@ -29,16 +28,20 @@ def stream_process_output(
     rc, stdout_lines, stderr_lines = stream_process_output(some_slow_proc)
     ```
 
-    :param process: an sp.Popen with stdout=PIPE, stderr=PIPE
-    :param stdout_lines: how many trailing stdout lines to keep and
-        return, or None to keep everything
-    :param stderr_lines: how many trailing stderr lines to keep and
-        return, or None to keep everything
-    :param print_stdout: print each stdout line to console as it arrives
-    :param print_stderr: print each stderr line to console as it arrives
-    :return: (return code, recent stdout lines, recent stderr lines)
+    :param process: an sp.Popen with stdout=PIPE, stderr=PIPE, universal_newlines=True
+    :param stdout_maxlen:
+        how many stdout lines to keep.
+        Keep everything if None
+    :param stderr_maxlen:
+        how many stderr lines to keep.
+        Keep everything if None
+    :param print_stdout: stream to caller's stdout?
+    :param print_stderr: stream to caller's stderr?
+    :raises TypeError: stdout is not TextIO
+    :raises TypeError: stderr is not TextIO
+    :return: return code, stdout lines, stderr lines
     """
-    # they should be io.TextIO objects
+
     if not isinstance(process.stdout, io.TextIOBase):
         raise TypeError(
             "Process stdout must be set to subprocess.PIPE during creation "

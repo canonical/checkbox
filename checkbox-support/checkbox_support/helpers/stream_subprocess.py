@@ -4,7 +4,9 @@ import os
 import selectors
 import subprocess as sp
 import sys
+import time
 from collections import deque
+from typing import Never
 
 # max characters buffered for a single line before we forcefully emit it
 MAX_PENDING_CHARS = 65536
@@ -16,6 +18,7 @@ def stream_process_output(
     stderr_maxlen: "int | None" = 10,
     print_stdout: bool = True,
     print_stderr: bool = True,
+    timeout: "float | None" = None,
 ) -> "tuple[int, list[str], list[str]]":
     """Streams subprocess stderr and stdout live to the current stdout and stderr
     so the subprocess doesn't look frozen.
@@ -37,8 +40,13 @@ def stream_process_output(
         Keep everything if None
     :param print_stdout: stream to caller's stdout?
     :param print_stderr: stream to caller's stderr?
+    :param timeout:
+        seconds to wait for the process to finish. On expiry the process
+        is killed. Wait forever if None
     :raises TypeError: stdout is not TextIO
     :raises TypeError: stderr is not TextIO
+    :raises subprocess.TimeoutExpired:
+        the timeout expired, output and stderr hold the kept lines
     :return: return code, stdout lines, stderr lines
     """
 
@@ -87,7 +95,7 @@ def stream_process_output(
         stderr_fd: deque(maxlen=stderr_maxlen),
     }
 
-    def emit(fd: int, line: str):
+    def emit_lines(fd: int, line: str):
         clean_line = line.rstrip()  # preserve leading whitespace
         if fd == stdout_fd and print_stdout:
             print(clean_line, flush=True)
@@ -96,7 +104,7 @@ def stream_process_output(
         lines[fd].append(clean_line)
 
     def flush_pending(fd: int):
-        emit(fd, pending[fd].getvalue())
+        emit_lines(fd, pending[fd].getvalue())
         # let the garbage collector clean up for us
         pending[fd] = io.StringIO(newline="")
 
@@ -106,7 +114,7 @@ def stream_process_output(
             pending[fd].write(complete[0])
             flush_pending(fd)
             for line in complete[1:]:
-                emit(fd, line)
+                emit_lines(fd, line)
         if rest:
             pending[fd].write(rest)
             # tell() is the number of chars buffered since the last flush
@@ -116,28 +124,63 @@ def stream_process_output(
                 # emit what we have so memory stays bounded
                 flush_pending(fd)
 
-    while open_fds:
-        for key, _ in sel.select():
-            fd = key.fd
-            try:
-                chunk = os.read(fd, 65536)
-            except BlockingIOError:
-                # selector said readable, but nothing left right now
-                continue
+    deadline = None if timeout is None else time.monotonic() + timeout
 
-            if not chunk:
-                # EOF on this pipe, the process closed it
-                sel.unregister(fd)
-                open_fds.discard(fd)
-                feed(fd, decoders[fd].decode(b"", final=True))
-                continue
+    def time_remaining() -> "float | None":
+        if deadline is None:
+            return None
+        return max(0.0, deadline - time.monotonic())
 
-            feed(fd, decoders[fd].decode(chunk))
+    def flush_all_pending():
+        # flush a final line on each stream that never got a trailing newline
+        for fd in (stdout_fd, stderr_fd):
+            if pending[fd].tell():
+                flush_pending(fd)
 
-    # flush a final line on each stream that never got a trailing newline
-    for fd in (stdout_fd, stderr_fd):
-        if pending[fd].tell():
-            flush_pending(fd)
+    def kill_and_raise() -> "Never":
+        assert timeout is not None
+        flush_all_pending()
+        process.kill()
+        process.wait()
+        raise sp.TimeoutExpired(
+            process.args,
+            timeout,
+            output="\n".join(lines[stdout_fd]),
+            stderr="\n".join(lines[stderr_fd]),
+        )
 
-    rc = process.wait()
+    try:
+        while open_fds:
+            # always check timeout before the stdout/stderr events
+            # to make sure we can still kill noisy processes
+            if time_remaining() == 0:
+                kill_and_raise()
+
+            for key, _ in sel.select(timeout=time_remaining()):
+                fd = key.fd
+                try:
+                    chunk = os.read(fd, 65536)
+                except BlockingIOError:
+                    # selector said readable, but nothing left right now
+                    continue
+
+                if not chunk:
+                    # EOF on this pipe, the process closed it
+                    sel.unregister(fd)
+                    open_fds.discard(fd)
+                    feed(fd, decoders[fd].decode(b"", final=True))
+                    continue
+
+                feed(fd, decoders[fd].decode(chunk))
+    finally:
+        sel.close()
+
+    flush_all_pending()
+
+    try:
+        # the process may close its pipes but keep running
+        rc = process.wait(timeout=time_remaining())
+    except sp.TimeoutExpired:
+        kill_and_raise()
+
     return rc, list(lines[stdout_fd]), list(lines[stderr_fd])

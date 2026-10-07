@@ -1,9 +1,11 @@
+import selectors
 import subprocess as sp
 import sys
 import threading
 import time
 import unittest as ut
 from typing import Any
+from unittest import mock
 
 from checkbox_support.helpers.stream_subprocess import (
     MAX_PENDING_CHARS,
@@ -316,3 +318,114 @@ class TestEncodingAndBuffering(ut.TestCase):
         self.assertEqual("".join(out), "x" * total)
         self.assertGreater(len(out), 1)
         self.assertTrue(all(len(line) < MAX_PENDING_CHARS * 2 for line in out))
+
+
+class TestTimeout(ut.TestCase):
+
+    def assert_killed_in_time(self, proc, start, timeout):
+        elapsed = time.monotonic() - start
+        self.assertLess(elapsed, timeout + 3)
+        self.assertIsNotNone(proc.returncode)
+        self.assertNotEqual(proc.returncode, 0)
+
+    def test_silent_hang_is_killed(self):
+        proc = make_proc(
+            "import time\n" "print('started', flush=True)\n" "time.sleep(60)\n"
+        )
+        start = time.monotonic()
+        with self.assertRaises(sp.TimeoutExpired) as cm:
+            stream_process_output(
+                proc, timeout=0.5, print_stdout=False, print_stderr=False
+            )
+        self.assert_killed_in_time(proc, start, 0.5)
+        self.assertEqual(cm.exception.timeout, 0.5)
+        self.assertEqual(cm.exception.output, "started")
+
+    def test_continuously_printing_process_is_killed(self):
+        """Constant output keeps select() returning events, the deadline
+        must still be enforced."""
+        proc = make_proc(
+            "import sys, time\n"
+            "while True:\n"
+            "    print('tick', flush=True)\n"
+            "    print('tock', file=sys.stderr, flush=True)\n"
+            "    time.sleep(0.01)\n"
+        )
+        start = time.monotonic()
+        with self.assertRaises(sp.TimeoutExpired) as cm:
+            stream_process_output(
+                proc, timeout=0.5, print_stdout=False, print_stderr=False
+            )
+        self.assert_killed_in_time(proc, start, 0.5)
+        self.assertTrue(cm.exception.output.startswith("tick"))
+        self.assertTrue(cm.exception.stderr.startswith("tock"))
+
+    def test_partial_line_is_included_on_timeout(self):
+        proc = make_proc(
+            "import sys, time\n"
+            "sys.stdout.write('no newline')\n"
+            "sys.stdout.flush()\n"
+            "time.sleep(60)\n"
+        )
+        with self.assertRaises(sp.TimeoutExpired) as cm:
+            stream_process_output(
+                proc, timeout=0.5, print_stdout=False, print_stderr=False
+            )
+        self.assertEqual(cm.exception.output, "no newline")
+
+    def test_process_closing_pipes_but_still_running_is_killed(self):
+        proc = make_proc(
+            "import os, sys, time\n"
+            "print('bye', flush=True)\n"
+            "os.close(sys.stdout.fileno())\n"
+            "os.close(sys.stderr.fileno())\n"
+            "time.sleep(60)\n"
+        )
+        start = time.monotonic()
+        with self.assertRaises(sp.TimeoutExpired) as cm:
+            stream_process_output(
+                proc, timeout=0.5, print_stdout=False, print_stderr=False
+            )
+        self.assert_killed_in_time(proc, start, 0.5)
+        self.assertEqual(cm.exception.output, "bye")
+
+    def test_finishing_within_timeout_returns_normally(self):
+        proc = make_proc("print('done')\n")
+        rc, out, err = stream_process_output(
+            proc, timeout=10, print_stdout=False, print_stderr=False
+        )
+        self.assertEqual((rc, out, err), (0, ["done"], []))
+
+    def test_zero_timeout_kills_immediately(self):
+        proc = make_proc("import time\ntime.sleep(60)\n")
+        start = time.monotonic()
+        with self.assertRaises(sp.TimeoutExpired):
+            stream_process_output(
+                proc, timeout=0, print_stdout=False, print_stderr=False
+            )
+        self.assert_killed_in_time(proc, start, 0)
+
+    def test_selector_is_closed_on_timeout(self):
+        created = []
+        real_selector_cls = selectors.DefaultSelector
+
+        def make_selector():
+            created.append(real_selector_cls())
+            return created[-1]
+
+        proc = make_proc("import time\ntime.sleep(60)\n")
+        with mock.patch(
+            "checkbox_support.helpers.stream_subprocess.selectors"
+            ".DefaultSelector",
+            side_effect=make_selector,
+        ):
+            with self.assertRaises(sp.TimeoutExpired):
+                stream_process_output(
+                    proc, timeout=0.2, print_stdout=False, print_stderr=False
+                )
+        # a closed selector has no map
+        self.assertIsNone(created[0].get_map())
+
+
+if __name__ == "__main__":
+    ut.main()

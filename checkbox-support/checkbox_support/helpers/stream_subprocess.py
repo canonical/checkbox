@@ -116,19 +116,27 @@ def stream_process_output(
         pending[fd] = io.StringIO(newline="")
 
     def feed(fd: int, text: str):
+        """
+        Split decoded text from fd into lines and emit the complete ones.
+        """
+        # the last element is always the part after the final \n,
+        # which is "" when text ends with \n
         *complete, rest = text.split("\n")
         if complete:
+            # first elem finishes the tail from last time
             pending[fd].write(complete[0])
-            flush_pending(fd)
+            flush_pending(fd) # flush and clean up pending[fd]
+            # now flush the remaining complete lines
             for line in complete[1:]:
                 emit_lines(fd, line)
         if rest:
+            # the final element may be a partial line, track it as the new tail
             pending[fd].write(rest)
             # tell() is the number of chars buffered since the last flush
             if pending[fd].tell() >= MAX_PENDING_CHARS:
                 # cap very long lines
                 # or output with no newline like snapd \r spinners
-                # emit what we have so memory stays bounded
+                # force emit
                 flush_pending(fd, line_end=False)
 
     def time_remaining() -> "float | None":
@@ -163,7 +171,8 @@ def stream_process_output(
 
     def drain_without_blocking():
         # collect everything remaining from the dead child process
-        for fd in open_fds:
+        # iterate over a copy since read_once() removes fds at EOF
+        for fd in list(open_fds):  # noqa: PERF101
             drained = 0
             while drained < MAX_DRAIN_BYTES:
                 n = read_once(fd)

@@ -88,8 +88,6 @@ def ptp4l(
     :return: the ptp4l process object
     """
 
-    # only the grandmaster needs to bypass the host's apparmor profile,
-    # clients rely on PATH so ptp4l and phc2sys come from the same linuxptp
     ptp4l_binary = get_linuxptp_binary("ptp4l")
 
     if cfg:

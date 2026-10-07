@@ -1,0 +1,112 @@
+name: Dispatch Checkbox snap jobs in the lab
+
+permissions:
+  contents: read
+
+on:
+  workflow_dispatch:
+    inputs:
+      # matrix to create is an array where each item is a job configuration
+      # to be dispatched in the lab.
+      # A job configuration is a dict with
+      # - data_source: distribution to provision (ex. distro: desktop-22-04-2-uefi)
+      # - queue: machine that will run the job (ex. 202012-28526)
+      # - test_plan: Checkbox test plan to run (ex. com.canonical.certification::sru)
+      # - match: subset of jobs to run (ex. .*wireless.*)
+      #
+      # Example of a json formatted matrix to create:
+      #  1 job:
+      #  [{"data_source": "{distro: desktop-22-04-2-uefi}", "queue": "202506-36885", "match": ".*wireless.*", "test_plan": "com.canonical.certification::sru"}]
+      # matrix_to_create=[{ data_source: "{distro: desktop-22-04-2-uefi}", queue: "202012-28526", match: ".*wireless.*", test_plan: "com.canonical.certification::sru" }]'
+      #  2 jobs:
+      # [
+      #     {
+      #         "data_source": "{distro: desktop-22-04-2-uefi}",
+      #         "queue": "202506-36885",
+      #         "match": ".*wireless.*",
+      #         "test_plan": "com.canonical.certification::sru"
+      #     },
+      #     {
+      #         "data_source": "{distro: desktop-22-04-2-uefi}",
+      #         "queue": "202506-36886",
+      #         "match": ".*wireless.*",
+      #         "test_plan": "com.canonical.certification::sru"
+      #     }
+      # ]
+      #
+      # To run this workflow manually you can use the `gh` cli utility as follows:
+      # gh workflow run dispatch_lab_job_with_snaps.yaml -f 'matrix_to_create=[...]'
+      #
+      # You can run it from a branch or commit using the `--ref` option:
+      # gh workflow run dispatch_lab_job_with_snaps.yaml --ref <branch_or_commit> -f 'matrix_to_create=[...]'
+      checkbox_channel:
+        description: Checkbox snap channel to patch and install
+        required: true
+        type: string
+        default: edge
+      matrix_to_create:
+        description: 'JSON jobs: data_source, queue, checkbox_series, architecture, test_plan, match'
+        required: true
+        type: string
+
+jobs:
+  run-matrix:
+    runs-on: self-hosted-linux-amd64-jammy-private-endpoint-medium
+    strategy:
+      fail-fast: false
+      matrix:
+        spec: ${{ fromJson(inputs.matrix_to_create) }}
+    defaults:
+      run:
+        working-directory: tools/lab_dispatch
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          persist-credentials: false
+
+      - name: Get current commit SHA
+        id: get_sha
+        run: echo "sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
+
+      - name: Run the spec with a patched snap
+        id: dispatch
+        uses: ./.github/actions/checkbox_source_snap
+        env:
+          TESTFLINGER_CLIENT_ID: ${{ secrets.TESTFLINGER_CLIENT_ID }}
+          TESTFLINGER_SECRET_KEY: ${{ secrets.TESTFLINGER_SECRET_KEY }}
+        with:
+          data_source: ${{ matrix.spec.data_source }}
+          queue: ${{ matrix.spec.queue }}
+          test_plan: ${{ matrix.spec.test_plan }}
+          match: ${{ matrix.spec.match }}
+          launcher_override: |
+            [environment]
+            WPA_BG_PSK = ${{ secrets.INPUT_PASSWORD_SECRET }}
+            WPA_N_PSK = ${{ secrets.INPUT_PASSWORD_SECRET }}
+            WPA_AC_PSK = ${{ secrets.INPUT_PASSWORD_SECRET }}
+            WPA_AX_PSK = ${{ secrets.INPUT_PASSWORD_SECRET }}
+            WPA3_AX_PSK = ${{ secrets.INPUT_PASSWORD_SECRET }}
+          checkbox_revision: ${{ steps.get_sha.outputs.sha }}
+          checkbox_channel: ${{ inputs.checkbox_channel }}
+          checkbox_series: ${{ matrix.spec.checkbox_series }}
+          architecture: ${{ matrix.spec.architecture }}
+
+      - name: Retrieve Checkbox submission
+        if: always() && steps.dispatch.outputs.job_id != ''
+        id: submission
+        env:
+          JOB_ID: ${{ steps.dispatch.outputs.job_id }}
+          TESTFLINGER_CLIENT_ID: ${{ secrets.TESTFLINGER_CLIENT_ID }}
+          TESTFLINGER_SECRET_KEY: ${{ secrets.TESTFLINGER_SECRET_KEY }}
+        run: |
+          testflinger artifacts "$JOB_ID" --filename artifacts.tgz
+          tar -xOzf artifacts.tgz artifacts/submission.json > submission.json
+
+      - name: Upload Checkbox submission
+        if: always() && steps.submission.outcome == 'success'
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
+        with:
+          name: checkbox-snap-submission-${{ strategy.job-index }}
+          path: tools/lab_dispatch/submission.json
+          if-no-files-found: error

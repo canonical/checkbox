@@ -1,3 +1,4 @@
+import os
 import unittest
 from unittest import mock
 
@@ -115,6 +116,39 @@ class TestBaseCodecProject(unittest.TestCase):
         ):
             self.assertTrue(issubclass(project_class, BaseCodecProject))
             self.assertTrue(issubclass(project_class, PipelineInterface))
+
+    @mock.patch("codec_genio.file_name_placeholder", return_value="sample.mp4")
+    def test_genio_rgb_encoders_use_matching_rgb_samples(
+        self, mock_placeholder
+    ):
+        for color_space, codec_short_name in (
+            ("ARGB", "png_rgba"),
+            ("RGB", "png_rgb24"),
+        ):
+            with self.subTest(color_space=color_space):
+                project = codec_genio.GenioProject(
+                    platform="genio-1200",
+                    codec="v4l2h264enc",
+                    color_space=color_space,
+                    width=1920,
+                    height=1080,
+                    framerate=30,
+                    mux="mp4mux",
+                )
+
+                self.assertEqual(
+                    project.psnr_reference_file,
+                    os.path.join(
+                        codec_genio.VIDEO_CODEC_TESTING_DATA, "sample.mp4"
+                    ),
+                )
+                mock_placeholder.assert_called_with(
+                    width=1920,
+                    height=1080,
+                    framerate=30,
+                    codec_short_name=codec_short_name,
+                    ext="mp4",
+                )
 
     def test_build_pipeline_rejects_unknown_encoder(self):
         project = BaseCodecProject(

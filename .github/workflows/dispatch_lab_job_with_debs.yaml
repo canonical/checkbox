@@ -1,4 +1,4 @@
-name: Dispatch Checkbox jobs in the lab
+name: Dispatch Checkbox debs jobs in the lab
 permissions:
   contents: read
 on:
@@ -33,10 +33,10 @@ on:
       # ]
       #
       # To run this workflow manually you can use the `gh` cli utility as follows:
-      # gh workflow run dispatch_lab_job.yaml -f 'matrix_to_create=[...]'
+      # gh workflow run dispatch_lab_job_with_debs.yaml -f 'matrix_to_create=[...]'
       #
       # You can run it from a branch or commit using the `--ref` option:
-      # gh workflow run dispatch_lab_job.yaml  --ref <branch_or_commit> -f 'matrix_to_create=[...]'
+      # gh workflow run dispatch_lab_job_with_debs.yaml --ref <branch_or_commit> -f 'matrix_to_create=[...]'
       matrix_to_create:
         description: 'Json formatted description of the jobs to dispatch'
         required: true
@@ -61,10 +61,14 @@ jobs:
 
       - name: Get current commit SHA
         id: get_sha
-        run: echo "sha=$(git rev-parse HEAD)" >> $GITHUB_OUTPUT
+        run: echo "sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
 
       - name: Run the spec
-        uses: canonical/checkbox/.github/actions/checkbox_source_deb@279a6575655f5e94dbc25ed3efca1ddc164cc5b8
+        id: dispatch
+        uses: ./.github/actions/checkbox_source_deb
+        env:
+          TESTFLINGER_CLIENT_ID: ${{ secrets.TESTFLINGER_CLIENT_ID }}
+          TESTFLINGER_SECRET_KEY: ${{ secrets.TESTFLINGER_SECRET_KEY }}
         with:
           data_source: ${{ matrix.spec.data_source }}
           queue: ${{ matrix.spec.queue }}
@@ -78,3 +82,22 @@ jobs:
             WPA_AX_PSK = ${{ secrets.INPUT_PASSWORD_SECRET }}
             WPA3_AX_PSK = ${{ secrets.INPUT_PASSWORD_SECRET }}
           checkbox_revision: ${{ steps.get_sha.outputs.sha }}
+
+      - name: Retrieve Checkbox submission
+        if: always() && steps.dispatch.outputs.job_id != ''
+        id: submission
+        env:
+          JOB_ID: ${{ steps.dispatch.outputs.job_id }}
+          TESTFLINGER_CLIENT_ID: ${{ secrets.TESTFLINGER_CLIENT_ID }}
+          TESTFLINGER_SECRET_KEY: ${{ secrets.TESTFLINGER_SECRET_KEY }}
+        run: |
+          testflinger artifacts "$JOB_ID" --filename artifacts.tgz
+          tar -xOzf artifacts.tgz artifacts/submission.json > submission.json
+
+      - name: Upload Checkbox submission
+        if: always() && steps.submission.outcome == 'success'
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
+        with:
+          name: checkbox-deb-submission-${{ strategy.job-index }}
+          path: tools/lab_dispatch/submission.json
+          if-no-files-found: error

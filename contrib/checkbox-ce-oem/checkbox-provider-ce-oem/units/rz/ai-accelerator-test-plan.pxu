@@ -1,0 +1,13 @@
+id: ce-oem-rz-ai-accelerator-automated
+unit: test plan
+_name: Renesas RZ AI accelerator tests
+_description: Automated tests for Renesas RZ DRP-AI / DRP-AI3
+include:
+    rz-ai-accelerator/driver-nodes-drp-ai
+    rz-ai-accelerator/driver-nodes-drp-ai3
+    rz-ai-accelerator/inference
+    rz-ai-accelerator/drp-ai3-object-counter
+    after-suspend-rz-ai-accelerator/driver-nodes-drp-ai
+    after-suspend-rz-ai-accelerator/driver-nodes-drp-ai3
+    after-suspend-rz-ai-accelerator/inference
+    after-suspend-rz-ai-accelerator/drp-ai3-object-counter

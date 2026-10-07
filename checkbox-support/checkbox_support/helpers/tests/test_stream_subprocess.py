@@ -47,13 +47,13 @@ class TestRunningInSeparateThread(ut.TestCase):
         t.start()
         t.join(timeout=10)
 
-        assert (
-            not t.is_alive()
-        ), "stream_process_output hung/deadlocked in a thread"
-        assert result["out"] == [f"out-{i}" for i in range(50)]
-        assert result["err"] == [f"err-{i}" for i in range(50)]
-        assert result["rc"] == 0
-        assert proc.returncode == 0
+        self.assertFalse(
+            t.is_alive(), "stream_process_output hung/deadlocked in a thread"
+        )
+        self.assertEqual(result["out"], [f"out-{i}" for i in range(50)])
+        self.assertEqual(result["err"], [f"err-{i}" for i in range(50)])
+        self.assertEqual(result["rc"], 0)
+        self.assertEqual(proc.returncode, 0)
 
     def test_multiple_concurrent_threads_each_draining_own_subprocess(self):
         """Several threads each streaming a different subprocess concurrently
@@ -82,10 +82,10 @@ class TestRunningInSeparateThread(ut.TestCase):
         for t in threads:
             t.join(timeout=10)
 
-        assert not errors
-        assert all(not t.is_alive() for t in threads)
+        self.assertFalse(errors)
+        self.assertFalse(any(t.is_alive() for t in threads))
         for i in range(n_threads):
-            assert results[i] == (0, [f"hello-{i}"])
+            self.assertEqual(results[i], (0, [f"hello-{i}"]))
 
     def test_caller_thread_not_blocked_forever_by_slow_subprocess(self):
         """A subprocess that trickles output slowly should still be drained
@@ -103,9 +103,9 @@ class TestRunningInSeparateThread(ut.TestCase):
         )
         elapsed = time.monotonic() - start
 
-        assert out == ["0", "1", "2"]
+        self.assertEqual(out, ["0", "1", "2"])
         # should roughly track the ~0.6s of sleeping, not hang indefinitely
-        assert elapsed < 5
+        self.assertLess(elapsed, 5)
 
 
 class TestHystericalSubprocesses(ut.TestCase):
@@ -126,11 +126,11 @@ class TestHystericalSubprocesses(ut.TestCase):
             proc, print_stdout=False, print_stderr=False
         )
 
-        assert len(out) == 1
+        self.assertEqual(len(out), 1)
         # rstrip() only removes trailing whitespace, so internal \r's
         # from earlier writes remain embedded in the final flushed line.
-        assert out[0].endswith("progress 19/20")
-        assert "\r" in out[0]
+        self.assertTrue(out[0].endswith("progress 19/20"))
+        self.assertIn("\r", out[0])
 
     def test_crlf_line_endings_are_stripped_cleanly(self):
         """\\r\\n endings should collapse to clean lines because .rstrip()
@@ -141,7 +141,7 @@ class TestHystericalSubprocesses(ut.TestCase):
         _, out, _ = stream_process_output(
             proc, print_stdout=False, print_stderr=False
         )
-        assert out == ["line1", "line2"]
+        self.assertEqual(out, ["line1", "line2"])
 
     def test_leading_whitespace_is_preserved(self):
         """Indentation must survive so tracebacks and column-aligned output
@@ -155,8 +155,8 @@ class TestHystericalSubprocesses(ut.TestCase):
         _, out, err = stream_process_output(
             proc, print_stdout=False, print_stderr=False
         )
-        assert out == ["    four spaces", "\ttab"]
-        assert err == ["  two spaces"]
+        self.assertEqual(out, ["    four spaces", "\ttab"])
+        self.assertEqual(err, ["  two spaces"])
 
     def test_massive_stderr_flood_does_not_deadlock_or_lose_stdout(self):
         """A subprocess that dumps megabytes to stderr rapidly while stdout is
@@ -180,12 +180,12 @@ class TestHystericalSubprocesses(ut.TestCase):
         )
         elapsed = time.monotonic() - start
 
-        assert elapsed < 30, "likely deadlocked on a filled pipe"
-        assert out == ["stdout-line", "stdout-line-2"]
-        assert len(err) == 5  # maxlen truncation kept only the trailing lines
-        assert all(line == "E" * 100 for line in err)
-        assert rc == 0
-        assert proc.returncode == 0
+        self.assertLess(elapsed, 30, "likely deadlocked on a filled pipe")
+        self.assertEqual(out, ["stdout-line", "stdout-line-2"])
+        # maxlen truncation kept only the trailing lines
+        self.assertEqual(err, ["E" * 100] * 5)
+        self.assertEqual(rc, 0)
+        self.assertEqual(proc.returncode, 0)
 
     def test_rapid_interleaved_stdout_and_stderr(self):
         """High-frequency interleaved writes on both streams should all be
@@ -203,8 +203,8 @@ class TestHystericalSubprocesses(ut.TestCase):
             print_stdout=False,
             print_stderr=False,
         )
-        assert out == [f"o{i}" for i in range(5000)]
-        assert err == [f"e{i}" for i in range(5000)]
+        self.assertEqual(out, [f"o{i}" for i in range(5000)])
+        self.assertEqual(err, [f"e{i}" for i in range(5000)])
 
     def test_invalid_utf8_bytes_are_replaced_not_fatal(self):
         """Garbage / non-UTF8 bytes on the wire must not raise; decode uses
@@ -226,8 +226,9 @@ class TestHystericalSubprocesses(ut.TestCase):
         _, out, _ = stream_process_output(
             proc, print_stdout=False, print_stderr=False
         )
-        assert len(out) == 1
-        assert "good" in out[0] and "line" in out[0]
+        self.assertEqual(len(out), 1)
+        self.assertIn("good", out[0])
+        self.assertIn("line", out[0])
 
     def test_process_dies_abruptly_mid_stream_still_returns(self):
         """A subprocess that gets killed/crashes partway through (pipes close
@@ -243,9 +244,9 @@ class TestHystericalSubprocesses(ut.TestCase):
         rc, out, _ = stream_process_output(
             proc, print_stdout=False, print_stderr=False
         )
-        assert out == ["before-crash", "partial-no-newline"]
-        assert rc == 1
-        assert proc.returncode == 1
+        self.assertEqual(out, ["before-crash", "partial-no-newline"])
+        self.assertEqual(rc, 1)
+        self.assertEqual(proc.returncode, 1)
 
     def test_maxlen_zero_and_small_bound_under_flood(self):
         """stdout_maxlen/stderr_maxlen bound memory even under a flood; verify
@@ -254,7 +255,7 @@ class TestHystericalSubprocesses(ut.TestCase):
         _, out, _ = stream_process_output(
             proc, stdout_maxlen=1, print_stdout=False, print_stderr=False
         )
-        assert out == ["9999"]
+        self.assertEqual(out, ["9999"])
 
 
 class TestEncodingAndBuffering(ut.TestCase):

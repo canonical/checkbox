@@ -90,7 +90,7 @@ def ptp4l(
 
     # only the grandmaster needs to bypass the host's apparmor profile,
     # clients rely on PATH so ptp4l and phc2sys come from the same linuxptp
-    ptp4l_binary = get_linuxptp_binary("ptp4l") if server_mode else "ptp4l"
+    ptp4l_binary = get_linuxptp_binary("ptp4l")
 
     if cfg:
         print(
@@ -186,7 +186,7 @@ def phc2sys(
     command = [
         "timeout",
         str(timeout),
-        "phc2sys",
+        get_linuxptp_binary("phc2sys"),
         "-s",  # the interface to sync
         interface,
         # -O 0 sets the offset between system clock and hardware clock to 0

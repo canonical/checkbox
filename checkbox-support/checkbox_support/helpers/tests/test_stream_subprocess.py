@@ -114,7 +114,7 @@ class TestHystericalSubprocesses(ut.TestCase):
         """Progress-bar style output that only uses \\r (never \\n) is never
         split into multiple lines by this function (it only splits on b'\\n'),
         so it should arrive as one single trailing line, with the embedded \\r
-        characters intact except for the final .strip() trim."""
+        characters intact except for the final .rstrip() trim."""
         proc = make_proc(
             "import sys, time\n"
             "for i in range(20):\n"
@@ -127,14 +127,14 @@ class TestHystericalSubprocesses(ut.TestCase):
         )
 
         assert len(out) == 1
-        # strip() only removes leading/trailing whitespace, so internal \r's
+        # rstrip() only removes trailing whitespace, so internal \r's
         # from earlier writes remain embedded in the final flushed line.
         assert out[0].endswith("progress 19/20")
         assert "\r" in out[0]
 
     def test_crlf_line_endings_are_stripped_cleanly(self):
-        """\\r\\n endings should collapse to clean lines because .strip() trims
-        the trailing \\r left over after splitting on \\n."""
+        """\\r\\n endings should collapse to clean lines because .rstrip()
+        trims the trailing \\r left over after splitting on \\n."""
         proc = make_proc(
             "import sys\n" "sys.stdout.write('line1\\r\\nline2\\r\\n')\n"
         )
@@ -142,6 +142,21 @@ class TestHystericalSubprocesses(ut.TestCase):
             proc, print_stdout=False, print_stderr=False
         )
         assert out == ["line1", "line2"]
+
+    def test_leading_whitespace_is_preserved(self):
+        """Indentation must survive so tracebacks and column-aligned output
+        are shown and returned faithfully."""
+        proc = make_proc(
+            "import sys\n"
+            "print('    four spaces')\n"
+            "print('\\ttab')\n"
+            "print('  two spaces', file=sys.stderr)\n"
+        )
+        _, out, err = stream_process_output(
+            proc, print_stdout=False, print_stderr=False
+        )
+        assert out == ["    four spaces", "\ttab"]
+        assert err == ["  two spaces"]
 
     def test_massive_stderr_flood_does_not_deadlock_or_lose_stdout(self):
         """A subprocess that dumps megabytes to stderr rapidly while stdout is

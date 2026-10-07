@@ -6,7 +6,7 @@ import subprocess as sp
 import sys
 import time
 from collections import deque
-from typing import Never
+from typing import NoReturn
 
 # max characters buffered for a single line before we forcefully emit it
 MAX_PENDING_CHARS = 65536
@@ -96,16 +96,18 @@ def stream_process_output(
         stderr_fd: deque(maxlen=stderr_maxlen),
     }
 
-    def emit_lines(fd: int, line: str):
-        clean_line = line.rstrip()  # preserve leading whitespace
+    def emit_lines(fd: int, line: str, line_end: bool = True):
+        # preserve leading whitespace, and don't trim forced chunks of a long
+        # line since their trailing whitespace is part of the content
+        clean_line = line.rstrip() if line_end else line
         if fd == stdout_fd and print_stdout:
             print(clean_line, flush=True)
         if fd == stderr_fd and print_stderr:
             print(clean_line, flush=True, file=sys.stderr)
         lines[fd].append(clean_line)
 
-    def flush_pending(fd: int):
-        emit_lines(fd, pending[fd].getvalue())
+    def flush_pending(fd: int, line_end: bool = True):
+        emit_lines(fd, pending[fd].getvalue(), line_end)
         # let the garbage collector clean up for us
         pending[fd] = io.StringIO(newline="")
 
@@ -123,7 +125,7 @@ def stream_process_output(
                 # cap very long lines
                 # or output with no newline like snapd \r spinners
                 # emit what we have so memory stays bounded
-                flush_pending(fd)
+                flush_pending(fd, line_end=False)
 
     deadline = None if timeout is None else time.monotonic() + timeout
 
@@ -138,7 +140,7 @@ def stream_process_output(
             if pending[fd].tell():
                 flush_pending(fd)
 
-    def kill_and_raise() -> "Never":
+    def kill_and_raise() -> NoReturn:
         assert timeout is not None
         flush_all_pending()
         process.kill()

@@ -16,7 +16,7 @@ def make_proc(code: str) -> "sp.Popen[str]":
         [sys.executable, "-c", code],
         stdout=sp.PIPE,
         stderr=sp.PIPE,
-        text=True,
+        universal_newlines=True,
     )
 
 
@@ -206,7 +206,7 @@ class TestHystericalSubprocesses(ut.TestCase):
             ],
             stdout=sp.PIPE,
             stderr=sp.PIPE,
-            text=True,
+            universal_newlines=True,
         )
         _, out, _ = stream_process_output(
             proc, print_stdout=False, print_stderr=False

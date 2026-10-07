@@ -125,7 +125,7 @@ def stream_process_output(
         if complete:
             # first elem finishes the tail from last time
             pending[fd].write(complete[0])
-            flush_pending(fd) # flush and clean up pending[fd]
+            flush_pending(fd)  # flush and clean up pending[fd]
             # now flush the remaining complete lines
             for line in complete[1:]:
                 emit_lines(fd, line)

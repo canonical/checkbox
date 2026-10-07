@@ -10,6 +10,9 @@ from typing import NoReturn
 
 # max characters buffered for a single line before we forcefully emit it
 MAX_PENDING_CHARS = 65536
+# max bytes read from each pipe after a timeout kill
+# can be found in /proc/sys/fs/pipe-max-size
+MAX_DRAIN_BYTES = 1 << 20
 
 
 def stream_process_output(
@@ -95,6 +98,7 @@ def stream_process_output(
         stdout_fd: deque(maxlen=stdout_maxlen),
         stderr_fd: deque(maxlen=stderr_maxlen),
     }
+    deadline = None if timeout is None else time.monotonic() + timeout
 
     def emit_lines(fd: int, line: str, line_end: bool = True):
         # preserve leading whitespace, and don't trim forced chunks of a long
@@ -127,8 +131,6 @@ def stream_process_output(
                 # emit what we have so memory stays bounded
                 flush_pending(fd, line_end=False)
 
-    deadline = None if timeout is None else time.monotonic() + timeout
-
     def time_remaining() -> "float | None":
         if deadline is None:
             return None
@@ -140,11 +142,43 @@ def stream_process_output(
             if pending[fd].tell():
                 flush_pending(fd)
 
+    def read_once(fd: int) -> int:
+        # read just 1 chunk from fd
+        # return 0 if EOF or nothing to read
+        try:
+            chunk = os.read(fd, 65536)
+        except BlockingIOError:
+            # selector said readable, but nothing left right now
+            return 0
+
+        if not chunk:
+            # EOF on this pipe, the process closed it
+            sel.unregister(fd)
+            open_fds.discard(fd)
+            feed(fd, decoders[fd].decode(b"", final=True))
+            return 0
+
+        feed(fd, decoders[fd].decode(chunk))
+        return len(chunk)
+
+    def drain_without_blocking():
+        # collect everything remaining from the dead child process
+        for fd in open_fds:
+            drained = 0
+            while drained < MAX_DRAIN_BYTES:
+                n = read_once(fd)
+                if n == 0:
+                    break
+                drained += n
+        for fd in open_fds:
+            feed(fd, decoders[fd].decode(b"", final=True))
+
     def kill_and_raise() -> NoReturn:
         assert timeout is not None
-        flush_all_pending()
         process.kill()
         process.wait()
+        drain_without_blocking()
+        flush_all_pending()
         raise sp.TimeoutExpired(
             process.args,
             timeout,
@@ -160,21 +194,7 @@ def stream_process_output(
                 kill_and_raise()
 
             for key, _ in sel.select(timeout=time_remaining()):
-                fd = key.fd
-                try:
-                    chunk = os.read(fd, 65536)
-                except BlockingIOError:
-                    # selector said readable, but nothing left right now
-                    continue
-
-                if not chunk:
-                    # EOF on this pipe, the process closed it
-                    sel.unregister(fd)
-                    open_fds.discard(fd)
-                    feed(fd, decoders[fd].decode(b"", final=True))
-                    continue
-
-                feed(fd, decoders[fd].decode(chunk))
+                read_once(key.fd)
     finally:
         sel.close()
         # like communicate(), we now own the pipes

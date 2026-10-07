@@ -1,3 +1,4 @@
+import select
 import selectors
 import subprocess as sp
 import sys
@@ -583,6 +584,86 @@ class TestTimeout(ut.TestCase):
             )
         self.assertTrue(proc.stdout.closed)
         self.assertTrue(proc.stderr.closed)
+
+    def wait_until_buffered(self, proc):
+        """Block until the child has written to both pipes, without reading."""
+        streams = {proc.stdout, proc.stderr}
+        ready = set()
+        deadline = time.monotonic() + 5
+        while ready != streams and time.monotonic() < deadline:
+            r, _, _ = select.select(list(streams - ready), [], [], 0.1)
+            ready.update(r)
+        self.assertEqual(ready, streams, "child never wrote")
+        # the child writes each stream in one go, give it time to finish
+        time.sleep(0.2)
+
+    def test_output_buffered_in_pipes_is_drained_on_timeout(self):
+        """Output the child already wrote must not be lost just because the
+        deadline passed before we got around to reading it."""
+        proc = make_proc(
+            "import sys, time\n"
+            "sys.stdout.write(''.join(f'out-{i}\\n' for i in range(500)))\n"
+            "sys.stdout.write('partial')\n"
+            "sys.stdout.flush()\n"
+            "sys.stderr.write('last words before hang\\n')\n"
+            "sys.stderr.flush()\n"
+            "time.sleep(60)\n"
+        )
+        self.wait_until_buffered(proc)
+        with self.assertRaises(sp.TimeoutExpired) as cm:
+            stream_process_output(
+                proc,
+                stdout_maxlen=None,
+                timeout=0,
+                print_stdout=False,
+                print_stderr=False,
+            )
+        self.assertEqual(
+            cm.exception.output.split("\n"),
+            [f"out-{i}" for i in range(500)] + ["partial"],
+        )
+        self.assertEqual(cm.exception.stderr, "last words before hang")
+
+    def test_incomplete_multibyte_char_is_flushed_on_timeout(self):
+        """A grandchild keeps the pipe open, so EOF never comes; the decoder
+        must still be flushed instead of silently holding the bytes."""
+        proc = make_proc(
+            "import subprocess, sys, time\n"
+            "subprocess.Popen([sys.executable, '-c',"
+            " 'import time; time.sleep(5)'])\n"
+            "sys.stdout.buffer.write('ok '.encode() + 'é'.encode()[:1])\n"
+            "sys.stdout.flush()\n"
+            "sys.stderr.write('x')\n"
+            "sys.stderr.flush()\n"
+            "time.sleep(60)\n"
+        )
+        self.wait_until_buffered(proc)
+        with self.assertRaises(sp.TimeoutExpired) as cm:
+            stream_process_output(
+                proc, timeout=0, print_stdout=False, print_stderr=False
+            )
+        self.assertEqual(cm.exception.output, "ok \ufffd")
+
+    def test_drain_is_bounded_when_grandchild_floods_the_pipe(self):
+        """A grandchild that keeps writing must not keep us draining forever
+        after the timeout."""
+        proc = make_proc(
+            "import subprocess, sys\n"
+            "subprocess.Popen([sys.executable, '-c',"
+            " 'import sys\\nwhile True: sys.stdout.write(\"x\" * 65536)'])\n"
+            "import time; time.sleep(60)\n"
+        )
+        start = time.monotonic()
+        with self.assertRaises(sp.TimeoutExpired) as cm:
+            stream_process_output(
+                proc,
+                stdout_maxlen=None,
+                timeout=0.5,
+                print_stdout=False,
+                print_stderr=False,
+            )
+        self.assertLess(time.monotonic() - start, 10)
+        self.assertGreater(len(cm.exception.output), 0)
 
 
 class TestResourceCleanup(ut.TestCase):

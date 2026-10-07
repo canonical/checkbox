@@ -1,0 +1,104 @@
+id: iiotg-server
+unit: test plan
+name: IIOTG server tests
+description: Combined manual and automated IIOTG project-specific tests for Ubuntu Server images.
+include: []
+nested_part:
+  - iiotg-server-manual
+  - iiotg-server-automated
+certification_status_overrides:
+  - apply blocker to .*
+---
+id: iiotg-server-manual
+unit: test plan
+name: IIOTG server manual tests
+description: Manual IIOTG project-specific tests for Ubuntu Server images.
+include: []
+nested_part:
+  - iiotg-tsn-manual
+  - iiotg-tgpio-manual
+  - iiotg-thermal-manual
+certification_status_overrides:
+  - apply blocker to .*
+---
+id: iiotg-server-automated
+unit: test plan
+name: IIOTG server automated tests
+description: Automated IIOTG project-specific tests for Ubuntu Server images.
+include: []
+nested_part:
+  - iiotg-tsn-automated
+  - iiotg-tgpio-automated
+  - iiotg-thermal-automated
+certification_status_overrides:
+  - apply blocker to .*
+---
+id: iiotg-desktop
+unit: test plan
+name: IIOTG desktop tests
+description: Combined manual and automated IIOTG project-specific tests for Ubuntu Desktop images.
+include: []
+nested_part:
+  - iiotg-desktop-manual
+  - iiotg-desktop-automated
+certification_status_overrides:
+  - apply blocker to .*
+---
+id: iiotg-desktop-manual
+unit: test plan
+name: IIOTG desktop manual tests
+description: Manual IIOTG project-specific tests for Ubuntu Desktop images.
+include: []
+nested_part:
+  - iiotg-tsn-manual
+  - iiotg-tgpio-manual
+  - iiotg-thermal-manual
+certification_status_overrides:
+  - apply blocker to .*
+---
+id: iiotg-desktop-automated
+unit: test plan
+name: IIOTG desktop automated tests
+description: Automated IIOTG project-specific tests for Ubuntu Desktop images.
+include: []
+nested_part:
+  - iiotg-tsn-automated
+  - iiotg-tgpio-automated
+  - iiotg-thermal-automated
+certification_status_overrides:
+  - apply blocker to .*
+---
+id: iiotg-core
+unit: test plan
+name: IIOTG core tests
+description: Combined manual and automated IIOTG project-specific tests for Ubuntu Core images.
+include: []
+nested_part:
+  - iiotg-core-manual
+  - iiotg-core-automated
+certification_status_overrides:
+  - apply blocker to .*
+---
+id: iiotg-core-manual
+unit: test plan
+name: IIOTG core manual tests
+description: Manual IIOTG project-specific tests for Ubuntu Core images.
+include: []
+nested_part:
+  - iiotg-tsn-manual
+  - iiotg-tgpio-manual
+  - iiotg-thermal-manual
+certification_status_overrides:
+  - apply blocker to .*
+---
+id: iiotg-core-automated
+unit: test plan
+name: IIOTG core automated tests
+description: Automated IIOTG project-specific tests for Ubuntu Core images.
+include: []
+nested_part:
+  - iiotg-tsn-automated
+  - iiotg-tgpio-automated
+  - iiotg-thermal-automated
+certification_status_overrides:
+  - apply blocker to .*

@@ -85,7 +85,7 @@ def stream_process_output(
     }
 
     def emit(fd: int, line: str):
-        clean_line = line.strip()
+        clean_line = line.rstrip()  # preserve leading whitespace
         if fd == stdout_fd and print_stdout:
             print(clean_line, flush=True)
         if fd == stderr_fd and print_stderr:

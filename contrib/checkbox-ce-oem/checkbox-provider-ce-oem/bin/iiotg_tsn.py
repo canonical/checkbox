@@ -100,8 +100,6 @@ def ptp4l(
         ptp4l_command = [
             # caller is responsible for making sure config file is valid
             # i.e. options are recognized by ptp4l
-            "timeout",
-            str(timeout),
             ptp4l_binary,
             "-i",
             interface,
@@ -114,8 +112,6 @@ def ptp4l(
         # convenience path, you don't have to have a config file to run tests
         # this should work on most intel platforms even without rt kernel
         ptp4l_command = [
-            "timeout",
-            str(timeout),
             ptp4l_binary,
             "-i",
             interface,
@@ -156,6 +152,13 @@ def ptp4l(
             ptp4l_command.append("-s")
             # force 'master offset' output to appear in stdout
             ptp4l_command.append("--summary_interval=-4")
+
+    if timeout > 0:
+        # never wrap with "timeout 0"
+        # because uutils' timeout
+        # ignores SIGTERM when timeout=0 and would leave ptp4l running
+        # this is different from the gnu version of timeout
+        ptp4l_command = ["timeout", str(timeout)] + ptp4l_command
 
     print("Launching ptp4l process:", " ".join(ptp4l_command))
     # caller decides how to consume stdout and stderr
@@ -276,6 +279,8 @@ def server_mode(
         # Terminate all running ptp4l processes
         for process in processes:
             process.terminate()
+        for process in processes:
+            process.wait()
         print("Terminated all ptp4l and iperf3 process")
 
 

@@ -1,0 +1,4 @@
+unit: manifest entry
+id: has_cpu_idle_states
+_name: Does the platform support CPU idle states (cpuidle)?
+value-type: bool

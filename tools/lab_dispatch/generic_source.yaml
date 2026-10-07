@@ -76,9 +76,19 @@ test_data:
     check_for_checkbox_service
 
     # run the canary test plan
+    set +e
     PYTHONUNBUFFERED=1 checkbox-cli control $DEVICE_IP checkbox.conf
     EXITCODE=$?
+    set -e
 
-    # placeholder for gathering possible artifacts
+    collect_artifacts --include checkbox.conf
+    SUBMISSION=$(find "${XDG_DATA_HOME:-$HOME/.local/share}/checkbox-ng" \
+        -maxdepth 1 -type f -name 'submission_*.json' \
+        -newer checkbox.conf -print -quit)
+    if [ -z "$SUBMISSION" ]; then
+        echo "Checkbox did not produce a submission JSON report" >&2
+        exit 1
+    fi
+    cp "$SUBMISSION" artifacts/submission.json
 
     exit $EXITCODE

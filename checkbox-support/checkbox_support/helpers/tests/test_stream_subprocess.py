@@ -259,6 +259,155 @@ class TestHystericalSubprocesses(ut.TestCase):
         )
         self.assertEqual(out, ["9999"])
 
+    def test_both_streams_flood_without_newlines(self):
+        """Both pipes spewing megabytes with no newline at the same time must
+        not deadlock, and every character must arrive in bounded chunks."""
+        total = MAX_PENDING_CHARS * 20
+        proc = make_proc(
+            "import sys, threading\n"
+            "t = threading.Thread(\n"
+            f"    target=sys.stderr.write, args=('e' * {total},)\n"
+            ")\n"
+            "t.start()\n"
+            f"sys.stdout.write('o' * {total})\n"
+            "t.join()\n"
+        )
+        rc, out, err = stream_process_output(
+            proc,
+            stdout_maxlen=None,
+            stderr_maxlen=None,
+            print_stdout=False,
+            print_stderr=False,
+            timeout=30,
+        )
+        self.assertEqual(rc, 0)
+        self.assertEqual("".join(out), "o" * total)
+        self.assertEqual("".join(err), "e" * total)
+        self.assertTrue(all(len(c) < MAX_PENDING_CHARS * 2 for c in out))
+        self.assertTrue(all(len(c) < MAX_PENDING_CHARS * 2 for c in err))
+
+    def test_single_huge_write_with_many_lines(self):
+        """One multi-megabyte write() must be split into exactly its lines."""
+        n = 200000
+        proc = make_proc(
+            "import sys\n"
+            f"sys.stdout.write(''.join(f'{{i}}\\n' for i in range({n})))\n"
+        )
+        _, out, _ = stream_process_output(
+            proc, stdout_maxlen=None, print_stdout=False, print_stderr=False
+        )
+        self.assertEqual(out, [str(i) for i in range(n)])
+
+    def test_only_newlines(self):
+        """A flood of empty lines is kept as empty strings, not dropped."""
+        proc = make_proc("import sys\nsys.stdout.write('\\n' * 10000)\n")
+        _, out, _ = stream_process_output(
+            proc, stdout_maxlen=None, print_stdout=False, print_stderr=False
+        )
+        self.assertEqual(out, [""] * 10000)
+
+    def test_no_output_at_all(self):
+        proc = make_proc("import sys\nsys.exit(3)\n")
+        self.assertEqual(
+            stream_process_output(
+                proc, print_stdout=False, print_stderr=False
+            ),
+            (3, [], []),
+        )
+
+    def test_long_line_then_normal_line(self):
+        """A line longer than the cap is chunked, but the line after it must
+        still be emitted on its own."""
+        proc = make_proc(
+            f"print('x' * {MAX_PENDING_CHARS * 3})\n" "print('after')\n"
+        )
+        _, out, _ = stream_process_output(
+            proc, stdout_maxlen=None, print_stdout=False, print_stderr=False
+        )
+        self.assertEqual(out[-1], "after")
+        self.assertEqual("".join(out[:-1]), "x" * MAX_PENDING_CHARS * 3)
+
+    def test_whitespace_at_chunk_boundaries_is_kept(self):
+        """Forced chunks of a long line are not line ends, so whitespace that
+        lands on a chunk boundary must not be trimmed."""
+        # not a multiple of the cap, so a real final line remains at EOF
+        n = MAX_PENDING_CHARS * 2 + 1
+        proc = make_proc(f"import sys\nsys.stdout.write('a ' * {n})\n")
+        _, out, _ = stream_process_output(
+            proc, stdout_maxlen=None, print_stdout=False, print_stderr=False
+        )
+        self.assertGreater(len(out), 1)
+        # only the real end of the line gets its trailing space trimmed
+        self.assertEqual("".join(out), ("a " * n).rstrip())
+
+    def test_multibyte_flood_without_newlines(self):
+        """Forced chunking and os.read boundaries must never split a
+        multibyte character into replacement characters."""
+        total = MAX_PENDING_CHARS * 5
+        proc = make_proc(
+            "import sys\n" f"sys.stdout.write('é€😀' * {total // 3})\n"
+        )
+        _, out, _ = stream_process_output(
+            proc, stdout_maxlen=None, print_stdout=False, print_stderr=False
+        )
+        joined = "".join(out)
+        self.assertNotIn("\ufffd", joined)
+        self.assertEqual(joined, "é€😀" * (total // 3))
+
+    def test_control_characters_are_passed_through(self):
+        """NUL bytes, ANSI colour codes and other control characters are not
+        line terminators and must reach the caller untouched."""
+        line = "\x1b[31mred\x1b[0m\x00nul\x07bell\x08back"
+        proc = make_proc(f"print({line!r})\n")
+        _, out, _ = stream_process_output(
+            proc, print_stdout=False, print_stderr=False
+        )
+        self.assertEqual(out, [line])
+
+    def test_mixed_line_endings(self):
+        proc = make_proc(
+            "import sys\n" "sys.stdout.write('a\\nb\\r\\nc\\rd\\n\\re\\n')\n"
+        )
+        _, out, _ = stream_process_output(
+            proc, stdout_maxlen=None, print_stdout=False, print_stderr=False
+        )
+        # only \n splits; a leading \r stays, a trailing \r is trimmed
+        self.assertEqual(out, ["a", "b", "c\rd", "\re"])
+
+    def test_stdout_closed_early_while_stderr_keeps_going(self):
+        """One pipe reaching EOF must not stop the other being drained."""
+        proc = make_proc(
+            "import os, sys, time\n"
+            "print('last out', flush=True)\n"
+            "os.close(sys.stdout.fileno())\n"
+            "for i in range(5):\n"
+            "    time.sleep(0.05)\n"
+            "    print(f'err-{i}', file=sys.stderr, flush=True)\n"
+        )
+        rc, out, err = stream_process_output(
+            proc, print_stdout=False, print_stderr=False, timeout=10
+        )
+        self.assertEqual(rc, 0)
+        self.assertEqual(out, ["last out"])
+        self.assertEqual(err, [f"err-{i}" for i in range(5)])
+
+    def test_grandchild_holding_pipes_is_bounded_by_timeout(self):
+        """The direct child exits but a background grandchild inherits the
+        pipes, so EOF never comes. timeout must still return control."""
+        proc = make_proc(
+            "import subprocess, sys\n"
+            "subprocess.Popen([sys.executable, '-c',"
+            " 'import time; time.sleep(5)'])\n"
+            "print('parent done', flush=True)\n"
+        )
+        start = time.monotonic()
+        with self.assertRaises(sp.TimeoutExpired) as cm:
+            stream_process_output(
+                proc, timeout=1, print_stdout=False, print_stderr=False
+            )
+        self.assertLess(time.monotonic() - start, 4)
+        self.assertEqual(cm.exception.output, "parent done")
+
 
 class TestEncodingAndBuffering(ut.TestCase):
 

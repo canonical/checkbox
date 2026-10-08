@@ -1,12 +1,13 @@
-import shutil
-from shlex import split as sh_split
-import sys
-from unittest.mock import MagicMock, call, mock_open, patch, DEFAULT
-import reboot_check_test as RCT
-import unittest
 import os
-import typing as T
+import shutil
 import subprocess as sp
+import sys
+import typing as T
+import unittest
+from shlex import split as sh_split
+from unittest.mock import DEFAULT, MagicMock, call, patch
+
+import reboot_check_test as RCT
 
 
 def do_nothing(args: T.List[str], **kwargs):
@@ -20,30 +21,37 @@ class DisplayConnectionTests(unittest.TestCase):
 
     def setUp(self) -> None:
         self.tester = RCT.HardwareRendererTester()
-        RCT.RUNTIME_ROOT = ""
-        RCT.SNAP = ""
+        RCT.CHECKBOX_RUNTIME = None
+        RCT.SNAP = None
 
     def test_display_check_happy_path(self):
         with patch(
-            "os.listdir", return_value=["fakeCard0", "fakeCard1"]
-        ), patch(
-            "builtins.open",
-            new_callable=mock_open,
-            read_data="connected",
-        ):
+            "pathlib.Path.iterdir",
+            return_value=[RCT.Path("fakeCard0"), RCT.Path("fakeCard1")],
+        ), patch("pathlib.Path.read_text", return_value="connected"):
             self.assertTrue(self.tester.has_display_connection())
 
     def test_display_check_no_display_path(self):
-        with patch("os.listdir", return_value=["version"]):
+        with patch("pathlib.Path.iterdir", return_value=[RCT.Path("version")]):
             self.assertFalse(self.tester.has_display_connection())
         with patch(
-            "os.listdir", return_value=["fakeCard0", "fakeCard1"]
-        ), patch(
-            "builtins.open",
-            new_callable=mock_open,
-            read_data="not connected",
-        ):
+            "pathlib.Path.iterdir",
+            return_value=[RCT.Path("fakeCard0"), RCT.Path("fakeCard1")],
+        ), patch("pathlib.Path.read_text", return_value="not connected"):
             self.assertFalse(self.tester.has_display_connection())
+
+    def test_display_check_unexpected_error(self):
+        error = PermissionError("nope")
+        with patch(
+            "pathlib.Path.iterdir",
+            return_value=[RCT.Path("fakeCard0")],
+        ), patch("pathlib.Path.read_text", side_effect=error), patch(
+            "builtins.print"
+        ) as mock_print:
+            self.assertFalse(self.tester.has_display_connection())
+            mock_print.assert_any_call(
+                "Unexpected error: ", error, file=sys.stderr
+            )
 
     @patch("subprocess.run")
     def test_get_desktop_env_vars_no_desktop_session(
@@ -303,6 +311,17 @@ class DisplayConnectionTests(unittest.TestCase):
             mock_run.call_args_list[-1][0][0][0], "glmark2-wayland"
         )
 
+    def test_pick_glmark2_executable_non_x86(self):
+        tester = RCT.HardwareRendererTester()
+        # non-x86 arches fall back to the es2 variant
+        self.assertEqual(
+            tester.pick_glmark2_executable("x11", "aarch64"), "glmark2-es2"
+        )
+        self.assertEqual(
+            tester.pick_glmark2_executable("wayland", "aarch64"),
+            "glmark2-es2-wayland",
+        )
+
     @patch(
         "reboot_check_test." + "HardwareRendererTester.pick_glmark2_executable"
     )
@@ -310,28 +329,26 @@ class DisplayConnectionTests(unittest.TestCase):
         "reboot_check_test."
         + "HardwareRendererTester.get_desktop_environment_variables"
     )
-    @patch("os.path.exists")
-    @patch("os.path.islink")
-    @patch("os.unlink")
+    @patch("pathlib.Path.exists")
+    @patch("pathlib.Path.is_symlink")
+    @patch("pathlib.Path.unlink")
     @patch("os.symlink")
     @patch("subprocess.run")
-    @patch("os.getenv")
     def test_cleanup_glmark2_data_symlink(
         self,
-        mock_getenv: MagicMock,
         mock_run: MagicMock,
         mock_symlink: MagicMock,
         mock_unlink: MagicMock,
-        mock_islink: MagicMock,
+        mock_is_symlink: MagicMock,
         mock_path_exists: MagicMock,
         mock_get_desktop_envs: MagicMock,
         mock_pick_glmark2_executable: MagicMock,
     ):
-        def custom_env(key: str, is_snap: bool) -> str:
+        def custom_env(key: str, is_snap: bool) -> "RCT.Path | None":
             if key == "CHECKBOX_RUNTIME":
-                return "/snap/runtime/path/" if is_snap else ""
+                return RCT.Path("/snap/runtime/path/") if is_snap else None
             if key == "SNAP":
-                return "/snap/checkbox/path/" if is_snap else ""
+                return RCT.Path("/snap/checkbox/path/") if is_snap else None
 
             raise Exception("unexpected use of this mock")
 
@@ -345,10 +362,9 @@ class DisplayConnectionTests(unittest.TestCase):
             if glmark2_should_timeout:
                 mock_run.side_effect = sp.TimeoutExpired("glmark2", 120)
             for is_snap in (True, False):
-                mock_getenv.side_effect = lambda k: custom_env(k, is_snap)
-                RCT.RUNTIME_ROOT = custom_env("CHECKBOX_RUNTIME", is_snap)
+                RCT.CHECKBOX_RUNTIME = custom_env("CHECKBOX_RUNTIME", is_snap)
                 RCT.SNAP = custom_env("SNAP", is_snap)
-                mock_islink.return_value = is_snap
+                mock_is_symlink.return_value = is_snap
                 # deb case, the file actually exists
                 mock_path_exists.return_value = not is_snap
                 # reapply the env variables
@@ -357,11 +373,11 @@ class DisplayConnectionTests(unittest.TestCase):
 
                 if is_snap:
                     mock_symlink.assert_called_once_with(
-                        f"{RCT.RUNTIME_ROOT}/usr/share/glmark2",
-                        "/usr/share/glmark2",
+                        RCT.CHECKBOX_RUNTIME / "usr/share/glmark2",
+                        RCT.Path("/usr/share/glmark2"),
                         target_is_directory=True,
                     )
-                    mock_unlink.assert_called_once_with("/usr/share/glmark2")
+                    mock_unlink.assert_called_once_with()
                 else:
                     mock_symlink.assert_not_called()
                     mock_unlink.assert_not_called()
@@ -417,8 +433,8 @@ class DisplayConnectionTests(unittest.TestCase):
 class InfoDumpTests(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        cls.temp_output_dir = f"{os.getcwd()}/temp_output_dir"
-        cls.temp_comparison_dir = f"{os.getcwd()}/temp_comparison_dir"
+        cls.temp_output_dir = RCT.Path(os.getcwd()) / "temp_output_dir"
+        cls.temp_comparison_dir = RCT.Path(os.getcwd()) / "temp_comparison_dir"
 
     def tearDown(self):
         shutil.rmtree(self.temp_output_dir, ignore_errors=True)
@@ -471,13 +487,7 @@ class InfoDumpTests(unittest.TestCase):
         )
 
         # required
-        with open(
-            "{}/{}_log".format(
-                self.temp_comparison_dir,
-                RCT.DeviceInfoCollector.Device.WIRELESS,
-            ),
-            "w",
-        ) as f:
+        with (self.temp_comparison_dir / "wireless_log").open("w") as f:
             f.write("extra text that shouldn't be there")
 
         self.assertFalse(
@@ -489,13 +499,7 @@ class InfoDumpTests(unittest.TestCase):
         collector.dump(self.temp_comparison_dir)
 
         # optional
-        with open(
-            "{}/{}_log".format(
-                self.temp_comparison_dir,
-                RCT.DeviceInfoCollector.Device.DRM,
-            ),
-            "w",
-        ) as f:
+        with (self.temp_comparison_dir / "drm_log").open("w") as f:
             f.write("extra text that shouldn't be there")
 
         self.assertTrue(
@@ -503,6 +507,32 @@ class InfoDumpTests(unittest.TestCase):
                 self.temp_comparison_dir, self.temp_output_dir
             )
         )
+
+
+class DeviceInfoCollectorTests(unittest.TestCase):
+    @patch("subprocess.check_output")
+    def test_get_usb_info_does_not_pass_usb_ids_path(
+        self, mock_check_output: MagicMock
+    ):
+        mock_check_output.return_value = "usb1\nusb2\nusb3\n"
+
+        RCT.DeviceInfoCollector().get_usb_info()
+
+        mock_check_output.assert_called_once_with(
+            ["checkbox-support-lsusb", "-s"],
+            universal_newlines=True,
+            timeout=RCT.COMMAND_TIMEOUT_SECONDS,
+        )
+
+
+class FwtsTesterTests(unittest.TestCase):
+    @patch("shutil.which")
+    def test_is_fwts_supported(self, mock_which: MagicMock):
+        mock_which.return_value = "/usr/bin/fwts"
+        self.assertTrue(RCT.FwtsTester().is_fwts_supported())
+
+        mock_which.return_value = None
+        self.assertFalse(RCT.FwtsTester().is_fwts_supported())
 
 
 class FailedServiceCheckerTests(unittest.TestCase):
@@ -552,7 +582,7 @@ class MainFunctionTests(unittest.TestCase):
             RCT.main()
             self.assertEqual(
                 mock_run.call_count,
-                len(RCT.DeviceInfoCollector.DEFAULT_DEVICES["required"]),
+                len(RCT.DeviceInfoCollector().DEFAULT_DEVICES["required"]),
             )
 
         mock_run.reset_mock()
@@ -575,7 +605,7 @@ class MainFunctionTests(unittest.TestCase):
 
             self.assertEqual(
                 mock_run.call_count,
-                len(RCT.DeviceInfoCollector.DEFAULT_DEVICES["required"]),
+                len(RCT.DeviceInfoCollector().DEFAULT_DEVICES["required"]),
             )  # only lspci, lsusb, iw calls
             self.assertEqual(mock_compare.call_count, 1)
             self.assertEqual(rv, 1)
@@ -653,6 +683,31 @@ class MainFunctionTests(unittest.TestCase):
             ValueError
         ):
             RCT.main()
+
+    def test_fwts_check_without_output_dir_raises(self):
+        with patch("sys.argv", sh_split("reboot_check_test.py -f")), patch(
+            "reboot_check_test.poll_systemctl_is_system_running"
+        ):
+            self.assertRaises(SystemExit, RCT.main)
+
+    @patch("reboot_check_test.FwtsTester.fwts_log_check_passed")
+    @patch("reboot_check_test.FwtsTester.is_fwts_supported")
+    @patch("subprocess.run")
+    def test_fwts_check_fails(
+        self,
+        mock_run: MagicMock,
+        mock_is_fwts_supported: MagicMock,
+        mock_fwts_log_check_passed: MagicMock,
+    ):
+        mock_run.side_effect = do_nothing
+        mock_is_fwts_supported.return_value = True
+        mock_fwts_log_check_passed.return_value = False
+
+        with patch(
+            "sys.argv",
+            sh_split(f'reboot_check_test.py -d "{self.tmp_output_dir}" -f'),
+        ), patch("reboot_check_test.poll_systemctl_is_system_running"):
+            self.assertEqual(RCT.main(), 1)
 
     def test_continue_tests_even_with_boot_timeout(self):
         with patch(

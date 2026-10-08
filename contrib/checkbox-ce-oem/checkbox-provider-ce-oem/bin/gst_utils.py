@@ -5,6 +5,7 @@ import shlex
 import subprocess
 import uuid
 import contextlib
+import glob
 
 from abc import ABC, abstractmethod
 from enum import Enum
@@ -17,6 +18,11 @@ GST_CODEC_EXECUTION_TIMEOUT = int(
 )
 GST_LAUNCH_BIN = os.getenv("GST_LAUNCH_BIN", "gst-launch-1.0")
 GST_DISCOVERER = os.getenv("GST_DISCOVERER", "gst-discoverer-1.0")
+V4L2_CTL_BIN = os.getenv("V4L2_CTL_BIN", "v4l2-ctl")
+# Default encoder bitrate used as a last resort when the target V4L2
+# device/control cannot be discovered or queried (e.g. missing v4l2-ctl,
+# non-V4L2 encoder backend).
+DEFAULT_ENCODER_BITRATE = 15_000_000
 PLAINBOX_SESSION_SHARE = os.getenv("PLAINBOX_SESSION_SHARE", "/var/tmp")
 VIDEO_CODEC_TESTING_DATA = os.getenv("VIDEO_CODEC_TESTING_DATA")
 if not VIDEO_CODEC_TESTING_DATA:
@@ -167,6 +173,154 @@ def execute_command(
         return ret.stdout
     except Exception as e:
         raise SystemExit(e)
+
+
+def _find_v4l2_encoder_device(codec_fourcc: str) -> Optional[str]:
+    """
+    Find the /dev/videoN node whose Capture queue advertises the given
+    compressed codec fourcc (e.g. 'H264', 'VP80', 'HEVC'). V4L2 M2M
+    encoders enumerate their supported output codec(s) on the Capture
+    queue side, so this identifies which device node actually backs a
+    given GStreamer v4l2*enc element without hardcoding a device path
+    (different platforms/boards can expose the encoder on a different
+    /dev/videoN).
+
+    :param codec_fourcc:
+        The V4L2 fourcc name of the compressed codec, e.g. 'H264', 'VP80'.
+
+    :returns:
+        The device path (e.g. '/dev/video0') if found, otherwise None.
+    """
+    try:
+        video_nodes = sorted(glob.glob("/dev/video*"))
+    except Exception:
+        return None
+
+    for node in video_nodes:
+        try:
+            ret = subprocess.run(
+                [V4L2_CTL_BIN, "-d", node, "--list-formats"],
+                capture_output=True,
+                universal_newlines=True,
+                timeout=10,
+            )
+        except Exception:
+            continue
+        if ret.returncode != 0:
+            continue
+        if re.search(r"'{}'".format(re.escape(codec_fourcc)), ret.stdout):
+            return node
+    return None
+
+
+def _get_v4l2_control_range(device: str, control_name: str) -> Optional[tuple]:
+    """
+    Query the (min, max) range of an integer V4L2 control on a device.
+
+    :param device:
+        The V4L2 device path, e.g. '/dev/video0'.
+    :param control_name:
+        The control name as reported by v4l2-ctl, e.g. 'video_bitrate'.
+
+    :returns:
+        A (min, max) tuple of ints if the control is found, otherwise
+        None.
+    """
+    try:
+        ret = subprocess.run(
+            [V4L2_CTL_BIN, "-d", device, "--list-ctrls-menus"],
+            capture_output=True,
+            universal_newlines=True,
+            timeout=10,
+        )
+    except Exception:
+        return None
+    if ret.returncode != 0:
+        return None
+
+    pattern = re.compile(
+        (
+            r"{}\s+0x[0-9a-fA-F]+\s+\(int\)\s*:\s*"
+            r"min=(-?\d+)\s+max=(-?\d+)"
+        ).format(re.escape(control_name))
+    )
+    match = pattern.search(ret.stdout)
+    if not match:
+        return None
+    return int(match.group(1)), int(match.group(2))
+
+
+def calculate_encoder_bitrate(
+    width: int,
+    height: int,
+    framerate: int,
+    codec_fourcc: str,
+    bits_per_pixel: float = 0.1,
+) -> int:
+    """
+    Calculate a video bitrate scaled to the actual resolution/framerate
+    under test, then clamp it to the target V4L2 encoder device's own
+    supported 'video_bitrate' control range so the value is always valid
+    on the platform actually running the test (different VPUs/boards can
+    have different min/max bitrate limits).
+
+    A flat/hardcoded bitrate is avoided on purpose: it would either be
+    unrealistically high for small resolutions/framerates, or exceed/miss
+    the valid range on a VPU with different limits than the one this was
+    tuned on.
+
+    :param width:
+        Video width in pixels.
+    :param height:
+        Video height in pixels.
+    :param framerate:
+        Video framerate in fps.
+    :param codec_fourcc:
+        The V4L2 fourcc name of the target codec, e.g. 'H264', 'VP80'.
+    :param bits_per_pixel:
+        Target bits-per-pixel-per-frame used to scale the bitrate
+        estimate (0.1 is a common "high quality" guideline for
+        H.264/VP8).
+
+    :returns:
+        The calculated bitrate in bits/sec, clamped to the encoder
+        device's supported range when that range can be determined.
+    """
+    target_bitrate = int(width * height * framerate * bits_per_pixel)
+
+    device = _find_v4l2_encoder_device(codec_fourcc)
+    if not device:
+        logging.warning(
+            "Could not find a V4L2 device advertising codec '%s'. "
+            "Using unclamped calculated bitrate: %s",
+            codec_fourcc,
+            target_bitrate,
+        )
+        return target_bitrate
+
+    bitrate_range = _get_v4l2_control_range(device, "video_bitrate")
+    if not bitrate_range:
+        logging.warning(
+            "Could not query 'video_bitrate' control range on %s. "
+            "Using unclamped calculated bitrate: %s",
+            device,
+            target_bitrate,
+        )
+        return target_bitrate
+
+    min_bitrate, max_bitrate = bitrate_range
+    clamped_bitrate = max(min_bitrate, min(target_bitrate, max_bitrate))
+    if clamped_bitrate != target_bitrate:
+        logging.info(
+            "Calculated bitrate %s clamped to %s to fit %s's supported "
+            "range [%s, %s]",
+            target_bitrate,
+            clamped_bitrate,
+            device,
+            min_bitrate,
+            max_bitrate,
+        )
+    return clamped_bitrate
 
 
 class PipelineInterface(ABC):

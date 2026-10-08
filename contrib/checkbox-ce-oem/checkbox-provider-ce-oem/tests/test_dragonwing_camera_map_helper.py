@@ -106,8 +106,7 @@ class TestReportFormatting(unittest.TestCase):
                 "cci": "0",
                 "name": "-",
                 "node": (
-                    "/sys/firmware/devicetree/base/soc@0/"
-                    "qcom,cam-sensor21"
+                    "/sys/firmware/devicetree/base/soc@0/qcom,cam-sensor21"
                 ),
             }
         ]

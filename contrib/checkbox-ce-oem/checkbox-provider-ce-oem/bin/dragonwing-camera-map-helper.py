@@ -13,7 +13,6 @@ import tempfile
 import textwrap
 import time
 
-
 CAM_SERVER_LOG_LINES = 20000
 DT_ROOT = "/sys/firmware/devicetree/base"
 
@@ -194,9 +193,7 @@ def read_device_tree(root=DT_ROOT):
         phy = _read_first_u32(
             directory, ("csiphy-sd-index", "qcom,csiphy-sd-index")
         )
-        cci = _read_first_u32(
-            directory, ("cci-master", "qcom,cci-master")
-        )
+        cci = _read_first_u32(directory, ("cci-master", "qcom,cci-master"))
         name = _read_first_string(
             directory, ("sensor-name", "qcom,sensor-name")
         )
@@ -546,9 +543,7 @@ def main(argv=None):
 
     print("\nNotes")
     print("-----")
-    print(
-        "* QMMF camera ID comes from CamX frameworkId/cameraId enumeration."
-    )
+    print("* QMMF camera ID comes from CamX frameworkId/cameraId enumeration")
     print(
         "* Sensor slot comes from the kernel probe and Device Tree cell-index."
     )

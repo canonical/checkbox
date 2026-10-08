@@ -5,7 +5,6 @@ import os
 import tempfile
 import unittest
 
-
 SCRIPT_PATH = os.path.join(
     os.path.dirname(__file__),
     "..",

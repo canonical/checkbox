@@ -73,11 +73,12 @@ requirements:
     category: audio
     ubuntu_versions: ["all"]
     description: >
-      If the system has a line-in or microphone socket, have an audio cable
-      available to connect line-out to line-in for audio testing.
+      If the system has a line-in or microphone socket, connect the output
+      (line-out) to the input (line-in or microphone socket) using an audio
+      cable for automated audio testing.
     required: true
     manifest:
-      - has_audio_loopback_connector
+      - com.canonical.certification::has_audio_loopback_connector
     related_jobs:
       - audio/alsa-loopback-automated
 
@@ -120,7 +121,7 @@ requirements:
     category: usb
     ubuntu_versions: ["all"]
     description: >
-      If the system has USB 3 Type-C ports, insert at least one writable USB 3
+      If the system has USB 3 Type-C ports, prepare a writable USB 3
       compatible storage device with a Type-C connector and a single
       FAT-formatted partition of at least 256 MB. Multiple partitions may
       cause problems; if necessary, repartition the device to have a single
@@ -167,7 +168,7 @@ requirements:
     category: thunderbolt
     ubuntu_versions: ["all"]
     description: >
-      If the system has at least one Thunderbolt port, attach a storage
+      If the system has at least one Thunderbolt port, prepare a storage
       device containing a single FAT-formatted partition of at least 256 MB.
       Multiple partitions may cause problems; if necessary, repartition the
       device to have a single partition.
@@ -208,7 +209,7 @@ requirements:
     category: ethernet
     ubuntu_versions: ["all"]
     description: >
-      If the system has Ethernet ports, connect all of them to a local area
+      Connect all of the Ethernet ports to a local area
       network with a DHCP server providing address and gateway assignment.
     required: true
     manifest:
@@ -367,7 +368,7 @@ requirements:
     description: >
       If the system has a Bluetooth radio, place a Bluetooth Low Energy
       beacon supporting the Eddystone profile within range of the system.
-      The beacon must broadcast a valid URL.
+      The beacon must broadcast a valid URL (for instance ``https://www.ubuntu.com/``).
     required: true
     manifest:
       - has_bt_adapter

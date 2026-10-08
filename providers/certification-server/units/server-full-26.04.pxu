@@ -59,6 +59,8 @@ include:
     miscellanea/submission-resources        certification-status=non-blocker
     networking/predictable_names            certification-status=blocker
     networking/ntp                          certification-status=non-blocker
+    networking/sriov_lxd_test_.*            certification-status=non-blocker
+    networking/sriov_lxdvm_test_.*          certification-status=non-blocker
     power-management/rtc                    certification-status=blocker
     memory/info                             certification-status=blocker
     stress/memory_stress_ng                 certification-status=blocker

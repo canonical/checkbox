@@ -30,6 +30,22 @@ class ElementExistsTests(unittest.TestCase):
         self.assertFalse(gsvt.element_exists("waylandsink"))
 
 
+class FirstAvailableTests(unittest.TestCase):
+    @patch("gst_sample_video_test.element_exists", return_value=True)
+    def test_returns_first_candidate(self, mock_exists):
+        self.assertEqual(gsvt.first_available(["a", "b"]), "a")
+
+    @patch("gst_sample_video_test.element_exists")
+    def test_falls_back_to_next_candidate(self, mock_exists):
+        mock_exists.side_effect = lambda name: name == "b"
+        self.assertEqual(gsvt.first_available(["a", "b"]), "b")
+
+    @patch("gst_sample_video_test.element_exists", return_value=False)
+    def test_none_available(self, mock_exists):
+        with self.assertRaises(SystemExit):
+            gsvt.first_available(["a", "b"])
+
+
 class PickSinkTests(unittest.TestCase):
     @patch.dict("os.environ", {"XDG_SESSION_TYPE": "wayland"})
     @patch("gst_sample_video_test.element_exists", return_value=True)
@@ -70,11 +86,17 @@ class PickSinkTests(unittest.TestCase):
             gsvt.pick_sink()
 
 
+@patch("gst_sample_video_test.element_exists", return_value=True)
 @patch("gst_sample_video_test.pick_sink", return_value="xvimagesink")
 @patch("sys.stdout")
 class MainTests(unittest.TestCase):
-    @patch("subprocess.call", side_effect=subprocess.TimeoutExpired("x", 2))
-    def test_timeout_is_pass(self, mock_call, mock_stdout, mock_pick):
+    @patch(
+        "subprocess.check_call",
+        side_effect=subprocess.TimeoutExpired("x", 2),
+    )
+    def test_timeout_is_pass(
+        self, mock_call, mock_stdout, mock_pick, mock_exists
+    ):
         self.assertEqual(gsvt.main(["2"]), 0)
         mock_call.assert_called_once_with(
             [
@@ -89,6 +111,26 @@ class MainTests(unittest.TestCase):
             timeout=2,
         )
 
-    @patch("subprocess.call", return_value=1)
-    def test_pipeline_error_is_fail(self, mock_call, mock_stdout, mock_pick):
-        self.assertEqual(gsvt.main(["2"]), 1)
+    @patch(
+        "subprocess.check_call",
+        side_effect=subprocess.CalledProcessError(3, "x"),
+    )
+    def test_pipeline_error_is_fail(
+        self, mock_call, mock_stdout, mock_pick, mock_exists
+    ):
+        self.assertEqual(gsvt.main(["2"]), 3)
+
+    @patch("subprocess.check_call", return_value=0)
+    def test_pipeline_exits_by_itself(
+        self, mock_call, mock_stdout, mock_pick, mock_exists
+    ):
+        self.assertEqual(gsvt.main(["2"]), 0)
+
+    @patch("subprocess.check_call", return_value=0)
+    def test_falls_back_to_ffmpegcolorspace(
+        self, mock_call, mock_stdout, mock_pick, mock_exists
+    ):
+        mock_exists.side_effect = lambda name: name == "ffmpegcolorspace"
+        gsvt.main(["2"])
+        self.assertIn("ffmpegcolorspace", mock_call.call_args[0][0])
+        self.assertNotIn("videoconvert", mock_call.call_args[0][0])

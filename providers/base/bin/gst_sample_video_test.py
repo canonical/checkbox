@@ -6,6 +6,9 @@ import os
 import subprocess
 import sys
 
+# ffmpegcolorspace is the pre-videoconvert name of the converter
+# carried over from the old test
+CONVERTERS = ["videoconvert", "ffmpegcolorspace"]
 SINKS = {
     "wayland": ["waylandsink", "glimagesink"],
     "x11": ["xvimagesink", "glimagesink"],
@@ -16,12 +19,12 @@ def positive_int(value: str) -> int:
     number = int(value)
     if number <= 0:
         raise argparse.ArgumentTypeError(
-            "expected a positive integer, got {}".format(value)
+            f"expected a positive integer, got {value}"
         )
     return number
 
 
-def parse_args(argv=None) -> argparse.Namespace:
+def parse_args(argv: "list[str] | None" = None) -> argparse.Namespace:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument(
         "timeout",
@@ -42,35 +45,52 @@ def element_exists(name: str) -> bool:
     )
 
 
+def first_available(candidates: "list[str]") -> str:
+    for name in candidates:
+        if element_exists(name):
+            return name
+    raise SystemExit(f"None of {candidates} is available")
+
+
 def pick_sink() -> str:
     session_type = os.environ.get("XDG_SESSION_TYPE", "")
     if session_type not in SINKS:
         raise SystemExit(
             f"Not in a graphical session! XDG_SESSION_TYPE={session_type!r}"
         )
-    for sink in SINKS[session_type]:
-        if element_exists(sink):
-            return sink
-    raise SystemExit(
-        f"None of {SINKS[session_type]} is available for a {session_type} session"
-    )
+    return first_available(SINKS[session_type])
 
 
-def main(argv=None) -> int:
+def main(argv: "list[str] | None" = None) -> int:
     args = parse_args(argv)
-    pipeline = ["videotestsrc", "!", "videoconvert", "!", pick_sink()]
+    pipeline = [
+        "videotestsrc",
+        "!",
+        first_available(CONVERTERS),
+        "!",
+        pick_sink(),
+    ]
     print(
-        f"Running GStreamer pipeline for {args.timeout} seconds".center(80, "-")
+        f" Running GStreamer pipeline for {args.timeout} seconds ".center(
+            80, "-"
+        )
     )
     print("Pipeline:", " ".join(pipeline))
-    sys.stdout.flush()
+    print(flush=True)  # just to separate out logs from gst logs
     try:
-        return subprocess.call(
+        subprocess.check_call(
             ["gst-launch-1.0", "-v"] + pipeline, timeout=args.timeout
         )
     except subprocess.TimeoutExpired:
-        # the pipeline never ends by itself, reaching the timeout is a pass
+        # pipeline won't finish by itself
+        # reached timeout -> OK!
         return 0
+    except subprocess.CalledProcessError as e:
+        # this skips the CalledProcessError call trace
+        # because gstreamer already prints all the error lines
+        # more call trace is just noise
+        return e.returncode
+    return 0
 
 
 if __name__ == "__main__":

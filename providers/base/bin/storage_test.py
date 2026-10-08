@@ -37,7 +37,7 @@ class BlockDevice(NamedTuple):
     name: str  # nvme0n1p3, dm_crypt-0
     size: int
     type: str  # lvm, part, crypt
-    fstype: str | None  # ext4, vfat, crypto_LUKS
+    fstype: "str | None"  # ext4, vfat, crypto_LUKS
 
 
 # lsblk FSTYPE values that are not writable filesystems.

@@ -295,8 +295,10 @@ class DependencyDuplicateError(DependencyError):
 
 
 class Group:
-    def __init__(self, name, jobs=None, external_deps=None):
+    def __init__(self, name, jobs=None, external_deps=None, path=None):
         self.name = name
+        # Used to determine the level of nesting of this group
+        self.path = [name] if path is None else list(path)
         self.jobs = [] if jobs is None else list(jobs)
         self.external_deps = (
             [] if external_deps is None else set(external_deps)
@@ -429,28 +431,7 @@ class DependencySolver:
 
         # If there are any groups, solve for ordering considering them
         else:
-            # Replace the jobs in the pulled map with the group job
-            replaced_solution = self.replace_jobs_by_groups(pull_solution)
-
-            # Solve again for order dependencies
-            general_solution = self._solve_order_deps(
-                replaced_solution, group=None
-            )
-
-            # Solve internally for each group
-            group_solutions = {}
-            for group in self._groups.values():
-                # Get the jobs in the group from the map of pulled jobs
-                name = group.name
-
-                group_solutions[name] = self._solve_order_deps(
-                    group.jobs, group=name
-                )
-
-            # Replace the group jobs with the original jobs inside the group
-            final_solution = self.replace_groups_by_jobs(
-                general_solution, group_solutions
-            )
+            final_solution = self._solve_order_groups(pull_solution)
 
         # Perform a sanity check to ensure that no jobs have been added or
         # removed from the solution.
@@ -473,6 +454,42 @@ class DependencySolver:
             self._visit(job, pull=True)
 
         return self._pull_solution
+
+    def _solve_order_groups(self, jobs, parent=None):
+        """
+        Solve the ordering of the jobs inside the parent group recursively,
+        taking nested groups into account.
+
+        The groups one level below are replaced by a group job and ordered
+        together with the jobs directly in the parent. Then each of those
+        groups is solved recursively and expanded back into its jobs.
+        """
+        # Determine the current nesting level
+        parent = parent or []
+        level = len(parent)
+        if not any(len(self._get_job_path(job.id)) > level for job in jobs):
+            return self._solve_order_deps(jobs, group=parent)
+
+        # Replace the jobs in the subgroups with the group job
+        replaced_solution = self.replace_jobs_by_groups(jobs, level)
+
+        # Solve again for order dependencies
+        general_solution = self._solve_order_deps(
+            replaced_solution, group=parent
+        )
+
+        # Solve internally (and recursively) for each subgroup
+        group_solutions = {}
+        for job in replaced_solution:
+            if not job.id.startswith(GROUP_PREFIX):
+                continue
+            group = self._groups[removeprefix(job.id, GROUP_PREFIX)]
+            group_solutions[group.name] = self._solve_order_groups(
+                group.jobs, group.path
+            )
+
+        # Replace the group jobs with the original jobs inside the group
+        return self.replace_groups_by_jobs(general_solution, group_solutions)
 
     def _solve_order_deps(self, visit_list, group=None):
         self._clear_state_map()
@@ -590,22 +607,22 @@ class DependencySolver:
         self._pull_solution.append(job)
 
     def _order_visit(self, job, trail=None, group=None):
+        group = group or []
+        level = len(group)
         # We travel through dependencies recursively
         for dep_type, job_id in job.controller.get_dependency_set(
             job, self._pull_solution
         ):
-            # Check if we are ordering a group
-            if group is None:
-                # If the dependency is pointing to a job inside a group, we
-                # replace it with the group job.
-                if job_id in self._jobs_in_groups:
-                    group_name = self._jobs_in_groups[job_id]
-                    job_id = f"{GROUP_PREFIX}{group_name}"
-            else:
-                # If we are in a group, we only care about the dependencies
-                # inside the group
-                if self._jobs_in_groups.get(job_id) != group:
-                    continue
+            # If we are in a group, we only care about the dependencies
+            # inside the group
+            if not self._is_in_group(job_id, group):
+                continue
+            # If the dependency is pointing to a job inside a subgroup, we
+            # replace it with the subgroup job.
+            dep_path = self._get_job_path(job_id)
+            if len(dep_path) > level:
+                # Group job id of the subgroup, e.g. "_group_job_a/b"
+                job_id = GROUP_PREFIX + "/".join(dep_path[: level + 1])
 
             try:
                 # We look up the job only in the map of pulled jobs
@@ -634,22 +651,35 @@ class DependencySolver:
     def create_groups(self, solution):
         """
         Create the groups that are used in the list of pulled jobs.
+
+        A job is added to every group in its path, so a group contains all
+        the jobs inside it, including the ones in its subgroups.
         """
         self._groups = {}
         self._jobs_in_groups = {}
 
         for job in solution:
+            path = job.groups
             # If the job is not in a group, skip it
-            if not job.group:
+            if not path:
                 continue
             # Else, add it to the group dicts
-            if job.group not in self._groups:
-                self._groups[job.group] = Group(job.group)
-            self._groups[job.group].jobs.append(job)
-            self._jobs_in_groups[job.id] = job.group
+            self._jobs_in_groups[job.id] = path
+            for level in range(1, len(path) + 1):
+                # Groups are identified by their full path, e.g. "a/b"
+                name = "/".join(path[:level])
+                if name not in self._groups:
+                    self._groups[name] = Group(name, path=path[:level])
+                self._groups[name].jobs.append(job)
 
         for group in self._groups.values():
             group.external_deps = self.get_external_dependencies(group)
+
+    def _get_job_path(self, job_id):
+        return self._jobs_in_groups.get(job_id, [])
+
+    def _is_in_group(self, job_id, path):
+        return self._get_job_path(job_id)[: len(path)] == path
 
     def get_external_dependencies(self, group):
         """
@@ -660,28 +690,30 @@ class DependencySolver:
         external_deps = set()
         for job in group.jobs:
             # Get the dependencies for the job
-            job_id = job.id
             deps = job.controller.get_dependency_set(job, self._pulled_map)
             # Filter out the dependencies that are not external
             for dep_type, job_id in deps:
-                if self._jobs_in_groups.get(job_id) != group.name:
+                if not self._is_in_group(job_id, group.path):
                     external_deps.add(job_id)
         return external_deps
 
-    def replace_jobs_by_groups(self, solution):
+    def replace_jobs_by_groups(self, solution, level=0):
         """
-        Replace the jobs in the pulled map with the group jobs.
+        Replace the jobs in the solution that are inside a group of the given
+        level with the group jobs.
         """
         added_groups = set()
 
         def replace_iter():
             for job in solution:
-                group_name = self._jobs_in_groups.get(job.id)
+                path = self._get_job_path(job.id)
 
-                # Not in any group: continue
-                if group_name is None:
+                # Not in any group at this level: continue
+                if len(path) <= level:
                     yield job
                     continue
+
+                group_name = "/".join(path[: level + 1])
 
                 # Already in a group: skip
                 if group_name in added_groups:

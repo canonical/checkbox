@@ -25,8 +25,10 @@ Subcommands:
             environment variable (a comma-separated list of platform
             names, e.g. "x11,surfaceless") to mark platforms that should
             be skipped. Platform support is not auto-detected; every
-            platform in PLATFORMS is emitted unless explicitly ignored.
-  test      Validate a single EGL platform using 'eglinfo -B -p <platform>'.
+            platform in PLATFORMS is emitted unless explicitly ignored. If
+            eglinfo has no -p option, a single "all" record is emitted.
+  test      Validate a single EGL platform using 'eglinfo -B -p <platform>'
+            (plain 'eglinfo' for platform "all").
 
 The eglinfo executable is taken from CUSTOM_EGLINFO_COMMAND_PATH (default:
 'eglinfo'), e.g. the 'eglinfo' app of an OpenGL test snap.
@@ -35,6 +37,7 @@ The eglinfo executable is taken from CUSTOM_EGLINFO_COMMAND_PATH (default:
 import argparse
 import logging
 import os
+import re
 import shutil
 import subprocess
 import sys
@@ -69,10 +72,76 @@ def parse_ignored_set() -> "set[str]":
     }
 
 
+def get_mesa_utils_version() -> str:
+    """Return the installed mesa-utils deb version, or "unknown"."""
+    try:
+        output = subprocess.check_output(
+            ["dpkg-query", "-W", "-f=${Version}", "mesa-utils"],
+            stderr=subprocess.DEVNULL,
+            universal_newlines=True,
+            errors="replace",
+        )
+    except (OSError, subprocess.CalledProcessError):
+        return "unknown"
+    return output.strip() or "unknown"
+
+
+def is_snap_eglinfo(executable: str) -> bool:
+    """Return whether the eglinfo executable comes from a snap."""
+    path = os.path.realpath(shutil.which(executable) or executable)
+    return path.startswith(("/snap/", "/var/lib/snapd/snap/"))
+
+
+def log_eglinfo_origin() -> None:
+    """Log where eglinfo comes from; for a host eglinfo also log the
+    mesa-utils version. Used when platform selection is unavailable.
+    """
+    executable = get_eglinfo_executable()
+    if is_snap_eglinfo(executable):
+        logger.info(f"eglinfo source: snap ({executable})")
+        return
+    logger.info(f"eglinfo source: host ({executable})")
+    logger.info(f"mesa-utils version: {get_mesa_utils_version()}")
+
+
+def get_eglinfo_executable() -> str:
+    return os.environ.get("CUSTOM_EGLINFO_COMMAND_PATH") or "eglinfo"
+
+
+def eglinfo_supports_platform_option() -> bool:
+    """Return whether 'eglinfo -h' advertises the -p option.
+
+    Old eglinfo (mesa-utils 8.4.0) lacks it. If eglinfo cannot be probed,
+    assume it is supported so the normal flow reports the real failure.
+    """
+    try:
+        output = subprocess.run(
+            [get_eglinfo_executable(), "-h"],
+            env=eglinfo_environ(),
+            stdout=subprocess.PIPE,
+            stderr=subprocess.STDOUT,
+            universal_newlines=True,
+            errors="replace",
+        ).stdout
+    except OSError:
+        return True
+    return re.search(r"-p\b", output) is not None
+
+
 def cmd_resource() -> int:
     """Emit one resource record per platform in PLATFORMS, marking
     platforms listed in EGLINFO_IGNORED_PLATFORM with ignore: true.
+
+    An eglinfo without the -p option (e.g. mesa-utils 8.4.0 on Ubuntu
+    22.04) cannot select a platform, so a single "all" record is emitted
+    instead.
     """
+    if not eglinfo_supports_platform_option():
+        print("platform_name: all")
+        print("ignore: false")
+        print("")
+        return 0
+
     ignored_platforms = parse_ignored_set()
 
     for platform_name in PLATFORMS:
@@ -104,11 +173,18 @@ def eglinfo_environ() -> "dict[str, str]":
 def run_eglinfo(platform_name: str) -> str:
     """Run 'eglinfo -B -p <platform_name>' and return its combined output.
 
+    For platform "all" plain 'eglinfo' is run, without -B/-p.
+
     Raises SystemExit if the command is missing, exits non-zero (e.g.
     'eglInitialize failed') or is killed by a signal; the output is logged.
     """
-    executable = os.environ.get("CUSTOM_EGLINFO_COMMAND_PATH") or "eglinfo"
-    command = [executable, "-B", "-p", platform_name]
+    executable = get_eglinfo_executable()
+    command = [executable]
+    if platform_name == "all":
+        logger.warning("eglinfo has no -p option, running without it")
+        log_eglinfo_origin()
+    else:
+        command += ["-B", "-p", platform_name]
     env = eglinfo_environ()
     logger.info(f"Running command: {command} ({shutil.which(executable)})")
     logger.info(f"LD_LIBRARY_PATH={env.get('LD_LIBRARY_PATH', '')}")
@@ -118,6 +194,7 @@ def run_eglinfo(platform_name: str) -> str:
             env=env,
             stderr=subprocess.STDOUT,
             universal_newlines=True,
+            errors="replace",
         )
     except FileNotFoundError as err:
         raise SystemExit(f"eglinfo command not found: {err}")
@@ -134,22 +211,31 @@ def cmd_test(platform_name: str) -> int:
     Fails when eglinfo exits non-zero, reports no renderer (e.g. the
     platform is unsupported and nothing is printed), or reports a software
     renderer (llvmpipe, softpipe, swrast).
+
+    For platform "all" (eglinfo without -p, which prints no renderer line)
+    the whole output is scanned instead: the missing renderer is not an
+    error, but 'eglInitialize failed' and software renderer keywords are.
     """
     output = run_eglinfo(platform_name)
     logger.info(f"eglinfo output:\n{output.rstrip()}")
 
-    renderers = [
-        line.strip() for line in output.splitlines() if "renderer:" in line
-    ]
-    if not renderers:
-        raise SystemExit(
-            f"FAIL: no renderer reported for platform '{platform_name}'"
-        )
+    if platform_name == "all":
+        if "eglInitialize failed" in output:
+            raise SystemExit("FAIL: eglInitialize failed")
+        lines = [output]
+    else:
+        lines = [
+            line.strip() for line in output.splitlines() if "renderer:" in line
+        ]
+        if not lines:
+            raise SystemExit(
+                f"FAIL: no renderer reported for platform '{platform_name}'"
+            )
 
     found = [
         keyword
         for keyword in SOFTWARE_RENDERERS
-        if any(keyword in renderer.lower() for renderer in renderers)
+        if any(keyword in line.lower() for line in lines)
     ]
     if found:
         raise SystemExit(

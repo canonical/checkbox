@@ -421,11 +421,16 @@ manifest, since it must run during bootstrap to populate the template.
 Emits one record for each platform in the fixed set (`gbm`, `wayland`, `x11`,
 `surfaceless`). Platform support is not auto-detected; every platform is
 always emitted, and only the `EGLINFO_IGNORED_PLATFORM` environment variable
-(see below) controls whether a platform is ignored. Each record contains:
+(see below) controls whether a platform is ignored.
+
+If `eglinfo -h` does not list the `-p` option (e.g. mesa-utils 8.4.0 in
+Ubuntu 22.04), platforms cannot be selected. A single record with
+`platform_name: all` and `ignore: false` is emitted instead, and
+`EGLINFO_IGNORED_PLATFORM` has no effect. Each record contains:
 
 | Field | Description |
 | --- | --- |
-| `platform_name` | Platform key passed to `eglinfo -p` (e.g. `gbm`) |
+| `platform_name` | Platform key passed to `eglinfo -p` (e.g. `gbm`), or `all` when `eglinfo` has no `-p` |
 | `ignore` | `true` if `platform_name` is listed in `EGLINFO_IGNORED_PLATFORM`; `false` otherwise |
 
 Records where `ignore` is `true` are filtered out by the template and do not
@@ -439,6 +444,13 @@ ignore: false
 
 platform_name: x11
 ignore: true
+```
+
+Example when `eglinfo` has no `-p` option:
+
+```
+platform_name: all
+ignore: false
 ```
 
 ### `ce-oem-graphics/check-opengl_eglinfo_resource`
@@ -460,9 +472,22 @@ applies the following judgement criteria, in order:
 
 Otherwise, the job passes.
 
-`eglinfo` from mesa-demos 9.0 or later is required (Ubuntu 24.04+
-`mesa-utils`). Older versions (e.g. 8.4.0 in Ubuntu 22.04) ignore `-B` and
-`-p` and never print a renderer, so every platform fails.
+#### Platform `all` (`eglinfo` without `-p`)
+
+`eglinfo` older than mesa-demos 9.0 (e.g. 8.4.0 in Ubuntu 22.04) has no `-B`
+or `-p` options and prints no renderer line. For the `all` platform, the job
+runs plain `eglinfo`, which prints every platform, and checks the whole
+output instead:
+
+1. `eglinfo` exits non-zero or crashes -> fail.
+2. `eglInitialize failed` is in the output -> fail.
+3. A software renderer keyword (`llvmpipe`, `softpipe`, or `swrast`) is in
+   the output -> fail.
+
+A missing `renderer:` line is not an error in this mode. Because every
+platform is run, a platform that cannot initialize (e.g. Wayland without a
+compositor) fails the job. The job logs whether `eglinfo` comes from a snap
+or the host and, for the host, the installed `mesa-utils` version.
 
 #### Scenario: Pass
 
@@ -548,7 +573,7 @@ checkbox-ce-oem.checkbox-cli run com.canonical.contrib::ce-oem-graphics-automate
 ```
 
 The resource job uses `eglinfo_test.py resource` to emit the fixed set of
-platform records. Each generated validation job uses
+platform records (or the single `all` record, see above). Each generated validation job uses
 `eglinfo_test.py test -p <platform_name>` to run `eglinfo` for that platform
 and check its output against the judgement criteria described above.
 

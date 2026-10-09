@@ -42,7 +42,8 @@ createTestFile() {
 # $1 is the file path who will be used as random test file
 # $2 is size of random test file (Unit: byte)
     echo "##### Create test file #####"
-    dd if=/dev/urandom of="$1" bs=1 count="$2"
+    # bs=1 issues a syscall per byte and is extremely slow for large MTDs
+    head -c "$2" /dev/urandom > "$1"
 }
 
 eraseMtd() {

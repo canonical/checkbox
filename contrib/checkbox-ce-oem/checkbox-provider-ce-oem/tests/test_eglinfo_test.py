@@ -39,10 +39,11 @@ class TestResource(unittest.TestCase):
     def test_parse_ignored_set_is_empty_when_unset(self):
         self.assertEqual(eglinfo_test.parse_ignored_set(), set())
 
+    @patch("eglinfo_test.eglinfo_supports_platform_option", return_value=True)
     @patch.dict(
         os.environ, {eglinfo_test.EGLINFO_IGNORED_PLATFORM: "wayland,x11"}
     )
-    def test_cmd_resource_prints_all_platforms_and_ignore_flags(self):
+    def test_cmd_resource_prints_all_platforms_and_ignore_flags(self, *_):
         output = io.StringIO()
 
         with redirect_stdout(output):
@@ -60,6 +61,44 @@ class TestResource(unittest.TestCase):
             "platform_name: surfaceless\n"
             "ignore: false\n\n",
         )
+
+    @patch("eglinfo_test.eglinfo_supports_platform_option", return_value=False)
+    def test_cmd_resource_eglinfo_without_p_emits_all(self, *_):
+        output = io.StringIO()
+
+        with redirect_stdout(output):
+            eglinfo_test.cmd_resource()
+
+        self.assertEqual(
+            output.getvalue(), "platform_name: all\nignore: false\n\n"
+        )
+
+    @patch("eglinfo_test.subprocess.run")
+    def test_eglinfo_supports_platform_option(self, mock_run):
+        mock_run.return_value.stdout = "Usage: eglinfo [-h] [-p <platform>]"
+        self.assertTrue(eglinfo_test.eglinfo_supports_platform_option())
+        mock_run.return_value.stdout = "Usage: eglinfo [-h] [-B] [-s]"
+        self.assertFalse(eglinfo_test.eglinfo_supports_platform_option())
+        mock_run.side_effect = FileNotFoundError()
+        self.assertTrue(eglinfo_test.eglinfo_supports_platform_option())
+
+    @patch("eglinfo_test.eglinfo_supports_platform_option", return_value=True)
+    def test_cmd_resource_unknown_version_emits_platforms(self, *_):
+        output = io.StringIO()
+
+        with redirect_stdout(output):
+            eglinfo_test.cmd_resource()
+
+        self.assertIn("platform_name: gbm", output.getvalue())
+
+    @patch("eglinfo_test.subprocess.check_output")
+    def test_get_mesa_utils_version(self, mock_check_output):
+        mock_check_output.return_value = "8.4.0-1ubuntu1"
+        self.assertEqual(
+            eglinfo_test.get_mesa_utils_version(), "8.4.0-1ubuntu1"
+        )
+        mock_check_output.side_effect = FileNotFoundError()
+        self.assertEqual(eglinfo_test.get_mesa_utils_version(), "unknown")
 
 
 class TestEglinfoEnviron(unittest.TestCase):
@@ -99,6 +138,37 @@ class TestRunEglinfo(unittest.TestCase):
         self.assertNotIn(
             "LD_LIBRARY_PATH", mock_check_output.call_args[1]["env"]
         )
+
+    def test_all_platform_runs_plain_eglinfo(self, mock_check_output):
+        eglinfo_test.run_eglinfo("all")
+
+        self.assertEqual(mock_check_output.call_args[0][0], ["eglinfo"])
+
+    @patch("eglinfo_test.get_mesa_utils_version", return_value="8.4.0")
+    @patch("eglinfo_test.is_snap_eglinfo", return_value=False)
+    def test_all_logs_host_and_mesa_utils(self, _, __, mock_check_output):
+        with self.assertLogs(eglinfo_test.logger, "INFO") as logs:
+            eglinfo_test.run_eglinfo("all")
+
+        text = "\n".join(logs.output)
+        self.assertIn("eglinfo source: host", text)
+        self.assertIn("mesa-utils version: 8.4.0", text)
+
+    @patch("eglinfo_test.get_mesa_utils_version")
+    @patch("eglinfo_test.is_snap_eglinfo", return_value=True)
+    def test_all_logs_snap_without_mesa_utils(
+        self, _, mock_version, mock_check_output
+    ):
+        with self.assertLogs(eglinfo_test.logger, "INFO") as logs:
+            eglinfo_test.run_eglinfo("all")
+
+        self.assertIn("eglinfo source: snap", "\n".join(logs.output))
+        mock_version.assert_not_called()
+
+    def test_tolerates_undecodable_output(self, mock_check_output):
+        eglinfo_test.run_eglinfo("gbm")
+
+        self.assertEqual(mock_check_output.call_args[1]["errors"], "replace")
 
     def test_custom_command_from_environ(self, mock_check_output):
         os.environ["CUSTOM_EGLINFO_COMMAND_PATH"] = "snap.eglinfo"
@@ -144,6 +214,23 @@ class TestCmdTest(unittest.TestCase):
 
         self.assertEqual(eglinfo_test.cmd_test("gbm"), 0)
         mock_run.assert_called_once_with("gbm")
+
+    def test_all_passes_without_renderer_line(self, mock_run):
+        mock_run.return_value = "GBM platform:\nEGL vendor string: ARM\n"
+
+        self.assertEqual(eglinfo_test.cmd_test("all"), 0)
+
+    def test_all_fails_on_software_renderer(self, mock_run):
+        mock_run.return_value = SURFACELESS_LLVMPIPE_OUTPUT
+
+        with self.assertRaises(SystemExit):
+            eglinfo_test.cmd_test("all")
+
+    def test_all_fails_on_egl_initialize_failed(self, mock_run):
+        mock_run.return_value = "Wayland platform:\neglInitialize failed\n"
+
+        with self.assertRaises(SystemExit):
+            eglinfo_test.cmd_test("all")
 
 
 class TestMain(unittest.TestCase):

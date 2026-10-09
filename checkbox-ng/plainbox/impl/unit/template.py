@@ -23,6 +23,7 @@
 """
 
 import itertools
+import json
 import logging
 import string
 
@@ -60,6 +61,22 @@ class TemplateUnitValidator(UnitWithIdValidator):
     def check(self, unit):
         for issue in super().check(unit):
             yield issue
+        if unit.has_inline_parameters:
+            try:
+                new_units = unit.instantiate_inline()
+            except Exception as exc:
+                yield self.error(
+                    unit,
+                    unit.Meta.fields.template_parameters,
+                    Problem.wrong,
+                    _("unable to instantiate template: {}").format(exc),
+                )
+            else:
+                for new_unit in new_units:
+                    for issue in new_unit.check():
+                        self.issue_list.append(issue)
+                        yield issue
+            return
         # Apart from all the per-field checks, ensure that the unit,
         # if instantiated with fake resource, produces a valid target unit
         accessed_parameters = unit.get_accessed_parameters(
@@ -121,13 +138,13 @@ class TemplateUnit(UnitWithId):
     of each of the fields in the template and can perform validation and other
     analysis without having to run any external commands.
 
-    To instantiate a template a resource object must be provided. This adds a
-    natural dependency from each template unit to a resource job definition
-    unit. Actual instantiation allows PlainBox to create additional unit
-    instance for each resource eligible record. Eligible records are either all
-    records or a subset of records that cause the filter program to evaluate to
-    True. The filter program uses the familiar resource program syntax
-    available to normal job definitions.
+    Resource-driven templates depend on a resource job definition. Actual
+    instantiation creates an additional unit for each eligible resource record.
+    Eligible records are either all records or a subset that causes the filter
+    program to evaluate to True. The filter program uses the familiar resource
+    program syntax available to normal job definitions.
+    Inline templates instead supply their records through 
+    ``template-parameters`` and instantiate when the provider loads.
 
     :attr _filter_program:
         Cached ResourceProgram computed (once) and returned by
@@ -296,6 +313,41 @@ class TemplateUnit(UnitWithId):
     def template_resource(self):
         """value of the 'template-resource' field."""
         return self.get_record_value("template-resource")
+
+    @property
+    def has_inline_parameters(self):
+        """Whether this template declares inline parameters."""
+        return "template-parameters" in self._data
+
+    @property
+    def template_parameters(self):
+        """Inline records, accepting JSON for PXU definitions."""
+        value = self.get_record_value("template-parameters")
+        if isinstance(value, str):
+            return json.loads(value)
+        return value
+
+    def instantiate_inline(self):
+        """Instantiate one unit per inline parameter mapping."""
+        records = self.template_parameters
+        if not isinstance(records, list) or not all(
+            isinstance(record, dict) for record in records
+        ):
+            raise ValueError(
+                _("template-parameters must be a list of mappings")
+            )
+        for field in (
+            "template-resource",
+            "template-filter",
+            "template-imports",
+        ):
+            if field in self._data:
+                raise ValueError(
+                    _("template-parameters cannot be combined with {}").format(
+                        field
+                    )
+                )
+        return self.instantiate_all([Resource(record) for record in records])
 
     @property
     def template_filter(self):
@@ -569,6 +621,7 @@ class TemplateUnit(UnitWithId):
             template_description = "template-description"
             template_unit = "template-unit"
             template_resource = "template-resource"
+            template_parameters = "template-parameters"
             template_filter = "template-filter"
             template_imports = "template-imports"
 
@@ -606,8 +659,11 @@ class TemplateUnit(UnitWithId):
             ],
             fields.template_description: [],
             fields.template_unit: [],
+            fields.template_parameters: [],
             fields.template_resource: [
-                concrete_validators.present,
+                PresentFieldValidator(
+                    onlyif=lambda unit: not unit.has_inline_parameters
+                ),
                 UnitReferenceValidator(
                     lambda unit: (
                         [unit.resource_id] if unit.resource_id else []

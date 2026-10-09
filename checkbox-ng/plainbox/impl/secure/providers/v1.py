@@ -68,6 +68,7 @@ from plainbox.impl.secure.rfc822 import (
 )
 from plainbox.impl.unit import all_units
 from plainbox.impl.unit.file import FileRole, FileUnit
+from plainbox.impl.unit.template import TemplateUnit
 from plainbox.impl.validation import Severity, ValidationError
 
 logger = logging.getLogger("plainbox.secure.providers.v1")
@@ -180,6 +181,36 @@ class ProviderContentPlugIn(PlugIn):
             virtual=True,
         )
 
+    def _prepare_unit(self, unit, validate, validation_kwargs, check, context):
+        """Expose inline instances and their source before validation."""
+        units = [unit]
+        if isinstance(unit, TemplateUnit) and unit.has_inline_parameters:
+            try:
+                units.extend(unit.instantiate_inline())
+            except Exception as exc:
+                raise PlugInError(
+                    _("Cannot instantiate template {!r}: {}").format(
+                        unit.template_id, exc
+                    )
+                ) from exc
+        for candidate in units:
+            if check:
+                for issue in candidate.check(context=context, live=True):
+                    if issue.severity is Severity.error:
+                        raise PlugInError(
+                            _("Problem in unit definition, {}").format(issue)
+                        )
+            if validate:
+                try:
+                    candidate.validate(**validation_kwargs)
+                except ValidationError as exc:
+                    raise PlugInError(
+                        _("Problem in unit definition, field {}: {}").format(
+                            exc.field, exc.problem
+                        )
+                    )
+        return units
+
 
 class RFC822UnitPlugIn(ProviderContentPlugIn):
     """
@@ -250,22 +281,11 @@ class RFC822UnitPlugIn(ProviderContentPlugIn):
                         record, exc
                     )
                 )
-            if check:
-                for issue in unit.check(context=context, live=True):
-                    if issue.severity is Severity.error:
-                        raise PlugInError(
-                            _("Problem in unit definition, {}").format(issue)
-                        )
-            if validate:
-                try:
-                    unit.validate(**validation_kwargs)
-                except ValidationError as exc:
-                    raise PlugInError(
-                        _("Problem in unit definition, field {}: {}").format(
-                            exc.field, exc.problem
-                        )
-                    )
-            unit_list.append(unit)
+            unit_list.extend(
+                self._prepare_unit(
+                    unit, validate, validation_kwargs, check, context
+                )
+            )
             logger.debug(_("Loaded %r"), unit)
         return unit_list
 
@@ -384,22 +404,11 @@ class YAMLUnitPlugIn(ProviderContentPlugIn):
                         unit_data, exc
                     )
                 )
-            if check:
-                for issue in unit.check(context=context, live=True):
-                    if issue.severity is Severity.error:
-                        raise PlugInError(
-                            _("Problem in unit definition, {}").format(issue)
-                        )
-            if validate:
-                try:
-                    unit.validate(**validation_kwargs)
-                except ValidationError as exc:
-                    raise PlugInError(
-                        _("Problem in unit definition, field {}: {}").format(
-                            exc.field, exc.problem
-                        )
-                    )
-            unit_list.append(unit)
+            unit_list.extend(
+                self._prepare_unit(
+                    unit, validate, validation_kwargs, check, context
+                )
+            )
             logger.debug(_("Loaded %r"), unit)
         return unit_list
 

@@ -18,6 +18,9 @@
 
 import textwrap
 import datetime
+import json
+from pathlib import Path
+from tempfile import TemporaryDirectory
 
 from functools import partial
 from unittest import TestCase
@@ -28,12 +31,18 @@ from io import StringIO
 
 from plainbox.impl.unit.job import JobDefinition
 from plainbox.impl.unit.template import TemplateUnit
+from plainbox.impl.unit.unit import Unit
+from plainbox.impl.secure.providers.v1 import Provider1
+from plainbox.impl.session.assistant import SessionAssistant
+from plainbox.impl.session.storage import WellKnownDirsHelper
 
 from checkbox_ng.launcher.subcommands import (
     Run,
     Expand,
     Launcher,
     ListBootstrapped,
+    List,
+    Show,
     IncompatibleJobError,
     ResumeInstead,
     IJobResult,
@@ -42,6 +51,185 @@ from checkbox_ng.launcher.subcommands import (
     get_testplan_id_by_id,
     print_objs,
 )
+
+
+class TestInlineTemplateCommands(TestCase):
+    def setUp(self):
+        temporary = TemporaryDirectory()
+        self.addCleanup(temporary.cleanup)
+        self.directory = Path(temporary.name)
+        self.source = self.directory / "inline.yaml"
+        self.source.write_text(
+            textwrap.dedent("""\
+                unit: template
+                template-id: inline
+                template-engine: jinja2
+                template-parameters:
+                  - name: first
+                  - name: second
+                id: test-{{ name }}
+                _summary: Test {{ name }}
+                plugin: shell
+                command: echo {{ name }} {{ __index__ }}
+                ---
+                unit: category
+                id: uncategorised
+                name: Uncategorized
+                ---
+                unit: test plan
+                id: plan
+                name: Inline tests
+                include: |
+                  test-first
+                  test-second
+                  inline
+                """),
+            encoding="utf-8",
+        )
+        self.provider = Provider1(
+            "com.canonical.plainbox:inline",
+            "com.canonical.plainbox",
+            "1.0",
+            "Inline tests",
+            False,
+            gettext_domain=None,
+            units_dir=str(self.directory),
+            jobs_dir=None,
+            data_dir=None,
+            bin_dir=None,
+            locale_dir=None,
+            base_dir=str(self.directory),
+        )
+        storage_patch = patch.object(
+            WellKnownDirsHelper,
+            "base_of_everything",
+            str(self.directory / "storage"),
+        )
+        storage_patch.start()
+        self.addCleanup(storage_patch.stop)
+        self.addCleanup(setattr, Unit, "config", Unit.config)
+        with patch(
+            "plainbox.impl.session.assistant.get_providers",
+            return_value=[self.provider],
+        ):
+            self.sa = SessionAssistant("inline-test", "1.0")
+        self.ctx = Mock(
+            sa=self.sa,
+            args=Mock(
+                TEST_PLAN="plan",
+                exact=False,
+                format="json",
+                GROUP="all-jobs",
+                attrs=False,
+            ),
+        )
+
+    @patch("sys.stdout", new_callable=StringIO)
+    def test_expand_concrete_definitions_and_source(self, stdout):
+        Expand().invoked(self.ctx)
+        definitions = json.loads(stdout.getvalue())
+        jobs = [unit for unit in definitions if unit["unit"] == "job"]
+        templates = [
+            unit for unit in definitions if unit["unit"] == "template"
+        ]
+        self.assertEqual(len(jobs), 2)
+        self.assertEqual(len(templates), 1)
+        self.assertEqual(
+            [unit["command"] for unit in jobs],
+            ["echo first 1", "echo second 2"],
+        )
+        self.assertEqual(
+            templates[0]["id"], self.provider.namespace + "::test-{{ name }}"
+        )
+
+    @patch("sys.stdout", new_callable=StringIO)
+    def test_list_concrete_definitions_and_source(self, stdout):
+        self.ctx.args.format = "{unit_type}: {full_id} {_summary}\\n"
+        List().invoked(self.ctx)
+        output = stdout.getvalue()
+        self.assertIn(
+            "job: com.canonical.plainbox::test-first Test first", output
+        )
+        self.assertIn(
+            "job: com.canonical.plainbox::test-second Test second", output
+        )
+        self.assertIn("com.canonical.plainbox::inline Test {{ name }}", output)
+
+    @patch("sys.stdout", new_callable=StringIO)
+    def test_list_json_concrete_jobs_and_template(self, stdout):
+        self.ctx.args.attrs = True
+        List().invoked(self.ctx)
+        objects = json.loads(stdout.getvalue())
+        jobs = [obj for obj in objects if obj["unit"] == "job"]
+        templates = [obj for obj in objects if obj["unit"] == "template"]
+        self.assertEqual(len(jobs), 2)
+        self.assertEqual(len(templates), 1)
+        self.assertEqual(
+            {job["id"]: job["command"] for job in jobs},
+            {
+                "com.canonical.plainbox::test-first": "echo first 1",
+                "com.canonical.plainbox::test-second": "echo second 2",
+            },
+        )
+        self.assertEqual(
+            templates[0]["template_id"], "com.canonical.plainbox::inline"
+        )
+        self.assertEqual(
+            templates[0]["id"], "com.canonical.plainbox::test-{{ name }}"
+        )
+
+    @patch("sys.stdout", new_callable=StringIO)
+    def test_show_concrete_definition(self, stdout):
+        self.ctx.args.IDs = ["test-first"]
+        Show().invoked(self.ctx)
+        self.assertIn("id: test-first", stdout.getvalue())
+        self.assertIn("_summary: Test first", stdout.getvalue())
+        self.assertIn("command: echo first 1", stdout.getvalue())
+        self.assertNotIn("template-parameters:", stdout.getvalue())
+
+    @patch("sys.stdout", new_callable=StringIO)
+    def test_show_source_template_unchanged(self, stdout):
+        self.ctx.args.IDs = ["inline"]
+        Show().invoked(self.ctx)
+        self.assertIn(
+            self.source.read_text(encoding="utf-8").split("---")[0].rstrip(),
+            stdout.getvalue(),
+        )
+
+    @patch("sys.stdout", new_callable=StringIO)
+    def test_bootstrap_does_not_run_resources_or_duplicate_jobs(self, stdout):
+        with patch.object(self.sa, "run_job", autospec=True) as run_job:
+            ListBootstrapped().invoked(self.ctx)
+        run_job.assert_not_called()
+        jobs = json.loads(stdout.getvalue())
+        self.assertEqual(
+            [job["id"] for job in jobs], ["test-first", "test-second"]
+        )
+        self.assertEqual(
+            [job["command"] for job in jobs],
+            ["echo first 1", "echo second 2"],
+        )
+        self.assertEqual(len(self.sa._context.state.job_list), 2)
+        self.assertEqual(
+            len(
+                [
+                    unit
+                    for unit in self.sa._context.state.unit_list
+                    if unit.unit == "template"
+                ]
+            ),
+            1,
+        )
+        self.assertEqual(
+            len(
+                [
+                    unit
+                    for unit in self.provider.unit_list
+                    if unit.unit == "job"
+                ]
+            ),
+            2,
+        )
 
 
 class TestSharedFunctions(TestCase):
@@ -1088,7 +1276,7 @@ class TestListBootstrapped(TestCase):
 
 class TestExpand(TestCase):
     def make_unit(self, **kwargs):
-        unit = Mock(partial_id=kwargs["id"], **kwargs)
+        unit = Mock(partial_id=kwargs["id"], is_parametric=False, **kwargs)
         unit._raw_data.copy.return_value = kwargs
         return unit
 

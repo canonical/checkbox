@@ -27,7 +27,10 @@ from textwrap import dedent
 from unittest.mock import Mock, MagicMock, patch
 from pathlib import Path
 
+from plainbox.abc import IJobResult
+from plainbox.impl.ctrl import CheckBoxSessionStateController
 from plainbox.impl.job import JobDefinition
+from plainbox.impl.session.state import SessionState
 from plainbox.impl.secure.config import Unset, ValidationError
 from plainbox.impl.secure.plugins import PlugIn, PlugInError
 from plainbox.impl.secure.providers.v1 import (
@@ -45,6 +48,10 @@ from plainbox.impl.secure.providers.v1 import (
 )
 from plainbox.impl.secure.rfc822 import FileTextSource, Origin
 from plainbox.impl.unit.file import FileUnit
+from plainbox.impl.unit.category import CategoryUnit
+from plainbox.impl.unit.template import TemplateUnit
+from plainbox.impl.unit.validators import UnitValidationContext
+from plainbox.impl.validation import Problem, Severity
 
 
 class IQNValidatorTests(TestCase):
@@ -752,6 +759,177 @@ class YAMLUnitPlugInTests(TestCase):
             self.LOAD_TIME,
             self.provider,
             check=False,
+        )
+
+    def load_inline(self, records="[{name: first}, {name: second}]", **kwargs):
+        return YAMLUnitPlugIn(
+            "/path/to/inline.yaml",
+            dedent("""
+                unit: template
+                template-id: inline
+                template-parameters: {}
+                id: test-{{name}}
+                plugin: shell
+                command: echo {{name}}
+                ---
+                id: dependent
+                plugin: shell
+                command: 'true'
+                depends: test-first
+                after: test-second
+                before: test-first
+                """).format(records),
+            self.LOAD_TIME,
+            self.provider,
+            **kwargs,
+        )
+
+    def test_inline_units_and_references(self):
+        plugin = self.load_inline()
+        units = plugin.unit_list
+        self.assertIsInstance(units[0], TemplateUnit)
+        self.assertEqual(
+            [unit.partial_id for unit in units[1:4]],
+            ["test-first", "test-second", "dependent"],
+        )
+        self.assertIs(units[1].provider, self.provider)
+        self.assertEqual(units[1].origin, units[0].origin)
+        self.provider.unit_list = units + [
+            CategoryUnit(
+                {"unit": "category", "id": "uncategorised"},
+                provider=self.provider,
+            )
+        ]
+        context = UnitValidationContext([self.provider])
+        errors = [
+            issue
+            for unit in units[:-1]
+            for issue in unit.check(context=context)
+            if issue.severity is Severity.error
+        ]
+        self.assertEqual(errors, [])
+
+    def test_inline_duplicate_ids(self):
+        units = self.load_inline("[{name: first}, {name: first}]").unit_list
+        self.provider.unit_list = units
+        context = UnitValidationContext([self.provider])
+        self.assertTrue(
+            any(
+                issue.kind is Problem.not_unique and issue.field == "id"
+                for issue in units[1].check(context=context)
+            )
+        )
+
+    def test_inline_collides_with_ordinary_job(self):
+        units = self.load_inline().unit_list
+        self.provider.unit_list = units + [
+            JobDefinition(
+                {"id": "test-first", "plugin": "shell", "command": "true"},
+                provider=self.provider,
+            )
+        ]
+        context = UnitValidationContext([self.provider])
+        self.assertTrue(
+            any(
+                issue.kind is Problem.not_unique and issue.field == "id"
+                for issue in units[1].check(context=context)
+            )
+        )
+
+    def test_inline_malformed_even_without_check(self):
+        for records in ("null", "{}", "[invalid]"):
+            with self.subTest(records=records):
+                with self.assertRaisesRegex(
+                    PlugInError,
+                    "template-parameters must be a list of mappings",
+                ):
+                    self.load_inline(records, check=False)
+
+    def test_inline_generated_fields_checked(self):
+        with self.assertRaisesRegex(PlugInError, "identifier cannot"):
+            self.load_inline("[{name: 'ns::invalid'}]")
+
+    def test_inline_and_resource_templates_in_session(self):
+        units = self.load_inline().unit_list[:-1]
+        resource_job = JobDefinition(
+            {"id": "device", "plugin": "resource", "command": "unused"},
+            provider=self.provider,
+        )
+        dynamic = TemplateUnit(
+            {
+                "unit": "template",
+                "template-resource": "device",
+                "id": "dynamic-{name}",
+                "plugin": "shell",
+                "command": "echo {name}",
+            },
+            provider=self.provider,
+        )
+        state = SessionState(units + [resource_job, dynamic])
+        result = Mock(spec=IJobResult, outcome=IJobResult.OUTCOME_PASS)
+        result.get_io_log.return_value = [
+            (0, "stdout", b"name: runtime\n"),
+        ]
+        controller = CheckBoxSessionStateController()
+        for _ in range(2):
+            controller.observe_result(state, resource_job, result)
+        self.assertEqual(
+            [job.partial_id for job in state.job_list],
+            [
+                "test-first",
+                "test-second",
+                "dependent",
+                "device",
+                "dynamic-runtime",
+            ],
+        )
+        self.assertEqual(state.job_list[-1].command, "echo runtime")
+        self.assertEqual(state.job_list[0].command, "echo first")
+
+    def test_inline_missing_reference(self):
+        units = self.load_inline("[{name: second}]").unit_list
+        self.provider.unit_list = units
+        context = UnitValidationContext([self.provider])
+        self.assertTrue(
+            any(
+                issue.kind is Problem.bad_reference
+                and issue.field == "depends"
+                for issue in units[2].check(context=context)
+            )
+        )
+
+    def test_inline_conflicts_report_loading_error(self):
+        for field in (
+            "template-resource",
+            "template-filter",
+            "template-imports",
+        ):
+            with self.subTest(field=field):
+                with self.assertRaisesRegex(
+                    PlugInError, "cannot be combined with " + field
+                ):
+                    YAMLUnitPlugIn(
+                        "/path/to/inline.yaml",
+                        "unit: template\n"
+                        "template-parameters: []\n"
+                        "{}: ''\n".format(field),
+                        self.LOAD_TIME,
+                        self.provider,
+                        check=False,
+                    )
+
+    def test_pxu_inline_json(self):
+        plugin = RFC822UnitPlugIn(
+            "/path/to/inline.pxu",
+            "unit: template\n"
+            'template-parameters: [{"name": "first"}, {"name": "second"}]\n'
+            "id: test-{name}\nplugin: shell\ncommand: echo {name}\n",
+            self.LOAD_TIME,
+            self.provider,
+        )
+        self.assertEqual(
+            [unit.partial_id for unit in plugin.unit_list[1:3]],
+            ["test-first", "test-second"],
         )
 
 

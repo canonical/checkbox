@@ -584,6 +584,13 @@ def compute_value_map(context, field):
         *(provider.unit_list for provider in context.provider_list)
     )
     for unit in all_units:
+        # Instances reference a template ID; they do not define that ID.
+        if (
+            str(field) == "template-id"
+            and unit.is_parametric
+            and unit.unit != "template"
+        ):
+            continue
         try:
             value = getattr(unit, field2prop(field))
         except AttributeError:

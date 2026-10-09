@@ -664,6 +664,139 @@ class TemplateUnitJinja2Tests(TestCase):
         self.assertEqual(job.plugin, "shell")
 
 
+class InlineTemplateTests(TestCase):
+    def make_template(self, **fields):
+        data = {
+            "unit": "template",
+            "template-id": "inline",
+            "template-parameters": [{"name": "first"}, {"name": "second"}],
+            "id": "test-{name}",
+            "_summary": "Test {name}",
+            "plugin": "shell",
+            "command": "echo {name} {__index__}",
+        }
+        data.update(fields)
+        return TemplateUnit(data)
+
+    def test_order_interpolation_and_metadata(self):
+        template = self.make_template()
+        jobs = template.instantiate_inline()
+        self.assertEqual(
+            [job.partial_id for job in jobs], ["test-first", "test-second"]
+        )
+        self.assertEqual(
+            [job.command for job in jobs], ["echo first 1", "echo second 2"]
+        )
+        self.assertEqual(jobs[0].summary, "Test first")
+        self.assertEqual(jobs[0].tr_summary(), "Test first")
+        self.assertIs(jobs[0].origin, template.origin)
+        self.assertEqual(jobs[0].template_id, template.template_id)
+        self.assertNotIn("template-parameters", jobs[0]._data)
+
+    def test_jinja_and_non_string_values(self):
+        template = self.make_template(
+            **{
+                "template-engine": "jinja2",
+                "template-parameters": [{"name": "first", "count": 2}],
+                "id": "test-{{ name }}",
+                "_summary": "Test {{ count + 1 }}",
+                "command": "echo {{ __index__ }}",
+            }
+        )
+        job = template.instantiate_inline()[0]
+        self.assertEqual(job.summary, "Test 3")
+        self.assertEqual(job.command, "echo 1")
+        self.assertFalse(
+            [
+                issue
+                for issue in template.check()
+                if issue.severity is Severity.error
+            ]
+        )
+
+    def test_empty_records(self):
+        template = self.make_template(**{"template-parameters": []})
+        self.assertEqual(template.instantiate_inline(), [])
+        self.assertFalse(
+            [
+                issue
+                for issue in template.check()
+                if issue.severity is Severity.error
+            ]
+        )
+
+    def test_list_values_are_not_cartesian_expanded(self):
+        template = self.make_template(
+            **{
+                "template-parameters": [
+                    {"name": "group", "members": ["first", "second"]}
+                ],
+                "command": "echo {members}",
+            }
+        )
+        jobs = template.instantiate_inline()
+        self.assertEqual(len(jobs), 1)
+        self.assertEqual(jobs[0].command, "echo ['first', 'second']")
+
+    def test_empty_mapping_can_use_index(self):
+        template = self.make_template(
+            **{
+                "template-parameters": [{}],
+                "id": "test-{__index__}",
+                "_summary": "Test {__index__}",
+                "command": "echo {__index__}",
+            }
+        )
+        jobs = template.instantiate_inline()
+        self.assertEqual(len(jobs), 1)
+        self.assertEqual(jobs[0].partial_id, "test-1")
+
+    def test_malformed_records(self):
+        for value in (None, {}, "not json", [1], [["first"]]):
+            with self.subTest(value=value):
+                template = self.make_template(**{"template-parameters": value})
+                issues = template.check()
+                self.assertTrue(
+                    any(
+                        issue.field == "template-parameters"
+                        and issue.severity is Severity.error
+                        for issue in issues
+                    )
+                )
+
+    def test_exclusive_fields(self):
+        for field in (
+            "template-resource",
+            "template-filter",
+            "template-imports",
+        ):
+            with self.subTest(field=field):
+                template = self.make_template(**{field: ""})
+                self.assertTrue(
+                    any(
+                        issue.field == "template-parameters"
+                        and issue.severity is Severity.error
+                        for issue in template.check()
+                    )
+                )
+
+    def test_validates_real_values(self):
+        template = self.make_template(
+            **{
+                "template-parameters": [
+                    {"name": "first", "plugin": "invalid"}
+                ],
+                "plugin": "{plugin}",
+            }
+        )
+        self.assertTrue(
+            any(
+                issue.field == "plugin" and issue.severity is Severity.error
+                for issue in template.check()
+            )
+        )
+
+
 class TemplateUnitFieldValidationTests(UnitFieldValidationTests):
 
     unit_cls = TemplateUnit

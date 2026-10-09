@@ -1,0 +1,57 @@
+{
+    "$schema": "exclude_jobs.schema.json",
+    "include": "exclude_jobs.json",
+    "excludes": [
+        {
+            "name": "cuDLAErrorReporting",
+            "reason": "Needs the Tegra cuDLA hardware; excluded on Jetson by NVIDIA's reference runner"
+        },
+        {
+            "name": "cuDLAHybridMode",
+            "reason": "Needs the Tegra cuDLA hardware; excluded on Jetson by NVIDIA's reference runner"
+        },
+        {
+            "name": "cuDLALayerwiseStatsHybrid",
+            "reason": "Needs the Tegra cuDLA hardware; excluded on Jetson by NVIDIA's reference runner"
+        },
+        {
+            "name": "matrixMul_nvrtc",
+            "reason": "Fails on Jetson/L4T since CUDA 12.6 (NVIDIA Jetson reference runner exclude)"
+        },
+        {
+            "name": "segmentationTreeThrust",
+            "reason": "Fails on Jetson/L4T since CUDA 12.6 (NVIDIA Jetson reference runner exclude)"
+        },
+        {
+            "name": "memMapIPCDrv",
+            "reason": "Fails on Jetson/L4T since CUDA 12.6 (NVIDIA Jetson reference runner exclude)"
+        },
+        {
+            "name": "cudaCompressibleMemory",
+            "reason": "Fails on Jetson/L4T since CUDA 13.0 (NVIDIA Jetson reference runner exclude)"
+        },
+        {
+            "name": "dsl",
+            "reason": "Fails on Jetson/L4T since CUDA 13.0 (NVIDIA Jetson reference runner exclude)",
+            "category": "7_libNVVM"
+        },
+        {
+            "name": "simple",
+            "reason": "Fails on Jetson/L4T since CUDA 13.0 (NVIDIA Jetson reference runner exclude)",
+            "category": "7_libNVVM"
+        },
+        {
+            "name": "uvmlite",
+            "reason": "Fails on Jetson/L4T since CUDA 13.0 (NVIDIA Jetson reference runner exclude)",
+            "category": "7_libNVVM"
+        },
+        {
+            "name": "nvJPEG",
+            "reason": "Fails on Jetson/L4T since CUDA 13.2 (NVIDIA Jetson reference runner exclude); to be re-integrated in a future BSP update"
+        },
+        {
+            "name": "nvJPEG_encoder",
+            "reason": "Fails on Jetson/L4T since CUDA 13.2 (NVIDIA Jetson reference runner exclude); to be re-integrated in a future BSP update"
+        }
+    ]
+}

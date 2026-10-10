@@ -166,6 +166,10 @@ parts:
     # if you change this update LD_LIBRARY_PATH
     autotools-configure-parameters:
       - --prefix=/
+    # restore fwts' default "-g -O2" autoconf flag
+    # this allows builds to be re-run without `snapcraft clean`
+    build-environment:
+      - CFLAGS: "$CFLAGS -g -O2"
     stage-packages:
       - libfdt1
       - libbsd0

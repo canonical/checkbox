@@ -209,11 +209,11 @@ plugin: user-interact-verify
 category_id: com.canonical.plainbox::graphics
 requires:
  package.name == 'xorg'
- package.name == 'gir1.2-gst-plugins-base-0.10' or package.name == 'gir1.2-gst-plugins-base-1.0'
+ executable.name == 'gst-launch-1.0'
 command:
  # shellcheck disable=SC1091
  source graphics_env.sh {driver} {index} {path}
- gst_pipeline_test.py -t 2 'videotestsrc ! videoconvert ! autovideosink' || gst_pipeline_test.py -t 2 'videotestsrc ! ffmpegcolorspace ! autovideosink'
+ gst_sample_video_test.py 2
 _summary: Test that video can be displayed with {vendor} {product}
 _purpose:
  This test will test the default display with a sample video
@@ -227,10 +227,10 @@ flags: also-after-suspend
 plugin: user-interact-verify
 category_id: com.canonical.plainbox::graphics
 requires:
- package.name == 'gir1.2-gst-plugins-base-0.10' or package.name == 'gir1.2-gst-plugins-base-1.0'
+ executable.name == 'gst-launch-1.0'
 command:
  # shellcheck disable=SC1091
- gst_pipeline_test.py -t 2 'videotestsrc ! videoconvert ! autovideosink' || gst_pipeline_test.py -t 2 'videotestsrc ! ffmpegcolorspace ! autovideosink'
+ gst_sample_video_test.py 2
 _summary: Test that video can be displayed
 _purpose:
  This test will test the default display with a sample video

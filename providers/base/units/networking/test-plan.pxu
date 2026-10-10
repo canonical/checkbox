@@ -12,7 +12,7 @@ unit: test plan
 _name: Networking tests (manual)
 _description: Networking tests (manual)
 include:
-    networking/info_device.*                       certification-status=blocker
+    networking/info_device__index___interface      certification-status=blocker
     networking/airplane-mode                       certification-status=blocker
 bootstrap_include:
     device
@@ -23,8 +23,8 @@ unit: test plan
 _name: Networking tests after suspend (manual)
 _description: Manual tests for networking after suspend
 include:
-    after-suspend-networking/info_device.*         certification-status=blocker
-    after-suspend-networking/airplane-mode         certification-status=blocker
+    after-suspend-networking/info_device__index___interface      certification-status=blocker
+    after-suspend-networking/airplane-mode                       certification-status=blocker
 bootstrap_include:
     device
     executable

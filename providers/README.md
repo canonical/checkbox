@@ -92,6 +92,55 @@ dependency, always add it to the test plan. [^5]
 - Always verify your modification via `list-bootstrapped` and `expand` [^3]
 
 
+# ODM test requirements
+
+[odm_test_requirements.yaml](odm_test_requirements.yaml) is the primary
+catalogue for ODM certification testing preparation, referenced by the ODM
+Self-Testing Guide documentation. Update it with relevant job/plan changes; do
+not include credentials or confidential information.
+
+## Validate
+
+From the Checkbox repository root:
+
+```bash
+uv tool install ./unit_json_schema/validate
+validate providers/odm_test_requirements.schema.json providers/odm_test_requirements.yaml
+```
+
+The YAML-validation workflow checks only the primary catalogue. Validation
+does not read other files or repositories to resolve category, manifest or
+job IDs.
+
+## Rules
+
+- One nonempty YAML document, no duplicate keys or unknown fields. Only unknown
+fields checked are enforced by the validator.
+- `version: 1` and a flat `requirements` list are required. The primary
+catalogue also requires `categories`; additional files may add
+new categories, but duplicate categories are not allowed.
+Category-only files use `categories: []`.
+- Categories require `id`, `title` and `description`. Requirements also require
+`category`, `ubuntu_versions` and boolean `required`.
+- IDs use lowercase letters/digits separated by hyphens. Category and
+requirement IDs must each be unique within the file and remain stable.
+- Titles are nonempty, single-line, at most 80 characters, without a final
+period. Descriptions are nonempty; use folded text (`>`) for readability.
+- `required: true` means Required when applicable; `false` means Recommended.
+- `ubuntu_versions` accepts `[]` or `["all"]` for unrestricted releases,
+quoted `YY.MM` releases, or `==`, `!=`, `>=`, `<=`, `>` and `<` comparisons.
+List entries are OR alternatives; comma-separated terms within an entry
+are AND, e.g. `[">=22.04,<=26.04"]`. Months must be `01` through `12`;
+whitespace around terms/operators is allowed. Reject mixed/repeated `"all"`,
+missing/null/scalar values, malformed terms and year-only Core selectors.
+- Optional `manifest` is a nonempty list; `related_jobs` is a list. Entries
+must be nonempty, whitespace-free strings without duplicates. References
+are informational, not applicability expressions.
+
+External category references are allowed by this file-only check. Global ID
+uniqueness, no category overrides and resolution of assembled category
+references belong to the future converter. Reviewers check job/manifest
+references and whether the preparation is sufficient for the tests.
 
 [^1]: Uniformity and maintainability.
 [^2]: Recurrent source of bugs.

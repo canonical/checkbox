@@ -9,6 +9,9 @@ on:
     paths:
       - '**/units/*.yaml'
       - '**/units/*/*.yaml'
+      - 'providers/odm_test_requirements.yaml'
+      - 'providers/odm_test_requirements.schema.json'
+      - '.github/workflows/unit_yaml_validator.yaml'
   workflow_dispatch:
 
 jobs:
@@ -28,3 +31,7 @@ jobs:
         run: |
           find . -path '*/units/**' -name "*.yaml" -print0 \
             | xargs -0 validate unit_json_schema/unit.schema.json
+      - name: Validate ODM requirements catalogue
+        run: |
+          validate providers/odm_test_requirements.schema.json \
+            providers/odm_test_requirements.yaml

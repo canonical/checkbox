@@ -1,0 +1,406 @@
+version: 1
+
+categories:
+  - id: audio
+    title: Audio
+    description: >
+      If the system has audio ports, prepare the peripherals listed below
+      for the supported port types.
+
+  - id: usb
+    title: USB
+    description: >
+      If the system has USB ports, prepare at least one storage device of
+      each supported type listed below.
+
+  - id: mediacards
+    title: Media cards
+    description: >
+      If the system has media card slots, fit them with the corresponding
+      cards listed below.
+
+  - id: thunderbolt
+    title: Thunderbolt
+    description: >
+      If the system has at least one Thunderbolt port, prepare a compatible
+      storage device for testing.
+
+  - id: disk
+    title: Disk
+    description: >
+      Prepare all disk devices, including HDDs, SSDs and NVMe devices, for
+      storage testing.
+
+  - id: ethernet
+    title: Ethernet
+    description: >
+      Prepare local network connections and throughput-test infrastructure
+      for the system's Ethernet ports.
+
+  - id: wi-fi
+    title: Wi-Fi
+    description: >
+      For systems with Wi-Fi radios, prepare access points for each supported
+      protocol and security combination listed below.
+
+  - id: bluetooth
+    title: Bluetooth
+    description: >
+      If the system has a Bluetooth radio, prepare devices for testing the
+      Bluetooth profiles listed below.
+
+  - id: wwan
+    title: Cellular (WWAN)
+    description: >
+      If the system has a cellular radio, prepare network access for cellular
+      data connectivity testing.
+
+requirements:
+  - id: audio-output-speaker-headphones
+    title: Speaker or headphones for audio output
+    category: audio
+    ubuntu_versions: ["all"]
+    description: >
+      If the system has a line-out or headphone socket, have a speaker or
+      headphones available to test audio output through that port.
+    required: true
+    related_jobs:
+      - audio/playback_headphones
+      - audio/external-lineout
+
+  - id: audio-loopback-cable
+    title: Audio cable for loopback testing
+    category: audio
+    ubuntu_versions: ["all"]
+    description: >
+      If the system has a line-in or microphone socket, connect the output
+      (line-out) to the input (line-in or microphone socket) using an audio
+      cable for automated audio testing.
+    required: true
+    manifest:
+      - com.canonical.certification::has_audio_loopback_connector
+    related_jobs:
+      - audio/alsa-loopback-automated
+
+  - id: usb2-type-a-storage
+    title: USB 2 storage device for Type-A ports
+    category: usb
+    ubuntu_versions: ["all"]
+    description: >
+      If the system has USB 2 Type-A ports, insert at least one writable USB 2
+      compatible storage device with a Type-A connector and a single
+      FAT-formatted partition of at least 256 MB. Multiple partitions may
+      cause problems; if necessary, repartition the device to have a single
+      partition.
+    required: true
+    manifest:
+      - has_usb_storage
+    related_jobs:
+      - usb/storage-manual
+      - usb/storage-preinserted
+
+  - id: usb3-type-a-storage
+    title: USB 3 storage device for Type-A ports
+    category: usb
+    ubuntu_versions: ["all"]
+    description: >
+      If the system has USB 3 Type-A ports, insert at least one writable USB 3
+      compatible storage device with a Type-A connector and a single
+      FAT-formatted partition of at least 256 MB. Multiple partitions may
+      cause problems; if necessary, repartition the device to have a single
+      partition.
+    required: true
+    manifest:
+      - has_usb_storage
+    related_jobs:
+      - usb3/storage-manual
+      - usb3/storage-preinserted
+
+  - id: usb3-type-c-storage
+    title: USB 3 storage device for Type-C ports
+    category: usb
+    ubuntu_versions: ["all"]
+    description: >
+      If the system has USB 3 Type-C ports, prepare a writable USB 3
+      compatible storage device with a Type-C connector and a single
+      FAT-formatted partition of at least 256 MB. Multiple partitions may
+      cause problems; if necessary, repartition the device to have a single
+      partition.
+    required: true
+    manifest:
+      - has_usbc_data
+    related_jobs:
+      - usb-c/storage-manual
+
+  - id: sd-card
+    title: SD card
+    category: mediacards
+    ubuntu_versions: ["all"]
+    description: >
+      If the system has an SD card slot, insert an SD card containing a single
+      FAT-formatted partition of at least 256 MB. Multiple partitions may
+      cause problems; if necessary, repartition the card to have a single
+      partition.
+    required: true
+    manifest:
+      - has_card_reader
+    related_jobs:
+      - mediacard/storage-preinserted-symlink_uuid
+
+  - id: sdhc-card
+    title: SDHC card
+    category: mediacards
+    ubuntu_versions: ["all"]
+    description: >
+      If the system has an SDHC card slot, insert an SDHC card containing a
+      single FAT-formatted partition of at least 256 MB. Multiple partitions
+      may cause problems; if necessary, repartition the card to have a single
+      partition.
+    required: true
+    manifest:
+      - has_card_reader
+    related_jobs:
+      - mediacard/sdhc-storage-manual
+      - mediacard/storage-preinserted-symlink_uuid
+
+  - id: thunderbolt-storage
+    title: Thunderbolt storage device
+    category: thunderbolt
+    ubuntu_versions: ["all"]
+    description: >
+      If the system has at least one Thunderbolt port, prepare a storage
+      device containing a single FAT-formatted partition of at least 256 MB.
+      Multiple partitions may cause problems; if necessary, repartition the
+      device to have a single partition.
+    required: true
+    manifest:
+      - has_thunderbolt
+      - has_thunderbolt3
+    related_jobs:
+      - thunderbolt/storage-manual
+      - thunderbolt3/storage-manual
+
+  - id: disk-partitioning-mounts
+    title: Partitioned and mounted disks
+    category: disk
+    ubuntu_versions: ["all"]
+    description: >
+      Partition and mount all disk devices, including HDDs, SSDs and NVMe
+      devices, before testing.
+    required: true
+    related_jobs:
+      - disk/storage_device_name
+      - disk/disk_stress_ng_name
+
+  - id: additional-disk-ext4-layout
+    title: Single ext4 partition on each additional disk
+    category: disk
+    ubuntu_versions: ["all"]
+    description: >
+      For each disk beyond the first, a single partition spanning the entire
+      disk and using the ext4 filesystem is recommended.
+    required: false
+    related_jobs:
+      - disk/storage_device_name
+      - disk/disk_stress_ng_name
+
+  - id: ethernet-dhcp-network
+    title: Ethernet network with DHCP
+    category: ethernet
+    ubuntu_versions: ["all"]
+    description: >
+      Connect all of the Ethernet ports to a local area
+      network with a DHCP server providing address and gateway assignment.
+    required: true
+    manifest:
+      - has_ethernet_adapter
+    related_jobs:
+      - ethernet/wired_connection
+
+  - id: iperf3-server
+    title: iperf3 server on the test LAN
+    category: ethernet
+    ubuntu_versions: ["all"]
+    description: >
+      For Ethernet throughput testing, set up another Ubuntu computer on the
+      same Ethernet network as an iperf3 server. The server and other network
+      components must support at least the system under test's highest
+      Ethernet speed. For example, testing 100 Gbps Ethernet requires network
+      components capable of 100 Gbps or faster speeds. Install the server
+      using ``sudo apt update`` followed by ``sudo apt install iperf3 -y``,
+      then start it with ``iperf3 -s``. Record the server host's IP address
+      for configuring Checkbox.
+    required: true
+    manifest:
+      - has_ethernet_adapter
+    related_jobs:
+      - ethernet/iperf3_interface
+      - ethernet/iperf3_reverse_interface
+
+  - id: wifi-ap-bg-open
+    title: Open 802.11b/g Wi-Fi access point
+    category: wi-fi
+    ubuntu_versions: ["all"]
+    description: >
+      If the system's Wi-Fi radio supports 802.11b/g, provide an access point
+      configured for this protocol with a dedicated SSID and no security,
+      for example ssid-bg-open. Record the SSID for configuring Checkbox.
+    required: true
+    manifest:
+      - has_wlan_adapter
+    related_jobs:
+      - wireless/wireless_connection_open_bg_interface
+      - wireless/wireless_connection_open_bg_np_interface
+
+  - id: wifi-ap-n-open
+    title: Open 802.11n Wi-Fi access point
+    category: wi-fi
+    ubuntu_versions: ["all"]
+    description: >
+      If the system's Wi-Fi radio supports 802.11n, provide an access point
+      configured for this protocol with a dedicated SSID and no security,
+      for example ssid-n-open. Record the SSID for configuring Checkbox.
+    required: true
+    manifest:
+      - has_wlan_adapter
+    related_jobs:
+      - wireless/wireless_connection_open_n_interface
+      - wireless/wireless_connection_open_n_np_interface
+
+  - id: wifi-ap-ac-open
+    title: Open 802.11ac Wi-Fi access point
+    category: wi-fi
+    ubuntu_versions: ["all"]
+    description: >
+      If the system's Wi-Fi radio supports 802.11ac, provide an access point
+      configured for this protocol with a dedicated SSID and no security,
+      for example ssid-ac-open. Record the SSID for configuring Checkbox.
+    required: true
+    manifest:
+      - has_wlan_adapter
+    related_jobs:
+      - wireless/wireless_connection_open_ac_interface
+      - wireless/wireless_connection_open_ac_np_interface
+
+  - id: wifi-ap-ax-open
+    title: Open 802.11ax Wi-Fi access point
+    category: wi-fi
+    ubuntu_versions: ["all"]
+    description: >
+      If the system's Wi-Fi radio supports 802.11ax, provide an access point
+      configured for this protocol with a dedicated SSID and no security,
+      for example ssid-ax-open. Record the SSID for configuring Checkbox.
+    required: true
+    manifest:
+      - has_wlan_adapter
+    related_jobs:
+      - wireless/wireless_connection_open_ax_interface
+      - wireless/wireless_connection_open_ax_np_interface
+
+  - id: wifi-ap-bg-wpa
+    title: WPA+PSK 802.11b/g Wi-Fi access point
+    category: wi-fi
+    ubuntu_versions: ["all"]
+    description: >
+      If the system's Wi-Fi radio supports 802.11b/g, provide an access point
+      configured for this protocol with WPA+PSK security and a dedicated
+      SSID, for example ssid-bg-wpa. Record the SSID and pre-shared key for
+      configuring Checkbox.
+    required: true
+    manifest:
+      - has_wlan_adapter
+    related_jobs:
+      - wireless/wireless_connection_wpa_bg_interface
+      - wireless/wireless_connection_wpa_bg_np_interface
+
+  - id: wifi-ap-n-wpa
+    title: WPA+PSK 802.11n Wi-Fi access point
+    category: wi-fi
+    ubuntu_versions: ["all"]
+    description: >
+      If the system's Wi-Fi radio supports 802.11n, provide an access point
+      configured for this protocol with WPA+PSK security and a dedicated
+      SSID, for example ssid-n-wpa. Record the SSID and pre-shared key for
+      configuring Checkbox.
+    required: true
+    manifest:
+      - has_wlan_adapter
+    related_jobs:
+      - wireless/wireless_connection_wpa_n_interface
+      - wireless/wireless_connection_wpa_n_np_interface
+
+  - id: wifi-ap-ac-wpa
+    title: WPA+PSK 802.11ac Wi-Fi access point
+    category: wi-fi
+    ubuntu_versions: ["all"]
+    description: >
+      If the system's Wi-Fi radio supports 802.11ac, provide an access point
+      configured for this protocol with WPA+PSK security and a dedicated
+      SSID, for example ssid-ac-wpa. Record the SSID and pre-shared key for
+      configuring Checkbox.
+    required: true
+    manifest:
+      - has_wlan_adapter
+    related_jobs:
+      - wireless/wireless_connection_wpa_ac_interface
+      - wireless/wireless_connection_wpa_ac_np_interface
+
+  - id: wifi-ap-ax-wpa
+    title: WPA+PSK 802.11ax Wi-Fi access point
+    category: wi-fi
+    ubuntu_versions: ["all"]
+    description: >
+      If the system's Wi-Fi radio supports 802.11ax, provide an access point
+      configured for this protocol with WPA+PSK security and a dedicated
+      SSID, for example ssid-ax-wpa. Record the SSID and pre-shared key for
+      configuring Checkbox.
+    required: true
+    manifest:
+      - has_wlan_adapter
+    related_jobs:
+      - wireless/wireless_connection_wpa_ax_interface
+      - wireless/wireless_connection_wpa_ax_np_interface
+
+  - id: bluetooth-eddystone-beacon
+    title: Eddystone URL beacon
+    category: bluetooth
+    ubuntu_versions: ["all"]
+    description: >
+      If the system has a Bluetooth radio, place a Bluetooth Low Energy
+      beacon supporting the Eddystone profile within range of the system.
+      The beacon must broadcast a valid URL (for instance ``https://www.ubuntu.com/``).
+    required: true
+    manifest:
+      - has_bt_adapter
+    related_jobs:
+      - bluetooth4/beacon_eddystone_url_interface
+
+  - id: bluetooth-hogp-keyboard-mouse
+    title: Bluetooth Low Energy HOGP keyboard and mouse
+    category: bluetooth
+    ubuntu_versions: ["all"]
+    description: >
+      If the system has a Bluetooth radio, have a Bluetooth Low Energy
+      keyboard and mouse supporting HID Over GATT Profile (HOGP) available
+      to test their basic functionality.
+    required: true
+    manifest:
+      - has_bt_adapter
+    related_jobs:
+      - bluetooth4/HOGP-keyboard
+      - bluetooth4/HOGP-mouse
+
+  - id: wwan-sim-card
+    title: SIM card with cellular data connectivity
+    category: wwan
+    ubuntu_versions: ["all"]
+    description: >
+      If the system has a cellular radio, insert a SIM card that permits
+      registration on an available network and provides data connectivity
+      for testing.
+    required: true
+    manifest:
+      - has_wwan_module
+    related_jobs:
+      - wwan/gsm-connection-manual
+      - wwan/gsm-connection-manufacturer-model-hw_id-auto

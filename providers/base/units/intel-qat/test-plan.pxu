@@ -1,0 +1,20 @@
+# Copyright 2025 Canonical Ltd.
+# All rights reserved.
+#
+# Written by:
+#   Hector Cao <hector.cao@canonical.com>
+
+id: intel-qat-cert
+unit: test plan
+_name: Intel Quick-Assist Technology (QAT)
+_description:
+ Intel Quick-Assist Technology (QAT) tests
+include:
+    intel-qat/.*
+    intel-qat-common/.*
+    intel-qat-qatlib/.*
+bootstrap_include:
+    com.canonical.certification::executable
+    com.canonical.certification::snap
+    com.canonical.certification::qat_pf
+    com.canonical.certification::qat

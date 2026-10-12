@@ -29,6 +29,8 @@ from checkbox_support.manifest import get_manifest
 
 NAMESPACE = "com.canonical.certification"
 
+# Entrypoint names come from the VAEntrypoint enum in libva's va.h:
+# https://github.com/intel/libva/blob/master/va/va.h
 DECODER_ENTRYPOINTS = (
     "VAEntrypointVLD",
     "VAEntrypointIZZ",

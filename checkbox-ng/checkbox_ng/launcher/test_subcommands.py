@@ -945,7 +945,7 @@ class TestLauncher(TestCase):
         self_mock.sa.use_alternate_selection.assert_called_once_with(["job1"])
         self_mock._save_manifest.assert_called_once_with(interactive=True)
         self.assertEqual(
-            [call[0] for call in manager.mock_calls],
+            [mock_call[0] for mock_call in manager.mock_calls],
             ["use_alternate_selection", "save_manifest"],
         )
 

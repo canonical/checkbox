@@ -4,7 +4,7 @@ category_id: va-api
 imports:
   - from com.canonical.plainbox import manifest
 requires:
-  - package.name == 'vainfo'
+  - executable.name == 'vainfo'
   - cpuinfo.platform == 'x86_64'
   - manifest.has_va_api == 'True'
 plugin: shell
@@ -18,7 +18,7 @@ category_id: va-api
 imports:
   - from com.canonical.plainbox import manifest
 requires:
-  - package.name == 'vainfo'
+  - executable.name == 'vainfo'
   - cpuinfo.platform == 'x86_64'
   - manifest.has_va_api == 'True'
 plugin: resource
@@ -34,7 +34,7 @@ imports:
 id: va-api/va-profile-{profile}-{direction}
 template-id: va-api/va-profile-profile-direction
 requires:
-  - package.name == 'vainfo'
+  - executable.name == 'vainfo'
   - cpuinfo.platform == 'x86_64'
   - manifest.has_va_api == 'True'
 command: va_profile_check.py forward {feature}
@@ -52,7 +52,7 @@ category_id: va-api
 imports:
   - from com.canonical.plainbox import manifest
 requires:
-  - package.name == 'vainfo'
+  - executable.name == 'vainfo'
   - cpuinfo.platform == 'x86_64'
   - manifest.has_va_api == 'True'
 plugin: shell

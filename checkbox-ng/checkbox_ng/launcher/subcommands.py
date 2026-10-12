@@ -771,19 +771,21 @@ class Launcher(MainLoopStage, ReportsStage):
         wanted_set = CategoryBrowser(
             _("Choose tests to run on your system:"), test_info_list
         ).run()
+        # no need to set an alternate selection if the job list has not changed
+        if len(test_info_list) != len(wanted_set):
+            # NOTE: tree.selection is correct but ordered badly. To retain
+            # the original ordering we should just treat it as a mask and
+            # use it to filter jobs from get_static_todo_list.
+            job_id_list = [
+                job_id
+                for job_id in self.sa.get_static_todo_list()
+                if job_id in wanted_set
+            ]
+            self.sa.use_alternate_selection(job_id_list)
+        # Save the manifest only after the alternate selection has been
+        # applied, so the manifest prompts cover the jobs the user kept
+        # rather than the whole test plan.
         self._save_manifest(interactive=True)
-        # no need to set an alternate selection if the job list not changed
-        if len(test_info_list) == len(wanted_set):
-            return
-        # NOTE: tree.selection is correct but ordered badly. To retain
-        # the original ordering we should just treat it as a mask and
-        # use it to filter jobs from get_static_todo_list.
-        job_id_list = [
-            job_id
-            for job_id in self.sa.get_static_todo_list()
-            if job_id in wanted_set
-        ]
-        self.sa.use_alternate_selection(job_id_list)
 
     def _handle_last_job_after_resume(self, last_job):
         if last_job is None:

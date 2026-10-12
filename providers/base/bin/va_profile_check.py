@@ -178,26 +178,25 @@ def main(argv=None):
         )
     )
     subparsers = parser.add_subparsers(dest="command")
-    subparsers.required = True
-    subparsers.add_parser(
+    resource_parser = subparsers.add_parser(
         "resource", help="emit one resource record per (profile, direction)"
     )
+    resource_parser.set_defaults(func=lambda _args: cmd_resource())
     forward_parser = subparsers.add_parser(
         "forward", help="check that a feature is declared in the DUT manifest"
     )
     forward_parser.add_argument("feature")
-    subparsers.add_parser(
+    forward_parser.set_defaults(func=lambda args: cmd_forward(args.feature))
+    reverse_parser = subparsers.add_parser(
         "reverse",
         help="check that all manifest-declared features are advertised",
     )
+    reverse_parser.set_defaults(func=lambda _args: cmd_reverse())
     args = parser.parse_args(argv)
-    if args.command == "resource":
-        return cmd_resource()
-    if args.command == "forward":
-        return cmd_forward(args.feature)
-    if args.command == "reverse":
-        return cmd_reverse()
-    return 2
+    if args.command is None:
+        parser.print_usage()
+        raise SystemExit(2)
+    return args.func(args)
 
 
 if __name__ == "__main__":

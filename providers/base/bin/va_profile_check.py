@@ -129,11 +129,10 @@ def cmd_forward(feature):
     if feature_declared(feature):
         print("OK: {} is declared as supported on this device".format(feature))
         return 0
-    print(
+    raise SystemExit(
         "ERROR: the VA driver advertises {} but this feature is not "
         "declared in the DUT manifest".format(feature)
     )
-    return 1
 
 
 def cmd_reverse():
@@ -152,20 +151,17 @@ def cmd_reverse():
         if feature not in features:
             missing.append(feature)
     if not declared:
-        print(
+        raise SystemExit(
             "ERROR: no VA-API codec features are declared in the DUT "
             "manifest; nothing to verify. Check that the manifest declares "
             "the expected has_<profile>_<direction> features."
         )
-        return 1
     if missing:
-        print(
+        raise SystemExit(
             "ERROR: the following features are declared in the DUT manifest "
-            "but not supported by the VA driver:"
+            "but not supported by the VA driver:\n"
+            + "\n".join("  {}".format(feature) for feature in missing)
         )
-        for feature in missing:
-            print("  {}".format(feature))
-        return 1
     print("OK: all manifest-declared features are supported by the VA driver")
     return 0
 

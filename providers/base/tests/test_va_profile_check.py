@@ -166,8 +166,8 @@ class TestCmdForward(TestCase):
             "va_profile_check.get_manifest",
             return_value={NAMESPACE + "::has_hevc_main_decoder": True},
         ):
-            with redirect_stdout(StringIO()):
-                self.assertEqual(cmd_forward("has_h264_high_decoder"), 1)
+            with self.assertRaises(SystemExit):
+                cmd_forward("has_h264_high_decoder")
 
 
 class TestCmdReverse(TestCase):
@@ -198,8 +198,8 @@ class TestCmdReverse(TestCase):
                     NAMESPACE + "::has_hevc_main10_encoder": True,
                 },
             ):
-                with redirect_stdout(StringIO()):
-                    self.assertEqual(cmd_reverse(), 1)
+                with self.assertRaises(SystemExit):
+                    cmd_reverse()
 
     def test_non_codec_manifest_keys_are_ignored(self):
         with patch(
@@ -244,8 +244,8 @@ class TestCmdReverse(TestCase):
                     NAMESPACE + "::has_h264_main_decoder": False,
                 },
             ):
-                with redirect_stdout(StringIO()):
-                    self.assertEqual(cmd_reverse(), 1)
+                with self.assertRaises(SystemExit):
+                    cmd_reverse()
 
 
 class TestCmdResource(TestCase):

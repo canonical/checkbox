@@ -1,13 +1,14 @@
 import json
 import unittest
 from pathlib import Path, PosixPath
-from unittest.mock import MagicMock, patch
+from unittest.mock import MagicMock, call, patch
 
 from storage_test import (
     devmapper_name,
     devmapper_test,
     disk_test,
     find_largest_partition,
+    get_fs_type,
     main,
     mount,
     mountpoint,
@@ -43,7 +44,75 @@ class TestMountpoint(unittest.TestCase):
 
 class TestFindLargestPartition(unittest.TestCase):
     def _lsblk_json(self, blockdevices):
+        for bd in blockdevices:
+            bd.setdefault("kname", bd["name"])
         return json.dumps({"blockdevices": blockdevices})
+
+    @patch("storage_test.sp.check_output")
+    def test_find_largest_partition_unlocked_luks_lvm(self, mock_check_output):
+        # default ubuntu encrypted install layout
+        mock_check_output.return_value = self._lsblk_json(
+            [
+                {
+                    "name": "nvme0n1",
+                    "size": 5000,
+                    "type": "disk",
+                    "fstype": None,
+                },
+                {
+                    "name": "nvme0n1p2",
+                    "size": 200,
+                    "type": "part",
+                    "fstype": "ext4",
+                },
+                {
+                    "name": "nvme0n1p3",
+                    "size": 4000,
+                    "type": "part",
+                    "fstype": "crypto_LUKS",
+                },
+                {
+                    "name": "dm_crypt-0",
+                    "kname": "dm-0",
+                    "size": 4000,
+                    "type": "crypt",
+                    "fstype": "LVM2_member",
+                },
+                {
+                    "name": "ubuntu--vg-ubuntu--lv",
+                    "kname": "dm-1",
+                    "size": 4000,
+                    "type": "lvm",
+                    "fstype": "ext4",
+                },
+            ]
+        )
+        self.assertEqual(
+            find_largest_partition(Path("/dev/nvme0n1")), Path("/dev/dm-1")
+        )
+
+    @patch("storage_test.sp.check_output")
+    def test_find_largest_partition_unlocked_luks(self, mock_check_output):
+        mock_check_output.return_value = self._lsblk_json(
+            [
+                {
+                    "name": "sda1",
+                    "size": 4000,
+                    "type": "part",
+                    "fstype": "crypto_LUKS",
+                },
+                {
+                    "name": "luks-1234",
+                    "kname": "dm-0",
+                    "size": 4000,
+                    "type": "crypt",
+                    "fstype": "ext4",
+                },
+            ]
+        )
+        self.assertEqual(
+            find_largest_partition(Path("/dev/sda")), Path("/dev/dm-0")
+        )
 
     @patch("storage_test.sp.check_output")
     def test_find_largest_partition_nominal(self, mock_check_output):
@@ -201,43 +270,66 @@ class TestMountUnmount(unittest.TestCase):
         mock_check_call.assert_called_once_with(["umount", Path("/mnt/point")])
 
 
+class TestFsType(unittest.TestCase):
+    @patch("storage_test.psutil.disk_partitions")
+    def test_fs_type(self, mock_disk_partitions):
+        mock_disk_partitions.return_value = [
+            MagicMock(mountpoint="/", fstype="ext4"),
+            MagicMock(mountpoint="/mnt/point", fstype="vfat"),
+        ]
+        self.assertEqual(get_fs_type(Path("/mnt/point")), "vfat")
+        self.assertIsNone(get_fs_type(Path("/other")))
+
+
+@patch("storage_test.get_fs_type", return_value="ext4")
 class TestRunBonnie(unittest.TestCase):
     @patch("storage_test.memory", return_value=8000)
     @patch("storage_test.free_space", return_value=16000)
     @patch("storage_test.sp.check_call")
-    def test_run_bonnie(self, mock_check_call, mock_free_space, mock_memory):
+    def test_run_bonnie(
+        self, mock_check_call, mock_free_space, mock_memory, mock_fs_type
+    ):
         run_bonnie(Path("/test_dir"))
-        mock_check_call.assert_called_once_with(
+        base = ["bonnie++", "-d", PosixPath("/test_dir"), "-u", "root"]
+        self.assertEqual(
+            mock_check_call.call_args_list,
             [
-                "bonnie++",
-                "-d",
-                PosixPath("/test_dir"),
-                "-u",
-                "root",
-                "-r",
-                "8000",
-                "-D",
-            ]
+                call(base + ["-r", "8000", "-s", "16000", "-D", "-f"]),
+                call(base + ["-r", "0", "-s", "64", "-n", "0"]),
+            ],
         )
 
     @patch("storage_test.memory", return_value=8000)
     @patch("storage_test.free_space", return_value=1000)
     @patch("storage_test.sp.check_call")
     def test_run_bonnie_low_free_space(
-        self, mock_check_call, mock_free_space, mock_memory
+        self, mock_check_call, mock_free_space, mock_memory, mock_fs_type
     ):
         run_bonnie(Path("/test_dir"))
-        mock_check_call.assert_called_once_with(
+        base = ["bonnie++", "-d", PosixPath("/test_dir"), "-u", "root"]
+        self.assertEqual(
+            mock_check_call.call_args_list,
             [
-                "bonnie++",
-                "-d",
-                PosixPath("/test_dir"),
-                "-u",
-                "root",
-                "-r",
-                "250",
-                "-D",
-            ]
+                call(base + ["-r", "250", "-s", "500", "-D", "-f"]),
+                call(base + ["-r", "0", "-s", "64", "-n", "0"]),
+            ],
+        )
+
+    @patch("storage_test.memory", return_value=8000)
+    @patch("storage_test.free_space", return_value=900000)
+    @patch("storage_test.sp.check_call")
+    def test_run_bonnie_vfat_file_size_limit(
+        self, mock_check_call, mock_free_space, mock_memory, mock_fs_type
+    ):
+        mock_fs_type.return_value = "vfat"
+        run_bonnie(Path("/test_dir"))
+        base = ["bonnie++", "-d", PosixPath("/test_dir"), "-u", "root"]
+        self.assertEqual(
+            mock_check_call.call_args_list,
+            [
+                call(base + ["-r", "2047", "-s", "4094", "-D", "-f"]),
+                call(base + ["-r", "0", "-s", "64", "-n", "0"]),
+            ],
         )
 
 

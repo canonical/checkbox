@@ -25,6 +25,7 @@ from codec_base import BaseCodecProject
 from gst_utils import (
     GST_LAUNCH_BIN,
     GStreamerEncodePlugins,
+    calculate_encoder_bitrate,
     generate_artifact_name,
     get_test_file_path_by_params,
 )
@@ -133,20 +134,64 @@ class NxpIMX8mProject(BaseCodecProject):
                 self._artifact_file = generate_artifact_name()
         return self._artifact_file
 
+    @property
+    def _colorimetry(self) -> str:
+        """
+        Our golden samples carry no explicit VUI/colorimetry metadata, so
+        the decoder infers it from resolution using the standard
+        convention (also used by GStreamer/FFmpeg): SD content (height
+        <= 576) defaults to BT.601, HD content (height > 576) defaults to
+        BT.709. `videoconvert` does not preserve this inferred value when
+        it performs an actual pixel reformat (e.g. NV12 -> I420/NV21/YUY2),
+        silently falling back to BT.601 and corrupting non-NV12 encodes.
+        We re-derive and pin the correct colorimetry here so the caps
+        filter matches what the source actually is, instead of hardcoding
+        a single value that would be wrong for any future SD test sample.
+        """
+        return "bt601" if self._height <= 576 else "bt709"
+
+    # Maps a GStreamer encoder plugin to the V4L2 fourcc name it reports
+    # on its Capture queue, used to look up the actual encoder device and
+    # its supported bitrate range.
+    _V4L2_CODEC_FOURCC = {
+        GStreamerEncodePlugins.V4L2H264ENC.value: "H264",
+        GStreamerEncodePlugins.V4L2H265ENC.value: "HEVC",
+        GStreamerEncodePlugins.V4L2VP8ENC.value: "VP80",
+    }
+
+    def _bitrate_for(self, codec: str) -> int:
+        """
+        Calculate the target bitrate for the given encoder plugin, scaled
+        to the test's resolution/framerate and clamped to what the
+        actual target VPU's 'video_bitrate' V4L2 control supports. This
+        avoids a single hardcoded bitrate that could be over/under
+        provisioned for a given resolution, or invalid on a VPU whose
+        supported bitrate range differs from the one this was tuned on.
+        """
+        fourcc = self._V4L2_CODEC_FOURCC.get(codec)
+        return calculate_encoder_bitrate(
+            width=self._width,
+            height=self._height,
+            framerate=self._framerate,
+            codec_fourcc=fourcc,
+        )
+
     def _h264_pipeline_builder(self) -> str:
         """
         Build gstreamer pipeline for H264 encoder
         """
         pipeline = (
             "{} filesrc location={} ! qtdemux ! decodebin !"
-            " imxvideoconvert_g2d ! videoconvert ! video/x-raw,format={} !"
+            " videoconvert ! video/x-raw,format={},colorimetry={} !"
             " v4l2h264enc extra-controls="
-            '"controls,h264_profile=1,video_bitrate=15000000;" !'
+            '"controls,h264_profile=1,video_bitrate={};" !'
             " h264parse ! mp4mux ! filesink location={}"
         ).format(
             GST_LAUNCH_BIN,
             self._golden_sample,
             self._color_space,
+            self._colorimetry,
+            self._bitrate_for(GStreamerEncodePlugins.V4L2H264ENC.value),
             self.artifact_file,
         )
 
@@ -158,12 +203,16 @@ class NxpIMX8mProject(BaseCodecProject):
         """
         pipeline = (
             "{} filesrc location={} ! qtdemux ! decodebin !"
-            " imxvideoconvert_g2d ! videoconvert ! video/x-raw,format={} !"
-            " v4l2h265enc ! h265parse ! mp4mux ! filesink location={}"
+            " videoconvert ! video/x-raw,format={},colorimetry={} !"
+            " v4l2h265enc extra-controls="
+            '"controls,video_bitrate={};" !'
+            " h265parse ! mp4mux ! filesink location={}"
         ).format(
             GST_LAUNCH_BIN,
             self._golden_sample,
             self._color_space,
+            self._colorimetry,
+            self._bitrate_for(GStreamerEncodePlugins.V4L2H265ENC.value),
             self.artifact_file,
         )
 
@@ -175,12 +224,16 @@ class NxpIMX8mProject(BaseCodecProject):
         """
         pipeline = (
             "{} filesrc location={} ! matroskademux ! decodebin !"
-            " imxvideoconvert_g2d ! videoconvert ! video/x-raw,format={} !"
-            " v4l2vp8enc ! matroskamux ! filesink location={}"
+            " videoconvert ! video/x-raw,format={},colorimetry={} !"
+            " v4l2vp8enc extra-controls="
+            '"controls,video_bitrate={};" !'
+            " matroskamux ! filesink location={}"
         ).format(
             GST_LAUNCH_BIN,
             self._golden_sample,
             self._color_space,
+            self._colorimetry,
+            self._bitrate_for(GStreamerEncodePlugins.V4L2VP8ENC.value),
             self.artifact_file,
         )
 

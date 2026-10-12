@@ -224,12 +224,15 @@ _verification:
 
 id: graphics/video_primary
 flags: also-after-suspend
+environ: XDG_SESSION_TYPE
 plugin: user-interact-verify
 category_id: com.canonical.plainbox::graphics
 requires:
  executable.name == 'gst-launch-1.0'
 command:
+ # No GPU args -> keep the default GPU and restore XDG_SESSION_TYPE
  # shellcheck disable=SC1091
+ source graphics_env.sh
  gst_sample_video_test.py 2
 _summary: Test that video can be displayed
 _purpose:

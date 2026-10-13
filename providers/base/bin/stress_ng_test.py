@@ -456,7 +456,9 @@ def main():
 
     # Main cli options
     cpu_parser = subparsers.add_parser("cpu", help=("Run CPU tests"))
-    cpu_hotplug_parser = subparsers.add_parser("cpu-hotplug", help=("Run CPU hotplug tests"))
+    cpu_hotplug_parser = subparsers.add_parser(
+        "cpu-hotplug", help=("Run CPU hotplug tests")
+    )
     memory_parser = subparsers.add_parser("memory", help=("Run memory tests"))
     disk_parser = subparsers.add_parser("disk", help=("Run disk tests"))
 

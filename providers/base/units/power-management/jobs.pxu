@@ -366,7 +366,7 @@ estimated_duration: 300
 id: power-management/warm-reboot
 category_id: com.canonical.plainbox::power-management
 _summary: Warm reboot
-_purpose: This tests reboots the system using the `reboot` command
+_purpose: This test reboots the system using the `systemctl reboot` command
 unit: job
 plugin: shell
 command:

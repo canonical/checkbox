@@ -316,6 +316,7 @@ name: Automated iperf3 tests
 description: Automated iperf3 performance test
 include:
   - ethernet/iperf3_interface
+  - ethernet/iperf3_reverse_interface
 bootstrap_include:
   - device
 ---

@@ -66,6 +66,8 @@ def main(argv: "list[str] | None" = None) -> int:
     pipeline = [
         "videotestsrc",
         "!",
+        "video/x-raw,width=640,height=480",
+        "!",
         get_first_available_element(CONVERTERS),
         "!",
         pick_sink(),

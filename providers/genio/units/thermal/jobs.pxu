@@ -20,7 +20,7 @@ command:
     # to prevent Checkbox stucks here due to noreturn flag
     sleep 10
     touch "${PLAINBOX_SESSION_SHARE}/thermal-is-malfunction"
-    reboot
+    systemctl reboot -i
 
 id: genio-thermal/post-simulate-overheating
 depends: genio-thermal/simulate-overheating

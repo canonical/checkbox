@@ -370,7 +370,7 @@ _purpose: This tests reboots the system using the `reboot` command
 unit: job
 plugin: shell
 command:
- dbus-send --system --print-reply --dest=org.freedesktop.login1 /org/freedesktop/login1 "org.freedesktop.login1.Manager.Reboot" boolean:true
+ systemctl reboot -i
 user: root
 flags: preserve-locale noreturn autorestart
 estimated_duration: 180.0

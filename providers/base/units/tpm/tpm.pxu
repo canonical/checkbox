@@ -29,7 +29,7 @@ _steps:
   - Restart the testing application
 plugin: user-interact
 user: root
-command: reboot
+command: systemctl reboot -i
 estimated_duration: 3m
 flags: preserve-locale noreturn
 # NOTE: This job will only run if we know we have a TPM chip (according to the
@@ -64,7 +64,7 @@ _verification:
  Ensure the TPM chip is active by accessing the BIOS setting post-restart and verifying the status.
 plugin: user-interact
 user: root
-command: reboot
+command: systemctl reboot -i
 # NOTE: This job will only run if we know we have a TPM chip (according to the
 # manifest, again) but sysfs claims it's temporarily deactivated (which is the
 # confusing way to say it's inactive)
@@ -123,7 +123,7 @@ _steps:
   - Restart the testing application
 plugin: user-interact
 user: root
-command: reboot
+command: systemctl reboot -i
 requires: sysfs_tpm_after_clearing_ownership.owned == "0" and sysfs_tpm_after_clearing_ownership.enabled == "0" and sysfs_tpm_after_clearing_ownership.active == "0" and sysfs_tpm_after_clearing_ownership.temp_deactivated == "1"
 estimated_duration: 3m
 flags: preserve-locale noreturn

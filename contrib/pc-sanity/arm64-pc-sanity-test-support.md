@@ -49,6 +49,116 @@ The recommended approach is one provider package for all supported
 architectures, architecture- and capability-gated jobs, and separate ARM
 subplans for functionality that has no x86-independent implementation.
 
+## Minimum viable ARM PC support
+
+The first milestone does not need equivalent ARM replacements for every
+x86-only test. It only needs to install the existing Debian packages, expose
+an ARM-safe PC plan, run the applicable tests, and report unsupported tests
+as skipped or excluded rather than failed. No IoT provider and no new runtime
+dependency are required.
+
+### Required package changes
+
+The minimum source changes are:
+
+1. Change `plainbox-provider-pc-sanity` from `Architecture: all` to
+   `Architecture: any`. The package contains the native `uwake` executable.
+2. Change the dependency to `msr-tools [amd64]`. Checkbox job requirements
+   cannot solve a package-manager dependency failure because apt resolves
+   package dependencies before Checkbox starts.
+3. Make `c/Makefile` use an overridable `CC` and consume `CPPFLAGS`, `CFLAGS`,
+   and `LDFLAGS`. This lets the existing source build natively on arm64 and
+   preserves Debian hardening flags.
+4. Remove the binary-in-`all`, statically-linked, and unstripped Lintian
+   overrides. Debhelper should strip the architecture-specific executable and
+   `${shlibs:Depends}` should remain in `Depends`.
+5. Publish arm64 builds of the PC Sanity, base, and resource providers in the
+   same archive as Checkbox. The engine and the certification-client provider
+   are architecture-independent, but every `Architecture: any` package still
+   needs an arm64 build.
+
+This does not add a dependency. It stops apt from requesting the existing
+x86-only dependency on arm64 and rebuilds the existing helper for the target
+architecture.
+
+For the shortest initial path, target Ubuntu 24.04 or 26.04, where the current
+hard dependencies checked in this assessment are available on arm64. Ubuntu
+22.04 additionally needs the existing `openscap-scanner` dependency resolved
+from the intended archive/PPA or removed together with the CVE job; Checkbox
+cannot skip a test whose provider package cannot first be installed.
+
+### Required ARM PC plan
+
+Add an explicitly named plan per supported release, for example
+`pc-sanity-smoke-test-24-04-arm64`. It should:
+
+* nest `pc-sanity-base` and
+  `client-cert-desktop-24-04-automated`;
+* not nest `power-management-cpu-cstate-cert-automated`;
+* not nest `thermal-cert-automated`, which is explicitly an Intel thermal
+  plan; and
+* exclude the currently unguarded or known-inapplicable jobs listed below.
+
+For the initial run, exclude:
+
+```text
+power-management/check-turbostat-.*
+miscellanea/dump_libsmbios_tokens.*
+miscellanea/gate_rste_raid
+miscellanea/check-gpu-driver
+miscellanea/check-i2c-hid-existence
+miscellanea/check_windowing_system_.*
+```
+
+The six turbostat IDs currently have no definitions in this repository, so
+they select no executable jobs. They should still be removed from the ARM
+profile, and eventually from the common plan or restored through an explicit
+provider dependency, so plan expansion is deterministic.
+
+`check-gpu-driver` is excluded only for this first milestone because it uses
+PCI discovery and can falsely pass when an ARM GPU is on the platform bus.
+`check-i2c-hid-existence` and `check_windowing_system_*` encode PC hardware
+assumptions that need validation on the target ARM PC. They may be enabled
+later without adding dependencies when their selection logic is
+capability-based.
+
+Do not add blanket ARM exclusions for jobs that are already gated. Existing
+Intel checks such as `intel_pmc_core`, `intel-vtd-enabled_*`, `intel-hid_*`,
+and unchecked-MSR templates depend on `GenuineIntel` resources and will not
+run on arm64. Hardware templates for NVIDIA, touchpads, WWAN, wireless, and
+other devices are also generated only when matching resources exist.
+
+### Installation and execution proof
+
+The minimum acceptance sequence on a clean arm64 PC is:
+
+```shell
+test "$(dpkg --print-architecture)" = arm64
+sudo apt-get update
+apt-get --simulate install plainbox-provider-pc-sanity
+sudo apt-get install plainbox-provider-pc-sanity
+file /usr/lib/plainbox-provider-pc-sanity/bin/uwake
+checkbox-cli list | grep 'pc-sanity-smoke-test-24-04-arm64'
+checkbox-cli list-bootstrapped \
+  com.canonical.certification::pc-sanity-smoke-test-24-04-arm64
+checkbox-cli run --exact \
+  com.canonical.certification::pc-sanity-smoke-test-24-04-arm64
+```
+
+Success means:
+
+* apt resolves the package without `msr-tools` on arm64;
+* `uwake` is an AArch64 executable and can access `/dev/uinput` when its
+  display job is selected;
+* the plan has no unresolved required provider or executable;
+* applicable jobs run normally;
+* resource- or manifest-gated jobs are recorded as skipped with a reason;
+* the explicit ARM exclusions do not appear as passed tests; and
+* the result can be exported without confusing skipped coverage with a pass.
+
+This establishes runnable ARM PC Sanity support. Equivalent ARM power,
+thermal, firmware, IOMMU, and platform-GPU coverage is a later milestone.
+
 ## Scope and target definition
 
 "ARM support" needs a declared target. At minimum, decide all of the
@@ -127,7 +237,7 @@ MSR-related jobs apply only to Intel systems.
 Preferred fix:
 
 ```text
-msr-tools [amd64 i386],
+msr-tools [amd64],
 ```
 
 Use the exact architecture list published by each target Ubuntu series. Do
@@ -203,7 +313,7 @@ apt-cache policy checkbox-ng python3-checkbox-ng python3-checkbox-support \
   checkbox-provider-certification-client plainbox-provider-pc-sanity
 apt-get --simulate install plainbox-provider-pc-sanity
 sudo apt-get install plainbox-provider-pc-sanity
-file /usr/bin/uwake
+file /usr/lib/plainbox-provider-pc-sanity/bin/uwake
 checkbox-cli list | grep 'pc-sanity-smoke-test'
 ```
 
@@ -241,174 +351,33 @@ coverage. Most jobs are selected through hardware resources, but the plans
 were designed for Ubuntu PC devices and are not, by themselves, an ARM
 support contract.
 
-## Comparison with IoT test plans
+## Existing Checkbox instrumentation for ARM PC
 
-### Short answer
+Checkbox already has the mechanisms needed for the first ARM PC milestone.
+The implementation should reuse them rather than import an IoT plan or add a
+new dependency.
 
-The IoT plans do not run the same test set as PC Sanity.
-
-They share a substantial base-provider and certification-provider core, but
-their top-level composition and product requirements differ:
-
-* PC Sanity adds OEM image policy, package-origin, CVE, kernel-error, display,
-  Intel power, Intel thermal, SMBIOS, NVIDIA, and production-suite checks.
-* IoT certification adds GPIO, I2C, EEPROM, serial, SocketCAN, watchdog,
-  device-tree, embedded firmware, Ubuntu Core, and image/model checks.
-* The CE OEM IoT wrapper adds generic cpufreq, devfreq/DVFS, thermal-zone,
-  regulator, OP-TEE, remoteproc/RPMsg, codec, accelerator, and SoC-specific
-  tests.
-* IoT plans explicitly exclude a number of laptop/PC assumptions. They do not
-  include `pc-sanity-base`, the PC Sanity turbostat jobs,
-  `intel_pmc_core`, `power-management-cpu-cstate-cert-automated`, or
-  `thermal-cert-automated`.
-
-IoT is also not synonymous with ARM. The suite includes Intel IoT Gateway
-coverage as well as Dragonwing, MediaTek Genio, NVIDIA Jetson, Renesas RZ,
-and Xilinx coverage. Individual jobs still need resource, manifest, or
-platform gating; the fact that a job belongs to an IoT provider is not proof
-that it is portable to every arm64 platform.
-
-### Plan hierarchy
-
-The principal IoT plans are in the certification-client provider:
-
-* `client-cert-iot-desktop-<release>` for classic desktop images;
-* `client-cert-iot-server-<release>` for classic server images; and
-* `client-cert-iot-ubuntucore-<release>` for Ubuntu Core images.
-
-The contrib CE OEM provider wraps those plans as `ce-oem-iot-*` and adds
-generic embedded and SoC-specific plans. For example,
-`ce-oem-iot-desktop-26-04-automated` nests the certification-client IoT plan,
-the generic `ce-oem-automated` plan, and Dragonwing, Genio, IIoTG, Jetson,
-Renesas RZ, and Xilinx desktop plans.
-
-This is a useful model for ARM support: keep common Linux tests in shared
-providers, and add capability- or SoC-specific overlays. It is not useful to
-copy the entire IoT plan into PC Sanity because that would add many irrelevant
-embedded interfaces and still omit PC Sanity's OEM image policy checks.
-
-### Direct plan overlap
-
-The following counts compare direct `nested_part` entries, not fully expanded
-runtime jobs. Dynamic templates, resource selection, excludes, and manifest
-values can change the final selected job set.
-
-| Release and plans | PC subplans | IoT subplans | Same direct subplans | Interpretation |
-| --- | ---: | ---: | ---: | --- |
-| 24.04 `client-cert-desktop-24-04-automated` vs IoT desktop automated | 55 | 58 | 18 | Naming and composition differ substantially. Some differently named plans still exercise related devices. |
-| 26.04 `client-cert-desktop-26-04-automated` vs IoT desktop automated | 34 | 61 | 30 | The 26.04 base-plan refactor creates a large shared core; IoT adds 31 direct subplans and omits four PC-only ones. |
-
-The 30 shared 26.04 subplans cover ACPI, audio, suspend references,
-Bluetooth, CPU, disk, Ethernet, fingerprint, fwupd, graphics, keys, LED,
-media card, memory, miscellaneous client checks, monitor, networking, power,
-snapd, submission, Thunderbolt, touchscreen, TPM, USB, wireless, WWAN, and
-information attachments.
-
-The four PC-only direct subplans are:
-
-* `camera-base-26-04-automated`;
-* `input-base-26-04-automated`;
-* `optical-base-26-04-automated`; and
-* `touchpad-base-26-04-automated`.
-
-IoT has separate camera coverage and adds 31 direct plans, including generic
-audio/camera/networking variants, Docker, EDAC, EEPROM, GPIO, I2C, ISH/MEI,
-QEP, RTC, serial, SocketCAN, VA-API, watchdog, Wi-Fi AP mode, and their
-applicable after-suspend variants.
-
-The 24.04 plans have lower direct-name overlap because PC uses names such as
-`cpu-cert-automated` while IoT uses `cpu-automated`. They still share jobs from
-the same base provider, but their exact includes, certification statuses, and
-after-suspend composition differ. An expanded-plan comparison is required to
-measure job-level overlap accurately.
-
-### IoT exclusions relevant to ARM PC Sanity
-
-The 26.04 IoT desktop/server plans explicitly exclude several cases that are
-poor defaults for embedded ARM products:
-
-* `power-management/tickless_idle` and its after-suspend sibling;
-* GLX gears jobs;
-* `hdparm` disk benchmarks;
-* laptop lid, light-sensor, and airplane-mode jobs in manual plans;
-* selected disk detection/parking and multi-head cases; and
-* selected CPU and memory stress jobs from the stress plan.
-
-Ubuntu Core adds more exclusions for apt updates, debsums, desktop package
-recommendations, GRUB, NTP, and some suspend/audio behavior because those
-tests do not fit the immutable Core image model.
-
-These exclusions should not automatically be copied to an ARM PC plan. An
-ARM laptop may legitimately need touchpad, lid, display, airplane-mode, and
-desktop package-policy coverage. Select by product capability and image type,
-not by architecture alone.
-
-### Existing ARM and architecture-neutral IoT coverage
-
-The following implementations are directly relevant to filling PC Sanity's
-ARM gaps:
-
-| IoT/CE OEM test | What it provides | Reuse recommendation |
+| Mechanism | Existing data or behavior | ARM PC use |
 | --- | --- | --- |
-| `cpu/arm64_vfp_support_aarch64` | Existing aarch64 floating-point capability check in the base provider. | Retain through the shared CPU plan; it does not replace idle or thermal tests. |
-| `ce-oem-cpu-automated` | Discovers cpufreq policies and tests available governors. It excludes `intel_pstate` and operates on sysfs policies. | Strong candidate to replace part of the Intel/MSR CPU power coverage. Move generic functionality to the base provider if PC Sanity must consume it without CE OEM. |
-| `ce-oem-dvfs-automated` | Discovers devfreq processors and validates governors, gated by `has_processor_dvfs_support`. | Use for GPU/NPU/memory-controller DVFS where the product manifest declares support. It is not equivalent to CPU C-state residency. |
-| `ce-oem-thermal-automated` | Enumerates thermal zones, monitors temperatures, and compares zone identities before and after suspend. | Strong generic ARM thermal baseline. Add product-specific load, trip-point, cooling-device, and throttling acceptance criteria. |
-| `ce-oem-dtb-automated` | Attaches the runtime device tree on aarch64/armv7l systems. | Use for device-tree inventory and diagnostics; add schema/policy validation if a pass/fail result is required. |
-| `iot-fwts-automated` | Runs FWTS desktop diagnosis and attaches results. | Evidence that IoT uses FWTS, not proof that every FWTS test supports ARM. Gate individual categories on FWTS capability and firmware model. |
-| GPIO, I2C, EEPROM, serial, SocketCAN, RTC, watchdog plans | Embedded peripheral validation selected by resources/manifests. | Include only when those interfaces are product requirements. |
-| Dragonwing, Genio, Jetson, RZ, and Xilinx plans | Vendor-specific camera, codec, AI/ML, accelerator, thermal, firmware, and watchdog tests. | Use only for the matching SoC/platform; do not put these jobs in a generic arm64 plan. |
+| Resource jobs | `cpuinfo`, `device`, `graphics_card`, `dmi`, `package`, `executable`, and `sleep` describe the running system. `cpuinfo.platform` is `aarch64` on arm64. | Select by observed CPU, device, driver, package, executable, firmware, and sleep capability. |
+| `requires` | A false resource expression inhibits execution. Current Checkbox records this as `skipped-resource` with the failed expression. | Add `cpuinfo.platform in ('i386', 'x86_64')` only to genuinely x86-only jobs; prefer checking the actual interface or executable. |
+| Templates and `template-filter` | Jobs are generated only for matching resource records. PC Sanity already uses this for Intel CPUs, NVIDIA GPUs, touchpads, WWAN, wireless, and DMI chassis data. | Leave existing filters in place; do not duplicate them in the ARM plan. |
+| Manifest entries | Product configuration declares required capabilities, and unmet requirements are reported as `skipped-manifest`. | Use existing manifest entries where they already express product policy. Do not add hidden ARM manifests merely to skip current x86 tests. |
+| Test-plan `exclude` | A top-level plan can remove known-inapplicable job IDs or patterns inherited from nested plans. | Create a release-specific ARM PC profile with the temporary exclusion list above. |
+| Separate nested plans | Common desktop coverage, Intel C-state coverage, and Intel thermal coverage are already separate plans. | Compose the ARM plan from common PC parts and omit the two Intel plans. |
+| Packaging metadata | A provider's packaging metadata contributes its declared native package requirements through `${plainbox:Depends}`. | Keep package dependencies declarative, but architecture-qualify hard dependencies that apt cannot install on arm64. |
+| Result exporters | Checkbox distinguishes `skipped-resource`, `skipped-manifest`, `skipped-dependency`, manual skip, failure, and pass. | Audit skips explicitly; never count skipped x86 coverage as an ARM pass. |
 
-### Coverage that IoT does not solve
+The most important distinction is between apt and Checkbox. Apt dependencies
+must be satisfiable before any plan is loaded, so `msr-tools` needs a Debian
+architecture qualifier. Once Checkbox is running, resource requirements,
+templates, manifests, and plan exclusions can safely suppress unsupported
+tests without installing replacements.
 
-Adopting the IoT plans does not fix these PC Sanity requirements:
-
-* PC Sanity Debian packaging (`Architecture: all`, native `uwake`, and
-  `msr-tools`) remains broken for arm64.
-* PC Sanity's dangling turbostat includes remain unresolved.
-* OEM archive, platform metapackage, production-suite, public/private package,
-  and image-release policy checks are absent or different.
-* The PCI-only `check-gpu-driver` false pass and PC display policy remain.
-* SMBIOS token behavior remains inappropriate for many ARM systems.
-* IoT cpufreq and thermal-zone checks are not equivalent to system suspend
-  residency, measured platform power, ARM SMMU isolation, or complete thermal
-  throttling validation.
-* A classic ARM laptop still needs input, touchpad, camera, display, desktop,
-  and suspend policy that an embedded IoT plan may exclude.
-
-### Recommended reuse strategy
-
-Do not replace `pc-sanity-smoke-test-*-automated` wholesale with an IoT plan.
-Instead:
-
-1. Extract a `pc-sanity-common` plan containing architecture-neutral OEM image
-   and kernel checks.
-2. Continue using the shared 26.04 base plans for common desktop hardware.
-3. Keep Intel C-state and Intel thermal plans as capability-gated x86
-   overlays, not common nested plans.
-4. Upstream generic CE OEM cpufreq, devfreq, thermal-zone, and device-tree
-   functionality into `providers/base`, or package CE OEM as an explicit
-   dependency if its release lifecycle is acceptable.
-5. Add an ARM platform overlay selected by manifest/resource data, with
-   separate SoC overlays where required.
-6. Compare fully expanded job IDs and results on native hardware. Direct plan
-   names alone cannot establish equivalent coverage.
-
-A possible 26.04 structure is:
-
-```text
-pc-sanity-smoke-test-26-04-arm64
-  pc-sanity-common
-  client-cert-desktop-26-04-automated
-  arm64-cpu-power-automated
-  arm64-thermal-automated
-  arm64-firmware-automated
-  <optional SoC/product overlay>
-```
-
-Use the IoT desktop plan instead of the desktop certification plan only when
-the target is genuinely an IoT product and its exclusions match the product
-requirements.
+The useful lesson from existing ARM-oriented plans is this composition model,
+not their test inventory: share generic provider jobs, let resources gate
+hardware tests, and keep architecture- or platform-specific coverage in
+separate nested plans. PC Sanity should apply that model to PC requirements.
 
 ### Result classifications
 

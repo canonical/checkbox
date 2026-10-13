@@ -193,7 +193,8 @@ class SpectrumAnalyzerTests(unittest.TestCase):
 
     def test_frequency_band_for(self):
         sa = SpectrumAnalyzer(points=256)
-        self.assertEqual(2, sa.frequency_band_for(220))
+        self.assertEqual(3, sa.frequency_band_for(220))
+        self.assertEqual(6, sa.frequency_band_for(DEFAULT_TEST_FREQUENCY))
 
         # frequency > max_frequency
         self.assertEqual(None, sa.frequency_band_for(22000000))
@@ -353,10 +354,12 @@ class RunTestTests(unittest.TestCase):
     @patch("pipewire_test.SpectrumAnalyzer.frequency_band_for")
     @patch("pipewire_test.VolumeController._wpctl_output")
     def test_with_bands(self, mock_wpctl, mock_band, mock_peak, mock_rb):
+        test_band = 6
         mock_rb.return_value = (1, 2)
-        mock_band.return_value = 5035
-        mock_peak.return_value = [5035]
+        mock_band.return_value = test_band
+        mock_peak.return_value = [test_band]
         self.assertEqual(0, run_test(process_arguments(["--debug"])))
+        mock_band.assert_called_once_with(DEFAULT_TEST_FREQUENCY)
 
     @patch("pipewire_test.FileDumper.write_to_file")
     @patch("pipewire_test.VolumeController._wpctl_output")

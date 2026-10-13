@@ -104,6 +104,8 @@ class MainTests(unittest.TestCase):
                 "-v",
                 "videotestsrc",
                 "!",
+                "video/x-raw,width=640,height=480",
+                "!",
                 "videoconvert",
                 "!",
                 "xvimagesink",
@@ -134,3 +136,7 @@ class MainTests(unittest.TestCase):
         gsvt.main(["2"])
         self.assertIn("ffmpegcolorspace", mock_call.call_args[0][0])
         self.assertNotIn("videoconvert", mock_call.call_args[0][0])
+
+
+if __name__ == "__main__":
+    unittest.main()

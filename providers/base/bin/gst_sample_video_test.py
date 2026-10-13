@@ -45,7 +45,7 @@ def element_exists(name: str) -> bool:
     )
 
 
-def first_available(candidates: "list[str]") -> str:
+def get_first_available_element(candidates: "list[str]") -> str:
     for name in candidates:
         if element_exists(name):
             return name
@@ -58,7 +58,7 @@ def pick_sink() -> str:
         raise SystemExit(
             f"Not in a graphical session! XDG_SESSION_TYPE={session_type!r}"
         )
-    return first_available(SINKS[session_type])
+    return get_first_available_element(SINKS[session_type])
 
 
 def main(argv: "list[str] | None" = None) -> int:
@@ -66,7 +66,7 @@ def main(argv: "list[str] | None" = None) -> int:
     pipeline = [
         "videotestsrc",
         "!",
-        first_available(CONVERTERS),
+        get_first_available_element(CONVERTERS),
         "!",
         pick_sink(),
     ]

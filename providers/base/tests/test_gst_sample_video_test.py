@@ -33,17 +33,17 @@ class ElementExistsTests(unittest.TestCase):
 class FirstAvailableTests(unittest.TestCase):
     @patch("gst_sample_video_test.element_exists", return_value=True)
     def test_returns_first_candidate(self, mock_exists):
-        self.assertEqual(gsvt.first_available(["a", "b"]), "a")
+        self.assertEqual(gsvt.get_first_available_element(["a", "b"]), "a")
 
     @patch("gst_sample_video_test.element_exists")
     def test_falls_back_to_next_candidate(self, mock_exists):
         mock_exists.side_effect = lambda name: name == "b"
-        self.assertEqual(gsvt.first_available(["a", "b"]), "b")
+        self.assertEqual(gsvt.get_first_available_element(["a", "b"]), "b")
 
     @patch("gst_sample_video_test.element_exists", return_value=False)
     def test_none_available(self, mock_exists):
         with self.assertRaises(SystemExit):
-            gsvt.first_available(["a", "b"])
+            gsvt.get_first_available_element(["a", "b"])
 
 
 class PickSinkTests(unittest.TestCase):

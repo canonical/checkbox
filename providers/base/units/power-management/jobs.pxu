@@ -400,7 +400,7 @@ command:
  sleep 5
  rtcwake -v -d "${RTC_DEVICE_FILE:-rtc0}" -m show
  sleep 5
- dbus-send --system --print-reply --dest=org.freedesktop.login1 /org/freedesktop/login1 "org.freedesktop.login1.Manager.PowerOff" boolean:true
+ systemctl poweroff -i
 user: root
 flags: preserve-locale noreturn autorestart
 environ: COLD_REBOOT_DELAY RTC_DEVICE_FILE

@@ -36,7 +36,7 @@ command:
  path="$PLAINBOX_SESSION_SHARE/{name}_snap_revision_info"
  logpath="$PLAINBOX_SESSION_SHARE/snap-refresh-{type}-{name}-to-stable-rev.log"
  snap_update_test.py --refresh --revision {stable_rev} --info-path "$path" {name} | tee "$logpath"
- reboot
+ systemctl reboot -i
 
 unit: template
 template-resource: snap_revision_info
@@ -86,7 +86,7 @@ command:
  path="$PLAINBOX_SESSION_SHARE/{name}_snap_revision_info"
  logpath="$PLAINBOX_SESSION_SHARE/snap-revert-{type}-{name}-from-stable-rev.log"
  snap_update_test.py --revert --info-path "$path" {name} | tee "$logpath"
- reboot
+ systemctl reboot -i
 
 unit: template
 template-resource: snap_revision_info
@@ -149,7 +149,7 @@ command:
  path="$PLAINBOX_SESSION_SHARE/{name}_snap_revision_info"
  logpath="$PLAINBOX_SESSION_SHARE/snap-refresh-{type}-{name}-to-base-rev.log"
  snap_update_test.py --refresh --revision {base_rev} --info-path "$path" {name} | tee "$logpath"
- reboot
+ systemctl reboot -i
 
 unit: template
 template-resource: snap_revision_info
@@ -199,7 +199,7 @@ command:
  path="$PLAINBOX_SESSION_SHARE/{name}_snap_revision_info"
  logpath="$PLAINBOX_SESSION_SHARE/snap-revert-{type}-{name}-from-base-rev.log"
  snap_update_test.py --revert --info-path "$path" {name} | tee "$logpath"
- reboot
+ systemctl reboot -i
 
 unit: template
 template-resource: snap_revision_info

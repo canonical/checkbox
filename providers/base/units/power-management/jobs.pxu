@@ -300,7 +300,7 @@ category_id: com.canonical.plainbox::power-management
 id: power-management/reboot_manual
 estimated_duration: 120.0
 user:root
-command: shutdown -r now
+command: systemctl reboot -i
 _summary:
  Verify that the system can successfully reboot.
 _purpose:
@@ -321,7 +321,7 @@ category_id: com.canonical.plainbox::power-management
 id: power-management/shutdown_manual
 estimated_duration: 120.0
 user: root
-command: shutdown -h now
+command: systemctl poweroff -i
 _purpose:
  This test will check your system shutdown/booting cycle
 _steps:
@@ -366,11 +366,11 @@ estimated_duration: 300
 id: power-management/warm-reboot
 category_id: com.canonical.plainbox::power-management
 _summary: Warm reboot
-_purpose: This tests reboots the system using the `reboot` command
+_purpose: This test reboots the system using the `systemctl reboot` command
 unit: job
 plugin: shell
 command:
- dbus-send --system --print-reply --dest=org.freedesktop.login1 /org/freedesktop/login1 "org.freedesktop.login1.Manager.Reboot" boolean:true
+ systemctl reboot -i
 user: root
 flags: preserve-locale noreturn autorestart
 estimated_duration: 180.0
@@ -400,7 +400,7 @@ command:
  sleep 5
  rtcwake -v -d "${RTC_DEVICE_FILE:-rtc0}" -m show
  sleep 5
- dbus-send --system --print-reply --dest=org.freedesktop.login1 /org/freedesktop/login1 "org.freedesktop.login1.Manager.PowerOff" boolean:true
+ systemctl poweroff -i
 user: root
 flags: preserve-locale noreturn autorestart
 environ: COLD_REBOOT_DELAY RTC_DEVICE_FILE

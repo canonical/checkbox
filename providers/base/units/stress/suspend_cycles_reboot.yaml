@@ -176,7 +176,7 @@ requires:
   - manifest.has_suspend_support == 'True'
 estimated_duration: "30.0"
 user: root
-command: reboot
+command: systemctl reboot -i
 flags:
   - noreturn
 after:

@@ -169,6 +169,20 @@ be able to send an e-mail to them.
 
 # Usage
 
+## Testing Launchpad imports
+
+The **Test Launchpad monorepo import** workflow runs only the monorepo
+import job, including dependency installation and checkout. It uses the same
+runner labels, credentials, retry settings, and import command as the daily
+Debian workflow, but does not trigger package builds.
+
+Push to `fix-launchpad-import-timeouts` to run it before merging. Once the
+workflow is available on the default branch, it can also be run from GitHub
+Actions using **Run workflow** and selecting the branch to test. It requests a
+real import of `~checkbox-dev/checkbox/+git/checkbox` into Launchpad; it is not a
+dry run. A successful run verifies the normal import path, but does not prove
+that a stalled network request will time out.
+
 ## Testing release tools
 
 These are the steps to run the tests for the release tools:

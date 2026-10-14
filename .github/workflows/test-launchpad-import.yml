@@ -2,6 +2,9 @@ name: Test Launchpad monorepo import
 permissions:
   contents: read
 on:
+  push:
+    branches:
+      - fix-launchpad-import-timeouts
   workflow_dispatch:
 
 jobs:
@@ -36,4 +39,4 @@ jobs:
           attempt_delay: 60000 # 1 min
           attempt_limit: 60   # bounded by the step timeout
           command: |
-            timeout --verbose --kill-after=10s 180s tools/release/lp_request_import.py "~checkbox-dev/checkbox/+git/checkbox"
+            tools/release/lp_request_import.py "~checkbox-dev/checkbox/+git/checkbox"

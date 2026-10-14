@@ -26,6 +26,7 @@ value.
 
 # delay between updates requested to LP
 LP_POLLING_DELAY = 60
+LP_REQUEST_TIMEOUT_S = 30
 
 
 def start_all_source_builds(build_recipe: LPSourcePackageRecipe):
@@ -162,6 +163,7 @@ def monitor_retry_binary_builds(
         if not binary_builds_to_check:
             # this may be because all builds for this recipe are done, either
             # way lets not spam LP with requests
+            print("Waiting for pending builds in the archive...")
             time.sleep(LP_POLLING_DELAY)
 
     return builds_unrecoverable
@@ -251,7 +253,9 @@ def build_monitor_recipe(project_name: str, recipe_name: str):
     unrecoverably fails.
     """
     start_time = get_date_utc_now()
-    build_recipe = get_source_build_recipe(project_name, recipe_name)
+    build_recipe = get_source_build_recipe(
+        project_name, recipe_name, timeout=LP_REQUEST_TIMEOUT_S
+    )
 
     start_all_source_builds(build_recipe)
 

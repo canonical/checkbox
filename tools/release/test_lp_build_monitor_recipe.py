@@ -77,6 +77,8 @@ class TestHelperFunctions(unittest.TestCase):
     @patch("lp_build_monitor_recipe.print")
     def test_monitor_retry_binary_builds(self, print_mock):
         build_recipe_mock = MagicMock()
+        build_recipe_mock.name = "checkbox-ng-edge"
+        build_recipe_mock.daily_build_archive.getBuildRecords.return_value = []
         build_recipe_mock.daily_build_archive.getBuildCounters.side_effect = [
             {"pending": 10},
             {"pending": 5},
@@ -92,6 +94,33 @@ class TestHelperFunctions(unittest.TestCase):
             build_recipe_mock.daily_build_archive.getBuildCounters.call_count,
             3,
         )
+        self.assertEqual(
+            print_mock.call_args_list,
+            [
+                unittest.mock.call(
+                    "Waiting for pending builds in the archive..."
+                )
+            ]
+            * 2,
+        )
+
+    def test_monitor_retry_builds_request_timeout(self):
+        build = MagicMock()
+        build.lp_refresh.side_effect = TimeoutError("Launchpad timed out")
+
+        with self.assertRaisesRegex(TimeoutError, "Launchpad timed out"):
+            lp_build_monitor_recipe.monitor_retry_builds([build])
+
+        build.retry.assert_not_called()
+
+    def test_monitor_retry_binary_builds_request_timeout(self):
+        recipe = MagicMock()
+        recipe.daily_build_archive.getBuildCounters.side_effect = TimeoutError(
+            "Launchpad timed out"
+        )
+
+        with self.assertRaisesRegex(TimeoutError, "Launchpad timed out"):
+            lp_build_monitor_recipe.monitor_retry_binary_builds(recipe, 0)
 
     def test_recipe_name_to_source_name(self):
         self.assertEqual(
@@ -292,6 +321,9 @@ class TestMain(unittest.TestCase):
 
         lp_build_monitor_recipe.main(["checkbox", "some_recipe"])
 
+        get_source_build_recipe_mock.assert_called_with(
+            "checkbox", "some_recipe", timeout=30
+        )
         self.assertEqual(recipe_mock.requestBuild.call_count, 3)
         # after 3 calls all builds were started correctly
         self.assertEqual(recipe_mock.getPendingBuildInfo.call_count, 3)

@@ -3,4 +3,6 @@ unit: test plan
 _name: Dragonwing automated miscellanea tests
 _description: Automated miscellanea tests for dragonwing
 include:
+    dragonwing-misc/check-dragonwing-platform-info
+    dragonwing-misc/check-dragonwing-soc-info
     dragonwing-misc/check-zram-enablement

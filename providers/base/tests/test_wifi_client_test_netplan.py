@@ -897,9 +897,9 @@ class TestMain(TestCase):
         with self.assertRaises(SystemExit):
             main()
 
-        self.assertEqual(mock_delete.call_count, 1)
-        self.assertEqual(mock_restore.call_count, 1)
-        self.assertEqual(mock_print_journal.call_count, 2)
+        self.assertEqual(mock_delete.call_count, 2)
+        self.assertEqual(mock_restore.call_count, 2)
+        self.assertEqual(mock_print_journal.call_count, 4)
 
     @patch("wifi_client_test_netplan.parse_args")
     @patch("wifi_client_test_netplan.check_and_get_renderer")
@@ -943,8 +943,11 @@ class TestMain(TestCase):
         with self.assertRaises(SystemExit):
             main()
 
-        self.assertEqual(mock_delete.call_count, 2)
-        self.assertEqual(mock_restore.call_count, 1)
-        self.assertEqual(mock_apply.call_count, 2)
-        self.assertEqual(mock_print_journal.call_count, 1)
-        mock_ping.assert_called_once_with("wlan0", "networkd")
+        self.assertEqual(mock_delete.call_count, 4)
+        self.assertEqual(mock_restore.call_count, 2)
+        self.assertEqual(mock_apply.call_count, 4)
+        self.assertEqual(mock_print_journal.call_count, 2)
+        assert mock_ping.call_count == 2
+        mock_ping.assert_has_calls(
+            [call("wlan0", "networkd"), call("wlan0", "networkd")]
+        )

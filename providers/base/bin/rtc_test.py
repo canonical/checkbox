@@ -21,20 +21,12 @@ import os
 import subprocess
 import sys
 import time
+from pathlib import Path
 
 
 def find_rtc_devices():
     """Return a sorted list of rtc device names under /dev, e.g. ['rtc0']."""
     return sorted(os.path.basename(p) for p in glob.glob("/dev/rtc[0-9]*"))
-
-
-def _can_read(path):
-    try:
-        with open(path) as f:
-            f.read()
-        return True
-    except OSError:
-        return False
 
 
 def cmd_list(args):
@@ -52,7 +44,8 @@ def cmd_battery(args):
     rtc = args.rtc
     subprocess.run(["rtcwake", "-v", "-d", rtc, "-m", "disable"], check=False)
     result = subprocess.run(
-        ["rtcwake", "-v", "-d", rtc, "-m", "off", "-s", str(args.seconds)]
+        ["rtcwake", "-v", "-d", rtc, "-m", "off", "-s", str(args.seconds)],
+        check=False,
     )
     return result.returncode
 
@@ -79,27 +72,23 @@ def cmd_number(args):
     return 0
 
 
-def cmd_read(args):
+def cmd_read_and_sync(args):
     """Check /sys/class/rtc/<rtc>/since_epoch is readable;
     sync via hwclock if not.
     """
     rtc = args.rtc
-    since_epoch_path = f"/sys/class/rtc/{rtc}/since_epoch"
+    since_epoch_path = Path("/sys/class/rtc") / rtc / "since_epoch"
 
-    if _can_read(since_epoch_path):
+    if os.access(since_epoch_path, os.R_OK):
         return 0
 
     print(f"Warning: Unable to read {since_epoch_path}.")
 
     hwclock_cmd = ["hwclock", "--systohc", "--utc", f"--rtc=/dev/{rtc}"]
-    result = subprocess.run(hwclock_cmd)
-    if result.returncode != 0:
-        print("Error: hwclock sync failed.")
-        return 1
+    subprocess.run(hwclock_cmd, check=True)
 
-    if not _can_read(since_epoch_path):
-        print("Error: RTC is still not readable after hwclock sync.")
-        return 1
+    if not os.access(since_epoch_path, os.R_OK):
+        raise SystemExit("Error: RTC is still not readable after hwclock sync.")
 
     return 0
 
@@ -109,21 +98,20 @@ def cmd_alarm(args):
     with a timeout guard.
     """
     rtc = args.rtc
-    wakealarm_path = f"/sys/class/rtc/{rtc}/wakealarm"
+    wakealarm_path = Path("/sys/class/rtc") / rtc / "wakealarm"
 
-    if not os.path.isfile(wakealarm_path):
-        print(f"{rtc} does not support wakealarm")
-        return 1
+    if not wakealarm_path.is_file():
+        raise SystemExit(f"{rtc} does not support wakealarm")
 
     cmd = ["rtcwake", "-v", "-d", rtc, "-m", "on", "-s", str(args.seconds)]
     try:
         subprocess.run(cmd, timeout=args.timeout, check=True)
     except subprocess.TimeoutExpired:
-        print("Error: rtcwake timed out!")
-        return 1
+        raise SystemExit("Error: rtcwake timed out!")
     except subprocess.CalledProcessError as exc:
-        print(f"Error: rtcwake failed with exit code {exc.returncode}")
-        return 1
+        raise SystemExit(
+            f"Error: rtcwake failed with exit code {exc.returncode}"
+        )
 
     return 0
 
@@ -131,10 +119,9 @@ def cmd_alarm(args):
 def cmd_clock(args):
     """Check that the RTC clock is synchronized with the system clock."""
     rtc = args.rtc
-    since_epoch_path = f"/sys/class/rtc/{rtc}/since_epoch"
+    since_epoch_path = Path("/sys/class/rtc") / rtc / "since_epoch"
 
-    with open(since_epoch_path) as f:
-        rtc_time = int(f.read().strip())
+    rtc_time = int(since_epoch_path.read_text().strip())
     sys_time = int(time.time())
     diff = abs(sys_time - rtc_time)
 
@@ -143,10 +130,9 @@ def cmd_clock(args):
         print(f"RTC clock= {rtc_time}")
         return 0
 
-    print(f"{rtc} Clock not synchronized with System Clock")
     print(f"System clock= {sys_time}")
     print(f"RTC clock= {rtc_time}")
-    return 1
+    raise SystemExit(f"{rtc} Clock not synchronized with System Clock")
 
 
 def build_parser():
@@ -174,9 +160,12 @@ def build_parser():
     )
     p_number.set_defaults(func=cmd_number)
 
-    p_read = sub.add_parser("read", help="Check RTC is readable")
+    p_read = sub.add_parser(
+        "read",
+        help="Check RTC is readable. If not, sync it via hwclock.",
+    )
     p_read.add_argument("--rtc", default=default_rtc)
-    p_read.set_defaults(func=cmd_read)
+    p_read.set_defaults(func=cmd_read_and_sync)
 
     p_alarm = sub.add_parser("alarm", help="Check RTC wakealarm")
     p_alarm.add_argument("--rtc", default=default_rtc)

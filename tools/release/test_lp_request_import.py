@@ -1,5 +1,5 @@
 import unittest
-from unittest.mock import patch, MagicMock
+from unittest.mock import patch, MagicMock, PropertyMock
 
 import lp_request_import
 
@@ -26,6 +26,29 @@ class TestMain(unittest.TestCase):
         )
 
         with self.assertRaises(SystemExit):
+            lp_request_import.main(["checkbox-edge"])
+        get_launchpad_client_mock.assert_called_with(timeout=30)
+
+    @patch("lp_request_import.get_launchpad_client")
+    def test_main_request_timeout(self, get_launchpad_client_mock):
+        repo = get_launchpad_client_mock().git_repositories.getByPath()
+        repo.code_import.requestImport.side_effect = TimeoutError(
+            "Launchpad request timed out"
+        )
+
+        with self.assertRaisesRegex(SystemExit, "Launchpad request timed out"):
+            lp_request_import.main(["checkbox-edge"])
+
+    @patch("lp_request_import.get_launchpad_client")
+    def test_main_poll_timeout(self, get_launchpad_client_mock):
+        repo = get_launchpad_client_mock().git_repositories.getByPath()
+        type(repo.code_import).date_last_successful = PropertyMock(
+            side_effect=TimeoutError("Launchpad polling timed out")
+        )
+
+        with self.assertRaisesRegex(
+            TimeoutError, "Launchpad polling timed out"
+        ):
             lp_request_import.main(["checkbox-edge"])
 
     @patch("lp_request_import.get_launchpad_client")

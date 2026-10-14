@@ -56,14 +56,19 @@ class LPSourcePackageRecipe(LPObject):
     """
 
 
-def get_launchpad_client() -> Launchpad:
+def get_launchpad_client(timeout: int | None = None) -> Launchpad:
     credentials = os.getenv("LP_CREDENTIALS")
     if not credentials:
         raise SystemExit("LP_CREDENTIALS environment variable missing")
 
     credentials = Credentials.from_string(credentials)
     return Launchpad(
-        credentials, None, None, service_root="production", version="devel"
+        credentials,
+        None,
+        None,
+        service_root="production",
+        version="devel",
+        timeout=timeout,
     )
 
 

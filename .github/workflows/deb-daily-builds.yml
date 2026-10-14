@@ -31,12 +31,13 @@ jobs:
           persist-credentials: false
       - uses: Wandalen/wretry.action@df981d2bb22b26b5b23754bb516d0de8c1bfbbec
         name: Make LP pull the monorepo
+        timeout-minutes: 120
         env:
           LP_CREDENTIALS: ${{ secrets.LP_CREDS }}
           PYTHONUNBUFFERED: 1
         with:
-          attempt_delay: 6000 # 1 min
-          attempt_limit: 60   # max 1 hour of retries
+          attempt_delay: 60000 # 1 min
+          attempt_limit: 60   # bounded by the step timeout
           command: |
             tools/release/lp_request_import.py "~checkbox-dev/checkbox/+git/checkbox"
   ppa_build:
@@ -80,7 +81,7 @@ jobs:
           LP_CREDENTIALS: ${{ secrets.LP_CREDS }}
           PYTHONUNBUFFERED: 1
         with:
-          attempt_delay: 6000 # 1 min
+          attempt_delay: 60000 # 1 min
           attempt_limit: 60   # max 1 hour of retries
           command: |
             tools/release/lp_update_recipe.py checkbox --recipe ${{ matrix.recipe }} --new-version $(tools/release/get_version.py --dev-suffix --output-format deb) --revision $GITHUB_SHA

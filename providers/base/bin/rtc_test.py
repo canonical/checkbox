@@ -29,6 +29,14 @@ def find_rtc_devices():
     return sorted(os.path.basename(p) for p in glob.glob("/dev/rtc[0-9]*"))
 
 
+def _is_readable(path):
+    try:
+        path.read_text()
+    except OSError:
+        return False
+    return True
+
+
 def cmd_list(args):
     """Resource job: emit one record per RTC device found."""
     for rtc in find_rtc_devices():
@@ -79,15 +87,16 @@ def cmd_read_and_sync(args):
     rtc = args.rtc
     since_epoch_path = Path("/sys/class/rtc") / rtc / "since_epoch"
 
-    if os.access(since_epoch_path, os.R_OK):
+    if _is_readable(since_epoch_path):
         return 0
 
     print(f"Warning: Unable to read {since_epoch_path}.")
 
     hwclock_cmd = ["hwclock", "--systohc", "--utc", f"--rtc=/dev/{rtc}"]
     subprocess.run(hwclock_cmd, check=True)
+    print(f"Synced system time to /dev/{rtc} via hwclock.")
 
-    if not os.access(since_epoch_path, os.R_OK):
+    if not _is_readable(since_epoch_path):
         raise SystemExit(
             "Error: RTC is still not readable after hwclock sync."
         )

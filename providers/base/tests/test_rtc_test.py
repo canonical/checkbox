@@ -34,6 +34,16 @@ class FindRtcDevicesTests(unittest.TestCase):
         self.assertEqual(rtc_test.find_rtc_devices(), ["rtc0", "rtc1"])
 
 
+class IsReadableTests(unittest.TestCase):
+    @patch("rtc_test.Path.read_text", return_value="1792062647\n")
+    def test_readable_file_returns_true(self, mock_read):
+        self.assertTrue(rtc_test._is_readable(Path("/fake/since_epoch")))
+
+    @patch("rtc_test.Path.read_text", side_effect=OSError)
+    def test_invalid_argument_returns_false(self, mock_read):
+        self.assertFalse(rtc_test._is_readable(Path("/fake/since_epoch")))
+
+
 class CmdListTests(unittest.TestCase):
     @patch("rtc_test.find_rtc_devices", return_value=["rtc0", "rtc1"])
     def test_emits_one_record_per_device(self, mock_find):
@@ -88,18 +98,18 @@ class CmdNumberTests(unittest.TestCase):
 
 
 class CmdReadAndSyncTests(unittest.TestCase):
-    @patch("rtc_test.os.access", return_value=True)
-    def test_can_read(self, mock_access):
+    @patch("rtc_test._is_readable", return_value=True)
+    def test_can_read(self, mock_is_readable):
         args = SimpleNamespace(rtc="rtc0")
         self.assertEqual(rtc_test.cmd_read_and_sync(args), 0)
-        mock_access.assert_called_once_with(
-            Path("/sys/class/rtc/rtc0/since_epoch"), os.R_OK
+        mock_is_readable.assert_called_once_with(
+            Path("/sys/class/rtc/rtc0/since_epoch")
         )
 
     @patch("rtc_test.subprocess.run")
-    @patch("rtc_test.os.access", side_effect=[False, True])
+    @patch("rtc_test._is_readable", side_effect=[False, True])
     def test_calls_hwclock_sync_when_unreadable(
-        self, mock_access, mock_run: MagicMock
+        self, mock_is_readable, mock_run: MagicMock
     ):
         args = SimpleNamespace(rtc="rtc0")
         self.assertEqual(rtc_test.cmd_read_and_sync(args), 0)
@@ -111,15 +121,15 @@ class CmdReadAndSyncTests(unittest.TestCase):
         "rtc_test.subprocess.run",
         side_effect=subprocess.CalledProcessError(returncode=1, cmd="hwclock"),
     )
-    @patch("rtc_test.os.access", return_value=False)
-    def test_hwclock_command_itself_fails(self, mock_access, mock_run):
+    @patch("rtc_test._is_readable", return_value=False)
+    def test_hwclock_command_itself_fails(self, mock_is_readable, mock_run):
         with self.assertRaises(subprocess.CalledProcessError):
             rtc_test.cmd_read_and_sync(SimpleNamespace(rtc="rtc0"))
 
     @patch("rtc_test.subprocess.run")
-    @patch("rtc_test.os.access", side_effect=[False, False])
+    @patch("rtc_test._is_readable", side_effect=[False, False])
     def test_still_unreadable_after_successful_sync(
-        self, mock_access, mock_run
+        self, mock_is_readable, mock_run
     ):
         with self.assertRaises(SystemExit):
             rtc_test.cmd_read_and_sync(SimpleNamespace(rtc="rtc0"))

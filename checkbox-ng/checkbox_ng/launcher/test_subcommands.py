@@ -16,32 +16,29 @@
 # You should have received a copy of the GNU General Public License
 # along with Checkbox.  If not, see <http://www.gnu.org/licenses/>.
 
-import textwrap
 import datetime
-
+import textwrap
 from functools import partial
-from unittest import TestCase
-
-from unittest.mock import patch, Mock, MagicMock, mock_open
-
 from io import StringIO
-
-from plainbox.impl.unit.job import JobDefinition
-from plainbox.impl.unit.template import TemplateUnit
+from pathlib import Path
+from unittest import TestCase
+from unittest.mock import MagicMock, Mock, mock_open, patch
 
 from checkbox_ng.launcher.subcommands import (
-    Run,
     Expand,
+    IJobResult,
+    IncompatibleJobError,
     Launcher,
     ListBootstrapped,
-    IncompatibleJobError,
     ResumeInstead,
-    IJobResult,
-    request_comment,
+    Run,
     generate_resume_candidate_description,
     get_testplan_id_by_id,
     print_objs,
+    request_comment,
 )
+from plainbox.impl.unit.job import JobDefinition
+from plainbox.impl.unit.template import TemplateUnit
 
 
 class TestSharedFunctions(TestCase):
@@ -1088,6 +1085,75 @@ class TestListBootstrapped(TestCase):
 
         with self.assertRaisesRegex(SystemExit, "Test plan not found"):
             self.launcher.invoked(self.ctx)
+
+    @patch("checkbox_ng.launcher.subcommands.Path.read_bytes")
+    @patch("checkbox_ng.launcher.subcommands.Path.exists")
+    @patch("checkbox_ng.launcher.subcommands.json.load")
+    @patch(
+        "checkbox_ng.launcher.subcommands.Path.open",
+        new_callable=mock_open,
+    )
+    def test_bootstrap_from_submission_records_all_results(
+        self, submission_open, json_load, output_exists, output_read
+    ):
+        job_ids = ["no-output", "empty-output", "saved-output"]
+        json_load.return_value = {
+            "testplan_id": "test-plan1",
+            "results": [
+                {
+                    "full_id": "no-output",
+                    "outcome": "pass",
+                    "status": "pass",
+                },
+                {
+                    "full_id": "empty-output",
+                    "outcome": "fail",
+                    "status": "fail",
+                },
+                {
+                    "full_id": "saved-output",
+                    "outcome": "pass",
+                    "status": "pass",
+                },
+            ],
+        }
+        output_exists.side_effect = [False, True, True]
+        output_read.side_effect = [b"", b"first line\nsecond line\n"]
+        session_assistant = Mock(
+            get_test_plans=Mock(return_value=["test-plan1"]),
+            start_bootstrap=Mock(return_value=job_ids),
+        )
+        self.launcher.ctx = Mock(sa=session_assistant)
+
+        self.launcher.bootstrap_from_submission(Path("/submission"))
+
+        submission_open.assert_called_once_with("r")
+        session_assistant.select_test_plan.assert_called_once_with(
+            "test-plan1"
+        )
+        self.assertEqual(
+            session_assistant.get_job_state.call_args_list,
+            [((job_id,), {}) for job_id in job_ids],
+        )
+        recorded_results = [
+            args for args, _ in session_assistant.use_job_result.call_args_list
+        ]
+        self.assertEqual([job_id for job_id, _ in recorded_results], job_ids)
+        self.assertEqual(
+            [result.outcome for _, result in recorded_results],
+            ["pass", "fail", "pass"],
+        )
+        self.assertEqual(
+            [result.return_code for _, result in recorded_results],
+            [0, 1, 0],
+        )
+        self.assertEqual(recorded_results[0][1].io_log, ())
+        self.assertEqual(recorded_results[1][1].io_log, ())
+        self.assertEqual(
+            [record.data for record in recorded_results[2][1].io_log],
+            [b"first line", b"second line"],
+        )
+        session_assistant.finish_bootstrap.assert_called_once_with()
 
     @patch("sys.stdout", new_callable=StringIO)
     def test_invoke_print_output_format(self, stdout):

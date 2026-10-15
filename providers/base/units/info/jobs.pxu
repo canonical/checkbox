@@ -238,6 +238,7 @@ _summary: Attach a list of currently running kernel modules
 
 id: dkms_info_attachment
 plugin: attachment
+mime-type: application/json
 category_id: com.canonical.plainbox::info
 requires:
   package.name == 'dkms'

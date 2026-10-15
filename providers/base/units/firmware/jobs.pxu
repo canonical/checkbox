@@ -110,6 +110,7 @@ command:
 
 id: firmware/fwupdmgr_get_devices
 plugin: attachment
+mime-type: application/json
 category_id: com.canonical.plainbox::firmware
 _summary: Collect the device firmware update information
 _purpose: Attach information about the devices, as reported by the fwupdmgr

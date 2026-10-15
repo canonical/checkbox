@@ -20,8 +20,9 @@ import io
 import os
 import subprocess
 import unittest
+from pathlib import Path
 from types import SimpleNamespace
-from unittest.mock import MagicMock, mock_open, patch, call
+from unittest.mock import MagicMock, patch, call
 
 import rtc_test
 
@@ -31,16 +32,6 @@ class FindRtcDevicesTests(unittest.TestCase):
     def test_sorts_and_strips_basenames(self, mock_glob):
         mock_glob.return_value = ["/dev/rtc1", "/dev/rtc0"]
         self.assertEqual(rtc_test.find_rtc_devices(), ["rtc0", "rtc1"])
-
-
-class CanReadTests(unittest.TestCase):
-    @patch("builtins.open", new_callable=mock_open, read_data="123456\n")
-    def test_readable_file_returns_true(self, mock_file):
-        self.assertTrue(rtc_test._can_read("/fake/rtc/since_epoch"))
-
-    @patch("builtins.open", side_effect=OSError)
-    def test_unreadable_file_returns_false(self, mock_file):
-        self.assertFalse(rtc_test._can_read("/fake/rtc/since_epoch"))
 
 
 class CmdListTests(unittest.TestCase):
@@ -68,7 +59,10 @@ class CmdBatteryTests(unittest.TestCase):
                     ["rtcwake", "-v", "-d", "rtc0", "-m", "disable"],
                     check=False,
                 ),
-                call(["rtcwake", "-v", "-d", "rtc0", "-m", "off", "-s", "30"]),
+                call(
+                    ["rtcwake", "-v", "-d", "rtc0", "-m", "off", "-s", "30"],
+                    check=False,
+                ),
             ]
         )
 
@@ -93,52 +87,55 @@ class CmdNumberTests(unittest.TestCase):
         self.assertEqual(rtc_test.cmd_number(SimpleNamespace(total=None)), 0)
 
 
-class CmdReadTests(unittest.TestCase):
-    @patch("rtc_test._can_read", return_value=True)
-    def test_can_read(self, mock_can_read):
-        self.assertEqual(rtc_test.cmd_read(SimpleNamespace(rtc="rtc0")), 0)
-        mock_can_read.assert_called_once_with(
-            "/sys/class/rtc/rtc0/since_epoch"
+class CmdReadAndSyncTests(unittest.TestCase):
+    @patch("rtc_test.os.access", return_value=True)
+    def test_can_read(self, mock_access):
+        args = SimpleNamespace(rtc="rtc0")
+        self.assertEqual(rtc_test.cmd_read_and_sync(args), 0)
+        mock_access.assert_called_once_with(
+            Path("/sys/class/rtc/rtc0/since_epoch"), os.R_OK
         )
 
     @patch("rtc_test.subprocess.run")
-    @patch("rtc_test._can_read", side_effect=[False, True])
+    @patch("rtc_test.os.access", side_effect=[False, True])
     def test_calls_hwclock_sync_when_unreadable(
-        self, mock_can_read, mock_run: MagicMock
+        self, mock_access, mock_run: MagicMock
     ):
-        mock_run.return_value = MagicMock(returncode=0)
-        self.assertEqual(rtc_test.cmd_read(SimpleNamespace(rtc="rtc0")), 0)
+        args = SimpleNamespace(rtc="rtc0")
+        self.assertEqual(rtc_test.cmd_read_and_sync(args), 0)
         mock_run.assert_called_once_with(
-            ["hwclock", "--systohc", "--utc", "--rtc=/dev/rtc0"]
+            ["hwclock", "--systohc", "--utc", "--rtc=/dev/rtc0"], check=True
         )
 
-    @patch("rtc_test.subprocess.run")
-    @patch("rtc_test._can_read", return_value=False)
-    def test_hwclock_command_itself_fails(
-        self, mock_can_read, mock_run: MagicMock
-    ):
-        mock_run.return_value = MagicMock(returncode=1)
-        self.assertEqual(rtc_test.cmd_read(SimpleNamespace(rtc="rtc0")), 1)
+    @patch(
+        "rtc_test.subprocess.run",
+        side_effect=subprocess.CalledProcessError(returncode=1, cmd="hwclock"),
+    )
+    @patch("rtc_test.os.access", return_value=False)
+    def test_hwclock_command_itself_fails(self, mock_access, mock_run):
+        with self.assertRaises(subprocess.CalledProcessError):
+            rtc_test.cmd_read_and_sync(SimpleNamespace(rtc="rtc0"))
 
     @patch("rtc_test.subprocess.run")
-    @patch("rtc_test._can_read", side_effect=[False, False])
+    @patch("rtc_test.os.access", side_effect=[False, False])
     def test_still_unreadable_after_successful_sync(
-        self, mock_can_read, mock_run: MagicMock
+        self, mock_access, mock_run
     ):
-        mock_run.return_value = MagicMock(returncode=0)
-        self.assertEqual(rtc_test.cmd_read(SimpleNamespace(rtc="rtc0")), 1)
+        with self.assertRaises(SystemExit):
+            rtc_test.cmd_read_and_sync(SimpleNamespace(rtc="rtc0"))
 
 
 class CmdAlarmTests(unittest.TestCase):
-    @patch("rtc_test.os.path.isfile", return_value=False)
-    def test_no_wakealarm_support(self, mock_isfile):
+    @patch("rtc_test.Path.is_file", return_value=False)
+    def test_no_wakealarm_support(self, mock_is_file):
         args = SimpleNamespace(rtc="rtc0", seconds=30, timeout=60)
-        self.assertEqual(rtc_test.cmd_alarm(args), 1)
+        with self.assertRaises(SystemExit):
+            rtc_test.cmd_alarm(args)
 
     @patch("rtc_test.subprocess.run")
-    @patch("rtc_test.os.path.isfile", return_value=True)
+    @patch("rtc_test.Path.is_file", return_value=True)
     def test_success_calls_rtcwake_with_expected_args(
-        self, mock_isfile, mock_run
+        self, mock_is_file, mock_run
     ):
         args = SimpleNamespace(rtc="rtc0", seconds=30, timeout=60)
         self.assertEqual(rtc_test.cmd_alarm(args), 0)
@@ -152,39 +149,42 @@ class CmdAlarmTests(unittest.TestCase):
         "rtc_test.subprocess.run",
         side_effect=subprocess.TimeoutExpired(cmd="rtcwake", timeout=60),
     )
-    @patch("rtc_test.os.path.isfile", return_value=True)
-    def test_timeout_is_reported_as_failure(self, mock_isfile, mock_run):
+    @patch("rtc_test.Path.is_file", return_value=True)
+    def test_timeout_is_reported_as_failure(self, mock_is_file, mock_run):
         args = SimpleNamespace(rtc="rtc0", seconds=30, timeout=60)
-        self.assertEqual(rtc_test.cmd_alarm(args), 1)
+        with self.assertRaises(SystemExit):
+            rtc_test.cmd_alarm(args)
 
     @patch(
         "rtc_test.subprocess.run",
         side_effect=subprocess.CalledProcessError(returncode=2, cmd="rtcwake"),
     )
-    @patch("rtc_test.os.path.isfile", return_value=True)
-    def test_nonzero_exit_is_reported_as_failure(self, mock_isfile, mock_run):
+    @patch("rtc_test.Path.is_file", return_value=True)
+    def test_nonzero_exit_is_reported_as_failure(self, mock_is_file, mock_run):
         args = SimpleNamespace(rtc="rtc0", seconds=30, timeout=60)
-        self.assertEqual(rtc_test.cmd_alarm(args), 1)
+        with self.assertRaises(SystemExit):
+            rtc_test.cmd_alarm(args)
 
 
 class CmdClockTests(unittest.TestCase):
     @patch("rtc_test.time.time", return_value=1788854686.989309)
-    @patch("builtins.open", new_callable=mock_open, read_data="1788854690\n")
-    def test_within_tolerance_passes(self, mock_file, mock_time):
+    @patch("rtc_test.Path.read_text", return_value="1788854690\n")
+    def test_within_tolerance_passes(self, mock_read, mock_time):
         args = SimpleNamespace(rtc="rtc0", tolerance=5)
         self.assertEqual(rtc_test.cmd_clock(args), 0)
 
     @patch("rtc_test.time.time", return_value=1788854686.989309)
-    @patch("builtins.open", new_callable=mock_open, read_data="1788854688\n")
-    def test_exactly_at_tolerance_passes(self, mock_file, mock_time):
+    @patch("rtc_test.Path.read_text", return_value="1788854688\n")
+    def test_exactly_at_tolerance_passes(self, mock_read, mock_time):
         args = SimpleNamespace(rtc="rtc0", tolerance=2)
         self.assertEqual(rtc_test.cmd_clock(args), 0)
 
     @patch("rtc_test.time.time", return_value=1788854686.989309)
-    @patch("builtins.open", new_callable=mock_open, read_data="1788854680\n")
-    def test_beyond_tolerance_fails(self, mock_file, mock_time):
+    @patch("rtc_test.Path.read_text", return_value="1788854680\n")
+    def test_beyond_tolerance_fails(self, mock_read, mock_time):
         args = SimpleNamespace(rtc="rtc0", tolerance=5)
-        self.assertEqual(rtc_test.cmd_clock(args), 1)
+        with self.assertRaises(SystemExit):
+            rtc_test.cmd_clock(args)
 
 
 class BuildParserTests(unittest.TestCase):

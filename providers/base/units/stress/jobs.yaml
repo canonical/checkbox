@@ -702,6 +702,7 @@ command: |
 plugin: attachment
 category_id: com.canonical.plainbox::stress
 id: stress/s2idle_pm-graph_30.tar.xz
+mime-type: application/x-xz
 estimated_duration: "1"
 requires:
   - cpuinfo.type == 'GenuineIntel'
@@ -735,6 +736,7 @@ command: |
 plugin: attachment
 category_id: com.canonical.plainbox::stress
 id: stress/s3_pm-graph_30.tar.xz
+mime-type: application/x-xz
 estimated_duration: "1"
 requires:
   - cpuinfo.type == 'GenuineIntel'

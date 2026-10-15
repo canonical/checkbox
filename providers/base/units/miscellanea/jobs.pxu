@@ -84,6 +84,7 @@ command:
 _summary: Run automated Firmware Test Suite (fwts) tests.
 
 plugin: attachment
+mime-type: application/x-xz
 category_id: com.canonical.plainbox::miscellanea
 id: miscellanea/fwts_results.log
 requires: executable.name == 'fwts'
@@ -358,6 +359,7 @@ command:
  checkbox-support-fwts_test -l "$PLAINBOX_SESSION_SHARE"/fwts_oops_results.log -t oops
 
 plugin: attachment
+mime-type: application/x-xz
 category_id: com.canonical.plainbox::miscellanea
 estimated_duration: 0.5
 id: miscellanea/oops_results.log
@@ -383,6 +385,7 @@ command:
  checkbox-support-fwts_test -l "$PLAINBOX_SESSION_SHARE"/fwts_olog_results.log -t olog
 
 plugin: attachment
+mime-type: application/x-xz
 category_id: com.canonical.plainbox::miscellanea
 estimated_duration: 0.5
 id: miscellanea/olog_results.log
@@ -406,6 +409,7 @@ command:
  checkbox-support-fwts_test -l "$PLAINBOX_SESSION_SHARE"/fwts_klog_results.log -t oops
 
 plugin: attachment
+mime-type: application/x-xz
 category_id: com.canonical.plainbox::miscellanea
 estimated_duration: 0.5
 id: miscellanea/klog_results.log
@@ -466,6 +470,7 @@ _summary: Generate baseline sosreport
 _purpose: Generates a baseline sosreport of logs and system data
 
 plugin: attachment
+mime-type: application/x-xz
 category_id: com.canonical.plainbox::miscellanea
 estimated_duration: 5.0
 id: miscellanea/sosreport_attachment

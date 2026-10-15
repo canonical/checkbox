@@ -14,6 +14,7 @@ _summary: Run {name} test from Firmware Test Suite.
 unit: template
 template-resource: fwts
 plugin: attachment
+mime-type: application/x-xz
 category_id: com.canonical.plainbox::firmware
 id: firmware/fwts_{name}.log
 template-id: firmware/fwts_name.log

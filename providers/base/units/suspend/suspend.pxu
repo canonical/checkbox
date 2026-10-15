@@ -1718,6 +1718,7 @@ _summary: Run fwts oops tests post-suspension to ensure system stability.
 id: suspend/oops_results_after_suspend.log
 depends: suspend/oops_after_suspend
 plugin: attachment
+mime-type: application/x-xz
 category_id: com.canonical.plainbox::suspend
 estimated_duration: 0.5
 command:

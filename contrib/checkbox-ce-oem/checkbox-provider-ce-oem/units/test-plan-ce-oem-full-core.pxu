@@ -57,6 +57,7 @@ nested_part:
     ce-oem-automated
     com.canonical.certification::client-cert-iot-ubuntucore-26-automated
     after-suspend-ce-oem-automated
+    after-suspend-rz-core-automated
 exclude:
 certification_status_overrides:
     apply blocker to .*
@@ -250,9 +251,11 @@ include:
     com.canonical.certification::disk/encryption/detect                        # keep if FDE is enabled
 nested_part:
     dragonwing-core-automated
+    rz-core-automated
     ce-oem-automated
     com.canonical.certification::client-cert-iot-ubuntucore-24-automated
     after-suspend-ce-oem-automated
+    after-suspend-rz-core-automated
 exclude:
 certification_status_overrides:
     apply blocker to .*

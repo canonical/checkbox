@@ -116,7 +116,6 @@ nested_part:
     ce-oem-i2c-automated
     ce-oem-wwan-automated
     ce-oem-pwm-automated
-    ce-oem-rz-ai-accelerator-automated
 certification_status_overrides:
     apply blocker to .*
 

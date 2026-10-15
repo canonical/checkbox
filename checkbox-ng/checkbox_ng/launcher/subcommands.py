@@ -1623,7 +1623,15 @@ class ListBootstrapped:
                 if result_stdout_path.exists()
                 else b""
             )
-            submission_result = submission_results[job_id]
+            try:
+                submission_result = submission_results[job_id]
+            except KeyError:
+                print(
+                    f"Job '{job_id}' is in the local testplan but not in the "
+                    "submission",
+                    file=sys.stderr,
+                )
+                continue
             result = MemoryJobResult(
                 {
                     "outcome": submission_result["outcome"],

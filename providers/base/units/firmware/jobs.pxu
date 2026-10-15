@@ -51,6 +51,7 @@ command:
  checkbox-support-fwts_test --hwe -l "$PLAINBOX_SESSION_SHARE"/fwts_desktop_diagnosis_results_hwe.log
 
 plugin: attachment
+mime-type: application/gzip
 category_id: com.canonical.plainbox::firmware
 estimated_duration: 0.5
 id: firmware/fwts_desktop_diagnosis_results.log.gz
@@ -60,6 +61,7 @@ _description: Attaches the FWTS desktop diagnosis results log to the submission
 _summary: Attach FWTS desktop diagnosis log to submission
 
 plugin: attachment
+mime-type: application/gzip
 category_id: com.canonical.plainbox::firmware
 estimated_duration: 0.5
 id: firmware/fwts_desktop_diagnosis_results_hwe.log.gz
@@ -82,6 +84,7 @@ command:
  checkbox-support-fwts_test --server -q -f critical -l "$PLAINBOX_SESSION_SHARE"/fwts_server_results.log
 
 plugin: attachment
+mime-type: application/gzip
 category_id: com.canonical.plainbox::firmware
 estimated_duration: 0.5
 id: firmware/fwts_server_results.log.gz
@@ -104,6 +107,7 @@ id: firmware/fwts_dump_acpi_attachment.gz
 category_id: com.canonical.plainbox::firmware
 _summary: Collect the ACPI tables dump from FWTS
 plugin: attachment
+mime-type: application/gzip
 depends: firmware/fwts_dump
 command:
   [ -f "$PLAINBOX_SESSION_SHARE/acpidump.log" ] && gzip -c "$PLAINBOX_SESSION_SHARE/acpidump.log"

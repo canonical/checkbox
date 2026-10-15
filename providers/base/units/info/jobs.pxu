@@ -221,6 +221,7 @@ _summary: Attach information about block devices and their mount points.
 
 id: gcov_attachment
 plugin: attachment
+mime-type: application/gzip
 category_id: com.canonical.plainbox::info
 requires: package.name == 'lcov'
 user: root
@@ -294,6 +295,7 @@ command:
 _summary: Attach the latest bootchart PNG file from bootchart runs.
 
 plugin: attachment
+mime-type: application/gzip
 category_id: com.canonical.plainbox::info
 id: bootchart.tgz
 depends: info/bootchart
@@ -305,6 +307,7 @@ command:
 _summary: Attach the bootchart log from the latest bootchart test run.
 
 plugin: attachment
+mime-type: application/gzip
 category_id: com.canonical.plainbox::info
 id: installer_bootchart.tgz
 command: [ -f /var/log/installer/bootchart.tgz ] && cat /var/log/installer/bootchart.tgz

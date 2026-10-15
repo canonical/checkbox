@@ -93,6 +93,7 @@ _purpose: Attaches the miscellaneous/fwts_test results log to the submission.
 _summary: Attach FWTS test results log for submission.
 
 plugin: attachment
+mime-type: application/gzip
 category_id: com.canonical.plainbox::miscellanea
 estimated_duration: 0.5
 id: miscellanea/fwts_results_hwe.log.gz

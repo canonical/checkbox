@@ -283,6 +283,7 @@ command: hdparm -I /dev/{name}
 _summary: Attaches info from hdparm about {name}
 
 plugin: attachment
+mime-type: image/png
 category_id: com.canonical.plainbox::info
 id: bootchart.png
 depends: info/bootchart
@@ -545,6 +546,7 @@ _summary: Attach the output of lstopo
 
 id: lstopo_visual_attachment
 plugin: attachment
+mime-type: image/png
 category_id: com.canonical.plainbox::info
 estimated_duration: 0.015
 requires: executable.name == 'lstopo'

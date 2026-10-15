@@ -443,6 +443,7 @@ _purpose:
 command: recovery_info.py version
 
 plugin: attachment
+mime-type: application/xml
 category_id: com.canonical.plainbox::info
 id: dell_bto_xml_attachment
 depends: info/detect_dell_recovery

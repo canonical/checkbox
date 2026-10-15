@@ -4,8 +4,9 @@ import time
 import argparse
 import textwrap
 import itertools
+from functools import wraps
 
-from lazr.restfulclient.errors import BadRequest
+from lazr.restfulclient.errors import BadRequest, ServerError
 
 from utils import (
     get_source_build_recipe,
@@ -22,11 +23,63 @@ monitoring the build process and automatically retrying any build
 that fails. If Launchpad doesn't allow to retry a build, the script
 will keep on monitoring the others, and then exit with a non-0 return
 value.
+
+Read-only polling retries network timeouts and HTTP (502/503/504) responses.
 """
 
 # delay between updates requested to LP
 LP_POLLING_DELAY = 60
 LP_REQUEST_TIMEOUT_S = 30
+LP_MAX_POLL_FAILURES = 10
+
+
+def retry_polling(query):
+    """Retry read-only queries without restarting or requesting builds."""
+
+    @wraps(query)
+    def wrapped(*args, **kwargs):
+        for failure in range(1, LP_MAX_POLL_FAILURES + 1):
+            delay = LP_POLLING_DELAY
+            try:
+                return query(*args, **kwargs)
+            except TimeoutError:
+                reason = "request timed out"
+            except ServerError as exc:
+                if exc.response.status not in (502, 503, 504):
+                    raise
+                reason = f"HTTP {exc.response.status}"
+                retry_after = exc.response.get("retry-after")
+                if retry_after is not None:
+                    try:
+                        delay = max(delay, int(retry_after))
+                    except ValueError:
+                        print(
+                            f"Non-numeric Launchpad Retry-After: {retry_after!r}; "
+                            f"using {delay}s"
+                        )
+            if failure == LP_MAX_POLL_FAILURES:
+                raise SystemExit(
+                    f"Launchpad polling failed {failure} consecutive times "
+                    f"({reason})"
+                )
+            print(
+                f"Launchpad polling failed ({reason}, "
+                f"{failure}/{LP_MAX_POLL_FAILURES}); retrying in {delay}s"
+            )
+            time.sleep(delay)
+
+    return wrapped
+
+
+@retry_polling
+def get_pending_builds(build_recipe):
+    return build_recipe.getPendingBuildInfo()
+
+
+@retry_polling
+def get_build_state(build):
+    build.lp_refresh()
+    return build.buildstate
 
 
 def start_all_source_builds(build_recipe: LPSourcePackageRecipe):
@@ -46,6 +99,7 @@ def start_all_source_builds(build_recipe: LPSourcePackageRecipe):
             print("An identical build of this recipe is already pending")
 
 
+@retry_polling
 def are_binary_builds_ongoing(build_recipe: LPSourcePackageRecipe) -> bool:
     """
     Returns whether there is any pending or ongoing build in the default
@@ -60,7 +114,7 @@ def are_binary_builds_ongoing(build_recipe: LPSourcePackageRecipe) -> bool:
 
 
 def wait_every_source_build_started(build_recipe: LPSourcePackageRecipe):
-    pending_builds = build_recipe.getPendingBuildInfo()
+    pending_builds = get_pending_builds(build_recipe)
     while pending_builds:
         print("Waiting some builds that are pending:")
         print(
@@ -71,7 +125,7 @@ def wait_every_source_build_started(build_recipe: LPSourcePackageRecipe):
         )
         # avoid flooding LP with requests
         time.sleep(LP_POLLING_DELAY)
-        pending_builds = build_recipe.getPendingBuildInfo()
+        pending_builds = get_pending_builds(build_recipe)
 
 
 def recipe_name_to_source_name(name: str) -> str:
@@ -82,6 +136,7 @@ def recipe_name_to_source_name(name: str) -> str:
     return name.rsplit("-", 1)[0]
 
 
+@retry_polling
 def get_all_binary_builds(
     build_recipe: LPSourcePackageRecipe, started_datetime
 ) -> list[LPBinaryBuild]:
@@ -106,6 +161,7 @@ def get_all_binary_builds(
     )
 
 
+@retry_polling
 def get_all_source_builds(
     build_recipe: LPSourcePackageRecipe, started_datetime
 ) -> list[LPSourceBuild]:
@@ -194,8 +250,7 @@ def monitor_retry_builds(builds_to_check: list[LPBuild]) -> list[LPBuild]:
     builds_ok = []
     while builds_to_check:
         build = builds_to_check.pop()
-        build.lp_refresh()
-        buildstate = build.buildstate
+        buildstate = get_build_state(build)
         if buildstate == "Successfully built":
             builds_ok.append(build)
         elif buildstate in [
@@ -286,10 +341,13 @@ def parse_args(argv: list[str]) -> argparse.Namespace:
 
 def main(argv):
     args = parse_args(argv)
-    build_monitor_recipe(
-        args.project,
-        args.recipe,
-    )
+    try:
+        build_monitor_recipe(
+            args.project,
+            args.recipe,
+        )
+    except TimeoutError as exc:
+        raise SystemExit(f"Launchpad request timed out: {exc}") from None
 
 
 if __name__ == "__main__":

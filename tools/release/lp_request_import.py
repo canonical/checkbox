@@ -46,16 +46,17 @@ def parse_args(argv: list[str]) -> Namespace:
     return parser.parse_args(argv)
 
 
-def main(argv: list[str] = []):
-    args = parse_args(argv)
+def request_import(repo_path: str):
     lp = get_launchpad_client(timeout=IMPORT_REQUEST_TIMEOUT_S)
-    repo = lp.git_repositories.getByPath(path=args.repo)
+    repo = lp.git_repositories.getByPath(path=repo_path)
     if not repo:
-        raise SystemExit(f"{args.repo} repo was not found in Launchpad.")
+        raise SystemExit(f"{repo_path} repo was not found in Launchpad.")
 
     start = datetime.utcnow()
     try:
         repo.code_import.requestImport()
+    except TimeoutError:
+        raise
     except Exception as e:
         err_str = str(e)
         if "This code import is already running" not in err_str:
@@ -71,6 +72,14 @@ def main(argv: list[str] = []):
         print("Code import not yet completed, waiting...")
         time.sleep(5)
     print(f"Code import completed ({repo.web_link})")
+
+
+def main(argv: list[str] = []):
+    args = parse_args(argv)
+    try:
+        request_import(args.repo)
+    except TimeoutError as exc:
+        raise SystemExit(f"Launchpad request timed out: {exc}") from None
 
 
 if __name__ == "__main__":

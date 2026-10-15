@@ -36,7 +36,10 @@ class TestMain(unittest.TestCase):
             "Launchpad request timed out"
         )
 
-        with self.assertRaisesRegex(SystemExit, "Launchpad request timed out"):
+        with self.assertRaisesRegex(
+            SystemExit,
+            "^Launchpad request timed out: Launchpad request timed out$",
+        ):
             lp_request_import.main(["checkbox-edge"])
 
     @patch("lp_request_import.get_launchpad_client")
@@ -47,8 +50,26 @@ class TestMain(unittest.TestCase):
         )
 
         with self.assertRaisesRegex(
-            TimeoutError, "Launchpad polling timed out"
+            SystemExit,
+            "^Launchpad request timed out: Launchpad polling timed out$",
         ):
+            lp_request_import.main(["checkbox-edge"])
+
+    @patch("lp_request_import.get_launchpad_client")
+    def test_main_client_timeout(self, client_mock):
+        client_mock.side_effect = TimeoutError("The read operation timed out")
+
+        with self.assertRaisesRegex(
+            SystemExit,
+            "^Launchpad request timed out: The read operation timed out$",
+        ):
+            lp_request_import.main(["checkbox-edge"])
+
+    @patch("lp_request_import.get_launchpad_client")
+    def test_main_unexpected_error(self, client_mock):
+        client_mock.side_effect = ValueError("Unexpected error")
+
+        with self.assertRaisesRegex(ValueError, "Unexpected error"):
             lp_request_import.main(["checkbox-edge"])
 
     @patch("lp_request_import.get_launchpad_client")

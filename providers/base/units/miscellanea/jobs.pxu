@@ -558,6 +558,7 @@ id: miscellanea/ubuntu_drivers_list_oem_check_attachment
 category_id: com.canonical.plainbox::miscellanea
 _summary: Attach the ubuntu-drivers output file if it exists
 plugin: attachment
+mime-type: text/plain
 depends: miscellanea/ubuntu_drivers_list_oem_check
 command:
   if test -f "$PLAINBOX_SESSION_SHARE/ubuntu_drivers_list_oem_check"; then

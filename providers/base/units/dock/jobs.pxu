@@ -510,6 +510,7 @@ command: alsa_info --no-dialog --no-upload --output "${PLAINBOX_SESSION_SHARE}"/
 _purpose: Collect audio-related system information. This data can be used to simulate this computer's audio subsystem and perform more detailed tests under a controlled environment.
 
 plugin: attachment
+mime-type: text/plain
 id: dock/audio-alsa-info-attachment
 category_id: dock-audio
 depends: dock/audio-alsa-info-collect

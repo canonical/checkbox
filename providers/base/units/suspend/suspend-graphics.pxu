@@ -248,6 +248,7 @@ template-resource: graphics_card
 template-filter: graphics_card.prime_gpu_offload == 'Off'
 template-engine: jinja2
 plugin: attachment
+mime-type: text/plain
 category_id: com.canonical.plainbox::suspend
 id: suspend/{{ index }}_suspend-single-log-attach_{{ product_slug }}_auto
 template-id: suspend/index_suspend-single-log-attach_product_slug_auto

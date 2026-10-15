@@ -1,5 +1,6 @@
 id: codecs_attachment
 plugin: attachment
+mime-type: text/plain
 category_id: com.canonical.plainbox::info
 command: cat /proc/asound/card*/codec#*
 estimated_duration: 0.023
@@ -8,6 +9,7 @@ _summary: Attach a report of installed codecs for Intel HDA.
 
 id: cpuinfo_attachment
 plugin: attachment
+mime-type: text/plain
 category_id: com.canonical.plainbox::info
 command: cat /proc/cpuinfo
 estimated_duration: 0.006
@@ -16,6 +18,7 @@ _summary: Attach a copy of /proc/cpuinfo
 
 id: dmesg_attachment
 plugin: attachment
+mime-type: text/plain
 category_id: com.canonical.plainbox::info
 user: root
 command:
@@ -30,6 +33,7 @@ _summary: Attach a copy of dmesg or the current dmesg buffer to the test results
 
 id: dmi_attachment
 plugin: attachment
+mime-type: text/plain
 category_id: com.canonical.plainbox::info
 command:
   # shellcheck disable=SC2015
@@ -42,6 +46,7 @@ requires:
 
 id: dmidecode_attachment
 plugin: attachment
+mime-type: text/plain
 category_id: com.canonical.plainbox::info
 requires:
   executable.name == 'dmidecode'
@@ -54,6 +59,7 @@ _summary: Attach output of dmidecode
 
 id: dpkg_attachment
 plugin: attachment
+mime-type: text/plain
 category_id: com.canonical.plainbox::info
 requires:
   executable.name == 'dpkg'
@@ -64,6 +70,7 @@ _purpose: Attach system debian packages status
 
 id: lshw_attachment
 plugin: attachment
+mime-type: text/plain
 category_id: com.canonical.plainbox::info
 requires: executable.name == 'lshw'
 user: root
@@ -73,6 +80,7 @@ _purpose: Attaches lshw output
 
 id: efi_attachment
 plugin: attachment
+mime-type: text/plain
 category_id: com.canonical.plainbox::info
 user: root
 command:
@@ -84,6 +92,7 @@ _purpose: Attaches the firmware version
 
 id: lspci_attachment
 plugin: attachment
+mime-type: text/plain
 category_id: com.canonical.plainbox::info
 command:
  if [[ ! -d "/proc/bus/pci" ]]; then
@@ -101,6 +110,7 @@ _summary: Attach a list of PCI devices
 
 id: lspci_network_attachment
 plugin: attachment
+mime-type: text/plain
 category_id: com.canonical.plainbox::info
 command: lspci -vvnnQ | iconv -t 'utf-8' -c
 estimated_duration: 1.322
@@ -110,6 +120,7 @@ _summary: Attach very verbose lspci output for device information.
 id: lspci_standard_config_attachment
 _summary: Attach PCI configuration space hex dump
 plugin: attachment
+mime-type: text/plain
 category_id: com.canonical.plainbox::info
 command: lspci -x
 estimated_duration: 0.1
@@ -117,6 +128,7 @@ _purpose: Attaches a hex dump of the standard part of the PCI configuration spac
 
 id: lsusb_attachment
 plugin: attachment
+mime-type: text/plain
 category_id: com.canonical.plainbox::info
 user: root
 command:
@@ -132,6 +144,7 @@ _purpose: Attaches a list of detected USB devices.
 
 id: meminfo_attachment
 plugin: attachment
+mime-type: text/plain
 category_id: com.canonical.plainbox::info
 command: cat /proc/meminfo
 estimated_duration: 0.043
@@ -140,6 +153,7 @@ _purpose: Attaches info on system memory as seen in /proc/meminfo.
 
 id: modprobe_attachment
 plugin: attachment
+mime-type: text/plain
 category_id: com.canonical.plainbox::info
 user: root
 command: find /etc/modprobe.* -name \*.conf -exec cat {} +
@@ -149,6 +163,7 @@ _summary: Attach the contents of /etc/modprobe.*
 
 id: modinfo_attachment
 plugin: attachment
+mime-type: text/plain
 category_id: com.canonical.plainbox::info
 _summary: Attach modinfo information
 command:
@@ -163,6 +178,7 @@ _purpose: Attaches modinfo information for all currently loaded modules
 
 id: modules_attachment
 plugin: attachment
+mime-type: text/plain
 category_id: com.canonical.plainbox::info
 command: cat /etc/modules
 estimated_duration: 0.004
@@ -171,6 +187,7 @@ _summary: Attach the contents of /etc/modules
 
 id: sysctl_attachment
 plugin: attachment
+mime-type: text/plain
 category_id: com.canonical.plainbox::info
 user: root
 command: find /etc/sysctl.* -name \*.conf -exec cat {} +
@@ -180,6 +197,7 @@ _summary: Attach sysctl configuration files.
 
 id: sysfs_attachment
 plugin: attachment
+mime-type: text/plain
 category_id: com.canonical.plainbox::info
 _description: Attaches a report of sysfs attributes.
 command:
@@ -195,6 +213,7 @@ requires:
 
 id: udev_attachment
 plugin: attachment
+mime-type: text/plain
 category_id: com.canonical.plainbox::info
 command: udevadm info --export-db
 estimated_duration: 1.465
@@ -203,6 +222,7 @@ _summary: Attach dump of udev database
 
 id: udev_resource_attachment
 plugin: attachment
+mime-type: text/plain
 category_id: com.canonical.plainbox::info
 command: udev_resource.py
 estimated_duration: 0.432
@@ -212,6 +232,7 @@ _summary: Attach udev_resource.py output for debugging.
 id: lsblk_attachment
 estimated_duration: 0.1
 plugin: attachment
+mime-type: text/plain
 category_id: com.canonical.plainbox::info
 command: lsblk -i -n -P -o KNAME,TYPE,MOUNTPOINT
 requires:
@@ -231,6 +252,7 @@ _summary: Attach gcov data tarball if available.
 
 id: lsmod_attachment
 plugin: attachment
+mime-type: text/plain
 category_id: com.canonical.plainbox::info
 command: lsmod_info.py
 estimated_duration: 0.5
@@ -250,6 +272,7 @@ _summary: Attaches json dumps of installed dkms package information.
 plugin: attachment
 category_id: com.canonical.plainbox::info
 id: acpi_sleep_attachment
+mime-type: text/plain
 command: [ -e /proc/acpi/sleep ] && cat /proc/acpi/sleep || echo "No /proc/acpi/sleep found"
 estimated_duration: 0.5
 _purpose: Attaches the contents of /proc/acpi/sleep if it exists.
@@ -271,6 +294,7 @@ unit: template
 template-resource: device
 template-filter: device.category == 'DISK'
 plugin: attachment
+mime-type: text/plain
 category_id: com.canonical.plainbox::info
 id: info/hdparm_{name}.txt
 template-id: info/hdparm_name.txt
@@ -318,6 +342,7 @@ _summary: Attach installer bootchart tarball if present.
 plugin: attachment
 category_id: com.canonical.plainbox::info
 id: installer_debug.gz
+mime-type: text/plain
 user: root
 command: [ -d /var/log/installer ] && tar zcvf installer.tgz /var/log/installer
 estimated_duration: 0.1
@@ -327,6 +352,7 @@ _summary: Attach the installer's debug log for diagnostic purposes.
 plugin: attachment
 category_id: com.canonical.plainbox::info
 id: info/touchpad_driver
+mime-type: text/plain
 requires: device.category == 'TOUCHPAD'
 command: touchpad_driver_info.py
 estimated_duration: 0.384
@@ -336,6 +362,7 @@ _summary: Gather touchpad name, driver name, and driver version information.
 plugin: attachment
 category_id: com.canonical.plainbox::info
 id: info/audio_device_driver
+mime-type: text/plain
 imports: from com.canonical.plainbox import manifest
 requires:
  package.name == 'pulseaudio-utils'
@@ -349,6 +376,7 @@ _summary: List device driver and versions for audio devices.
 plugin: attachment
 category_id: com.canonical.plainbox::info
 id: info/network_devices
+mime-type: text/plain
 command: network_device_info.py info NETWORK
 estimated_duration: 0.550
 _purpose: Provides information about network devices
@@ -357,6 +385,7 @@ _summary: Gather information about network devices.
 plugin: attachment
 category_id: com.canonical.plainbox::info
 id: info/mobile_broadband_info
+mime-type: text/plain
 command: broadband_info.sh
 estimated_duration: 0.5
 _purpose: Provides information about WWAN/mobile broadband devices
@@ -365,6 +394,7 @@ _summary: Gather information on WWAN/mobile broadband devices.
 plugin: attachment
 category_id: com.canonical.plainbox::info
 id: info/xrandr
+mime-type: text/plain
 command: xrandr -q --verbose
 _purpose: Provides information about displays attached to the system
 _summary: Retrieve detailed information on displays connected to the system.
@@ -372,6 +402,7 @@ _summary: Retrieve detailed information on displays connected to the system.
 plugin: attachment
 category_id: com.canonical.plainbox::info
 id: info/disk_partitions
+mime-type: text/plain
 estimated_duration: 1.0
 user: root
 command: parted -l -s
@@ -381,6 +412,7 @@ _summary: Attaches info about disk partitions
 plugin: attachment
 category_id: com.canonical.plainbox::info
 id: info/buildstamp
+mime-type: text/plain
 estimated_duration: 0.1
 _description: Attaches the buildstamp identifier for the OS
 _summary: Attaches the buildstamp identifier for the OS
@@ -433,6 +465,7 @@ command: recovery_info.py checktype DELL
 plugin: attachment
 category_id: com.canonical.plainbox::info
 id: recovery_info_attachment
+mime-type: text/plain
 depends: info/detect_recovery
 requires: package.name == 'dell-recovery' or package.name == 'ubuntu-recovery'
 user: root
@@ -466,6 +499,7 @@ command: recovery_info.py file bto.xml
 plugin: attachment
 category_id: com.canonical.plainbox::info
 id: info/kvm_output
+mime-type: text/plain
 estimated_duration: 0.1
 _summary:
  Attaches console log from the kvm_check_vm test
@@ -476,6 +510,7 @@ command: [ -f "$PLAINBOX_SESSION_SHARE"/virt_debug ] && cat "$PLAINBOX_SESSION_S
 
 id: kernel_cmdline_attachment
 plugin: attachment
+mime-type: text/plain
 category_id: com.canonical.plainbox::info
 command: cat /proc/cmdline
 estimated_duration: 0.005
@@ -493,6 +528,7 @@ _summary: Gather the kernel configuration
 
 id: kernel_config_attachment
 plugin: attachment
+mime-type: text/plain
 depends: info/kernel_config
 category_id: com.canonical.plainbox::info
 command:
@@ -537,6 +573,7 @@ command:
 
 id: lstopo_verbose_attachment
 plugin: attachment
+mime-type: text/plain
 category_id: com.canonical.plainbox::info
 command: HWLOC_COMPONENTS=-gl lstopo-no-graphics -v
 estimated_duration: 0.015
@@ -559,6 +596,7 @@ command:
 
 id: info/network-config
 plugin: attachment
+mime-type: text/plain
 category_id: com.canonical.plainbox::info
 estimated_duration: 0.2
 _summary: attach network configuration
@@ -566,6 +604,7 @@ command: network_configs.sh
 
 id: parts_meta_info_attachment
 plugin: attachment
+mime-type: text/plain
 category_id: com.canonical.plainbox::info
 command:
   # some top-level snaps don't bother with parts
@@ -579,6 +618,7 @@ _summary: Attaches an information about all parts that constituted this snap
 
 id: info/secure-boot-check
 plugin: attachment
+mime-type: text/plain
 category_id: com.canonical.plainbox::info
 estimated_duration: 0.2
 imports: from com.canonical.plainbox import manifest

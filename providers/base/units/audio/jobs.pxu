@@ -732,6 +732,7 @@ _purpose:
 _summary: Collect audio-related system information for simulation and detailed testing.
 
 plugin: attachment
+mime-type: text/plain
 category_id: com.canonical.plainbox::audio
 id: audio/alsa_info_attachment
 depends: audio/alsa_info_collect

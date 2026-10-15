@@ -310,6 +310,7 @@ command: [ -e "$PLAINBOX_SESSION_SHARE"/suspend_single.log ] && sleep_test_log_c
 _summary: Automated check of the suspend log for errors reported by fwts
 
 plugin: attachment
+mime-type: text/plain
 category_id: com.canonical.plainbox::suspend
 id: suspend/suspend-single-log-attach
 depends: suspend/suspend_advanced_auto
@@ -320,6 +321,7 @@ unit: template
 template-resource: graphics_card
 template-filter: graphics_card.prime_gpu_offload == 'Off'
 plugin: attachment
+mime-type: text/plain
 category_id: com.canonical.plainbox::suspend
 id: suspend/{index}_suspend-single-log-attach_{product_slug}
 template-id: suspend/index_suspend-single-log-attach_product_slug
@@ -341,6 +343,7 @@ _summary: Automated check of the hybrid sleep log for errors reported by fwts
 unit: template
 template-resource: graphics_card
 plugin: attachment
+mime-type: text/plain
 category_id: com.canonical.plainbox::suspend
 id: suspend/{index}_hybrid-sleep-single-log-attach_{product_slug}
 template-id: suspend/index_hybrid-sleep-single-log-attach_product_slug

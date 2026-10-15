@@ -184,10 +184,31 @@
           "default": false
         }
       }
+    },
+    "attachmentJobFields": {
+      "allOf": [{ "$ref": "#/$defs/jobFields" }],
+      "dependentSchemas": {
+        "mime-type": {
+          "properties": {
+            "plugin": { "const": "attachment" }
+          },
+          "required": ["plugin"]
+        }
+      }
+    },
+    "inheritedAttachmentJobFields": {
+      "allOf": [{ "$ref": "#/$defs/jobFields" }],
+      "dependentSchemas": {
+        "mime-type": {
+          "properties": {
+            "plugin": { "const": "attachment" }
+          }
+        }
+      }
     }
   },
   "type": "object",
-  "allOf": [{ "$ref": "#/$defs/jobFields" }],
+  "allOf": [{ "$ref": "#/$defs/attachmentJobFields" }],
   "properties": {
     "unit": {
       "title": "Unit (Job Unit)",
@@ -204,12 +225,28 @@
     }
   },
   "required": ["id"],
-  "dependentSchemas": {
-    "mime-type": {
-      "properties": {
-        "plugin": { "const": "attachment" }
-      },
-      "required": ["plugin"]
+  "if": {
+    "properties": {
+      "plugin": { "const": "attachment" }
+    },
+    "required": ["plugin"]
+  },
+  "then": {
+    "properties": {
+      "siblings": {
+        "items": {
+          "$ref": "#/$defs/inheritedAttachmentJobFields"
+        }
+      }
+    }
+  },
+  "else": {
+    "properties": {
+      "siblings": {
+        "items": {
+          "$ref": "#/$defs/attachmentJobFields"
+        }
+      }
     }
   },
   "unevaluatedProperties": false

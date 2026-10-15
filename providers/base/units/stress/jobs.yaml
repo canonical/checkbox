@@ -334,7 +334,6 @@ summary: Display contents of the reboot log to check for errors.
 plugin: shell
 category_id: com.canonical.plainbox::stress
 id: stress/reboot_30
-mime-type: text/plain
 requires:
   - executable.name == 'fwts'
   - executable.name == 'x-terminal-emulator'
@@ -354,6 +353,7 @@ summary: Execute stress test by rebooting system 30 times.
 plugin: attachment
 category_id: com.canonical.plainbox::stress
 id: stress/reboot_30_log
+mime-type: text/plain
 depends:
   - stress/reboot_30
 command: |
@@ -394,7 +394,6 @@ summary: Log review for 10-reboot stress test.
 plugin: shell
 category_id: com.canonical.plainbox::stress
 id: stress/poweroff
-mime-type: text/plain
 estimated_duration: "4500.0"
 requires:
   - executable.name == 'fwts'
@@ -414,6 +413,7 @@ summary: Perform a stress test by powering off the system 100 times.
 plugin: attachment
 category_id: com.canonical.plainbox::stress
 id: stress/poweroff_log
+mime-type: text/plain
 estimated_duration: "1.0"
 depends:
   - stress/poweroff

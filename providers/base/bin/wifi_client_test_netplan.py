@@ -483,7 +483,7 @@ def handle_test_np_config(args):
         delete_test_config()
 
 
-@retry(max_attempts=2, delay=60)
+@retry(max_attempts=5, delay=60)
 def main():
     args = parse_args()
 

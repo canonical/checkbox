@@ -1,5 +1,5 @@
 import unittest
-from unittest.mock import patch, MagicMock, PropertyMock
+from unittest.mock import patch, PropertyMock
 
 import lp_request_import
 
@@ -95,9 +95,13 @@ class TestMain(unittest.TestCase):
     @patch("lp_request_import.get_launchpad_client")
     @patch("lp_request_import.datetime")
     @patch("lp_request_import.timedelta")
-    @patch("time.sleep", new=MagicMock())
+    @patch("lp_request_import.time.sleep")
     def test_main_import_ok(
-        self, timedelta_mock, datetime_mock, get_launchpad_client_mock
+        self,
+        sleep_mock,
+        timedelta_mock,
+        datetime_mock,
+        get_launchpad_client_mock,
     ):
         lp_client = get_launchpad_client_mock()
         repo = lp_client.git_repositories.getByPath()
@@ -111,3 +115,4 @@ class TestMain(unittest.TestCase):
         repo.code_import.date_last_successful.replace.side_effect = [-1, 200]
 
         lp_request_import.main(["checkbox-edge"])
+        sleep_mock.assert_called_once_with(30)

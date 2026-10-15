@@ -38,6 +38,7 @@ from utils import get_launchpad_client
 
 IMPORT_MAX_TIME_WAIT_S = 120
 IMPORT_REQUEST_TIMEOUT_S = 30
+IMPORT_POLLING_DELAY_S = 30
 
 
 def parse_args(argv: list[str]) -> Namespace:
@@ -70,7 +71,7 @@ def request_import(repo_path: str):
                 f"timed out after {IMPORT_MAX_TIME_WAIT_S}s"
             )
         print("Code import not yet completed, waiting...")
-        time.sleep(5)
+        time.sleep(IMPORT_POLLING_DELAY_S)
     print(f"Code import completed ({repo.web_link})")
 
 

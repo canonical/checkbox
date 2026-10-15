@@ -88,7 +88,9 @@ def cmd_read_and_sync(args):
     subprocess.run(hwclock_cmd, check=True)
 
     if not os.access(since_epoch_path, os.R_OK):
-        raise SystemExit("Error: RTC is still not readable after hwclock sync.")
+        raise SystemExit(
+            "Error: RTC is still not readable after hwclock sync."
+        )
 
     return 0
 

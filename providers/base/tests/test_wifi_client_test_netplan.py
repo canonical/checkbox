@@ -253,6 +253,7 @@ class WifiClientTestNetplanTests(TestCase):
             self.assertEqual(args.renderer, "networkd")
             self.assertEqual(args.interface, "wlan0")
             self.assertEqual(args.ssid, "SSID")
+            self.assertEqual(args.maximum_loss, 0)
             self.assertTrue(args.dhcp)
             self.assertFalse(args.wpa3)
             self.assertIsNone(args.psk)
@@ -266,6 +267,8 @@ class WifiClientTestNetplanTests(TestCase):
             "-s",
             "SSID",
             "-d",
+            "-l",
+            "10",
             "--renderer",
             "NetworkManager",
         ]
@@ -274,6 +277,7 @@ class WifiClientTestNetplanTests(TestCase):
             self.assertEqual(args.renderer, "NetworkManager")
             self.assertEqual(args.interface, "wlan0")
             self.assertEqual(args.ssid, "SSID")
+            self.assertEqual(args.maximum_loss, 10)
             self.assertTrue(args.dhcp)
             self.assertFalse(args.wpa3)
             self.assertIsNone(args.psk)
@@ -286,6 +290,7 @@ class WifiClientTestNetplanTests(TestCase):
             self.assertEqual(args.renderer, "AutoDetect")
             self.assertEqual(args.interface, "wlan0")
             self.assertEqual(args.ssid, "SSID")
+            self.assertEqual(args.maximum_loss, 0)
             self.assertTrue(args.dhcp)
             self.assertFalse(args.wpa3)
             self.assertIsNone(args.psk)
@@ -307,6 +312,7 @@ class WifiClientTestNetplanTests(TestCase):
             self.assertEqual(args.renderer, "AutoDetect")
             self.assertEqual(args.interface, "wlan0")
             self.assertEqual(args.ssid, "SSID")
+            self.assertEqual(args.maximum_loss, 0)
             self.assertTrue(args.dhcp)
             self.assertFalse(args.wpa3)
             self.assertIsNone(args.psk)
@@ -791,7 +797,7 @@ class TestPerformPingTest(TestCase):
         mock_ping.return_value = {
             "transmitted": 5,
             "received": 0,
-            "pct_loss": 0,
+            "pct_loss": 100,
         }
         self.assertFalse(perform_ping_test("wlan0", "networkd"))
 
@@ -835,6 +841,7 @@ class TestMain(TestCase):
         mock_args = MagicMock()
         mock_args.renderer = "networkd"
         mock_args.interface = "wlan0"
+        mock_args.maximum_loss = "0"
         mock_parse_args.return_value = mock_args
         mock_renderer.return_value = "networkd"
         mock_wait_routable.return_value = True
@@ -854,7 +861,7 @@ class TestMain(TestCase):
         mock_wait_routable.assert_called_once_with("wlan0", "networkd")
         mock_print_address.assert_called_once_with("wlan0")
         self.assertEqual(mock_print_route.call_count, 1)
-        mock_ping.assert_called_once_with("wlan0", "networkd")
+        mock_ping.assert_called_once_with("wlan0", "networkd", "0")
         self.assertEqual(mock_delete.call_count, 2)
         self.assertEqual(mock_restore.call_count, 1)
         self.assertEqual(mock_print_journal.call_count, 1)
@@ -889,6 +896,7 @@ class TestMain(TestCase):
         # Setup
         mock_args = MagicMock()
         mock_args.renderer = "networkd"
+        mock_args.maximum_loss = "0"
         mock_parse_args.return_value = mock_args
         mock_renderer.return_value = "networkd"
         mock_sp_call.return_value = 1  # Simulating an error
@@ -934,6 +942,7 @@ class TestMain(TestCase):
         mock_args = MagicMock()
         mock_args.renderer = "networkd"
         mock_args.interface = "wlan0"
+        mock_args.maximum_loss = "0"
         mock_parse_args.return_value = mock_args
         mock_renderer.return_value = "networkd"
         mock_wait_routable.return_value = True
@@ -947,4 +956,4 @@ class TestMain(TestCase):
         self.assertEqual(mock_restore.call_count, 1)
         self.assertEqual(mock_apply.call_count, 2)
         self.assertEqual(mock_print_journal.call_count, 1)
-        mock_ping.assert_called_once_with("wlan0", "networkd")
+        mock_ping.assert_called_once_with("wlan0", "networkd", "0")

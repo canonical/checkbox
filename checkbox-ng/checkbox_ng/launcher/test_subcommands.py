@@ -1037,7 +1037,7 @@ class TestListBootstrapped(TestCase):
     def setUp(self):
         self.launcher = ListBootstrapped()
         self.ctx = Mock()
-        self.ctx.args = Mock(TEST_PLAN="", format="")
+        self.ctx.args = Mock(TEST_PLAN="", format="", from_submission=False)
 
         def identity(self, name):
             return self._raw_data[name]

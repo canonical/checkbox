@@ -40,6 +40,31 @@ purpose: |
 ---
 plugin: shell
 category_id: com.canonical.plainbox::stress
+id: stress/cpu_hotplug_stress_ng_test
+estimated_duration: "7200.0"
+requires:
+  - executable.name == 'stress-ng'
+  - cpu_offlining.state == 'supported'
+user: root
+environ:
+  - STRESS_NG_CPU_TIME
+command: |
+  if [ -n "$STRESS_NG_CPU_TIME" ]
+  then
+    echo "Found STRESS_NG_CPU_TIME env var, stress_ng cpu hotplug running time is now: $STRESS_NG_CPU_TIME seconds"
+    systemd-inhibit stress_ng_test.py cpu-hotplug --base-time "$STRESS_NG_CPU_TIME"
+  else
+    echo "STRESS_NG_CPU_TIME env var is not found, stress_ng cpu hotplug running time is the default value."
+    systemd-inhibit stress_ng_test.py cpu-hotplug --base-time 7200
+  fi
+summary: Stress of CPUs hotplug (very long runtime)
+purpose: |
+  Impose a high system load and exercise CPU hotplug using the 'stress-ng' tool for
+  several hours. The test is considered passed if the system does not freeze and
+  if the stress-ng tool does not report errors.
+---
+plugin: shell
+category_id: com.canonical.plainbox::stress
 id: stress/memory_stress_ng
 estimated_duration: "11000.0"
 user: root

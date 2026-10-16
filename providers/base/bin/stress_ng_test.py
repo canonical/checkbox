@@ -167,6 +167,38 @@ def stress_cpu(args):
     return retval
 
 
+def stress_cpu_hotplug(args):
+    """Run hot-plug stress-ng tests on CPUs."""
+
+    retval = 0
+    stressors = [
+        "context",
+        "cpu",
+        "cpu-online",
+        "matrix",
+        "vecmath",
+        "vm",
+    ]
+    # Add 10% to runtime; will forcefully terminate if stress-ng
+    # fails to return in that time.
+    end_time = 1.1 * args.base_time
+    print(
+        "Estimated total run time is {:.0f} minutes\n".format(
+            args.base_time / 60
+        )
+    )
+
+    test_object = StressNg(
+        stressors=stressors,
+        sng_timeout=args.base_time,
+        wrapper_timeout=end_time,
+        extra_options="--metrics-brief --tz --times --pathological",
+    )
+    retval = test_object.run()
+    print(test_object.results)
+    return retval
+
+
 # Define memory-related functions...
 
 
@@ -424,11 +456,21 @@ def main():
 
     # Main cli options
     cpu_parser = subparsers.add_parser("cpu", help=("Run CPU tests"))
+    cpu_hotplug_parser = subparsers.add_parser(
+        "cpu-hotplug", help=("Run CPU hotplug tests")
+    )
     memory_parser = subparsers.add_parser("memory", help=("Run memory tests"))
     disk_parser = subparsers.add_parser("disk", help=("Run disk tests"))
 
     # CPU parameters
     cpu_parser.add_argument(
+        "-b",
+        "--base-time",
+        type=int,
+        default=7200,
+        help="Run time, in seconds (default=7200)",
+    )
+    cpu_hotplug_parser.add_argument(
         "-b",
         "--base-time",
         type=int,
@@ -491,6 +533,7 @@ def main():
     )
 
     cpu_parser.set_defaults(func=stress_cpu)
+    cpu_hotplug_parser.set_defaults(func=stress_cpu_hotplug)
     memory_parser.set_defaults(func=stress_memory)
     disk_parser.set_defaults(func=stress_disk)
 

@@ -24,7 +24,7 @@ that fails. If Launchpad doesn't allow to retry a build, the script
 will keep on monitoring the others, and then exit with a non-0 return
 value.
 
-Read-only polling retries network timeouts and HTTP (502/503/504) responses.
+Read-only polling retries network timeouts, dropped connections and HTTP (502/503/504) responses.
 """
 
 # delay between updates requested to LP
@@ -44,6 +44,8 @@ def retry_polling(query):
                 return query(*args, **kwargs)
             except TimeoutError:
                 reason = "request timed out"
+            except ConnectionError as exc:
+                reason = f"connection error: {exc}"
             except ServerError as exc:
                 if exc.response.status not in (502, 503, 504):
                     raise

@@ -1,4 +1,5 @@
 import unittest
+from http.client import RemoteDisconnected
 
 from unittest.mock import MagicMock, patch
 
@@ -21,7 +22,7 @@ class TestPollingRetries(unittest.TestCase):
     @patch("time.sleep")
     def test_refresh_recovers_without_losing_build(self, sleep_mock):
         build = MagicMock()
-        build.lp_refresh.side_effect = [TimeoutError(), None]
+        build.lp_refresh.side_effect = [RemoteDisconnected(), None]
         build.buildstate = "Successfully built"
         self.assertEqual(
             lp_build_monitor_recipe.monitor_retry_builds([build]), []
@@ -34,6 +35,7 @@ class TestPollingRetries(unittest.TestCase):
     def test_transient_errors(self, sleep_mock):
         for error, delay in [
             (TimeoutError("timed out"), 60),
+            (RemoteDisconnected("closed"), 60),
             (ServerError(Response({"status": "502"}), b""), 60),
             (ServerError(Response({"status": "504"}), b""), 60),
             (

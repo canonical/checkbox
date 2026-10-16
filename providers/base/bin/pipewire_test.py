@@ -21,7 +21,6 @@ import argparse
 import collections
 import json
 import logging
-import math
 import re
 import subprocess
 import sys
@@ -54,9 +53,8 @@ FFT_INTERVAL = 100000000  # In nanoseconds, so this is every 1/10th second
 # Sampling frequency. The effective maximum frequency we can analyze is
 # half of this (see Nyquist's theorem)
 SAMPLING_FREQUENCY = 44100
-# The default test frequency is in the middle of the band that contains 5000Hz
-# This frequency was determined experimentally to be high enough but more
-# reliable than others we tried.
+# Default test frequency. Keep it easy on human ears while still distinct
+# enough for the spectrum analyzer to detect.
 DEFAULT_TEST_FREQUENCY = 512
 # only sample a signal when peak level is in this range (in dB attenuation,
 # 0 means no attenuation (and horrible clipping).
@@ -266,8 +264,11 @@ class SpectrumAnalyzer:
         max_frequency = self.sampling_frequency / 2
         if frequency > max_frequency or frequency < 0:
             return None
-        band = float(frequency) / (max_frequency / len(self.spectrum))
-        return int(math.ceil(band)) - 1
+        bin_width = max_frequency / len(self.spectrum)
+        # Spectrum magnitudes are reported per FFT bin. Use the nearest bin
+        # so frequencies near a bin edge still match the observed peak.
+        band = int((float(frequency) / bin_width) + 0.5)
+        return min(band, len(self.spectrum) - 1)
 
     def frequencies_for_band(self, band):
         """Convenience function to tell me the delimiting frequencies

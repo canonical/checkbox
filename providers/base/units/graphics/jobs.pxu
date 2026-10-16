@@ -788,6 +788,7 @@ command: gnome-screenshot --file "${PLAINBOX_SESSION_SHARE}"/screen-capture.png
 _purpose: Obtains a simple screen capture using gnome-screenshot if present
 
 plugin: attachment
+mime-type: image/png
 category_id: com.canonical.plainbox::graphics
 id: screen-capture-internal.png
 _summary: Attaches a simple screen capture
@@ -811,6 +812,7 @@ _purpose: Obtains a simple screen capture of {vendor} {product} using gnome-scre
 unit: template
 template-resource: graphics_card
 plugin: attachment
+mime-type: image/png
 category_id: com.canonical.plainbox::graphics
 id: graphics/{index}_screen-capture-internal_{product_slug}.png
 template-id: graphics/index_screen-capture-internal_product_slug.png

@@ -114,6 +114,7 @@ flags:
   - preserve-locale
 category_id: stress-tests/suspend
 id: stress-tests/suspend-{s3_iterations}-cycles-log-attach
+mime-type: text/plain
 template-id: stress-tests/suspend-s3_iterations-cycles-log-attach
 estimated_duration: "1.0"
 after:
@@ -180,6 +181,7 @@ flags:
   - preserve-locale
 category_id: stress-tests/hibernate
 id: stress-tests/hibernate-{s4_iterations}-cycles-log-attach
+mime-type: text/plain
 template-id: stress-tests/hibernate-s4_iterations-cycles-log-attach
 estimated_duration: "1.0"
 after:

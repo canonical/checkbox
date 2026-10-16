@@ -27,16 +27,13 @@ Test definitions for plainbox.impl.unit.job module
 from unittest import TestCase
 
 from plainbox.impl.providers.v1 import Provider1
-from plainbox.impl.secure.origin import FileTextSource
-from plainbox.impl.secure.origin import Origin
+from plainbox.impl.secure.origin import FileTextSource, Origin
 from plainbox.impl.secure.rfc822 import RFC822Record
-from plainbox.impl.unit.job import JobDefinition
-from plainbox.impl.unit.job import propertywithsymbols
+from plainbox.impl.unit.job import JobDefinition, propertywithsymbols
 from plainbox.impl.unit.test_unit_with_id import UnitWithIdFieldValidationTests
 from plainbox.impl.unit.unit_with_id import UnitWithId
 from plainbox.impl.unit.validators import UnitValidationContext
-from plainbox.impl.validation import Problem
-from plainbox.impl.validation import Severity
+from plainbox.impl.validation import Problem, Severity
 from plainbox.testing_utils.testcases import TestCaseWithParameters
 from plainbox.vendor import mock
 
@@ -109,6 +106,7 @@ class TestJobDefinitionDefinition(TestCase):
                 "shell": "shell-value",
                 "flags": "flags-value",
                 "category_id": "category_id-value",
+                "mime-type": "image/png",
             },
             raw_data={
                 "plugin": "plugin-raw",
@@ -127,6 +125,7 @@ class TestJobDefinitionDefinition(TestCase):
         self.assertEqual(job.shell, "shell-value")
         self.assertEqual(job.flags, "flags-value")
         self.assertEqual(job.category_id, "category_id-value")
+        self.assertEqual(job.mime_type, "image/png")
 
     def test_properties_default_values(self):
         """
@@ -139,6 +138,7 @@ class TestJobDefinitionDefinition(TestCase):
         self.assertEqual(job.user, None)
         self.assertEqual(job.shell, "bash")
         self.assertEqual(job.flags, None)
+        self.assertEqual(job.mime_type, None)
         self.assertEqual(
             job.category_id, "com.canonical.plainbox::uncategorised"
         )
@@ -320,6 +320,54 @@ class JobDefinitionFieldValidationTests(UnitWithIdFieldValidationTests):
             Problem.deprecated,
             Severity.advice,
             message,
+        )
+
+    def test_mime_type__correct(self):
+        issue_list = self.unit_cls(
+            {
+                "plugin": "attachment",
+                "command": "command",
+                "mime-type": "application/zip",
+            },
+            provider=self.provider,
+        ).check()
+        self.assertIssueNotFound(
+            issue_list,
+            self.unit_cls.Meta.fields.mime_type,
+            Problem.wrong,
+            Severity.error,
+        )
+
+    def test_mime_type__incorrect(self):
+        issue_list = self.unit_cls(
+            {
+                "plugin": "attachment",
+                "command": "command",
+                "mime-type": "application/x-unknown",
+            },
+            provider=self.provider,
+        ).check()
+        self.assertIssueFound(
+            issue_list,
+            self.unit_cls.Meta.fields.mime_type,
+            Problem.wrong,
+            Severity.error,
+        )
+
+    def test_mime_type__useless__on_non_attachment(self):
+        issue_list = self.unit_cls(
+            {
+                "plugin": "shell",
+                "command": "command",
+                "mime-type": "image/png",
+            },
+            provider=self.provider,
+        ).check()
+        self.assertIssueFound(
+            issue_list,
+            self.unit_cls.Meta.fields.mime_type,
+            Problem.useless,
+            Severity.warning,
         )
 
     def test_command__present__on_non_manual(self):

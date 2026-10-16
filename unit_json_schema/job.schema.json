@@ -29,6 +29,30 @@
           "enum": ["manual", "shell", "user-interact", "user-interact-verify", "attachment", "resource"],
           "default": "shell"
         },
+        "mime-type": {
+          "title": "MIME Type (Job Unit)",
+          "description": "Media type of the output produced by an attachment job.",
+          "type": "string",
+          "enum": [
+            "application/gzip",
+            "application/json",
+            "application/octet-stream",
+            "application/senml+json",
+            "application/xml",
+            "application/x-7z-compressed",
+            "application/x-bzip2",
+            "application/x-tar",
+            "application/x-xz",
+            "application/zip",
+            "application/zstd",
+            "image/gif",
+            "image/jpeg",
+            "image/png",
+            "image/svg+xml",
+            "image/webp",
+            "text/plain"
+          ]
+        },
         "certification-status": {
           "title": "Certification Status (Job Unit)",
           "description": "Certification status used to determine if the job is required for certification.",
@@ -160,10 +184,31 @@
           "default": false
         }
       }
+    },
+    "attachmentJobFields": {
+      "allOf": [{ "$ref": "#/$defs/jobFields" }],
+      "dependentSchemas": {
+        "mime-type": {
+          "properties": {
+            "plugin": { "const": "attachment" }
+          },
+          "required": ["plugin"]
+        }
+      }
+    },
+    "inheritedAttachmentJobFields": {
+      "allOf": [{ "$ref": "#/$defs/jobFields" }],
+      "dependentSchemas": {
+        "mime-type": {
+          "properties": {
+            "plugin": { "const": "attachment" }
+          }
+        }
+      }
     }
   },
   "type": "object",
-  "allOf": [{ "$ref": "#/$defs/jobFields" }],
+  "allOf": [{ "$ref": "#/$defs/attachmentJobFields" }],
   "properties": {
     "unit": {
       "title": "Unit (Job Unit)",
@@ -180,5 +225,29 @@
     }
   },
   "required": ["id"],
+  "if": {
+    "properties": {
+      "plugin": { "const": "attachment" }
+    },
+    "required": ["plugin"]
+  },
+  "then": {
+    "properties": {
+      "siblings": {
+        "items": {
+          "$ref": "#/$defs/inheritedAttachmentJobFields"
+        }
+      }
+    }
+  },
+  "else": {
+    "properties": {
+      "siblings": {
+        "items": {
+          "$ref": "#/$defs/attachmentJobFields"
+        }
+      }
+    }
+  },
   "unevaluatedProperties": false
 }

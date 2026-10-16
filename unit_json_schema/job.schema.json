@@ -69,8 +69,18 @@
         },
         "group": {
           "title": "Group (Job Unit)",
-          "description": "The id of the group this job belongs to.",
-          "type": "string"
+          "description": "The id (or hierarchical path) of the group this job belongs to. Can be a single string or a list of strings for nested groups (YAML only). Jobs in the same group are always run together.",
+          "oneOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          ]
         },
         "salvages": {
           "title": "Salvages (Job Unit)",

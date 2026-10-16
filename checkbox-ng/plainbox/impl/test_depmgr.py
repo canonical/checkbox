@@ -483,6 +483,77 @@ class TestDependencySolver(TestCase):
         with self.assertRaises(DependencyCycleError):
             DependencySolver.resolve_dependencies(job_list)
 
+    def test_nested_groups(self):
+        # [M1 [H1 H2] [D1 D2]] [A1]
+        M1 = make_job(id="M1", group=["monitor"])
+        H1 = make_job(id="H1", group=["monitor", "hdmi"])
+        H2 = make_job(id="H2", group=["monitor", "hdmi"])
+        D1 = make_job(id="D1", group=["monitor", "dp"])
+        D2 = make_job(id="D2", group=["monitor", "dp"])
+        A1 = make_job(id="A1", group=["audio"])
+        job_list = [H1, D1, A1, M1, H2, D2]
+        expected = [H1, H2, D1, D2, M1, A1]
+        observed = DependencySolver.resolve_dependencies(job_list)
+        self.assertEqual(expected, observed)
+
+    def test_nested_groups_single_string_level(self):
+        # A plain string is the same as a one element list
+        M1 = make_job(id="M1", group="monitor")
+        H1 = make_job(id="H1", group=["monitor", "hdmi"])
+        A1 = make_job(id="A1")
+        H2 = make_job(id="H2", group=["monitor", "hdmi"])
+        job_list = [H1, A1, M1, H2]
+        expected = [H1, H2, M1, A1]
+        observed = DependencySolver.resolve_dependencies(job_list)
+        self.assertEqual(expected, observed)
+
+    def test_nested_groups_with_sibling_deps(self):
+        # [M1 [H1 <- H2] [D1 <- D2]]
+        # hdmi <- dp, M1 <- dp
+        M1 = make_job(id="M1", group=["monitor"], depends="D1")
+        H1 = make_job(id="H1", group=["monitor", "hdmi"])
+        H2 = make_job(id="H2", group=["monitor", "hdmi"], depends="H1 D2")
+        D1 = make_job(id="D1", group=["monitor", "dp"])
+        D2 = make_job(id="D2", group=["monitor", "dp"], after="D1")
+        job_list = [M1, H2, H1, D2, D1]
+        expected = [D1, D2, M1, H1, H2]
+        observed = DependencySolver.resolve_dependencies(job_list)
+        self.assertEqual(expected, observed)
+
+    def test_nested_groups_with_external_deps(self):
+        # [[H1 H2]] <- A1: the whole monitor group runs before A1
+        H1 = make_job(id="H1", group=["monitor", "hdmi"])
+        M1 = make_job(id="M1", group=["monitor"])
+        H2 = make_job(id="H2", group=["monitor", "hdmi"])
+        A1 = make_job(id="A1", group=["audio"], depends="H2")
+        X = make_job(id="X", before="H1")
+        job_list = [A1, H1, M1, H2, X]
+        # Within monitor/hdmi, H2 appears first in pull order (from A1's dep),
+        # and H1 has before: X constraint satisfied by X coming first overall.
+        expected = [X, H2, H1, M1, A1]
+        observed = DependencySolver.resolve_dependencies(job_list)
+        self.assertEqual(expected, observed)
+
+    def test_nested_groups_identified_by_path(self):
+        # monitor/common and audio/common are different groups
+        M1 = make_job(id="M1", group=["monitor", "common"])
+        A1 = make_job(id="A1", group=["audio", "common"])
+        M2 = make_job(id="M2", group=["monitor", "common"])
+        A2 = make_job(id="A2", group=["audio", "common"], depends="M2")
+        job_list = [A1, M1, A2, M2]
+        expected = [M1, M2, A1, A2]
+        observed = DependencySolver.resolve_dependencies(job_list)
+        self.assertEqual(expected, observed)
+
+    def test_nested_groups_cycle(self):
+        # [M1 [H1]] where H1 <- M1 <- H1 inside the monitor group
+        M1 = make_job(id="M1", group=["monitor"], depends="H1")
+        H1 = make_job(id="H1", group=["monitor", "hdmi"], depends="M1")
+        job_list = [M1, H1]
+        with self.assertRaises(DependencyCycleError) as call:
+            DependencySolver.resolve_dependencies(job_list)
+        self.assertIn(call.exception.affected_job, job_list)
+
     def test_no_groups_no_cycle(self):
         # The same test witout groups should not raise an error
         T1_1 = make_job(id="T1_1", depends="T2_2")

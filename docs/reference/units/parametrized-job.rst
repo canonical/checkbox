@@ -64,7 +64,7 @@ Instantiation and validation
 
 The provider retains the source definition and exposes the generated jobs.
 Checkbox validates the actual parameter values with the ordinary job
-validators. Contextual validation checks generated IDs for collisions and
+validation checks. Contextual validation checks generated IDs for collisions and
 resolves dependencies against the generated jobs.
 
 Other jobs can reference concrete IDs in ``depends``, ``after``, and ``before``.

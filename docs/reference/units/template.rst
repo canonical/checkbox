@@ -12,7 +12,7 @@ reserved for the template itself while all the other fields are a definition of
 all the eventual instances of the template.
 
 Templates use records discovered by resource jobs. If you would like to use a
-fixed list of values to instantiate simmilar jobs, you can use a
+fixed list of values to instantiate similar jobs, you can use a
 :ref:`parametrized-job unit <parametrized-jobs>`.
 
 There are two requirements for the job's ``id`` field for the instances to

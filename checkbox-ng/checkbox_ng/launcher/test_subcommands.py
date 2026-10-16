@@ -169,7 +169,7 @@ class TestParametrizedJobCommands(TestCase):
         self.ctx.args.IDs = ["test-first"]
         Show().invoked(self.ctx)
         self.assertIn("id: test-first", stdout.getvalue())
-        self.assertIn("_summary: Test first", stdout.getvalue())
+        self.assertIn("summary: Test first", stdout.getvalue())
         self.assertIn("command: echo first", stdout.getvalue())
         self.assertNotIn("parameters:", stdout.getvalue())
 

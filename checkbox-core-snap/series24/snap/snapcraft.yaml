@@ -166,8 +166,8 @@ parts:
     # if you change this update LD_LIBRARY_PATH
     autotools-configure-parameters:
       - --prefix=/
-    build-environment:
-      - CFLAGS: "$CFLAGS -g -O2"
+      # only add -g -O2 when not building from scratch
+      - '${CFLAGS:+CFLAGS="$CFLAGS -g -O2"}'
     stage-packages:
       - libfdt1
       - libbsd0

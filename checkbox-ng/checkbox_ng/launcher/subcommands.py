@@ -59,6 +59,7 @@ from plainbox.impl.transport import TransportError
 from plainbox.impl.transport import get_all_transports
 from plainbox.impl.transport import SECURE_ID_PATTERN
 from plainbox.impl.unit.testplan import TestPlanUnitSupport
+from plainbox.impl.unit.unit import Unit
 from plainbox.impl.config import Configuration
 
 from checkbox_ng.config import load_configs
@@ -1330,6 +1331,7 @@ class List:
                     return u.attrs["template_unit"] == "job"
 
                 print_objs("template", ctx.sa, True, filter_fun)
+                print_objs("parametrized-job", ctx.sa, True)
             jobs = get_all_jobs(ctx.sa)
             if ctx.args.format == "?":
                 all_keys = set()
@@ -1355,7 +1357,9 @@ class List:
                 # formatters are allowed to use special field 'unit_type' so
                 # let's add it to the job representation
                 assert "unit_type" not in job.keys()
-                if job.get("template_unit") == "job":
+                if job.get("unit") == "parametrized-job":
+                    job["unit_type"] = "parametrized-job"
+                elif job.get("template_unit") == "job":
                     job["unit_type"] = "template_job"
                 else:
                     job["unit_type"] = "job"
@@ -1459,7 +1463,7 @@ class Expand:
         all_jobs_and_templates = [
             unit
             for unit in self.sa._context.state.unit_list
-            if unit.unit in ["job", "template"]
+            if unit.unit in ["job", "template", "parametrized-job"]
         ]
         tp = self.sa._context._test_plan_list[0]
         tp_us = TestPlanUnitSupport(tp)
@@ -1478,7 +1482,14 @@ class Expand:
         )
         obj_list = []
         for unit in units_to_print:
-            obj = unit._raw_data.copy()
+            obj = (
+                {
+                    field: unit.get_record_value(field)
+                    for field in unit._raw_data
+                }
+                if unit.is_parametric
+                else unit._raw_data.copy()
+            )
             obj["unit"] = unit.unit
             obj["id"] = unit.id  # To get the fully qualified id
             # these two don't make sense for manifest units
@@ -1498,6 +1509,8 @@ class Expand:
             for obj in obj_list:
                 if obj["unit"] == "template":
                     print("Template '{}'".format(obj["template-id"]))
+                elif obj["unit"] == "parametrized-job":
+                    print("Parametrized job '{}'".format(obj["template-id"]))
                 elif obj["unit"] == "manifest entry":
                     print("Manifest '{}'".format(obj["id"]))
                 elif obj["unit"] == "job":
@@ -1514,7 +1527,7 @@ class Expand:
     # probably be refactored, given that the overrides are available at test
     # plan level and should not be part of the job state to begin with...
     def get_effective_certification_status(self, unit):
-        if unit.unit == "template":
+        if unit.unit in ("template", "parametrized-job"):
             unit_id = unit.template_id
         else:
             unit_id = unit.id
@@ -1699,10 +1712,22 @@ def get_all_jobs(sa):
 
     def get_jobs(obj):
         jobs = []
+        if obj.group == "parametrized-job":
+            attrs = dict(obj._impl._raw_data)
+            attrs["full_id"] = obj.name
+            jobs.append(attrs)
         if obj.group == "job" or (
             obj.group == "template" and obj.attrs["template_unit"] == "job"
         ):
-            attrs = dict(obj._impl._raw_data.copy())
+            unit = obj._impl
+            attrs = (
+                {
+                    field: unit.get_record_value(field)
+                    for field in unit._raw_data
+                }
+                if unit.is_parametric
+                else dict(unit._raw_data.copy())
+            )
             attrs["full_id"] = obj.name
             jobs.append(attrs)
         for child in obj.children:
@@ -1740,9 +1765,13 @@ def print_objs(group, sa, show_attrs=False, filter_fun=None, json_repr=False):
 
     assert not filter_fun, "The json exporter doesn't support filtering"
 
-    # all-jobs is a meta-group that include all jobs + all templates
+    # all-jobs also includes sources that generate jobs.
     # note: if group is none, everything should be printed
-    groups = {group} if group != "all-jobs" else {"job", "template"}
+    groups = (
+        {group}
+        if group != "all-jobs"
+        else {"job", "template", "parametrized-job"}
+    )
 
     to_print = []
     childrens = obj.children
@@ -1787,6 +1816,13 @@ class Show:
             raise SystemExit("Failed to find: {}".format(", ".join(failed)))
 
     def _print_obj(self, obj):
+        if isinstance(obj._impl, Unit) and obj._impl.is_parametric:
+            unit = obj._impl
+            print("origin:", unit.origin)
+            for field in unit._raw_data:
+                print("{}: {}".format(field, unit.get_record_value(field)))
+            print()
+            return
         if "origin" in obj.attrs:
             try:
                 print("origin:", obj.attrs["origin"])

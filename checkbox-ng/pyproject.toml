@@ -120,6 +120,7 @@ translator = [
   job = "plainbox.impl.unit.job:JobDefinition"
   'setup job' = "plainbox.impl.unit.setup_job:SetupJobUnit"
   template = "plainbox.impl.unit.template:TemplateUnit"
+  parametrized-job = "plainbox.impl.unit.parametrized_job:ParametrizedJobUnit"
   category = "plainbox.impl.unit.category:CategoryUnit"
   'test plan' = "plainbox.impl.unit.testplan:TestPlanUnit"
   'manifest entry' = "plainbox.impl.unit.manifest:ManifestEntryUnit"

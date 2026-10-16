@@ -20,9 +20,27 @@ from unittest import TestCase
 
 from plainbox.impl.highlevel import Explorer, PlainBoxObject
 from plainbox.impl.unit.template import TemplateUnit
+from plainbox.impl.unit.parametrized_job import ParametrizedJobUnit
 
 
 class TestExplorer(TestCase):
+    def test_parametrized_job_to_obj(self):
+        unit = ParametrizedJobUnit(
+            {
+                "unit": "parametrized-job",
+                "template-id": "example",
+                "parameters": [{"value": "A"}],
+                "id": "test-{value}",
+            }
+        )
+        obj = Explorer()._unit_to_obj(unit)
+        self.assertEqual(obj.name, "example")
+        self.assertEqual(obj.group, "parametrized-job")
+        self.assertEqual(obj.attrs["id"], "test-{value}")
+        self.assertEqual(obj.attrs["parameters"], [{"value": "A"}])
+        self.assertNotIn("template_resource", obj.attrs)
+        self.assertIn("parametrized-job", Explorer.OBJECT_TYPES)
+
     def test_template_to_obj__without_template_id(self):
         template = TemplateUnit(
             {

@@ -36,6 +36,7 @@ _description: Networking tests (automated)
 include:
     networking/gateway_ping                        certification-status=blocker
     networking/ntp                                 certification-status=blocker
+    networking/ntp-chrony                          certification-status=blocker
 
 id: after-suspend-networking-cert-automated
 unit: test plan
@@ -44,6 +45,7 @@ _description: Networking tests after suspend (automated)
 include:
     after-suspend-networking/gateway_ping           certification-status=blocker
     after-suspend-networking/ntp                    certification-status=blocker
+    after-suspend-networking/ntp-chrony             certification-status=blocker
 
 
 id: networking-cert-blockers
@@ -54,6 +56,7 @@ include:
     networking/gateway_ping                        certification-status=blocker
     networking/info_device.*                       certification-status=blocker
     networking/ntp                                 certification-status=blocker
+    networking/ntp-chrony                          certification-status=blocker
 bootstrap_include:
     device
     executable
@@ -127,6 +130,7 @@ _description: Networking tests for Server Cert
 include:
     networking/predictable_names    certification-status=blocker
     networking/ntp                  certification-status=non-blocker
+    networking/ntp-chrony           certification-status=non-blocker
 
 id: connectivity-base-26-04-manual
 unit: test plan

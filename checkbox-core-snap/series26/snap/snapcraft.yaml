@@ -166,6 +166,15 @@ parts:
     # if you change this update LD_LIBRARY_PATH
     autotools-configure-parameters:
       - --prefix=/
+      # only add -g -O2 when not building from scratch
+      # because snapcraft will try to inject CFLAGS to reuse existing artifacts
+      # but after snapcraft changes CFLAGS, autoconf will not add -g and -O2 
+      # and cause fwts to fail to compile
+
+      # we also shouldn't just set a default value for CFLAGS
+      # because autoconf checks if CFLAGS is set AT ALL
+      # if it's set, we lose -g -O2 again
+      - '${CFLAGS:+CFLAGS="$CFLAGS -g -O2"}'
     stage-packages:
       - libfdt1
       - libbsd0

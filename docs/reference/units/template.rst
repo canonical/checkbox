@@ -6,10 +6,14 @@ Template unit
 
 The template unit is a variant of Checkbox unit types. A template is a skeleton
 for defining additional units, typically job definitions. A template is defined
-as a typical RFC822-like Checkbox unit (like a typical job definition) with the
-exception that all the fields starting with the string ``template-`` are
+in YAML or as an RFC822-like Checkbox unit (like a typical job definition). All
+the fields starting with the string ``template-`` are
 reserved for the template itself while all the other fields are a definition of
 all the eventual instances of the template.
+
+Templates use records discovered by resource jobs. If you would like to use a
+fixed list of values to instantiate simmilar jobs, you can use a
+:ref:`parametrized-job unit <parametrized-jobs>`.
 
 There are two requirements for the job's ``id`` field for the instances to
 be generated. It must be unique, and it must be template-based, for example::
@@ -135,15 +139,14 @@ the template-engine (default is python formatting language. Within each field
 the record is exposed as the variable named by the ``template_resource`` field.
 Record data is exposed as attributes of that object.
 
-The special parameter ``__index__`` can be used to iterate over the devices
-matching the ``template-filter`` field.
+The special parameter ``__index__`` is the one-based index of each matching
+resource record.
 
 .. warning::
   
-  When using templated jobs, we have to be careful with dependencies, since
-  the templated jobs are not expanded during validation. Running ``manage.py validate``
-  will fail if there are templated jobs in the depends/after/before fields of other
-  jobs. The same applies to sibling jobs.
+  Resource-driven templates are not expanded during validation. Running
+  ``manage.py validate`` will fail if their generated jobs appear in the
+  depends/after/before fields of other jobs. The same applies to sibling jobs.
 
 Examples
 ========

@@ -297,3 +297,22 @@ _summary:
  cpufreq scaling test
 _purpose:
  Comprehensive testing of CPU scaling capabilities and directives via cpufreq.
+
+id: cpu/idle_state_test
+_summary: Trigger and verify all CPU idle states are reachable
+_description:
+    To alternate sleep/burn load on every CPU core and verify that each
+    cpuidle state advertised under /sys/devices/system/cpu/cpuX/cpuidle
+    is actually entered at least once.
+    This is the ARM equivalent of the FWTS-based cpu/cstates test, which
+    only runs on x86.
+plugin: shell
+user: root
+category_id: com.canonical.plainbox::cpu
+flags: also-after-suspend
+estimated_duration: 160s
+imports:
+    from com.canonical.plainbox import manifest
+requires:
+    manifest.has_cpu_idle_states == 'True'
+command: cpu_idle_state.py --verbose

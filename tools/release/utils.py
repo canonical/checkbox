@@ -72,8 +72,10 @@ def get_launchpad_client(timeout: int | None = None) -> Launchpad:
     )
 
 
-def get_source_build_recipe(project_name: str, recipe_name: str):
-    lp = get_launchpad_client()
+def get_source_build_recipe(
+    project_name: str, recipe_name: str, timeout: int | None = None
+):
+    lp = get_launchpad_client(timeout=timeout)
     try:
         project = lp.projects[project_name]
     except KeyError:

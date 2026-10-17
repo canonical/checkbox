@@ -45,6 +45,11 @@ from plainbox.impl.secure.providers.v1 import (
 )
 from plainbox.impl.secure.rfc822 import FileTextSource, Origin
 from plainbox.impl.unit.file import FileUnit
+from plainbox.impl.unit.category import CategoryUnit
+from plainbox.impl.unit.template import TemplateUnit
+from plainbox.impl.unit.parametrized_job import ParametrizedJobUnit
+from plainbox.impl.unit.validators import UnitValidationContext
+from plainbox.impl.validation import Problem, Severity
 
 
 class IQNValidatorTests(TestCase):
@@ -752,6 +757,233 @@ class YAMLUnitPlugInTests(TestCase):
             self.LOAD_TIME,
             self.provider,
             check=False,
+        )
+
+    def load_parametric(
+        self, records="[{name: first}, {name: second}]", **kwargs
+    ):
+        return YAMLUnitPlugIn(
+            "/path/to/inline.yaml",
+            dedent("""
+                unit: parametrized-job
+                template-id: inline
+                parameters: {}
+                id: test-{{name}}
+                plugin: shell
+                command: echo {{name}}
+                ---
+                id: dependent
+                plugin: shell
+                command: 'true'
+                depends: [test-first]
+                after: [test-second]
+                before: [test-first]
+                """).format(records),
+            self.LOAD_TIME,
+            self.provider,
+            **kwargs,
+        )
+
+    def test_parametrized_units_and_references(self):
+        plugin = self.load_parametric()
+        units = plugin.unit_list
+        self.assertIsInstance(units[0], ParametrizedJobUnit)
+        self.assertEqual(
+            [unit.partial_id for unit in units[1:4]],
+            ["test-first", "test-second", "dependent"],
+        )
+        self.assertIs(units[1].provider, self.provider)
+        self.assertEqual(units[1].origin, units[0].origin)
+        self.provider.unit_list = units + [
+            CategoryUnit(
+                {"unit": "category", "id": "uncategorised"},
+                provider=self.provider,
+            )
+        ]
+        context = UnitValidationContext([self.provider])
+        errors = [
+            issue
+            for unit in units[:-1]
+            for issue in unit.check(context=context)
+            if issue.severity is Severity.error
+        ]
+        self.assertEqual(errors, [])
+
+    def test_parametrized_duplicate_ids(self):
+        units = self.load_parametric(
+            "[{name: first}, {name: first}]"
+        ).unit_list
+        self.provider.unit_list = units
+        context = UnitValidationContext([self.provider])
+        self.assertTrue(
+            any(
+                issue.kind is Problem.not_unique and issue.field == "id"
+                for issue in units[1].check(context=context)
+            )
+        )
+
+    def test_parametrized_source_ids_are_unique(self):
+        units = self.load_parametric().unit_list
+        other = ParametrizedJobUnit(
+            {
+                "unit": "parametrized-job",
+                "template-id": "inline",
+                "parameters": [],
+                "id": "other-{name}",
+            },
+            provider=self.provider,
+        )
+        self.provider.unit_list = units + [other]
+        context = UnitValidationContext([self.provider])
+        self.assertTrue(
+            any(
+                issue.kind is Problem.not_unique
+                and issue.field == "template-id"
+                for issue in units[0].check(context=context)
+            )
+        )
+
+    def test_parametrized_source_collides_with_template_id(self):
+        units = self.load_parametric().unit_list
+        other = TemplateUnit(
+            {
+                "template-id": "inline",
+                "template-resource": "device",
+                "id": "other-{name}",
+            },
+            provider=self.provider,
+        )
+        self.provider.unit_list = units + [other]
+        context = UnitValidationContext([self.provider])
+        self.assertTrue(
+            any(
+                issue.kind is Problem.not_unique
+                and issue.field == "template-id"
+                for issue in units[0].check(context=context)
+            )
+        )
+        self.assertTrue(
+            any(
+                issue.kind is Problem.not_unique
+                and issue.field == "template-id"
+                for issue in other.check(context=context)
+            )
+        )
+
+    def test_source_uniqueness_ignores_generated_jobs(self):
+        units = self.load_parametric().unit_list
+        other = TemplateUnit(
+            {
+                "template-id": "resource-template",
+                "template-resource": "device",
+                "id": "other-{name}",
+            },
+            provider=self.provider,
+        )
+        self.provider.unit_list = units + [other]
+        context = UnitValidationContext([self.provider])
+        for source in (units[0], other):
+            with self.subTest(source=source.template_id):
+                self.assertFalse(
+                    any(
+                        issue.kind is Problem.not_unique
+                        and issue.field == "template-id"
+                        for issue in source.check(context=context)
+                    )
+                )
+
+    def test_parametrized_collides_with_ordinary_job(self):
+        units = self.load_parametric().unit_list
+        self.provider.unit_list = units + [
+            JobDefinition(
+                {"id": "test-first", "plugin": "shell", "command": "true"},
+                provider=self.provider,
+            )
+        ]
+        context = UnitValidationContext([self.provider])
+        self.assertTrue(
+            any(
+                issue.kind is Problem.not_unique and issue.field == "id"
+                for issue in units[1].check(context=context)
+            )
+        )
+
+    def test_parametrized_malformed_even_without_check(self):
+        for records in ("null", "{}", "[invalid]"):
+            with self.subTest(records=records):
+                with self.assertRaisesRegex(
+                    PlugInError,
+                    "parameters must be a list of mappings",
+                ):
+                    self.load_parametric(records, check=False)
+
+    def test_parametrized_generated_fields_checked(self):
+        with self.assertRaisesRegex(PlugInError, "identifier cannot"):
+            self.load_parametric("[{name: 'ns::invalid'}]")
+
+    def test_resource_template_not_expanded_on_load(self):
+        plugin = YAMLUnitPlugIn(
+            "/path/to/resource.yaml",
+            dedent("""
+                unit: template
+                template-resource: device
+                id: test-{name}
+                plugin: shell
+                command: echo {name}
+                """),
+            self.LOAD_TIME,
+            self.provider,
+        )
+        self.assertEqual(len(plugin.unit_list), 2)
+        self.assertIsInstance(plugin.unit_list[0], TemplateUnit)
+        self.assertIsInstance(plugin.unit_list[1], FileUnit)
+
+    def test_parametrized_missing_reference(self):
+        units = self.load_parametric("[{name: second}]").unit_list
+        self.provider.unit_list = units
+        context = UnitValidationContext([self.provider])
+        self.assertTrue(
+            any(
+                issue.kind is Problem.bad_reference
+                and issue.field == "depends"
+                for issue in units[2].check(context=context)
+            )
+        )
+
+    def test_parametrized_template_fields_report_loading_error(self):
+        for field in (
+            "template-resource",
+            "template-filter",
+            "template-imports",
+            "template-engine",
+            "template-unit",
+        ):
+            with self.subTest(field=field):
+                with self.assertRaisesRegex(
+                    PlugInError, "does not support " + field
+                ):
+                    YAMLUnitPlugIn(
+                        "/path/to/inline.yaml",
+                        "unit: parametrized-job\n"
+                        "parameters: []\n"
+                        "{}: ''\n".format(field),
+                        self.LOAD_TIME,
+                        self.provider,
+                        check=False,
+                    )
+
+    def test_pxu_parametrized_json(self):
+        plugin = RFC822UnitPlugIn(
+            "/path/to/inline.pxu",
+            "unit: parametrized-job\n"
+            'parameters: [{"name": "first"}, {"name": "second"}]\n'
+            "id: test-{name}\nplugin: shell\ncommand: echo {name}\n",
+            self.LOAD_TIME,
+            self.provider,
+        )
+        self.assertEqual(
+            [unit.partial_id for unit in plugin.unit_list[1:3]],
+            ["test-first", "test-second"],
         )
 
 

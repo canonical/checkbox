@@ -149,6 +149,7 @@ class Explorer:
         "manifest entry",
         "packaging meta-data",
         "template",
+        "parametrized-job",
         "test plan",
         "file",
         "provider",
@@ -246,6 +247,8 @@ class Explorer:
             return self._file_to_obj(unit)
         elif unit.Meta.name == "template":
             return self._template_to_obj(unit)
+        elif unit.Meta.name == "parametrized-job":
+            return self._parametrized_job_to_obj(unit)
         elif unit.Meta.name == "manifest entry":
             return self._manifest_entry_to_obj(unit)
         elif unit.Meta.name == "packaging meta-data":
@@ -362,6 +365,22 @@ class Explorer:
                     ("template_resource", unit.template_resource),
                     ("template_filter", unit.template_filter),
                     ("template_imports", unit.template_imports),
+                    ("origin", str(unit.origin)),
+                )
+            ),
+        )
+
+    def _parametrized_job_to_obj(self, unit):
+        return PlainBoxObject(
+            unit,
+            group=unit.Meta.name,
+            name=unit.template_id,
+            attrs=OrderedDict(
+                (
+                    ("id", unit.id),
+                    ("partial_id", unit.partial_id),
+                    ("template_id", unit.template_id),
+                    ("parameters", unit.parameter_records),
                     ("origin", str(unit.origin)),
                 )
             ),

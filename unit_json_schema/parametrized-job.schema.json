@@ -1,0 +1,29 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "parametrized-job.schema.json",
+  "title": "Parametrized Job Unit",
+  "description": "Ordinary jobs generated from fixed parameter records.",
+  "type": "object",
+  "allOf": [{ "$ref": "job.schema.json#/$defs/jobFields" }],
+  "properties": {
+    "unit": {
+      "const": "parametrized-job"
+    },
+    "template-id": {
+      "description": "Optional template identifier, derived from the job ID pattern when omitted.",
+      "type": "string"
+    },
+    "parameters": {
+      "description": "Each mapping generates one ordinary job, without Cartesian expansion.",
+      "type": "array",
+      "items": {
+        "type": "object"
+      }
+    },
+    "siblings": {
+      "$ref": "job.schema.json#/properties/siblings"
+    }
+  },
+  "required": ["unit", "id", "parameters"],
+  "unevaluatedProperties": false
+}

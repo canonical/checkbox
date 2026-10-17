@@ -16,6 +16,7 @@ All units follow :ref:`rfc822`.
     category.rst
     resource.rst
     template.rst
+    parametrized-job.rst
     exporter.rst
     manifest-entry.rst
     packaging-meta-data.rst

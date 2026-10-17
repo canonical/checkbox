@@ -609,13 +609,16 @@ class UniqueValueValidator(FieldValidatorBase):
     which translates to O(N) cost for the whole context.
     """
 
-    def check_in_context(self, parent, unit, field, context):
-        value_map = context.compute_shared(
+    def get_value_map(self, context, field):
+        return context.compute_shared(
             f"field_value_map[{field}]",
             compute_value_map,
             context,
             field,
         )
+
+    def check_in_context(self, parent, unit, field, context):
+        value_map = self.get_value_map(context, field)
         value = getattr(unit, field2prop(field))
         units_with_this_value = value_map[value]
         n = len(units_with_this_value)
@@ -647,6 +650,28 @@ class UniqueValueValidator(FieldValidatorBase):
                     if other_unit is not unit
                 ),
             )
+
+
+class UniqueTemplateIdValidator(UniqueValueValidator):
+    """Check template IDs on template and parametrized-job definitions.
+
+    Here we are checking that the template IDs are unique among template and
+    parametrized-job definitions.
+    """
+
+    def get_value_map(self, context, field):
+        """Override the generic lookup to count only template definitions."""
+        return context.compute_shared(
+            "template_id_value_map", self.compute_template_id_map, context
+        )
+
+    def compute_template_id_map(self, context):
+        value_map = {}
+        for provider in context.provider_list:
+            for unit in provider.unit_list:
+                if unit.Meta.name in ("template", "parametrized-job"):
+                    value_map.setdefault(unit.template_id, []).append(unit)
+        return value_map
 
 
 class ReferenceConstraint:

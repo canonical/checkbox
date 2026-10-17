@@ -157,4 +157,12 @@ e.g. TOTAL_RTC_NUM=2
 id: ce-oem-serial/rs485-list
 RS485_PORTS={port1} {port2}
 e.g. RS485_PORTS=/dev/ttymxc1 /dev/ttymxc2
+
+id: ce-oem-ptp/ptp4l-time-sync-for-{eth-interface}-auto
+PTP4L_TRANSPORT_SPECIFIC={0|1}   (optional, default 0 = IEEE 1588; 1 = IEEE 802.1AS/gPTP; the grandmaster must use the same value)
+PTP4L_DELAY_MECHANISM={E2E|P2P}  (optional, default = the profile's mechanism: E2E for 0, P2P for 1; 1 + E2E is rejected)
+PTP4L_PTP_MINOR_VERSION={minor}  (optional, linuxptp >= 4.0 only, i.e. noble; jammy's 3.1.1 skips it)
+PTP4L_REARM_HWTSTAMP=1           (optional, default off; re-programs NIC timestamping + sets the PHC before the test, drops the link briefly)
+e.g. PTP4L_TRANSPORT_SPECIFIC=1 PTP4L_DELAY_MECHANISM=P2P   (gPTP: set both; grandmaster on a direct link with --transportSpecific=1 --delay_mechanism=P2P)
+See checkbox-provider-ce-oem/units/ptp/README.md
 ```

@@ -796,8 +796,43 @@ class JobDefinitionFieldValidationTests(UnitWithIdFieldValidationTests):
             Problem.bad_reference,
         )
 
+    def test_group__slash_in_name(self):
+        message = "field 'group', group names cannot contain '/'"
+        for group in ("a/b", ["a", "b/c"]):
+            with self.subTest(group=group):
+                issue_list = self.unit_cls(
+                    {"group": group}, provider=self.provider
+                ).check()
+                self.assertIssueFound(
+                    issue_list,
+                    self.unit_cls.Meta.fields.group,
+                    Problem.wrong,
+                    Severity.error,
+                    message,
+                )
+
+    def test_group__valid_names(self):
+        for group in ("a", ["a", "b"]):
+            with self.subTest(group=group):
+                issue_list = self.unit_cls(
+                    {"group": group}, provider=self.provider
+                ).check()
+                self.assertIssueNotFound(
+                    issue_list, self.unit_cls.Meta.fields.group
+                )
+
 
 class TestJobDefinition(TestCase):
+
+    def test_get_group_path(self):
+        self.assertEqual(JobDefinition({"id": "j"}).get_group_path(), [])
+        self.assertEqual(
+            JobDefinition({"id": "j", "group": "g1"}).get_group_path(), ["g1"]
+        )
+        self.assertEqual(
+            JobDefinition({"id": "j", "group": ["g1", "g2"]}).get_group_path(),
+            ["g1", "g2"],
+        )
 
     def setUp(self):
         self._full_record = RFC822Record(

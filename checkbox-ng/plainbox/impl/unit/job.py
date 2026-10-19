@@ -615,6 +615,21 @@ class JobDefinition(UnitWithId, IJobDefinition):
             return set()
 
     @instance_method_lru_cache(maxsize=None)
+    def get_group_path(self):
+        """
+        Return the group path from the biggest group to the smallest one.
+
+        A plain string is a single-level group. Jobs without a group have
+        an empty path.
+        """
+        group = self.group
+        if not group:
+            return []
+        if isinstance(group, str):
+            return [group]
+        return group
+
+    @instance_method_lru_cache(maxsize=None)
     def get_flag_set(self):
         """
         Return a set of flags associated with this job
@@ -1018,7 +1033,16 @@ class JobDefinition(UnitWithId, IJobDefinition):
                     Problem.deprecated, Severity.warning, str, list
                 ),
             ],
-            fields.group: [],
+            fields.group: [
+                # "/" is used to join the group path into a unique group id
+                CorrectFieldValueValidator(
+                    lambda value, unit: all(
+                        "/" not in name for name in unit.get_group_path()
+                    ),
+                    message=_("group names cannot contain '/'"),
+                    onlyif=lambda unit: unit.group is not None,
+                ),
+            ],
             fields.requires: [
                 CorrectFieldValueValidator(
                     lambda value, unit: unit.get_resource_program(),

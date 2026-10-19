@@ -543,7 +543,7 @@ class SessionStateAPITests(TestCase):
             session.job_list[1].group,
             ["after-suspend-group1", "subgroup1"],
         )
-        self.assertEqual(job.groups, ["group1", "subgroup1"])
+        self.assertEqual(job.get_group_path(), ["group1", "subgroup1"])
 
     def test_also_after_suspend_manual_flag(self):
         # Define a job

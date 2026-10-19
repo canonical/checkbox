@@ -348,20 +348,6 @@ class JobDefinition(UnitWithId, IJobDefinition):
         return self.get_record_value("group")
 
     @cached_property
-    def groups(self):
-        """
-        Hierarchical group path of the job, from the biggest group to the
-        smallest one. A plain string is a single level group.
-        """
-        group = self.group
-        if not group:
-            return []
-        if isinstance(group, str):
-            return [group]
-        # Copy, so the raw record value is never shared with callers
-        return list(group)
-
-    @cached_property
     def salvages(self):
         return self.get_record_value("salvages")
 
@@ -600,6 +586,21 @@ class JobDefinition(UnitWithId, IJobDefinition):
             return set(self.environ)
         else:
             return set()
+
+    @instance_method_lru_cache(maxsize=None)
+    def get_group_path(self):
+        """
+        Return the group path from the biggest group to the smallest one.
+
+        A plain string is a single-level group. Jobs without a group have
+        an empty path.
+        """
+        group = self.group
+        if not group:
+            return []
+        if isinstance(group, str):
+            return [group]
+        return group
 
     @instance_method_lru_cache(maxsize=None)
     def get_flag_set(self):
@@ -992,7 +993,7 @@ class JobDefinition(UnitWithId, IJobDefinition):
                 # "/" is used to join the group path into a unique group id
                 CorrectFieldValueValidator(
                     lambda value, unit: all(
-                        "/" not in name for name in unit.groups
+                        "/" not in name for name in unit.get_group_path()
                     ),
                     message=_("group names cannot contain '/'"),
                     onlyif=lambda unit: unit.group is not None,

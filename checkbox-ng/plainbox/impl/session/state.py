@@ -1271,12 +1271,17 @@ class SessionState:
                     job.depends, job.id, suspend_job_id
                 )
 
-            if isinstance(job.group, str):
-                overrides["group"] = f"{suspend_prefix}-{job.group}"
-            elif job.groups:
-                # Prefixing the level 0 group keeps the whole path unique
-                top, *subgroups = job.groups
-                overrides["group"] = [f"{suspend_prefix}-{top}"] + subgroups
+            group_path = job.get_group_path()
+            if group_path:
+                # Get the first element as the top-level group and the rest
+                # as subgroups, and create the right naming.
+                top, *subgroups = group_path
+                prefixed_top = f"{suspend_prefix}-{top}"
+                overrides["group"] = (
+                    prefixed_top
+                    if isinstance(job.group, str)
+                    else [prefixed_top] + subgroups
+                )
             siblings.append(overrides)
         return siblings
 

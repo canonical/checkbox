@@ -659,7 +659,7 @@ class DependencySolver:
         self._jobs_in_groups = {}
 
         for job in solution:
-            path = job.groups
+            path = job.get_group_path()
             # If the job is not in a group, skip it
             if not path:
                 continue

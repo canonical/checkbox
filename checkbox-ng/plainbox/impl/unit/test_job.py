@@ -776,13 +776,13 @@ class JobDefinitionFieldValidationTests(UnitWithIdFieldValidationTests):
 
 class TestJobDefinition(TestCase):
 
-    def test_groups(self):
-        self.assertEqual(JobDefinition({"id": "j"}).groups, [])
+    def test_get_group_path(self):
+        self.assertEqual(JobDefinition({"id": "j"}).get_group_path(), [])
         self.assertEqual(
-            JobDefinition({"id": "j", "group": "g1"}).groups, ["g1"]
+            JobDefinition({"id": "j", "group": "g1"}).get_group_path(), ["g1"]
         )
         self.assertEqual(
-            JobDefinition({"id": "j", "group": ["g1", "g2"]}).groups,
+            JobDefinition({"id": "j", "group": ["g1", "g2"]}).get_group_path(),
             ["g1", "g2"],
         )
 

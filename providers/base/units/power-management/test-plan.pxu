@@ -27,8 +27,9 @@ unit: test plan
 _name: Power Management precheck tests (Manual)
 _description: Power Management precheck tests (Manual)
 include:
-    power-management/suspend-on-battery-power      certification-status=blocker
-    power-management/suspend-on-AC-power           certification-status=blocker
+    power-management/suspend-on-battery-power-setup
+    power-management/suspend-on-battery-power-test      certification-status=blocker
+    power-management/suspend-on-battery-power-teardown
 
 id: power-management-precheck-cert-automated
 unit: test plan
@@ -39,6 +40,9 @@ include:
     power-management/tickless_idle                 certification-status=blocker
     power-management/fwts_wakealarm                certification-status=blocker
     power-management/fwts_wakealarm-log-attach
+    power-management/suspend-on-AC-power-setup
+    power-management/suspend-on-AC-power-test           certification-status=blocker
+    power-management/suspend-on-AC-power-teardown
 
 id: after-suspend-power-management-precheck-cert-automated
 unit: test plan

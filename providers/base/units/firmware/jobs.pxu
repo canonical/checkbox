@@ -14,6 +14,7 @@ _summary: Run {name} test from Firmware Test Suite.
 unit: template
 template-resource: fwts
 plugin: attachment
+mime-type: application/x-xz
 category_id: com.canonical.plainbox::firmware
 id: firmware/fwts_{name}.log
 template-id: firmware/fwts_name.log
@@ -51,6 +52,7 @@ command:
  checkbox-support-fwts_test --hwe -l "$PLAINBOX_SESSION_SHARE"/fwts_desktop_diagnosis_results_hwe.log
 
 plugin: attachment
+mime-type: application/gzip
 category_id: com.canonical.plainbox::firmware
 estimated_duration: 0.5
 id: firmware/fwts_desktop_diagnosis_results.log.gz
@@ -60,6 +62,7 @@ _description: Attaches the FWTS desktop diagnosis results log to the submission
 _summary: Attach FWTS desktop diagnosis log to submission
 
 plugin: attachment
+mime-type: application/gzip
 category_id: com.canonical.plainbox::firmware
 estimated_duration: 0.5
 id: firmware/fwts_desktop_diagnosis_results_hwe.log.gz
@@ -82,6 +85,7 @@ command:
  checkbox-support-fwts_test --server -q -f critical -l "$PLAINBOX_SESSION_SHARE"/fwts_server_results.log
 
 plugin: attachment
+mime-type: application/gzip
 category_id: com.canonical.plainbox::firmware
 estimated_duration: 0.5
 id: firmware/fwts_server_results.log.gz
@@ -104,12 +108,14 @@ id: firmware/fwts_dump_acpi_attachment.gz
 category_id: com.canonical.plainbox::firmware
 _summary: Collect the ACPI tables dump from FWTS
 plugin: attachment
+mime-type: application/gzip
 depends: firmware/fwts_dump
 command:
   [ -f "$PLAINBOX_SESSION_SHARE/acpidump.log" ] && gzip -c "$PLAINBOX_SESSION_SHARE/acpidump.log"
 
 id: firmware/fwupdmgr_get_devices
 plugin: attachment
+mime-type: application/json
 category_id: com.canonical.plainbox::firmware
 _summary: Collect the device firmware update information
 _purpose: Attach information about the devices, as reported by the fwupdmgr

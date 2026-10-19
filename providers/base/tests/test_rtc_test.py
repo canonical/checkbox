@@ -136,6 +136,27 @@ class CmdReadAndSyncTests(unittest.TestCase):
 
 
 class CmdAlarmTests(unittest.TestCase):
+    @patch.dict(
+        os.environ, {"UNSUPPORTED_RTC_ALARM_DEVICES": "rtc0, rtc1"}, clear=True
+    )
+    @patch("rtc_test.subprocess.run")
+    def test_unsupported_device_is_skipped(self, mock_run):
+        args = SimpleNamespace(rtc="rtc1", seconds=30, timeout=60)
+        self.assertEqual(rtc_test.cmd_alarm(args), 0)
+        mock_run.assert_not_called()
+
+    @patch.dict(
+        os.environ, {"UNSUPPORTED_RTC_ALARM_DEVICES": "rtc1"}, clear=True
+    )
+    @patch("rtc_test.subprocess.run")
+    @patch("rtc_test.Path.is_file", return_value=True)
+    def test_device_not_in_unsupported_list_is_tested(
+        self, mock_is_file, mock_run
+    ):
+        args = SimpleNamespace(rtc="rtc0", seconds=30, timeout=60)
+        self.assertEqual(rtc_test.cmd_alarm(args), 0)
+        mock_run.assert_called_once()
+
     @patch("rtc_test.Path.is_file", return_value=False)
     def test_no_wakealarm_support(self, mock_is_file):
         args = SimpleNamespace(rtc="rtc0", seconds=30, timeout=60)

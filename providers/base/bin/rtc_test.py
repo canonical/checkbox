@@ -109,6 +109,11 @@ def cmd_alarm(args):
     with a timeout guard.
     """
     rtc = args.rtc
+    unsupported = os.environ.get("UNSUPPORTED_RTC_ALARM_DEVICES", "")
+    if rtc in [dev.strip() for dev in unsupported.split(",")]:
+        print(f"{rtc} does not support RTC alarm")
+        return 0
+
     wakealarm_path = Path("/sys/class/rtc") / rtc / "wakealarm"
 
     if not wakealarm_path.is_file():

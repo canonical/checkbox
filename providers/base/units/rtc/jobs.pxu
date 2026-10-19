@@ -60,6 +60,7 @@ plugin: shell
 user: root
 category_id: rtc_category
 estimated_duration: 40
+environ: UNSUPPORTED_RTC_ALARM_DEVICES
 command: rtc_test.py alarm --rtc {rtc} --seconds 30 --timeout 60
 flags: also-after-suspend
 

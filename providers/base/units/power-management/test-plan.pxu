@@ -30,6 +30,8 @@ include:
     power-management/suspend-on-battery-power-setup
     power-management/suspend-on-battery-power-test      certification-status=blocker
     power-management/suspend-on-battery-power-teardown
+    suspend/oops_after_suspend                     certification-status=blocker
+    suspend/oops_results_after_suspend.log
 
 id: power-management-precheck-cert-automated
 unit: test plan

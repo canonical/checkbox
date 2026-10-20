@@ -18,8 +18,6 @@ unit: test plan
 _description:
  Includes tests that require input from an operator to complete.
 include:
-    suspend/oops_after_suspend                     certification-status=blocker
-    suspend/oops_results_after_suspend.log
 nested_part:
     submission-cert-full
     misc-client-base-26-04-manual

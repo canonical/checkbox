@@ -111,7 +111,7 @@ class GLSupportTester:
         Builds the environment used to run glmark2. If
         USER_DEFINED_GL_LD_LIBRARY_PATH is set, it is prepended to
         LD_LIBRARY_PATH so that host GPU libraries installed outside the
-        default paths take precedence over the libraries bundled in the 
+        default paths take precedence over the libraries bundled in the
         checkbox snap
 
         :return: a copy of os.environ with LD_LIBRARY_PATH updated if needed

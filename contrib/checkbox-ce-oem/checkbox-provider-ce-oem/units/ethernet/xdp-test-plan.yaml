@@ -1,0 +1,17 @@
+unit: test plan
+id: ce-oem-ethernet-xdp-automated
+name: Ethernet XDP automated tests
+description: |
+  Automated XDP (eXpress Data Path) tests for Ethernet interfaces.
+  Covers drop, tx, pass, redirect and redirect-cpu in native mode.
+include:
+  - ce-oem-ethernet/xdp-check-kernel-config
+  - ce-oem-ethernet/xdp-dmesg-log
+  - ce-oem-ethernet/xdp-drop-native
+  - ce-oem-ethernet/xdp-tx-native
+  - ce-oem-ethernet/xdp-pass-native
+  - ce-oem-ethernet/xdp-redirect
+  - ce-oem-ethernet/xdp-redirect-cpu
+bootstrap_include:
+  - ce-oem-ethernet/xdp-port-list
+  - ce-oem-ethernet/xdp-port-pairing

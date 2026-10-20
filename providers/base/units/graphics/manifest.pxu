@@ -26,3 +26,8 @@ unit: manifest entry
 id: has_webgl_support
 _name: Support WebGL testing
 value-type: bool
+
+unit: manifest entry
+id: has_intel_raytracing_gpu
+_name: An Intel GPU with hardware raytracing support
+value-type: bool

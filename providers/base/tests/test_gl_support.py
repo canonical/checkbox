@@ -203,6 +203,28 @@ class TestGLSupportTests(ut.TestCase):
             "glmark2-es2",
         )
 
+    @patch.dict(
+        "os.environ",
+        {
+            "USER_DEFINED_GL_LD_LIBRARY_PATH": "/opt/gpu-a:/opt/gpu-b",
+            "LD_LIBRARY_PATH": "/snap/runtime/usr/lib",
+        },
+        clear=True,
+    )
+    def test_build_glmark2_env_prepends_user_path(self):
+        env = gl_support.GLSupportTester().build_glmark2_env()
+        self.assertEqual(
+            env["LD_LIBRARY_PATH"],
+            "/opt/gpu-a:/opt/gpu-b:/snap/runtime/usr/lib",
+        )
+
+    @patch.dict(
+        "os.environ", {"LD_LIBRARY_PATH": "/snap/runtime/usr/lib"}, clear=True
+    )
+    def test_build_glmark2_env_unchanged_without_user_path(self):
+        env = gl_support.GLSupportTester().build_glmark2_env()
+        self.assertEqual(env["LD_LIBRARY_PATH"], "/snap/runtime/usr/lib")
+
 
 if __name__ == "__main__":
     ut.main()

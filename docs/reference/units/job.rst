@@ -52,33 +52,45 @@ Following fields may be used by the job unit:
 
         Jobs that require the user to perform an action and then
         decide on the test's outcome.
-    
+
     .. option:: shell
-        
+
         Jobs that run without user intervention and
         automatically set the test's outcome.
-    
+
     .. option:: user-interact
-        
+
         Jobs that require the user to perform an
         interaction, after which the outcome is automatically set.
-    
+
     .. option:: user-interact-verify
-        
+
         Jobs that require the user to perform an
         interaction, run a command after which the user is asked to decide on the
         test's outcome. This is essentially a manual job with a command.
-    
+
     .. option:: attachment
-        
+
         Jobs whose command output will be attached to the
         test report or submission.
-    
+
     .. option:: resource
-        
+
         Jobs whose command output results in a set of rfc822
         records, containing key/value pairs, and that can be used in other
         jobs' ``requires`` expressions.
+
+.. option:: mime-type
+
+    (optional) - Media type of the output produced by an ``attachment`` job.
+    Supported values are ``application/gzip``, ``application/json``,
+    ``application/octet-stream``, ``application/senml+json``,
+    ``application/xml``, ``application/x-7z-compressed``,
+    ``application/x-bzip2``, ``application/x-tar``, ``application/x-xz``,
+    ``application/zip``, ``application/zstd``, ``image/gif``,
+    ``image/jpeg``, ``image/png``, ``image/svg+xml``, ``image/webp``, and
+    ``text/plain``.
+    The default value is ``application/octet-stream``.
 
 .. option:: certification-status
 
@@ -86,7 +98,7 @@ Following fields may be used by the job unit:
     Canonical to determine the jobs that **must** be run in order to be able to
     issue a certificate. The allowed values are:
 
-    
+
     .. option:: non-blocker
 
         This value means that a given job may fail and while that should be
@@ -94,9 +106,9 @@ Following fields may be used by the job unit:
         certification process. Canonical reserves the right to promote jobs
         from *non-blocker* to *blocker*. This is the implicit certification
         status for all jobs.
-    
+
     .. option:: blocker
-        
+
         This value means that a given job **must** pass for the certification
         process to succeed.
 
@@ -163,18 +175,29 @@ Following fields may be used by the job unit:
 
 .. option:: group
 
-    (optional). The id of the group this job belongs to. It allows organizing
-    jobs into named groups. Jobs in the same group are always run together. To
-    ensure this behavior, the dependencies follow these rules:
+    (optional). The id or hierarchical path of the group this job belongs to.
+    It allows organizing jobs into named groups. Jobs in the same group are
+    always run together. To ensure this behavior, the dependencies follow
+    these rules:
 
     - Dependencies between jobs inside the group are not changed.
     - If a job inside the group depends on a job outside the group, then the whole
       group will have a dependency on that outside job.
-    - If a job outside the group depends on a job inside the group, then that 
+    - If a job outside the group depends on a job inside the group, then that
       outside job will depend on the whole group.
     - In case this creates circular dependencies, Checkbox will output a dependency
       warning detailing the groups and jobs involved, and they will be removed from
       the test plan.
+
+    In YAML units, the group can be a nested hierarchy (a list of group names,
+    from largest to smallest). Each job is then placed in every level of its
+    path. For example, a job with ``group: [monitor, hdmi]`` belongs to both
+    the ``monitor`` group and the ``monitor/hdmi`` subgroup. Within each
+    level, the same dependency rules apply. Jobs with just a single group
+    name (as a string, or as a one-element list) work as usual.
+
+    In PXU units, only single-level groups are supported; the group field is
+    always a string.
 
 .. option:: salvages
 
@@ -274,16 +297,16 @@ Following fields may be used by the job unit:
     Currently, following flags are inspected by Checkbox:
 
     .. option:: reset-locale
-        
+
         This flag makes Checkbox reset locale before running the job.
 
     .. option:: win32
-        
+
         This flag makes Checkbox run jobs' commands in windows-specific manner.
         Attach this flag to jobs that are run on Windows OS.
 
     .. option:: noreturn
-        
+
         This flag makes Checkbox suspend execution after job's command is run.
         This prevents scenario where Checkbox continued to operate (writing
         session data to disk and so on), while other process kills it (leaving
@@ -295,12 +318,12 @@ Following fields may be used by the job unit:
         test to automatically resume session. (For instance after a reboot).
 
     .. option:: explicit-fail
-        
+
         Use this flag to make entering comment mandatory, when the user
         manually fails the job.
 
     .. option:: has-leftovers
-        
+
         This flag makes Checkbox silently ignore (and not log) any files left
         over by the execution of the command associated with a job. This flag
         is useful for jobs that don't bother with maintenance of temporary
@@ -308,7 +331,7 @@ Following fields may be used by the job unit:
         Checkbox.
 
     .. option:: simple
-        
+
         This flag makes Checkbox disable certain validation advice and have
         some sensible defaults for automated test cases.  This simplification
         is meant to cut the boiler plate on jobs that are closer to unit tests
@@ -328,32 +351,32 @@ Following fields may be used by the job unit:
             flags: simple
 
     .. option:: preserve-cwd
-        
+
         This flag makes Checkbox run the job command in the current working
         directory without creating a temp folder (and running the command from
         this temp folder). Sometimes needed on snappy
         (See http://pad.lv/1618197)
 
     .. option:: fail-on-resource
-        
+
         This flag makes Checkbox fail the job if one of the resource
         requirements evaluates to False. This does not apply to manifest
         entries.
 
     .. option:: also-after-suspend
-        
+
         Ensure the test will be run before **and** after suspend by creating
         a :option:`sibling <siblings>` that will depend on the automated
         suspend job. The current job is guaranteed to run before suspend.
 
     .. option:: also-after-suspend-manual
-        
+
         Ensure the test will be run before **and** after suspend by creating
         a :option:`sibling <siblings>` that will depend on the manual
         suspend job. The current job is guaranteed to run before suspend.
 
     Additional flags may be present in job definition; they are ignored.
-    
+
     .. option:: cachable
 
         Saves the output of a resource job in the system, so the next time

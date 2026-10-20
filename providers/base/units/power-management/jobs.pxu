@@ -36,6 +36,7 @@ command: checkbox-support-fwts_test -f aborted -t wakealarm -l "$PLAINBOX_SESSIO
 _summary: Test the ACPI Wakealarm functionality using fwts.
 
 plugin: attachment
+mime-type: text/plain
 category_id: com.canonical.plainbox::power-management
 id: power-management/fwts_wakealarm-log-attach
 depends: power-management/fwts_wakealarm
@@ -45,6 +46,7 @@ command: [ -e "${PLAINBOX_SESSION_SHARE}"/fwts-wakealarm.log ] && cat "${PLAINBO
 _summary: Attach and display fwts wakealarm test log.
 
 plugin: attachment
+mime-type: text/plain
 category_id: com.canonical.plainbox::power-management
 id: after-suspend-power-management/fwts_wakealarm-log-attach
 after: after-suspend-power-management/fwts_wakealarm
@@ -68,6 +70,7 @@ _purpose:
 _summary: Verify the system's ability to power-off and boot successfully.
 
 plugin: attachment
+mime-type: text/plain
 category_id: com.canonical.plainbox::power-management
 id: power-management/poweroff-log-attach
 estimated_duration: 1.0
@@ -93,6 +96,7 @@ _purpose:
 _summary: Verify the system's reboot capability.
 
 plugin: attachment
+mime-type: text/plain
 category_id: com.canonical.plainbox::power-management
 id: power-management/reboot-log-attach
 estimated_duration: 1.0

@@ -119,8 +119,6 @@ class ParametricTemplateUnit(TemplateUnit):
 
         validator_cls = ParametricTemplateValidator
         field_validators = {
-            TemplateUnit.Meta.fields.template_summary: [],
-            TemplateUnit.Meta.fields.template_description: [],
             TemplateUnit.Meta.fields.template_unit: [],
             TemplateUnit.Meta.fields.template_resource: [],
             TemplateUnit.Meta.fields.template_filter: [],

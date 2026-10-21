@@ -13,6 +13,16 @@
       "description": "Optional template identifier, derived from the job ID pattern when omitted.",
       "type": "string"
     },
+    "template-summary": {
+      "title": "Template Summary (Template Unit)",
+      "description": "Human-readable name for the template.",
+      "type": "string"
+    },
+    "template-description": {
+      "title": "Template Description (Template Unit)",
+      "description": "Long form description of what the template does or the kind of jobs it instantiates.",
+      "type": "string"
+    },
     "parameters": {
       "description": "Each mapping generates one ordinary job, without Cartesian expansion.",
       "type": "array",

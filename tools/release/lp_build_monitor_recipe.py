@@ -86,17 +86,66 @@ def get_build_state(build):
     return build.buildstate
 
 
+def get_recipe_version(build_recipe: LPSourcePackageRecipe) -> str:
+    """
+    Returns the version the recipe builds, read from its header line:
+    # git-build-recipe format 0.4 deb-version <version>
+    """
+    header = build_recipe.recipe_text.splitlines()[0]
+    return header.split("deb-version", 1)[1].strip()
+
+
+@retry_polling
+def get_series(build_recipe: LPSourcePackageRecipe, series_link: str):
+    """
+    Returns the series object of a recipe distroseries link
+    (for example https://api.launchpad.net/devel/ubuntu/noble)
+    """
+    name = series_link.rstrip("/").rsplit("/", 1)[-1]
+    distribution = build_recipe.daily_build_archive.distribution
+    return distribution.getSeries(name_or_version=name)
+
+
+@retry_polling
+def is_version_published(
+    build_recipe: LPSourcePackageRecipe, series, version: str
+) -> bool:
+    """
+    Returns whether the recipe already uploaded this version for the series
+    to the daily build archive. Launchpad rejects re-uploading it, even if
+    the previous upload was deleted or superseded.
+    """
+    # Launchpad appends ~ubuntu<series version>.1 to the recipe version
+    publications = build_recipe.daily_build_archive.getPublishedSources(
+        source_name=recipe_name_to_source_name(build_recipe.name),
+        distro_series=series,
+        version=f"{version}~ubuntu{series.version}.1",
+        exact_match=True,
+    )
+    return bool(list(publications))
+
+
 def start_all_source_builds(build_recipe: LPSourcePackageRecipe):
     """
     Starts building a source recipe on all distro configured for it on
     launchpad targeting the default archive connected to the recipe
-    (the daily build archive)
+    (the daily build archive). Series where the recipe version is already
+    published are skipped.
     """
-    for series in build_recipe.distroseries:
+    version = get_recipe_version(build_recipe)
+    # distroseries is a list of API links, not series objects
+    for series_link in build_recipe.distroseries:
+        series = get_series(build_recipe, series_link)
+        if is_version_published(build_recipe, series, version):
+            print(
+                f"{version} is already published for {series.name}, "
+                "skipping its build"
+            )
+            continue
         try:
             build_recipe.requestBuild(
                 pocket="Release",
-                distroseries=series,
+                distroseries=series_link,
                 archive=build_recipe.daily_build_archive_link,
             )
         except BadRequest:

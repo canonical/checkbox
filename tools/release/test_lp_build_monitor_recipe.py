@@ -9,6 +9,15 @@ from lazr.restfulclient.errors import ServerError
 
 import lp_build_monitor_recipe
 
+SERIES_LINK = "https://api.launchpad.net/devel/ubuntu/"
+
+
+def make_series(name, version):
+    series = MagicMock(version=version)
+    # name is a MagicMock constructor argument, so it's set separately
+    series.name = name
+    return series
+
 
 class TestPollingRetries(unittest.TestCase):
     @patch("time.sleep")
@@ -128,6 +137,70 @@ class TestPollingRetries(unittest.TestCase):
 
 
 class TestHelperFunctions(unittest.TestCase):
+    def test_get_recipe_version(self):
+        recipe = MagicMock()
+        recipe.recipe_text = (
+            "# git-build-recipe format 0.4 deb-version 8.2.0~dev12\n"
+            "lp:~checkbox-dev/checkbox/+git/support empty\n"
+        )
+
+        self.assertEqual(
+            lp_build_monitor_recipe.get_recipe_version(recipe), "8.2.0~dev12"
+        )
+
+    def test_is_version_published(self):
+        recipe = MagicMock()
+        recipe.name = "checkbox-ng-edge"
+        archive = recipe.daily_build_archive
+        noble = make_series("noble", "24.04")
+
+        for publications, expected in [([MagicMock()], True), ([], False)]:
+            with self.subTest(expected=expected):
+                archive.getPublishedSources.return_value = publications
+                self.assertEqual(
+                    lp_build_monitor_recipe.is_version_published(
+                        recipe, noble, "8.2.0~dev12"
+                    ),
+                    expected,
+                )
+        archive.getPublishedSources.assert_called_with(
+            source_name="checkbox-ng",
+            distro_series=noble,
+            version="8.2.0~dev12~ubuntu24.04.1",
+            exact_match=True,
+        )
+
+    @patch("lp_build_monitor_recipe.print")
+    def test_start_all_source_builds_skips_published(self, print_mock):
+        recipe = MagicMock()
+        recipe.name = "checkbox-ng-edge"
+        recipe.recipe_text = "# git-build-recipe format 0.4 deb-version 1.0"
+        noble = make_series("noble", "24.04")
+        jammy = make_series("jammy", "22.04")
+        recipe.distroseries = [SERIES_LINK + "noble", SERIES_LINK + "jammy"]
+        distribution = recipe.daily_build_archive.distribution
+        distribution.getSeries.side_effect = lambda name_or_version: {
+            "noble": noble,
+            "jammy": jammy,
+        }[name_or_version]
+        # only the noble build was already uploaded
+        recipe.daily_build_archive.getPublishedSources.side_effect = (
+            lambda **kwargs: (
+                [MagicMock()] if kwargs["distro_series"] is noble else []
+            )
+        )
+
+        lp_build_monitor_recipe.start_all_source_builds(recipe)
+
+        recipe.requestBuild.assert_called_once_with(
+            pocket="Release",
+            distroseries=SERIES_LINK + "jammy",
+            archive=recipe.daily_build_archive_link,
+        )
+        print_mock.assert_called_once_with(
+            "1.0 is already published for noble, skipping its build"
+        )
+
     def test_get_source_publications(self):
         build_recipe = MagicMock()
         build_recipe.name = "checkbox-ng-edge"
@@ -396,6 +469,33 @@ class TestMonitorRetryBuilds(unittest.TestCase):
 
 
 class TestMain(unittest.TestCase):
+    @staticmethod
+    def setup_recipe(recipe_mock, publications, already_published=False):
+        recipe_mock.name = "checkbox-ng-edge"
+        recipe_mock.recipe_text = (
+            "# git-build-recipe format 0.4 deb-version 1.2.3~dev4\n"
+            "lp:~checkbox-dev/checkbox/+git/support empty\n"
+        )
+        series = {
+            "bionic": make_series("bionic", "18.04"),
+            "focal": make_series("focal", "20.04"),
+            "jammy": make_series("jammy", "22.04"),
+        }
+        recipe_mock.distroseries = [SERIES_LINK + name for name in series]
+        distribution = recipe_mock.daily_build_archive.distribution
+        distribution.getSeries.side_effect = lambda name_or_version: series[
+            name_or_version
+        ]
+
+        def get_published_sources(**kwargs):
+            # the check done before building asks for an exact version
+            if "version" in kwargs:
+                return [MagicMock()] if already_published else []
+            return publications
+
+        archive = recipe_mock.daily_build_archive
+        archive.getPublishedSources.side_effect = get_published_sources
+
     @patch("lp_build_monitor_recipe.build_monitor_recipe")
     def test_timeout(self, monitor_mock):
         monitor_mock.side_effect = TimeoutError("The read operation timed out")
@@ -414,6 +514,24 @@ class TestMain(unittest.TestCase):
             lp_build_monitor_recipe.main(["checkbox", "some_recipe"])
 
     @patch("time.sleep", new=MagicMock())
+    @patch("lp_build_monitor_recipe.print", new=MagicMock())
+    @patch(
+        "lp_build_monitor_recipe.get_date_utc_now",
+        new=MagicMock(return_value=10),
+    )
+    @patch("lp_build_monitor_recipe.get_source_build_recipe")
+    def test_already_published(self, get_source_build_recipe_mock):
+        recipe_mock = get_source_build_recipe_mock()
+        self.setup_recipe(recipe_mock, [], already_published=True)
+        recipe_mock.getPendingBuildInfo.return_value = []
+        recipe_mock.builds = []
+
+        # nothing to build is a success, not an upload failure
+        lp_build_monitor_recipe.main(["checkbox", "some_recipe"])
+
+        recipe_mock.requestBuild.assert_not_called()
+
+    @patch("time.sleep", new=MagicMock())
     @patch(
         "lp_build_monitor_recipe.get_date_utc_now",
         new=MagicMock(return_value=10),
@@ -421,8 +539,6 @@ class TestMain(unittest.TestCase):
     @patch("lp_build_monitor_recipe.get_source_build_recipe")
     def test_success(self, get_source_build_recipe_mock):
         recipe_mock = get_source_build_recipe_mock()
-        # we are asking this to build on 3 platforms
-        recipe_mock.distroseries = ["Xenial", "Bionic", "Jammy"]
         # every build starts and pends for some time
         pending_build_info = [
             [
@@ -460,16 +576,12 @@ class TestMain(unittest.TestCase):
         recipe_mock.builds = [build_mock, build_mock, build_mock]
 
         # Setup of the binary build
-        recipe_mock.name = "checkbox-ng-edge"
-
         bin_build_mock = MagicMock()
         bin_build_mock.can_be_retried = False
         bin_build_mock.buildstate = "Successfully built"
         publication_mock = MagicMock()
         publication_mock.getBuilds.return_value = [bin_build_mock]
-        recipe_mock.daily_build_archive.getPublishedSources.return_value = [
-            publication_mock
-        ] * 3
+        self.setup_recipe(recipe_mock, [publication_mock] * 3)
 
         lp_build_monitor_recipe.main(["checkbox", "some_recipe"])
 
@@ -491,8 +603,6 @@ class TestMain(unittest.TestCase):
     def test_failure(self, get_source_build_recipe_mock):
         # Setup of the source build
         recipe_mock = get_source_build_recipe_mock()
-        # we are asking this to build on 3 platforms
-        recipe_mock.distroseries = ["Xenial", "Bionic", "Jammy"]
         # every build starts and pends for some time
         pending_build_info = [
             [],
@@ -522,14 +632,10 @@ class TestMain(unittest.TestCase):
         recipe_mock.builds = [build_mock, build_mock, build_mock]
 
         # Setup of the binary build
-        recipe_mock.name = "checkbox-ng-edge"
-
         bin_build_mock = MagicMock()
         publication_mock = MagicMock()
         publication_mock.getBuilds.return_value = [bin_build_mock]
-        recipe_mock.daily_build_archive.getPublishedSources.return_value = [
-            publication_mock
-        ] * 3
+        self.setup_recipe(recipe_mock, [publication_mock] * 3)
         bin_build_mock.can_be_retried = False
         bin_build_mock.web_link = "https://build_link.com"
         bin_build_mock.buildstate = "Failed to build"

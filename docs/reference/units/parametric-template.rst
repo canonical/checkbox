@@ -51,13 +51,27 @@ Fields
     This identifier must be unique and cannot include a namespace. The provider
     namespace is added automatically.
 
+.. option:: template-summary
+
+    Optional human-readable name for the whole parametric template. Keep it on
+    one line and no longer than 80 characters. Checkbox advises providing it.
+
+.. option:: template-description
+
+    Optional longer description of the whole parametric template.
+
+These two fields describe the source definition, not individual generated jobs.
+Use ``summary`` and ``description`` for each generated job; those fields can
+reference parameters.
+
 All other fields are :ref:`ordinary job fields <job>`. The ``id`` field is the
 pattern for generated job IDs. Each resolved ID must be unique. Use parameter
 references in the ID, or ``{__index__}``, the one-based record index.
 
 Parametric templates always generate jobs and use Python string formatting.
-They do not accept other ``template-*`` fields, custom engines, resource
-imports, or filters.
+Apart from ``template-id``, ``template-summary``, and ``template-description``,
+they do not accept ``template-*`` fields, custom engines, resource imports, or
+filters.
 
 Instantiation and validation
 ============================

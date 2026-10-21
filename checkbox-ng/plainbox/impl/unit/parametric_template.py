@@ -79,7 +79,11 @@ class ParametricTemplateUnit(TemplateUnit):
 
     def instantiate_jobs(self):
         for field in self._data:
-            if field.startswith("template-") and field != "template-id":
+            if field.startswith("template-") and field not in (
+                "template-id",
+                "template-summary",
+                "template-description",
+            ):
                 raise ValueError(
                     _("parametric template does not support {}").format(field)
                 )

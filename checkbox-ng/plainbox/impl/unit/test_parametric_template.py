@@ -152,6 +152,53 @@ class ParametricTemplateTests(TestCase):
                     )
                 )
 
+    def test_template_summary_and_description(self):
+        unit = self.make_unit(
+            **{
+                "template-summary": "Example tests",
+                "template-description": "Tests for the example configurations.",
+                "description": "Test configuration {name}.",
+            }
+        )
+        self.assertEqual(unit.template_summary, "Example tests")
+        self.assertEqual(unit.tr_template_summary(), "Example tests")
+        self.assertEqual(
+            unit.template_description, "Tests for the example configurations."
+        )
+        self.assertEqual(
+            unit.tr_template_description(),
+            "Tests for the example configurations.",
+        )
+        self.assertFalse(
+            [
+                issue
+                for issue in unit.check()
+                if issue.severity is Severity.error
+            ]
+        )
+        jobs = unit.instantiate_jobs()
+        self.assertEqual(len(jobs), 2)
+        for job, name in zip(jobs, ("first", "second")):
+            with self.subTest(name=name):
+                self.assertEqual(job.summary, "Test {}".format(name))
+                self.assertEqual(
+                    job.description, "Test configuration {}.".format(name)
+                )
+                self.assertNotIn("template-summary", job._data)
+                self.assertNotIn("template-description", job._data)
+
+    def test_template_summary_validation(self):
+        for summary in ("Two\nlines", "x" * 81):
+            with self.subTest(summary=summary):
+                unit = self.make_unit(**{"template-summary": summary})
+                self.assertTrue(
+                    any(
+                        issue.field == "template-summary"
+                        and issue.severity is Severity.warning
+                        for issue in unit.check()
+                    )
+                )
+
     def test_template_fields_are_not_public(self):
         for field in (
             "template-resource",
@@ -159,8 +206,6 @@ class ParametricTemplateTests(TestCase):
             "template-imports",
             "template-engine",
             "template-unit",
-            "template-summary",
-            "template-description",
             "template-parameters",
         ):
             with self.subTest(field=field):

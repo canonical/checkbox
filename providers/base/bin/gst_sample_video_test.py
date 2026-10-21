@@ -36,11 +36,12 @@ def parse_args(argv: "list[str] | None" = None) -> argparse.Namespace:
 
 def element_exists(name: str) -> bool:
     return (
-        subprocess.call(
+        subprocess.run(
             ["gst-inspect-1.0", "--exists", name],
             stdout=subprocess.DEVNULL,
             stderr=subprocess.DEVNULL,
-        )
+            check=False,
+        ).returncode
         == 0
     )
 
@@ -56,7 +57,8 @@ def pick_sink() -> str:
     session_type = os.environ.get("XDG_SESSION_TYPE", "")
     if session_type not in SINKS:
         raise SystemExit(
-            f"Not in a graphical session! XDG_SESSION_TYPE={session_type!r}"
+            "[ ERROR ] Not in a graphical session! "
+            + f"XDG_SESSION_TYPE={session_type!r}"
         )
     return get_first_available_element(SINKS[session_type])
 

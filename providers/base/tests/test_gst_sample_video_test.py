@@ -17,7 +17,7 @@ class ParseArgsTests(unittest.TestCase):
 
 
 class ElementExistsTests(unittest.TestCase):
-    @patch("subprocess.call", return_value=0)
+    @patch("subprocess.run", return_value=subprocess.CompletedProcess([""], 0))
     def test_exists(self, mock_call):
         self.assertTrue(gsvt.element_exists("xvimagesink"))
         self.assertEqual(
@@ -25,7 +25,7 @@ class ElementExistsTests(unittest.TestCase):
             ["gst-inspect-1.0", "--exists", "xvimagesink"],
         )
 
-    @patch("subprocess.call", return_value=1)
+    @patch("subprocess.run", return_value=subprocess.CompletedProcess([""], 1))
     def test_missing(self, mock_call):
         self.assertFalse(gsvt.element_exists("waylandsink"))
 

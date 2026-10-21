@@ -17,14 +17,14 @@
 from unittest import TestCase
 
 from plainbox.impl.unit.job import JobDefinition
-from plainbox.impl.unit.parametrized_job import ParametrizedJobUnit
+from plainbox.impl.unit.parametric_template import ParametricTemplateUnit
 from plainbox.impl.validation import Severity
 
 
-class ParametrizedJobTests(TestCase):
+class ParametricTemplateTests(TestCase):
     def make_unit(self, **fields):
         data = {
-            "unit": "parametrized-job",
+            "unit": "parametric template",
             "template-id": "example",
             "parameters": [{"name": "first"}, {"name": "second"}],
             "id": "test-{name}",
@@ -33,7 +33,7 @@ class ParametrizedJobTests(TestCase):
             "command": "echo {name} {__index__}",
         }
         data.update(fields)
-        return ParametrizedJobUnit(data)
+        return ParametricTemplateUnit(data)
 
     def test_order_interpolation_and_metadata(self):
         unit = self.make_unit()
@@ -56,8 +56,9 @@ class ParametrizedJobTests(TestCase):
         unit = self.make_unit(**{"template-id": None})
         self.assertEqual(unit.template_id, "test-name")
         self.assertEqual(str(unit), "test-name")
-        self.assertIn("ParametrizedJobUnit", repr(unit))
-        self.assertEqual(unit.unit, "parametrized-job")
+        self.assertIn("ParametricTemplateUnit", repr(unit))
+        self.assertEqual(unit.unit, "parametric template")
+        self.assertEqual(unit.Meta.name, "parametric template")
         self.assertIsNone(unit.resource_id)
         self.assertIsNone(unit.parameters)
         self.assertFalse(unit.is_parametric)

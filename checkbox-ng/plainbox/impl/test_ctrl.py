@@ -48,7 +48,7 @@ from plainbox.impl.session import (
 
 from plainbox.impl.testing_utils import make_job
 from plainbox.impl.unit.template import TemplateUnit
-from plainbox.impl.unit.parametrized_job import ParametrizedJobUnit
+from plainbox.impl.unit.parametric_template import ParametricTemplateUnit
 from plainbox.impl.validation import Severity
 from plainbox.impl.unit.unit import MissingParam
 from plainbox.vendor import mock
@@ -405,10 +405,10 @@ class CheckBoxSessionStateControllerTests(TestCase):
             [Resource({"attr": "value1"}), Resource({"attr": "value2"})],
         )
 
-    def test_resource_results_do_not_expand_parametrized_jobs(self):
-        unit = ParametrizedJobUnit(
+    def test_resource_results_do_not_expand_parametric_templates(self):
+        unit = ParametricTemplateUnit(
             {
-                "unit": "parametrized-job",
+                "unit": "parametric template",
                 "parameters": [{"value": "fixed"}],
                 "id": "test-{value}",
                 "flags": ["simple"],

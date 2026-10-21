@@ -653,10 +653,10 @@ class UniqueValueValidator(FieldValidatorBase):
 
 
 class UniqueTemplateIdValidator(UniqueValueValidator):
-    """Check template IDs on template and parametrized-job definitions.
+    """Check template IDs on template and parametric template definitions.
 
     Here we are checking that the template IDs are unique among template and
-    parametrized-job definitions.
+    parametric template definitions.
     """
 
     def get_value_map(self, context, field):
@@ -669,7 +669,7 @@ class UniqueTemplateIdValidator(UniqueValueValidator):
         value_map = {}
         for provider in context.provider_list:
             for unit in provider.unit_list:
-                if unit.Meta.name in ("template", "parametrized-job"):
+                if unit.Meta.name in ("template", "parametric template"):
                     value_map.setdefault(unit.template_id, []).append(unit)
         return value_map
 

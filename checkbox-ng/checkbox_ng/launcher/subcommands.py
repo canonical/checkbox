@@ -1331,7 +1331,7 @@ class List:
                     return u.attrs["template_unit"] == "job"
 
                 print_objs("template", ctx.sa, True, filter_fun)
-                print_objs("parametrized-job", ctx.sa, True)
+                print_objs("parametric template", ctx.sa, True)
             jobs = get_all_jobs(ctx.sa)
             if ctx.args.format == "?":
                 all_keys = set()
@@ -1357,8 +1357,8 @@ class List:
                 # formatters are allowed to use special field 'unit_type' so
                 # let's add it to the job representation
                 assert "unit_type" not in job.keys()
-                if job.get("unit") == "parametrized-job":
-                    job["unit_type"] = "parametrized-job"
+                if job.get("unit") == "parametric template":
+                    job["unit_type"] = "parametric template"
                 elif job.get("template_unit") == "job":
                     job["unit_type"] = "template_job"
                 else:
@@ -1463,7 +1463,7 @@ class Expand:
         all_jobs_and_templates = [
             unit
             for unit in self.sa._context.state.unit_list
-            if unit.unit in ["job", "template", "parametrized-job"]
+            if unit.unit in ["job", "template", "parametric template"]
         ]
         tp = self.sa._context._test_plan_list[0]
         tp_us = TestPlanUnitSupport(tp)
@@ -1509,8 +1509,10 @@ class Expand:
             for obj in obj_list:
                 if obj["unit"] == "template":
                     print("Template '{}'".format(obj["template-id"]))
-                elif obj["unit"] == "parametrized-job":
-                    print("Parametrized job '{}'".format(obj["template-id"]))
+                elif obj["unit"] == "parametric template":
+                    print(
+                        "Parametric template '{}'".format(obj["template-id"])
+                    )
                 elif obj["unit"] == "manifest entry":
                     print("Manifest '{}'".format(obj["id"]))
                 elif obj["unit"] == "job":
@@ -1527,7 +1529,7 @@ class Expand:
     # probably be refactored, given that the overrides are available at test
     # plan level and should not be part of the job state to begin with...
     def get_effective_certification_status(self, unit):
-        if unit.unit in ("template", "parametrized-job"):
+        if unit.unit in ("template", "parametric template"):
             unit_id = unit.template_id
         else:
             unit_id = unit.id
@@ -1712,7 +1714,7 @@ def get_all_jobs(sa):
 
     def get_jobs(obj):
         jobs = []
-        if obj.group == "parametrized-job":
+        if obj.group == "parametric template":
             attrs = dict(obj._impl._raw_data)
             attrs["full_id"] = obj.name
             jobs.append(attrs)
@@ -1770,7 +1772,7 @@ def print_objs(group, sa, show_attrs=False, filter_fun=None, json_repr=False):
     groups = (
         {group}
         if group != "all-jobs"
-        else {"job", "template", "parametrized-job"}
+        else {"job", "template", "parametric template"}
     )
 
     to_print = []

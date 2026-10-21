@@ -27,8 +27,8 @@ from metabox.core.scenario import Scenario
 from metabox.core.utils import tag
 
 
-@tag("parametrized-job", "basic")
-class ParametrizedSingle(Scenario):
+@tag("parametric-template", "basic")
+class ParametricSingle(Scenario):
     """Instantiate jobs using one parameter."""
 
     launcher = textwrap.dedent("""
@@ -36,7 +36,7 @@ class ParametrizedSingle(Scenario):
         launcher_version = 1
         stock_reports = text
         [test plan]
-        unit = 2021.com.canonical.certification::parametrized_single
+        unit = 2021.com.canonical.certification::parametric_single
         forced = yes
         [test selection]
         forced = yes
@@ -47,15 +47,15 @@ class ParametrizedSingle(Scenario):
         Start(),
         AssertPrinted(
             r"(?m)"
-            r".*job passed   : parametrized_1_A\n"
-            r".*job passed   : parametrized_1_B"
+            r".*job passed   : parametric_1_A\n"
+            r".*job passed   : parametric_1_B"
         ),
         AssertRetCode(0),
     ]
 
 
-@tag("parametrized-job", "basic")
-class ParametrizedMultiple(Scenario):
+@tag("parametric-template", "basic")
+class ParametricMultiple(Scenario):
     """Instantiate jobs using multiple parameters."""
 
     launcher = textwrap.dedent("""
@@ -63,7 +63,7 @@ class ParametrizedMultiple(Scenario):
         launcher_version = 1
         stock_reports = text
         [test plan]
-        unit = 2021.com.canonical.certification::parametrized_multiple
+        unit = 2021.com.canonical.certification::parametric_multiple
         forced = yes
         [test selection]
         forced = yes
@@ -74,15 +74,15 @@ class ParametrizedMultiple(Scenario):
         Start(),
         AssertPrinted(
             r"(?m)"
-            r".*job passed   : parametrized_2_A_1\n"
-            r".*job passed   : parametrized_2_B_2"
+            r".*job passed   : parametric_2_A_1\n"
+            r".*job passed   : parametric_2_B_2"
         ),
         AssertRetCode(0),
     ]
 
 
-@tag("parametrized-job", "ordering")
-class ParametrizedDepends(Scenario):
+@tag("parametric-template", "ordering")
+class ParametricDepends(Scenario):
     """Resolve dependencies between ordinary and generated jobs."""
 
     launcher = textwrap.dedent("""
@@ -90,7 +90,7 @@ class ParametrizedDepends(Scenario):
         launcher_version = 1
         stock_reports = text
         [test plan]
-        unit = 2021.com.canonical.certification::parametrized_depends
+        unit = 2021.com.canonical.certification::parametric_depends
         forced = yes
         [test selection]
         forced = yes
@@ -101,17 +101,17 @@ class ParametrizedDepends(Scenario):
         Start(),
         AssertPrinted(
             r"(?m)"
-            r".*job passed   : parametrized_3_A\n"
-            r".*job passed   : parametrized_3_B\n"
-            r".*job passed   : parametrized_3_C\n"
-            r".*job passed   : parametrized_3_D"
+            r".*job passed   : parametric_3_A\n"
+            r".*job passed   : parametric_3_B\n"
+            r".*job passed   : parametric_3_C\n"
+            r".*job passed   : parametric_3_D"
         ),
         AssertRetCode(0),
     ]
 
 
-@tag("parametrized-job", "suspend")
-class ParametrizedSuspend(Scenario):
+@tag("parametric-template", "suspend")
+class ParametricSuspend(Scenario):
     """Run a generated sibling after the existing suspend mock."""
 
     launcher = textwrap.dedent("""
@@ -119,7 +119,7 @@ class ParametrizedSuspend(Scenario):
         launcher_version = 1
         stock_reports = text
         [test plan]
-        unit = 2021.com.canonical.certification::parametrized_suspend
+        unit = 2021.com.canonical.certification::parametric_suspend
         forced = yes
         [test selection]
         forced = yes
@@ -130,16 +130,16 @@ class ParametrizedSuspend(Scenario):
         Start(),
         AssertPrinted(
             r"(?m)"
-            r".*job passed   : parametrized_4_A\n"
+            r".*job passed   : parametric_4_A\n"
             r".*job passed   : suspend/suspend_advanced_auto\n"
-            r".*job passed   : after-suspend-parametrized_4_A"
+            r".*job passed   : after-suspend-parametric_4_A"
         ),
         AssertRetCode(0),
     ]
 
 
-@tag("parametrized-job", "validation")
-class ParametrizedDuplicate(Scenario):
+@tag("parametric-template", "validation")
+class ParametricDuplicate(Scenario):
     """Reject a generated job ID that already belongs to an ordinary job."""
 
     modes = ["local"]
@@ -155,13 +155,13 @@ class ParametrizedDuplicate(Scenario):
         Put(
             "/usr/local/lib/plainbox-providers-1/"
             "2021.com.canonical.certification:metabox/"
-            "units/parametrized-duplicate.yaml",
+            "units/parametric-duplicate.yaml",
             textwrap.dedent("""\
-                unit: parametrized-job
-                template-id: parametrized_5
+                unit: parametric template
+                template-id: parametric_5
                 parameters:
                   - value: A
-                id: parametrized_3_{value}
+                id: parametric_3_{value}
                 flags: [simple]
                 command: 'true'
                 """),
@@ -169,6 +169,6 @@ class ParametrizedDuplicate(Scenario):
         RunManage("validate", expect_failure=True),
         AssertRetCode(1),
         AssertPrinted(
-            r"job 'parametrized_3_A', field 'id'.*clashes with 1 other unit"
+            r"job 'parametric_3_A', field 'id'.*clashes with 1 other unit"
         ),
     ]

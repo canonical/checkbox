@@ -13,7 +13,7 @@ all the eventual instances of the template.
 
 Templates use records discovered by resource jobs. If you would like to use a
 fixed list of values to instantiate similar jobs, you can use a
-:ref:`parametrized-job unit <parametrized-jobs>`.
+:ref:`parametric template unit <parametric-templates>`.
 
 There are two requirements for the job's ``id`` field for the instances to
 be generated. It must be unique, and it must be template-based, for example::

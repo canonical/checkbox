@@ -1,13 +1,13 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "parametrized-job.schema.json",
-  "title": "Parametrized Job Unit",
+  "$id": "parametric-template.schema.json",
+  "title": "Parametric Template Unit",
   "description": "Ordinary jobs generated from fixed parameter records.",
   "type": "object",
   "allOf": [{ "$ref": "job.schema.json#/$defs/jobFields" }],
   "properties": {
     "unit": {
-      "const": "parametrized-job"
+      "const": "parametric template"
     },
     "template-id": {
       "description": "Optional template identifier, derived from the job ID pattern when omitted.",

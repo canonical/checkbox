@@ -30,7 +30,7 @@ import operator
 
 from plainbox.abc import IUnitQualifier
 from plainbox.impl.job import JobDefinition
-from plainbox.impl.unit.parametrized_job import ParametrizedJobUnit
+from plainbox.impl.unit.parametric_template import ParametricTemplateUnit
 from plainbox.impl.secure.origin import Origin
 from plainbox.impl.secure.qualifiers import CompositeQualifier
 from plainbox.impl.secure.qualifiers import FieldQualifier
@@ -352,10 +352,10 @@ class RegExpJobQualifierTests(TestCase):
         reg_match_nothing = RegExpJobQualifier("nothing", self.origin)
         self.assertFalse(reg_match_nothing.get_simple_match(template_job_mock))
 
-    def test_select_parametrized_source_and_generated_jobs(self):
-        unit = ParametrizedJobUnit(
+    def test_select_parametric_source_and_generated_jobs(self):
+        unit = ParametricTemplateUnit(
             {
-                "unit": "parametrized-job",
+                "unit": "parametric template",
                 "template-id": "example",
                 "parameters": [{"value": "A"}, {"value": "B"}],
                 "id": "test-{value}",

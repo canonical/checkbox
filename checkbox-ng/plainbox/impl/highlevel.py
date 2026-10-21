@@ -149,7 +149,7 @@ class Explorer:
         "manifest entry",
         "packaging meta-data",
         "template",
-        "parametrized-job",
+        "parametric template",
         "test plan",
         "file",
         "provider",
@@ -247,8 +247,8 @@ class Explorer:
             return self._file_to_obj(unit)
         elif unit.Meta.name == "template":
             return self._template_to_obj(unit)
-        elif unit.Meta.name == "parametrized-job":
-            return self._parametrized_job_to_obj(unit)
+        elif unit.Meta.name == "parametric template":
+            return self._parametric_template_to_obj(unit)
         elif unit.Meta.name == "manifest entry":
             return self._manifest_entry_to_obj(unit)
         elif unit.Meta.name == "packaging meta-data":
@@ -370,7 +370,7 @@ class Explorer:
             ),
         )
 
-    def _parametrized_job_to_obj(self, unit):
+    def _parametric_template_to_obj(self, unit):
         return PlainBoxObject(
             unit,
             group=unit.Meta.name,

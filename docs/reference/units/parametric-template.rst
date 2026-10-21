@@ -1,17 +1,18 @@
-.. _parametrized-jobs:
+.. _parametric-templates:
 
-=====================
-Parametrized job unit
-=====================
+========================
+Parametric template unit
+========================
 
-A parametrized job defines ordinary jobs using a fixed list of parameter records.
-Unlike a :ref:`template unit <templates>`, it does not use records discovered
-by resource jobs. Checkbox creates its jobs when loading the provider, before
-validation or execution.
+A parametric template defines ordinary jobs using a fixed list of parameter
+records.
+Unlike a :ref:`template unit <templates>`, they use fixed parameters that do
+not depend on the result of a  "resource job" result. Checkbox creates this 
+jobs when loading the provider, before validation or execution.
 
 .. code-block:: yaml
 
-    unit: parametrized-job
+    unit: parametric template
     template-id: example
     parameters:
       - value: A
@@ -23,14 +24,13 @@ validation or execution.
     flags: [simple]
     command: 'true'
 
-This definition creates ``example_A_1`` and ``example_B_2``. Each record creates
-one job, in declaration order. Lists within records are values, not alternatives:
-there is no Cartesian expansion.
+This definition creates two different jobs: ``example_A_1`` and ``example_B_2``.
+Each pair of [value, number] creates one job.
 
 Fields
 ======
 
-.. program:: parametrized-job
+.. program:: parametric template
 
 .. option:: parameters
 
@@ -45,7 +45,7 @@ Fields
 .. option:: template-id
 
     Optional identifier for the source definition. If omitted, Checkbox derives
-    it from the job ID pattern using the same rules as a template ID. For
+    it from the job ID pattern using the same rules as other template IDs. For
     example, ``example_{value}_{number}`` becomes ``example_value_number``.
 
     This identifier must be unique and cannot include a namespace. The provider
@@ -55,9 +55,9 @@ All other fields are :ref:`ordinary job fields <job>`. The ``id`` field is the
 pattern for generated job IDs. Each resolved ID must be unique. Use parameter
 references in the ID, or ``{__index__}``, the one-based record index.
 
-Parametrized jobs always generate jobs and use Python string formatting. They do
-not accept other ``template-*`` fields, custom engines, resource imports, or
-filters.
+Parametric templates always generate jobs and use Python string formatting.
+They do not accept other ``template-*`` fields, custom engines, resource
+imports, or filters.
 
 Instantiation and validation
 ============================
@@ -79,7 +79,7 @@ records.
 Discovery and selection
 =======================
 
-``checkbox-cli list parametrized-job`` lists the source definitions.
+``checkbox-cli list 'parametric template'`` lists the source definitions.
 ``checkbox-cli show`` accepts the source's ``template-id`` or a generated
 job's concrete ID. Source views retain the original definition; generated job
 views show resolved fields.

@@ -68,7 +68,7 @@ from plainbox.impl.secure.rfc822 import (
 )
 from plainbox.impl.unit import all_units
 from plainbox.impl.unit.file import FileRole, FileUnit
-from plainbox.impl.unit.parametrized_job import ParametrizedJobUnit
+from plainbox.impl.unit.parametric_template import ParametricTemplateUnit
 from plainbox.impl.validation import Severity, ValidationError
 
 logger = logging.getLogger("plainbox.secure.providers.v1")
@@ -182,14 +182,14 @@ class ProviderContentPlugIn(PlugIn):
         )
 
     def _prepare_unit(self, unit, validate, validation_kwargs, check, context):
-        """Expose static parametrized jobs and their source before validation."""
+        """Expose static parametric templates and their source before validation."""
         units = [unit]
-        if isinstance(unit, ParametrizedJobUnit):
+        if isinstance(unit, ParametricTemplateUnit):
             try:
                 units.extend(unit.instantiate_jobs())
             except Exception as exc:
                 raise PlugInError(
-                    _("Cannot instantiate parametrized job {!r}: {}").format(
+                    _("Cannot instantiate parametric template {!r}: {}").format(
                         unit.template_id, exc
                     )
                 ) from exc

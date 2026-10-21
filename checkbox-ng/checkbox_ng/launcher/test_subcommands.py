@@ -28,7 +28,7 @@ from unittest.mock import patch, Mock, MagicMock, mock_open
 from io import StringIO
 
 from plainbox.impl.unit.job import JobDefinition
-from plainbox.impl.unit.parametrized_job import ParametrizedJobUnit
+from plainbox.impl.unit.parametric_template import ParametricTemplateUnit
 from plainbox.impl.unit.template import TemplateUnit
 
 from checkbox_ng.launcher.subcommands import (
@@ -48,7 +48,7 @@ from checkbox_ng.launcher.subcommands import (
 )
 
 
-class TestParametrizedJobCommands(TestCase):
+class TestParametricTemplateCommands(TestCase):
     def setUp(self):
         self.provider = Mock(
             namespace="com.canonical.plainbox",
@@ -56,9 +56,9 @@ class TestParametrizedJobCommands(TestCase):
             get_translated_data=Mock(side_effect=lambda text: text),
         )
         self.provider.name = "com.canonical.plainbox:inline"
-        self.template = ParametrizedJobUnit(
+        self.template = ParametricTemplateUnit(
             {
-                "unit": "parametrized-job",
+                "unit": "parametric template",
                 "template-id": "inline",
                 "parameters": [{"name": "first"}, {"name": "second"}],
                 "id": "test-{name}",
@@ -114,7 +114,9 @@ class TestParametrizedJobCommands(TestCase):
         definitions = json.loads(stdout.getvalue())
         jobs = [unit for unit in definitions if unit["unit"] == "job"]
         templates = [
-            unit for unit in definitions if unit["unit"] == "parametrized-job"
+            unit
+            for unit in definitions
+            if unit["unit"] == "parametric template"
         ]
         self.assertEqual(len(jobs), 2)
         self.assertEqual(len(templates), 1)
@@ -146,7 +148,7 @@ class TestParametrizedJobCommands(TestCase):
         objects = json.loads(stdout.getvalue())
         jobs = [obj for obj in objects if obj["unit"] == "job"]
         templates = [
-            obj for obj in objects if obj["unit"] == "parametrized-job"
+            obj for obj in objects if obj["unit"] == "parametric template"
         ]
         self.assertEqual(len(jobs), 2)
         self.assertEqual(len(templates), 1)
@@ -175,9 +177,7 @@ class TestParametrizedJobCommands(TestCase):
 
     @patch("sys.stdout", new_callable=StringIO)
     def test_show_source_unchanged(self, stdout):
-        source = (
-            "unit: parametrized-job\nid: test-{name}\ncommand: echo {name}\n"
-        )
+        source = "unit: parametric template\nid: test-{name}\ncommand: echo {name}\n"
         obj = Mock(
             _impl=self.template,
             attrs={"origin": "/path/to/inline.yaml:1-3"},
@@ -187,13 +187,13 @@ class TestParametrizedJobCommands(TestCase):
         self.assertIn(source, stdout.getvalue())
 
     @patch("sys.stdout", new_callable=StringIO)
-    def test_list_parametrized_sources(self, stdout):
-        self.ctx.args.GROUP = "parametrized-job"
+    def test_list_parametric_sources(self, stdout):
+        self.ctx.args.GROUP = "parametric template"
         self.ctx.args.format = None
         List().invoked(self.ctx)
         self.assertEqual(
             stdout.getvalue(),
-            "parametrized-job 'com.canonical.plainbox::inline'\n",
+            "parametric template 'com.canonical.plainbox::inline'\n",
         )
 
     @patch("checkbox_ng.launcher.subcommands.Show._print_obj")

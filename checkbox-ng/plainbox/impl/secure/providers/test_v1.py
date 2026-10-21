@@ -47,7 +47,7 @@ from plainbox.impl.secure.rfc822 import FileTextSource, Origin
 from plainbox.impl.unit.file import FileUnit
 from plainbox.impl.unit.category import CategoryUnit
 from plainbox.impl.unit.template import TemplateUnit
-from plainbox.impl.unit.parametrized_job import ParametrizedJobUnit
+from plainbox.impl.unit.parametric_template import ParametricTemplateUnit
 from plainbox.impl.unit.validators import UnitValidationContext
 from plainbox.impl.validation import Problem, Severity
 
@@ -765,7 +765,7 @@ class YAMLUnitPlugInTests(TestCase):
         return YAMLUnitPlugIn(
             "/path/to/inline.yaml",
             dedent("""
-                unit: parametrized-job
+                unit: parametric template
                 template-id: inline
                 parameters: {}
                 id: test-{{name}}
@@ -784,10 +784,10 @@ class YAMLUnitPlugInTests(TestCase):
             **kwargs,
         )
 
-    def test_parametrized_units_and_references(self):
+    def test_parametric_units_and_references(self):
         plugin = self.load_parametric()
         units = plugin.unit_list
-        self.assertIsInstance(units[0], ParametrizedJobUnit)
+        self.assertIsInstance(units[0], ParametricTemplateUnit)
         self.assertEqual(
             [unit.partial_id for unit in units[1:4]],
             ["test-first", "test-second", "dependent"],
@@ -809,7 +809,7 @@ class YAMLUnitPlugInTests(TestCase):
         ]
         self.assertEqual(errors, [])
 
-    def test_parametrized_duplicate_ids(self):
+    def test_parametric_duplicate_ids(self):
         units = self.load_parametric(
             "[{name: first}, {name: first}]"
         ).unit_list
@@ -822,11 +822,11 @@ class YAMLUnitPlugInTests(TestCase):
             )
         )
 
-    def test_parametrized_source_ids_are_unique(self):
+    def test_parametric_source_ids_are_unique(self):
         units = self.load_parametric().unit_list
-        other = ParametrizedJobUnit(
+        other = ParametricTemplateUnit(
             {
-                "unit": "parametrized-job",
+                "unit": "parametric template",
                 "template-id": "inline",
                 "parameters": [],
                 "id": "other-{name}",
@@ -843,7 +843,7 @@ class YAMLUnitPlugInTests(TestCase):
             )
         )
 
-    def test_parametrized_source_collides_with_template_id(self):
+    def test_parametric_source_collides_with_template_id(self):
         units = self.load_parametric().unit_list
         other = TemplateUnit(
             {
@@ -892,7 +892,7 @@ class YAMLUnitPlugInTests(TestCase):
                     )
                 )
 
-    def test_parametrized_collides_with_ordinary_job(self):
+    def test_parametric_collides_with_ordinary_job(self):
         units = self.load_parametric().unit_list
         self.provider.unit_list = units + [
             JobDefinition(
@@ -908,7 +908,7 @@ class YAMLUnitPlugInTests(TestCase):
             )
         )
 
-    def test_parametrized_malformed_even_without_check(self):
+    def test_parametric_malformed_even_without_check(self):
         for records in ("null", "{}", "[invalid]"):
             with self.subTest(records=records):
                 with self.assertRaisesRegex(
@@ -917,7 +917,7 @@ class YAMLUnitPlugInTests(TestCase):
                 ):
                     self.load_parametric(records, check=False)
 
-    def test_parametrized_generated_fields_checked(self):
+    def test_parametric_generated_fields_checked(self):
         with self.assertRaisesRegex(PlugInError, "identifier cannot"):
             self.load_parametric("[{name: 'ns::invalid'}]")
 
@@ -938,7 +938,7 @@ class YAMLUnitPlugInTests(TestCase):
         self.assertIsInstance(plugin.unit_list[0], TemplateUnit)
         self.assertIsInstance(plugin.unit_list[1], FileUnit)
 
-    def test_parametrized_missing_reference(self):
+    def test_parametric_missing_reference(self):
         units = self.load_parametric("[{name: second}]").unit_list
         self.provider.unit_list = units
         context = UnitValidationContext([self.provider])
@@ -950,7 +950,7 @@ class YAMLUnitPlugInTests(TestCase):
             )
         )
 
-    def test_parametrized_template_fields_report_loading_error(self):
+    def test_parametric_template_fields_report_loading_error(self):
         for field in (
             "template-resource",
             "template-filter",
@@ -964,7 +964,7 @@ class YAMLUnitPlugInTests(TestCase):
                 ):
                     YAMLUnitPlugIn(
                         "/path/to/inline.yaml",
-                        "unit: parametrized-job\n"
+                        "unit: parametric template\n"
                         "parameters: []\n"
                         "{}: ''\n".format(field),
                         self.LOAD_TIME,
@@ -972,10 +972,10 @@ class YAMLUnitPlugInTests(TestCase):
                         check=False,
                     )
 
-    def test_pxu_parametrized_json(self):
+    def test_pxu_parametric_json(self):
         plugin = RFC822UnitPlugIn(
             "/path/to/inline.pxu",
-            "unit: parametrized-job\n"
+            "unit: parametric template\n"
             'parameters: [{"name": "first"}, {"name": "second"}]\n'
             "id: test-{name}\nplugin: shell\ncommand: echo {name}\n",
             self.LOAD_TIME,

@@ -1,9 +1,8 @@
 #!/usr/bin/env python3
-"""Display a GStreamer test video using a sink suited to the session."""
 
 import argparse
 import os
-import subprocess
+import subprocess as sp
 import sys
 
 # ffmpegcolorspace is the pre-videoconvert name of the converter
@@ -36,10 +35,10 @@ def parse_args(argv: "list[str] | None" = None) -> argparse.Namespace:
 
 def element_exists(name: str) -> bool:
     return (
-        subprocess.run(
+        sp.run(
             ["gst-inspect-1.0", "--exists", name],
-            stdout=subprocess.DEVNULL,
-            stderr=subprocess.DEVNULL,
+            stdout=sp.DEVNULL,
+            stderr=sp.DEVNULL,
             check=False,
         ).returncode
         == 0
@@ -82,14 +81,14 @@ def main(argv: "list[str] | None" = None) -> int:
     print("Pipeline:", " ".join(pipeline))
     print(flush=True)  # just to separate out logs from gst logs
     try:
-        subprocess.check_call(
+        sp.check_call(
             ["gst-launch-1.0", "-v"] + pipeline, timeout=args.timeout
         )
-    except subprocess.TimeoutExpired:
+    except sp.TimeoutExpired:
         # pipeline won't finish by itself
         # reached timeout -> OK!
         return 0
-    except subprocess.CalledProcessError as e:
+    except sp.CalledProcessError as e:
         # this skips the CalledProcessError call trace
         # because gstreamer already prints all the error lines
         # more call trace is just noise

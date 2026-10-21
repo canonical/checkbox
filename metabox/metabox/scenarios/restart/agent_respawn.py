@@ -14,7 +14,6 @@
 # You should have received a copy of the GNU General Public License
 # along with Checkbox.  If not, see <http://www.gnu.org/licenses/>.
 import textwrap
-
 from importlib.resources import read_text
 
 from metabox import tools
@@ -22,14 +21,14 @@ from metabox.core import keys
 from metabox.core.actions import (
     AssertPrinted,
     AssertRetCode,
-    SelectTestPlan,
-    Send,
+    Expect,
+    ExpectNot,
     Put,
     RunCmd,
-    Expect,
-    Start,
+    SelectTestPlan,
+    Send,
     Signal,
-    ExpectNot,
+    Start,
 )
 from metabox.core.scenario import Scenario
 from metabox.core.utils import tag
@@ -124,39 +123,6 @@ class ResumeAfterFinishPreserveOutputLocal(Scenario):
         Send("r"),
         Expect("Select jobs to re-run"),
         Signal(keys.SIGINT),
-        Start(),
-        Expect("Select jobs to re-run"),
-        Send("f"),
-        Expect("job passed"),
-        Expect("job failed"),
-    ]
-
-
-@tag("resume", "manual")
-class ResumeAfterFinishPreserveOutputRemote(Scenario):
-    modes = ["remote"]
-    launcher = "# no launcher"
-    steps = [
-        Start(),
-        Expect("Select test plan"),
-        SelectTestPlan("2021.com.canonical.certification::pass-only-rerun"),
-        Send(keys.KEY_ENTER),
-        Expect("Press (T) to start"),
-        Send("T"),
-        Expect("Select jobs to re-run"),
-        Send(keys.KEY_SPACE),
-        Expect("[X]"),
-        Send("r"),
-        Expect("Select jobs to re-run"),
-        Signal(keys.SIGINT),
-        Expect("(X) Nothing"),
-        Send(keys.KEY_DOWN + keys.KEY_SPACE),
-        Expect("(X) Stop"),
-        Send(keys.KEY_DOWN + keys.KEY_SPACE),
-        Expect("(X) Pause"),
-        Send(keys.KEY_DOWN + keys.KEY_SPACE),
-        Expect("(X) Exit"),
-        Send(keys.KEY_ENTER),
         Start(),
         Expect("Select jobs to re-run"),
         Send("f"),

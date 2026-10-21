@@ -1,3 +1,4 @@
+import ssl
 import unittest
 from http.client import RemoteDisconnected
 
@@ -36,6 +37,7 @@ class TestPollingRetries(unittest.TestCase):
         for error, delay in [
             (TimeoutError("timed out"), 60),
             (RemoteDisconnected("closed"), 60),
+            (ssl.SSLEOFError("EOF occurred in violation of protocol"), 60),
             (ServerError(Response({"status": "502"}), b""), 60),
             (ServerError(Response({"status": "504"}), b""), 60),
             (
@@ -104,22 +106,20 @@ class TestPollingRetries(unittest.TestCase):
     ):
         recipe = MagicMock()
         recipe.name = "checkbox-ng-edge"
-        recipe.daily_build_archive.getBuildCounters.side_effect = [
-            {"pending": 1},
-            {"pending": 0},
-        ]
         build = MagicMock()
-        build.date_first_dispatched = 10
         build.buildstate = "Successfully built"
-        recipe.daily_build_archive.getBuildRecords.side_effect = [
+        publication = MagicMock()
+        publication.getBuilds.return_value = [build]
+        recipe.daily_build_archive.getPublishedSources.side_effect = [
             ServerError(
                 Response({"status": "503", "retry-after": "900"}), b""
             ),
-            [build],
+            [publication],
         ]
 
         self.assertEqual(
-            lp_build_monitor_recipe.monitor_retry_binary_builds(recipe, 0), []
+            lp_build_monitor_recipe.monitor_retry_binary_builds(recipe, 0, 1),
+            [],
         )
         sleep_mock.assert_any_call(900)
         build.lp_refresh.assert_called_once_with()
@@ -128,35 +128,22 @@ class TestPollingRetries(unittest.TestCase):
 
 
 class TestHelperFunctions(unittest.TestCase):
-    def test_get_all_binary_builds(self):
-        # all builds that were created after started_datetime are returned
+    def test_get_source_publications(self):
         build_recipe = MagicMock()
         build_recipe.name = "checkbox-ng-edge"
+        publication = MagicMock()
+        archive = build_recipe.daily_build_archive
+        archive.getPublishedSources.return_value = [publication]
 
-        build_selected = MagicMock()
-        build_selected.date_first_dispatched = 10
-
-        build_selected_pending = MagicMock()
-        # pending builds have a None date_first_dispatched
-        # we select them because they are "newer" of the start date
-        # for sure given that they didn't even start yet
-        build_selected_pending.date_first_dispatched = None
-
-        build_not_selected = MagicMock()
-        build_not_selected.date_first_dispatched = 0
-
-        build_recipe.daily_build_archive.getBuildRecords.return_value = [
-            build_selected,
-            build_selected_pending,
-            build_not_selected,
-        ]
-        selected = lp_build_monitor_recipe.get_all_binary_builds(
+        selected = lp_build_monitor_recipe.get_source_publications(
             build_recipe, 6
         )
 
-        self.assertEqual(selected, [build_selected, build_selected_pending])
-        build_recipe.daily_build_archive.getBuildRecords.assert_called_with(
-            source_name="checkbox-ng"
+        self.assertEqual(selected, [publication])
+        archive.getPublishedSources.assert_called_once_with(
+            source_name="checkbox-ng",
+            exact_match=True,
+            created_since_date=6,
         )
 
     def test_get_all_source_builds(self):
@@ -200,30 +187,54 @@ class TestHelperFunctions(unittest.TestCase):
     def test_monitor_retry_binary_builds(self, print_mock):
         build_recipe_mock = MagicMock()
         build_recipe_mock.name = "checkbox-ng-edge"
-        build_recipe_mock.daily_build_archive.getBuildRecords.return_value = []
-        build_recipe_mock.daily_build_archive.getBuildCounters.side_effect = [
-            {"pending": 10},
-            {"pending": 5},
-            {"pending": 0},
+        archive = build_recipe_mock.daily_build_archive
+        build_noble = MagicMock(
+            buildstate="Successfully built",
+            title="amd64 build in noble",
+            web_link="https://lp/noble",
+        )
+        build_jammy = MagicMock(
+            buildstate="Successfully built",
+            title="amd64 build in jammy",
+            web_link="https://lp/jammy",
+        )
+        publication_noble = MagicMock(display_name="checkbox-ng in noble")
+        publication_noble.getBuilds.return_value = [build_noble]
+        publication_jammy = MagicMock()
+        publication_jammy.getBuilds.return_value = [build_jammy]
+        # sources get published one at a time
+        archive.getPublishedSources.side_effect = [
+            [],
+            [publication_noble],
+            [publication_noble, publication_jammy],
         ]
 
-        lp_build_monitor_recipe.monitor_retry_binary_builds(
-            build_recipe_mock, 0
+        unrecoverable = lp_build_monitor_recipe.monitor_retry_binary_builds(
+            build_recipe_mock, 0, 2
         )
 
-        # the function waited for getPendingBuildInfo to return an empty list
-        self.assertEqual(
-            build_recipe_mock.daily_build_archive.getBuildCounters.call_count,
-            3,
-        )
+        self.assertEqual(unrecoverable, [])
+        self.assertEqual(archive.getPublishedSources.call_count, 3)
+        build_noble.lp_refresh.assert_called_once_with()
+        build_jammy.lp_refresh.assert_called_once_with()
+        # builds of other packages in the archive are never looked at
+        archive.getBuildCounters.assert_not_called()
+        archive.getBuildRecords.assert_not_called()
         self.assertEqual(
             print_mock.call_args_list,
             [
                 unittest.mock.call(
-                    "Waiting for pending builds in the archive..."
-                )
-            ]
-            * 2,
+                    "Waiting for the checkbox-ng source packages to be "
+                    "published (0/2), published so far: none"
+                ),
+                unittest.mock.call(
+                    "Waiting for the checkbox-ng source packages to be "
+                    "published (1/2), published so far: checkbox-ng in noble"
+                ),
+                unittest.mock.call("Monitoring 2 binary build(s):"),
+                unittest.mock.call("  amd64 build in noble: https://lp/noble"),
+                unittest.mock.call("  amd64 build in jammy: https://lp/jammy"),
+            ],
         )
 
     @patch("time.sleep")
@@ -241,12 +252,13 @@ class TestHelperFunctions(unittest.TestCase):
     @patch("time.sleep")
     def test_monitor_retry_binary_builds_request_timeout(self, sleep_mock):
         recipe = MagicMock()
-        recipe.daily_build_archive.getBuildCounters.side_effect = TimeoutError(
+        archive = recipe.daily_build_archive
+        archive.getPublishedSources.side_effect = TimeoutError(
             "Launchpad timed out"
         )
 
         with self.assertRaisesRegex(SystemExit, "10 consecutive times"):
-            lp_build_monitor_recipe.monitor_retry_binary_builds(recipe, 0)
+            lp_build_monitor_recipe.monitor_retry_binary_builds(recipe, 0, 1)
         self.assertEqual(sleep_mock.call_count, 9)
 
     def test_recipe_name_to_source_name(self):
@@ -448,20 +460,16 @@ class TestMain(unittest.TestCase):
         recipe_mock.builds = [build_mock, build_mock, build_mock]
 
         # Setup of the binary build
-        recipe_mock.daily_build_archive.getBuildCounters.side_effect = [
-            {"pending": 1},
-            {"pending": 0},
-        ]
-
         recipe_mock.name = "checkbox-ng-edge"
 
         bin_build_mock = MagicMock()
-        bin_build_mock.date_first_dispatched = 20
-        recipe_mock.daily_build_archive.getBuildRecords.return_value = [
-            bin_build_mock
-        ]
         bin_build_mock.can_be_retried = False
         bin_build_mock.buildstate = "Successfully built"
+        publication_mock = MagicMock()
+        publication_mock.getBuilds.return_value = [bin_build_mock]
+        recipe_mock.daily_build_archive.getPublishedSources.return_value = [
+            publication_mock
+        ] * 3
 
         lp_build_monitor_recipe.main(["checkbox", "some_recipe"])
 
@@ -514,18 +522,14 @@ class TestMain(unittest.TestCase):
         recipe_mock.builds = [build_mock, build_mock, build_mock]
 
         # Setup of the binary build
-        recipe_mock.daily_build_archive.getBuildCounters.side_effect = [
-            {"pending": 1},
-            {"pending": 0},
-        ]
-
         recipe_mock.name = "checkbox-ng-edge"
 
         bin_build_mock = MagicMock()
-        bin_build_mock.date_first_dispatched = 20
-        recipe_mock.daily_build_archive.getBuildRecords.return_value = [
-            bin_build_mock
-        ]
+        publication_mock = MagicMock()
+        publication_mock.getBuilds.return_value = [bin_build_mock]
+        recipe_mock.daily_build_archive.getPublishedSources.return_value = [
+            publication_mock
+        ] * 3
         bin_build_mock.can_be_retried = False
         bin_build_mock.web_link = "https://build_link.com"
         bin_build_mock.buildstate = "Failed to build"

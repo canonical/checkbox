@@ -18,6 +18,7 @@ from unittest import TestCase
 
 from plainbox.impl.unit.job import JobDefinition
 from plainbox.impl.unit.parametric_template import ParametricTemplateUnit
+from plainbox.impl.validation import Problem
 from plainbox.impl.validation import Severity
 
 
@@ -199,11 +200,40 @@ class ParametricTemplateTests(TestCase):
                     )
                 )
 
-    def test_template_fields_are_not_public(self):
+    def test_resource_template_fields_must_be_absent(self):
         for field in (
             "template-resource",
             "template-filter",
             "template-imports",
+        ):
+            with self.subTest(field=field):
+                unit = self.make_unit()
+                self.assertFalse(
+                    [issue for issue in unit.check() if issue.field == field]
+                )
+            for value in ("", "gps_resource", None):
+                with self.subTest(field=field, value=value):
+                    unit = self.make_unit(**{field: value})
+                    errors = [
+                        issue
+                        for issue in unit.check()
+                        if issue.severity is Severity.error
+                    ]
+                    self.assertEqual(len(errors), 0 if value is None else 1)
+                    if value is not None:
+                        self.assertEqual(errors[0].field, field)
+                        self.assertIs(errors[0].kind, Problem.useless)
+                    jobs = unit.instantiate_jobs()
+                    self.assertEqual(
+                        [job.partial_id for job in jobs],
+                        ["test-first", "test-second"],
+                    )
+                    self.assertTrue(
+                        all(field not in job._data for job in jobs)
+                    )
+
+    def test_template_fields_are_not_public(self):
+        for field in (
             "template-engine",
             "template-unit",
             "template-parameters",
@@ -212,11 +242,13 @@ class ParametricTemplateTests(TestCase):
                 unit = self.make_unit(**{field: ""})
                 self.assertTrue(
                     any(
-                        issue.field == "parameters"
+                        issue.field == field
+                        and issue.kind is Problem.useless
                         and issue.severity is Severity.error
                         for issue in unit.check()
                     )
                 )
+                self.assertEqual(len(unit.instantiate_jobs()), 2)
 
     def test_validates_real_values(self):
         unit = self.make_unit(

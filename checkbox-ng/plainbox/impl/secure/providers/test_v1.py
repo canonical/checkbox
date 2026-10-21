@@ -950,27 +950,48 @@ class YAMLUnitPlugInTests(TestCase):
             )
         )
 
-    def test_parametric_template_fields_report_loading_error(self):
+    def test_parametric_template_controls_report_validation_error(self):
         for field in (
             "template-resource",
             "template-filter",
             "template-imports",
             "template-engine",
             "template-unit",
+            "template-parameters",
         ):
-            with self.subTest(field=field):
-                with self.assertRaisesRegex(
-                    PlugInError, "does not support " + field
-                ):
-                    YAMLUnitPlugIn(
+            for check in (False, True):
+                with self.subTest(field=field, check=check):
+                    args = (
                         "/path/to/inline.yaml",
                         "unit: parametric template\n"
-                        "parameters: []\n"
-                        "{}: ''\n".format(field),
+                        "template-id: inline\n"
+                        "parameters: [{{name: first}}]\n"
+                        "id: test-{{name}}\n"
+                        "flags: [simple]\n"
+                        "command: 'true'\n"
+                        "{}: gps_resource\n".format(field),
                         self.LOAD_TIME,
                         self.provider,
-                        check=False,
                     )
+                    if check:
+                        with self.assertRaisesRegex(
+                            PlugInError,
+                            "Problem in unit definition.*" + field,
+                        ):
+                            YAMLUnitPlugIn(*args, check=True)
+                    else:
+                        plugin = YAMLUnitPlugIn(*args, check=False)
+                        errors = [
+                            issue
+                            for issue in plugin.unit_list[0].check()
+                            if issue.severity is Severity.error
+                        ]
+                        self.assertEqual(len(errors), 1)
+                        self.assertEqual(errors[0].field, field)
+                        self.assertIs(errors[0].kind, Problem.useless)
+                        self.assertEqual(
+                            plugin.unit_list[1].partial_id, "test-first"
+                        )
 
     def test_pxu_parametric_json(self):
         plugin = RFC822UnitPlugIn(

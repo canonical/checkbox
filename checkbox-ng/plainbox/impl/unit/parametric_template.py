@@ -22,6 +22,7 @@ from plainbox.i18n import gettext as _
 from plainbox.i18n import gettext_noop as N_
 from plainbox.impl.resource import Resource
 from plainbox.impl.symbol import SymbolDef
+from plainbox.impl.unit import concrete_validators
 from plainbox.impl.unit.template import TemplateUnit
 from plainbox.impl.unit.unit import MissingParam
 from plainbox.impl.unit.unit_with_id import UnitWithIdValidator
@@ -31,6 +32,17 @@ from plainbox.impl.validation import Problem
 class ParametricTemplateValidator(UnitWithIdValidator):
     def check(self, unit):
         yield from super().check(unit)
+        for field in unit._data:
+            if field.startswith("template-") and (
+                field == "template-unit"
+                or field not in unit.Meta.field_validators
+            ):
+                yield self.error(
+                    unit,
+                    field,
+                    Problem.useless,
+                    _("parametric template does not support {}").format(field),
+                )
         try:
             jobs = unit.instantiate_jobs()
             for job in jobs:
@@ -78,15 +90,6 @@ class ParametricTemplateUnit(TemplateUnit):
         )
 
     def instantiate_jobs(self):
-        for field in self._data:
-            if field.startswith("template-") and field not in (
-                "template-id",
-                "template-summary",
-                "template-description",
-            ):
-                raise ValueError(
-                    _("parametric template does not support {}").format(field)
-                )
         records = self.parameter_records
         if not isinstance(records, list) or not all(
             isinstance(record, dict) for record in records
@@ -97,11 +100,13 @@ class ParametricTemplateUnit(TemplateUnit):
             key: value
             for key, value in self._data.items()
             if key != "parameters"
+            and (not key.startswith("template-") or key == "template-id")
         }
         raw_data = {
             key: value
             for key, value in self._raw_data.items()
             if key != "parameters"
+            and (not key.startswith("template-") or key == "template-id")
         }
         data["unit"] = raw_data["unit"] = "template"
         template = TemplateUnit(
@@ -124,8 +129,14 @@ class ParametricTemplateUnit(TemplateUnit):
         validator_cls = ParametricTemplateValidator
         field_validators = {
             TemplateUnit.Meta.fields.template_unit: [],
-            TemplateUnit.Meta.fields.template_resource: [],
-            TemplateUnit.Meta.fields.template_filter: [],
-            TemplateUnit.Meta.fields.template_imports: [],
+            TemplateUnit.Meta.fields.template_resource: [
+                concrete_validators.absent
+            ],
+            TemplateUnit.Meta.fields.template_filter: [
+                concrete_validators.absent
+            ],
+            TemplateUnit.Meta.fields.template_imports: [
+                concrete_validators.absent
+            ],
             fields.parameter_records: [],
         }

@@ -24,6 +24,14 @@ jobs:
         - X64
     timeout-minutes: 1200 #20h, this will timeout sooner due to inner timeouts
     steps:
+      - name: Report the test PPA
+        if: env.PPA == 'test'
+        env:
+          REF_NAME: ${{ github.ref_name }}
+        run: |
+          message="Running from branch '$REF_NAME', not main: packages are built into the test PPA (https://launchpad.net/~checkbox-dev/+archive/ubuntu/test), edge is not affected."
+          echo "::notice title=Test build::$message"
+          echo "$message" >> "$GITHUB_STEP_SUMMARY"
       - name: Install dependencies
         run: |
           sudo apt update -qq

@@ -7,6 +7,10 @@ on:
     secrets:
       LP_CREDS:
         required: true
+env:
+  # Only main publishes to edge, runs from any other branch build into the
+  # test PPA (same recipes, with the -test suffix) so they can't affect edge.
+  PPA: ${{ github.ref == 'refs/heads/main' && 'edge' || 'test' }}
 jobs:
   ppa_update:
     name: Sync PPA history with monorepo
@@ -55,16 +59,16 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        recipe:
-        - checkbox-ng-edge
-        - checkbox-support-edge
-        - checkbox-provider-base-edge
-        - checkbox-provider-resource-edge
-        - checkbox-provider-certification-server-edge
-        - checkbox-provider-certification-client-edge
-        - checkbox-provider-gpgpu-edge
-        - checkbox-provider-sru-edge
-        - checkbox-provider-tpm2-edge
+        package:
+        - checkbox-ng
+        - checkbox-support
+        - checkbox-provider-base
+        - checkbox-provider-resource
+        - checkbox-provider-certification-server
+        - checkbox-provider-certification-client
+        - checkbox-provider-gpgpu
+        - checkbox-provider-sru
+        - checkbox-provider-tpm2
     steps:
       - name: Install dependencies
         run: |
@@ -84,10 +88,10 @@ jobs:
           attempt_delay: 60000 # 1 min
           attempt_limit: 60   # max 1 hour of retries
           command: |
-            tools/release/lp_update_recipe.py checkbox --recipe ${{ matrix.recipe }} --new-version $(tools/release/get_version.py --dev-suffix --output-format deb) --revision $GITHUB_SHA
+            tools/release/lp_update_recipe.py checkbox --recipe ${{ matrix.package }}-${{ env.PPA }} --new-version $(tools/release/get_version.py --dev-suffix --output-format deb) --revision $GITHUB_SHA
       - name: Build and wait result
         timeout-minutes: 780 # 13hours
         env:
           LP_CREDENTIALS: ${{ secrets.LP_CREDS }}
           PYTHONUNBUFFERED: 1
-        run: tools/release/lp_build_monitor_recipe.py checkbox ${{ matrix.recipe }}
+        run: tools/release/lp_build_monitor_recipe.py checkbox ${{ matrix.package }}-${{ env.PPA }}

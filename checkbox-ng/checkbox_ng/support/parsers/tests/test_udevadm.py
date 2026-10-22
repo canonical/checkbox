@@ -1168,6 +1168,18 @@ class TestUdevadmParser(TestCase, UdevadmDataMixIn):
         self.assertEqual(len(devices), 8)
         self.assertEqual(self.count(devices, "DISK"), 3)
 
+    def test_INTEL_VROC(self):
+        # On systems using Intel VROC (Virtual RAID on CPU), mdadm creates
+        # an IMSM container device (md127, MD_LEVEL=container) in addition
+        # to the actual assembled RAID array (md126). The container only
+        # holds RAID metadata and is not a usable block device, so it
+        # should not be categorized as DISK.
+        # See https://github.com/canonical/checkbox/issues/2045
+        devices = self.parse("INTEL_VROC")
+        by_name = {d.name: d for d in devices}
+        self.assertEqual(by_name["md126"].category, "DISK")
+        self.assertNotEqual(by_name["md127"].category, "DISK")
+
     def test_MELLANOX_40GBPS(self):
         # An IBM Power S822LC with a 40 Gbps Mellanox NIC reported too few
         # network devices because one device's name (enP8p1s0) was a

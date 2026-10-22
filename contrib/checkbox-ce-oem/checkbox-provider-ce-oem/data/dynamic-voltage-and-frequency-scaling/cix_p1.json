@@ -1,0 +1,20 @@
+{
+    "allowlist": [
+        {
+            "device_name": "CIXH5000:00",
+            "type": "gpu",
+            "governors": ["userspace", "powersave", "performance", "simple_ondemand"]
+        },
+        {
+            "device_name": "CIXH4000:00",
+            "type": "npu",
+            "governors": ["userspace", "powersave", "performance", "simple_ondemand"]
+        },
+        {
+            "device_name": "CIXH3010:00",
+            "type": "vpu",
+            "governors": ["userspace", "powersave", "performance", "simple_ondemand"]
+        }
+    ],
+    "denylist": []
+}

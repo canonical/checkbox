@@ -169,4 +169,34 @@ e.g. DRP_AI_TEST_SNAP=rzv-ai-applications
 This job also requires a 640x480, 24-bit RGB PNG photo containing a
 clearly visible dog to be placed at $SNAP_REAL_HOME/test.png before
 running, as the input image is not bundled with the provider.
+
+id: thermal_zones
+TZ_ALLOW_NO_DATA=all | {thermal-type1}|{thermal-type2}|...
+Thermal zones of these types that return no data (ENODATA, power domain
+off) when thermal_zones runs are skipped instead of failing. Only list
+zones that are power-gated by design and cannot be powered with
+TZ_KEEP_POWERED; never a zone whose missing data can mean a broken
+driver, such as a GPU zone.
+e.g. TZ_ALLOW_NO_DATA=cv0-thermal|cv1-thermal|cv2-thermal
+
+id: ce-oem-thermal/temperature-test
+TZ_IGNORE_TEMP_CHECK=all | {thermal-type1}|{thermal-type2}|...
+Thermal zones of these types only need a readable temperature; the
+"temperature must change" check is skipped.
+e.g. TZ_IGNORE_TEMP_CHECK=cpu-thermal|camera0-thermal
+
+id: thermal_zones, ce-oem-thermal/temperature-test
+TZ_KEEP_POWERED={thermal-type1}:{device}[,{device}]|{thermal-type2}:{device}|...
+Devices whose power/control is not "on" are set to "on" for the
+temperature test of that thermal type and restored afterwards, so a
+power-gated zone is tested instead of skipped. See
+checkbox-provider-ce-oem/units/thermal-sensor/README.md.
+e.g. TZ_KEEP_POWERED=gpu-thermal:/sys/bus/pci/devices/0000:01:00.0
+
+id: thermal_zones
+TZ_SKIP=all | {thermal-type1}|{thermal-type2}|...
+Thermal zones of these types are not tested at all; their temperature
+jobs are reported as not run. Only for zones that cannot be tested
+safely (e.g. a known platform bug); name the reason next to it.
+e.g. TZ_SKIP=gpu-thermal
 ```

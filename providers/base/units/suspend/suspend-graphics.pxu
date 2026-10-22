@@ -118,6 +118,7 @@ unit: template
 template-resource: graphics_card
 template-filter: graphics_card.prime_gpu_offload == 'Off'
 plugin: attachment
+mime-type: application/gzip
 category_id: com.canonical.plainbox::suspend
 id: suspend/{index}_xrandr_screens_after_suspend.tar.gz_auto
 template-id: suspend/index_xrandr_screens_after_suspend.tar.gz_auto
@@ -127,6 +128,7 @@ _purpose: This attaches screenshots from the suspend/cycle_resolutions_after_sus
 _summary: Attach screenshots from suspend/cycle resolutions after suspend test to results.
 
 plugin: attachment
+mime-type: application/gzip
 category_id: com.canonical.plainbox::suspend
 id: suspend/xrandr_screens_after_suspend_primary
 depends: graphics/cycle_resolution_primary
@@ -246,6 +248,7 @@ template-resource: graphics_card
 template-filter: graphics_card.prime_gpu_offload == 'Off'
 template-engine: jinja2
 plugin: attachment
+mime-type: text/plain
 category_id: com.canonical.plainbox::suspend
 id: suspend/{{ index }}_suspend-single-log-attach_{{ product_slug }}_auto
 template-id: suspend/index_suspend-single-log-attach_product_slug_auto

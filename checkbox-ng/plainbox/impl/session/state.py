@@ -1271,8 +1271,17 @@ class SessionState:
                     job.depends, job.id, suspend_job_id
                 )
 
-            if job.group:
-                overrides["group"] = f"{suspend_prefix}-{job.group}"
+            group_path = job.get_group_path()
+            if group_path:
+                # Get the first element as the top-level group and the rest
+                # as subgroups, and create the right naming.
+                top, *subgroups = group_path
+                prefixed_top = f"{suspend_prefix}-{top}"
+                overrides["group"] = (
+                    prefixed_top
+                    if isinstance(job.group, str)
+                    else [prefixed_top] + subgroups
+                )
             siblings.append(overrides)
         return siblings
 

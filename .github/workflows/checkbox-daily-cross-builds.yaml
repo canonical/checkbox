@@ -27,11 +27,17 @@ jobs:
         release: [18, 20, 22, 24]
         arch: [armhf]
         include:
+          - release: 22
+            snapcraft_version: 8.x/stable
+          - release: 24
+            snapcraft_version: 8.x/stable
           # other confs built natively in checkbox-daily-native-builds.yaml
           - release: 22
             arch: riscv64
+            snapcraft_version: 8.x/stable
           - release: 24
             arch: riscv64
+            snapcraft_version: 8.x/stable
     runs-on: ubuntu-latest
     timeout-minutes: 1200 #20h, this will timeout sooner due to inner timeouts
     name: Runtime ${{ matrix.release }} (${{ matrix.arch }})
@@ -59,8 +65,9 @@ jobs:
           with: |
             architecture: ${{ matrix.arch }}
             path: checkbox-core-snap/series${{ matrix.release }}
+            snapcraft-channel: ${{ matrix.snapcraft_version || 'stable' }}
 
-      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
         name: Upload logs on failure
         if: failure()
         with:
@@ -70,7 +77,7 @@ jobs:
             /home/runner/.local/state/snapcraft/log/
             checkbox-core-snap/series${{ matrix.release }}/checkbox*.txt
 
-      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
         name: Upload the snap as artifact
         with:
           name: runtime_snap${{ matrix.release }}_${{ matrix.arch }}.snap
@@ -145,7 +152,7 @@ jobs:
             architecture: ${{ matrix.arch }}
             path: checkbox-snap/series_${{ matrix.type }}${{ matrix.release }}
 
-      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
         name: Upload logs on failure
         if: failure()
         with:
@@ -155,7 +162,7 @@ jobs:
             /home/runner/.local/state/snapcraft/log/
             checkbox-snap/series_${{ matrix.type }}${{ matrix.release }}/checkbox*.txt
 
-      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
         name: Upload the snaps as artefacts
         with:
           name: frontend_snaps_${{ matrix.type }}${{ matrix.release }}_${{matrix.arch}}.snap

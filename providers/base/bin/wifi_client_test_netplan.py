@@ -28,6 +28,7 @@ from contextlib import contextmanager
 
 from gateway_ping_test import ping
 from checkbox_support.snap_utils.system import get_series
+from checkbox_support.helpers.retry import retry
 
 print = functools.partial(print, flush=True)
 
@@ -482,6 +483,7 @@ def handle_test_np_config(args):
         delete_test_config()
 
 
+@retry(max_attempts=5, delay=60)
 def main():
     args = parse_args()
 

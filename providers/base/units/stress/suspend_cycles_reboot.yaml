@@ -176,7 +176,7 @@ requires:
   - manifest.has_suspend_support == 'True'
 estimated_duration: "30.0"
 user: root
-command: reboot
+command: systemctl reboot -i
 flags:
   - noreturn
 after:
@@ -234,6 +234,7 @@ plugin: attachment
 category_id: stress-tests/suspend
 id: stress-tests/suspend-{s3_iterations}-cycles-with-reboot-{reboot_iterations}-log-attach
 template-id: stress-tests/suspend-s3_iterations-cycles-with-reboot-reboot_iterations-log-attach
+mime-type: text/plain
 imports:
   - from com.canonical.plainbox import manifest
 requires:

@@ -21,7 +21,7 @@
 """
 Script that forces a code import from Github in Launchpad.
 It's a blocking call, usually code is imported in less than a minute.
-Timeout set to 2 minutes
+Import polling timeout set to 2 minutes, with a 30-second HTTP timeout.
 
 References:
 - https://help.launchpad.net/Code/Imports
@@ -37,6 +37,7 @@ from datetime import datetime, timedelta
 from utils import get_launchpad_client
 
 IMPORT_MAX_TIME_WAIT_S = 120
+IMPORT_REQUEST_TIMEOUT_S = 30
 
 
 def parse_args(argv: list[str]) -> Namespace:
@@ -47,7 +48,7 @@ def parse_args(argv: list[str]) -> Namespace:
 
 def main(argv: list[str] = []):
     args = parse_args(argv)
-    lp = get_launchpad_client()
+    lp = get_launchpad_client(timeout=IMPORT_REQUEST_TIMEOUT_S)
     repo = lp.git_repositories.getByPath(path=args.repo)
     if not repo:
         raise SystemExit(f"{args.repo} repo was not found in Launchpad.")

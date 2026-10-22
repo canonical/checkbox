@@ -36,6 +36,7 @@ class GStreamerEncodePlugins(Enum):
     V4L2H265ENC = "v4l2h265enc"
     V4L2JPEGENC = "v4l2jpegenc"
     V4L2VP8ENC = "v4l2vp8enc"
+    V4L2VP9ENC = "v4l2vp9enc"
     OMXH264ENC = "omxh264enc"
     OMXH265ENC = "omxh265enc"
 
@@ -68,11 +69,14 @@ class GStreamerMuxerType(Enum):
                         extension.
         MATROSKAMUX (str): Represents the Matroska muxer, associated with the
                         'mkv' file extension.
+        WEBMMUX (str): Represents the WebM muxer (VP8/VP9/AV1 Matroska
+                        subset), associated with the 'webm' file extension.
     """
 
     MP4MUX = "mp4"
     AVIMUX = "avi"
     MATROSKAMUX = "mkv"
+    WEBMMUX = "webm"
     QTMUX = "mov"
 
     @classmethod
@@ -405,6 +409,7 @@ class MetadataValidator:
             GStreamerEncodePlugins.V4L2H265ENC.value: "H.265",
             GStreamerEncodePlugins.V4L2JPEGENC.value: "JPEG",
             GStreamerEncodePlugins.V4L2VP8ENC.value: "VP8",
+            GStreamerEncodePlugins.V4L2VP9ENC.value: "VP9",
             GStreamerEncodePlugins.OMXH264ENC.value: "H.264",
         }
         if expected not in codec_map:

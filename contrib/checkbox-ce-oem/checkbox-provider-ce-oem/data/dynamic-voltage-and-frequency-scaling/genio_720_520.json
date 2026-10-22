@@ -1,0 +1,11 @@
+{
+    "allowlist": [
+        {
+            "device_name": "13000000.gpu",
+            "type": "gpu",
+            "sysfs_path": "/sys/class/misc/mali0/device/devfreq/13000000.gpu",
+            "governors": ["userspace", "powersave", "performance", "simple_ondemand"]
+        }
+    ],
+    "denylist": []
+}

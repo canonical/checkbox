@@ -29,6 +29,8 @@ jobs:
         with:
           fetch-depth: 0
           persist-credentials: false
+          # Daily packages must be built from the same branch as daily snaps.
+          ref: main
       - uses: Wandalen/wretry.action@df981d2bb22b26b5b23754bb516d0de8c1bfbbec
         name: Make LP pull the monorepo
         timeout-minutes: 120
@@ -75,6 +77,8 @@ jobs:
         with:
           fetch-depth: 0
           persist-credentials: false
+          # Do not let a manually dispatched feature branch publish to edge.
+          ref: main
       - uses: Wandalen/wretry.action@df981d2bb22b26b5b23754bb516d0de8c1bfbbec
         name: Update the recipe in the checkbox PPA
         env:
@@ -84,7 +88,7 @@ jobs:
           attempt_delay: 60000 # 1 min
           attempt_limit: 60   # max 1 hour of retries
           command: |
-            tools/release/lp_update_recipe.py checkbox --recipe ${{ matrix.recipe }} --new-version $(tools/release/get_version.py --dev-suffix --output-format deb) --revision $GITHUB_SHA
+            tools/release/lp_update_recipe.py checkbox --recipe ${{ matrix.recipe }} --new-version $(tools/release/get_version.py --dev-suffix --output-format deb) --revision $(git rev-parse HEAD)
       - name: Build and wait result
         timeout-minutes: 780 # 13hours
         env:

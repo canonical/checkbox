@@ -38,6 +38,15 @@ from plainbox.impl.session.assistant import SessionAssistant
 
 
 class RemoteAssistantTests(TestCase):
+    def test_get_session_id(self):
+        rsa = mock.Mock()
+        rsa._sa.get_session_id.return_value = "session_id"
+
+        session_id = RemoteSessionAssistant.get_session_id(rsa)
+
+        self.assertEqual(session_id, "session_id")
+        rsa._sa.get_session_id.assert_called_once_with()
+
     @mock.patch("pwd.getpwnam")
     @mock.patch("psutil.process_iter")
     def test_prepare_extra_env_priority(

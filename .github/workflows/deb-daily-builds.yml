@@ -92,14 +92,16 @@ jobs:
         env:
           LP_CREDENTIALS: ${{ secrets.LP_CREDS }}
           PYTHONUNBUFFERED: 1
+          PACKAGE: ${{ matrix.package }}
         with:
           attempt_delay: 60000 # 1 min
           attempt_limit: 60   # max 1 hour of retries
           command: |
-            tools/release/lp_update_recipe.py checkbox --recipe ${{ matrix.package }}-${{ env.PPA }} --new-version $(tools/release/get_version.py --dev-suffix --output-format deb) --revision $GITHUB_SHA
+            tools/release/lp_update_recipe.py checkbox --recipe "$PACKAGE-$PPA" --new-version $(tools/release/get_version.py --dev-suffix --output-format deb) --revision $GITHUB_SHA
       - name: Build and wait result
         timeout-minutes: 780 # 13hours
         env:
           LP_CREDENTIALS: ${{ secrets.LP_CREDS }}
           PYTHONUNBUFFERED: 1
-        run: tools/release/lp_build_monitor_recipe.py checkbox ${{ matrix.package }}-${{ env.PPA }}
+          PACKAGE: ${{ matrix.package }}
+        run: tools/release/lp_build_monitor_recipe.py checkbox "$PACKAGE-$PPA"

@@ -135,6 +135,7 @@ plugin: attachment
 mime-type: image/jpeg
 category_id: com.canonical.plainbox::camera
 id: camera/multiple-resolution-images-attachment_{name}
+template-id: camera/multiple-resolution-images-attachment_name
 flags: also-after-suspend
 _summary: Attach an image from the multiple resolution images test for {product_slug}
 estimated_duration: 1s
@@ -174,6 +175,7 @@ plugin: attachment
 mime-type: image/jpeg
 category_id: com.canonical.plainbox::camera
 id: camera/camera-quality-image_{name}
+template-id: camera/camera-quality-image_name
 flags: also-after-suspend
 _summary: Attach the image used for the BRISQUE score for {product_slug}
 estimated_duration: 1s

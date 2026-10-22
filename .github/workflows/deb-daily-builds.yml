@@ -10,6 +10,8 @@ on:
 jobs:
   ppa_update:
     name: Sync PPA history with monorepo
+    outputs:
+      revision: ${{ steps.revision.outputs.sha }}
     runs-on:
       group: "Canonical self-hosted runners"
       labels:
@@ -31,6 +33,9 @@ jobs:
           persist-credentials: false
           # Daily packages must be built from the same branch as daily snaps.
           ref: main
+      - name: Record imported revision
+        id: revision
+        run: echo "sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
       - uses: Wandalen/wretry.action@df981d2bb22b26b5b23754bb516d0de8c1bfbbec
         name: Make LP pull the monorepo
         timeout-minutes: 120
@@ -77,8 +82,8 @@ jobs:
         with:
           fetch-depth: 0
           persist-credentials: false
-          # Do not let a manually dispatched feature branch publish to edge.
-          ref: main
+          # Use the revision that was available when Launchpad imported main.
+          ref: ${{ needs.ppa_update.outputs.revision }}
       - uses: Wandalen/wretry.action@df981d2bb22b26b5b23754bb516d0de8c1bfbbec
         name: Update the recipe in the checkbox PPA
         env:

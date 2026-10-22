@@ -177,5 +177,6 @@ nested_part:
 exclude:
     stress/store_and_change_oomd_config
     stress/cpu_stress_ng_test
+    stress/cpu_hotplug_stress_ng_test
     stress/memory_stress_ng
     stress/restore_oomd_config

@@ -22,7 +22,7 @@ command:
   INTERFACE=$( (nmcli -f GENERAL -t dev list 2>/dev/null || nmcli -f GENERAL -t dev show) | tr '\n' ' ' | grep -oP 'TYPE:\Kgsm.*' | sed 's/GENERAL.TYPE:.*//' | grep -oP 'GENERAL.IP-IFACE:\K\S*')
   echo "connected GSM interface seems to be $INTERFACE"
   [ -z "$INTERFACE" ] && exit 1
-  curl http://start.ubuntu.com/connectivity-check.html --interface "$INTERFACE"
+  timeout 60 curl https://start.ubuntu.com/connectivity-check.html --interface "$INTERFACE" || timeout 60 curl http://start.ubuntu.com/connectivity-check.html --interface "$INTERFACE"
   EXIT_CODE=$?
   if [ -n "${GSM_APN}" ] && [ "$(nmcli dev status | awk '/gsm/ {print $3}')" == "connected" ]; then
           nmcli con down id "$([ "${GSM_CONN_NAME}" ] && echo "$GSM_CONN_NAME" || echo "MobileBB")"

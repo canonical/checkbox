@@ -90,6 +90,11 @@ class UnifiedRunner(IJobRunner):
     environment for job's command can run in.
     """
 
+    # How long to wait for a job's stdout/stderr readers to see EOF after
+    # its own process has exited before assuming orphaned grandchildren
+    # are still holding the pipes open and killing the process group.
+    _ORPHAN_REAP_GRACE_PERIOD = 5
+
     def __init__(
         self,
         session_id,
@@ -366,11 +371,31 @@ class UnifiedRunner(IJobRunner):
                         # And send a notification about this
                         extcmd_popen._delegate.on_interrupt()
             finally:
+                # A job's own process can exit while leaving behind
+                # orphaned grandchildren (e.g. daemonized workers a
+                # stressor failed to reap) that still hold our end of
+                # its stdout/stderr pipes open. When that happens the
+                # readers below block forever waiting for EOF even
+                # though proc.wait() already returned, hanging the
+                # whole agent. Give them a grace period and then kill
+                # the job's whole process group as a backstop.
+                # See https://warthogs.atlassian.net/browse/LEVA-638
+                stdout_reader.join(self._ORPHAN_REAP_GRACE_PERIOD)
+                stderr_reader.join(self._ORPHAN_REAP_GRACE_PERIOD)
+                if stdout_reader.is_alive() or stderr_reader.is_alive():
+                    logger.warning(
+                        _(
+                            "Job %(ID)s left processes behind that kept"
+                            " its output open, killing its process group"
+                        ),
+                        {"ID": job.id},
+                    )
+                    with suppress(ProcessLookupError, PermissionError):
+                        self.send_signal(signal.SIGKILL, target_user)
+                    stdout_reader.join()
+                    stderr_reader.join()
                 self._running_jobs_pid = None
-                # Wait until all worker threads shut down
-                stdout_reader.join()
                 proc.stdout.close()
-                stderr_reader.join()
                 proc.stderr.close()
                 # Tell the queue worker to shut down
                 extcmd_popen._queue.put(None)

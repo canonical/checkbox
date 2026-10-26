@@ -1,0 +1,186 @@
+id: cix-tool-aiml/benchmark
+category_id: cix-tool-aiml
+summary: Run noe_benchmark with the ONNX ResNet50 3-core model
+purpose: |
+  Verify that the NPU can run the 3-core ONNX ResNet50 model end to end with noe_benchmark from cix-ai-test:
+  initialize the context, load the graph, create the job, run 1000 inference frames, then clean up and unload.
+  This is the smoke test (TC-01) required in CIXEE-186.
+  Every frame output is compared with the golden output.bin.
+  The job passes when all 1000 frames print 'Test Result Check PASS', no [Err] line is printed and the exit code is 0.
+plugin: shell
+flags:
+  - also-after-suspend
+user: root
+estimated_duration: 120.0
+environ:
+  - CIX_NOE_LIB_DIR
+imports:
+  - from com.canonical.plainbox import manifest
+requires:
+  - manifest.is_Cix_tool == 'True'
+  - manifest.has_cix_ai_test_npu == 'True'
+command: cix_ai_test.py benchmark --testdata /usr/share/cix/testdata/npu/onnx_resnet50_3core
+---
+id: cix-tool-aiml/benchmark_tflite
+category_id: cix-tool-aiml
+summary: Run noe_benchmark with the TFLite ResNet50 1-core model
+purpose: |
+  Verify that the NPU can run the 1-core TFLite ResNet50 model with noe_benchmark from cix-ai-test.
+  It covers a different model format and core count than the ONNX 3-core test.
+  The job passes when all 1000 frames print 'Test Result Check PASS', no [Err] line is printed and the exit code is 0.
+plugin: shell
+flags:
+  - also-after-suspend
+user: root
+estimated_duration: 120.0
+environ:
+  - CIX_NOE_LIB_DIR
+imports:
+  - from com.canonical.plainbox import manifest
+requires:
+  - manifest.is_Cix_tool == 'True'
+  - manifest.has_cix_ai_test_npu == 'True'
+command: cix_ai_test.py benchmark --testdata /usr/share/cix/testdata/npu/tflite_resnet50_1core
+---
+id: cix-tool-aiml/batch
+category_id: cix-tool-aiml
+summary: Run noe_batch to check batch inference
+purpose: |
+  Verify that the NPU runtime can run several inference jobs submitted as a batch with noe_batch.
+  Each job output is compared with the golden output.bin.
+  The job passes when the tool exits with 0, prints no [Err] or FAIL line and the expected completion lines are present. At least one 'Test Result Check PASS' is required.
+plugin: shell
+flags:
+  - also-after-suspend
+user: root
+estimated_duration: 60.0
+environ:
+  - CIX_NOE_LIB_DIR
+imports:
+  - from com.canonical.plainbox import manifest
+requires:
+  - manifest.is_Cix_tool == 'True'
+  - manifest.has_cix_ai_test_npu == 'True'
+command: cix_ai_test.py batch
+---
+id: cix-tool-aiml/dfs
+category_id: cix-tool-aiml
+summary: Run noe_dfs to check NPU frequency scaling
+purpose: |
+  Verify that the NPU frequency can be changed through devfreq while inferences are running, using noe_dfs.
+  noe_dfs writes /sys/class/devfreq/CIXH4000:00/userspace/set_freq, which exists only with the 'userspace' governor, so the test needs root.
+  The script switches the governor to 'userspace' before the run and always restores the original governor afterwards.
+  The job passes when the tool exits with 0, prints no [Err] or FAIL line and the expected completion lines are present. At least one 'Test Result Check PASS' is required.
+plugin: shell
+flags:
+  - also-after-suspend
+user: root
+estimated_duration: 120.0
+environ:
+  - CIX_NOE_LIB_DIR
+imports:
+  - from com.canonical.plainbox import manifest
+requires:
+  - manifest.is_Cix_tool == 'True'
+  - manifest.has_cix_ai_test_npu == 'True'
+command: cix_ai_test.py dfs
+---
+id: cix-tool-aiml/flush_job
+category_id: cix-tool-aiml
+summary: Run noe_flush_job to check flushing of pending jobs
+purpose: |
+  Verify that pending NPU jobs can be flushed and cleaned up correctly with noe_flush_job.
+  The tool does not print 'Test Result Check PASS', so the result is decided from the exit code and the absence of [Err] and FAIL lines.
+plugin: shell
+flags:
+  - also-after-suspend
+user: root
+estimated_duration: 60.0
+environ:
+  - CIX_NOE_LIB_DIR
+imports:
+  - from com.canonical.plainbox import manifest
+requires:
+  - manifest.is_Cix_tool == 'True'
+  - manifest.has_cix_ai_test_npu == 'True'
+command: cix_ai_test.py flush_job
+---
+id: cix-tool-aiml/mthread
+category_id: cix-tool-aiml
+summary: Run noe_mthread to check multi-thread inference
+purpose: |
+  Verify that several threads can use the NPU runtime at the same time with noe_mthread.
+  The job passes when the tool exits with 0, prints no [Err] or FAIL line and the expected completion lines are present. At least one 'Test Result Check PASS' is required.
+plugin: shell
+flags:
+  - also-after-suspend
+user: root
+estimated_duration: 60.0
+environ:
+  - CIX_NOE_LIB_DIR
+imports:
+  - from com.canonical.plainbox import manifest
+requires:
+  - manifest.is_Cix_tool == 'True'
+  - manifest.has_cix_ai_test_npu == 'True'
+command: cix_ai_test.py mthread
+---
+id: cix-tool-aiml/multi_model
+category_id: cix-tool-aiml
+summary: Run noe_multi_model to check multiple models in one process
+purpose: |
+  Verify that two models can be loaded and run in the same process with noe_multi_model.
+  The tool does not print 'Test Result Check PASS', so the result is decided from the exit code and the absence of [Err] and FAIL lines.
+plugin: shell
+flags:
+  - also-after-suspend
+user: root
+estimated_duration: 60.0
+environ:
+  - CIX_NOE_LIB_DIR
+imports:
+  - from com.canonical.plainbox import manifest
+requires:
+  - manifest.is_Cix_tool == 'True'
+  - manifest.has_cix_ai_test_npu == 'True'
+command: cix_ai_test.py multi_model
+---
+id: cix-tool-aiml/profiler
+category_id: cix-tool-aiml
+summary: Run noe_profiler to check profiler data collection
+purpose: |
+  Verify that the NPU profiler (tick counter) can be enabled and its tensor data read back with noe_profiler.
+  The job passes when the 'get profiler tensor success' line is present, no [Err] line is printed and the exit code is 0.
+plugin: shell
+flags:
+  - also-after-suspend
+user: root
+estimated_duration: 60.0
+environ:
+  - CIX_NOE_LIB_DIR
+imports:
+  - from com.canonical.plainbox import manifest
+requires:
+  - manifest.is_Cix_tool == 'True'
+  - manifest.has_cix_ai_test_npu == 'True'
+command: cix_ai_test.py profiler
+---
+id: cix-tool-aiml/time_cost
+category_id: cix-tool-aiml
+summary: Run noe_time_cost to check per-stage timing output
+purpose: |
+  Verify that noe_time_cost can run an inference and report the time cost of each stage (load, create job, infer, clean, unload).
+  The tool does not print 'Test Result Check PASS', so the result is decided from the exit code and the absence of [Err] and FAIL lines.
+plugin: shell
+flags:
+  - also-after-suspend
+user: root
+estimated_duration: 60.0
+environ:
+  - CIX_NOE_LIB_DIR
+imports:
+  - from com.canonical.plainbox import manifest
+requires:
+  - manifest.is_Cix_tool == 'True'
+  - manifest.has_cix_ai_test_npu == 'True'
+command: cix_ai_test.py time_cost

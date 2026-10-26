@@ -146,7 +146,7 @@ jobs:
         run: |
           echo "$CODECOV_TAG"
       - name: Upload coverage reports to Codecov
-        uses: codecov/codecov-action@e79a6962e0d4c0c17b229090214935d2e33f8354
+        uses: codecov/codecov-action@303a32d7a59b442fa8d48b6a1cc6825c09c847a5
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           flags: ${{ matrix.path_flag.codecov_flag }}

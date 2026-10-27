@@ -2,6 +2,9 @@ id: gpgpu-stress
 unit: test plan
 name: GPGPU Compute Stress Testing
 description: Stress Tests for GPGPU Computations (non-graphical)
+setup_include:
+  - gpgpu/setup-gpu-burn
+  - gpgpu/setup-rvs
 bootstrap_include:
   - graphics_card
   - snap
@@ -18,6 +21,9 @@ id: gpgpu-automated
 unit: test plan
 name: GPGPU Compute Automated Testing
 description: Automated Tests for GPGPU Computations (non-graphical)
+setup_include:
+  - gpgpu/setup-cuda-samples
+  - gpgpu/setup-rvs
 bootstrap_include:
   - graphics_card
   - snap
@@ -46,6 +52,8 @@ id: gpgpu-passthrough
 unit: test plan
 name: GPGPU Virtualization Passthrough Testing
 description: Automated Tests for GPGPU Passthrough (non-graphical)
+setup_include:
+  - gpgpu/setup-gpu-passthrough
 bootstrap_include:
   - graphics_card
   - executable

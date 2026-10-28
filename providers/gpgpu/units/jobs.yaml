@@ -3,12 +3,7 @@ id: gpgpu/setup-gpu-burn
 category_id: gpgpu
 plugin: shell
 user: root
-command: |
-  if snap list gpu-burn >/dev/null 2>&1; then
-    snap refresh gpu-burn
-  else
-    snap install gpu-burn
-  fi
+command: checkbox-support-snap_install gpu-burn
 estimated_duration: 5m
 ---
 unit: setup job
@@ -16,12 +11,7 @@ id: gpgpu/setup-gpu-passthrough
 category_id: gpgpu
 plugin: shell
 user: root
-command: |
-  if snap list lxd >/dev/null 2>&1; then
-    snap refresh lxd
-  else
-    snap install lxd
-  fi
+command: checkbox-support-snap_install lxd
 estimated_duration: 5m
 ---
 unit: setup job
@@ -29,12 +19,7 @@ id: gpgpu/setup-cuda-samples
 category_id: gpgpu
 plugin: shell
 user: root
-command: |
-  if snap list cuda-samples >/dev/null 2>&1; then
-    snap refresh cuda-samples
-  else
-    snap install cuda-samples
-  fi
+command: checkbox-support-snap_install cuda-samples
 estimated_duration: 5m
 ---
 unit: setup job
@@ -44,11 +29,7 @@ plugin: shell
 user: root
 command: |
   if [[ "$(uname -m)" = "x86_64" ]]; then
-    if snap list rocm-validation-suite >/dev/null 2>&1; then
-      snap refresh rocm-validation-suite
-    else
-      snap install rocm-validation-suite
-    fi
+    checkbox-support-snap_install rocm-validation-suite
   fi
 estimated_duration: 5m
 ---

@@ -109,6 +109,7 @@ _summary: Attach logs from power-management/reboot test to the results.
 plugin: manual
 category_id: com.canonical.plainbox::power-management
 id: power-management/lid
+depends: suspend/suspend_advanced_auto
 estimated_duration: 120.0
 requires: dmi.product in ['Notebook','Laptop','Portable','Convertible', 'Detachable']
 _description:
@@ -183,6 +184,7 @@ _summary: Verify the functionality of lid sensors and system resume on lid open.
 plugin: user-interact-verify
 category_id: com.canonical.plainbox::power-management
 id: power-management/lid_close_suspend_open
+depends: suspend/suspend_advanced_auto
 estimated_duration: 20.0
 requires: dmi.product in ['Notebook','Laptop','Portable','Convertible', 'Detachable']
 _purpose:

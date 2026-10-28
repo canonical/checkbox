@@ -10,7 +10,7 @@ import argparse
 import logging
 
 from checkbox_support.helpers.retry import retry
-from checkbox_support.snap_utils.snapd import Snapd
+from checkbox_support.snap_utils.snapd import Snapd, SnapdRequestError
 
 logger = logging.getLogger(__name__)
 
@@ -31,7 +31,12 @@ def install(snap, snapd=None, *, channel="stable", revision=None):
         snapd.install(snap, channel=channel, revision=revision)
     else:
         logger.info("Refreshing snap %s", snap)
-        snapd.refresh(snap, channel=channel, revision=revision)
+        try:
+            snapd.refresh(snap, channel=channel, revision=revision)
+        except SnapdRequestError as exc:
+            if exc.kind != "snap-no-update-available":
+                raise
+            logger.info("Snap %s is already up to date", snap)
 
 
 def _parse_args(argv=None) -> argparse.Namespace:

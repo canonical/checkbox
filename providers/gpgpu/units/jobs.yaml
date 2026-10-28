@@ -85,9 +85,6 @@ siblings:
   - id: gpgpu/rvs-pebb
     summary: AMD GPGPU PCIe bandwidth test
     command: rvs.py pebb
-  - id: gpgpu/rvs-pebb
-    summary: AMD GPGPU PCIe bandwidth test
-    command: rvs.py pebb
   - id: gpgpu/rvs-pbqt
     summary: AMD GPGPU PCIe P2P tests
     command: rvs.py pbqt

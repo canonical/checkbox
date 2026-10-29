@@ -1,0 +1,24 @@
+id: cix-tool-desktop
+unit: test plan
+name: Cix Tool desktop tests
+description: Combined manual and automated Cix Tool project-specific tests for Ubuntu Desktop images.
+include: []
+nested_part:
+  - cix-tool-desktop-manual
+  - cix-tool-desktop-automated
+---
+id: cix-tool-desktop-manual
+unit: test plan
+name: Cix Tool desktop manual tests
+description: Manual Cix Tool project-specific tests for Ubuntu Desktop images.
+include: []
+nested_part:
+  - cix-tool-aiml-manual
+---
+id: cix-tool-desktop-automated
+unit: test plan
+name: Cix Tool desktop automated tests
+description: Automated Cix Tool project-specific tests for Ubuntu Desktop images.
+include: []
+nested_part:
+  - cix-tool-aiml-automated

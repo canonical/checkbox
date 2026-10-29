@@ -27,6 +27,7 @@ _description:
 estimated_duration: 3600
 include:
 nested_part:
+    cix-tool-desktop-manual
     dragonwing-desktop-manual
     genio-desktop-manual
     iiotg-desktop-manual
@@ -48,6 +49,7 @@ _description:
     all of the automated tests used to validate the IoT devices.
 include:
 nested_part:
+    cix-tool-desktop-automated
     dragonwing-desktop-automated
     genio-desktop-automated
     iiotg-desktop-automated

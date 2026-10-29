@@ -15,3 +15,4 @@ launchers/shell-wrapper
 launchers/sru
 snap/hooks/install
 snap/hooks/remove
+launchers/checkbox-cli.bash

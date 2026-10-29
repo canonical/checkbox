@@ -16,3 +16,4 @@ launchers/sru
 snap/hooks/install
 snap/hooks/remove
 version.txt
+launchers/checkbox-cli.bash

@@ -41,6 +41,8 @@ fi
 
 echo "Copying over common_series_classic/* to $series"
 rsync -r --links common_series_classic/ ..
+echo "Copying over the checkbox-cli bash completion"
+cp ../checkbox-ng/completions/checkbox-cli.bash ../launchers/
 echo "Copying over snapcraft.yaml"
 rsync -r --links $series/* ..
 rsync -r --links $series/snap/hooks ..

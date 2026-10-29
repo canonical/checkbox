@@ -356,6 +356,7 @@ category_id: com.canonical.plainbox::suspend
 id: suspend/suspend-time-check
 depends: suspend/suspend_advanced_auto
 estimated_duration: 1.2
+requires: cpuinfo.platform in ("i386", "x86_64")
 command: [ -e "$PLAINBOX_SESSION_SHARE"/suspend_single_times.log ] && sleep_time_check.py "$PLAINBOX_SESSION_SHARE"/suspend_single_times.log
 _summary: Ensure time to suspend/resume is under threshold
 _purpose: Checks the sleep times to ensure that a machine suspends and resumes within a given threshold

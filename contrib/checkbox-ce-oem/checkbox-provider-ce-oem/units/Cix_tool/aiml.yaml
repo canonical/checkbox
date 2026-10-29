@@ -10,7 +10,6 @@ purpose: |
 plugin: shell
 flags:
   - also-after-suspend
-user: root
 estimated_duration: 120.0
 environ:
   - CIX_NOE_LIB_DIR
@@ -31,7 +30,6 @@ purpose: |
 plugin: shell
 flags:
   - also-after-suspend
-user: root
 estimated_duration: 120.0
 environ:
   - CIX_NOE_LIB_DIR
@@ -52,7 +50,6 @@ purpose: |
 plugin: shell
 flags:
   - also-after-suspend
-user: root
 estimated_duration: 60.0
 environ:
   - CIX_NOE_LIB_DIR
@@ -94,7 +91,6 @@ purpose: |
 plugin: shell
 flags:
   - also-after-suspend
-user: root
 estimated_duration: 60.0
 environ:
   - CIX_NOE_LIB_DIR
@@ -114,7 +110,6 @@ purpose: |
 plugin: shell
 flags:
   - also-after-suspend
-user: root
 estimated_duration: 60.0
 environ:
   - CIX_NOE_LIB_DIR
@@ -134,7 +129,6 @@ purpose: |
 plugin: shell
 flags:
   - also-after-suspend
-user: root
 estimated_duration: 60.0
 environ:
   - CIX_NOE_LIB_DIR
@@ -154,7 +148,6 @@ purpose: |
 plugin: shell
 flags:
   - also-after-suspend
-user: root
 estimated_duration: 60.0
 environ:
   - CIX_NOE_LIB_DIR
@@ -174,7 +167,6 @@ purpose: |
 plugin: shell
 flags:
   - also-after-suspend
-user: root
 estimated_duration: 60.0
 environ:
   - CIX_NOE_LIB_DIR

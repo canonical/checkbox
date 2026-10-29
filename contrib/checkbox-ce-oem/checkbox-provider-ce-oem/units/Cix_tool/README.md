@@ -47,7 +47,7 @@ not `True`, the jobs are not selected.
 
 ## Jobs
 
-All jobs use `plugin: shell`, run as `root` and have `flags: also-after-suspend`.
+All jobs use `plugin: shell` and have `flags: also-after-suspend`. Only `dfs` runs as `root`, because it writes to the devfreq sysfs; the other tools only need `/dev/aipu`, which is world-accessible.
 Unless stated otherwise, a job passes when the tool exits with `0`, prints no
 `[Err]` or `FAIL` line and at least one `Test Result Check PASS` line.
 

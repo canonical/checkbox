@@ -117,6 +117,13 @@ class TestMainFunction(unittest.TestCase):
     ):
         self.assertEqual(main(), 0)
 
+    @patch("stress_ng_test.check_output")
+    @patch("sys.argv", ["stress_ng_test.py", "cpu-hotplug"])
+    def test_main_stress_cpu_hotplug_success(
+        self, shutil_which_mock, os_geteuid_mock, check_output_mock
+    ):
+        self.assertEqual(main(), 0)
+
     @patch("os.remove")
     @patch("stress_ng_test.check_output")
     @patch("stress_ng_test.num_numa_nodes", return_value=1)

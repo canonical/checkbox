@@ -189,6 +189,7 @@ include:
     com.canonical.certification::ubuntucore/kernel-failboot-.*                 # keep if kernel snap is not pc-kernel
 nested_part:
     dragonwing-core-manual
+    jetson-core-manual
     ce-oem-manual
     com.canonical.certification::client-cert-iot-ubuntucore-24-manual
     after-suspend-ce-oem-manual
@@ -250,6 +251,7 @@ include:
     com.canonical.certification::disk/encryption/detect                        # keep if FDE is enabled
 nested_part:
     dragonwing-core-automated
+    jetson-core-automated
     ce-oem-automated
     com.canonical.certification::client-cert-iot-ubuntucore-24-automated
     after-suspend-ce-oem-automated

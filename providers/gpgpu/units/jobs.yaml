@@ -1,0 +1,146 @@
+unit: setup job
+id: gpgpu/setup-gpu-burn
+category_id: gpgpu
+plugin: shell
+user: root
+command: checkbox-support-snap_install gpu-burn
+estimated_duration: 5m
+---
+unit: setup job
+id: gpgpu/setup-gpu-passthrough
+category_id: gpgpu
+plugin: shell
+user: root
+command: checkbox-support-snap_install lxd
+estimated_duration: 5m
+---
+unit: setup job
+id: gpgpu/setup-cuda-samples
+category_id: gpgpu
+plugin: shell
+user: root
+command: checkbox-support-snap_install cuda-samples
+estimated_duration: 5m
+---
+unit: setup job
+id: gpgpu/setup-rvs
+category_id: gpgpu
+plugin: shell
+user: root
+command: |
+  if [[ "$(uname -m)" = "x86_64" ]]; then
+    checkbox-support-snap_install rocm-validation-suite
+  fi
+estimated_duration: 5m
+---
+id: gpgpu/gpu-burn
+category_id: gpgpu
+plugin: shell
+estimated_duration: '14400'
+requires:
+  - graphics_card.vendor == 'NVIDIA Corporation'
+  - snap.name == 'gpu-burn'
+  - uname.machine in ['x86_64', 'aarch64']
+summary: NVIDIA GPGPU stress testing
+command: |
+  set -eo pipefail
+  gpu-burn 14400 | tee "$PLAINBOX_SESSION_SHARE/gpu_burn.log"
+  grep -v -e '^[[:space:]]*$' -e "errors:" -e "Summary at" "$PLAINBOX_SESSION_SHARE/gpu_burn.log"
+---
+id: gpgpu/device-query-drv
+category_id: gpgpu
+plugin: shell
+estimated_duration: '4'
+requires:
+  - graphics_card.vendor == 'NVIDIA Corporation'
+  - snap.name == 'cuda-samples'
+  - uname.machine in ['x86_64', 'aarch64']
+summary: NVIDIA GPGPU query device test
+command: cuda-samples 1_Utilities deviceQueryDrv deviceQueryDrv
+siblings:
+  - id: gpgpu/vector-add-drv
+    summary: NVIDIA GPGPU vector addition test
+    command: cuda-samples 0_Introduction vectorAddDrv vectorAddDrv
+  - id: gpgpu/matrix-mul-drv
+    summary: NVIDIA GPGPU matrix multiplication test
+    command: cuda-samples 0_Introduction matrixMulDrv matrixMulDrv
+  - id: gpgpu/simple-texture-drv
+    summary: NVIDIA GPGPU simple textures test
+    command: cuda-samples 0_Introduction simpleTextureDrv simpleTextureDrv
+---
+id: gpgpu/rvs-gpup
+category_id: gpgpu
+plugin: shell
+estimated_duration: '4'
+requires:
+  - graphics_card.vendor == 'Advanced Micro Devices, Inc. [AMD/ATI]'
+  - package.name == 'rocm-validation-suite' or snap.name == 'rocm-validation-suite'
+  - uname.machine == 'x86_64'
+summary: AMD GPGPU properties query
+command: rvs.py gpup
+siblings:
+  - id: gpgpu/rvs-peqt
+    summary: AMD GPGPU PCIe configuration test
+    command: rvs.py peqt
+  - id: gpgpu/rvs-pebb
+    summary: AMD GPGPU PCIe bandwidth test
+    command: rvs.py pebb
+  - id: gpgpu/rvs-pbqt
+    summary: AMD GPGPU PCIe P2P tests
+    command: rvs.py pbqt
+  - id: gpgpu/rvs-iet
+    summary: AMD GPGPU power tests
+    command: rvs.py iet
+    estimated_duration: '50'
+  - id: gpgpu/rvs-babel
+    summary: AMD GPGPU BabelStream benchmarks
+    command: rvs.py babel
+    estimated_duration: '50'
+  - id: gpgpu/rvs-gst
+    summary: AMD GPGPU stress test
+    command: rvs.py gst
+    estimated_duration: '14400'
+---
+unit: template
+template-resource: graphics_card
+template-filter:
+  - graphics_card.vendor == 'NVIDIA Corporation'
+template-id: gpgpu/lxd-nvidia-gpu-passthrough-pci-device-name
+id: gpgpu/lxd-nvidia-gpu-passthrough-{pci_device_name}
+requires:
+  - graphics_card.driver == 'nvidia'
+  - executable.name == 'lxc'
+  - package.name == 'lxd' or package.name == 'lxd-installer' or snap.name == 'lxd'
+category_id: gpgpu
+plugin: shell
+estimated_duration: 1m 45s
+environ:
+  - LXD_TEMPLATE
+  - LXD_ROOTFS
+command: gpu_passthrough.py -v --vendor=nvidia --pci={pci_device_name} lxd
+purpose: Creates a LXD container and passes {pci_device_name} GPU through
+summary: Test LXD GPU passthrough on NVIDIA GPU {pci_device_name}
+template-summary: Test LXD GPU passthrough on NVIDIA GPU
+---
+unit: template
+template-resource: graphics_card
+template-filter:
+  - graphics_card.vendor == 'NVIDIA Corporation'
+template-id: gpgpu/lxdvm-nvidia-gpu-passthrough-pci-device-name
+id: gpgpu/lxdvm-nvidia-gpu-passthrough-{pci_device_name}
+requires:
+  - executable.name == 'lxc'
+  - package.name == 'lxd' or package.name == 'lxd-installer' or snap.name == 'lxd'
+category_id: gpgpu
+plugin: shell
+estimated_duration: 12m
+environ:
+  - LXD_TEMPLATE
+  - KVM_IMAGE
+  - QEMU_OPTS
+  - VM_RAM_MB
+  - VM_CPUS
+command: gpu_passthrough.py -v --vendor=nvidia --pci={pci_device_name} lxdvm
+purpose: Creates a LXD virtual machine and passes {pci_device_name} GPU through
+summary: Test LXD VM GPU passthrough on NVIDIA GPU {pci_device_name}
+template-summary: Test LXD VM GPU passthrough on NVIDIA GPU

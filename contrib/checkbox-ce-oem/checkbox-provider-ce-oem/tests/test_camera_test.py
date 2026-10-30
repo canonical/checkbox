@@ -36,9 +36,18 @@ class TestArtifactStaging(unittest.TestCase):
                 framerate=None,
             )
 
+            # a root agent's HOME leaks into the job; the job user's home
+            # must come from the password database instead
+            agent_home = os.path.join(tmp, "not-writable", "snap", "x1")
+            os.makedirs(os.path.dirname(os.path.dirname(agent_home)))
+            os.chmod(os.path.dirname(os.path.dirname(agent_home)), 0o500)
+            user = type("pw", (), {"pw_dir": home})
+
             with patch.object(
                 camera_test, "PLAINBOX_SESSION_SHARE", session
-            ), patch.dict(os.environ, {"HOME": home}):
+            ), patch.dict(os.environ, {"HOME": agent_home}), patch(
+                "camera_test.pwd.getpwuid", return_value=user
+            ):
                 store = camera_test._execute_scenario(
                     args, FakeHandler(), CameraScenarios.CAPTURE_IMAGE, "abc"
                 )

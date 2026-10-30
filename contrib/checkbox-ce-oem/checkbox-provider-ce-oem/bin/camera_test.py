@@ -21,6 +21,7 @@ import argparse
 import json
 import logging
 import os
+import pwd
 import shutil
 import uuid
 
@@ -119,8 +120,13 @@ def _get_staging_base_path() -> str:
     invoking user's own home via the 'home' plug), so every capture is
     staged under the job user's home first. Camera jobs run as the normal
     user, so this is the normal user's home.
+
+    The home comes from the password database, not from $HOME: a job
+    started by a root Checkbox agent can inherit the agent's HOME (e.g.
+    /root/snap/<snap>/<rev>), which the normal user cannot write to.
     """
-    return os.path.join(os.path.expanduser("~"), "checkbox-camera-staging")
+    home = pwd.getpwuid(os.getuid()).pw_dir
+    return os.path.join(home, "checkbox-camera-staging")
 
 
 def _create_staging_store_path(

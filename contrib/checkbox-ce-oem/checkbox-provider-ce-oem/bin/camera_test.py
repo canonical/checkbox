@@ -115,18 +115,39 @@ def _get_staging_base_path() -> str:
     Base directory the capture tools write into before the artifacts are
     moved to the session share.
 
-    Confined capture tools cannot write into PLAINBOX_SESSION_SHARE (e.g.
-    on Ubuntu Core the multimedia snap's AppArmor profile only reaches the
-    invoking user's own home via the 'home' plug), so every capture is
-    staged under the job user's home first. Camera jobs run as the normal
-    user, so this is the normal user's home.
+    Confined capture tools cannot write into PLAINBOX_SESSION_SHARE, so
+    every capture is staged under the job user's home first. Camera jobs
+    run as the normal user, so this is the normal user's home. When
+    GST_LAUNCH_BIN is a snap command, the staging area is that snap's
+    per-user common directory (~/snap/<snap>/common): a strict snap can
+    always write there, also when it has no 'home' plug (e.g. the
+    multimedia snap on Ubuntu Core).
 
     The home comes from the password database, not from $HOME: a job
     started by a root Checkbox agent can inherit the agent's HOME (e.g.
     /root/snap/<snap>/<rev>), which the normal user cannot write to.
     """
     home = pwd.getpwuid(os.getuid()).pw_dir
+    snap = _get_snap_name(GST_LAUNCH_BIN)
+    if snap:
+        home = os.path.join(home, "snap", snap, "common")
     return os.path.join(home, "checkbox-camera-staging")
+
+
+def _get_snap_name(command: str) -> str:
+    """
+    Name of the snap that provides command, or "" if it is not a snap
+    command. Snap apps are /snap/bin/<snap>[.<app>] links to /usr/bin/snap;
+    snap aliases are /snap/bin/<alias> links to "<snap>.<app>".
+
+    >>> _get_snap_name("/usr/bin/gst-launch-1.0")
+    ''
+    """
+    if not command or os.path.dirname(command) != "/snap/bin":
+        return ""
+    target = os.readlink(command) if os.path.islink(command) else ""
+    app = target if target and not os.path.isabs(target) else command
+    return os.path.basename(app).split(".")[0]
 
 
 def _create_staging_store_path(

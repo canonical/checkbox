@@ -47,6 +47,8 @@ class TestArtifactStaging(unittest.TestCase):
                 camera_test, "PLAINBOX_SESSION_SHARE", session
             ), patch.dict(os.environ, {"HOME": agent_home}), patch(
                 "camera_test.pwd.getpwuid", return_value=user
+            ), patch.object(
+                camera_test, "GST_LAUNCH_BIN", "/usr/bin/gst-launch-1.0"
             ):
                 store = camera_test._execute_scenario(
                     args, FakeHandler(), CameraScenarios.CAPTURE_IMAGE, "abc"
@@ -58,6 +60,44 @@ class TestArtifactStaging(unittest.TestCase):
             # the staging area is gone
             self.assertFalse(
                 os.path.exists(os.path.join(home, "checkbox-camera-staging"))
+            )
+
+
+class TestSnapStaging(unittest.TestCase):
+    """A confined gst-launch writes only into its own snap directories."""
+
+    @patch("camera_test.os.readlink", return_value="multimedia.gst-launch")
+    @patch("camera_test.os.path.islink", return_value=True)
+    def test_snap_name_of_alias(self, islink, readlink):
+        self.assertEqual(
+            camera_test._get_snap_name("/snap/bin/gst-launch-1.0"),
+            "multimedia",
+        )
+
+    @patch("camera_test.os.readlink", return_value="/usr/bin/snap")
+    @patch("camera_test.os.path.islink", return_value=True)
+    def test_snap_name_of_app(self, islink, readlink):
+        self.assertEqual(
+            camera_test._get_snap_name("/snap/bin/multimedia.gst-launch"),
+            "multimedia",
+        )
+
+    def test_no_snap_name(self):
+        self.assertEqual(camera_test._get_snap_name(None), "")
+        self.assertEqual(
+            camera_test._get_snap_name("/usr/bin/gst-launch-1.0"), ""
+        )
+
+    def test_staging_in_snap_user_common(self):
+        user = type("pw", (), {"pw_dir": "/home/u"})
+        with patch(
+            "camera_test.pwd.getpwuid", return_value=user
+        ), patch.object(
+            camera_test, "_get_snap_name", return_value="multimedia"
+        ):
+            self.assertEqual(
+                camera_test._get_staging_base_path(),
+                "/home/u/snap/multimedia/common/checkbox-camera-staging",
             )
 
 

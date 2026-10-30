@@ -16,3 +16,7 @@ launchers/sru
 snap/hooks/install
 snap/hooks/remove
 launchers/checkbox-cli.bash
+launchers/install-completions
+launchers/_checkbox-cli
+launchers/checkbox-cli.fish
+snap/hooks/post-refresh

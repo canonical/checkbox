@@ -41,8 +41,10 @@ fi
 
 echo "Copying over common_series_classic/* to $series"
 rsync -r --links common_series_classic/ $series/
-echo "Copying over the checkbox-cli bash completion to $series"
-cp ../checkbox-ng/completions/checkbox-cli.bash $series/launchers/
+echo "Copying over the checkbox-cli shell completions to $series"
+cp ../checkbox-ng/completions/checkbox-cli.bash \
+	../checkbox-ng/completions/_checkbox-cli \
+	../checkbox-ng/completions/checkbox-cli.fish $series/launchers/
 echo "Dumping version in version file for $series..."
 if which python3 1>/dev/null && which git 1>/dev/null; then
 	# get_version.py produces a version number from the traceability

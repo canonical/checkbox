@@ -6,9 +6,17 @@ How to enable shell completion for Checkbox
 test plan IDs and unit IDs when you press :kbd:`Tab`. Completion is available
 for Bash, Zsh and Fish.
 
-Test plan and unit IDs depend on the providers installed on the system, so
-Checkbox looks them up each time you complete them. This can take a second or
-two on systems with many providers.
+Test plan and unit IDs depend on the providers installed on the system, and
+looking them up can take a second or two. The first lookup is saved to a cache
+in ``${XDG_CACHE_HOME:-~/.cache}/checkbox/completion/``, so later completions
+are instant. When the cache is older than one minute, Checkbox serves it and
+refreshes it in the background, so newly installed or changed test plans and
+units appear on the next :kbd:`Tab` press after the refresh. To force a fresh
+lookup, delete the cache directory:
+
+.. code-block:: console
+
+   $ rm -rf ~/.cache/checkbox/completion
 
 Debian package
 ==============
@@ -42,9 +50,19 @@ The Checkbox frontend snap ships a Bash completer, so completion works for
 Zsh and Fish
 ------------
 
-Snapd only supports Bash completion. For Zsh and Fish, load the completion
-script printed by ``checkbox.checkbox-cli completion`` from your shell startup
-file.
+Snapd only supports Bash completion. To make up for this, the classic Checkbox
+snap puts small loader scripts in ``/usr/local/share/zsh/site-functions`` and
+``/usr/local/share/fish/vendor_completions.d`` when it is installed or
+refreshed, and removes them when the snap is removed. Zsh and Fish search these
+directories by default, so open a new shell and completion works for
+``checkbox.checkbox-cli``. The loaders always use the completion scripts of
+the installed snap revision.
+
+If your Zsh configuration doesn't search
+``/usr/local/share/zsh/site-functions`` (for example, because it overrides
+``fpath``), or you use the Ubuntu Core version of the snap, load the
+completion script printed by ``checkbox.checkbox-cli completion`` from your
+shell startup file instead.
 
 For Zsh, add the following line to ``~/.zshrc``, after ``compinit``:
 

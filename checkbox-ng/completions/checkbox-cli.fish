@@ -26,88 +26,100 @@ end
 
 function __checkbox_cli_dynamic
     set -l cmd (commandline -opc)[1]
-    $cmd __complete $argv 2>/dev/null
+    set -l dir $HOME/.cache
+    set -q XDG_CACHE_HOME[1]; and set dir $XDG_CACHE_HOME
+    set -l file $dir/checkbox/completion/(string replace -r '.*/' '' -- $cmd).$argv[1]
+    if test -s $file
+        cat $file
+        set -l fresh (find $file -mmin -1 2>/dev/null)
+        if test -z "$fresh"
+            touch $file 2>/dev/null
+            sh -c 'ids=$("$0" __complete "$1" 2>/dev/null) && [ -n "$ids" ] || exit 0; printf "%s\\n" "$ids"; mkdir -p "${2%/*}" 2>/dev/null && printf "%s\\n" "$ids" 2>/dev/null > "$2.$$" && mv -f "$2.$$" "$2" 2>/dev/null || rm -f "$2.$$" 2>/dev/null; exit 0' $cmd $argv[1] $file </dev/null >/dev/null 2>&1 &
+            disown 2>/dev/null
+        end
+    else
+        sh -c 'ids=$("$0" __complete "$1" 2>/dev/null) && [ -n "$ids" ] || exit 0; printf "%s\\n" "$ids"; mkdir -p "${2%/*}" 2>/dev/null && printf "%s\\n" "$ids" 2>/dev/null > "$2.$$" && mv -f "$2.$$" "$2" 2>/dev/null || rm -f "$2.$$" 2>/dev/null; exit 0' $cmd $argv[1] $file
+    end
 end
 
-complete -c checkbox-cli -f
-complete -c checkbox-cli -n '__checkbox_cli_using \'\'' -s h -l help
-complete -c checkbox-cli -n '__checkbox_cli_using \'\'' -s v -l verbose
-complete -c checkbox-cli -n '__checkbox_cli_using \'\'' -l debug
-complete -c checkbox-cli -n '__checkbox_cli_using \'\'' -l clear-cache
-complete -c checkbox-cli -n '__checkbox_cli_using \'\'' -l clear-old-sessions
-complete -c checkbox-cli -n '__checkbox_cli_using \'\'' -l version
-complete -c checkbox-cli -n '__checkbox_cli_using \'\'' -a '\'config\' \'check-config\' \'launcher\' \'list\' \'run\' \'startprovider\' \'submit\' \'show\' \'list-bootstrapped\' \'expand\' \'merge-reports\' \'merge-submissions\' \'tp-export\' \'run-agent\' \'control\' \'translate\' \'completion\''
-complete -c checkbox-cli -n '__checkbox_cli_using \'\'' -F
-complete -c checkbox-cli -n '__checkbox_cli_using \'config\'' -s h -l help
-complete -c checkbox-cli -n '__checkbox_cli_using \'config\'' -a '\'check\' \'defaults\''
-complete -c checkbox-cli -n '__checkbox_cli_using \'check-config\'' -s h -l help
-complete -c checkbox-cli -n '__checkbox_cli_using \'check-config\'' -F
-complete -c checkbox-cli -n '__checkbox_cli_using \'launcher\'' -s h -l help
-complete -c checkbox-cli -n '__checkbox_cli_using \'launcher\'' -l verify
-complete -c checkbox-cli -n '__checkbox_cli_using \'launcher\'' -l title -x
-complete -c checkbox-cli -n '__checkbox_cli_using \'launcher\'' -s m -l message -x
-complete -c checkbox-cli -n '__checkbox_cli_using \'launcher\'' -l dont-suppress-output
-complete -c checkbox-cli -n '__checkbox_cli_using \'launcher\'' -s v -l verbose
-complete -c checkbox-cli -n '__checkbox_cli_using \'launcher\'' -l debug
-complete -c checkbox-cli -n '__checkbox_cli_using \'launcher\'' -l clear-cache
-complete -c checkbox-cli -n '__checkbox_cli_using \'launcher\'' -l clear-old-sessions
-complete -c checkbox-cli -n '__checkbox_cli_using \'launcher\'' -l version
-complete -c checkbox-cli -n '__checkbox_cli_using \'launcher\'' -F
-complete -c checkbox-cli -n '__checkbox_cli_using \'list\'' -s h -l help
-complete -c checkbox-cli -n '__checkbox_cli_using \'list\'' -s a -l attrs
-complete -c checkbox-cli -n '__checkbox_cli_using \'list\'' -s f -l format -x
-complete -c checkbox-cli -n '__checkbox_cli_using \'list\'' -a '\'category\' \'exporter\' \'job\' \'manifest entry\' \'packaging meta-data\' \'template\' \'test plan\' \'file\' \'provider\' \'storage\' \'service\' \'all-jobs\''
-complete -c checkbox-cli -n '__checkbox_cli_using \'run\'' -s h -l help
-complete -c checkbox-cli -n '__checkbox_cli_using \'run\'' -l non-interactive
-complete -c checkbox-cli -n '__checkbox_cli_using \'run\'' -s f -l output-format -x
-complete -c checkbox-cli -n '__checkbox_cli_using \'run\'' -s p -l output-options -x
-complete -c checkbox-cli -n '__checkbox_cli_using \'run\'' -s o -l output-file -r -F
-complete -c checkbox-cli -n '__checkbox_cli_using \'run\'' -s t -l transport -x -a '\'file\' \'stream\' \'submission-service\''
-complete -c checkbox-cli -n '__checkbox_cli_using \'run\'' -l transport-where -x
-complete -c checkbox-cli -n '__checkbox_cli_using \'run\'' -l transport-options -x
-complete -c checkbox-cli -n '__checkbox_cli_using \'run\'' -l title -x
-complete -c checkbox-cli -n '__checkbox_cli_using \'run\'' -s m -l message -x
-complete -c checkbox-cli -n '__checkbox_cli_using \'run\'' -l exact
-complete -c checkbox-cli -n '__checkbox_cli_using \'run\'' -a '(__checkbox_cli_dynamic units)'
-complete -c checkbox-cli -n '__checkbox_cli_using \'startprovider\'' -s h -l help
-complete -c checkbox-cli -n '__checkbox_cli_using \'startprovider\'' -l empty
-complete -c checkbox-cli -n '__checkbox_cli_using \'submit\'' -s h -l help
-complete -c checkbox-cli -n '__checkbox_cli_using \'submit\'' -s s -l staging
-complete -c checkbox-cli -n '__checkbox_cli_using \'submit\'' -s m -l message -x
-complete -c checkbox-cli -n '__checkbox_cli_using \'submit\'' -F
-complete -c checkbox-cli -n '__checkbox_cli_using \'show\'' -s h -l help
-complete -c checkbox-cli -n '__checkbox_cli_using \'show\'' -l exact
-complete -c checkbox-cli -n '__checkbox_cli_using \'show\'' -a '(__checkbox_cli_dynamic units)'
-complete -c checkbox-cli -n '__checkbox_cli_using \'list-bootstrapped\'' -s h -l help
-complete -c checkbox-cli -n '__checkbox_cli_using \'list-bootstrapped\'' -l exact
-complete -c checkbox-cli -n '__checkbox_cli_using \'list-bootstrapped\'' -s f -l format -x
-complete -c checkbox-cli -n '__checkbox_cli_using \'list-bootstrapped\'' -l normal-user -x
-complete -c checkbox-cli -n '__checkbox_cli_using \'list-bootstrapped\'' -a '(__checkbox_cli_dynamic test-plans)'
-complete -c checkbox-cli -n '__checkbox_cli_using \'expand\'' -s h -l help
-complete -c checkbox-cli -n '__checkbox_cli_using \'expand\'' -s f -l format -x
-complete -c checkbox-cli -n '__checkbox_cli_using \'expand\'' -l exact
-complete -c checkbox-cli -n '__checkbox_cli_using \'expand\'' -a '(__checkbox_cli_dynamic test-plans)'
-complete -c checkbox-cli -n '__checkbox_cli_using \'merge-reports\'' -s h -l help
-complete -c checkbox-cli -n '__checkbox_cli_using \'merge-reports\'' -s o -l output-file -r -F
-complete -c checkbox-cli -n '__checkbox_cli_using \'merge-reports\'' -F
-complete -c checkbox-cli -n '__checkbox_cli_using \'merge-submissions\'' -s h -l help
-complete -c checkbox-cli -n '__checkbox_cli_using \'merge-submissions\'' -s o -l output-file -r -F
-complete -c checkbox-cli -n '__checkbox_cli_using \'merge-submissions\'' -l title -x
-complete -c checkbox-cli -n '__checkbox_cli_using \'merge-submissions\'' -F
-complete -c checkbox-cli -n '__checkbox_cli_using \'tp-export\'' -s h -l help
-complete -c checkbox-cli -n '__checkbox_cli_using \'tp-export\'' -s n -l nofake
-complete -c checkbox-cli -n '__checkbox_cli_using \'tp-export\'' -a '(__checkbox_cli_dynamic test-plans)'
-complete -c checkbox-cli -n '__checkbox_cli_using \'run-agent\'' -s h -l help
-complete -c checkbox-cli -n '__checkbox_cli_using \'run-agent\'' -l resume
-complete -c checkbox-cli -n '__checkbox_cli_using \'run-agent\'' -l port -x
-complete -c checkbox-cli -n '__checkbox_cli_using \'run-agent\'' -l log-level -x -a '\'DEBUG\' \'INFO\' \'WARNING\''
-complete -c checkbox-cli -n '__checkbox_cli_using \'control\'' -s h -l help
-complete -c checkbox-cli -n '__checkbox_cli_using \'control\'' -l port -x
-complete -c checkbox-cli -n '__checkbox_cli_using \'control\'' -s u -l user -x
-complete -c checkbox-cli -n '__checkbox_cli_using \'control\'' -l clean
-complete -c checkbox-cli -n '__checkbox_cli_using \'control\'' -F
-complete -c checkbox-cli -n '__checkbox_cli_using \'translate\'' -s h -l help
-complete -c checkbox-cli -n '__checkbox_cli_using \'translate\'' -F
-complete -c checkbox-cli -n '__checkbox_cli_using \'completion\'' -s h -l help
-complete -c checkbox-cli -n '__checkbox_cli_using \'completion\'' -a '\'bash\' \'zsh\' \'fish\''
-complete -c checkbox.checkbox-cli -w checkbox-cli
+complete -c checkbox-cli -c checkbox.checkbox-cli -f
+complete -c checkbox-cli -c checkbox.checkbox-cli -n '__checkbox_cli_using \'\'' -s h -l help
+complete -c checkbox-cli -c checkbox.checkbox-cli -n '__checkbox_cli_using \'\'' -s v -l verbose
+complete -c checkbox-cli -c checkbox.checkbox-cli -n '__checkbox_cli_using \'\'' -l debug
+complete -c checkbox-cli -c checkbox.checkbox-cli -n '__checkbox_cli_using \'\'' -l clear-cache
+complete -c checkbox-cli -c checkbox.checkbox-cli -n '__checkbox_cli_using \'\'' -l clear-old-sessions
+complete -c checkbox-cli -c checkbox.checkbox-cli -n '__checkbox_cli_using \'\'' -l version
+complete -c checkbox-cli -c checkbox.checkbox-cli -n '__checkbox_cli_using \'\'' -a '\'config\' \'check-config\' \'launcher\' \'list\' \'run\' \'startprovider\' \'submit\' \'show\' \'list-bootstrapped\' \'expand\' \'merge-reports\' \'merge-submissions\' \'tp-export\' \'run-agent\' \'control\' \'translate\' \'completion\''
+complete -c checkbox-cli -c checkbox.checkbox-cli -n '__checkbox_cli_using \'\'' -F
+complete -c checkbox-cli -c checkbox.checkbox-cli -n '__checkbox_cli_using \'config\'' -s h -l help
+complete -c checkbox-cli -c checkbox.checkbox-cli -n '__checkbox_cli_using \'config\'' -a '\'check\' \'defaults\''
+complete -c checkbox-cli -c checkbox.checkbox-cli -n '__checkbox_cli_using \'check-config\'' -s h -l help
+complete -c checkbox-cli -c checkbox.checkbox-cli -n '__checkbox_cli_using \'check-config\'' -F
+complete -c checkbox-cli -c checkbox.checkbox-cli -n '__checkbox_cli_using \'launcher\'' -s h -l help
+complete -c checkbox-cli -c checkbox.checkbox-cli -n '__checkbox_cli_using \'launcher\'' -l verify
+complete -c checkbox-cli -c checkbox.checkbox-cli -n '__checkbox_cli_using \'launcher\'' -l title -x
+complete -c checkbox-cli -c checkbox.checkbox-cli -n '__checkbox_cli_using \'launcher\'' -s m -l message -x
+complete -c checkbox-cli -c checkbox.checkbox-cli -n '__checkbox_cli_using \'launcher\'' -l dont-suppress-output
+complete -c checkbox-cli -c checkbox.checkbox-cli -n '__checkbox_cli_using \'launcher\'' -s v -l verbose
+complete -c checkbox-cli -c checkbox.checkbox-cli -n '__checkbox_cli_using \'launcher\'' -l debug
+complete -c checkbox-cli -c checkbox.checkbox-cli -n '__checkbox_cli_using \'launcher\'' -l clear-cache
+complete -c checkbox-cli -c checkbox.checkbox-cli -n '__checkbox_cli_using \'launcher\'' -l clear-old-sessions
+complete -c checkbox-cli -c checkbox.checkbox-cli -n '__checkbox_cli_using \'launcher\'' -l version
+complete -c checkbox-cli -c checkbox.checkbox-cli -n '__checkbox_cli_using \'launcher\'' -F
+complete -c checkbox-cli -c checkbox.checkbox-cli -n '__checkbox_cli_using \'list\'' -s h -l help
+complete -c checkbox-cli -c checkbox.checkbox-cli -n '__checkbox_cli_using \'list\'' -s a -l attrs
+complete -c checkbox-cli -c checkbox.checkbox-cli -n '__checkbox_cli_using \'list\'' -s f -l format -x
+complete -c checkbox-cli -c checkbox.checkbox-cli -n '__checkbox_cli_using \'list\'' -a '\'category\' \'exporter\' \'job\' \'manifest entry\' \'packaging meta-data\' \'template\' \'test plan\' \'file\' \'provider\' \'storage\' \'service\' \'all-jobs\''
+complete -c checkbox-cli -c checkbox.checkbox-cli -n '__checkbox_cli_using \'run\'' -s h -l help
+complete -c checkbox-cli -c checkbox.checkbox-cli -n '__checkbox_cli_using \'run\'' -l non-interactive
+complete -c checkbox-cli -c checkbox.checkbox-cli -n '__checkbox_cli_using \'run\'' -s f -l output-format -x
+complete -c checkbox-cli -c checkbox.checkbox-cli -n '__checkbox_cli_using \'run\'' -s p -l output-options -x
+complete -c checkbox-cli -c checkbox.checkbox-cli -n '__checkbox_cli_using \'run\'' -s o -l output-file -r -F
+complete -c checkbox-cli -c checkbox.checkbox-cli -n '__checkbox_cli_using \'run\'' -s t -l transport -x -a '\'file\' \'stream\' \'submission-service\''
+complete -c checkbox-cli -c checkbox.checkbox-cli -n '__checkbox_cli_using \'run\'' -l transport-where -x
+complete -c checkbox-cli -c checkbox.checkbox-cli -n '__checkbox_cli_using \'run\'' -l transport-options -x
+complete -c checkbox-cli -c checkbox.checkbox-cli -n '__checkbox_cli_using \'run\'' -l title -x
+complete -c checkbox-cli -c checkbox.checkbox-cli -n '__checkbox_cli_using \'run\'' -s m -l message -x
+complete -c checkbox-cli -c checkbox.checkbox-cli -n '__checkbox_cli_using \'run\'' -l exact
+complete -c checkbox-cli -c checkbox.checkbox-cli -n '__checkbox_cli_using \'run\'' -a '(__checkbox_cli_dynamic units)'
+complete -c checkbox-cli -c checkbox.checkbox-cli -n '__checkbox_cli_using \'startprovider\'' -s h -l help
+complete -c checkbox-cli -c checkbox.checkbox-cli -n '__checkbox_cli_using \'startprovider\'' -l empty
+complete -c checkbox-cli -c checkbox.checkbox-cli -n '__checkbox_cli_using \'submit\'' -s h -l help
+complete -c checkbox-cli -c checkbox.checkbox-cli -n '__checkbox_cli_using \'submit\'' -s s -l staging
+complete -c checkbox-cli -c checkbox.checkbox-cli -n '__checkbox_cli_using \'submit\'' -s m -l message -x
+complete -c checkbox-cli -c checkbox.checkbox-cli -n '__checkbox_cli_using \'submit\'' -F
+complete -c checkbox-cli -c checkbox.checkbox-cli -n '__checkbox_cli_using \'show\'' -s h -l help
+complete -c checkbox-cli -c checkbox.checkbox-cli -n '__checkbox_cli_using \'show\'' -l exact
+complete -c checkbox-cli -c checkbox.checkbox-cli -n '__checkbox_cli_using \'show\'' -a '(__checkbox_cli_dynamic units)'
+complete -c checkbox-cli -c checkbox.checkbox-cli -n '__checkbox_cli_using \'list-bootstrapped\'' -s h -l help
+complete -c checkbox-cli -c checkbox.checkbox-cli -n '__checkbox_cli_using \'list-bootstrapped\'' -l exact
+complete -c checkbox-cli -c checkbox.checkbox-cli -n '__checkbox_cli_using \'list-bootstrapped\'' -s f -l format -x
+complete -c checkbox-cli -c checkbox.checkbox-cli -n '__checkbox_cli_using \'list-bootstrapped\'' -l normal-user -x
+complete -c checkbox-cli -c checkbox.checkbox-cli -n '__checkbox_cli_using \'list-bootstrapped\'' -a '(__checkbox_cli_dynamic test-plans)'
+complete -c checkbox-cli -c checkbox.checkbox-cli -n '__checkbox_cli_using \'expand\'' -s h -l help
+complete -c checkbox-cli -c checkbox.checkbox-cli -n '__checkbox_cli_using \'expand\'' -s f -l format -x
+complete -c checkbox-cli -c checkbox.checkbox-cli -n '__checkbox_cli_using \'expand\'' -l exact
+complete -c checkbox-cli -c checkbox.checkbox-cli -n '__checkbox_cli_using \'expand\'' -a '(__checkbox_cli_dynamic test-plans)'
+complete -c checkbox-cli -c checkbox.checkbox-cli -n '__checkbox_cli_using \'merge-reports\'' -s h -l help
+complete -c checkbox-cli -c checkbox.checkbox-cli -n '__checkbox_cli_using \'merge-reports\'' -s o -l output-file -r -F
+complete -c checkbox-cli -c checkbox.checkbox-cli -n '__checkbox_cli_using \'merge-reports\'' -F
+complete -c checkbox-cli -c checkbox.checkbox-cli -n '__checkbox_cli_using \'merge-submissions\'' -s h -l help
+complete -c checkbox-cli -c checkbox.checkbox-cli -n '__checkbox_cli_using \'merge-submissions\'' -s o -l output-file -r -F
+complete -c checkbox-cli -c checkbox.checkbox-cli -n '__checkbox_cli_using \'merge-submissions\'' -l title -x
+complete -c checkbox-cli -c checkbox.checkbox-cli -n '__checkbox_cli_using \'merge-submissions\'' -F
+complete -c checkbox-cli -c checkbox.checkbox-cli -n '__checkbox_cli_using \'tp-export\'' -s h -l help
+complete -c checkbox-cli -c checkbox.checkbox-cli -n '__checkbox_cli_using \'tp-export\'' -s n -l nofake
+complete -c checkbox-cli -c checkbox.checkbox-cli -n '__checkbox_cli_using \'tp-export\'' -a '(__checkbox_cli_dynamic test-plans)'
+complete -c checkbox-cli -c checkbox.checkbox-cli -n '__checkbox_cli_using \'run-agent\'' -s h -l help
+complete -c checkbox-cli -c checkbox.checkbox-cli -n '__checkbox_cli_using \'run-agent\'' -l resume
+complete -c checkbox-cli -c checkbox.checkbox-cli -n '__checkbox_cli_using \'run-agent\'' -l port -x
+complete -c checkbox-cli -c checkbox.checkbox-cli -n '__checkbox_cli_using \'run-agent\'' -l log-level -x -a '\'DEBUG\' \'INFO\' \'WARNING\''
+complete -c checkbox-cli -c checkbox.checkbox-cli -n '__checkbox_cli_using \'control\'' -s h -l help
+complete -c checkbox-cli -c checkbox.checkbox-cli -n '__checkbox_cli_using \'control\'' -l port -x
+complete -c checkbox-cli -c checkbox.checkbox-cli -n '__checkbox_cli_using \'control\'' -s u -l user -x
+complete -c checkbox-cli -c checkbox.checkbox-cli -n '__checkbox_cli_using \'control\'' -l clean
+complete -c checkbox-cli -c checkbox.checkbox-cli -n '__checkbox_cli_using \'control\'' -F
+complete -c checkbox-cli -c checkbox.checkbox-cli -n '__checkbox_cli_using \'translate\'' -s h -l help
+complete -c checkbox-cli -c checkbox.checkbox-cli -n '__checkbox_cli_using \'translate\'' -F
+complete -c checkbox-cli -c checkbox.checkbox-cli -n '__checkbox_cli_using \'completion\'' -s h -l help
+complete -c checkbox-cli -c checkbox.checkbox-cli -n '__checkbox_cli_using \'completion\'' -a '\'bash\' \'zsh\' \'fish\''

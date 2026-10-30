@@ -19,6 +19,8 @@ import io
 import os
 import shutil
 import subprocess
+import tempfile
+import time
 from typing import List
 from unittest import TestCase, mock, skipIf
 
@@ -168,6 +170,111 @@ class BashScriptTests(TestCase):
             self.complete("checkbox-cli expand b", "a::x b::y bb::z"),
             ["b::y", "bb::z"],
         )
+
+
+@skipIf(not shutil.which("bash"), "bash is not available")
+class BashCacheTests(TestCase):
+    def setUp(self):
+        tmp = tempfile.TemporaryDirectory()
+        self.addCleanup(tmp.cleanup)
+        self.tmp = tmp.name
+        self.cache = os.path.join(
+            self.tmp, "checkbox", "completion", "checkbox-cli.units"
+        )
+        self.calls = os.path.join(self.tmp, "calls")
+        self.cmd = os.path.join(self.tmp, "checkbox-cli")
+        self.set_ids("a::x")
+
+    def set_ids(self, ids: str) -> None:
+        with open(self.cmd, "w") as f:
+            f.write(
+                "#!/bin/sh\necho \"$*\" >> {}\nprintf '%s' '{}'\n".format(
+                    self.calls, ids
+                )
+            )
+        os.chmod(self.cmd, 0o755)
+
+    def dynamic(self) -> List[str]:
+        harness = (
+            "{}\nCOMP_WORDS=({})\n_checkbox_cli_dynamic units\nwait\n"
+        ).format(completion.generate("bash"), self.cmd)
+        out = subprocess.check_output(
+            ["bash", "-c", harness],
+            universal_newlines=True,
+            env=dict(os.environ, XDG_CACHE_HOME=self.tmp, SNAP=""),
+        )
+        return out.splitlines()
+
+    def call_count(self) -> int:
+        if not os.path.exists(self.calls):
+            return 0
+        with open(self.calls) as f:
+            return len(f.readlines())
+
+    def read_cache(self) -> str:
+        with open(self.cache) as f:
+            return f.read()
+
+    def test_miss_fetches_and_stores(self):
+        self.assertEqual(self.dynamic(), ["a::x"])
+        self.assertEqual(self.read_cache(), "a::x\n")
+        with open(self.calls) as f:
+            self.assertEqual(f.read(), "__complete units\n")
+
+    def test_fresh_hit_does_not_refresh(self):
+        self.dynamic()
+        self.set_ids("b::y")
+
+        self.assertEqual(self.dynamic(), ["a::x"])
+        self.assertEqual(self.call_count(), 1)
+
+    def test_stale_hit_serves_cache_and_refreshes(self):
+        self.dynamic()
+        self.set_ids("b::y")
+        old = time.time() - 120
+        os.utime(self.cache, (old, old))
+
+        self.assertEqual(self.dynamic(), ["a::x"])
+        self.assertEqual(self.read_cache(), "b::y\n")
+        self.assertEqual(self.dynamic(), ["b::y"])
+        self.assertEqual(self.call_count(), 2)
+
+    def test_empty_result_is_not_cached(self):
+        self.set_ids("")
+
+        self.assertEqual(self.dynamic(), [])
+        self.assertFalse(os.path.exists(self.cache))
+
+
+@skipIf(not shutil.which("fish"), "fish is not available")
+class FishScriptTests(TestCase):
+    def test_snap_command_fetches_its_own_ids(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            cmd = os.path.join(tmp, "checkbox.checkbox-cli")
+            with open(cmd, "w") as f:
+                f.write('#!/bin/sh\necho "$0::$2"\n')
+            os.chmod(cmd, 0o755)
+            script = os.path.join(tmp, "checkbox-cli.fish")
+            with open(script, "w") as f:
+                f.write(completion.generate("fish"))
+
+            out = subprocess.check_output(
+                [
+                    "fish",
+                    "--no-config",
+                    "-c",
+                    "source $argv[1]; complete -C 'checkbox.checkbox-cli run '",
+                    script,
+                ],
+                universal_newlines=True,
+                env=dict(
+                    os.environ,
+                    PATH=tmp + os.pathsep + os.environ["PATH"],
+                    XDG_CACHE_HOME=tmp,
+                ),
+            )
+
+        self.assertIn(cmd + "::units", out.splitlines())
 
 
 class GetUnitIdsTests(TestCase):

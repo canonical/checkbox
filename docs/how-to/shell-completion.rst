@@ -64,6 +64,14 @@ If your Zsh configuration doesn't search
 completion script printed by ``checkbox.checkbox-cli completion`` from your
 shell startup file instead.
 
+If Zsh prints ``_checkbox-cli: function definition file not found``, its
+completion cache is out of date. Delete it and start a new shell:
+
+.. code-block:: console
+
+   $ rm -f ~/.zcompdump*
+   $ exec zsh
+
 For Zsh, add the following line to ``~/.zshrc``, after ``compinit``:
 
 .. code-block:: none

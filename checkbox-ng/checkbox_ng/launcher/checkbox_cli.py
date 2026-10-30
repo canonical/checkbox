@@ -20,9 +20,11 @@
 Checkbox Launcher Interpreter Application
 """
 
+import argparse
 import gettext
 import logging
 import sys
+from typing import Dict, Type
 
 import checkbox_ng
 
@@ -48,10 +50,84 @@ from checkbox_ng.launcher.controller import RemoteController
 from checkbox_ng.launcher.agent import RemoteAgent
 
 from checkbox_ng.launcher.translator import Translator
+from checkbox_ng.launcher.completion import (
+    Completion,
+    DynamicCompletion,
+    HIDDEN_COMMANDS,
+)
 
 _ = gettext.gettext
 
 _logger = logging.getLogger("checkbox-cli")
+
+DEPRECATED_COMMANDS: Dict[str, str] = {
+    "slave": "run-agent",
+    "service": "run-agent",
+    "master": "control",
+    "remote": "control",
+}
+
+
+def get_commands() -> Dict[str, Type]:
+    return {
+        "config": Config,
+        "check-config": CheckConfig,
+        "launcher": Launcher,
+        "list": List,
+        "run": Run,
+        "startprovider": StartProvider,
+        "submit": Submit,
+        "show": Show,
+        "list-bootstrapped": ListBootstrapped,
+        "expand": Expand,
+        "merge-reports": MergeReports,
+        "merge-submissions": MergeSubmissions,
+        "tp-export": TestPlanExport,
+        "run-agent": RemoteAgent,
+        "control": RemoteController,
+        "translate": Translator,
+        "completion": Completion,
+        "__complete": DynamicCompletion,
+    }
+
+
+def build_top_parser(commands: Dict[str, Type]) -> argparse.ArgumentParser:
+    top_parser = argparse.ArgumentParser()
+    # You must handle these args in handle_top_parser, see its docstring
+    top_parser.add_argument(
+        "-v",
+        "--verbose",
+        action="store_true",
+        help=_("print more logging from checkbox (default for the agent)"),
+    )
+    top_parser.add_argument(
+        "--debug",
+        action="store_true",
+        help=_("print debug messages from checkbox"),
+    )
+    top_parser.add_argument(
+        "--clear-cache",
+        action="store_true",
+        help=_("remove cached results from the system"),
+    )
+    top_parser.add_argument(
+        "--clear-old-sessions",
+        action="store_true",
+        help=_("remove previous sessions' data"),
+    )
+    top_parser.add_argument(
+        "--version",
+        action="store_true",
+        help=_("show program's version information and exit"),
+    )
+    public_commands = [c for c in commands if c not in HIDDEN_COMMANDS]
+    top_parser.add_argument(
+        "subcommand",
+        help=_("subcommand to run"),
+        choices=commands.keys(),
+        metavar="{{{}}}".format(",".join(public_commands)),
+    )
+    return top_parser
 
 
 class Context:
@@ -93,32 +169,8 @@ def handle_top_parser(args, ctx):
 
 
 def main():
-    import argparse
-
-    commands = {
-        "config": Config,
-        "check-config": CheckConfig,
-        "launcher": Launcher,
-        "list": List,
-        "run": Run,
-        "startprovider": StartProvider,
-        "submit": Submit,
-        "show": Show,
-        "list-bootstrapped": ListBootstrapped,
-        "expand": Expand,
-        "merge-reports": MergeReports,
-        "merge-submissions": MergeSubmissions,
-        "tp-export": TestPlanExport,
-        "run-agent": RemoteAgent,
-        "control": RemoteController,
-        "translate": Translator,
-    }
-    deprecated_commands = {
-        "slave": "run-agent",
-        "service": "run-agent",
-        "master": "control",
-        "remote": "control",
-    }
+    commands = get_commands()
+    deprecated_commands = DEPRECATED_COMMANDS
 
     known_cmds = list(commands.keys())
     known_cmds += list(deprecated_commands.keys())
@@ -136,37 +188,7 @@ def main():
                 deprecated_commands[arg],
             )
 
-    top_parser = argparse.ArgumentParser()
-    # You must handle these args in the function above, see docstring
-    top_parser.add_argument(
-        "-v",
-        "--verbose",
-        action="store_true",
-        help=_("print more logging from checkbox (default for the agent)"),
-    )
-    top_parser.add_argument(
-        "--debug",
-        action="store_true",
-        help=_("print debug messages from checkbox"),
-    )
-    top_parser.add_argument(
-        "--clear-cache",
-        action="store_true",
-        help=_("remove cached results from the system"),
-    )
-    top_parser.add_argument(
-        "--clear-old-sessions",
-        action="store_true",
-        help=_("remove previous sessions' data"),
-    )
-    top_parser.add_argument(
-        "--version",
-        action="store_true",
-        help=_("show program's version information and exit"),
-    )
-    top_parser.add_argument(
-        "subcommand", help=_("subcommand to run"), choices=commands.keys()
-    )
+    top_parser = build_top_parser(commands)
     # parse all the cli invocation until a subcommand is found
     # subcommand doesn't start with a '-'
     subcmd_index = 1

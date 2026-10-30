@@ -19,6 +19,7 @@ export SETUPTOOLS_SCM_PRETEND_VERSION=$(PYTHON_VERSION)
 
 # Override dh_install to ensure that console_scripts are in the
 # checkbox-ng package and not in the python3-checkbox-ng package.
+# Also install the shell completion scripts for checkbox-cli.
 # Also move the data and test-data directories to usr/share and provide
 # symlinks (via python3-checkbox-ng.links) for everything to work.
 override_dh_install:
@@ -26,6 +27,9 @@ override_dh_install:
 	mkdir -p debian/checkbox-ng/usr/bin
 	mkdir -p debian/python3-checkbox-ng/usr/share/python3-checkbox-ng/
 	mv debian/python3-checkbox-ng/usr/bin/checkbox-cli debian/checkbox-ng/usr/bin
+	install -D -m 644 $(SRCTOP)/completions/checkbox-cli.bash debian/checkbox-ng/usr/share/bash-completion/completions/checkbox-cli
+	install -D -m 644 $(SRCTOP)/completions/_checkbox-cli debian/checkbox-ng/usr/share/zsh/vendor-completions/_checkbox-cli
+	install -D -m 644 $(SRCTOP)/completions/checkbox-cli.fish debian/checkbox-ng/usr/share/fish/vendor_completions.d/checkbox-cli.fish
 	cp -R $(SRCTOP)/plainbox/test-data debian/python3-checkbox-ng/usr/share/python3-checkbox-ng/
 	find debian/python3-checkbox-ng -type d -empty -delete
 	rm -rf $(foreach version,$(shell py3versions -s), debian/python3-checkbox-ng/usr/lib/$(version)/dist-packages/plainbox/data)

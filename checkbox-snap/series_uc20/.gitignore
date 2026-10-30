@@ -8,3 +8,4 @@ snap/.snapcraft
 snap/gui/
 stage/
 prime/
+launchers/checkbox-cli.bash

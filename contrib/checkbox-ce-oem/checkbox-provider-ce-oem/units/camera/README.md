@@ -159,13 +159,16 @@ The camera testing system follows this workflow:
 6. **Artifact Management**: Handles file creation, validation, and cleanup
 
 **Artifact staging**: capture tools write into
-`~/checkbox-camera-staging/<scenario>/<pattern>/` (the job user's home) and
-`camera_test.py` moves the artifacts into
-`$PLAINBOX_SESSION_SHARE/<scenario>/<pattern>/` once the scenario finishes.
-This keeps confined capture tools working: e.g. on Ubuntu Core the
-snap-packaged tools can only write the invoking user's own home (`home`
-plug), never the checkbox session share. Camera jobs run as the normal
-user, so the staging area is that user's home.
+`<home>/checkbox-camera-staging/<scenario>/<pattern>/` and `camera_test.py`
+moves the artifacts into `$PLAINBOX_SESSION_SHARE/<scenario>/<pattern>/` once
+the scenario finishes, because confined capture tools cannot write the
+checkbox session share. Camera jobs run as the normal user, and `<home>` is
+that user's home from the password database, not `$HOME`: a job started by a
+root Checkbox agent can inherit the agent's `HOME` (e.g.
+`/root/snap/<snap>/<rev>`). When `GST_LAUNCH_BIN` is a snap command (e.g.
+`/snap/bin/gst-launch-1.0`), `<home>` is that snap's per-user directory
+`~/snap/<snap>/common`, which a strict snap can write also without the `home`
+plug (e.g. the multimedia snap on Ubuntu Core).
 
 #### Workflow Diagram
 

@@ -17,7 +17,10 @@
 from unittest import TestCase
 
 from plainbox.impl.unit.job import JobDefinition
-from plainbox.impl.unit.parametric_template import ParametricTemplateUnit
+from plainbox.impl.unit.parametric_template import (
+    ParametricTemplateUnit,
+    ParametricTemplateValidator,
+)
 from plainbox.impl.validation import Problem
 from plainbox.impl.validation import Severity
 
@@ -142,16 +145,46 @@ class ParametricTemplateTests(TestCase):
         self.assertEqual(unit.instantiate_jobs()[0].partial_id, "test-1")
 
     def test_malformed_records(self):
-        for value in (None, {}, "not json", [1], [["first"]]):
+        for value in (None, {}, "not json", [1], [["first"]], [{}, None]):
             with self.subTest(value=value):
                 unit = self.make_unit(parameters=value)
-                self.assertTrue(
-                    any(
-                        issue.field == "parameters"
-                        and issue.severity is Severity.error
-                        for issue in unit.check()
+                errors = [
+                    issue
+                    for issue in unit.check()
+                    if issue.field == "parameters"
+                    and issue.severity is Severity.error
+                ]
+                self.assertEqual(len(errors), 1)
+                with self.assertRaises(ValueError):
+                    unit.instantiate_jobs()
+
+    def test_parameter_records_field_validator(self):
+        field = ParametricTemplateUnit.Meta.fields.parameter_records
+        validator = ParametricTemplateUnit.Meta.field_validators[field][0]
+        for value, valid in (
+            ([], True),
+            ([{}], True),
+            ([{"name": "first"}], True),
+            ('[{"name": "first"}]', True),
+            (None, False),
+            ({}, False),
+            ([1], False),
+            ([{}, None], False),
+            ("not json", False),
+            ('{"name": "first"}', False),
+        ):
+            with self.subTest(value=value):
+                issues = list(
+                    validator.check(
+                        ParametricTemplateValidator(),
+                        self.make_unit(parameters=value),
+                        field,
                     )
                 )
+                self.assertEqual(len(issues), 0 if valid else 1)
+                if not valid:
+                    self.assertEqual(issues[0].field, "parameters")
+                    self.assertIs(issues[0].severity, Severity.error)
 
     def test_template_summary_and_description(self):
         unit = self.make_unit(
@@ -267,6 +300,16 @@ class ParametricTemplateTests(TestCase):
         self.assertTrue(
             any(issue.severity is Severity.error for issue in unit.check())
         )
+
+    def test_missing_id_parameter(self):
+        unit = self.make_unit(id="test-{name}-{missing}")
+        errors = [
+            issue for issue in unit.check() if issue.severity is Severity.error
+        ]
+        self.assertEqual(len(errors), 1)
+        self.assertEqual(errors[0].field, "id")
+        self.assertIs(errors[0].kind, Problem.unknown_param)
+        self.assertIn("missing", errors[0].message)
 
     def test_requires_does_not_supply_records(self):
         unit = self.make_unit(requires="device.present == 'yes'")

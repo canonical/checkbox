@@ -1012,6 +1012,12 @@ class YAMLUnitPlugInTests(TestCase):
         with self.assertRaisesRegex(PlugInError, "identifier cannot"):
             self.load_parametric("[{name: 'ns::invalid'}]")
 
+    def test_parametric_missing_id_parameter_without_check(self):
+        with self.assertRaisesRegex(
+            PlugInError, "Cannot instantiate parametric template.*name"
+        ):
+            self.load_parametric("[{}]", check=False)
+
     def test_resource_template_not_expanded_on_load(self):
         plugin = YAMLUnitPlugIn(
             "/path/to/resource.yaml",

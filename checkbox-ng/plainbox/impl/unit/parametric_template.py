@@ -26,12 +26,15 @@ from plainbox.impl.unit import concrete_validators
 from plainbox.impl.unit.template import TemplateUnit
 from plainbox.impl.unit.unit import MissingParam
 from plainbox.impl.unit.unit_with_id import UnitWithIdValidator
+from plainbox.impl.unit.validators import CorrectFieldValueValidator
 from plainbox.impl.validation import Problem
+from plainbox.impl.validation import Severity
 
 
 class ParametricTemplateValidator(UnitWithIdValidator):
     def check(self, unit):
-        yield from super().check(unit)
+        issues = list(super().check(unit))
+        yield from issues
         for field in unit._data:
             if field.startswith("template-") and (
                 field == "template-unit"
@@ -43,6 +46,14 @@ class ParametricTemplateValidator(UnitWithIdValidator):
                     Problem.useless,
                     _("parametric template does not support {}").format(field),
                 )
+        # If the field validator rejected the parameter records, skip
+        # instantiation to avoid reporting the same structure error again
+        if any(
+            issue.field == unit.Meta.fields.parameter_records
+            and issue.severity is Severity.error
+            for issue in issues
+        ):
+            return
         try:
             jobs = unit.instantiate_jobs()
             for job in jobs:
@@ -116,9 +127,16 @@ class ParametricTemplateUnit(TemplateUnit):
             provider=self.provider,
             field_offset_map=self.field_offset_map,
         )
-        return template.instantiate_all(
+        jobs = template.instantiate_all(
             [Resource(record) for record in records]
         )
+        # IDs are loaded lazily: creating a job leaves its ID unresolved.
+        # Access the cached property now to resolve the concrete ID and report
+        # missing parameters. This ensures that any placeholders in the job IDs
+        # are resolved.
+        for job in jobs:
+            job.id
+        return jobs
 
     class Meta:
         name = N_("parametric template")
@@ -138,5 +156,16 @@ class ParametricTemplateUnit(TemplateUnit):
             TemplateUnit.Meta.fields.template_imports: [
                 concrete_validators.absent
             ],
-            fields.parameter_records: [],
+            fields.parameter_records: [
+                CorrectFieldValueValidator(
+                    lambda value, unit: (
+                        isinstance(unit.parameter_records, list)
+                        and all(
+                            isinstance(record, dict)
+                            for record in unit.parameter_records
+                        )
+                    ),
+                    message=_("parameters must be a list of mappings"),
+                ),
+            ],
         }

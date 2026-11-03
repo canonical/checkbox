@@ -360,3 +360,4 @@ certification_status_overrides:
   - apply blocker to com.canonical.certification::(warm|cold)-.*-service-check
   - apply blocker to com.canonical.certification::(warm|cold)-.*-renderer-check
   - apply blocker to com.canonical.certification::ethernet/iperf3_interface
+  - apply blocker to com.canonical.certification::ethernet/iperf3_reverse_interface

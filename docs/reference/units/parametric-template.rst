@@ -42,6 +42,22 @@ Fields
 
         parameters: [{"value": "A", "number": 1}, {"value": "B", "number": 2}]
 
+    .. note::
+
+        Lists and mappings substituted into strings use their Python string
+        representations.
+
+        A list-valued parameter is not expanded into dependency IDs:
+
+        .. code-block:: yaml
+
+            parameters:
+              - dependencies: [job_A, job_B]
+            depends: ["{dependencies}"]
+
+        This produces ``depends: ["['job_A', 'job_B']"]``: one string element,
+        not two dependency IDs.
+
 .. option:: template-id
 
     Optional identifier for the source definition. If omitted, Checkbox derives

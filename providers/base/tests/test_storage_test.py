@@ -316,6 +316,22 @@ class TestRunBonnie(unittest.TestCase):
         )
 
     @patch("storage_test.memory", return_value=8000)
+    @patch("storage_test.free_space", return_value=100)
+    @patch("storage_test.sp.check_call")
+    def test_run_bonnie_per_char_fits_free_space(
+        self, mock_check_call, mock_free_space, mock_memory, mock_fs_type
+    ):
+        run_bonnie(Path("/test_dir"))
+        base = ["bonnie++", "-d", PosixPath("/test_dir"), "-u", "root"]
+        self.assertEqual(
+            mock_check_call.call_args_list,
+            [
+                call(base + ["-r", "25", "-s", "50", "-D", "-f"]),
+                call(base + ["-r", "0", "-s", "50", "-n", "0"]),
+            ],
+        )
+
+    @patch("storage_test.memory", return_value=8000)
     @patch("storage_test.free_space", return_value=900000)
     @patch("storage_test.sp.check_call")
     def test_run_bonnie_vfat_file_size_limit(

@@ -81,6 +81,7 @@ _purpose: Automated check of the hibernate log for errors discovered by fwts
 _summary: Perform an automated analysis of the hibernate log for errors.
 
 plugin: attachment
+mime-type: text/plain
 category_id: com.canonical.plainbox::hibernate
 id: power-management/hibernate-single-log-attach
 depends: power-management/hibernate_advanced
@@ -93,6 +94,7 @@ unit: template
 template-resource: graphics_card
 template-filter: graphics_card.prime_gpu_offload == 'Off'
 plugin: attachment
+mime-type: text/plain
 category_id: com.canonical.plainbox::hibernate
 id: power-management/{index}_hibernate-single-log-attach_{product_slug}
 template-id: power-management/index_hibernate-single-log-attach_product_slug

@@ -24,7 +24,7 @@ command:
   # If the mode was already set before running checkbox the system will not be rebooted
   # and checkbox will get stuck due to the no return flag,
   # so it is better to enforce the reboot always.
-  reboot
+  systemctl reboot -i
 flags: noreturn
 _template-summary:
  Set a power mode using nvpmodel on core
@@ -81,7 +81,7 @@ command:
   # If the mode was already set before running checkbox the system will not be rebooted
   # and checkbox will get stuck due to the no return flag,
   # so it is better to enforce the reboot always.
-  reboot
+  systemctl reboot -i
 flags: noreturn
 _template-summary:
  Set a power mode using nvpmodel

@@ -1,0 +1,52 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
+summary: Install the Checkbox snap from the store and run the smoke test plan
+kill-timeout: 20m
+# Warn timeout is still needed to catch realtime logs
+warn-timeout: 1m
+artifacts:
+  - checkbox-output.txt
+  - snap-debug.txt
+  - submission.json
+  - submission.tar.xz
+execute: |
+  set -euo pipefail
+
+  # Determine the Checkbox version
+  . /etc/os-release
+  CHECKBOX="checkbox$(echo "$VERSION_ID" | grep -Po '^\d{2}')"
+  CHECKBOX_CHANNEL="${CHECKBOX_CHANNEL:-edge}"
+
+  echo "Installing $CHECKBOX from $CHECKBOX_CHANNEL"
+
+  # Wait for the system to finish any boot-time changes before proceeding.
+  snap wait system seed.loaded
+
+  # Download and install the snap from the store in one step.
+  snap install --channel="$CHECKBOX_CHANNEL" --devmode "$CHECKBOX"
+
+  # Ensure the Checkbox agent is started and enabled
+  snap start --enable "$CHECKBOX.agent"
+
+  # Gather snap debug information
+  {
+    echo "# snap list"
+    snap list "$CHECKBOX"
+    echo
+    echo "# snap services"
+    snap services "$CHECKBOX"
+    echo
+    echo "# snap warnings"
+    snap warnings
+  } > snap-debug.txt
+
+  # Launch the Checkbox snap and run the test plan, capturing its output.
+  # pipefail (set above) already makes $? reflect checkbox's exit status
+  # rather than tee's, so no need to index PIPESTATUS explicitly.
+  set +e
+  "$CHECKBOX.checkbox" control 127.0.0.1 launcher.conf 2>&1 \
+    | tee checkbox-output.txt
+  checkbox_status=$?
+  set -e
+
+  echo "Checkbox exited with $checkbox_status"
+  exit "$checkbox_status"

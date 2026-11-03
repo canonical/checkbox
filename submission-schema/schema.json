@@ -152,7 +152,7 @@
         "attachment-results": {
           "type": "array",
           "items": {
-            "$ref": "#/definitions/Result"
+            "$ref": "#/definitions/AttachmentResult"
           }
         },
         "rejected-jobs": {
@@ -278,6 +278,28 @@
             "https"
           ]
         },
+        "mime-type": {
+          "type": "string",
+          "enum": [
+            "application/gzip",
+            "application/json",
+            "application/octet-stream",
+            "application/senml+json",
+            "application/xml",
+            "application/x-7z-compressed",
+            "application/x-bzip2",
+            "application/x-tar",
+            "application/x-xz",
+            "application/zip",
+            "application/zstd",
+            "image/gif",
+            "image/jpeg",
+            "image/png",
+            "image/svg+xml",
+            "image/webp",
+            "text/plain"
+          ]
+        },
         "duration": {
           "type": "number"
         },
@@ -318,6 +340,18 @@
         "template_id"
       ],
       "title": "Result"
+    },
+    "AttachmentResult": {
+      "allOf": [
+        {
+          "$ref": "#/definitions/Result"
+        },
+        {
+          "required": [
+            "mime-type"
+          ]
+        }
+      ]
     },
     "Device": {
       "type": "object",

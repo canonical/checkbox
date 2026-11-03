@@ -82,18 +82,21 @@ def main(args=sys.argv[1:]):
             str(args.sleep_delay),
         ]
         suspend_cmd = ["systemctl", "suspend"]
+        print(
+            f"Waiting {args.check_delay} seconds before checking for "
+            "active suspend jobs..."
+        )
+        time.sleep(args.check_delay)
         try:
             wait_for_suspend_jobs_to_finish()
         except RuntimeError as e:
             raise SystemExit(
-                "Timed out waiting for suspend jobs to finish."
-                "\nDetails: {}".format(e)
+                f"Timed out waiting for suspend jobs to finish."
+                f"\nDetails: {e}"
             )
-        print("Running: {}".format(" ".join(rtcwake_cmd)))
+        print(f"Running: {' '.join(rtcwake_cmd)}")
         subprocess.check_call(rtcwake_cmd)
-        print(
-            "Running: {} to suspend the system".format(" ".join(suspend_cmd))
-        )
+        print(f"Running: {' '.join(suspend_cmd)} to suspend the system")
         subprocess.check_call(suspend_cmd)
 
     # Clean up the FWTS log file from its default path.

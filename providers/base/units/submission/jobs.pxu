@@ -1,5 +1,6 @@
 id: dkms_info_json
 plugin: attachment
+mime-type: application/json
 category_id: com.canonical.plainbox::info
 command:
  if [ "$CHECKBOX_RUNNING_STRICT_SNAP" = "1" ]; then
@@ -13,6 +14,7 @@ _summary: Attaches json dumps of installed dkms package information.
 
 id: udev_json
 plugin: attachment
+mime-type: application/json
 category_id: com.canonical.plainbox::info
 command: udevadm info --export-db | checkbox-support-parse udevadm
 _purpose: Attaches json dumps of udev_resource.py
@@ -20,6 +22,7 @@ _summary: Attaches JSON dumps of udev resource information.
 
 id: raw_devices_dmi_json
 plugin: attachment
+mime-type: application/json
 category_id: com.canonical.plainbox::info
 requires:
  executable.name == 'dmidecode'
@@ -36,6 +39,7 @@ _summary: Attaches JSON dumps of raw DMI devices
 
 id: modprobe_json
 plugin: attachment
+mime-type: application/json
 category_id: com.canonical.plainbox::info
 command:
  find /etc/modprobe.* -name \*.conf -exec cat {} + | checkbox-support-parse modprobe |
@@ -47,6 +51,7 @@ _summary: Attach the contents of /etc/modprobe.*
 id: lspci_standard_config_json
 _summary: Attach PCI configuration space hex dump
 plugin: attachment
+mime-type: application/json
 category_id: com.canonical.plainbox::info
 command:
  lspci -x | checkbox-support-parse pci-subsys-id | \
@@ -56,6 +61,7 @@ _purpose: Attaches a hex dump of the standard part of the PCI configuration spac
 
 id: dell_bto_xml_attachment_json
 plugin: attachment
+mime-type: application/json
 category_id: com.canonical.plainbox::info
 depends: info/detect_dell_recovery
 requires: package.name == 'dell-recovery'
@@ -70,6 +76,7 @@ command: recovery_info.py file bto.xml | checkbox-support-parse bto
 
 id: recovery_info_attachment_json
 plugin: attachment
+mime-type: application/json
 category_id: com.canonical.plainbox::info
 depends: info/detect_recovery
 requires: package.name == 'dell-recovery' or package.name == 'ubuntu-recovery'
@@ -87,6 +94,7 @@ command: recovery_info.py version | checkbox-support-parse recovery-info
 
 id: system_info_json
 plugin: attachment
+mime-type: application/json
 category_id: com.canonical.plainbox::info
 command: system_info.py
 _purpose: Attaches JSON dumps of system info tools (inxi + udev)

@@ -73,12 +73,8 @@ def parse_args():
         missing_files=[
             # list of tuple with src, dest, and extension ?
             (
-                Path("Samples")
-                / "2_Concepts_and_Techniques"
-                / "EGLStream_CUDA_Interop",
-                Path("build")
-                / "Samples"
-                / "2_Concepts_and_Techniques"
+                Path("2_Concepts_and_Techniques") / "EGLStream_CUDA_Interop",
+                Path("2_Concepts_and_Techniques")
                 / "EGLStream_CUDA_Interop"
                 / "bin",
                 ".yuv",
@@ -107,8 +103,8 @@ def parse_args():
     libnvvm_parser.set_defaults(
         missing_files=[
             (
-                Path("Samples") / "7_libNVVM" / "ptxgen",
-                Path("build") / "Samples" / "7_libNVVM" / "ptxgen" / "bin",
+                Path("7_libNVVM") / "ptxgen",
+                Path("7_libNVVM") / "ptxgen" / "bin",
                 ".ll",
             )
         ]
@@ -121,13 +117,10 @@ def parse_args():
     platform_parser.set_defaults(
         missing_files=[
             (
-                Path("Samples")
-                / "8_Platform_Specific"
+                Path("8_Platform_Specific")
                 / "Tegra"
                 / "cudaNvSciBufMultiplanar",
-                Path("build")
-                / "Samples"
-                / "8_Platform_Specific"
+                Path("8_Platform_Specific")
                 / "Tegra"
                 / "cudaNvSciBufMultiplanar"
                 / "bin",
@@ -228,6 +221,13 @@ def copy_and_set_permissions(src, dst, file_extension):
             os.chmod(file_path, 0o644)
 
 
+def get_samples_dir_name(cuda_samples_version):
+    version = tuple(
+        int(component) for component in str(cuda_samples_version).split(".")
+    )
+    return "cpp" if version >= (13, 3) else "Samples"
+
+
 def clone_and_build(orig_dir, test_set, cuda_samples_version):
     """Function to clone the repository and build the correct subfolder
 
@@ -266,7 +266,7 @@ def clone_and_build(orig_dir, test_set, cuda_samples_version):
     )
 
     # Remove unnecessary folders
-    samples_dir = test_set_dir / "Samples"
+    samples_dir = test_set_dir / get_samples_dir_name(cuda_samples_version)
     for folder in samples_dir.glob("[0-9]_*/"):
         folder_number = folder.name.split("_")[0]
         if folder_number != test_set:
@@ -302,7 +302,7 @@ def clone_and_build(orig_dir, test_set, cuda_samples_version):
 
 
 # Function to run tests
-def run_tests(orig_dir, test_set, exclude_list):
+def run_tests(orig_dir, test_set, cuda_samples_version, exclude_list):
     """Run the test
 
     Args:
@@ -313,7 +313,8 @@ def run_tests(orig_dir, test_set, exclude_list):
     Returns:
         (int, int): total tests, skipped tests
     """
-    test_set_dir = Path(orig_dir) / test_set / "build" / "Samples"
+    samples_dir_name = get_samples_dir_name(cuda_samples_version)
+    test_set_dir = Path(orig_dir) / test_set / "build" / samples_dir_name
 
     executable_list = [
         exe
@@ -367,15 +368,23 @@ def main():
             cleanup_temporary_files(orig_dir, str(args.test_set))
         raise
 
+    samples_dir_name = get_samples_dir_name(args.cuda_samples_version)
+    source_dir = orig_dir / str(args.test_set) / samples_dir_name
+    build_dir = orig_dir / str(args.test_set) / "build" / samples_dir_name
     for src, dest, extension in args.missing_files:
         copy_and_set_permissions(
-            orig_dir / str(args.test_set) / src,
-            orig_dir / str(args.test_set) / dest,
+            source_dir / src,
+            build_dir / dest,
             extension,
         )
 
     try:
-        run_tests(orig_dir, str(args.test_set), args.cuda_ignore_tests)
+        run_tests(
+            orig_dir,
+            str(args.test_set),
+            args.cuda_samples_version,
+            args.cuda_ignore_tests,
+        )
 
     except subprocess.CalledProcessError:
         logging.error("Test failed")

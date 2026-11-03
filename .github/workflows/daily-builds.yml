@@ -63,3 +63,11 @@ jobs:
     uses: ./.github/workflows/deb-daily-builds.yml
     secrets:
       LP_CREDS: ${{ secrets.LP_CREDS }}
+
+  smoke-spread-metabox-daily:
+    # Validate the metabox provider against the freshly published edge
+    # snaps in Ubuntu Core VMs.
+    needs: snap-native-build-upload-daily
+    uses: ./.github/workflows/smoke-spread-metabox.yaml
+    with:
+      channel: edge

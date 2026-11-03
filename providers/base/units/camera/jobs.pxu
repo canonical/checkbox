@@ -132,6 +132,7 @@ template-resource: device
 template-filter: device.category == 'CAPTURE' and device.name != ''
 template-unit: job
 plugin: attachment
+mime-type: image/jpeg
 category_id: com.canonical.plainbox::camera
 id: camera/multiple-resolution-images-attachment_{name}
 flags: also-after-suspend
@@ -170,6 +171,7 @@ template-resource: device
 template-filter: device.category == 'CAPTURE' and device.name != ''
 template-unit: job
 plugin: attachment
+mime-type: image/jpeg
 category_id: com.canonical.plainbox::camera
 id: camera/camera-quality-image_{name}
 flags: also-after-suspend
@@ -221,6 +223,7 @@ template-resource: device
 template-filter: device.category == 'MMAL' and device.name != ''
 template-unit: job
 plugin: attachment
+mime-type: image/jpeg
 category_id: com.canonical.plainbox::camera
 id: camera/multiple-resolution-images-rpi-attachment_{name}
 template-id: camera/multiple-resolution-images-rpi-attachment_name

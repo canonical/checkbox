@@ -31,47 +31,21 @@ Subcommands:
                     forwarding all remaining arguments to the test.
 """
 
-import glob
 import logging
 import os
 import subprocess
 import sys
 
 from checkbox_support.helpers.host_utils import (
-    HostGPUDetectionError,
-    find_plz_run,
+    check_host_level_zero_gpu,
     get_arch_triple,
+    host_ze_loader_path,
 )
-
-
-def check_host_gpu(plz_run, arch_triple):
-    """Check for a Level Zero GPU by probing render device nodes.
-
-    plz-run is used to escape snap confinement so that the host device
-    nodes and libraries are visible.
-    """
-    render_nodes = glob.glob("/dev/dri/renderD*")
-    if not render_nodes:
-        logging.error("No render device nodes found in /dev/dri")
-        return False
-    loader = f"/usr/lib/{arch_triple}/libze_loader.so.1"
-    if not os.path.isfile(loader):
-        logging.error("Host Level Zero loader not found at %s", loader)
-        return False
-    logging.info("Found render device(s) and Level Zero loader at %s", loader)
-    return True
 
 
 def cmd_resource():
     arch_triple = get_arch_triple()
-
-    try:
-        plz_run = find_plz_run()
-    except HostGPUDetectionError as exc:
-        logging.error("%s", exc)
-        return 1
-
-    if check_host_gpu(plz_run, arch_triple):
+    if check_host_level_zero_gpu(arch_triple):
         print("gpu_available: True")
         return 0
 
@@ -81,7 +55,7 @@ def cmd_resource():
 
 def cmd_validate_install():
     arch_triple = get_arch_triple()
-    host_ze = f"/usr/lib/{arch_triple}/libze_loader.so.1"
+    host_ze = host_ze_loader_path(arch_triple)
     if os.path.isfile(host_ze):
         logging.info("Host Level Zero loader found at %s", host_ze)
         print("ze_loader_available: True")
@@ -122,7 +96,7 @@ def main():
         else:
             logging.error("Unknown command: %s", command)
             return 1
-    except (RuntimeError, HostGPUDetectionError) as exc:
+    except RuntimeError as exc:
         logging.error("%s", exc)
         return 1
 

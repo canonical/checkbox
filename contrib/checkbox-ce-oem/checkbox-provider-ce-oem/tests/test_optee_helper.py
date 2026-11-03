@@ -53,7 +53,13 @@ class TestSupplicantServesTaDir(unittest.TestCase):
 @patch.dict(os.environ, {"XTEST": "x-test"})
 @patch("optee_helper.stage_ta_for_supplicant")
 @patch("optee_helper.install_ta")
-@patch("optee_helper.find_ta_path", return_value="/var/snap/x/optee_armtz")
+# autospec: the mock must reject a call that the real find_ta_path(snap_name)
+# would reject, otherwise a wrong call site passes here and fails on the DUT.
+@patch(
+    "optee_helper.find_ta_path",
+    autospec=True,
+    return_value="/var/snap/x/optee_armtz",
+)
 @patch("optee_helper._run_command", return_value=_proc())
 @patch("optee_helper.look_up_app", return_value="x-test.xtest")
 class TestLaunchXtestTaDelivery(unittest.TestCase):
@@ -64,6 +70,7 @@ class TestLaunchXtestTaDelivery(unittest.TestCase):
     @patch("optee_helper._lookup_optee_version", return_value="4.2")
     def test_4x_supplicant_without_ta_dir_stages(self, *_):
         optee_helper.launch_xtest("regression", "4101")
+        optee_helper.find_ta_path.assert_called_once_with("x-test")
         optee_helper.stage_ta_for_supplicant.assert_called_once_with(
             "/var/snap/x/optee_armtz", "/proc/352/root"
         )

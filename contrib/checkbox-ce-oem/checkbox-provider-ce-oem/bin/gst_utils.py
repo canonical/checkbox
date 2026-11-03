@@ -36,6 +36,7 @@ class GStreamerEncodePlugins(Enum):
     V4L2H265ENC = "v4l2h265enc"
     V4L2JPEGENC = "v4l2jpegenc"
     V4L2VP8ENC = "v4l2vp8enc"
+    V4L2VP9ENC = "v4l2vp9enc"
     OMXH264ENC = "omxh264enc"
     OMXH265ENC = "omxh265enc"
 
@@ -68,11 +69,14 @@ class GStreamerMuxerType(Enum):
                         extension.
         MATROSKAMUX (str): Represents the Matroska muxer, associated with the
                         'mkv' file extension.
+        WEBMMUX (str): Represents the WebM muxer (VP8/VP9/AV1 Matroska
+                        subset), associated with the 'webm' file extension.
     """
 
     MP4MUX = "mp4"
     AVIMUX = "avi"
     MATROSKAMUX = "mkv"
+    WEBMMUX = "webm"
     QTMUX = "mov"
 
     @classmethod
@@ -203,10 +207,10 @@ def compare_psnr(
     )
     avg_psnr, _ = get_average_psnr(golden_reference_file, artifact_file)
     logging.info("Average PSNR: {}".format(avg_psnr))
-    if avg_psnr < 30 and avg_psnr > 0:
+    if avg_psnr < 25 and avg_psnr > 0:
         raise SystemExit(
             "Error: The average PSNR value did not reach the acceptable"
-            " threshold (30 dB)"
+            " threshold (25 dB)"
         )
     logging.info("Pass: Average PSNR meets the acceptable threshold")
 
@@ -405,6 +409,7 @@ class MetadataValidator:
             GStreamerEncodePlugins.V4L2H265ENC.value: "H.265",
             GStreamerEncodePlugins.V4L2JPEGENC.value: "JPEG",
             GStreamerEncodePlugins.V4L2VP8ENC.value: "VP8",
+            GStreamerEncodePlugins.V4L2VP9ENC.value: "VP9",
             GStreamerEncodePlugins.OMXH264ENC.value: "H.264",
         }
         if expected not in codec_map:

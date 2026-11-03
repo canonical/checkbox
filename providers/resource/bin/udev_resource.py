@@ -73,6 +73,11 @@ attributes = (
 
 def dump_udev_db(udev):
     for device in udev.run():
+        # skip interface names like 224/1/3
+        # see checkbox issue 2563
+        if "/" in (getattr(device, "interface", "") or ""):
+            continue
+
         for attribute in attributes:
             value = getattr(device, attribute)
             if value is not None:

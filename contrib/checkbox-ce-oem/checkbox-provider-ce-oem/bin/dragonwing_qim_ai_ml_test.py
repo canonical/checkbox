@@ -42,7 +42,7 @@ PIPELINE_CASES = {
             'sink_1::dimensions="<640, 360>" ! '
             "queue ! video/x-raw,format=NV12,"
             "width={processing_width},height={processing_height},"
-            "interlace-mode=progressive,colorimetry=bt601 ! "
+            "interlace-mode=progressive ! "
             "v4l2h264enc capture-io-mode=4 output-io-mode=5 ! "
             "h264parse ! queue ! "
             "mp4mux ! queue ! filesink location={output} split. ! queue ! "
@@ -53,7 +53,7 @@ PIPELINE_CASES = {
             "model={model} ! queue ! qtimlpostprocess "
             "settings='{{\"confidence\": 40.0}}' "
             "results=2 module=mobilenet labels={labels} ! "
-            "video/x-raw,format=BGRA,width=640,height=360 ! queue ! mixer."
+            "video/x-raw,width=640,height=360 ! queue ! mixer."
         ),
     ),
     ("litert", "object-detection"): PipelineCase(
@@ -70,7 +70,7 @@ PIPELINE_CASES = {
             "qtivcomposer name=mixer ! queue ! "
             "video/x-raw,format=NV12,"
             "width={processing_width},height={processing_height},"
-            "interlace-mode=progressive,colorimetry=bt601 ! "
+            "interlace-mode=progressive ! "
             "v4l2h264enc capture-io-mode=4 output-io-mode=5 ! "
             "h264parse ! queue ! "
             "mp4mux ! queue ! filesink location={output} split. ! "
@@ -81,7 +81,7 @@ PIPELINE_CASES = {
             'backend_type=htp;" model={model} ! queue ! '
             "qtimlpostprocess settings='{{\"confidence\": 75.0}}' "
             "results=10 module=yolov8 labels={labels} ! "
-            "video/x-raw,format=BGRA,width=640,height=360 ! queue ! mixer."
+            "video/x-raw,width=640,height=360 ! queue ! mixer."
         ),
     ),
     ("litert", "image-segmentation"): PipelineCase(
@@ -100,7 +100,7 @@ PIPELINE_CASES = {
             "sink_1::alpha=0.5 ! queue ! "
             "video/x-raw,format=NV12,"
             "width={processing_width},height={processing_height},"
-            "interlace-mode=progressive,colorimetry=bt601 ! "
+            "interlace-mode=progressive ! "
             "v4l2h264enc capture-io-mode=4 output-io-mode=5 ! "
             "h264parse ! queue ! "
             "mp4mux ! queue ! filesink location={output} split. ! "
@@ -130,7 +130,7 @@ PIPELINE_CASES = {
             "! queue ! "
             "video/x-raw,format=NV12,"
             "width={processing_width},height={processing_height},"
-            "interlace-mode=progressive,colorimetry=bt601 ! "
+            "interlace-mode=progressive ! "
             "v4l2h264enc capture-io-mode=4 output-io-mode=5 ! "
             "h264parse ! queue ! "
             "mp4mux ! queue ! filesink location={output} split. ! "
@@ -141,7 +141,7 @@ PIPELINE_CASES = {
             'backend_type=htp;" model={model} ! queue ! '
             "qtimlpostprocess results=2 module=hrnet labels={labels} "
             "settings={settings} ! "
-            "video/x-raw,format=BGRA,width=640,height=360 ! queue ! mixer."
+            "video/x-raw,width=640,height=360 ! queue ! mixer."
         ),
     ),
     ("snpe", "image-classification"): PipelineCase(
@@ -159,7 +159,7 @@ PIPELINE_CASES = {
             'sink_1::dimensions="<640, 360>" ! queue ! '
             "video/x-raw,format=NV12,"
             "width={processing_width},height={processing_height},"
-            "interlace-mode=progressive,colorimetry=bt601 ! "
+            "interlace-mode=progressive ! "
             "v4l2h264enc capture-io-mode=4 output-io-mode=5 ! "
             "h264parse ! queue ! "
             "mp4mux ! queue ! filesink location={output} split. ! "
@@ -167,7 +167,7 @@ PIPELINE_CASES = {
             "qtimlsnpe delegate=dsp model={model} ! queue ! "
             "qtimlpostprocess settings='{{\"confidence\": 40.0}}' "
             "results=2 module=mobilenet-softmax labels={labels} ! "
-            "video/x-raw,format=BGRA,width=640,height=360 ! queue ! mixer."
+            "video/x-raw,width=640,height=360 ! queue ! mixer."
         ),
     ),
     ("snpe", "object-detection"): PipelineCase(
@@ -184,7 +184,7 @@ PIPELINE_CASES = {
             "qtivcomposer name=mixer ! queue ! "
             "video/x-raw,format=NV12,"
             "width={processing_width},height={processing_height},"
-            "interlace-mode=progressive,colorimetry=bt601 ! "
+            "interlace-mode=progressive ! "
             "v4l2h264enc capture-io-mode=4 output-io-mode=5 ! "
             "h264parse ! queue ! "
             "mp4mux ! queue ! filesink location={output} split. ! "

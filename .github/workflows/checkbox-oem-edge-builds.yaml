@@ -53,7 +53,7 @@ jobs:
             snapcraft-channel: 9.x/candidate
 
       - name: Upload logs on failure
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
         if: failure()
         with:
           name: snapcraft-log-series-${{ matrix.type }}26-${{ matrix.arch }}
@@ -63,7 +63,7 @@ jobs:
             contrib/checkbox-oem/checkbox-oem-snap/series_${{ matrix.type }}26/checkbox*.txt
 
       - name: Upload the snaps as artefacts
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
         with:
           name: series_${{ matrix.type }}26_${{ matrix.arch }}
           path: ${{ steps.snap_build.outputs.snap }}

@@ -140,6 +140,7 @@ nested_part:
     firmware-fwupdmgr-base-26-04-automated
     power-management-base-26-04-automated
     tpm-base-26-04-automated
+    virtualization-automated
     after-suspend-audio-automated
     after-suspend-bluez-automated
     after-suspend-camera-automated

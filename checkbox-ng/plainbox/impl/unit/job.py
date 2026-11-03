@@ -26,11 +26,11 @@
 import json
 import logging
 import re
-
 from collections import defaultdict
 
 from plainbox.abc import IJobDefinition
-from plainbox.i18n import gettext as _, gettext_noop as N_
+from plainbox.i18n import gettext as _
+from plainbox.i18n import gettext_noop as N_
 from plainbox.impl.decorators import cached_property, instance_method_lru_cache
 from plainbox.impl.resource import ResourceProgram, parse_imports_stmt
 from plainbox.impl.secure.origin import Origin
@@ -40,15 +40,14 @@ from plainbox.impl.unit.unit_with_id import UnitWithId
 from plainbox.impl.unit.validators import (
     CorrectFieldValueValidator,
     DeprecatedFieldValidator,
+    DeprecatedSchemaValidator,
     MemberOfFieldValidator,
     PresentFieldValidator,
     ReferenceConstraint,
     ShellProgramValidator,
     UnitReferenceValidator,
     UselessFieldValidator,
-    DeprecatedSchemaValidator,
 )
-
 from plainbox.impl.validation import Problem, Severity
 
 __all__ = ["JobDefinition", "propertywithsymbols"]
@@ -113,6 +112,27 @@ class _PluginValues(SymbolDef):
 
 
 supported_plugins = [str(s) for s in _PluginValues.get_all_symbols()]
+
+
+ATTACHMENT_MIME_TYPES = (
+    "application/gzip",
+    "application/json",
+    "application/octet-stream",
+    "application/senml+json",
+    "application/xml",
+    "application/x-7z-compressed",
+    "application/x-bzip2",
+    "application/x-tar",
+    "application/x-xz",
+    "application/zip",
+    "application/zstd",
+    "image/gif",
+    "image/jpeg",
+    "image/png",
+    "image/svg+xml",
+    "image/webp",
+    "text/plain",
+)
 
 
 class _CertificationStatusValues(SymbolDef):
@@ -290,6 +310,13 @@ class JobDefinition(UnitWithId, IJobDefinition):
         if plugin is None and "simple" in self.get_flag_set():
             plugin = "shell"
         return plugin
+
+    @cached_property
+    def mime_type(self):
+        default = None
+        if self.plugin == "attachment":
+            default = "application/octet-stream"
+        return self.get_record_value("mime-type", default)
 
     @cached_property
     def summary(self):
@@ -588,6 +615,21 @@ class JobDefinition(UnitWithId, IJobDefinition):
             return set()
 
     @instance_method_lru_cache(maxsize=None)
+    def get_group_path(self):
+        """
+        Return the group path from the biggest group to the smallest one.
+
+        A plain string is a single-level group. Jobs without a group have
+        an empty path.
+        """
+        group = self.group
+        if not group:
+            return []
+        if isinstance(group, str):
+            return [group]
+        return group
+
+    @instance_method_lru_cache(maxsize=None)
     def get_flag_set(self):
         """
         Return a set of flags associated with this job
@@ -804,6 +846,7 @@ class JobDefinition(UnitWithId, IJobDefinition):
             siblings = "siblings"
             auto_retry = "auto_retry"
             xfail = "xfail"
+            mime_type = "mime_type"
 
         field_validators = {
             fields.name: [
@@ -827,6 +870,22 @@ class JobDefinition(UnitWithId, IJobDefinition):
                     Problem.deprecated,
                     Severity.advice,
                     message=_("please migrate to user-interact-verify"),
+                ),
+            ],
+            fields.mime_type: [
+                concrete_validators.templateInvariant,
+                MemberOfFieldValidator(
+                    ATTACHMENT_MIME_TYPES,
+                    onlyif=lambda unit: unit.mime_type is not None,
+                ),
+                UselessFieldValidator(
+                    message=_(
+                        "mime-type is only supported on attachment jobs"
+                    ),
+                    onlyif=lambda unit: (
+                        unit.mime_type is not None
+                        and unit.plugin != "attachment"
+                    ),
                 ),
             ],
             fields.command: [
@@ -974,7 +1033,16 @@ class JobDefinition(UnitWithId, IJobDefinition):
                     Problem.deprecated, Severity.warning, str, list
                 ),
             ],
-            fields.group: [],
+            fields.group: [
+                # "/" is used to join the group path into a unique group id
+                CorrectFieldValueValidator(
+                    lambda value, unit: all(
+                        "/" not in name for name in unit.get_group_path()
+                    ),
+                    message=_("group names cannot contain '/'"),
+                    onlyif=lambda unit: unit.group is not None,
+                ),
+            ],
             fields.requires: [
                 CorrectFieldValueValidator(
                     lambda value, unit: unit.get_resource_program(),
@@ -1193,6 +1261,7 @@ class InvalidJob(JobDefinition):
             siblings = "siblings"
             auto_retry = "auto_retry"
             xfail = "xfail"
+            mime_type = "mime_type"
 
     def __str__(self):
         return self.summary

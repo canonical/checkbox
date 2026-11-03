@@ -72,6 +72,9 @@ PLATFORM_FAMILIES = {
         id_prefix="renesas",
         encoder_id_suffix_fields=("color_space",),
     ),
+    "cix-tool": PlatformFamily(
+        id_prefix="cix-tool",
+    ),
 }
 
 
@@ -97,7 +100,7 @@ def codec_factory(platform: str):
     family = get_platform_family(platform)
     if not family:
         return None
-    module_name = "codec_{}".format(family)
+    module_name = "codec_{}".format(family.replace("-", "_"))
     try:
         return importlib.import_module(module_name)
     except ImportError as error:

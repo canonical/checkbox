@@ -89,6 +89,7 @@ summary: Automatically check the hibernate log for 30 cycles for errors using fw
 plugin: attachment
 category_id: com.canonical.plainbox::stress
 id: power-management/hibernate-30-cycle-log-attach
+mime-type: text/plain
 estimated_duration: "1.0"
 command: '[ -e "$PLAINBOX_SESSION_SHARE"/hibernate_30_cycles.log ] && cat "$PLAINBOX_SESSION_SHARE"/hibernate_30_cycles.log'
 purpose: Attaches the log from the 30 cycle Hibernate/Resume test if it exists
@@ -181,6 +182,7 @@ siblings:
 plugin: attachment
 category_id: com.canonical.plainbox::stress
 id: power-management/suspend-30-cycle-log-attach
+mime-type: text/plain
 estimated_duration: "1.0"
 depends:
   - power-management/suspend_30_cycles
@@ -191,6 +193,7 @@ summary: Attach the log from the 30 cycle Suspend/Resume test.
 plugin: attachment
 category_id: com.canonical.plainbox::stress
 id: power-management/suspend-30-cycle-log-attach-with-reboots-pm_test.reboot.3.log
+mime-type: text/plain
 estimated_duration: "1.0"
 depends:
   - power-management/suspend_30_cycles_with_reboots
@@ -255,6 +258,7 @@ summary: Run an automated stress test for system hibernate/resume cycles.
 plugin: attachment
 category_id: com.canonical.plainbox::stress
 id: stress/hibernate-250-cycle-log-attach
+mime-type: text/plain
 estimated_duration: "1.0"
 command: '[ -e "$PLAINBOX_SESSION_SHARE"/hibernate_250_cycles.log ] && cat "$PLAINBOX_SESSION_SHARE"/hibernate_250_cycles.log'
 purpose: Attaches the log from the 250 cycle Hibernate/Resume test if it exists
@@ -283,6 +287,7 @@ summary: Automated stress test for system suspend/resume for 250 cycles.
 plugin: attachment
 category_id: com.canonical.plainbox::stress
 id: stress/suspend-250-cycle-log-attach
+mime-type: text/plain
 estimated_duration: "1.0"
 command: '[ -e "$PLAINBOX_SESSION_SHARE"/suspend_250_cycles.log ] && cat "$PLAINBOX_SESSION_SHARE"/suspend_250_cycles.log'
 purpose: Attaches the log from the 250 cycle Suspend/Resume test if it exists
@@ -317,6 +322,7 @@ summary: Stress test the system with 100 reboot cycles.
 plugin: attachment
 category_id: com.canonical.plainbox::stress
 id: stress/reboot_log
+mime-type: text/plain
 estimated_duration: "1.0"
 depends:
   - stress/reboot
@@ -347,6 +353,7 @@ summary: Execute stress test by rebooting system 30 times.
 plugin: attachment
 category_id: com.canonical.plainbox::stress
 id: stress/reboot_30_log
+mime-type: text/plain
 depends:
   - stress/reboot_30
 command: |
@@ -376,6 +383,7 @@ summary: Conduct a stress test involving 10 system reboot cycles.
 plugin: attachment
 category_id: com.canonical.plainbox::stress
 id: stress/reboot_10_log
+mime-type: text/plain
 depends:
   - stress/reboot_10
 command: |
@@ -405,6 +413,7 @@ summary: Perform a stress test by powering off the system 100 times.
 plugin: attachment
 category_id: com.canonical.plainbox::stress
 id: stress/poweroff_log
+mime-type: text/plain
 estimated_duration: "1.0"
 depends:
   - stress/poweroff
@@ -435,6 +444,7 @@ summary: Perform stress testing on the system poweroff process in 30 cycles.
 plugin: attachment
 category_id: com.canonical.plainbox::stress
 id: stress/poweroff_30_log
+mime-type: text/plain
 depends:
   - stress/poweroff_30
 command: |
@@ -464,6 +474,7 @@ summary: Perform a stress test on the system power-off functionality for 10 cycl
 plugin: attachment
 category_id: com.canonical.plainbox::stress
 id: stress/poweroff_10_log
+mime-type: text/plain
 depends:
   - stress/poweroff_10
 command: |
@@ -488,6 +499,7 @@ summary: Analyze logs for the stress reboot test with 30 cycles.
 plugin: attachment
 category_id: com.canonical.plainbox::stress
 id: stress/reboot_30_check_log
+mime-type: text/plain
 estimated_duration: "1.0"
 depends:
   - stress/reboot_30_check
@@ -513,6 +525,7 @@ summary: Validate logs for the stress reboot test over 10 cycles.
 plugin: attachment
 category_id: com.canonical.plainbox::stress
 id: stress/reboot_10_check_log
+mime-type: text/plain
 estimated_duration: "1.0"
 depends:
   - stress/reboot_10_check
@@ -536,6 +549,7 @@ summary: Verify logs for the stress poweroff 30 cycles test case.
 plugin: attachment
 category_id: com.canonical.plainbox::stress
 id: stress/poweroff_30_check_log
+mime-type: text/plain
 estimated_duration: "1.0"
 depends:
   - stress/poweroff_30_check
@@ -561,6 +575,7 @@ summary: Validate the log files for the stress poweroff (10 cycles) test.
 plugin: attachment
 category_id: com.canonical.plainbox::stress
 id: stress/poweroff_10_check_log
+mime-type: text/plain
 estimated_duration: "1.0"
 depends:
   - stress/poweroff_10_check
@@ -586,6 +601,7 @@ summary: Analyze logs for the stress reboot test over 100 cycles.
 plugin: attachment
 category_id: com.canonical.plainbox::stress
 id: stress/reboot_check_log
+mime-type: text/plain
 estimated_duration: "1.0"
 depends:
   - stress/reboot_check
@@ -611,6 +627,7 @@ summary: Verify logs for the stress poweroff test over 100 cycles.
 plugin: attachment
 category_id: com.canonical.plainbox::stress
 id: stress/poweroff_check_log
+mime-type: text/plain
 estimated_duration: "1.0"
 depends:
   - stress/poweroff_check
@@ -661,6 +678,7 @@ summary: Stress test by pinging ubuntu.com and restarting network interfaces.
 plugin: attachment
 category_id: com.canonical.plainbox::stress
 id: stress/network_restart_log
+mime-type: text/plain
 estimated_duration: "1.0"
 depends:
   - stress/network_restart
@@ -702,6 +720,7 @@ command: |
 plugin: attachment
 category_id: com.canonical.plainbox::stress
 id: stress/s2idle_pm-graph_30.tar.xz
+mime-type: application/x-xz
 estimated_duration: "1"
 requires:
   - cpuinfo.type == 'GenuineIntel'
@@ -735,6 +754,7 @@ command: |
 plugin: attachment
 category_id: com.canonical.plainbox::stress
 id: stress/s3_pm-graph_30.tar.xz
+mime-type: application/x-xz
 estimated_duration: "1"
 requires:
   - cpuinfo.type == 'GenuineIntel'

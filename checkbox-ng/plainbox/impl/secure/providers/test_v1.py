@@ -870,7 +870,98 @@ class YAMLUnitPlugInTests(TestCase):
             )
         )
 
-    def test_source_uniqueness_ignores_generated_jobs(self):
+    def test_template_ids_collide_with_ordinary_job_ids(self):
+        for source_cls in (TemplateUnit, ParametricTemplateUnit):
+            for job_first in (False, True):
+                with self.subTest(source=source_cls, job_first=job_first):
+                    source = source_cls(
+                        {
+                            "template-id": "shared",
+                            "parameters": [],
+                            "id": "test-{name}",
+                        },
+                        provider=self.provider,
+                    )
+                    job = JobDefinition(
+                        {"id": "shared", "plugin": "shell", "command": "true"},
+                        provider=self.provider,
+                    )
+                    self.provider.unit_list = (
+                        [job, source] if job_first else [source, job]
+                    )
+                    context = UnitValidationContext([self.provider])
+                    self.assertTrue(
+                        any(
+                            issue.kind is Problem.not_unique
+                            and issue.field == "template-id"
+                            for issue in source.check(context=context)
+                        )
+                    )
+
+    def test_template_ids_collide_with_generated_job_ids(self):
+        for source_cls in (TemplateUnit, ParametricTemplateUnit):
+            with self.subTest(source=source_cls):
+                units = self.load_parametric().unit_list
+                source = source_cls(
+                    {
+                        "template-id": "test-first",
+                        "parameters": [],
+                        "id": "other-{name}",
+                    },
+                    provider=self.provider,
+                )
+                self.provider.unit_list = units + [source]
+                context = UnitValidationContext([self.provider])
+                self.assertTrue(
+                    any(
+                        issue.kind is Problem.not_unique
+                        and issue.field == "template-id"
+                        for issue in source.check(context=context)
+                    )
+                )
+
+    def test_template_id_collides_with_own_generated_job_id(self):
+        source = ParametricTemplateUnit(
+            {
+                "template-id": "test-first",
+                "parameters": [{"name": "first"}],
+                "id": "test-{name}",
+                "plugin": "shell",
+                "command": "true",
+            },
+            provider=self.provider,
+        )
+        self.provider.unit_list = [source] + source.instantiate_jobs()
+        context = UnitValidationContext([self.provider])
+        self.assertTrue(
+            any(
+                issue.kind is Problem.not_unique
+                and issue.field == "template-id"
+                for issue in source.check(context=context)
+            )
+        )
+
+    def test_template_collision_with_separately_loaded_context(self):
+        source_data = {
+            "template-id": "test-first",
+            "id": "other-{name}",
+        }
+        source = TemplateUnit(source_data, provider=self.provider)
+        context_source = TemplateUnit(source_data, provider=self.provider)
+        units = self.load_parametric().unit_list
+        self.provider.unit_list = units + [context_source]
+        context = UnitValidationContext([self.provider])
+        errors = [
+            issue
+            for issue in source.check(context=context)
+            if issue.field == "template-id"
+            and issue.kind is Problem.not_unique
+        ]
+        self.assertEqual(len(errors), 1)
+        self.assertIs(errors[0].severity, Severity.error)
+        self.assertIn("clashes with 1 other unit", errors[0].message)
+
+    def test_source_uniqueness_ignores_generated_template_references(self):
         units = self.load_parametric().unit_list
         other = TemplateUnit(
             {

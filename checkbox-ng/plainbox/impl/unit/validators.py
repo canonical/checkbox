@@ -623,12 +623,14 @@ class UniqueValueValidator(FieldValidatorBase):
         units_with_this_value = value_map[value]
         n = len(units_with_this_value)
         if n > 1 and value is not None:
-            # come up with unit_list where this unit is always at the front
+            # The error formatter uses the first unit, so put the definition
+            # being validated first. Compare by equality because the context
+            # may contain a separately loaded copy of that definition.
             unit_list = list(units_with_this_value)
             unit_list = sorted(
                 unit_list,
                 key=lambda a_unit: (
-                    0 if a_unit is unit else unit_list.index(a_unit) + 1
+                    0 if a_unit == unit else unit_list.index(a_unit) + 1
                 ),
             )
             yield parent.error(
@@ -653,14 +655,11 @@ class UniqueValueValidator(FieldValidatorBase):
 
 
 class UniqueTemplateIdValidator(UniqueValueValidator):
-    """Check template IDs on template and parametric template definitions.
-
-    Here we are checking that the template IDs are unique among template and
-    parametric template definitions.
-    """
-
+    """Check template IDs against other template IDs and concrete job IDs."""
     def get_value_map(self, context, field):
-        """Override the generic lookup to count only template definitions."""
+        """Override the generic field lookup to compare template IDs with other
+        template IDs and concrete job IDs.
+        """
         return context.compute_shared(
             "template_id_value_map", self.compute_template_id_map, context
         )
@@ -671,6 +670,8 @@ class UniqueTemplateIdValidator(UniqueValueValidator):
             for unit in provider.unit_list:
                 if unit.Meta.name in ("template", "parametric template"):
                     value_map.setdefault(unit.template_id, []).append(unit)
+                elif unit.Meta.name in ("job", "setup job"):
+                    value_map.setdefault(unit.id, []).append(unit)
         return value_map
 
 

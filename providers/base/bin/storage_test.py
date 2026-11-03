@@ -222,12 +222,13 @@ def run_bonnie(test_dir: Path, user: str = "root"):
         "-f",
     ]
     # O_DIRECT can't be used for per-char IO, so run those tests separately
-    # with a small file and without the file creation tests
+    # with a small file and without the file creation tests.
+    # Never exceed the bulk file size, which already fits in the free space
     per_char_cmd = base_cmd + [
         "-r",
         "0",
         "-s",
-        str(PER_CHAR_SIZE_MB),
+        str(min(PER_CHAR_SIZE_MB, force_mem_mb * 2)),
         "-n",
         "0",
     ]

@@ -656,6 +656,7 @@ class UniqueValueValidator(FieldValidatorBase):
 
 class UniqueTemplateIdValidator(UniqueValueValidator):
     """Check template IDs against other template IDs and concrete job IDs."""
+
     def get_value_map(self, context, field):
         """Override the generic field lookup to compare template IDs with other
         template IDs and concrete job IDs.

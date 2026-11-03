@@ -29,9 +29,8 @@ ACCEPTED_DEVICE_TYPES = (
     "raid6",
     "raid10",
     "linear",
-    # an unlocked LUKS volume, and LVM volumes (e.g. the default Ubuntu
-    # encrypted install: part(crypto_LUKS) -> crypt(LVM2_member) -> lvm)
-    # only show up in lsblk once they are opened, so they are testable
+    # locked devices only show up in lsblk once they are unlocked
+    # so they are testable
     "crypt",
     "lvm",
 )
@@ -153,13 +152,15 @@ def find_largest_partition(device: Path) -> Path:
 
 
 def mount(source: Path, target: Path):
-    print(f"+ mount {source} {target}", flush=True)
-    sp.check_call(["mount", source, target])
+    cmd = ["mount", source, target]
+    print("+", " ".join(map(str, cmd)), flush=True)
+    sp.check_call(cmd)
 
 
 def unmount(target: Path):
-    print(f"+ umount {target}", flush=True)
-    sp.check_call(["umount", target])
+    cmd = ["umount", target]
+    print("+", " ".join(map(str, cmd)), flush=True)
+    sp.check_call(cmd)
 
 
 def memory() -> float:
@@ -215,19 +216,28 @@ def run_bonnie(test_dir: Path, user: str = "root"):
         "-D",
         # skip the per-char tests, O_DIRECT requires block aligned writes
         # so writing a byte at a time always fails with -D
+        # TODO: this is technically a bug inside bonnie++
+        # because it should automatically ignore -D when doing per-char tests
+        # but in reality it doesn't
         "-f",
     ]
     # O_DIRECT can't be used for per-char IO, so run those tests separately
     # with a small file and without the file creation tests
-    per_char_cmd = base_cmd + ["-r", "0", "-s", str(PER_CHAR_SIZE_MB)]
-    per_char_cmd += ["-n", "0"]
+    per_char_cmd = base_cmd + [
+        "-r",
+        "0",
+        "-s",
+        str(PER_CHAR_SIZE_MB),
+        "-n",
+        "0",
+    ]
 
     print(" Bonnie++ bulk IO tests ".center(80, "="))
     print("+", " ".join(map(str, bulk_cmd)), flush=True)
     sp.check_call(bulk_cmd)
 
     print(" Bonnie++ per-char IO tests ".center(80, "="))
-    print("+", " ".join(map(str, bulk_cmd)), flush=True)
+    print("+", " ".join(map(str, per_char_cmd)), flush=True)
     sp.check_call(per_char_cmd)
 
 
@@ -235,6 +245,7 @@ def devmapper_test(udev_name: str):
     print(f"Identified {udev_name} as a devmapper device...")
     device = Path("/dev") / udev_name
     mount_dir = mountpoint(device)
+
     if mount_dir:
         print(f"{device} already mounted at {mount_dir}")
     else:
@@ -245,6 +256,7 @@ def devmapper_test(udev_name: str):
                 mount_dir = mountpoint(dm_device)
                 if mount_dir:
                     print(f"{dm_device} already mounted at {mount_dir}")
+
     with ExitStack() as stack:
         if mount_dir is None:
             mount_dir = Path(tempfile.mkdtemp())

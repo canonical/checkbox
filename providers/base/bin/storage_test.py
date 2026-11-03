@@ -67,6 +67,8 @@ PER_CHAR_SIZE_MB = 64
 # larger than the max file size of the filesystem, FAT is limited to 4GiB - 1
 FS_MAX_FILE_SIZE_MB = {"vfat": 4095, "msdos": 4095}
 
+SYS_CLASS_BLOCK = Path("/sys/class/block")
+
 
 def mountpoint(device: Path) -> "Path | None":
     for part in psutil.disk_partitions():
@@ -268,11 +270,41 @@ def devmapper_test(udev_name: str):
         run_bonnie(mount_dir)
 
 
+def check_raid_healthy(device: Path) -> bool:
+    """Check if a raid array is healthy by checking sysfs
+
+    :param device: device path like /dev/md0
+    :return: False only if the device is part of a degraded array
+    """
+    # md partitions (e.g. md0p1) keep the md/ dir in their parent array
+    sys_device = (SYS_CLASS_BLOCK / device.name).resolve()
+    for sys_dir in (sys_device, sys_device.parent):
+        degraded_file = sys_dir / "md" / "degraded"
+        # only arrays with redundancy (not raid0/linear) have this file
+        if degraded_file.is_file():
+            degraded = int(degraded_file.read_text())
+            if degraded:
+                print(
+                    f"RAID array {sys_dir.name} has",
+                    f"{degraded} member(s) missing or failed",
+                    file=sys.stderr,
+                )
+                return False
+            print(f"RAID array {sys_dir.name} has all members working")
+            return True
+    return True
+
+
 def disk_test(udev_name: str):
     print(f"Identified {udev_name} as a disk...")
     device = Path("/dev") / udev_name
     partition_to_test = find_largest_partition(device)
     print(f"Test will be run on the largest partition {partition_to_test}")
+
+    if not check_raid_healthy(partition_to_test):
+        raise SystemExit(
+            f"ERROR: {partition_to_test} is on a degraded RAID array"
+        )
 
     mount_dir = mountpoint(partition_to_test)
     if mount_dir:

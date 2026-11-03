@@ -1,9 +1,11 @@
 import json
+import tempfile
 import unittest
 from pathlib import Path, PosixPath
 from unittest.mock import MagicMock, call, patch
 
 from storage_test import (
+    check_raid_healthy,
     devmapper_name,
     devmapper_test,
     disk_test,
@@ -383,7 +385,67 @@ class TestDevmapperTest(unittest.TestCase):
         mock_unmount.assert_called_once_with(Path("/tmp/mockdir"))
 
 
+class TestCheckRaidHealthy(unittest.TestCase):
+    def setUp(self):
+        tmp = tempfile.TemporaryDirectory()
+        self.addCleanup(tmp.cleanup)
+        root = Path(tmp.name)
+        # mimic sysfs, /sys/class/block/X symlinks into /sys/devices
+        self.class_block = root / "class" / "block"
+        self.class_block.mkdir(parents=True)
+        self.devices = root / "devices"
+        patcher = patch("storage_test.SYS_CLASS_BLOCK", self.class_block)
+        patcher.start()
+        self.addCleanup(patcher.stop)
+
+    def _add_device(self, name, parent=None, degraded=None):
+        sys_dir = self.devices / (parent or "") / name
+        sys_dir.mkdir(parents=True)
+        if not parent:
+            (sys_dir / "md").mkdir()
+        if degraded is not None:
+            (sys_dir / "md" / "degraded").write_text(f"{degraded}\n")
+        (self.class_block / name).symlink_to(sys_dir)
+
+    def test_healthy_array(self):
+        self._add_device("md0", degraded=0)
+        self.assertTrue(check_raid_healthy(Path("/dev/md0")))
+
+    def test_degraded_array(self):
+        self._add_device("md0", degraded=1)
+        self.assertFalse(check_raid_healthy(Path("/dev/md0")))
+
+    def test_degraded_array_partition(self):
+        self._add_device("md0", degraded=1)
+        self._add_device("md0p1", parent="md0")
+        self.assertFalse(check_raid_healthy(Path("/dev/md0p1")))
+
+    def test_not_redundant_or_not_raid(self):
+        # raid0/linear arrays and regular partitions have no degraded file
+        self._add_device("md0")
+        self.assertTrue(check_raid_healthy(Path("/dev/md0")))
+        self.assertTrue(check_raid_healthy(Path("/dev/sda1")))
+
+
 class TestDiskTest(unittest.TestCase):
+    def setUp(self):
+        patcher = patch("storage_test.check_raid_healthy", return_value=True)
+        self.mock_check_raid_healthy = patcher.start()
+        self.addCleanup(patcher.stop)
+
+    @patch("storage_test.run_bonnie")
+    @patch(
+        "storage_test.find_largest_partition",
+        return_value=Path("/dev/md0"),
+    )
+    def test_disk_test_degraded_raid(
+        self, mock_find_largest_partition, mock_run_bonnie
+    ):
+        self.mock_check_raid_healthy.return_value = False
+        with self.assertRaises(SystemExit):
+            disk_test("md0")
+        mock_run_bonnie.assert_not_called()
+
     @patch("storage_test.run_bonnie")
     @patch(
         "storage_test.find_largest_partition",

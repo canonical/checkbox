@@ -282,11 +282,14 @@ def check_raid_healthy(device: Path) -> bool:
         degraded_file = sys_dir / "md" / "degraded"
         # only arrays with redundancy (not raid0/linear) have this file
         if degraded_file.is_file():
-            degraded = int(degraded_file.read_text())
-            if degraded:
+            # this file is a nonnegative int, the num of degraded disks
+            # 0 -> all working
+            # 1 -> 1 disk degraded etc.
+            degraded_count = int(degraded_file.read_text())
+            if degraded_count != 0:
                 print(
                     f"RAID array {sys_dir.name} has",
-                    f"{degraded} member(s) missing or failed",
+                    f"{degraded_count} member(s) missing or failed",
                     file=sys.stderr,
                 )
                 return False

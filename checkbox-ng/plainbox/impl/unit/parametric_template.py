@@ -24,17 +24,14 @@ from plainbox.impl.resource import Resource
 from plainbox.impl.symbol import SymbolDef
 from plainbox.impl.unit import concrete_validators
 from plainbox.impl.unit.template import TemplateUnit
-from plainbox.impl.unit.unit import MissingParam
 from plainbox.impl.unit.unit_with_id import UnitWithIdValidator
 from plainbox.impl.unit.validators import CorrectFieldValueValidator
 from plainbox.impl.validation import Problem
-from plainbox.impl.validation import Severity
 
 
 class ParametricTemplateValidator(UnitWithIdValidator):
     def check(self, unit):
-        issues = list(super().check(unit))
-        yield from issues
+        yield from super().check(unit)
         for field in unit._data:
             if field.startswith("template-") and (
                 field == "template-unit"
@@ -46,32 +43,6 @@ class ParametricTemplateValidator(UnitWithIdValidator):
                     Problem.useless,
                     _("parametric template does not support {}").format(field),
                 )
-        # If the field validator rejected the parameter records, skip
-        # instantiation to avoid reporting the same structure error again
-        if any(
-            issue.field == unit.Meta.fields.parameter_records
-            and issue.severity is Severity.error
-            for issue in issues
-        ):
-            return
-        try:
-            jobs = unit.instantiate_jobs()
-            for job in jobs:
-                yield from job.check()
-        except MissingParam as exc:
-            yield self.error(
-                unit,
-                exc.field,
-                Problem.unknown_param,
-                _("reference to unknown parameter {!r}").format(exc.parameter),
-            )
-        except (ValueError, TypeError, KeyError) as exc:
-            yield self.error(
-                unit,
-                unit.Meta.fields.parameter_records,
-                Problem.wrong,
-                _("unable to instantiate parametric template: {}").format(exc),
-            )
 
 
 class ParametricTemplateUnit(TemplateUnit):

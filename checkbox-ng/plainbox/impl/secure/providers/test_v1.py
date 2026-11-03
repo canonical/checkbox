@@ -1012,6 +1012,46 @@ class YAMLUnitPlugInTests(TestCase):
         with self.assertRaisesRegex(PlugInError, "identifier cannot"):
             self.load_parametric("[{name: 'ns::invalid'}]")
 
+    def test_parametric_generated_field_errors_reported_once(self):
+        plugin = YAMLUnitPlugIn(
+            "/path/to/invalid-fields.yaml",
+            dedent("""\
+                unit: parametric template
+                template-id: invalid-fields
+                parameters:
+                  - value: A
+                  - value: B
+                id: invalid-fields_{value}
+                command: 'true'
+                depends: [unknown]
+                estimated_duration: not_an_int
+                plugin: wrong_plugin
+                """),
+            self.LOAD_TIME,
+            self.provider,
+            check=False,
+        )
+        self.provider.unit_list = plugin.unit_list
+        context = UnitValidationContext([self.provider])
+        errors = [
+            issue
+            for unit in plugin.unit_list
+            if unit.Meta.name != "file"
+            for issue in unit.check(context=context)
+            if issue.severity is Severity.error
+        ]
+        for field in ("plugin", "estimated_duration", "depends"):
+            with self.subTest(field=field):
+                self.assertEqual(
+                    sum(issue.field == field for issue in errors), 2
+                )
+        self.assertFalse(
+            any(
+                issue.severity is Severity.error
+                for issue in plugin.unit_list[0].check()
+            )
+        )
+
     def test_parametric_missing_id_parameter_without_check(self):
         with self.assertRaisesRegex(
             PlugInError, "Cannot instantiate parametric template.*name"

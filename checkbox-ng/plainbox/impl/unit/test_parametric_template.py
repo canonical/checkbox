@@ -17,6 +17,7 @@
 from unittest import TestCase
 
 from plainbox.impl.unit.job import JobDefinition
+from plainbox.impl.unit.unit import MissingParam
 from plainbox.impl.unit.parametric_template import (
     ParametricTemplateUnit,
     ParametricTemplateValidator,
@@ -283,7 +284,7 @@ class ParametricTemplateTests(TestCase):
                 )
                 self.assertEqual(len(unit.instantiate_jobs()), 2)
 
-    def test_validates_real_values(self):
+    def test_generated_job_validates_real_values(self):
         unit = self.make_unit(
             parameters=[{"name": "first", "plugin": "invalid"}],
             plugin="{plugin}",
@@ -291,25 +292,21 @@ class ParametricTemplateTests(TestCase):
         self.assertTrue(
             any(
                 issue.field == "plugin" and issue.severity is Severity.error
-                for issue in unit.check()
+                for issue in unit.instantiate_jobs()[0].check()
             )
         )
 
     def test_missing_record_parameter(self):
         unit = self.make_unit(parameters=[{}])
-        self.assertTrue(
-            any(issue.severity is Severity.error for issue in unit.check())
-        )
+        with self.assertRaises(MissingParam):
+            unit.instantiate_jobs()
 
     def test_missing_id_parameter(self):
         unit = self.make_unit(id="test-{name}-{missing}")
-        errors = [
-            issue for issue in unit.check() if issue.severity is Severity.error
-        ]
-        self.assertEqual(len(errors), 1)
-        self.assertEqual(errors[0].field, "id")
-        self.assertIs(errors[0].kind, Problem.unknown_param)
-        self.assertIn("missing", errors[0].message)
+        with self.assertRaises(MissingParam) as raised:
+            unit.instantiate_jobs()
+        self.assertEqual(raised.exception.field, "id")
+        self.assertEqual(raised.exception.parameter, "missing")
 
     def test_requires_does_not_supply_records(self):
         unit = self.make_unit(requires="device.present == 'yes'")

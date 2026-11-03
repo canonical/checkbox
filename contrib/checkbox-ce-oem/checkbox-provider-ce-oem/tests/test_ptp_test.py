@@ -1,6 +1,6 @@
 import os
 import unittest
-from subprocess import CompletedProcess
+from subprocess import CalledProcessError, CompletedProcess
 from unittest.mock import patch
 
 import ptp_test
@@ -12,8 +12,9 @@ def _proc(returncode=0, stdout="", stderr=""):
 
 class TestPtp4lVersion(unittest.TestCase):
     @patch("ptp_test.subprocess.run", return_value=_proc(stdout="4.2\n"))
-    def test_parses_major_version(self, _):
+    def test_parses_major_version(self, mock_run):
         self.assertEqual(ptp_test.ptp4l_major_version(), 4)
+        self.assertTrue(mock_run.call_args[1]["check"])
 
     @patch("ptp_test.subprocess.run", return_value=_proc(stdout="3.1.1\n"))
     def test_parses_three_part_version(self, _):
@@ -219,8 +220,9 @@ PTP Hardware Clock: 0
 
 class TestPhcReadiness(unittest.TestCase):
     @patch("ptp_test.subprocess.run", return_value=_proc(stdout=ETHTOOL_T))
-    def test_phc_device_from_ethtool(self, _):
+    def test_phc_device_from_ethtool(self, mock_run):
         self.assertEqual(ptp_test.phc_device("enP1p1s0"), "/dev/ptp0")
+        self.assertTrue(mock_run.call_args[1]["check"])
 
     @patch(
         "ptp_test.subprocess.run",
@@ -251,6 +253,7 @@ class TestPhcReadiness(unittest.TestCase):
         self.assertEqual(
             mock_run.call_args[0][0], ["hwstamp_ctl", "-i", "eth0"]
         )
+        self.assertTrue(mock_run.call_args[1]["check"])
 
     @patch(
         "ptp_test.subprocess.run",
@@ -260,6 +263,34 @@ class TestPhcReadiness(unittest.TestCase):
     )
     def test_hwtstamp_disabled_on_fresh_boot(self, _):
         self.assertFalse(ptp_test.hwtstamp_enabled("eth0"))
+
+    @patch(
+        "ptp_test.subprocess.run",
+        side_effect=CalledProcessError(
+            95,
+            ["hwstamp_ctl", "-i", "eth0"],
+            output="Device driver does not have support for "
+            "non-destructive SIOCGHWTSTAMP.\n",
+        ),
+    )
+    def test_hwtstamp_unreadable_is_off(self, _):
+        with patch("builtins.print"):
+            self.assertFalse(ptp_test.hwtstamp_enabled("eth0"))
+
+    @patch("ptp_test.subprocess.run", return_value=_proc(returncode=0))
+    def test_rearm_toggles_timestamping_and_sets_phc(self, mock_run):
+        with patch("builtins.print") as mock_print:
+            ptp_test.rearm_hwtstamp("eth0", "/dev/ptp0")
+        self.assertEqual(
+            [c.args[0] for c in mock_run.call_args_list],
+            [
+                ["hwstamp_ctl", "-i", "eth0", "-t", "0", "-r", "0"],
+                ["hwstamp_ctl", "-i", "eth0", "-t", "1", "-r", "12"],
+                ["phc_ctl", "/dev/ptp0", "set"],
+            ],
+        )
+        printed = [str(c.args[0]) for c in mock_print.call_args_list]
+        self.assertIn("phc_ctl /dev/ptp0 set -> 0", printed)
 
     @patch("ptp_test.phc_device", return_value="/dev/ptp0")
     @patch("ptp_test.hwtstamp_enabled", return_value=False)

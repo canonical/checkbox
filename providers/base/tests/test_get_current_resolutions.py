@@ -31,7 +31,7 @@ from get_current_resolutions import main  # noqa: E402
 
 
 class CurrentResolutionsTests(unittest.TestCase):
-    @patch("current_resolutions.MonitorConfigGnome")
+    @patch("get_current_resolutions.MonitorConfigGnome")
     @patch("sys.stdout", new_callable=StringIO)
     def test_prints_sorted_by_connector(self, stdout, mock_gnome):
         mock_gnome.return_value.get_current_resolutions.return_value = {

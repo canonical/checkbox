@@ -123,7 +123,7 @@ class TestMainFunction(unittest.TestCase):
         self, check_output_mock, shutil_which_mock, os_geteuid_mock
     ):
         self.assertEqual(main(), 0)
-        command = check_output_mock.call_args.args[0]
+        command = check_output_mock.call_args[0][0]
         self.assertIn("--cpu-online", command)
         self.assertIn("--pathological", command)
 

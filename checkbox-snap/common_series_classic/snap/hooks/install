@@ -14,3 +14,27 @@ ResultAny=yes
 ResultInactive=yes
 ResultActive=yes
 EOF
+
+# Make "checkbox-cli" resolvable on PATH (including under sudo, since
+# Ubuntu's default secure_path already includes /usr/local/bin).
+# Provider launcher scripts (e.g. test-usb, certify-ubuntu-server) use
+# "#!/usr/bin/env checkbox-cli" and rely on this being on PATH. There is
+# no snapd hook API to create a "snap alias" programmatically, so we
+# install a plain wrapper script that runs "snap run" directly instead.
+cat <<'EOF' > /usr/local/bin/checkbox-cli
+#!/bin/sh
+exec snap run checkbox.checkbox-cli "$@"
+EOF
+chmod +x /usr/local/bin/checkbox-cli
+
+# Expose the provider launcher scripts (test-*, certify-*, etc.) shipped
+# by any installed checkbox runtime snap (checkbox16..checkbox26) so they
+# work out of the box without manual symlinking, regardless of which
+# runtime series is installed alongside this snap.
+for provider_bin in /snap/checkbox[0-9]*/current/providers/*/bin; do
+    [ -d "$provider_bin" ] || continue
+    for launcher in "$provider_bin"/*; do
+        [ -f "$launcher" ] && [ -x "$launcher" ] || continue
+        ln -sf "$launcher" "/usr/local/bin/$(basename "$launcher")"
+    done
+done

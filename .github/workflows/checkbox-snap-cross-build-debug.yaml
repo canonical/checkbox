@@ -1,0 +1,188 @@
+name: Debug Snap cross-build hangs
+# Reproduces the armhf cross builds of checkbox-daily-cross-builds.yaml with
+# the same container the snapcraft-multiarch-action uses, but detached and
+# without --rm, so snapd/systemd diagnostics can be collected from inside the
+# container when it hangs. Nothing is uploaded to the store.
+permissions:
+  contents: read
+on:
+  # Temporary trigger to run the debug builds from this branch
+  push:
+    branches: [debug-snap-cross-build-hang]
+  workflow_dispatch:
+    inputs:
+      max_minutes:
+        description: 'Maximum minutes to wait for each build'
+        default: '240'
+        required: false
+        type: string
+      prestart_minutes:
+        description: 'Minutes allowed for the snapd/snapcraft setup (ExecStartPre)'
+        default: '30'
+        required: false
+        type: string
+      idle_minutes:
+        description: 'Minutes without build output considered a hang'
+        default: '30'
+        required: false
+        type: string
+jobs:
+  debug-build:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: runtime18
+            project: checkbox-core-snap
+            prepare: ./prepare.sh series18
+            series: series18
+          - name: runtime20
+            project: checkbox-core-snap
+            prepare: ./prepare.sh series20
+            series: series20
+    runs-on: ubuntu-latest
+    timeout-minutes: 360
+    name: Debug ${{ matrix.name }} (armhf)
+    env:
+      PROJECT: ${{ matrix.project }}
+      PREPARE: ${{ matrix.prepare }}
+      SERIES: ${{ matrix.series }}
+      MAX_MINUTES: ${{ inputs.max_minutes || '240' }}
+      PRESTART_MINUTES: ${{ inputs.prestart_minutes || '30' }}
+      IDLE_MINUTES: ${{ inputs.idle_minutes || '30' }}
+      CONTAINER: snapbuild
+      DIAG: ${{ github.workspace }}/diagnostics
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Copy over the common files
+        run: |
+          cd "$PROJECT"
+          sudo apt update && sudo apt install -qq -y python3-setuptools-scm
+          $PREPARE
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@99012661954931238ded8c8b007157a8430204e1
+
+      - name: Start the build container (same as snapcraft-multiarch-action)
+        run: |
+          mkdir -p "$DIAG"
+          base="$(python3 -c 'import sys, yaml; d = yaml.safe_load(open(sys.argv[1])); print(d.get("build-base") or d["base"])' "$PROJECT/$SERIES/snap/snapcraft.yaml")"
+          case "$base" in
+            core18) channel=5.x/stable ;;
+            core20) channel=8.x/stable ;;
+            *) channel=9.x/stable ;;
+          esac
+          image="ghcr.io/canonical/snapcraft-container:$base"
+          echo "base=$base snapcraft=$channel image=$image" | tee "$DIAG/setup.txt"
+          {
+            uname -a
+            docker version
+            ls /proc/sys/fs/binfmt_misc/
+            cat /proc/sys/fs/binfmt_misc/qemu-arm 2>/dev/null || true
+          } >> "$DIAG/setup.txt" 2>&1
+          docker pull --platform linux/arm/v7 "$image"
+          docker image inspect --format '{{.Id}} {{json .RepoDigests}} {{.Created}}' "$image" | tee -a "$DIAG/setup.txt"
+          docker run --detach --name "$CONTAINER" --tty --privileged \
+            --volume "$PWD/$PROJECT/$SERIES:/data" --workdir /data \
+            --platform linux/arm/v7 \
+            --env USE_SNAPCRAFT_CHANNEL="$channel" \
+            --env SNAPCRAFT_BUILD_INFO=1 \
+            "$image" snapcraft
+
+      - name: Build and watch for hangs
+        id: watch
+        run: |
+          collect() {
+            out="$DIAG/$1"
+            mkdir -p "$out"
+            run() {
+              local file="$1"; shift
+              timeout 120 docker exec "$CONTAINER" timeout 90 "$@" > "$out/$file" 2>&1 || echo "exit=$?" >> "$out/$file"
+            }
+            run snap-version.txt snap version
+            run snap-list.txt snap list --all
+            run snap-changes.txt snap changes
+            # shellcheck disable=SC2016  # expanded inside the container
+            run snap-tasks.txt sh -c 'for c in $(snap changes | awk "NR>1 && \$2 !~ /Done/ {print \$1}"); do echo "== change $c"; snap tasks "$c"; done'
+            run snap-connectivity.txt snap debug connectivity
+            run dpkg-snapd.txt dpkg -l snapd systemd
+            run systemctl-status.txt systemctl status --no-pager snapd.socket snapd.service snapd.seeded.service docker-exec.service
+            run systemctl-failed.txt systemctl list-units --failed --no-pager
+            run systemctl-jobs.txt systemctl list-jobs --no-pager
+            run journal-snapd.txt journalctl --no-pager -u snapd -u snapd.socket -u snapd.seeded -u docker-exec
+            run journal-full.txt journalctl --no-pager -b
+            run ps.txt ps auxfww
+            run resolv.txt sh -c 'cat /etc/resolv.conf; getent hosts api.snapcraft.io'
+            { uptime; free -m; df -h; } > "$out/host.txt" 2>&1
+          }
+
+          touch "$DIAG/build.log"
+          docker logs --follow "$CONTAINER" 2>&1 | tee "$DIAG/build.log" &
+          start=$(date +%s)
+          last_size=0
+          last_change=$start
+          next_snapshot=$start
+          result=timeout
+          while true; do
+            now=$(date +%s)
+            elapsed=$(( (now - start) / 60 ))
+            if [ "$(docker inspect -f '{{.State.Running}}' "$CONTAINER")" != true ]; then
+              code="$(docker inspect -f '{{.State.ExitCode}}' "$CONTAINER")"
+              [ "$code" = 0 ] && result=success || result="exited-$code"
+              break
+            fi
+            size=$(stat -c %s "$DIAG/build.log")
+            if [ "$size" != "$last_size" ]; then
+              last_size=$size
+              last_change=$now
+            fi
+            if [ "$now" -ge "$next_snapshot" ]; then
+              collect "snapshot-$(printf '%03d' "$elapsed")min"
+              next_snapshot=$(( now + 900 ))
+            fi
+            state="$(timeout 60 docker exec "$CONTAINER" systemctl show -p SubState --value docker-exec.service 2>/dev/null)" || state=unknown
+            if [ "$state" = start-pre ] && [ "$elapsed" -ge "$PRESTART_MINUTES" ]; then
+              result=hang-in-snapd-setup
+              break
+            fi
+            if [ $(( (now - last_change) / 60 )) -ge "$IDLE_MINUTES" ]; then
+              result="hang-no-output-in-$state"
+              break
+            fi
+            if [ "$elapsed" -ge "$MAX_MINUTES" ]; then
+              break
+            fi
+            sleep 60
+          done
+
+          echo "result=$result after $(( ($(date +%s) - start) / 60 )) minutes" | tee "$DIAG/result.txt"
+          echo "result=$result" >> "$GITHUB_OUTPUT"
+          collect final
+          docker inspect "$CONTAINER" > "$DIAG/docker-inspect.json"
+          if [ "$result" = success ]; then
+            ls -l "$PROJECT/$SERIES"/*.snap
+          else
+            echo "::error::Build did not finish: $result. Diagnostics are in the artifact."
+            exit 1
+          fi
+
+      - name: Collect diagnostics after cancellation
+        if: cancelled()
+        run: |
+          mkdir -p "$DIAG/cancelled"
+          timeout 120 docker exec "$CONTAINER" journalctl --no-pager -b > "$DIAG/cancelled/journal-full.txt" 2>&1 || true
+          timeout 120 docker exec "$CONTAINER" timeout 90 snap changes > "$DIAG/cancelled/snap-changes.txt" 2>&1 || true
+          timeout 120 docker exec "$CONTAINER" ps auxfww > "$DIAG/cancelled/ps.txt" 2>&1 || true
+
+      - name: Upload diagnostics
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
+        with:
+          name: snap-debug-${{ matrix.name }}-armhf
+          path: |
+            diagnostics/
+            ${{ matrix.project }}/${{ matrix.series }}/*.txt

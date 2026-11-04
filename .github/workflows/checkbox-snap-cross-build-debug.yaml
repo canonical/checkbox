@@ -1,6 +1,6 @@
 name: Debug Snap cross-build hangs
 # Temporary: checks whether running the privileged core18 build container
-# breaks snapcraft installs on the ubuntu-22.04 host, and which fix works.
+# (old, systemd-based image) breaks snapcraft installs on the ubuntu-22.04 host, and which fix works.
 # Nothing is uploaded.
 permissions:
   contents: read
@@ -32,7 +32,7 @@ jobs:
         run: |
           docker run --rm --tty --privileged --platform linux/arm/v7 \
             --env USE_SNAPCRAFT_CHANNEL=5.x/stable \
-            ghcr.io/canonical/snapcraft-container:core18 snapcraft --version
+            ghcr.io/canonical/snapcraft-container@sha256:79ff5f6bd6b914351e73155dd1331d13a774d148bd7b2adf7a00eddbe6aee1b8 snapcraft --version
 
       - name: Host AppArmor snap-confine profiles after
         run: |

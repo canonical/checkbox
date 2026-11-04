@@ -38,7 +38,10 @@ jobs:
           - release: 24
             arch: riscv64
             snapcraft_version: 8.x/stable
-    runs-on: ubuntu-latest
+    # core18/core20 build containers ship an old snapd/AppArmor that fails to
+    # start on the newer ubuntu-latest kernel, hanging the build. This is a
+    # workaround unitl the snapd/AppArmor issue is resolved.
+    runs-on: ${{ matrix.release < 22 && 'ubuntu-22.04' || 'ubuntu-latest' }}
     timeout-minutes: 1200 #20h, this will timeout sooner due to inner timeouts
     name: Runtime ${{ matrix.release }} (${{ matrix.arch }})
     steps:
@@ -124,7 +127,10 @@ jobs:
           - release: 24
             arch: riscv64
             type: uc
-    runs-on: ubuntu-latest
+    # core18/core20 build containers ship an old snapd/AppArmor that fails to
+    # start on the newer ubuntu-latest kernel, hanging the build. This is a
+    # workaround unitl the snapd/AppArmor issue is resolved.
+    runs-on: ${{ matrix.release < 22 && 'ubuntu-22.04' || 'ubuntu-latest' }}
     timeout-minutes: 1200 #20h, this will timeout sooner due to inner timeouts
     name: Frontend ${{ matrix.type }}${{ matrix.release }} (${{ matrix.arch }})
     steps:

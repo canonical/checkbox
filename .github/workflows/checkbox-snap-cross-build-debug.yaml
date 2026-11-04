@@ -1,8 +1,8 @@
 name: Debug Snap cross-build hangs
 # Temporary: checks whether the old (systemd-based) core18/core20
 # snapcraft-container images work on the ubuntu-latest kernel when the
-# entrypoint does not mount securityfs (so snapd inside the container does
-# not load AppArmor profiles into the host kernel). Nothing is uploaded.
+# entrypoint does not mount securityfs and AppArmor looks disabled inside
+# the container (so snapd does not load profiles into the host kernel). Nothing is uploaded.
 permissions:
   contents: read
 on:
@@ -22,7 +22,7 @@ jobs:
             channel: 8.x/stable
             digest: sha256:d0194fcc76fc10a4b640e9cfed93f878c794d3141156edeb7aff253fec2da8d9
         platform: [linux/amd64, linux/arm/v7]
-        entrypoint: [stock, no-securityfs]
+        entrypoint: [apparmor-disabled]
     runs-on: ubuntu-latest
     name: ${{ matrix.image.base }} ${{ matrix.platform }} ${{ matrix.entrypoint }}
     env:
@@ -67,11 +67,14 @@ jobs:
           cat project/snap/snapcraft.yaml
           docker pull --platform "$PLATFORM" "$IMAGE"
           docker run --rm --platform "$PLATFORM" --entrypoint cat "$IMAGE" /bin/entrypoint.sh > entrypoint.sh
-          if [ "$ENTRYPOINT" = no-securityfs ]; then
-            sed -i '/grep -q securityfs/,/^fi$/d' entrypoint.sh
-          fi
+          # Do not mount securityfs and make libapparmor/snapd inside the
+          # container see AppArmor as disabled (aa_is_enabled -> ECANCELED)
+          sed -i '/grep -q securityfs/,/^fi$/c\
+          echo N > /aa-disabled\
+          mount --bind /aa-disabled /sys/module/apparmor/parameters/enabled' entrypoint.sh
+          sed -i 's/^ *echo N > \/aa-disabled/echo N > \/aa-disabled/; s/^ *mount --bind \/aa-disabled/mount --bind \/aa-disabled/' entrypoint.sh
           chmod +x entrypoint.sh
-          grep -n -A2 securityfs entrypoint.sh || echo "securityfs mount removed"
+          tail -8 entrypoint.sh
 
       - name: Build the snap in the container
         timeout-minutes: 40

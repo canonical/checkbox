@@ -1,6 +1,7 @@
 name: Debug Snap cross-build hangs
-# Temporary: checks that refreshing snapd on ubuntu-22.04 runners lets
-# canonical/action-publish install snapcraft. Nothing is uploaded.
+# Temporary: checks whether running the privileged core18 build container
+# breaks snapcraft installs on the ubuntu-22.04 host, and which fix works.
+# Nothing is uploaded.
 permissions:
   contents: read
 on:
@@ -12,20 +13,43 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        refresh_snapd: [false, true]
+        fix: [none, refresh-snapd, restart-snapd]
     runs-on: ubuntu-22.04
-    name: Install snapcraft (refresh snapd ${{ matrix.refresh_snapd }})
+    name: Install snapcraft after container (fix ${{ matrix.fix }})
+    env:
+      FIX: ${{ matrix.fix }}
     steps:
-      - name: snapd before
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@99012661954931238ded8c8b007157a8430204e1
+
+      - name: Host AppArmor snap-confine profiles before
         run: |
           snap version
-          dpkg -l snapd | tail -1
-          snap list
-      - name: Refresh snapd to latest/stable
-        if: matrix.refresh_snapd
+          sudo grep -i snap-confine /sys/kernel/security/apparmor/profiles || true
+
+      - name: Run the core18 build container (same as snapcraft-multiarch-action)
+        timeout-minutes: 45
         run: |
-          sudo snap refresh snapd --channel=latest/stable || sudo snap install snapd --channel=latest/stable
-          snap version
+          docker run --rm --tty --privileged --platform linux/arm/v7 \
+            --env USE_SNAPCRAFT_CHANNEL=5.x/stable \
+            ghcr.io/canonical/snapcraft-container:core18 snapcraft --version
+
+      - name: Host AppArmor snap-confine profiles after
+        run: |
+          sudo grep -i snap-confine /sys/kernel/security/apparmor/profiles || true
+
+      - name: Apply fix
+        run: |
+          case "$FIX" in
+            refresh-snapd)
+              sudo snap refresh snapd --channel=latest/stable || sudo snap install snapd --channel=latest/stable
+              ;;
+            restart-snapd)
+              sudo systemctl restart snapd
+              ;;
+          esac
+          sudo grep -i snap-confine /sys/kernel/security/apparmor/profiles || true
+
       - name: Install snapcraft (same as canonical/action-publish)
         run: |
           sudo snap install --classic snapcraft

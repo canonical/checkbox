@@ -47,7 +47,9 @@ not `True`, the jobs are not selected.
 
 ## Jobs
 
-All jobs use `plugin: shell` and have `flags: also-after-suspend`. Only `dfs` runs as `root`, because it writes to the devfreq sysfs; the other tools only need `/dev/aipu`, which is world-accessible.
+All jobs use `plugin: shell` and have `flags: also-after-suspend`. Only `dfs`
+runs as `root`, because it writes to the devfreq sysfs; the other tools only
+need `/dev/aipu`, which is world-accessible.
 Unless stated otherwise, a job passes when the tool exits with `0`, prints no
 `[Err]` or `FAIL` line and at least one `Test Result Check PASS` line.
 
@@ -105,7 +107,9 @@ Runs `noe_time_cost` to check that the time cost of each stage is reported.
 There is no `Test Result Check PASS` line; only the exit code and the absence
 of `[Err]` and `FAIL` lines are checked.
 
-#### Scenario: Pass
+## Example results
+
+### Scenario: Pass
 
 ```text
 Test Result Check PASS!
@@ -114,7 +118,7 @@ noe_deinit_ctx success
 noe_batch PASSED
 ```
 
-#### Scenario: Fail
+### Scenario: Fail
 
 The tool exits with `0` but prints an error:
 

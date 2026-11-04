@@ -86,6 +86,14 @@ jobs:
           name: runtime_snap${{ matrix.release }}_${{ matrix.arch }}.snap
           path: ${{ steps.snap_build.outputs.snap }}
 
+      - name: Reload the host snapd AppArmor profiles
+        if: inputs.store_upload
+        run: |
+          # The privileged build container runs its own snapd, which replaces
+          # the host snap-confine AppArmor profile and makes installing
+          # snapcraft for publishing fail (cap_fowner not found)
+          sudo systemctl restart snapd
+
       - name: Publish track
         if: inputs.store_upload
         uses: canonical/action-publish@214b86e5ca036ead1668c79afb81e550e6c54d40
@@ -173,6 +181,14 @@ jobs:
         with:
           name: frontend_snaps_${{ matrix.type }}${{ matrix.release }}_${{matrix.arch}}.snap
           path: ${{ steps.snap_build.outputs.snap }}
+
+      - name: Reload the host snapd AppArmor profiles
+        if: inputs.store_upload
+        run: |
+          # The privileged build container runs its own snapd, which replaces
+          # the host snap-confine AppArmor profile and makes installing
+          # snapcraft for publishing fail (cap_fowner not found)
+          sudo systemctl restart snapd
 
       - name: Publish track
         # this is done this way because the store doesn't allow the same artifact to be uploaded twice

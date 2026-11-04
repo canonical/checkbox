@@ -104,13 +104,18 @@ class TestSriovFunctions(TestCase):
         self.assertEqual(str(context.exception), "File read error")
 
     @patch("os.path.exists", return_value=True)
-    @patch("builtins.open", new_callable=mock_open)
+    @patch("builtins.open", new_callable=mock_open, read_data="1")
     @patch("sriov.logging.info")
     def test_is_sriov_capable(self, mock_logging, mock_open, mock_exists):
         sriov.is_sriov_capable("eth0")
         mock_logging.assert_any_call(
-            "SR-IOV enabled with 1 VFs on interface eth0."
+            "SR-IOV VF creation successful with 1 VFs on " "interface eth0."
         )
+        # Ensure the VF probe is always released back to 0.
+        write_calls = [
+            call.args[0] for call in mock_open().write.call_args_list
+        ]
+        self.assertEqual(write_calls[-1], "0")
 
     @patch("os.path.exists", return_value=True)
     @patch("builtins.open", side_effect=IOError("Permission denied"))

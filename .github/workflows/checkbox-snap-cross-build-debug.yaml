@@ -40,7 +40,7 @@ jobs:
             project: checkbox-core-snap
             prepare: ./prepare.sh series20
             series: series20
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     timeout-minutes: 360
     name: Debug ${{ matrix.name }} (armhf)
     env:

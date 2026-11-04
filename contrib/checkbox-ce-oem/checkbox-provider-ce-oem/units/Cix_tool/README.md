@@ -1,18 +1,23 @@
 # CIX NPU Tool Tests
 
 The CIX NPU tool tests run the NOE tools shipped in the `cix-ai-test` package
-on CIX P1 devices and check that the NPU stack (KMD, UMD and `libnoe`) works.
-All jobs run `cix_ai_test.py`, which runs one `noe_*` tool and decides the
+on CIX P1 devices and check that the NPU stack works: the KMD (kernel mode driver), the UMD (user
+mode driver) and `libnoe` (the NOE user-space library). All jobs run `cix_ai_test.py`, which runs one `noe_*` tool and decides the
 result from the tool output, because the tools can exit with `0` even when they
 fail.
 
-Background, the scope of the supported tools and the `cix-ai-test`
-redistribution status are tracked in Jira card
-[CIXEE-186](https://warthogs.atlassian.net/browse/CIXEE-186).
-
 ## Prerequisites
 
-The jobs do not install anything. Install the cix-ai-test package before running.
+> [!IMPORTANT]
+> The jobs do not install anything. You need to install the `cix-ai-test`
+> package before running.
+
+```bash
+sudo apt-get install -y software-properties-common
+sudo add-apt-repository -y ppa:cixee-team/cixee
+sudo apt-get update
+sudo apt-get install -y cix-ai-test
+```
 
 This provides `/usr/share/cix/bin/noe_*` and the test data in
 `/usr/share/cix/testdata/npu/`. If the tool binary or the test data is missing,
@@ -22,15 +27,13 @@ the job fails with an `ENV ERROR` message.
 
 | Test plan | Description |
 | --- | --- |
-| `cix-tool-desktop` | Manual and automated CIX tool tests for Ubuntu Desktop. |
-| `cix-tool-desktop-manual` | Manual tests, nests `cix-tool-aiml-manual`. |
+| `cix-tool-desktop` | CIX tool tests for Ubuntu Desktop, nests `cix-tool-desktop-automated`. |
 | `cix-tool-desktop-automated` | Automated tests, nests `cix-tool-aiml-automated`. |
-| `cix-tool-aiml-full` | All NPU tool tests. |
-| `cix-tool-aiml-manual` | There are no manual NPU tool tests. |
+| `cix-tool-aiml-full` | All NPU tool tests, nests `cix-tool-aiml-automated`. |
 | `cix-tool-aiml-automated` | All NPU tool jobs listed below. |
 
-`cix-tool-desktop-manual` and `cix-tool-desktop-automated` are nested in the
-`ce-oem-iot-desktop-26-04-manual` and `-automated` test plans.
+`cix-tool-desktop-automated` is nested in the
+`ce-oem-iot-desktop-26-04-automated` test plan.
 
 ## Manifest
 
@@ -42,14 +45,14 @@ has_cix_ai_test_npu: True
 ```
 
 `is_Cix_tool` marks a CIX Tool platform; `has_cix_ai_test_npu` marks that the
-NPU is supported and tested with the `cix-ai-test` tools. If either value is
-not `True`, the jobs are not selected.
+NPU is supported and **can be tested** with the
+`cix-ai-test` tools. If either value is not `True`, the jobs are not selected.
 
 ## Jobs
 
-All jobs use `plugin: shell` and have `flags: also-after-suspend`. Only `dfs`
-runs as `root`, because it writes to the devfreq sysfs; the other tools only
-need `/dev/aipu`, which is world-accessible.
+All jobs use `plugin: shell` and have `flags: also-after-suspend`. All jobs
+except `cix-tool-aiml/dfs` run as a normal user, because `dfs` needs to write to
+`/sys/class/devfreq`.
 Unless stated otherwise, a job passes when the tool exits with `0`, prints no
 `[Err]` or `FAIL` line and at least one `Test Result Check PASS` line.
 

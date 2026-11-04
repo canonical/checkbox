@@ -87,13 +87,9 @@ def build_command(
     return command
 
 
-def verify(
-    tool: str, output: str, returncode: int, frames: int
-) -> "list[str]":
+def verify(tool: str, output: str, frames: int) -> "list[str]":
     """Return the list of problems found, empty if the run is good."""
     problems = []
-    if returncode != 0:
-        problems.append(f"exit code is {returncode}")
     for line in output.splitlines():
         if "[Err]" in line or "FAIL" in line:
             problems.append(f"error in output: {line.strip()}")
@@ -154,6 +150,12 @@ def run_tool(args: argparse.Namespace) -> None:
                 stderr=subprocess.STDOUT,
                 universal_newlines=True,
                 timeout=args.timeout,
+                check=True,
+            )
+        except subprocess.CalledProcessError as exc:
+            print(exc.stdout)
+            raise SystemExit(
+                f"noe_{args.tool} exited with code {exc.returncode}"
             )
         except subprocess.TimeoutExpired as exc:
             print(exc.stdout or "")
@@ -161,7 +163,7 @@ def run_tool(args: argparse.Namespace) -> None:
                 f"noe_{args.tool} timed out after {args.timeout}s"
             )
     print(result.stdout)
-    problems = verify(args.tool, result.stdout, result.returncode, args.frames)
+    problems = verify(args.tool, result.stdout, args.frames)
     if problems:
         raise SystemExit(
             f"noe_{args.tool} FAILED:\n"

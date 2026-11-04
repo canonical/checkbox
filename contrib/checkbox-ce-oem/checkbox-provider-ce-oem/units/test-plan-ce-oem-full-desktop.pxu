@@ -27,7 +27,6 @@ _description:
 estimated_duration: 3600
 include:
 nested_part:
-    cix-tool-desktop-manual
     dragonwing-desktop-manual
     genio-desktop-manual
     iiotg-desktop-manual

@@ -1,7 +1,8 @@
 name: Debug Snap cross-build hangs
-# Temporary: checks whether running the privileged core18 build container
-# (old, systemd-based image) breaks snapcraft installs on the ubuntu-22.04 host, and which fix works.
-# Nothing is uploaded.
+# Temporary: checks whether the old (systemd-based) core18/core20
+# snapcraft-container images work on the ubuntu-latest kernel when the
+# entrypoint does not mount securityfs (so snapd inside the container does
+# not load AppArmor profiles into the host kernel). Nothing is uploaded.
 permissions:
   contents: read
 on:
@@ -9,48 +10,98 @@ on:
     branches: [debug-snap-cross-build-hang]
   workflow_dispatch:
 jobs:
-  snapcraft-install:
+  no-securityfs:
     strategy:
       fail-fast: false
       matrix:
-        fix: [none, refresh-snapd, restart-snapd]
-    runs-on: ubuntu-22.04
-    name: Install snapcraft after container (fix ${{ matrix.fix }})
+        image:
+          - base: core18
+            channel: 5.x/stable
+            digest: sha256:79ff5f6bd6b914351e73155dd1331d13a774d148bd7b2adf7a00eddbe6aee1b8
+          - base: core20
+            channel: 8.x/stable
+            digest: sha256:d0194fcc76fc10a4b640e9cfed93f878c794d3141156edeb7aff253fec2da8d9
+        platform: [linux/amd64, linux/arm/v7]
+        entrypoint: [stock, no-securityfs]
+    runs-on: ubuntu-latest
+    name: ${{ matrix.image.base }} ${{ matrix.platform }} ${{ matrix.entrypoint }}
     env:
-      FIX: ${{ matrix.fix }}
+      BASE: ${{ matrix.image.base }}
+      CHANNEL: ${{ matrix.image.channel }}
+      IMAGE: ghcr.io/canonical/snapcraft-container@${{ matrix.image.digest }}
+      PLATFORM: ${{ matrix.platform }}
+      ENTRYPOINT: ${{ matrix.entrypoint }}
     steps:
       - name: Set up QEMU
         uses: docker/setup-qemu-action@99012661954931238ded8c8b007157a8430204e1
 
-      - name: Host AppArmor snap-confine profiles before
+      - name: Host info before
         run: |
+          uname -r
           snap version
-          sudo grep -i snap-confine /sys/kernel/security/apparmor/profiles || true
+          sudo grep -c . /sys/kernel/security/apparmor/profiles
+          sudo grep snap-confine /sys/kernel/security/apparmor/profiles
 
-      - name: Run the core18 build container (same as snapcraft-multiarch-action)
-        timeout-minutes: 45
+      - name: Prepare test snap and entrypoint
         run: |
-          docker run --rm --tty --privileged --platform linux/arm/v7 \
-            --env USE_SNAPCRAFT_CHANNEL=5.x/stable \
-            ghcr.io/canonical/snapcraft-container@sha256:79ff5f6bd6b914351e73155dd1331d13a774d148bd7b2adf7a00eddbe6aee1b8 snapcraft --version
+          mkdir -p project/snap
+          cat > project/snap/snapcraft.yaml <<YAML
+          name: container-hello-test
+          base: $BASE
+          version: '0.1'
+          summary: test
+          description: test
+          grade: devel
+          confinement: strict
+          parts:
+            hello:
+              plugin: nil
+              override-build: |
+                mkdir -p \$SNAPCRAFT_PART_INSTALL/bin
+                echo 'echo hello' > \$SNAPCRAFT_PART_INSTALL/bin/hello
+                chmod +x \$SNAPCRAFT_PART_INSTALL/bin/hello
+          apps:
+            hello:
+              command: bin/hello
+          YAML
+          cat project/snap/snapcraft.yaml
+          docker pull --platform "$PLATFORM" "$IMAGE"
+          docker run --rm --platform "$PLATFORM" --entrypoint cat "$IMAGE" /bin/entrypoint.sh > entrypoint.sh
+          if [ "$ENTRYPOINT" = no-securityfs ]; then
+            sed -i '/grep -q securityfs/,/^fi$/d' entrypoint.sh
+          fi
+          chmod +x entrypoint.sh
+          grep -n -A2 securityfs entrypoint.sh || echo "securityfs mount removed"
 
-      - name: Host AppArmor snap-confine profiles after
+      - name: Build the snap in the container
+        timeout-minutes: 40
         run: |
-          sudo grep -i snap-confine /sys/kernel/security/apparmor/profiles || true
+          docker run --detach --name build --tty --privileged \
+            --platform "$PLATFORM" \
+            --volume "$PWD/entrypoint.sh:/bin/entrypoint.sh:ro" \
+            --volume "$PWD/project:/data" --workdir /data \
+            --env USE_SNAPCRAFT_CHANNEL="$CHANNEL" \
+            "$IMAGE" snapcraft
+          docker logs --follow build &
+          if code=$(timeout 30m docker wait build); then
+            echo "container exited with $code"
+          else
+            echo "::error::container still running after 30 minutes"
+            code=124
+          fi
+          echo "== snapd inside the container"
+          timeout 60 docker exec build journalctl --no-pager -u snapd | grep -E 'started snapd|apparmor|cannot run daemon|AppArmor' | head -20 || true
+          ls -l project/*.snap || true
+          exit "$code"
 
-      - name: Apply fix
+      - name: Host info after
+        if: always()
         run: |
-          case "$FIX" in
-            refresh-snapd)
-              sudo snap refresh snapd --channel=latest/stable || sudo snap install snapd --channel=latest/stable
-              ;;
-            restart-snapd)
-              sudo systemctl restart snapd
-              ;;
-          esac
-          sudo grep -i snap-confine /sys/kernel/security/apparmor/profiles || true
+          sudo grep -c . /sys/kernel/security/apparmor/profiles
+          sudo grep snap-confine /sys/kernel/security/apparmor/profiles
 
-      - name: Install snapcraft (same as canonical/action-publish)
+      - name: Install snapcraft on the host (same as canonical/action-publish)
+        if: always()
         run: |
           sudo snap install --classic snapcraft
           snapcraft --version

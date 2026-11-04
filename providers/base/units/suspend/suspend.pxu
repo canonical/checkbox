@@ -13,7 +13,7 @@ id: suspend/resolution_before_suspend
 before: suspend/suspend_advanced_auto
 estimated_duration: 1.2
 _summary: Record the current resolution before suspending.
-command: current_resolutions.py > "$PLAINBOX_SESSION_SHARE"/resolution_before_suspend.txt
+command: get_current_resolutions.py > "$PLAINBOX_SESSION_SHARE"/resolution_before_suspend.txt
 
 unit: template
 template-resource: graphics_card
@@ -26,7 +26,7 @@ depends: graphics/{index}_switch_card_{product_slug}
 before: suspend/suspend_advanced_auto
 estimated_duration: 1.2
 _summary: Record the current resolution before suspending.
-command: current_resolutions.py > "$PLAINBOX_SESSION_SHARE"/{index}_resolution_before_suspend.txt
+command: get_current_resolutions.py > "$PLAINBOX_SESSION_SHARE"/{index}_resolution_before_suspend.txt
 
 plugin: shell
 category_id: com.canonical.plainbox::suspend

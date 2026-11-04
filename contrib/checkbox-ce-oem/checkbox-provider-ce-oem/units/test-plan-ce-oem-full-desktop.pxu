@@ -48,6 +48,7 @@ _description:
     all of the automated tests used to validate the IoT devices.
 include:
 nested_part:
+    cix-tool-desktop-automated
     dragonwing-desktop-automated
     genio-desktop-automated
     iiotg-desktop-automated

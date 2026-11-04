@@ -1,0 +1,7 @@
+unit: category
+id: gpgpu
+name: GPGPU Compute Tests
+---
+unit: category
+id: nvgpgpu
+name: GPGPU Compute Tests (NVIDIA)

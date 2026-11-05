@@ -17,12 +17,26 @@ import sys
 from pathlib import Path
 
 # Drivers that share devices by design: each device goes to one of them and
-# the others decline it at probe time (xe/i915 force_probe, amdgpu
-# si_support/cik_support).
+# the others decline it at probe time (links: kernel v6.8 source).
+# i915 and xe decline a device that needs force_probe, or that force_probe
+# blocks:
+# https://github.com/torvalds/linux/blob/v6.8/drivers/gpu/drm/i915/i915_pci.c#L1016-L1024
+# https://github.com/torvalds/linux/blob/v6.8/drivers/gpu/drm/xe/xe_pci.c#L700-L716
+# amdgpu declines SI and CIK chips when radeon is built (si_support=0 and
+# cik_support=0 by default), and radeon declines them when its own
+# si_support or cik_support is 0:
+# https://github.com/torvalds/linux/blob/v6.8/drivers/gpu/drm/amd/amdgpu/amdgpu_drv.c#L594-L601
+# https://github.com/torvalds/linux/blob/v6.8/drivers/gpu/drm/amd/amdgpu/amdgpu_drv.c#L2198-L2231
+# https://github.com/torvalds/linux/blob/v6.8/drivers/gpu/drm/radeon/radeon_drv.c#L270-L293
 DRIVER_FAMILIES = ({"i915", "xe"}, {"radeon", "amdgpu"})
 # Modules that select one driver for a device at probe time; the drivers that
-# use the same selector form a family (for example snd_hda_intel declines the
-# Intel audio DSP when SOF drives it).
+# use the same selector form a family. snd_intel_dspcfg selects the driver of
+# the Intel audio DSP, and snd_hda_intel, SOF and AVS decline the device when
+# they are not selected:
+# https://github.com/torvalds/linux/blob/v6.8/sound/hda/intel-dsp-config.c#L607-L681
+# https://github.com/torvalds/linux/blob/v6.8/sound/pci/hda/hda_intel.c#L2107-L2115
+# https://github.com/torvalds/linux/blob/v6.8/sound/soc/sof/intel/hda.c#L1756-L1764
+# https://github.com/torvalds/linux/blob/v6.8/sound/soc/intel/avs/core.c#L408-L410
 DRIVER_SELECTORS = ("snd_intel_dspcfg",)
 
 

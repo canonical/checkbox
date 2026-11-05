@@ -1,7 +1,10 @@
 # checkbox-provider-ce-oem — Agent Instructions
 
-See the root [`AGENTS.md`](../../../AGENTS.md) for global rules and
-[`providers/AGENTS.md`](../../../providers/AGENTS.md) for the common
+See the root
+[`AGENTS.md`](https://github.com/canonical/checkbox/blob/main/AGENTS.md)
+for global rules and
+[`providers/AGENTS.md`](https://github.com/canonical/checkbox/blob/main/providers/AGENTS.md)
+for the common
 provider structure, `manage.py` usage, and PXU basics.
 This file adds what is different for the CE OEM provider.
 
@@ -23,8 +26,13 @@ variables consumed by jobs are documented in [`../README.md`](../README.md).
 - **Namespace**: `com.canonical.contrib` (set in `manage.py`), not
   `com.canonical.certification`. Fully-qualified ids look like
   `com.canonical.contrib::ce-oem-buzzer/input-pcspkr`.
-- **Unit format**: all existing units are RFC 822 `.pxu` files; keep new
-  units consistent with the feature directory you are editing.
+- **Unit format**: unit files are RFC 822 `.pxu` or YAML `.yaml` files.
+  Write every new unit file in YAML, also in a feature directory that has
+  `.pxu` files (see
+  [`providers/AGENTS.md`](https://github.com/canonical/checkbox/blob/main/providers/AGENTS.md)
+  and the schemas in
+  [`unit_json_schema/`](https://github.com/canonical/checkbox/tree/main/unit_json_schema)).
+  An existing `.pxu` file that you only change stays `.pxu`.
 - **CI scope**: `.github/workflows/tox-contrib-provider-ce-oem.yaml`
   runs tox (Python 3.8 and 3.10) only when files under this directory
   change. Keep `bin/` scripts compatible with Python 3.8. The
@@ -36,15 +44,19 @@ variables consumed by jobs are documented in [`../README.md`](../README.md).
 Common per-feature layout under `units/<feature>/` (not every feature has every file):
 
     units/<feature>/
-    ├── category.pxu     # optional: category unit, id: <feature> (no prefix)
-    ├── jobs.pxu         # optional: jobs, resource jobs, template units
-    ├── manifest.pxu     # optional: manifest entries (has_<feature>)
-    ├── test-plan.pxu    # optional: test plans, incl. after-suspend variants
+    ├── category.yaml    # optional: category unit, id: <feature> (no prefix)
+    ├── jobs.yaml        # optional: jobs, resource jobs, template units
+    ├── manifest.yaml    # optional: manifest entries (has_<feature>)
+    ├── test-plan.yaml   # optional: test plans, incl. after-suspend variants
     └── cases_and_environ.md / README.md   # optional per-feature docs
 
+Older features use `.pxu` files, and their file names can differ from
+this layout (for example `spi/testplan.pxu` or `Xilinx/vcu_job.pxu`).
 SoC-specific directories (`Genio/`, `dragonwing/`, `rz/`, `Xilinx/`)
-group several topics per directory using `<topic>_jobs.pxu`,
-`<topic>_test-plan.pxu`, … instead.
+group several topics per directory, with the topic as a prefix of the
+file name: for example `Genio/aiml_jobs.pxu` or
+`rz/ai-accelerator-jobs.yaml`. Give a new file in such a directory the
+name pattern of the other files there, with the `.yaml` extension.
 
 - Job ids: `ce-oem-<feature>/<test-name>`; template-generated jobs
   parameterise the last segment (`ce-oem-gpio-buzzer/sound-test-{name}`).

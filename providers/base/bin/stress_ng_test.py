@@ -170,7 +170,6 @@ def stress_cpu(args):
 def stress_cpu_hotplug(args):
     """Run hot-plug stress-ng tests on CPUs."""
 
-    retval = 0
     stressors = [
         "context",
         "cpu",

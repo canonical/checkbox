@@ -30,8 +30,9 @@ variables consumed by jobs are documented in [`../README.md`](../README.md).
   Write every new unit file in YAML, also in a feature directory that has
   `.pxu` files (see
   [`providers/AGENTS.md`](https://github.com/canonical/checkbox/blob/main/providers/AGENTS.md)
-  and the schemas in `unit_json_schema/`). An existing `.pxu` file that
-  you only change stays `.pxu`.
+  and the schemas in
+  [`unit_json_schema/`](https://github.com/canonical/checkbox/tree/main/unit_json_schema)).
+  An existing `.pxu` file that you only change stays `.pxu`.
 - **CI scope**: `.github/workflows/tox-contrib-provider-ce-oem.yaml`
   runs tox (Python 3.8 and 3.10) only when files under this directory
   change. Keep `bin/` scripts compatible with Python 3.8. The
@@ -49,10 +50,13 @@ Common per-feature layout under `units/<feature>/` (not every feature has every 
     ├── test-plan.yaml   # optional: test plans, incl. after-suspend variants
     └── cases_and_environ.md / README.md   # optional per-feature docs
 
-Older features use the same file names with the `.pxu` extension.
+Older features use `.pxu` files, and their file names can differ from
+this layout (for example `spi/testplan.pxu` or `Xilinx/vcu_job.pxu`).
 SoC-specific directories (`Genio/`, `dragonwing/`, `rz/`, `Xilinx/`)
-group several topics per directory using `<topic>_jobs.yaml`,
-`<topic>_test-plan.yaml`, … (`.pxu` in older directories) instead.
+group several topics per directory, with the topic as a prefix of the
+file name: for example `Genio/aiml_jobs.pxu` or
+`rz/ai-accelerator-jobs.yaml`. Give a new file in such a directory the
+name pattern of the other files there, with the `.yaml` extension.
 
 - Job ids: `ce-oem-<feature>/<test-name>`; template-generated jobs
   parameterise the last segment (`ce-oem-gpio-buzzer/sound-test-{name}`).

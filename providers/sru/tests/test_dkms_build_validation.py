@@ -1,6 +1,6 @@
 from packaging.version import Version
 import unittest
-from unittest.mock import patch, mock_open
+from unittest.mock import ANY, mock_open, patch
 import subprocess
 
 from dkms_build_validation import (
@@ -10,6 +10,7 @@ from dkms_build_validation import (
     check_kernel_version,
     check_dkms_module_count,
     get_context_lines,
+    get_failed_module,
     has_dkms_build_errors,
     main,
 )
@@ -115,8 +116,16 @@ class TestDKMSValidation(unittest.TestCase):
         kernel_info = parse_dkms_status(self.dkms_status, ubuntu_release)
         # Assuming you have a specific expected output for kernel_info
         expected_kernel_info = [
-            {"version": "6.5.0-15-generic", "status": "installed"},
-            {"version": "6.5.0-17-generic", "status": "installed"},
+            {
+                "version": "6.5.0-15-generic",
+                "status": "installed",
+                "module": "fwts",
+            },
+            {
+                "version": "6.5.0-17-generic",
+                "status": "installed",
+                "module": "fwts",
+            },
         ]
         self.assertEqual(kernel_info, expected_kernel_info)
 
@@ -140,17 +149,20 @@ class TestDKMSValidation(unittest.TestCase):
             self.dkms_status_efi_test_driver, ubuntu_release
         )
         expected_kernel_info = [
-            {"version": "6.1.0-1028-oem", "status": "installed"},
-            {"version": "6.1.0-1032-oem", "status": "installed"},
-            {"version": "6.1.0-1033-oem", "status": "installed"},
-            {"version": "6.1.0-1034-oem", "status": "installed"},
-            {"version": "6.1.0-1035-oem", "status": "installed"},
-            {"version": "6.5.0-1020-oem", "status": "installed"},
-            {"version": "6.5.0-1022-oem", "status": "installed"},
-            {"version": "6.5.0-1023-oem", "status": "installed"},
-            {"version": "6.5.0-1024-oem", "status": "installed"},
-            {"version": "6.5.0-1026-oem", "status": "installed"},
-            {"version": "6.8.0-40-generic", "status": "installed"},
+            {"version": v, "status": "installed", "module": "tp_smapi"}
+            for v in [
+                "6.1.0-1028-oem",
+                "6.1.0-1032-oem",
+                "6.1.0-1033-oem",
+                "6.1.0-1034-oem",
+                "6.1.0-1035-oem",
+                "6.5.0-1020-oem",
+                "6.5.0-1022-oem",
+                "6.5.0-1023-oem",
+                "6.5.0-1024-oem",
+                "6.5.0-1026-oem",
+                "6.8.0-40-generic",
+            ]
         ]
         self.assertEqual(kernel_info, expected_kernel_info)
 
@@ -160,7 +172,11 @@ class TestDKMSValidation(unittest.TestCase):
             self.dkms_status_with_warning, ubuntu_release
         )
         expected_kernel_info = [
-            {"version": "6.0.0-1011-oem", "status": "installed"},
+            {
+                "version": "6.0.0-1011-oem",
+                "status": "installed",
+                "module": "fwts-efi-runtime-dkms",
+            },
         ]
         self.assertEqual(kernel_info, expected_kernel_info)
 
@@ -173,8 +189,16 @@ class TestDKMSValidation(unittest.TestCase):
         sorted_kernel_info = parse_dkms_status(old_dkms_status, ubuntu_release)
         # Assuming you have a specific expected output for kernel_info
         expected_kernel_info = [
-            {"version": "6.5.0-15-generic", "status": "installed"},
-            {"version": "6.5.0-17-generic", "status": "installed"},
+            {
+                "version": "6.5.0-15-generic",
+                "status": "installed",
+                "module": "fwts",
+            },
+            {
+                "version": "6.5.0-17-generic",
+                "status": "installed",
+                "module": "fwts",
+            },
         ]
         self.assertEqual(sorted_kernel_info, expected_kernel_info)
 
@@ -297,22 +321,126 @@ class TestDKMSValidation(unittest.TestCase):
         ]
         self.assertEqual(get_context_lines(log, line_idx), expected_output)
 
-    def test_has_dkms_build_errors(self):
+    sorted_kernel_info_fwts = [
+        {
+            "version": "6.5.0-17-generic",
+            "status": "installed",
+            "module": "fwts",
+        }
+    ]
+
+    sorted_kernel_info_fwts_nvidia = sorted_kernel_info_fwts + [
+        {
+            "version": "6.5.0-17-generic",
+            "status": "installed",
+            "module": "nvidia",
+        }
+    ]
+
+    # example /var/log/apt/term.log lines of a DKMS build failure of the
+    # nvidia module that was later replaced by an installed version
+    apt_log_with_nvidia_build_error = (
+        "Setting up linux-headers-6.5.0-17-generic ...\n"
+        "Building initial module for 6.5.0-17-generic\n"
+        "Error! Bad return status for module build on kernel: "
+        "6.5.0-17-generic (x86_64)\n"
+        "Consult /var/lib/dkms/nvidia/460.56/build/make.log "
+        "for more information.\n"
+        "Some log message\n"
+    )
+
+    def test_get_failed_module(self):
+        log = self.apt_log_with_nvidia_build_error.splitlines(True)
+        self.assertEqual(get_failed_module(log, 2), "nvidia")
+        # no reference to the build log in the line after the error
+        self.assertIsNone(get_failed_module(log, 0))
+        # error message in the last line of the log
+        self.assertIsNone(get_failed_module(log, 4))
+
+    def test_has_dkms_build_errors_no_errors(self):
         kernel_ver_current = "6.5.0-17-generic"
 
         # Test with a log file that doesn't contain any errors
         data = "Some log message\nSome log message\nSome log message\n"
         with patch("builtins.open", mock_open(read_data=data)):
-            self.assertEqual(has_dkms_build_errors(kernel_ver_current), False)
+            self.assertEqual(
+                has_dkms_build_errors(
+                    kernel_ver_current, self.sorted_kernel_info_fwts
+                ),
+                0,
+            )
 
-        # Test with a log file that contains errors
+    def test_has_dkms_build_errors_module_not_installed(self):
+        # the module that failed to build is not installed for the
+        # running kernel, the error is unresolved
+        kernel_ver_current = "6.5.0-17-generic"
+        with patch(
+            "builtins.open",
+            mock_open(read_data=self.apt_log_with_nvidia_build_error),
+        ):
+            self.assertEqual(
+                has_dkms_build_errors(
+                    kernel_ver_current, self.sorted_kernel_info_fwts
+                ),
+                1,
+            )
+
+    def test_has_dkms_build_errors_unidentified_module(self):
+        # the log does not identify the module that failed to build,
+        # the error cannot be shown to be superseded
+        kernel_ver_current = "6.5.0-17-generic"
         data = (
             "Some log message\n"
             "Bad return status for module build on kernel: 6.5.0-17-generic\n"
             "Some log message\n"
         )
         with patch("builtins.open", mock_open(read_data=data)):
-            self.assertEqual(has_dkms_build_errors(kernel_ver_current), True)
+            self.assertEqual(
+                has_dkms_build_errors(
+                    kernel_ver_current, self.sorted_kernel_info_fwts_nvidia
+                ),
+                1,
+            )
+
+    def test_has_dkms_build_errors_superseded(self):
+        # the module that failed to build was later replaced by an
+        # installed version of the same module: the error was superseded
+        # by a successful build, it is reported for diagnosis but does
+        # not fail the test
+        kernel_ver_current = "6.5.0-17-generic"
+        with patch(
+            "builtins.open",
+            mock_open(read_data=self.apt_log_with_nvidia_build_error),
+        ), self.assertLogs("dkms_build_validation", level="WARNING") as log:
+            result = has_dkms_build_errors(
+                kernel_ver_current, self.sorted_kernel_info_fwts_nvidia
+            )
+        self.assertEqual(result, 0)
+        self.assertTrue(
+            any("superseded" in output for output in log.output), log.output
+        )
+
+    def test_has_dkms_build_errors_partially_superseded(self):
+        # a superseded error does not excuse an unresolved error of
+        # another module
+        kernel_ver_current = "6.5.0-17-generic"
+        data = (
+            "Error! Bad return status for module build on kernel: "
+            "6.5.0-17-generic (x86_64)\n"
+            "Consult /var/lib/dkms/fwts/24.01.00/build/make.log "
+            "for more information.\n"
+            "Error! Bad return status for module build on kernel: "
+            "6.5.0-17-generic (x86_64)\n"
+            "Consult /var/lib/dkms/nvidia/460.56/build/make.log "
+            "for more information.\n"
+        )
+        with patch("builtins.open", mock_open(read_data=data)):
+            self.assertEqual(
+                has_dkms_build_errors(
+                    kernel_ver_current, self.sorted_kernel_info_fwts
+                ),
+                1,
+            )
 
     @patch("dkms_build_validation.run_command")
     @patch("dkms_build_validation.has_dkms_build_errors")
@@ -327,7 +455,7 @@ class TestDKMSValidation(unittest.TestCase):
         ]
         mock_err.return_value = 0
         result = main()
-        self.assertEqual(mock_err.call_count, 1)
+        mock_err.assert_called_once_with("6.5.0-17-generic", ANY)
         self.assertEqual(result, 0)
 
     @patch("dkms_build_validation.run_command")

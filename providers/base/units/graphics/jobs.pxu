@@ -359,7 +359,7 @@ category_id: com.canonical.plainbox::graphics
 id: graphics/{index}_gl_support_{product_slug}
 template-id: graphics/index_gl_support_product_slug
 flags: also-after-suspend
-environ: CHECKBOX_RUNTIME
+environ: CHECKBOX_RUNTIME USER_DEFINED_GL_LD_LIBRARY_PATH
 command:
     gl_support.py
 estimated_duration: 0.131
@@ -371,7 +371,7 @@ plugin: shell
 category_id: com.canonical.plainbox::graphics
 id: graphics/gl_support_primary
 flags: also-after-suspend
-environ: CHECKBOX_RUNTIME
+environ: CHECKBOX_RUNTIME USER_DEFINED_GL_LD_LIBRARY_PATH
 command:
     gl_support.py
 estimated_duration: 0.131

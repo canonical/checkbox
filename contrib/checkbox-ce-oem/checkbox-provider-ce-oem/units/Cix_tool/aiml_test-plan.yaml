@@ -1,0 +1,22 @@
+id: cix-tool-aiml-full
+unit: test plan
+name: CIX NPU tool tests
+description: All CIX NOE tool tests from the cix-ai-test package.
+include: []
+nested_part:
+  - cix-tool-aiml-automated
+---
+id: cix-tool-aiml-automated
+unit: test plan
+name: CIX NPU tool automated tests
+description: Automated CIX NPU tool tests from the cix-ai-test package.
+include:
+  - cix-tool-aiml/benchmark
+  - cix-tool-aiml/benchmark_tflite
+  - cix-tool-aiml/batch
+  - cix-tool-aiml/dfs
+  - cix-tool-aiml/flush_job
+  - cix-tool-aiml/mthread
+  - cix-tool-aiml/multi_model
+  - cix-tool-aiml/profiler
+  - cix-tool-aiml/time_cost

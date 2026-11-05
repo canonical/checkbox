@@ -91,6 +91,7 @@ nested_part:
     optical-base-26-04-automated
     power-management-base-26-04-automated
     tpm-base-26-04-automated
+    virtualization-automated
 bootstrap_include:
     device
     graphics_card

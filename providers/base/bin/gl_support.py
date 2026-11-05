@@ -106,6 +106,25 @@ class GLSupportTester:
 
         return gl_renderer_line.split(":")[-1].strip()
 
+    def build_glmark2_env(self) -> "dict[str, str]":
+        """
+        Builds the environment used to run glmark2. If
+        USER_DEFINED_GL_LD_LIBRARY_PATH is set, it is prepended to
+        LD_LIBRARY_PATH so that host GPU libraries installed outside the
+        default paths take precedence over the libraries bundled in the
+        checkbox snap
+
+        :return: a copy of os.environ with LD_LIBRARY_PATH updated if needed
+        """
+        env = os.environ.copy()
+        user_ld_path = env.get("USER_DEFINED_GL_LD_LIBRARY_PATH")
+        if user_ld_path:
+            env["LD_LIBRARY_PATH"] = ":".join(
+                p for p in (user_ld_path, env.get("LD_LIBRARY_PATH")) if p
+            )
+            print("[ DEBUG ] Using LD_LIBRARY_PATH:", env["LD_LIBRARY_PATH"])
+        return env
+
     def call_glmark2_validate(
         self, glmark2_executable_override: "str | None" = None
     ) -> str:
@@ -169,6 +188,7 @@ class GLSupportTester:
                 # be more relaxed on this timeout in case
                 # the device needs a lot of time to wake up the GPU
                 timeout=120,
+                env=self.build_glmark2_env(),
             )
             return glmark2_output
         finally:

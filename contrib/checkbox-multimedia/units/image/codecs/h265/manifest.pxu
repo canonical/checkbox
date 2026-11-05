@@ -1,0 +1,39 @@
+unit: manifest entry
+id: has_h265_main_decoder_vaapi
+_name: Has VA-API support for H.265 Main decode
+value-type: bool
+
+unit: manifest entry
+id: has_h265_main10_decoder_vaapi
+_name: Has VA-API support for H.265 Main 10 decode
+value-type: bool
+
+unit: manifest entry
+id: has_h265_main12_decoder_vaapi
+_name: Has VA-API support for H.265 Main 12 decode
+value-type: bool
+
+unit: manifest entry
+id: has_h265_main422_10_decoder_vaapi
+_name: Has VA-API support for H.265 Main 4:2:2 10 decode
+value-type: bool
+
+unit: manifest entry
+id: has_h265_main444_decoder_vaapi
+_name: Has VA-API support for H.265 Main 4:4:4 decode
+value-type: bool
+
+unit: manifest entry
+id: has_h265_main444_10_decoder_vaapi
+_name: Has VA-API support for H.265 Main 4:4:4 10 decode
+value-type: bool
+
+unit: manifest entry
+id: has_h265_main444_12_decoder_vaapi
+_name: Has VA-API support for H.265 Main 4:4:4 12 decode
+value-type: bool
+
+unit: manifest entry
+id: has_h265_encoder_vaapi
+_name: Has VA-API support for H.265 encoding
+value-type: bool

@@ -1,7 +1,12 @@
+import os
 import unittest
 from unittest import mock
 
-from gst_utils import MetadataValidator, _identify_gst_bin_from_snap
+from gst_utils import (
+    MetadataValidator,
+    _identify_gst_bin_from_snap,
+    get_gst_env,
+)
 
 
 class TestIdentifyGstBinFromSnap(unittest.TestCase):
@@ -30,6 +35,36 @@ class TestIdentifyGstBinFromSnap(unittest.TestCase):
         mock_run.return_value = self._which_result(1, b"")
         with self.assertRaises(SystemExit):
             _identify_gst_bin_from_snap("gst-launch-1.0")
+
+
+class TestGetGstEnv(unittest.TestCase):
+    SNAP_DIR = (
+        "/snap/checkbox24/current/usr/lib/aarch64-linux-gnu/gstreamer-1.0"
+    )
+    HOST_DIR = "/usr/lib/aarch64-linux-gnu/gstreamer-1.0"
+
+    @mock.patch("gst_utils._identify_gst_bin_from_snap", return_value=True)
+    def test_snap_binary_inherits_env(self, _):
+        self.assertIsNone(get_gst_env("gst-launch-1.0"))
+
+    @mock.patch("gst_utils._identify_gst_bin_from_snap", return_value=False)
+    def test_host_binary_gets_user_defined_paths(self, _):
+        environ = {
+            "GST_PLUGIN_PATH": self.SNAP_DIR,
+            "GST_PLUGIN_SYSTEM_PATH": self.SNAP_DIR,
+            "GST_PLUGIN_SCANNER": self.SNAP_DIR + "/gst-plugin-scanner",
+            "USER_DEFINED_GST_PLUGIN_PATH": self.HOST_DIR,
+            "USER_DEFINED_GST_PLUGIN_SYSTEM_PATH": self.HOST_DIR,
+        }
+        with mock.patch.dict(os.environ, environ, clear=True):
+            env = get_gst_env("/usr/bin/gst-launch-1.0")
+        self.assertEqual(env["GST_PLUGIN_PATH"], self.HOST_DIR)
+        self.assertEqual(env["GST_PLUGIN_SYSTEM_PATH"], self.HOST_DIR)
+        # Not user defined: the runtime value stays
+        self.assertEqual(
+            env["GST_PLUGIN_SCANNER"], self.SNAP_DIR + "/gst-plugin-scanner"
+        )
+        self.assertNotIn("LD_LIBRARY_PATH", env)
 
 
 class TestMetadataValidatorCodec(unittest.TestCase):

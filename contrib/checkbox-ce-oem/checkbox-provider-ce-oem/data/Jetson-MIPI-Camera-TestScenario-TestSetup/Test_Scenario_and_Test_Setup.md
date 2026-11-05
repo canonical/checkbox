@@ -27,16 +27,18 @@ configurations.
 The capture tools (`gst-launch-1.0` with the NVIDIA plugins, and
 `nvargus_nvraw`) must be reachable from the checkbox jobs — making them so
 is a pre-test setup step, not the test's job. `nvargus_nvraw` is resolved
-from `PATH`; the jobs pass `GST_LAUNCH_BIN`, `GST_PLUGIN_PATH`,
-`GST_PLUGIN_SYSTEM_PATH` and `GST_PLUGIN_SCANNER` through from the checkbox
-configuration, so each image type supplies what it needs:
+from `PATH`; the jobs read `GST_LAUNCH_BIN`, `USER_DEFINED_GST_PLUGIN_PATH`,
+`USER_DEFINED_GST_PLUGIN_SYSTEM_PATH` and `USER_DEFINED_GST_PLUGIN_SCANNER`
+from the checkbox configuration, so each image type supplies what it needs:
 
-**Classic / deb images** — the NVIDIA GStreamer plugins are off the default
-search path:
+**Classic / deb images** — the NVIDIA GStreamer plugins are in the host
+plugin directory, not in the plugin directory of the checkbox snap:
 
 ```ini
 GST_LAUNCH_BIN=/usr/bin/gst-launch-1.0
-GST_PLUGIN_PATH=/usr/lib/aarch64-linux-gnu/gstreamer-1.0/
+USER_DEFINED_GST_PLUGIN_PATH=/usr/lib/aarch64-linux-gnu/gstreamer-1.0
+USER_DEFINED_GST_PLUGIN_SYSTEM_PATH=/usr/lib/aarch64-linux-gnu/gstreamer-1.0
+USER_DEFINED_GST_PLUGIN_SCANNER=/usr/lib/aarch64-linux-gnu/gstreamer1.0/gstreamer-1.0/gst-plugin-scanner
 ```
 
 **Ubuntu Core images** — checkbox-ce-oem carries no NVIDIA stack. Install
@@ -61,8 +63,8 @@ without it every capture fails with
 `NvRmMemInitNvmap failed with Permission denied` /
 `(Argus) Error NotSupported: No EGL device available`.
 
-The multimedia snap resolves its own plugin paths, so no `GST_PLUGIN_*`
-variables are needed. The aliases land in `/snap/bin`, which is on `PATH`,
+The multimedia snap resolves its own plugin paths, so no `USER_DEFINED_GST_*`
+variables are needed (the test skips them for a snap `GST_LAUNCH_BIN`). The aliases land in `/snap/bin`, which is on `PATH`,
 so `nvargus_nvraw` resolves without configuration; if the job environment
 misses it for gst, point the override at the alias:
 
@@ -70,12 +72,14 @@ misses it for gst, point the override at the alias:
 GST_LAUNCH_BIN=/snap/bin/gst-launch-1.0
 ```
 
-> **Note:** snap-packaged checkbox pre-exports `GST_PLUGIN_SYSTEM_PATH` and
-> `GST_PLUGIN_SCANNER` in its wrapper, and checkbox only injects config
-> `[environment]` values for variables that are not already set — so
-> `GST_PLUGIN_*` overrides take no effect under a checkbox snap (verified on
-> checkbox 7.3.0). This is one more reason the multimedia-snap aliases are
-> the supported route on Ubuntu Core: the aliased tools run inside the
+> **Note:** snap-packaged checkbox pre-exports `GST_PLUGIN_PATH`,
+> `GST_PLUGIN_SYSTEM_PATH` and `GST_PLUGIN_SCANNER` in its wrapper, and
+> checkbox only injects config `[environment]` values for variables that are
+> not already set — so plain `GST_PLUGIN_*` values take no effect under a
+> checkbox snap (verified on checkbox 7.3.0). That is why the test reads the
+> `USER_DEFINED_GST_*` names and sets them itself for a host
+> `GST_LAUNCH_BIN`. On Ubuntu Core the multimedia-snap aliases stay
+> the supported route: the aliased tools run inside the
 > multimedia snap where its own plugin paths and Argus socket apply, and
 > `GST_LAUNCH_BIN` (not preset, always injects) can point at the alias.
 

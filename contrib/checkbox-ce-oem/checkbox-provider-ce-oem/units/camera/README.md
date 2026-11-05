@@ -105,7 +105,7 @@ Argus mode index on Jetson). Example:
 ### Optional
 
 - `MIPI_CAMERA_SETUP_CONF_FILE_PATH`: Path to the setup configuration file in JSON format (required if your camera needs to configure format/resolution of pads or set pad links)
-- `GST_PLUGIN_PATH`, `GST_PLUGIN_SYSTEM_PATH`, `GST_PLUGIN_SCANNER`: GStreamer plugin search paths, passed through to the test environment. Required on platforms whose GStreamer plugins live off the default search path (e.g. the NVIDIA plugins on Jetson — see the [Jetson documentation](../../data/Jetson-MIPI-Camera-TestScenario-TestSetup/Test_Scenario_and_Test_Setup.md) for the deb and snap values)
+- `USER_DEFINED_GST_PLUGIN_PATH`, `USER_DEFINED_GST_PLUGIN_SYSTEM_PATH`, `USER_DEFINED_GST_PLUGIN_SCANNER` (and `USER_DEFINED_GST_LD_LIBRARY_PATH`): GStreamer paths for a host (non-snap) `GST_LAUNCH_BIN`. The test sets them as `GST_PLUGIN_PATH`, `GST_PLUGIN_SYSTEM_PATH`, `GST_PLUGIN_SCANNER` (and `LD_LIBRARY_PATH`) for the commands it runs, and skips them when `GST_LAUNCH_BIN` is from a snap. Do not set the plain `GST_PLUGIN_*` names instead: a checkbox snap runtime already sets them, and checkbox does not override a variable that is already set. Required on platforms whose GStreamer plugins live off the default search path (e.g. the NVIDIA plugins on Jetson — see the [Jetson documentation](../../data/Jetson-MIPI-Camera-TestScenario-TestSetup/Test_Scenario_and_Test_Setup.md) for the deb and snap values)
 
 ### Environment Variable Examples
 

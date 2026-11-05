@@ -1,7 +1,10 @@
 # checkbox-provider-ce-oem — Agent Instructions
 
-See the root [`AGENTS.md`](../../../AGENTS.md) for global rules and
-[`providers/AGENTS.md`](../../../providers/AGENTS.md) for the common
+See the root
+[`AGENTS.md`](https://github.com/canonical/checkbox/blob/main/AGENTS.md)
+for global rules and
+[`providers/AGENTS.md`](https://github.com/canonical/checkbox/blob/main/providers/AGENTS.md)
+for the common
 provider structure, `manage.py` usage, and PXU basics.
 This file adds what is different for the CE OEM provider.
 
@@ -25,7 +28,8 @@ variables consumed by jobs are documented in [`../README.md`](../README.md).
   `com.canonical.contrib::ce-oem-buzzer/input-pcspkr`.
 - **Unit format**: unit files are RFC 822 `.pxu` or YAML `.yaml` files.
   Write every new unit file in YAML, also in a feature directory that has
-  `.pxu` files (see [`providers/AGENTS.md`](../../../providers/AGENTS.md)
+  `.pxu` files (see
+  [`providers/AGENTS.md`](https://github.com/canonical/checkbox/blob/main/providers/AGENTS.md)
   and the schemas in `unit_json_schema/`). An existing `.pxu` file that
   you only change stays `.pxu`.
 - **CI scope**: `.github/workflows/tox-contrib-provider-ce-oem.yaml`

@@ -199,4 +199,12 @@ Thermal zones of these types are not tested at all; their temperature
 jobs are reported as not run. Only for zones that cannot be tested
 safely (e.g. a known platform bug); name the reason next to it.
 e.g. TZ_SKIP=gpu-thermal
+
+id: ce-oem-ptp/ptp4l-time-sync-for-{eth-interface}-auto
+PTP4L_TRANSPORT_SPECIFIC={0|1}   (optional, default 0 = IEEE 1588; 1 = IEEE 802.1AS/gPTP; the grandmaster must use the same value)
+PTP4L_DELAY_MECHANISM={E2E|P2P}  (optional, default = the profile's mechanism: E2E for 0, P2P for 1; 1 + E2E is rejected)
+PTP4L_PTP_MINOR_VERSION={minor}  (optional, linuxptp >= 4.0 only, i.e. noble; jammy's 3.1.1 skips it)
+PTP4L_REARM_HWTSTAMP=1           (optional, default off; re-programs NIC timestamping + sets the PHC before the test, drops the link briefly)
+e.g. PTP4L_TRANSPORT_SPECIFIC=1 PTP4L_DELAY_MECHANISM=P2P   (gPTP: set both; grandmaster on a direct link with --transportSpecific=1 --delay_mechanism=P2P)
+See checkbox-provider-ce-oem/units/ptp/README.md
 ```

@@ -392,6 +392,12 @@ using `eglinfo`. The resource job always emits a fixed set of platforms
 (GBM, Wayland, X11, Surfaceless), and a validation job is generated per
 platform that is not ignored.
 
+## Requirements
+
+`eglinfo` is not staged in the checkbox-ce-oem snap. Install it on the DUT
+(`sudo apt install mesa-utils`), or point `CUSTOM_EGLINFO_COMMAND_PATH` at an
+`eglinfo` binary, e.g. the one from an OpenGL test snap.
+
 ## Test plan
 
 The generated jobs are included by `ce-oem-graphics-automated` through the

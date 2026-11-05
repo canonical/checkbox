@@ -51,10 +51,9 @@ _summary: Validate OpenGL platform: '{{platform_name}}' via eglinfo tool
 _purpose:
     Validate that EGL initializes and renders with a hardware renderer on the
     platform: '{{platform_name}}' discovered by the OpenGL eglinfo resource
-    job, using 'eglinfo -B -p {{platform_name}}'. This fails if there is no
-    output (eglinfo is missing or crashed), 'eglInitialize failed' is
-    reported (EGL cannot initialize on this platform), or a software
-    renderer (llvmpipe, softpipe, swrast) is reported.
+    job, using 'eglinfo -B -p {{platform_name}}'. This fails if eglinfo
+    exits non-zero (e.g. 'eglInitialize failed'), reports no renderer, or
+    reports a software renderer (llvmpipe, softpipe, swrast).
 plugin: shell
 estimated_duration: 1s
 flags: also-after-suspend

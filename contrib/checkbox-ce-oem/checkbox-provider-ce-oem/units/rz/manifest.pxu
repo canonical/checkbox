@@ -1,5 +1,0 @@
-unit: manifest entry
-id: is_rz_series
-_name: Is this platform part of Renesas RZ series?
-_prompt: Renesas RZ specific?
-value-type: bool

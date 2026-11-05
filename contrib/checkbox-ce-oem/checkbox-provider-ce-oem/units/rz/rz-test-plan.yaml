@@ -1,0 +1,101 @@
+id: rz-server
+unit: test plan
+name: renesas-rz server tests
+description: |
+  Combined manual and automated renesas-rz project-specific tests for Ubuntu Server images.
+include: []
+nested_part:
+  - rz-server-automated
+  - after-suspend-rz-server-automated
+certification_status_overrides:
+  - apply blocker to .*
+---
+id: rz-server-automated
+unit: test plan
+name: renesas-rz server automated tests
+description: |
+  Automated renesas-rz project-specific tests for Ubuntu Server images.
+include: []
+nested_part:
+  - ce-oem-rz-ai-accelerator-automated
+certification_status_overrides:
+  - apply blocker to .*
+---
+id: after-suspend-rz-server-automated
+unit: test plan
+name: renesas-rz server automated after suspend tests
+description: |
+  Automated renesas-rz project-specific tests for Ubuntu Server images.
+include: []
+nested_part:
+  - after-suspend-ce-oem-rz-ai-accelerator-automated
+certification_status_overrides:
+  - apply blocker to .*
+---
+id: rz-desktop
+unit: test plan
+name: renesas-rz desktop tests
+description: |
+  Combined manual and automated renesas-rz project-specific tests for Ubuntu Desktop images.
+include: []
+nested_part:
+  - rz-desktop-automated
+  - after-suspend-rz-desktop-automated
+certification_status_overrides:
+  - apply blocker to .*
+---
+id: rz-desktop-automated
+unit: test plan
+name: renesas-rz desktop automated tests
+description: |
+  Automated renesas-rz project-specific tests for Ubuntu Desktop images.
+include: []
+nested_part:
+  - ce-oem-rz-ai-accelerator-automated
+certification_status_overrides:
+  - apply blocker to .*
+---
+id: after-suspend-rz-desktop-automated
+unit: test plan
+name: renesas-rz desktop automated after suspend tests
+description: |
+  Automated renesas-rz project-specific tests for Ubuntu Desktop images.
+include: []
+nested_part:
+  - after-suspend-ce-oem-rz-ai-accelerator-automated
+certification_status_overrides:
+  - apply blocker to .*
+---
+id: rz-core
+unit: test plan
+name: renesas-rz core tests
+description: |
+  Combined manual and automated renesas-rz project-specific tests for Ubuntu Core images.
+include: []
+nested_part:
+  - rz-core-automated
+  - after-suspend-rz-core-automated
+certification_status_overrides:
+  - apply blocker to .*
+---
+id: rz-core-automated
+unit: test plan
+name: renesas-rz core automated tests
+description: |
+  Automated renesas-rz project-specific tests for Ubuntu Core images.
+include: []
+nested_part:
+  - ce-oem-rz-ai-accelerator-automated
+certification_status_overrides:
+  - apply blocker to .*
+---
+id: after-suspend-rz-core-automated
+unit: test plan
+name: renesas-rz core automated after suspend tests
+description: |
+  Automated renesas-rz project-specific tests for Ubuntu Core images.
+include: []
+nested_part:
+  - after-suspend-ce-oem-rz-ai-accelerator-automated
+certification_status_overrides:
+  - apply blocker to .*

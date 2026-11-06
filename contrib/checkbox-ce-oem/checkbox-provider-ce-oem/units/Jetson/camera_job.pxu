@@ -21,7 +21,7 @@ imports:
  from com.canonical.certification import executable
  from com.canonical.plainbox import manifest
 requires:
- package.name == 'nvidia-tegra-drivers-36'
+ package.name == 'nvidia-tegra-drivers-36' or package.name == 'nvidia-l4t-gstreamer'
  executable.name == 'nvargus_nvraw'
  manifest.is_Jetson == 'True'
 command:
@@ -66,7 +66,7 @@ imports:
  from com.canonical.certification import device
  from com.canonical.plainbox import manifest
 requires:
- package.name == 'nvidia-tegra-drivers-36' or (package.name == 'nvidia-l4t-gstreamer' and package.name == 'nvidia-l4t-camera')
+ package.name == 'nvidia-tegra-drivers-36' or package.name == 'nvidia-l4t-gstreamer'
  package.name == 'gstreamer1.0-tools'
  manifest.is_Jetson == 'True'
 command:
@@ -117,7 +117,7 @@ imports:
  from com.canonical.plainbox import manifest
 requires:
  package.name == 'gstreamer1.0-tools'
- package.name == 'nvidia-tegra-drivers-36' or (package.name == 'nvidia-l4t-gstreamer' and package.name == 'nvidia-l4t-camera')
+ package.name == 'nvidia-tegra-drivers-36' or package.name == 'nvidia-l4t-gstreamer'
  jetson_tegra_details.model != 'NVIDIA Jetson Orin Nano Developer Kit' and jetson_tegra_details.model != 'NVIDIA Jetson Orin Nano Engineering Reference Developer Kit Super'
  manifest.is_Jetson == 'True'
 command:

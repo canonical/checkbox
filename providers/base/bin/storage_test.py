@@ -21,7 +21,11 @@ from typing import NamedTuple
 import psutil
 
 ACCEPTED_DEVICE_TYPES = (
-    "part",
+    "part", # regular partitions
+    # these are all raid members
+    # the raid "device" is accepted, 
+    # but their fstype "linux_raid_member" is rejected since it's not mountable
+    # the test will be run on the container instead
     "raid0",
     "raid1",
     "raid4",
@@ -49,11 +53,8 @@ class BlockDevice(NamedTuple):
     fstype: "str | None"  # ext4, vfat, crypto_LUKS
 
 
-# lsblk FSTYPE values that are not writable filesystems.
-# None means lsblk found no filesystems (an unused disk basically)
-# squashfs and iso9660 are mountable but read-only, so bonnie++ would fail
 REJECTED_FSTYPES = (
-    None,
+    None, # lsblk found no filesystem (an unused disk basically)
     "swap",  # the swap file used for swap to disk
     # carried over from before the old storage_test.py
     # used by LUKS and is not a disk-backed fs
@@ -64,12 +65,12 @@ REJECTED_FSTYPES = (
     # basically the same reason as linux_raid_member
     # not mountable by themselves
     "zfs_member",
-    "squashfs",  # snaps
-    "iso9660",  # CD/DVDs
+    "squashfs",  # snaps, not writable
+    "iso9660",  # CD/DVDs, not writable
 )
 
 
-# file size of the per-char bonnie++ run, -r 0 disables the 2x RAM check
+# file size of the per-char bonnie++ run
 PER_CHAR_SIZE_MB = 64
 
 # bonnie++ writes the bulk IO test data to a single file, so it can't be
@@ -94,7 +95,7 @@ def get_fs_type(mount_dir: Path) -> "str | None":
 
 
 def find_largest_partition(device: Path) -> Path:
-    out = json.loads(
+    lsblk_out = json.loads(
         sp.check_output(
             [
                 "lsblk",
@@ -114,15 +115,15 @@ def find_largest_partition(device: Path) -> Path:
             universal_newlines=True,
         )
     )
-    if type(out) is not dict:
+    if type(lsblk_out) is not dict:
         raise TypeError(
             "Unexpected return type from lsblk, "
-            + f"expected dict, got {type(out)}"
+            + f"expected dict, got {type(lsblk_out)}"
         )
     # the return value should be a dict with "blockdevices" as the only key
     # index into it and we get a list of block devices
     block_devices: "list[BlockDevice]" = []
-    for raw_json in out["blockdevices"]:
+    for raw_json in lsblk_out["blockdevices"]:
         block_device = BlockDevice(
             name=raw_json["name"],
             kname=raw_json["kname"],
@@ -130,8 +131,6 @@ def find_largest_partition(device: Path) -> Path:
             type=raw_json["type"],
             fstype=raw_json["fstype"],
         )
-        # skip the "raw" disks, locked LUKS partitions, and partitions with
-        # no filesystem (fstype is None means it's not formatted)
 
         if block_device.type not in ACCEPTED_DEVICE_TYPES:
             print(
@@ -156,9 +155,15 @@ def find_largest_partition(device: Path) -> Path:
         raise SystemExit(
             f"ERROR: No suitable partitions found on device {device}"
         )
-    block_devices.sort(key=lambda bd: bd.size, reverse=True)
+    # on size ties prefer dm devices like "mpathb-part1"
+    # over the raw path partition like "sda1" that multipath holds
+    # this is the "alternative fix" in issue 2935
+    # https://github.com/canonical/checkbox/issues/2935
+    block_devices.sort(
+        key=lambda bd: (bd.size, bd.kname.startswith("dm-")), reverse=True
+    )
     # NAME of dm devices (e.g. ubuntu--vg-ubuntu--lv) is not under /dev,
-    # but KNAME (e.g. dm-0) always is
+    # but KNAME like 'dm-0' always is
     return Path("/dev") / block_devices[0].kname
 
 

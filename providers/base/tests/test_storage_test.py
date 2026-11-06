@@ -117,6 +117,43 @@ class TestFindLargestPartition(unittest.TestCase):
         )
 
     @patch("storage_test.sp.check_output")
+    def test_find_largest_partition_prefers_dm_on_tie(self, mock_check_output):
+        # multipath where the raw path partition node was not removed
+        mock_check_output.return_value = self._lsblk_json(
+            [
+                {
+                    "name": "sda",
+                    "size": 5000,
+                    "type": "disk",
+                    "fstype": "mpath_member",
+                },
+                {
+                    "name": "sda1",
+                    "size": 4000,
+                    "type": "part",
+                    "fstype": "ext4",
+                },
+                {
+                    "name": "mpathb",
+                    "kname": "dm-0",
+                    "size": 5000,
+                    "type": "mpath",
+                    "fstype": None,
+                },
+                {
+                    "name": "mpathb-part1",
+                    "kname": "dm-1",
+                    "size": 4000,
+                    "type": "part",
+                    "fstype": "ext4",
+                },
+            ]
+        )
+        self.assertEqual(
+            find_largest_partition(Path("/dev/sda")), Path("/dev/dm-1")
+        )
+
+    @patch("storage_test.sp.check_output")
     def test_find_largest_partition_nominal(self, mock_check_output):
         mock_check_output.return_value = self._lsblk_json(
             [

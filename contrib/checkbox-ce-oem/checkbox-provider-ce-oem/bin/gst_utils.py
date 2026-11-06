@@ -114,6 +114,44 @@ def _identify_gst_bin_from_snap(bin_name: str) -> bool:
     return False
 
 
+# A checkbox snap runtime exports its own GStreamer paths, and checkbox never
+# overrides a variable that is already set with a config [environment] value.
+# So a host (non-snap) GStreamer binary gets its paths from these variables.
+USER_DEFINED_GST_ENV = {
+    "USER_DEFINED_GST_LD_LIBRARY_PATH": "LD_LIBRARY_PATH",
+    "USER_DEFINED_GST_PLUGIN_PATH": "GST_PLUGIN_PATH",
+    "USER_DEFINED_GST_PLUGIN_SYSTEM_PATH": "GST_PLUGIN_SYSTEM_PATH",
+    "USER_DEFINED_GST_PLUGIN_SCANNER": "GST_PLUGIN_SCANNER",
+}
+
+
+def get_gst_env(gst_bin: str = GST_LAUNCH_BIN) -> Optional[dict]:
+    """
+    Get the environment to run the GStreamer binary with.
+
+    :param gst_bin:
+        The gstreamer binary name or path.
+
+    :returns:
+        None (inherit the environment) when the binary is from a snap,
+        else a copy of the environment with the USER_DEFINED_GST_* values
+        applied.
+    """
+    if _identify_gst_bin_from_snap(gst_bin):
+        logging.info(
+            "GStreamer binary is from snap package, "
+            "skip setting the USER_DEFINED_GST_* variables"
+        )
+        return None
+    env = os.environ.copy()
+    for user_var, gst_var in USER_DEFINED_GST_ENV.items():
+        value = os.environ.get(user_var)
+        if value:
+            logging.info("Set %s=%s from %s", gst_var, value, user_var)
+            env[gst_var] = value
+    return env
+
+
 def execute_command(
     cmd: str = "", timeout: int = GST_CODEC_EXECUTION_TIMEOUT
 ) -> str:
@@ -129,34 +167,7 @@ def execute_command(
         The extracted last_message.
     """
     try:
-        bin_from_snap = _identify_gst_bin_from_snap(GST_LAUNCH_BIN)
-
-        if bin_from_snap:
-            logging.info(
-                "GStreamer binary is from snap package, "
-                "skip setting USER_DEFINED_GST_LD_LIBRARY_PATH "
-                "and USER_DEFINED_GST_PLUGIN_PATH"
-            )
-            env = None
-        else:
-            env = os.environ.copy()
-            # Update GStreamer library path and plugin path if user defined
-            gst_ld_path = os.environ.get("USER_DEFINED_GST_LD_LIBRARY_PATH")
-            gst_plugin_path = os.environ.get("USER_DEFINED_GST_PLUGIN_PATH")
-            logging.info("User defined LD_LIBRARY_PATH: %s", gst_ld_path)
-            logging.info("User defined LD_PLUGIN_PATH: %s", gst_plugin_path)
-            if gst_ld_path:
-                logging.info(
-                    "Append %s to LD_LIBRARY_PATH for GStreamer", gst_ld_path
-                )
-                env.update(LD_LIBRARY_PATH=gst_ld_path)
-            if gst_plugin_path:
-                logging.info(
-                    "Append %s to GST_PLUGIN_PATH for GStreamer",
-                    gst_plugin_path,
-                )
-                env.update(GST_PLUGIN_PATH=gst_plugin_path)
-
+        env = get_gst_env(GST_LAUNCH_BIN)
         logging.info("Starting command: '{}'".format(cmd))
         ret = subprocess.run(
             shlex.split(cmd),

@@ -123,6 +123,7 @@ requires:
 command:
   set -ex
   export GST_PLUGIN_PATH=/usr/lib/aarch64-linux-gnu/gstreamer-1.0/
+  export LD_LIBRARY_PATH=/usr/lib/aarch64-linux-gnu/nvidia:$LD_LIBRARY_PATH
   unset DISPLAY
   jetson_timeout_wrapper.sh 30s gst-launch-1.0 nvarguscamerasrc num-buffers=300 sensor-id={source_index} ! \
   'video/x-raw(memory:NVMM), width=(int)1920, height=(int)1080,' \

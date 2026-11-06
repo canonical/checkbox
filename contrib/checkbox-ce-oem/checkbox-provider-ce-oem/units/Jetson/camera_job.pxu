@@ -73,9 +73,13 @@ command:
   set -ex
   export GST_PLUGIN_PATH=/usr/lib/aarch64-linux-gnu/gstreamer-1.0/
   unset DISPLAY
+  OUT=$HOME/jetson-camera-gstreamer-image_{source_index}.jpg
+  rm -f "$OUT"
   jetson_timeout_wrapper.sh 30s gst-launch-1.0 nvarguscamerasrc num-buffers=1 sensor-id={source_index} ! \
   'video/x-raw(memory:NVMM), width=(int)1920, height=(int)1080, format=(string)NV12' ! nvjpegenc ! filesink \
-   location="$HOME"/jetson-camera-gstreamer-image_{source_index}.jpg
+   location="$OUT"
+  # gst-launch-1.0 exits 0 when nvarguscamerasrc gets no frame; the image is then empty
+  if [ ! -s "$OUT" ]; then echo "FAIL: no image captured, $OUT is empty" >&2; exit 1; fi
 
 unit: template
 template-id: jetson-core-camera/gstreamer-image_sensor_source_index
@@ -96,9 +100,13 @@ command:
   set -ex
   export GST_PLUGIN_PATH="$SNAP"/usr/lib/aarch64-linux-gnu/gstreamer-1.0/
   unset DISPLAY
+  OUT=$HOME/jetson-camera-gstreamer-image_{source_index}.jpg
+  rm -f "$OUT"
   jetson_timeout_wrapper.sh 30s gst-launch-1.0 nvarguscamerasrc num-buffers=1 sensor-id={source_index} ! \
   'video/x-raw(memory:NVMM), width=(int)1920, height=(int)1080, format=(string)NV12' ! nvjpegenc ! filesink \
-   location="$HOME"/jetson-camera-gstreamer-image_{source_index}.jpg
+   location="$OUT"
+  # gst-launch-1.0 exits 0 when nvarguscamerasrc gets no frame; the image is then empty
+  if [ ! -s "$OUT" ]; then echo "FAIL: no image captured, $OUT is empty" >&2; exit 1; fi
 
 unit: template
 template-id: jetson-camera/gstreamer-video_sensor_source_index
@@ -125,11 +133,17 @@ command:
   export GST_PLUGIN_PATH=/usr/lib/aarch64-linux-gnu/gstreamer-1.0/
   export LD_LIBRARY_PATH=/usr/lib/aarch64-linux-gnu/nvidia:$LD_LIBRARY_PATH
   unset DISPLAY
+  OUT=$HOME/jetson-camera-gstreamer-video_{source_index}.mp4
+  rm -f "$OUT"
   jetson_timeout_wrapper.sh 30s gst-launch-1.0 nvarguscamerasrc num-buffers=300 sensor-id={source_index} ! \
   'video/x-raw(memory:NVMM), width=(int)1920, height=(int)1080,' \
   'format=(string)NV12, framerate=(fraction)30/1' ! \
   nvv4l2h265enc bitrate=8000000 ! h265parse ! qtmux ! \
-  filesink location="$HOME"/jetson-camera-gstreamer-video_{source_index}.mp4
+  filesink location="$OUT"
+  # gst-launch-1.0 exits 0 when nvarguscamerasrc gets no frame; the MP4 then has no stream
+  if ! gst-launch-1.0 -q filesrc location="$OUT" ! qtdemux ! fakesink; then
+    echo "FAIL: no video recorded, $OUT has no stream" >&2; exit 1
+  fi
 
 unit: template
 template-id: jetson-core-camera/gstreamer-video_sensor_source_index
@@ -150,11 +164,18 @@ requires:
  jetson_tegra_details.model != 'NVIDIA Jetson Orin Nano Developer Kit' and jetson_tegra_details.model != 'NVIDIA Jetson Orin Nano Engineering Reference Developer Kit Super'
  manifest.is_Jetson == 'True'
 command:
+  set -ex
   export GST_PLUGIN_SYSTEM_PATH="$SNAP"/checkbox-runtime/usr/lib/aarch64-linux-gnu/gstreamer-1.0:"$SNAP"/usr/lib/aarch64-linux-gnu/gstreamer-1.0
   export GST_PLUGIN_SCANNER="$SNAP"/checkbox-runtime/usr/lib/aarch64-linux-gnu/gstreamer1.0/gstreamer-1.0/gst-plugin-scanner
   unset DISPLAY
+  OUT=$HOME/jetson-camera-gstreamer-video_{source_index}.mp4
+  rm -f "$OUT"
   jetson_timeout_wrapper.sh 30s gst-launch-1.0 nvarguscamerasrc num-buffers=300 sensor-id={source_index} ! \
   'video/x-raw(memory:NVMM), width=(int)1920, height=(int)1080,' \
   'format=(string)NV12, framerate=(fraction)30/1' ! \
   nvv4l2h265enc bitrate=8000000 ! h265parse ! qtmux ! \
-  filesink location="$HOME"/jetson-camera-gstreamer-video_{source_index}.mp4
+  filesink location="$OUT"
+  # gst-launch-1.0 exits 0 when nvarguscamerasrc gets no frame; the MP4 then has no stream
+  if ! gst-launch-1.0 -q filesrc location="$OUT" ! qtdemux ! fakesink; then
+    echo "FAIL: no video recorded, $OUT has no stream" >&2; exit 1
+  fi

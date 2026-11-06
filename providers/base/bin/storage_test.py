@@ -29,6 +29,10 @@ ACCEPTED_DEVICE_TYPES = (
     "raid6",
     "raid10",
     "linear",
+    # copilot says "md" is needed because:
+    # lsblk < 2.34 (18.04) reports partitions on md arrays (md0p1) as "md",
+    # newer versions also fall back to it when md/level is unreadable
+    "md",
     # locked devices only show up in lsblk once they are unlocked
     # so they are testable
     "crypt",
@@ -46,7 +50,7 @@ class BlockDevice(NamedTuple):
 
 
 # lsblk FSTYPE values that are not writable filesystems.
-# None means lsblk found no filesystem signature.
+# None means lsblk found no filesystem (an unused disk basically)
 # squashfs and iso9660 are mountable but read-only, so bonnie++ would fail
 REJECTED_FSTYPES = (
     None,

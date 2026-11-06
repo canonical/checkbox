@@ -11,6 +11,7 @@
 import json
 import os
 import subprocess as sp
+import sys
 import tempfile
 from argparse import ArgumentParser
 from contextlib import ExitStack
@@ -19,13 +20,64 @@ from typing import NamedTuple
 
 import psutil
 
+ACCEPTED_DEVICE_TYPES = (
+    "part", # regular partitions
+    # these are all raid members
+    # the raid "device" is accepted, 
+    # but their fstype "linux_raid_member" is rejected since it's not mountable
+    # the test will be run on the container instead
+    "raid0",
+    "raid1",
+    "raid4",
+    "raid5",
+    "raid6",
+    "raid10",
+    "linear",
+    # copilot says "md" is needed because:
+    # lsblk < 2.34 (18.04) reports partitions on md arrays (md0p1) as "md",
+    # newer versions also fall back to it when md/level is unreadable
+    "md",
+    # locked devices only show up in lsblk once they are unlocked
+    # so they are testable
+    "crypt",
+    "lvm",
+)
+
 
 class BlockDevice(NamedTuple):
     # warning: these types are not enforced without explicit checks at runtime
-    name: str  # nvme0n1p3, dm_crypt-0
-    size: int
+    name: str  # name in lsblk, nvme0n1p3, dm_crypt-0
+    kname: str  # kernel internal name, nvme0n1p3, dm-0
+    size: int  # in bytes
     type: str  # lvm, part, crypt
-    fstype: str  # ext4, vfat, crypto_LUKS
+    fstype: "str | None"  # ext4, vfat, crypto_LUKS
+
+
+REJECTED_FSTYPES = (
+    None, # lsblk found no filesystem (an unused disk basically)
+    "swap",  # the swap file used for swap to disk
+    # carried over from before the old storage_test.py
+    # used by LUKS and is not a disk-backed fs
+    "crypto_LUKS",
+    "LVM2_member",  # this is handled by devicemapper path
+    # raid members are not mountable and shouldn't be tested directly
+    "linux_raid_member",
+    # basically the same reason as linux_raid_member
+    # not mountable by themselves
+    "zfs_member",
+    "squashfs",  # snaps, not writable
+    "iso9660",  # CD/DVDs, not writable
+)
+
+
+# file size of the per-char bonnie++ run
+PER_CHAR_SIZE_MB = 64
+
+# bonnie++ writes the bulk IO test data to a single file, so it can't be
+# larger than the max file size of the filesystem, FAT is limited to 4GiB - 1
+FS_MAX_FILE_SIZE_MB = {"vfat": 4095, "msdos": 4095}
+
+SYS_CLASS_BLOCK = Path("/sys/class/block")
 
 
 def mountpoint(device: Path) -> "Path | None":
@@ -35,8 +87,15 @@ def mountpoint(device: Path) -> "Path | None":
     return None
 
 
+def get_fs_type(mount_dir: Path) -> "str | None":
+    for part in psutil.disk_partitions(all=True):
+        if Path(part.mountpoint) == mount_dir:
+            return part.fstype
+    return None
+
+
 def find_largest_partition(device: Path) -> Path:
-    out = json.loads(
+    lsblk_out = json.loads(
         sp.check_output(
             [
                 "lsblk",
@@ -50,52 +109,74 @@ def find_largest_partition(device: Path) -> Path:
                 # filter these columns
                 # return null when value unavailable
                 "--output",
-                "NAME,SIZE,TYPE,FSTYPE",
+                "NAME,KNAME,SIZE,TYPE,FSTYPE",
                 device,
             ],
             universal_newlines=True,
         )
     )
-    if type(out) is not dict:
+    if type(lsblk_out) is not dict:
         raise TypeError(
             "Unexpected return type from lsblk, "
-            + f"expected dict, got {type(out)}"
+            + f"expected dict, got {type(lsblk_out)}"
         )
     # the return value should be a dict with "blockdevices" as the only key
     # index into it and we get a list of block devices
     block_devices: "list[BlockDevice]" = []
-    for raw_json in out["blockdevices"]:
+    for raw_json in lsblk_out["blockdevices"]:
         block_device = BlockDevice(
             name=raw_json["name"],
+            kname=raw_json["kname"],
             size=int(raw_json["size"]),
             type=raw_json["type"],
             fstype=raw_json["fstype"],
         )
-        # skip the "raw" disks, LUKS partitions, and partitions with no
-        # filesystem (fstype is None means it's not formatted)
-        if block_device.type in ("part", "md") and block_device.fstype not in (
-            None,
-            "crypto_LUKS",
-        ):
-            block_devices.append(block_device)
+
+        if block_device.type not in ACCEPTED_DEVICE_TYPES:
+            print(
+                f"Skipping {block_device.name}",
+                f"because it's of type '{block_device.type}',",
+                f"but we need {ACCEPTED_DEVICE_TYPES}",
+                file=sys.stderr,
+            )
+            continue
+        if block_device.fstype in REJECTED_FSTYPES:
+            print(
+                f"Skipping {block_device.name}",
+                f"because its fstype '{block_device.fstype}'",
+                "is not a writable filesystem",
+                file=sys.stderr,
+            )
+            continue
+
+        block_devices.append(block_device)
 
     if not block_devices:
         raise SystemExit(
             f"ERROR: No suitable partitions found on device {device}"
         )
-    block_devices.sort(key=lambda bd: bd.size)
-    # it should be always under /dev
-    return Path("/dev") / block_devices[-1].name
+    # on size ties prefer dm devices like "mpathb-part1"
+    # over the raw path partition like "sda1" that multipath holds
+    # this is the "alternative fix" in issue 2935
+    # https://github.com/canonical/checkbox/issues/2935
+    block_devices.sort(
+        key=lambda bd: (bd.size, bd.kname.startswith("dm-")), reverse=True
+    )
+    # NAME of dm devices (e.g. ubuntu--vg-ubuntu--lv) is not under /dev,
+    # but KNAME like 'dm-0' always is
+    return Path("/dev") / block_devices[0].kname
 
 
 def mount(source: Path, target: Path):
-    print(f"+ mount {source} {target}", flush=True)
-    sp.check_call(["mount", source, target])
+    cmd = ["mount", source, target]
+    print("+", " ".join(map(str, cmd)), flush=True)
+    sp.check_call(cmd)
 
 
 def unmount(target: Path):
-    print(f"+ umount {target}", flush=True)
-    sp.check_call(["umount", target])
+    cmd = ["umount", target]
+    print("+", " ".join(map(str, cmd)), flush=True)
+    sp.check_call(cmd)
 
 
 def memory() -> float:
@@ -117,24 +198,71 @@ def run_bonnie(test_dir: Path, user: str = "root"):
     # Set a maximum size on the amount of RAM, this has the effect of keeping
     # the amount of data written during tests lower than default. This keeps
     # duration of tests at something reasonable
-    force_mem_mb = min(8000, memory())
+    force_mem_mb = int(min(8000, memory()))
     # When running on disks with small drives (SSD/flash) we need to do
     # some tweaking. Bonnie uses 2x RAM by default to write data. If that's
     # more than available disk space, the test will fail inappropriately.
     free = free_space(test_dir)
     print(f"{free}MB of free space available")
     if (force_mem_mb * 2) > free:
-        force_mem_mb = free / 4
+        force_mem_mb = round(free / 4)
+
+    fs_type = get_fs_type(test_dir)
+    if fs_type:
+        max_file_size_mb = FS_MAX_FILE_SIZE_MB.get(fs_type)
+        if max_file_size_mb and force_mem_mb * 2 > max_file_size_mb:
+            print(
+                "Limiting file size to the",
+                f"{max_file_size_mb}MB limit of {fs_type}",
+            )
+            force_mem_mb = max_file_size_mb // 2
+
     print(f"Forcing memory setting to {force_mem_mb}MB")
-    cmd = ["bonnie++", "-d", test_dir, "-u", user, "-r", str(force_mem_mb)]
-    print("+", " ".join(map(str, cmd)), flush=True)
-    sp.check_call(cmd)
+
+    base_cmd = ["bonnie++", "-d", test_dir, "-u", user]
+    bulk_cmd = base_cmd + [
+        "-r",
+        str(force_mem_mb),
+        # set the size explicitly, otherwise bonnie++ rounds 2x RAM up to
+        # the nearest GiB, which can exceed the fs file size limit
+        "-s",
+        str(force_mem_mb * 2),
+        # bypass the page cache, O_DIRECT
+        # see `man bonnie++`
+        "-D",
+        # skip the per-char tests, O_DIRECT requires block aligned writes
+        # so writing a byte at a time always fails with -D
+        # TODO: this is technically a bug inside bonnie++
+        # because it should automatically ignore -D when doing per-char tests
+        # but in reality it doesn't
+        "-f",
+    ]
+    # O_DIRECT can't be used for per-char IO, so run those tests separately
+    # with a small file and without the file creation tests.
+    # Never exceed the bulk file size, which already fits in the free space
+    per_char_cmd = base_cmd + [
+        "-r",
+        "0",
+        "-s",
+        str(min(PER_CHAR_SIZE_MB, force_mem_mb * 2)),
+        "-n",
+        "0",
+    ]
+
+    print(" Bonnie++ bulk IO tests ".center(80, "="))
+    print("+", " ".join(map(str, bulk_cmd)), flush=True)
+    sp.check_call(bulk_cmd)
+
+    print(" Bonnie++ per-char IO tests ".center(80, "="))
+    print("+", " ".join(map(str, per_char_cmd)), flush=True)
+    sp.check_call(per_char_cmd)
 
 
 def devmapper_test(udev_name: str):
     print(f"Identified {udev_name} as a devmapper device...")
     device = Path("/dev") / udev_name
     mount_dir = mountpoint(device)
+
     if mount_dir:
         print(f"{device} already mounted at {mount_dir}")
     else:
@@ -145,6 +273,7 @@ def devmapper_test(udev_name: str):
                 mount_dir = mountpoint(dm_device)
                 if mount_dir:
                     print(f"{dm_device} already mounted at {mount_dir}")
+
     with ExitStack() as stack:
         if mount_dir is None:
             mount_dir = Path(tempfile.mkdtemp())
@@ -155,11 +284,44 @@ def devmapper_test(udev_name: str):
         run_bonnie(mount_dir)
 
 
+def check_raid_healthy(device: Path) -> bool:
+    """Check if a raid array is healthy by checking sysfs
+
+    :param device: device path like /dev/md0
+    :return: False only if the device is part of a degraded array
+    """
+    # md partitions (e.g. md0p1) keep the md/ dir in their parent array
+    sys_device = (SYS_CLASS_BLOCK / device.name).resolve()
+    for sys_dir in (sys_device, sys_device.parent):
+        degraded_file = sys_dir / "md" / "degraded"
+        # only arrays with redundancy (not raid0/linear) have this file
+        if degraded_file.is_file():
+            # this file is a nonnegative int, the num of degraded disks
+            # 0 -> all working
+            # 1 -> 1 disk degraded etc.
+            degraded_count = int(degraded_file.read_text())
+            if degraded_count != 0:
+                print(
+                    f"RAID array {sys_dir.name} has",
+                    f"{degraded_count} member(s) missing or failed",
+                    file=sys.stderr,
+                )
+                return False
+            print(f"RAID array {sys_dir.name} has all members working")
+            return True
+    return True
+
+
 def disk_test(udev_name: str):
     print(f"Identified {udev_name} as a disk...")
     device = Path("/dev") / udev_name
     partition_to_test = find_largest_partition(device)
     print(f"Test will be run on the largest partition {partition_to_test}")
+
+    if not check_raid_healthy(partition_to_test):
+        raise SystemExit(
+            f"ERROR: {partition_to_test} is on a degraded RAID array"
+        )
 
     mount_dir = mountpoint(partition_to_test)
     if mount_dir:

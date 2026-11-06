@@ -50,17 +50,22 @@ class BlockDevice(NamedTuple):
 
 
 # lsblk FSTYPE values that are not writable filesystems.
-# None means lsblk found no filesystem (an unused disk basically)
+# None means lsblk found no filesystems (an unused disk basically)
 # squashfs and iso9660 are mountable but read-only, so bonnie++ would fail
 REJECTED_FSTYPES = (
     None,
-    "swap",
+    "swap",  # the swap file used for swap to disk
+    # carried over from before the old storage_test.py
+    # used by LUKS and is not a disk-backed fs
     "crypto_LUKS",
-    "LVM2_member",
+    "LVM2_member",  # this is handled by devicemapper path
+    # raid members are not mountable and shouldn't be tested directly
     "linux_raid_member",
+    # basically the same reason as linux_raid_member
+    # not mountable by themselves
     "zfs_member",
-    "squashfs",
-    "iso9660",
+    "squashfs",  # snaps
+    "iso9660",  # CD/DVDs
 )
 
 

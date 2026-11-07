@@ -1,0 +1,39 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "parametric-template.schema.json",
+  "title": "Parametric Template Unit",
+  "description": "Ordinary jobs generated from fixed parameter records.",
+  "type": "object",
+  "allOf": [{ "$ref": "job.schema.json#/$defs/jobFields" }],
+  "properties": {
+    "unit": {
+      "const": "parametric template"
+    },
+    "template-id": {
+      "description": "Optional template identifier, derived from the job ID pattern when omitted.",
+      "type": "string"
+    },
+    "template-summary": {
+      "title": "Template Summary (Template Unit)",
+      "description": "Human-readable name for the template.",
+      "type": "string"
+    },
+    "template-description": {
+      "title": "Template Description (Template Unit)",
+      "description": "Long form description of what the template does or the kind of jobs it instantiates.",
+      "type": "string"
+    },
+    "parameters": {
+      "description": "Each mapping generates one ordinary job, without Cartesian expansion.",
+      "type": "array",
+      "items": {
+        "type": "object"
+      }
+    },
+    "siblings": {
+      "$ref": "job.schema.json#/properties/siblings"
+    }
+  },
+  "required": ["unit", "id", "parameters"],
+  "unevaluatedProperties": false
+}

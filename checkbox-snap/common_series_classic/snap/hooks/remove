@@ -3,3 +3,4 @@ set -e
 
 rm -f /etc/sudoers.d/checkbox
 rm -f /etc/polkit-1/localauthority/50-local.d/com.canonical.certification.checkbox.pkla || /bin/true
+"$SNAP/bin/install-completions" remove || true

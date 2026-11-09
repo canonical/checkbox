@@ -207,9 +207,39 @@ siblings:
     requires:
       - executable.name == 'ffmpeg'
       - (va_render_node.profile_name == 'VAProfileJPEGBaseline' and va_render_node.direction == 'decoder')
+  - id: va-api/ffmpeg_hw_decode_mpeg2_1080p_mpg
+    summary: ffmpeg VAAPI hardware decode of MPEG2 1080p video
+    command: ffmpeg_hw_codec_test.py decode mpeg2/bbb_sunflower_1080p_30fps_normal_mpeg2.mpg --profile 1 --entrypoint 1
+    requires:
+      - executable.name == 'ffmpeg'
+      - (va_render_node.profile_name == 'VAProfileMPEG2Main' and va_render_node.direction == 'decoder')
+  - id: va-api/ffmpeg_hw_decode_mpeg2_180p_mpg
+    summary: ffmpeg VAAPI hardware decode of MPEG2 180p video
+    command: ffmpeg_hw_codec_test.py decode mpeg2/bbb_sunflower_180p_30fps_normal_mpeg2.mpg --profile 1 --entrypoint 1
+    requires:
+      - executable.name == 'ffmpeg'
+      - (va_render_node.profile_name == 'VAProfileMPEG2Main' and va_render_node.direction == 'decoder')
   - id: va-api/ffmpeg_hw_decode_mpeg2_2160p_mpg
     summary: ffmpeg VAAPI hardware decode of MPEG2 4K video
     command: ffmpeg_hw_codec_test.py decode mpeg2/bbb_sunflower_2160p_30fps_normal_mpeg2.mpg --profile 1 --entrypoint 1
+    requires:
+      - executable.name == 'ffmpeg'
+      - (va_render_node.profile_name == 'VAProfileMPEG2Main' and va_render_node.direction == 'decoder')
+  - id: va-api/ffmpeg_hw_decode_mpeg2_360p_mpg
+    summary: ffmpeg VAAPI hardware decode of MPEG2 360p video
+    command: ffmpeg_hw_codec_test.py decode mpeg2/bbb_sunflower_360p_30fps_normal_mpeg2.mpg --profile 1 --entrypoint 1
+    requires:
+      - executable.name == 'ffmpeg'
+      - (va_render_node.profile_name == 'VAProfileMPEG2Main' and va_render_node.direction == 'decoder')
+  - id: va-api/ffmpeg_hw_decode_mpeg2_480p_mpg
+    summary: ffmpeg VAAPI hardware decode of MPEG2 480p video
+    command: ffmpeg_hw_codec_test.py decode mpeg2/bbb_sunflower_480p_30fps_normal_mpeg2.mpg --profile 1 --entrypoint 1
+    requires:
+      - executable.name == 'ffmpeg'
+      - (va_render_node.profile_name == 'VAProfileMPEG2Main' and va_render_node.direction == 'decoder')
+  - id: va-api/ffmpeg_hw_decode_mpeg2_720p_mpg
+    summary: ffmpeg VAAPI hardware decode of MPEG2 720p video
+    command: ffmpeg_hw_codec_test.py decode mpeg2/bbb_sunflower_720p_30fps_normal_mpeg2.mpg --profile 1 --entrypoint 1
     requires:
       - executable.name == 'ffmpeg'
       - (va_render_node.profile_name == 'VAProfileMPEG2Main' and va_render_node.direction == 'decoder')

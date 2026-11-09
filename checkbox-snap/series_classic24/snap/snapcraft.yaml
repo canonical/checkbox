@@ -13,6 +13,7 @@ apps:
   checkbox-cli:
     command-chain: [bin/wrapper_local]
     command: bin/checkbox-cli-wrapper
+    completer: bin/checkbox-cli.bash
   test-runner:
     command-chain: [bin/wrapper_local]
     command: bin/test-runner

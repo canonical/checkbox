@@ -1,0 +1,5 @@
+#!/bin/sh
+# Revisions installed before the zsh/fish completion loaders existed only
+# run the install hook once, so (re)write the loaders on every refresh.
+"$SNAP/bin/install-completions" install ||
+    echo "Failed to install the zsh/fish completions" >&2

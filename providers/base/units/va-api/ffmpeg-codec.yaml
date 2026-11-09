@@ -26,7 +26,7 @@ environ:
 command: va_profile_check.py resource --device "${VAAPI_DEVICE:-/dev/dri/renderD128}"
 estimated_duration: 1s
 ---
-unit: job
+unit: setup job
 plugin: shell
 id: setup/install_media_samples
 category_id: va-api
@@ -76,7 +76,6 @@ command: |
 id: va-api/ffmpeg_hw_decode_av1_1080p_mkv
 depends:
   - va-api/ffmpeg_hw_vaapi_device
-  - setup/install_media_samples
 category_id: va-api
 flags:
   - simple
@@ -338,7 +337,6 @@ siblings:
 id: va-api/ffmpeg_hw_encode_h264_1080p
 depends:
   - va-api/ffmpeg_hw_vaapi_device
-  - setup/install_media_samples
 category_id: va-api
 flags:
   - simple

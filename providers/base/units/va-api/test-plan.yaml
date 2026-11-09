@@ -25,3 +25,4 @@ include:
   - va-api/ffmpeg_hw_encode_.*
 bootstrap_include:
   - va-api/vainfo
+  - va-api/vainfo_render_node

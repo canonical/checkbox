@@ -17,7 +17,6 @@
 # along with Checkbox.  If not, see <http://www.gnu.org/licenses/>.
 
 
-from pathlib import Path
 from functools import partial
 from unittest import TestCase, mock
 

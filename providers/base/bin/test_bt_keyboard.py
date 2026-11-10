@@ -31,7 +31,7 @@ def main():
     # let's assing numbers to keyboards
     keyboards = dict(enumerate(keyboards, 1))
     for num, kb in keyboards.items():
-        print("{}. {} (RSSI: {})".format(num, kb, kb.rssi))
+        print(f"{num}. {kb} (RSSI: {kb.rssi})")
     chosen = False
     while not chosen:
         print(
@@ -42,13 +42,11 @@ def main():
             return
         chosen = num.isnumeric() and int(num) in keyboards.keys()
     kb = keyboards[int(num)]
-    print("{} chosen. Pairing...".format(kb))
+    print(f"{kb} chosen. Pairing...")
     kb.pair()
     print(
-        (
-            "Try typing on a keyboard. "
-            'Type "quit" and press ENTER to end the test.'
-        )
+        "Try typing on a keyboard. "
+        'Type "quit" and press ENTER to end the test.'
     )
     while input().lower() != "quit":
         pass

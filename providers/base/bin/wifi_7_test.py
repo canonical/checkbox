@@ -221,7 +221,7 @@ def connect(ssid: str, password: "str | None", interface: "str | None" = None):
         == 0  # returns 10 if connection doesn't exist
     ):
         # flush here to make sure it prints before we actually delete
-        print("Deleting existing connections of '{}'".format(ssid), flush=True)
+        print(f"Deleting existing connections of '{ssid}'", flush=True)
         sp.check_call(["nmcli", "connection", "delete", ssid])
 
     # color is removed when nmcli detects that its output is being piped
@@ -275,10 +275,10 @@ def connect(ssid: str, password: "str | None", interface: "str | None" = None):
                 ],
             )
 
-        print("[ OK ] Connected to {}".format(ssid))
+        print(f"[ OK ] Connected to {ssid}")
         return
 
-    raise SystemExit("Did not see '{}' in nmcli's scan output".format(ssid))
+    raise SystemExit(f"Did not see '{ssid}' in nmcli's scan output")
 
 
 def disconnect(ssid: str):
@@ -364,10 +364,10 @@ def run_iw_checks(mlo_ssid: str, password: str, wifi_interface: str):
     )
     disconnect(mlo_ssid)
 
-    print("iw dev {} info".format(wifi_interface))
+    print(f"iw dev {wifi_interface} info")
     print(iw_info_output)
     print()
-    print("iw dev {} link".format(wifi_interface))
+    print(f"iw dev {wifi_interface} link")
     print(iw_link_output)
 
     if mlo_ssid not in iw_info_output and mlo_ssid not in iw_link_output:
@@ -397,8 +397,8 @@ def run_iw_checks(mlo_ssid: str, password: str, wifi_interface: str):
 
     if num_links >= 2:
         print(
-            "[ OK ] Found {} links in this connection".format(num_links),
-            "(interface: {}, ssid: {})".format(wifi_interface, mlo_ssid),
+            f"[ OK ] Found {num_links} links in this connection",
+            f"(interface: {wifi_interface}, ssid: {mlo_ssid})",
         )
     else:
         raise SystemExit(
@@ -406,7 +406,7 @@ def run_iw_checks(mlo_ssid: str, password: str, wifi_interface: str):
                 wifi_interface, mlo_ssid
             )
             + "is not an MLO connection. "
-            + "Expected at least 2 MLO links, got {}".format(num_links),
+            + f"Expected at least 2 MLO links, got {num_links}",
             # mlo link != plain wifi link, it's possible to get 0 here
         )
 
@@ -420,7 +420,7 @@ def run_iw_checks(mlo_ssid: str, password: str, wifi_interface: str):
                 wifi_interface, mlo_ssid
             ),
             "is not using 320MHz bandwidth.",
-            "It's possible that the AP of {}".format(mlo_ssid),
+            f"It's possible that the AP of {mlo_ssid}",
             "isn't configured correctly",
             "or the SoC on this wifi card doesn't support 320MHz",
             file=stderr,
@@ -472,7 +472,7 @@ def main():
     for conn_uuid in active_wifi_conn_uuids:
         print(
             "Turning down connection",
-            "'{}'".format(conn_uuid),
+            f"'{conn_uuid}'",
             "before the test",
             flush=True,
         )

@@ -18,6 +18,7 @@
 id: tpm2/fwts-event-log-dump
 category_id: tpm2
 plugin: attachment
+mime-type: text/plain
 user: root
 imports: from com.canonical.plainbox import manifest
 requires:

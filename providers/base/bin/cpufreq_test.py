@@ -132,7 +132,7 @@ class CpuFreqTest:
         """Read sysfs/cpufreq file."""
         abs_path = path.join(self.path_root, fpath)
         try:
-            with open(abs_path, "r") as _file:
+            with open(abs_path) as _file:
                 data = _file.read()
         except OSError:
             raise CpuFreqTestError("Unable to read file: %s" % abs_path)

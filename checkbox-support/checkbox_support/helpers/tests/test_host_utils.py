@@ -19,7 +19,7 @@
 
 import subprocess
 import unittest
-from unittest.mock import patch
+from unittest.mock import mock_open, patch
 
 import checkbox_support.helpers.host_utils as host_utils
 
@@ -31,7 +31,7 @@ class TestFindPlzRun(unittest.TestCase):
 
     @patch("shutil.which", return_value=None)
     def test_raises_when_not_found(self, _which):
-        with self.assertRaises(host_utils.VulkanDetectionError):
+        with self.assertRaises(host_utils.HostGPUDetectionError):
             host_utils.find_plz_run()
 
 
@@ -184,12 +184,12 @@ class TestPrimeSelectedVendor(unittest.TestCase):
 
     @patch("subprocess.check_output", return_value="on-demand\n")
     def test_raises_for_on_demand(self, _mock):
-        with self.assertRaises(host_utils.VulkanDetectionError):
+        with self.assertRaises(host_utils.HostGPUDetectionError):
             host_utils.prime_selected_vendor()
 
     @patch("subprocess.check_output", side_effect=FileNotFoundError)
     def test_raises_when_prime_select_not_found(self, _mock):
-        with self.assertRaises(host_utils.VulkanDetectionError):
+        with self.assertRaises(host_utils.HostGPUDetectionError):
             host_utils.prime_selected_vendor()
 
     @patch(
@@ -197,7 +197,7 @@ class TestPrimeSelectedVendor(unittest.TestCase):
         side_effect=subprocess.CalledProcessError(1, "prime-select"),
     )
     def test_raises_on_error(self, _mock):
-        with self.assertRaises(host_utils.VulkanDetectionError):
+        with self.assertRaises(host_utils.HostGPUDetectionError):
             host_utils.prime_selected_vendor()
 
 
@@ -210,12 +210,12 @@ class TestVendorPrefixesFromVulkaninfo(unittest.TestCase):
 
     def test_raises_for_unknown_vendor(self):
         output = "    vendorID           = 0x1234\n"
-        with self.assertRaises(host_utils.VulkanDetectionError):
+        with self.assertRaises(host_utils.HostGPUDetectionError):
             host_utils._vendor_prefixes_from_vulkaninfo(output)
 
     def test_raises_when_no_vendorid_line(self):
         output = "deviceType = PHYSICAL_DEVICE_TYPE_INTEGRATED_GPU\n"
-        with self.assertRaises(host_utils.VulkanDetectionError):
+        with self.assertRaises(host_utils.HostGPUDetectionError):
             host_utils._vendor_prefixes_from_vulkaninfo(output)
 
 
@@ -229,7 +229,7 @@ class TestActiveVendorPrefixes(unittest.TestCase):
 
     @patch(
         "checkbox_support.helpers.host_utils.prime_selected_vendor",
-        side_effect=host_utils.VulkanDetectionError,
+        side_effect=host_utils.HostGPUDetectionError,
     )
     @patch(
         "checkbox_support.helpers.host_utils.find_plz_run",
@@ -248,14 +248,14 @@ class TestActiveVendorPrefixes(unittest.TestCase):
 
     @patch(
         "checkbox_support.helpers.host_utils.prime_selected_vendor",
-        side_effect=host_utils.VulkanDetectionError,
+        side_effect=host_utils.HostGPUDetectionError,
     )
     @patch(
         "checkbox_support.helpers.host_utils.find_plz_run",
-        side_effect=host_utils.VulkanDetectionError,
+        side_effect=host_utils.HostGPUDetectionError,
     )
     def test_raises_when_all_methods_fail(self, _plz, _prime):
-        with self.assertRaises(host_utils.VulkanDetectionError):
+        with self.assertRaises(host_utils.HostGPUDetectionError):
             host_utils.active_vendor_prefixes()
 
 
@@ -270,7 +270,7 @@ class TestFindHostIcdFilenames(unittest.TestCase):
         ]
         with patch("os.listdir", return_value=files):
             result = host_utils.find_host_icd_filenames()
-        self.assertIn("{}/intel_icd.json".format(self.ICD_DIR), result)
+        self.assertIn(f"{self.ICD_DIR}/intel_icd.json", result)
         self.assertNotIn("gfxstream", result)
         self.assertNotIn("virtio", result)
 
@@ -291,8 +291,80 @@ class TestFindHostIcdFilenames(unittest.TestCase):
 
     def test_raises_when_icd_dir_missing(self):
         with patch("os.listdir", side_effect=OSError):
-            with self.assertRaises(host_utils.VulkanDetectionError):
+            with self.assertRaises(host_utils.HostGPUDetectionError):
                 host_utils.find_host_icd_filenames()
+
+
+class TestCheckHostLevelZeroGpu(unittest.TestCase):
+    ARCH_TRIPLE = "x86_64-linux-gnu"
+
+    @patch("os.path.isfile", return_value=True)
+    @patch("checkbox_support.helpers.host_utils.glob.glob", return_value=[])
+    def test_returns_false_when_no_render_nodes(self, _glob, _isfile):
+        self.assertFalse(
+            host_utils.check_host_level_zero_gpu(self.ARCH_TRIPLE)
+        )
+
+    @patch("os.path.isfile", return_value=False)
+    @patch(
+        "checkbox_support.helpers.host_utils.glob.glob",
+        return_value=["/dev/dri/renderD128"],
+    )
+    def test_returns_false_when_loader_missing(self, _glob, _isfile):
+        self.assertFalse(
+            host_utils.check_host_level_zero_gpu(self.ARCH_TRIPLE)
+        )
+
+    @patch("os.path.isfile", return_value=True)
+    @patch(
+        "checkbox_support.helpers.host_utils.glob.glob",
+        return_value=["/dev/dri/renderD128"],
+    )
+    def test_returns_true_when_render_node_and_loader_found(
+        self, _glob, _isfile
+    ):
+        self.assertTrue(host_utils.check_host_level_zero_gpu(self.ARCH_TRIPLE))
+
+    @patch("os.path.isfile", return_value=True)
+    @patch(
+        "checkbox_support.helpers.host_utils.glob.glob",
+        return_value=["/dev/dri/renderD128"],
+    )
+    def test_checks_correct_loader_path(self, _glob, mock_isfile):
+        host_utils.check_host_level_zero_gpu(self.ARCH_TRIPLE)
+        mock_isfile.assert_called_once_with(
+            "/usr/lib/x86_64-linux-gnu/libze_loader.so.1"
+        )
+
+
+class TestHasIntelGpu(unittest.TestCase):
+    @patch("os.listdir", side_effect=OSError("permission denied"))
+    def test_returns_false_when_drm_unreadable(self, _listdir):
+        self.assertFalse(host_utils.has_intel_gpu())
+
+    @patch("os.listdir", return_value=["card0", "card0-HDMI-1"])
+    @patch("builtins.open", mock_open(read_data="0x8086\n"))
+    def test_returns_true_for_intel_vendor(self, _listdir):
+        self.assertTrue(host_utils.has_intel_gpu())
+
+    @patch("os.listdir", return_value=["card0"])
+    @patch("builtins.open", mock_open(read_data="0X8086\n"))
+    def test_vendor_match_is_case_insensitive(self, _listdir):
+        self.assertTrue(host_utils.has_intel_gpu())
+
+    @patch("os.listdir", return_value=["card0"])
+    @patch("builtins.open", mock_open(read_data="0x10de\n"))
+    def test_returns_false_for_non_intel_vendor(self, _listdir):
+        self.assertFalse(host_utils.has_intel_gpu())
+
+    @patch("os.listdir", return_value=["renderD128", "version"])
+    def test_ignores_non_card_entries(self, _listdir):
+        self.assertFalse(host_utils.has_intel_gpu())
+
+    @patch("os.listdir", return_value=["card0"])
+    @patch("builtins.open", side_effect=OSError("no such file"))
+    def test_skips_unreadable_card(self, _open, _listdir):
+        self.assertFalse(host_utils.has_intel_gpu())
 
 
 if __name__ == "__main__":

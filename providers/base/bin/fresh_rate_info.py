@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 #
 # fresh_rate_info.py
 #
@@ -43,7 +42,7 @@ def xrandr_paser(data=None):
             break
         if resolution is None:
             continue
-        for match in re.finditer(r"{0}\s+(.+)\*".format(resolution), line):
+        for match in re.finditer(rf"{resolution}\s+(.+)\*", line):
             refresh_rate = match.group(1)
             xrandr = {
                 "connector": connector,

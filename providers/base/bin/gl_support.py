@@ -102,11 +102,28 @@ class GLSupportTester:
                 break
 
         if gl_renderer_line is None:
-            raise SystemExit(
-                "{} was not in glmark2's output".format(gl_variable_name)
-            )
+            raise SystemExit(f"{gl_variable_name} was not in glmark2's output")
 
         return gl_renderer_line.split(":")[-1].strip()
+
+    def build_glmark2_env(self) -> "dict[str, str]":
+        """
+        Builds the environment used to run glmark2. If
+        USER_DEFINED_GL_LD_LIBRARY_PATH is set, it is prepended to
+        LD_LIBRARY_PATH so that host GPU libraries installed outside the
+        default paths take precedence over the libraries bundled in the
+        checkbox snap
+
+        :return: a copy of os.environ with LD_LIBRARY_PATH updated if needed
+        """
+        env = os.environ.copy()
+        user_ld_path = env.get("USER_DEFINED_GL_LD_LIBRARY_PATH")
+        if user_ld_path:
+            env["LD_LIBRARY_PATH"] = ":".join(
+                p for p in (user_ld_path, env.get("LD_LIBRARY_PATH")) if p
+            )
+            print("[ DEBUG ] Using LD_LIBRARY_PATH:", env["LD_LIBRARY_PATH"])
+        return env
 
     def call_glmark2_validate(
         self, glmark2_executable_override: "str | None" = None
@@ -124,7 +141,7 @@ class GLSupportTester:
             # usually it's tty if we get here,
             # happens when gnome failed to start or not using graphical session
             raise SystemExit(
-                "Unsupported session type: '{}'. ".format(XDG_SESSION_TYPE)
+                f"Unsupported session type: '{XDG_SESSION_TYPE}'. "
                 + "Expected either 'x11' or 'wayland'"
             )
 
@@ -171,6 +188,7 @@ class GLSupportTester:
                 # be more relaxed on this timeout in case
                 # the device needs a lot of time to wake up the GPU
                 timeout=120,
+                env=self.build_glmark2_env(),
             )
             return glmark2_output
         finally:
@@ -241,12 +259,12 @@ def main() -> None:
     if not tester.gl_renderer_str_is_hardware_renderer(gl_renderer):
         raise SystemExit(
             "This machine is not using a hardware renderer. "
-            + "Got GL_RENDERER={}".format(gl_renderer)
+            + f"Got GL_RENDERER={gl_renderer}"
         )
 
     print(
         "OK! This machine meets the minimum OpenGL version requirement",
-        "({} >= 3.0)".format(gl_version_str),
+        f"({gl_version_str} >= 3.0)",
         "and is using a hardware renderer for {} apps".format(
             os.environ["XDG_SESSION_TYPE"]
         ),  # wayland working doesn't necessarily imply Xwayland working

@@ -26,11 +26,11 @@
 import json
 import logging
 import re
-
 from collections import defaultdict
 
 from plainbox.abc import IJobDefinition
-from plainbox.i18n import gettext as _, gettext_noop as N_
+from plainbox.i18n import gettext as _
+from plainbox.i18n import gettext_noop as N_
 from plainbox.impl.decorators import cached_property, instance_method_lru_cache
 from plainbox.impl.resource import ResourceProgram, parse_imports_stmt
 from plainbox.impl.secure.origin import Origin
@@ -40,17 +40,15 @@ from plainbox.impl.unit.unit_with_id import UnitWithId
 from plainbox.impl.unit.validators import (
     CorrectFieldValueValidator,
     DeprecatedFieldValidator,
+    DeprecatedSchemaValidator,
     MemberOfFieldValidator,
     PresentFieldValidator,
     ReferenceConstraint,
     ShellProgramValidator,
     UnitReferenceValidator,
     UselessFieldValidator,
-    DeprecatedSchemaValidator,
 )
-
 from plainbox.impl.validation import Problem, Severity
-from plainbox.impl.xparsers import Error, Text, Visitor, WordList
 
 __all__ = ["JobDefinition", "propertywithsymbols"]
 
@@ -69,7 +67,7 @@ class propertywithsymbols(property):
         """
         Initializes the property with the specified values
         """
-        super(propertywithsymbols, self).__init__(fget, fset, fdel, doc)
+        super().__init__(fget, fset, fdel, doc)
         self.__doc__ = doc
         self.symbols = symbols
 
@@ -114,6 +112,27 @@ class _PluginValues(SymbolDef):
 
 
 supported_plugins = [str(s) for s in _PluginValues.get_all_symbols()]
+
+
+ATTACHMENT_MIME_TYPES = (
+    "application/gzip",
+    "application/json",
+    "application/octet-stream",
+    "application/senml+json",
+    "application/xml",
+    "application/x-7z-compressed",
+    "application/x-bzip2",
+    "application/x-tar",
+    "application/x-xz",
+    "application/zip",
+    "application/zstd",
+    "image/gif",
+    "image/jpeg",
+    "image/png",
+    "image/svg+xml",
+    "image/webp",
+    "text/plain",
+)
 
 
 class _CertificationStatusValues(SymbolDef):
@@ -244,7 +263,7 @@ class JobDefinition(UnitWithId, IJobDefinition):
         # called with correctly-ordered arguments.
         assert (
             cls is JobDefinition
-        ), "{}.instantiate_template() not customized".format(cls.__name__)
+        ), f"{cls.__name__}.instantiate_template() not customized"
         return cls(
             data,
             origin,
@@ -291,6 +310,13 @@ class JobDefinition(UnitWithId, IJobDefinition):
         if plugin is None and "simple" in self.get_flag_set():
             plugin = "shell"
         return plugin
+
+    @cached_property
+    def mime_type(self):
+        default = None
+        if self.plugin == "attachment":
+            default = "application/octet-stream"
+        return self.get_record_value("mime-type", default)
 
     @cached_property
     def summary(self):
@@ -437,6 +463,19 @@ class JobDefinition(UnitWithId, IJobDefinition):
         """
         return self.get_record_value("auto-retry", "unspecified")
 
+    @cached_property
+    def xfail(self):
+        """
+        Whether this job is expected to fail.
+
+        When set to true, a failure of this job is considered expected
+        and should not be treated as an error. The default value is
+        false.
+        """
+        # str is backward compatibility for pxus
+        value = str(self.get_record_value("xfail", "false"))
+        return value.lower() == "true"
+
     @propertywithsymbols(symbols=_CertificationStatusValues)
     def certification_status(self):
         """
@@ -574,6 +613,21 @@ class JobDefinition(UnitWithId, IJobDefinition):
             return set(self.environ)
         else:
             return set()
+
+    @instance_method_lru_cache(maxsize=None)
+    def get_group_path(self):
+        """
+        Return the group path from the biggest group to the smallest one.
+
+        A plain string is a single-level group. Jobs without a group have
+        an empty path.
+        """
+        group = self.group
+        if not group:
+            return []
+        if isinstance(group, str):
+            return [group]
+        return group
 
     @instance_method_lru_cache(maxsize=None)
     def get_flag_set(self):
@@ -760,7 +814,6 @@ class JobDefinition(UnitWithId, IJobDefinition):
         )
 
     class Meta:
-
         name = N_("job")
 
         class fields(SymbolDef):
@@ -792,6 +845,8 @@ class JobDefinition(UnitWithId, IJobDefinition):
             certification_status = "certification_status"
             siblings = "siblings"
             auto_retry = "auto_retry"
+            xfail = "xfail"
+            mime_type = "mime_type"
 
         field_validators = {
             fields.name: [
@@ -817,6 +872,22 @@ class JobDefinition(UnitWithId, IJobDefinition):
                     message=_("please migrate to user-interact-verify"),
                 ),
             ],
+            fields.mime_type: [
+                concrete_validators.templateInvariant,
+                MemberOfFieldValidator(
+                    ATTACHMENT_MIME_TYPES,
+                    onlyif=lambda unit: unit.mime_type is not None,
+                ),
+                UselessFieldValidator(
+                    message=_(
+                        "mime-type is only supported on attachment jobs"
+                    ),
+                    onlyif=lambda unit: (
+                        unit.mime_type is not None
+                        and unit.plugin != "attachment"
+                    ),
+                ),
+            ],
             fields.command: [
                 # All jobs except for manual must have a command
                 PresentFieldValidator(
@@ -834,8 +905,7 @@ class JobDefinition(UnitWithId, IJobDefinition):
                     Problem.deprecated,
                     Severity.advice,
                     message=_(
-                        "please use PLAINBOX_PROVIDER_DATA"
-                        " instead of CHECKBOX_SHARE"
+                        "please use PLAINBOX_PROVIDER_DATA instead of CHECKBOX_SHARE"
                     ),
                     onlyif=lambda unit: unit.command is not None,
                 ),
@@ -845,8 +915,7 @@ class JobDefinition(UnitWithId, IJobDefinition):
                     Problem.deprecated,
                     Severity.advice,
                     message=_(
-                        "please use PLAINBOX_SESSION_SHARE"
-                        " instead of CHECKBOX_DATA"
+                        "please use PLAINBOX_SESSION_SHARE instead of CHECKBOX_DATA"
                     ),
                     onlyif=lambda unit: unit.command is not None,
                 ),
@@ -862,10 +931,12 @@ class JobDefinition(UnitWithId, IJobDefinition):
                         " set of purpose, steps, and verification "
                         "fields"
                     ),
-                    onlyif=lambda unit: unit.plugin == "manual"
-                    and unit.purpose is None
-                    and unit.steps is None
-                    and unit.verification is None,
+                    onlyif=lambda unit: (
+                        unit.plugin == "manual"
+                        and unit.purpose is None
+                        and unit.steps is None
+                        and unit.verification is None
+                    ),
                 ),
                 # Description or a set of purpose, steps and verification
                 # fields is recommended for all other jobs
@@ -901,16 +972,15 @@ class JobDefinition(UnitWithId, IJobDefinition):
                 CorrectFieldValueValidator(
                     lambda duration: float(duration) > 0,
                     message="value must be a positive number",
-                    onlyif=lambda unit: (
-                        unit.get_record_value("estimated_duration")
+                    onlyif=lambda unit: unit.get_record_value(
+                        "estimated_duration"
                     ),
                 ),
             ],
             fields.depends: [
                 CorrectFieldValueValidator(
-                    lambda value, unit: (
-                        unit.get_direct_dependencies() is not None
-                    )
+                    lambda value, unit: unit.get_direct_dependencies()
+                    is not None
                 ),
                 UnitReferenceValidator(
                     lambda unit: unit.get_direct_dependencies(),
@@ -929,9 +999,8 @@ class JobDefinition(UnitWithId, IJobDefinition):
             ],
             fields.after: [
                 CorrectFieldValueValidator(
-                    lambda value, unit: (
-                        unit.get_after_dependencies() is not None
-                    )
+                    lambda value, unit: unit.get_after_dependencies()
+                    is not None
                 ),
                 UnitReferenceValidator(
                     lambda unit: unit.get_after_dependencies(),
@@ -948,9 +1017,8 @@ class JobDefinition(UnitWithId, IJobDefinition):
             ],
             fields.before: [
                 CorrectFieldValueValidator(
-                    lambda value, unit: (
-                        unit.get_before_dependencies() is not None
-                    )
+                    lambda value, unit: unit.get_before_dependencies()
+                    is not None
                 ),
                 UnitReferenceValidator(
                     lambda unit: unit.get_before_dependencies(),
@@ -965,7 +1033,16 @@ class JobDefinition(UnitWithId, IJobDefinition):
                     Problem.deprecated, Severity.warning, str, list
                 ),
             ],
-            fields.group: [],
+            fields.group: [
+                # "/" is used to join the group path into a unique group id
+                CorrectFieldValueValidator(
+                    lambda value, unit: all(
+                        "/" not in name for name in unit.get_group_path()
+                    ),
+                    message=_("group names cannot contain '/'"),
+                    onlyif=lambda unit: unit.group is not None,
+                ),
+            ],
             fields.requires: [
                 CorrectFieldValueValidator(
                     lambda value, unit: unit.get_resource_program(),
@@ -979,12 +1056,10 @@ class JobDefinition(UnitWithId, IJobDefinition):
                             message=_("the referenced unit is not a job"),
                         ),
                         ReferenceConstraint(
-                            lambda referrer, referee: (
-                                referee.plugin == "resource"
-                            ),
-                            onlyif=lambda referrer, referee: (
-                                referee.unit == "job"
-                            ),
+                            lambda referrer, referee: referee.plugin
+                            == "resource",
+                            onlyif=lambda referrer, referee: referee.unit
+                            == "job",
                             message=_(
                                 "the referenced job is not a resource job"
                             ),
@@ -1008,9 +1083,8 @@ class JobDefinition(UnitWithId, IJobDefinition):
             fields.imports: [
                 concrete_validators.templateInvariant,
                 CorrectFieldValueValidator(
-                    lambda value, unit: (
-                        list(unit.get_imported_jobs()) is not None
-                    )
+                    lambda value, unit: list(unit.get_imported_jobs())
+                    is not None
                 ),
                 UnitReferenceValidator(
                     lambda unit: [
@@ -1038,9 +1112,8 @@ class JobDefinition(UnitWithId, IJobDefinition):
                     ),
                     constraints=[
                         ReferenceConstraint(
-                            lambda referrer, referee: (
-                                referee.unit == "category"
-                            ),
+                            lambda referrer, referee: referee.unit
+                            == "category",
                             message=_("the referenced unit is not a category"),
                         )
                     ],
@@ -1081,15 +1154,13 @@ class JobDefinition(UnitWithId, IJobDefinition):
                 ),
                 CorrectFieldValueValidator(
                     lambda value, unit: all(
-                        [
-                            all(
-                                [
-                                    hasattr(JobDefinition, k.lstrip("_"))
-                                    for k in s.keys()
-                                ]
+                        all(
+                            hasattr(
+                                JobDefinition, k.lstrip("_").replace("-", "_")
                             )
-                            for s in value
-                        ]
+                            for k in s
+                        )
+                        for s in value
                     ),
                     Problem.bad_reference,
                     Severity.error,
@@ -1101,11 +1172,33 @@ class JobDefinition(UnitWithId, IJobDefinition):
                 concrete_validators.templateInvariant,
                 MemberOfFieldValidator(_AutoRetryValues.get_all_symbols()),
             ],
+            fields.xfail: [
+                concrete_validators.templateInvariant,
+                CorrectFieldValueValidator(
+                    lambda value, unit: (
+                        unit.get_record_value("xfail")
+                        # str values are PXU backward compatibility
+                        in ("true", "false", True, False)
+                    ),
+                    Problem.wrong,
+                    Severity.error,
+                    message=_("xfail must be 'true' or 'false'"),
+                    onlyif=lambda unit: unit.get_record_value("xfail")
+                    is not None,
+                ),
+                CorrectFieldValueValidator(
+                    lambda value, unit: unit.plugin != "resource",
+                    Problem.wrong,
+                    Severity.error,
+                    message=_("xfail is not supported on resource jobs"),
+                    onlyif=lambda unit: unit.get_record_value("xfail")
+                    is not None,
+                ),
+            ],
         }
 
 
 class InvalidJob(JobDefinition):
-
     def __init__(self, *args, errors=[], **kwargs):
         assert errors, "Unit is not invalid"
         self.errors = errors
@@ -1138,7 +1231,6 @@ class InvalidJob(JobDefinition):
         )
 
     class Meta:
-
         name = N_("job")
 
         class fields(SymbolDef):
@@ -1168,9 +1260,11 @@ class InvalidJob(JobDefinition):
             certification_status = "certification_status"
             siblings = "siblings"
             auto_retry = "auto_retry"
+            xfail = "xfail"
+            mime_type = "mime_type"
 
     def __str__(self):
         return self.summary
 
     def __repr__(self):
-        return "<InvalidJob id:{!r} plugin:{!r}>".format(self.id, self.plugin)
+        return f"<InvalidJob id:{self.id!r} plugin:{self.plugin!r}>"

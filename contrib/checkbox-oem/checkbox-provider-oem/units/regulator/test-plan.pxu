@@ -1,0 +1,5 @@
+id: oem-regulator-automated
+unit: test plan
+_name: Regulator auto tests
+_description: Automated led tests for devices
+include:

@@ -109,7 +109,7 @@ class Snapd:
 
     def _request(self, method, path, data=None, params=None, decode=True):
         if params:
-            path = "{}?{}".format(path, params)
+            path = f"{path}?{params}"
         with SnapdConnection() as conn:
             headers = {}
             if data is not None:
@@ -215,9 +215,9 @@ class Snapd:
 
     def find(self, search, exact=False):
         if exact:
-            p = "name={}".format(search)
+            p = f"name={search}"
         else:
-            p = "q={}".format(search)
+            p = f"q={search}"
         return self._get(self._find, params=p)["result"]
 
     def info(self, snap):
@@ -255,7 +255,7 @@ class Snapd:
 
     def get_configuration(self, snap, key):
         path = self._snaps + "/" + snap + "/conf"
-        p = "keys={}".format(key)
+        p = f"keys={key}"
         return self._get(path, params=p)["result"][key]
 
     def set_configuration(self, snap, key, value):

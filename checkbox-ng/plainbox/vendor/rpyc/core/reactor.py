@@ -3,7 +3,7 @@ import select
 import threading
 
 
-class SelectReactor(object):
+class SelectReactor:
     TIMEOUT = 0.5 if os.name == "nt" else None
 
     def __init__(self):

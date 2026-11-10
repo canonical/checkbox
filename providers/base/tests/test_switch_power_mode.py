@@ -44,7 +44,7 @@ class TestSwitchPowerMode(unittest.TestCase):
 
         self.assertEqual(content, "low-power balanced performance")
         mock_open.assert_called_once_with(
-            Path("/fake/path/power_profile_choices"), "rt", encoding="utf-8"
+            Path("/fake/path/power_profile_choices"), encoding="utf-8"
         )
 
     @patch("switch_power_mode.open")  # Mock the open function
@@ -64,7 +64,7 @@ class TestSwitchPowerMode(unittest.TestCase):
             "Failed to read sysfs file: /fake/path/power_profile",
         )
         mock_open.assert_called_once_with(
-            Path("/fake/path/power_profile"), "rt", encoding="utf-8"
+            Path("/fake/path/power_profile"), encoding="utf-8"
         )
 
     @patch("subprocess.check_call")  # Mock the subprocess.check_call function

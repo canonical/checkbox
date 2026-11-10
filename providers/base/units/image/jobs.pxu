@@ -80,7 +80,7 @@ category_id: image
 _summary: Check that the model grade is correctly set
 imports: from com.canonical.plainbox import manifest
 requires:
- lsb.distributor_id == "Ubuntu Core" and int(lsb.release) >= 20
+ os.distributor_id == "Ubuntu Core" and int(os.release) >= 20
  manifest._dangerous_grade_core_image == 'False'
 _purpose:
  Images with the 'dangerous' grade (the lowest of all available grades)

@@ -24,10 +24,10 @@ def wifi_connection_section(ssid, uuid):
 
     connection = """
 [connection]
-id=%s
-uuid=%s
+id={}
+uuid={}
 type=802-11-wireless
-    """ % (
+    """.format(
         ssid,
         uuid,
     )
@@ -101,13 +101,13 @@ number={number}
 """.format(type=connection_type, number=number)
 
     if apn:
-        type_section += "\napn={apn}".format(apn=apn)
+        type_section += f"\napn={apn}"
     if username:
-        type_section += "\nusername={username}".format(username=username)
+        type_section += f"\nusername={username}"
     if password:
-        type_section += "\npassword={password}".format(password=password)
+        type_section += f"\npassword={password}"
     if pin:
-        type_section += "\npin={pin}".format(pin=pin)
+        type_section += f"\npin={pin}"
 
     return type_section
 
@@ -175,7 +175,7 @@ def write_connection_file(name, connection_info):
         connection_file.write(connection_info)
         os.fchmod(connection_file.fileno(), 0o600)
         connection_file.close()
-    except IOError:
+    except OSError:
         print(
             "Can't write to "
             + CONNECTIONS_PATH

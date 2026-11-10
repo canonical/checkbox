@@ -477,7 +477,7 @@ class ResourceExpressionTests(TestCase):
 class ResourceProgramTests(TestCase):
 
     def setUp(self):
-        super(ResourceProgramTests, self).setUp()
+        super().setUp()
         self.prog = ResourceProgram(
             [
                 "package.name == 'fwts'",
@@ -502,9 +502,7 @@ class ResourceProgramTests(TestCase):
         )
 
     def test_required_resources(self):
-        self.assertEqual(
-            self.prog.required_resources, set(("package", "platform"))
-        )
+        self.assertEqual(self.prog.required_resources, {"package", "platform"})
 
     def test_evaluate_failure_not_true(self):
         resource_map = {

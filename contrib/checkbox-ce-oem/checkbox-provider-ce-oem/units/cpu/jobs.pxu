@@ -6,6 +6,16 @@ plugin: resource
 user: root
 category_id: com.canonical.plainbox::cpu
 estimated_duration: 1s
+command: resource_wrapper.sh -- cpufreq_governors.py --policy-resource
+
+id: check_cpufreq_policy_list_resource
+_summary: Check cpufreq policy resource generation
+_description:
+    Verify cpufreq policy resource generation command executes directly.
+plugin: shell
+user: root
+category_id: com.canonical.plainbox::cpu
+estimated_duration: 1s
 command: cpufreq_governors.py --policy-resource
 
 unit: template
@@ -20,7 +30,7 @@ plugin: shell
 user: root
 category_id: com.canonical.plainbox::cpu
 flags: also-after-suspend
-requires: 
+requires:
     cpufreq_policy_list.supported == "True"
     cpufreq_policy_list.scaling_driver != 'intel_pstate'
     cpufreq_policy_list.cpb != '1'

@@ -33,7 +33,7 @@ class ModprobeResult:
         self.mod_options[module] = options
 
 
-class ModprobeParser(object):
+class ModprobeParser:
     """Parser for module configuration from /etc/modprobe.d."""
 
     def __init__(self, stream):

@@ -1,0 +1,76 @@
+{
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "title": "Dynamic Voltage and Frequency Scaling (DVFS) Device Map Schema",
+    "description": "Per-platform allowlist/denylist of devfreq devices to be exercised by the DVFS Checkbox test.",
+    "type": "object",
+    "properties": {
+        "allowlist": {
+            "description": "Devfreq devices that should be tested.",
+            "type": "array",
+            "items": {
+                "$ref": "#/definitions/deviceEntry"
+            }
+        },
+        "denylist": {
+            "description": "Device names that must be excluded even if they would otherwise be picked up automatically.",
+            "type": "array",
+            "items": {
+                "type": "string",
+                "minLength": 1
+            }
+        }
+    },
+    "required": [
+        "allowlist"
+    ],
+    "additionalProperties": false,
+    "definitions": {
+        "deviceType": {
+            "description": "Category of the devfreq device. Defaults to \"other\" when omitted.",
+            "type": "string",
+            "enum": [
+                "gpu",
+                "npu",
+                "vpu",
+                "other"
+            ]
+        },
+        "governor": {
+            "description": "Devfreq governor name (e.g. userspace, powersave, performance, simple_ondemand).",
+            "type": "string",
+            "minLength": 1
+        },
+        "deviceEntry": {
+            "description": "A single devfreq device entry.",
+            "type": "object",
+            "properties": {
+                "device_name": {
+                    "description": "Name of the devfreq device as it appears under /sys/class/devfreq, or another platform-specific identifier.",
+                    "type": "string",
+                    "minLength": 1
+                },
+                "type": {
+                    "$ref": "#/definitions/deviceType"
+                },
+                "sysfs_path": {
+                    "description": "Optional absolute sysfs path override, used when the device's devfreq node is not exposed directly under /sys/class/devfreq.",
+                    "type": "string",
+                    "minLength": 1
+                },
+                "governors": {
+                    "description": "List of governors expected to be available and tested for this device.",
+                    "type": "array",
+                    "minItems": 1,
+                    "items": {
+                        "$ref": "#/definitions/governor"
+                    }
+                }
+            },
+            "required": [
+                "device_name",
+                "governors"
+            ],
+            "additionalProperties": false
+        }
+    }
+}

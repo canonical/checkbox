@@ -8,8 +8,10 @@ import custom modules (imposes a security risk), etc.
 Note that by changing the configuration parameters, this module can be made
 non-secure. Keep this in mind.
 """
+
 import sys
 import traceback
+
 try:
     import exceptions as exceptions_module
 except ImportError:
@@ -23,10 +25,9 @@ from plainbox.vendor.rpyc.core import brine
 from plainbox.vendor.rpyc.core import consts
 from plainbox.vendor.rpyc import version
 
-
 REMOTE_LINE_START = "\n\n========= Remote Traceback "
 REMOTE_LINE_END = " =========\n"
-REMOTE_LINE = "{0}({{}}){1}".format(REMOTE_LINE_START, REMOTE_LINE_END)
+REMOTE_LINE = f"{REMOTE_LINE_START}({{}}){REMOTE_LINE_END}"
 
 
 def dump(typ, val, tb, include_local_traceback, include_local_version):
@@ -82,7 +83,12 @@ def dump(typ, val, tb, include_local_traceback, include_local_version):
     return (typ.__module__, typ.__name__), tuple(args), tuple(attrs), tbtext
 
 
-def load(val, import_custom_exceptions, instantiate_custom_exceptions, instantiate_oldstyle_exceptions):
+def load(
+    val,
+    import_custom_exceptions,
+    instantiate_custom_exceptions,
+    instantiate_oldstyle_exceptions,
+):
     """
     Loads a dumped exception (the tuple returned by :func:`dump`) info a
     throwable exception object. If the exception cannot be instantiated for any
@@ -131,15 +137,19 @@ def load(val, import_custom_exceptions, instantiate_custom_exceptions, instantia
         cls = None
 
     if cls is None:
-        fullname = "{}.{}".format(modname, clsname)
+        fullname = f"{modname}.{clsname}"
         # py2: `type()` expects `str` not `unicode`!
         fullname = str(fullname)
         if fullname not in _generic_exceptions_cache:
-            fakemodule = {"__module__": "{}/{}".format(__name__, modname)}
+            fakemodule = {"__module__": f"{__name__}/{modname}"}
             if isinstance(GenericException, ClassType):
-                _generic_exceptions_cache[fullname] = ClassType(fullname, (GenericException,), fakemodule)
+                _generic_exceptions_cache[fullname] = ClassType(
+                    fullname, (GenericException,), fakemodule
+                )
             else:
-                _generic_exceptions_cache[fullname] = type(fullname, (GenericException,), fakemodule)
+                _generic_exceptions_cache[fullname] = type(
+                    fullname, (GenericException,), fakemodule
+                )
         cls = _generic_exceptions_cache[fullname]
 
     cls = _get_exception_class(cls)
@@ -154,13 +164,15 @@ def load(val, import_custom_exceptions, instantiate_custom_exceptions, instantia
     for name, attrval in attrs:
         try:
             setattr(exc, name, attrval)
-        except AttributeError:      # handle immutable attrs (@property)
+        except AttributeError:  # handle immutable attrs (@property)
             pass
 
     # When possible and relevant, warn the user about mismatch in major versions between remote and local
     remote_ver = getattr(exc, "_remote_version", "<version denied>")
-    if remote_ver != "<version denied>" and remote_ver.split('.')[0] != str(version.version[0]):
-        _warn = '\nWARNING: Remote is on RPyC {} and local is on RPyC {}.\n\n'
+    if remote_ver != "<version denied>" and remote_ver.split(".")[0] != str(
+        version.version[0]
+    ):
+        _warn = "\nWARNING: Remote is on RPyC {} and local is on RPyC {}.\n\n"
         tbtext += _warn.format(remote_ver, version.__version__)
 
     exc._remote_tb = tbtext
@@ -170,6 +182,7 @@ def load(val, import_custom_exceptions, instantiate_custom_exceptions, instantia
 class GenericException(Exception):
     """A 'generic exception' that is raised when the exception the gotten from
     the other party cannot be instantiated locally"""
+
     pass
 
 
@@ -189,7 +202,9 @@ def _get_exception_class(cls):
             except Exception:
                 text = "<Unprintable exception>"
             if hasattr(self, "_remote_tb"):
-                text += REMOTE_LINE.format(self._remote_tb.count(REMOTE_LINE_START) + 1)
+                text += REMOTE_LINE.format(
+                    self._remote_tb.count(REMOTE_LINE_START) + 1
+                )
                 text += self._remote_tb
             return text
 

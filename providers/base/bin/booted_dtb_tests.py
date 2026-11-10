@@ -28,14 +28,14 @@ from checkbox_support.snap_utils.system import get_kernel_snap
 if len(sys.argv) != 2:
     raise SystemExit("ERROR: please specify the bootloader")
 
-dtb_dir = "/var/lib/snapd/hostfs/boot/{}".format(sys.argv[1])
-print("Bootloader DTB location: {}".format(dtb_dir))
+dtb_dir = f"/var/lib/snapd/hostfs/boot/{sys.argv[1]}"
+print(f"Bootloader DTB location: {dtb_dir}")
 
 kernel = get_kernel_snap()
 if kernel is None:
     raise SystemExit("ERROR: failed to get kernel snap")
-snap_dtbs = "/snap/{}/current/dtbs".format(kernel)
-print("Kernel snap DTB location: {}".format(snap_dtbs), end="\n\n", flush=True)
+snap_dtbs = f"/snap/{kernel}/current/dtbs"
+print(f"Kernel snap DTB location: {snap_dtbs}", end="\n\n", flush=True)
 
 snap_files = []
 for dirpath, dirs, files in walk(snap_dtbs):
@@ -52,7 +52,7 @@ match, mismatch, errors = filecmp.cmpfiles(
 
 if match:
     print(
-        "{} matching DTB files found".format(len(match)),
+        f"{len(match)} matching DTB files found",
         end="\n\n",
         flush=True,
     )

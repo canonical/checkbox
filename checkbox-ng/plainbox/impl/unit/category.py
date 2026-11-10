@@ -66,7 +66,7 @@ class CategoryUnit(UnitWithId):
         # called with correctly-ordered arguments.
         assert (
             cls is CategoryUnit
-        ), "{}.instantiate_template() not customized".format(cls.__name__)
+        ), f"{cls.__name__}.instantiate_template() not customized"
         return cls(
             data, raw_data, origin, provider, parameters, field_offset_map
         )
@@ -78,7 +78,7 @@ class CategoryUnit(UnitWithId):
         return self.name
 
     def __repr__(self):
-        return "<CategoryUnit id:{!r} name:{!r}>".format(self.id, self.name)
+        return f"<CategoryUnit id:{self.id!r} name:{self.name!r}>"
 
     @property
     def name(self):

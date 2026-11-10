@@ -13,7 +13,7 @@ import time
 
 
 def loopback_test(out_lane, in_lane):
-    print("{} -> {}".format(out_lane, in_lane), flush=True)
+    print(f"{out_lane} -> {in_lane}", flush=True)
     out_lane = int(out_lane)
     in_lane = int(in_lane)
     GPIO.setup(out_lane, GPIO.OUT, initial=GPIO.LOW)
@@ -23,20 +23,18 @@ def loopback_test(out_lane, in_lane):
         time.sleep(0.5)
         if GPIO.input(in_lane) != (i % 2):
             raise SystemExit(
-                "Failed loopback test out: {} in: {}".format(out_lane, in_lane)
+                f"Failed loopback test out: {out_lane} in: {in_lane}"
             )
         time.sleep(0.5)
 
 
 def gpio_pairs(model_name):
     gpio_data = os.path.expandvars(
-        "$PLAINBOX_PROVIDER_DATA/gpio-loopback.{}.in".format(model_name)
+        f"$PLAINBOX_PROVIDER_DATA/gpio-loopback.{model_name}.in"
     )
     if not os.path.exists(gpio_data):
-        raise SystemExit(
-            "ERROR: no gpio information found at: {}".format(gpio_data)
-        )
-    with open(gpio_data, "r") as f:
+        raise SystemExit(f"ERROR: no gpio information found at: {gpio_data}")
+    with open(gpio_data) as f:
         for line in f:
             if line.startswith("#"):
                 continue
@@ -48,7 +46,7 @@ def main():
         raise SystemExit("Usage: gpio_loopback.py MODEL_NAME")
     model_name = sys.argv[1]
 
-    print("Using RPi.GPIO module {}".format(GPIO.VERSION))
+    print(f"Using RPi.GPIO module {GPIO.VERSION}")
     GPIO.setmode(GPIO.BCM)
     GPIO.setwarnings(False)
 

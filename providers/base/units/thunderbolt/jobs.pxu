@@ -50,6 +50,7 @@ _verification:
 plugin: user-interact
 category_id: com.canonical.plainbox::disk
 id: thunderbolt3/storage-manual
+group: peripherals_manual
 flags: also-after-suspend
 user: root
 imports: from com.canonical.plainbox import manifest
@@ -77,6 +78,7 @@ _verification:
 plugin: user-interact-verify
 category_id: com.canonical.plainbox::disk
 id: thunderbolt3/daisy-chain
+group: monitor_external_output
 user: root
 imports: from com.canonical.plainbox import manifest
 requires: manifest.has_thunderbolt3 == 'True'

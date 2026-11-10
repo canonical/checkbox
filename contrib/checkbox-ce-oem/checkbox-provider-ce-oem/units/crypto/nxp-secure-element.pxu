@@ -7,6 +7,17 @@ _description:
     for category-aware template expansion.
 estimated_duration: 5
 command:
+    resource_wrapper.sh -- nxp_ele_test.py --list-tv
+
+id: check_nxp_ele_list_tv_files_resource
+plugin: shell
+_summary: Check NXP ELE test vector resource generation
+_description:
+    Verify NXP ELE test vector discovery command executes directly.
+estimated_duration: 5
+requires: manifest.has_nxp_secure_element_ele == 'True'
+imports: from com.canonical.plainbox import manifest
+command:
     nxp_ele_test.py --list-tv
 
 id: ce-oem-nxp-ele/device-node

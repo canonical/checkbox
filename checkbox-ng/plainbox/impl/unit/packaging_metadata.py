@@ -383,7 +383,7 @@ class PackagingDriverBase(IPackagingDriver):
 
         if not match:
             raise SystemExit(
-                "Invalid version comparison string: {}".format(comparison_str)
+                f"Invalid version comparison string: {comparison_str}"
             )
         operator_match, version_match = match.groups()
 
@@ -477,10 +477,10 @@ class DebianPackagingDriver(PackagingDriverBase):
         self._recommends.extend(rel_list("Recommends"))
 
     def _write_pkg_substvars(self, pkg):
-        fname = "debian/{}.substvars".format(pkg)
+        fname = f"debian/{pkg}.substvars"
         _logger.info(_("Writing %s"), fname)
         # NOTE: we're appending to that file
-        with open(fname, "at", encoding="UTF-8") as stream:
+        with open(fname, "a", encoding="UTF-8") as stream:
             if self._depends:
                 print(
                     "plainbox:Depends={}".format(", ".join(self._depends)),
@@ -502,7 +502,7 @@ class DebianPackagingDriver(PackagingDriverBase):
     def _gen_provider_packages(self):
         try:
             _logger.info(_("Loading debian/control"))
-            with open("debian/control", "rt", encoding="UTF-8") as stream:
+            with open("debian/control", encoding="UTF-8") as stream:
                 from debian.deb822 import Deb822
 
                 for para in Deb822.iter_paragraphs(stream.readlines()):
@@ -546,7 +546,7 @@ def get_os_release(path="/etc/os-release"):
     :returns:
         A dictionary with parsed data
     """
-    with open(path, "rt", encoding="UTF-8") as stream:
+    with open(path, encoding="UTF-8") as stream:
         return {
             key: value
             for key, value in (

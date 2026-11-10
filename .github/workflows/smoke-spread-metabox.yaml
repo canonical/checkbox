@@ -1,0 +1,121 @@
+name: Run metabox smoke plan via spread (patched snaps)
+
+permissions:
+  contents: read
+
+on:
+  pull_request:
+    branches: [ main ]
+    paths:
+      - tools/image-garden/**
+      - metabox/metabox/metabox-provider/**
+      - .github/workflows/smoke-spread-metabox.yaml
+  workflow_dispatch:
+    inputs:
+      channel:
+        description: Store channel to install the Checkbox snaps from
+        type: string
+        default: edge
+  workflow_call:
+    inputs:
+      channel:
+        description: Store channel to install the Checkbox snaps from
+        type: string
+        default: edge
+        required: false
+
+jobs:
+  smoke-spread-metabox:
+    name: Metabox smoke via spread on ${{ matrix.garden-system }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    env:
+      CHECKBOX_CHANNEL: ${{ inputs.channel || 'edge' }}
+    strategy:
+      fail-fast: false
+      matrix:
+        garden-system:
+          - ubuntu-core-18
+          - ubuntu-core-20
+          - ubuntu-core-22
+          - ubuntu-core-24
+          - ubuntu-core-26
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Install image-garden
+        run: |
+          sudo snap install image-garden
+          snap list image-garden
+
+      - name: Prepare the runner for virtual machines
+        run: |
+          # image-garden runs QEMU, which needs access to KVM.
+          if [ -e /dev/kvm ]; then
+            sudo chmod -v 666 /dev/kvm
+          else
+            echo "::warning::/dev/kvm is missing, falling back to emulation"
+          fi
+
+      - name: Patch the metabox provider onto the snap
+        working-directory: tools/image-garden
+        env:
+          GARDEN_SYSTEM: ${{ matrix.garden-system }}
+        run: |
+          SERIES="${GARDEN_SYSTEM##*-}"
+          python3 patch_checkbox_snap.py \
+            --series "$SERIES" \
+            --channel "$CHECKBOX_CHANNEL" \
+            --metabox-only \
+            --output-dir "local_run_$SERIES/checkbox$SERIES" \
+            --force
+
+      - name: Run the metabox smoke spread suite
+        working-directory: tools/image-garden
+        run: |
+          # -vv allows the checkbox output to be output in full during the run
+          image-garden.spread -vv \
+            -artifacts=artifacts \
+            "garden:${{ matrix.garden-system }}:tests/run-metabox-smoke"
+
+      - name: Compare the full submission against the golden results
+        working-directory: tools/image-garden
+        run: |
+          submission="$(find artifacts -path '*/submission-full.json' -print -quit)"
+          if [ -z "$submission" ]; then
+            echo "submission-full.json not found in spread artifacts" >&2
+            exit 1
+          fi
+          python3 check_submission.py \
+            "$submission" \
+            tests/run-metabox-smoke/golden-full.json
+
+      - name: Rename artifacts for GitHub compatibility
+        if: always()
+        working-directory: tools/image-garden
+        run: |
+          # Spread names artifact directories "backend:system:suite", and
+          # GitHub rejects colons in artifact paths.
+          if [ -d artifacts ]; then
+            find artifacts -depth -name '*:*' \
+              -execdir bash -c 'mv -v "$1" "${1//:/_}"' bash '{}' \;
+          fi
+
+      - name: Upload spread artifacts
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
+        with:
+          name: spread-artifacts-metabox-${{ matrix.garden-system }}
+          path: tools/image-garden/artifacts
+          if-no-files-found: ignore
+
+      - name: Upload image-garden logs
+        if: failure()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
+        with:
+          name: image-garden-logs-metabox-${{ matrix.garden-system }}
+          path: tools/image-garden/.image-garden/*.log
+          if-no-files-found: ignore

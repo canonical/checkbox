@@ -62,7 +62,7 @@ def find_version_in_file(filepath):
             "the firmware file {}.".format(filepath)
         )
 
-    print("No version number found in the file {}".format(filepath))
+    print(f"No version number found in the file {filepath}")
 
 
 def main():

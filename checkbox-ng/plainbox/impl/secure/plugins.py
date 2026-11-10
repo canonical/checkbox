@@ -621,7 +621,7 @@ class FsPlugInCollection(PlugInCollectionBase):
             start_time = now()
             try:
                 text = self._get_file_text(filename)
-            except (OSError, IOError) as exc:
+            except OSError as exc:
                 logger.error(_("Unable to load %r: %s"), filename, str(exc))
                 self._problem_list.append(exc)
             else:

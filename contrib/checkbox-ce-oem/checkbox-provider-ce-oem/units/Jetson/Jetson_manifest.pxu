@@ -1,0 +1,11 @@
+unit: manifest entry
+id: is_Jetson
+_name: Is this a Jetson platform?
+_prompt: Jetson specific:
+value-type: bool
+
+unit: manifest entry
+id: has_jetson_camera
+_name: Does this Jetson platform have a camera connected?
+_prompt: Jetson specific:
+value-type: bool

@@ -3,6 +3,10 @@ id: intel_npu
 _name: Intel NPU
 
 unit: category
+id: qcom_npu
+_name: Qualcomm NPU
+
+unit: category
 id: npu_kmd
 category_id: intel_npu
 _name: Intel NPU kernel mode driver validation

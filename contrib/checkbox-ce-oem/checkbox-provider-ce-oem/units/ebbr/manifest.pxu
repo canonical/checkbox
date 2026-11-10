@@ -1,0 +1,4 @@
+unit: manifest entry
+id: has_arm_ebbr
+_name: Does this platform require Arm Embedded Base Boot Requirements (EBBR) tests?
+value-type: bool

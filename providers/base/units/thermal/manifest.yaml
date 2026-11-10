@@ -1,0 +1,4 @@
+unit: manifest entry
+id: has_thermald_support
+name: Intel thermald (DPTF) thermal management support
+value-type: bool

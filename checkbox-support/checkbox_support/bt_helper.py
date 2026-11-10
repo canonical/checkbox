@@ -176,6 +176,14 @@ class BtAdapter:
         self._bt_mgr = bt_mgr
         self._prop_if = bt_mgr.get_prop_iface(dbus_iface)
 
+    def get_bool_prop(self, prop_name):
+        """Return the named adapter property as a bool."""
+        return bool(self._prop_if.Get(IFACE, prop_name))
+
+    def get_string_prop(self, prop_name):
+        """Return the named adapter property as a str."""
+        return str(self._prop_if.Get(IFACE, prop_name))
+
     def set_bool_prop(self, prop_name, value):
         self._prop_if.Set(IFACE, prop_name, dbus.Boolean(value))
 
@@ -192,9 +200,7 @@ class BtAdapter:
             self.set_bool_prop("Powered", True)
             logger.info("Powered on")
         except Exception as exc:
-            logging.error(
-                "Failed to power on - {}".format(exc.get_dbus_message())
-            )
+            logging.error(f"Failed to power on - {exc.get_dbus_message()}")
 
 
 class BtDevice:
@@ -208,10 +214,10 @@ class BtDevice:
         self._pair_outcome = None
 
     def __str__(self):
-        return "{} ({})".format(self.name, self.address)
+        return f"{self.name} ({self.address})"
 
     def __repr__(self):
-        return "<BtDevice name:{}, address:{}>".format(self.name, self.address)
+        return f"<BtDevice name:{self.name}, address:{self.address}>"
 
     def pair(self):
         """Pair the device.
@@ -230,9 +236,7 @@ class BtDevice:
         try:
             self._if.Connect()
         except dbus.exceptions.DBusException as exc:
-            logging.error(
-                "Failed to connect - {}".format(exc.get_dbus_message())
-            )
+            logging.error(f"Failed to connect - {exc.get_dbus_message()}")
 
     def unpair(self):
         self._if.Disconnect()

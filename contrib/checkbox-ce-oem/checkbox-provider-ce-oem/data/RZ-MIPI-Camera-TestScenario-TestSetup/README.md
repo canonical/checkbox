@@ -21,3 +21,13 @@ Please refer to https://renesas-wiki.atlassian.net/wiki/spaces/REN/pages/1016843
 Also the data sheet about ov5645 is here: https://www.v-visiontech.com/web/userfiles/download/OV5645_CSP3_DS_1.1_KingHornInternationalLtd..pdf
 
 These tests use the custom tooling paths provided by the `rz-camera-ov5645` snap via environment variables, ensuring compatibility between Checkbox and the underlying RZ platform drivers.
+
+### AR0234
+
+The AR0234 camera is configured to support the  following resolutions/frame rates:
+- **Formats:** UYVY
+- **Connections:** Interfaced through MIPI CSI-2
+- **Testing Methods:** GStreamer
+- **Supported resolutions:** 1280x720/120 fps, 1920x1080/65 fps, 1920x1200/60 fps
+
+Please refer to https://www.e-consystems.com/renesas/ar0234-global-shutter-camera-for-renesas-rz-v2h.asp for more details.

@@ -25,7 +25,7 @@ CPUTABLE_RE = re.compile(
 )
 
 
-class CputableParser(object):
+class CputableParser:
     """Parser for the /usr/share/dpkg/cputable file."""
 
     def __init__(self, stream):

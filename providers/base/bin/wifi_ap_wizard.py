@@ -67,7 +67,7 @@ def main():
 
         for prompt, response in steps:
             if wizard.wait_until_matched(prompt, 1) is None:
-                raise SystemExit('Did not get prompted ("{}")'.format(prompt))
+                raise SystemExit(f'Did not get prompted ("{prompt}")')
             wizard.writeline(response)
 
 

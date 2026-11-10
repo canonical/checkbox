@@ -57,6 +57,10 @@ apps:
     command-chain: [bin/wrapper_local]
     command: bin/test-runner
     plugs: *standard
+  launcher-generator:
+    command-chain: [bin/wrapper_local]
+    command: bin/gen_launcher.py
+    plugs: *standard
 
 passthrough:
   hooks:
@@ -68,6 +72,11 @@ slots:
     interface: content
     read:
       - $SNAP/providers/checkbox-provider-ce-oem
+  custom-frontend:
+    interface: content
+    content: custom-frontend
+    read:
+      - /
 
 parts:
   checkbox-provider-ce-oem:
@@ -83,6 +92,7 @@ parts:
       - linuxptp
       - snmp
       - python3-rpyc
+      - python3-pymodbus
       - gpsd
     override-build: |
       export PYTHONPATH=/snap/checkbox26/current/lib/python3.14/site-packages/:/usr/lib/python3/dist-packages
@@ -160,6 +170,16 @@ parts:
     source: launchers/
     organize:
       '*': bin/
+  launcher-generator:
+    plugin: dump
+    source: checkbox-launcher-generator/src/
+    organize:
+      gen_launcher.py: bin/gen_launcher.py
+      checkbox_ce_oem_scan.py: bin/checkbox_ce_oem_scan.py
+    stage:
+       - bin/gen_launcher.py
+       - bin/checkbox_ce_oem_scan.py
+       - launcher_template.ini
   config-variables:
     plugin: dump
     source: config/

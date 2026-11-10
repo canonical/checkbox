@@ -1,0 +1,208 @@
+{
+    "capture_image": [
+        {
+            "camera": "imx274",
+            "method": "nvargus_nvraw",
+            "physical_interface": "cam0",
+            "camera_id": "0",
+            "formats": [
+                "NVRAW"
+            ],
+            "resolutions": [
+                {
+                    "width": 3840,
+                    "height": 2160,
+                    "mode": 0
+                },
+                {
+                    "width": 1920,
+                    "height": 1080,
+                    "mode": 1
+                },
+                {
+                    "width": 3840,
+                    "height": 2160,
+                    "mode": 2
+                },
+                {
+                    "width": 1920,
+                    "height": 1080,
+                    "mode": 3
+                }
+            ]
+        },
+        {
+            "camera": "imx274",
+            "method": "nvargus_nvraw",
+            "physical_interface": "cam1",
+            "camera_id": "1",
+            "formats": [
+                "NVRAW"
+            ],
+            "resolutions": [
+                {
+                    "width": 3840,
+                    "height": 2160,
+                    "mode": 0
+                },
+                {
+                    "width": 1920,
+                    "height": 1080,
+                    "mode": 1
+                },
+                {
+                    "width": 3840,
+                    "height": 2160,
+                    "mode": 2
+                },
+                {
+                    "width": 1920,
+                    "height": 1080,
+                    "mode": 3
+                }
+            ]
+        },
+        {
+            "camera": "imx274",
+            "method": "gstreamer",
+            "physical_interface": "cam0",
+            "camera_id": "0",
+            "formats": [
+                "NV12"
+            ],
+            "resolutions": [
+                {
+                    "width": 3840,
+                    "height": 2160,
+                    "fps": 60,
+                    "mode": 0
+                },
+                {
+                    "width": 1920,
+                    "height": 1080,
+                    "fps": 60,
+                    "mode": 1
+                },
+                {
+                    "width": 3840,
+                    "height": 2160,
+                    "fps": 30,
+                    "mode": 2
+                },
+                {
+                    "width": 1920,
+                    "height": 1080,
+                    "fps": 60,
+                    "mode": 3
+                }
+            ]
+        },
+        {
+            "camera": "imx274",
+            "method": "gstreamer",
+            "physical_interface": "cam1",
+            "camera_id": "1",
+            "formats": [
+                "NV12"
+            ],
+            "resolutions": [
+                {
+                    "width": 3840,
+                    "height": 2160,
+                    "fps": 60,
+                    "mode": 0
+                },
+                {
+                    "width": 1920,
+                    "height": 1080,
+                    "fps": 60,
+                    "mode": 1
+                },
+                {
+                    "width": 3840,
+                    "height": 2160,
+                    "fps": 30,
+                    "mode": 2
+                },
+                {
+                    "width": 1920,
+                    "height": 1080,
+                    "fps": 60,
+                    "mode": 3
+                }
+            ]
+        }
+    ],
+    "record_video": [
+        {
+            "camera": "imx274",
+            "method": "gstreamer",
+            "physical_interface": "cam0",
+            "camera_id": "0",
+            "formats": [
+                "NV12"
+            ],
+            "resolutions": [
+                {
+                    "width": 3840,
+                    "height": 2160,
+                    "fps": 60,
+                    "mode": 0
+                },
+                {
+                    "width": 1920,
+                    "height": 1080,
+                    "fps": 60,
+                    "mode": 1
+                },
+                {
+                    "width": 3840,
+                    "height": 2160,
+                    "fps": 30,
+                    "mode": 2
+                },
+                {
+                    "width": 1920,
+                    "height": 1080,
+                    "fps": 60,
+                    "mode": 3
+                }
+            ]
+        },
+        {
+            "camera": "imx274",
+            "method": "gstreamer",
+            "physical_interface": "cam1",
+            "camera_id": "1",
+            "formats": [
+                "NV12"
+            ],
+            "resolutions": [
+                {
+                    "width": 3840,
+                    "height": 2160,
+                    "fps": 60,
+                    "mode": 0
+                },
+                {
+                    "width": 1920,
+                    "height": 1080,
+                    "fps": 60,
+                    "mode": 1
+                },
+                {
+                    "width": 3840,
+                    "height": 2160,
+                    "fps": 30,
+                    "mode": 2
+                },
+                {
+                    "width": 1920,
+                    "height": 1080,
+                    "fps": 60,
+                    "mode": 3
+                }
+            ]
+        }
+    ]
+}

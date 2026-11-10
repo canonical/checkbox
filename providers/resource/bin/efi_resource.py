@@ -42,7 +42,7 @@ class EfiResult:
         for attribute in self.attributes:
             value = getattr(device, attribute, None)
             if value is not None:
-                print("%s: %s" % (attribute, value))
+                print(f"{attribute}: {value}")
 
         print()
 

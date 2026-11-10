@@ -16,7 +16,7 @@ Entry point: `checkbox-cli` (defined in `pyproject.toml`).
 
 ## Supported Python versions
 
-3.5, 3.6, 3.8, 3.10, 3.12. Do not use syntax or standard-library features
+3.6, 3.8, 3.10, 3.12. Do not use syntax or standard-library features
 that are unavailable in Python 3.5 unless the supported range is being
 explicitly updated.
 

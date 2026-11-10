@@ -2,7 +2,7 @@ id: cryptoinfo
 estimated_duration: 1
 plugin: resource
 user: root
-command: cat /proc/crypto
+command: resource_wrapper.sh -- resource_cryptoinfo.sh
 _summary: Collect information about the crypto algorithm in system
 _description: Gets crypto algorithm resource info from /proc/crypto
 

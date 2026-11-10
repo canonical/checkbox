@@ -19,7 +19,7 @@ class WIFIphyData:
             "test_WIFI_phy_data",
             filenmae,
         )
-        with open(full_path, "r", encoding="UTF-8") as stream:
+        with open(full_path, encoding="UTF-8") as stream:
             return stream.read()
 
 

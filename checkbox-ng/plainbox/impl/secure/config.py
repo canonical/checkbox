@@ -127,7 +127,7 @@ class Variable(INameTracking):
         kind=str,
         default=Unset,
         validator_list=None,
-        help_text=None
+        help_text=None,
     ):
         # Ensure kind is correct
         if kind not in self._KIND_CHOICE:
@@ -203,7 +203,7 @@ class Variable(INameTracking):
         name prefixed by the name of the section name and '__' to resolve
         conflicts between same name  variables living in different sections
         """
-        return "{}__{}".format(self._section, self._name)
+        return f"{self._section}__{self._name}"
 
     @property
     def section(self):
@@ -242,7 +242,7 @@ class Variable(INameTracking):
         return self._help_text
 
     def __repr__(self):
-        return "<Variable name:{!r}>".format(self.name)
+        return f"<Variable name:{self.name!r}>"
 
     def __get__(self, instance, owner):
         """
@@ -440,7 +440,7 @@ class PlainBoxConfigParser(configparser.ConfigParser):
         values within is deterministic.
         """
         if space_around_delimiters:
-            d = " {} ".format(self._delimiters[0])
+            d = f" {self._delimiters[0]} "
         else:
             d = self._delimiters[0]
         if self._defaults:
@@ -460,7 +460,7 @@ class PlainBoxConfigParser(configparser.ConfigParser):
         raw=False,
         vars=None,
         fallback=configparser._UNSET,
-        **kwargs
+        **kwargs,
     ):
         return self._get(section, self._convert_to_list, option, **kwargs)
 
@@ -562,7 +562,7 @@ class Config(metaclass=ConfigMeta):
                 parser.set(section.name, name, str(value))
         for psection in self.Meta.parametric_section_list:
             for name, sec in psection.__get__(self, self.__class__).items():
-                section_name = "{}:{}".format(psection.name, name)
+                section_name = f"{psection.name}:{name}"
                 if not parser.has_section(section_name):
                     parser.add_section(section_name)
                 for k, v in sec.items():

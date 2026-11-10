@@ -122,12 +122,12 @@ def load_configs(launcher_file=None, cfg=None):
     _logger.debug("Applying conf, latest applied has the highest priority")
     for conf, source in reversed(loaded_confs_sources):
         _logger.debug("Applying %s", source)
-        cfg.update_from_another(conf, "config file: {}".format(source))
+        cfg.update_from_another(conf, f"config file: {source}")
 
     if launcher_file:
         cfg.update_from_another(
             launcher_file_conf,
-            "Launcher file: {}".format(launcher_file),
+            f"Launcher file: {launcher_file}",
         )
 
     return cfg

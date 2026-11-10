@@ -662,7 +662,7 @@ class CameraTestTests(unittest.TestCase):
             fmt.description, fmt.pixelformat = formats[fmt.index]
             return 0  # Success
         else:
-            raise IOError(errno.EINVAL, "No more formats")
+            raise OSError(errno.EINVAL, "No more formats")
 
     @patch("fcntl.ioctl")
     @patch("builtins.open", MagicMock())
@@ -723,7 +723,7 @@ class CameraTestTests(unittest.TestCase):
                 fmt.discrete.width = 1280
                 fmt.discrete.height = 720
             else:
-                raise IOError(errno.EINVAL, "No more frame sizes")
+                raise OSError(errno.EINVAL, "No more frame sizes")
         elif fmt.pixel_format == 842094158:  # NV12
             if fmt.index == 0:
                 fmt.type = V4L2_FRMSIZE_TYPE_STEPWISE
@@ -732,7 +732,7 @@ class CameraTestTests(unittest.TestCase):
                 fmt.stepwise.max_width = 640
                 fmt.stepwise.max_height = 480
             else:
-                raise IOError(errno.EINVAL, "No more frame sizes")
+                raise OSError(errno.EINVAL, "No more frame sizes")
         return 0
 
     @patch("fcntl.ioctl")

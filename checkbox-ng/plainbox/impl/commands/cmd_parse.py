@@ -46,7 +46,7 @@ class ParseCommand(PlainBoxCommand):
     def _print_parser_list(self):
         print(_("The following parsers are available:"))
         for parser in self.parser_collection.get_all_plugins():
-            print("  {}: {}".format(parser.name, parser.summary))
+            print(f"  {parser.name}: {parser.summary}")
         return 0
 
     def register_parser(self, subparsers):

@@ -248,4 +248,4 @@ class TestMainCli(unittest.TestCase):
             with self.subTest(f"{unsupported_vendor}-{microk8s} must fail"):
                 with self.assertRaises(SystemExit) as caught:
                     k8s_gpu_setup.main(args)
-                self.assertEquals(caught.exception.code, 2)
+                self.assertEqual(caught.exception.code, 2)

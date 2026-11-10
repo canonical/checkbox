@@ -1,0 +1,62 @@
+id: dragonwing-qim-full
+unit: test plan
+_name: Dragonwing QIM tests
+_description: Full QIM tests for Dragonwing
+include:
+nested_part:
+    dragonwing-qim-manual
+    dragonwing-qim-automated
+
+id: dragonwing-qim-manual
+unit: test plan
+_name: Dragonwing manual QIM tests
+_description: Manual QIM tests for Dragonwing
+bootstrap_include:
+include:
+    dragonwing-qim-ai-ml/object-detection-LiteRT
+    dragonwing-qim-ai-ml/object-detection-SNPE
+    dragonwing-qim-ai-ml/image-classification-LiteRT
+    dragonwing-qim-ai-ml/image-classification-SNPE
+    dragonwing-qim-ai-ml/image-segmentation-LiteRT
+    dragonwing-qim-ai-ml/image-segmentation-SNPE
+    dragonwing-qim-ai-ml/pose-detection-LiteRT
+
+id: after-suspend-dragonwing-qim-manual
+unit: test plan
+_name: Dragonwing manual QIM tests after suspend
+_description: Manual QIM tests for Dragonwing after suspend
+bootstrap_include:
+include:
+    after-suspend-dragonwing-qim-ai-ml/object-detection-LiteRT
+    after-suspend-dragonwing-qim-ai-ml/object-detection-SNPE
+    after-suspend-dragonwing-qim-ai-ml/image-classification-LiteRT
+    after-suspend-dragonwing-qim-ai-ml/image-classification-SNPE
+    after-suspend-dragonwing-qim-ai-ml/image-segmentation-LiteRT
+    after-suspend-dragonwing-qim-ai-ml/image-segmentation-SNPE
+    after-suspend-dragonwing-qim-ai-ml/pose-detection-LiteRT
+
+id: dragonwing-qim-automated
+unit: test plan
+_name: Dragonwing automated QIM tests
+_description: Automated QIM tests for Dragonwing
+include:
+    dragonwing-qim-ai-ml/object-detection-LiteRT-automated
+    dragonwing-qim-ai-ml/object-detection-SNPE-automated
+    dragonwing-qim-ai-ml/image-classification-LiteRT-automated
+    dragonwing-qim-ai-ml/image-classification-SNPE-automated
+    dragonwing-qim-ai-ml/image-segmentation-LiteRT-automated
+    dragonwing-qim-ai-ml/image-segmentation-SNPE-automated
+    dragonwing-qim-ai-ml/pose-detection-LiteRT-automated
+
+id: after-suspend-dragonwing-qim-automated
+unit: test plan
+_name: Dragonwing automated QIM tests after suspend
+_description: Automated QIM tests for Dragonwing after suspend
+include:
+    after-suspend-dragonwing-qim-ai-ml/object-detection-LiteRT-automated
+    after-suspend-dragonwing-qim-ai-ml/object-detection-SNPE-automated
+    after-suspend-dragonwing-qim-ai-ml/image-classification-LiteRT-automated
+    after-suspend-dragonwing-qim-ai-ml/image-classification-SNPE-automated
+    after-suspend-dragonwing-qim-ai-ml/image-segmentation-LiteRT-automated
+    after-suspend-dragonwing-qim-ai-ml/image-segmentation-SNPE-automated
+    after-suspend-dragonwing-qim-ai-ml/pose-detection-LiteRT-automated

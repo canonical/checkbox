@@ -100,7 +100,7 @@ class DmiResult:
         for attribute in self.attributes:
             value = getattr(device, attribute, None)
             if value is not None:
-                print("{}: {}".format(attribute, value))
+                print(f"{attribute}: {value}")
             if attribute == "product" and value:
                 print("{}: {}".format("sane_product", sane_product(value)))
                 print("{}: {}".format("display_type", display_type(value)))

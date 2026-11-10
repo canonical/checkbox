@@ -22,28 +22,23 @@ jobs:
         working-directory: contrib/checkbox-ce-oem/checkbox-provider-ce-oem
     strategy:
       matrix:
-        python: ["3.8", "3.10"]
         include:
           - python: "3.8"
             tox_env_name: "py38"
+            os: "ubuntu-20.04"
           - python: "3.10"
             tox_env_name: "py310"
-    runs-on: ${{ (matrix.python == '3.5' || matrix.python == '3.6') && fromJson('["self-hosted", "focal"]') || 'ubuntu-latest' }}
+            os: "ubuntu-22.04"
+          - python: "3.12"
+            tox_env_name: "py312"
+            os: "ubuntu-24.04"
+    runs-on: ${{ matrix.os }}
     steps:
-      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
         with:
           persist-credentials: false
-      # Python 3.5 setup was failing because of a CERTIFICATE_VERIFY_FAILED
-      # error. To fix this, we have set up manually PIP_TRUSTED_HOST, checking
-      # first that we can "curl" the hosts, since they will fail in case of
-      # expired/invalid/self-signed certificate.
-      - name: Workaround SSL Certificates manual verification for Python
-        run: |
-          curl --fail --silent --show-error https://pypi.python.org
-          curl --fail --silent --show-error https://pypi.org
-          curl --fail --silent --show-error https://files.pythonhosted.org
       - name: Setup Python
-        uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1
+        uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0
         with:
           python-version: ${{ matrix.python }}
         env:
@@ -53,9 +48,6 @@ jobs:
           PYTHON_VERSION: ${{ matrix.python }}
         run: |
           sudo add-apt-repository ppa:deadsnakes/ppa
-          # python3.5 and python3.6 are no longer in deadsnakes for focal
-          # we pushed them to the Checkbox PPA instead
-          sudo add-apt-repository ppa:checkbox-dev/edge
           sudo apt-get update
           sudo apt-get install -y -qq libgl1 gcc python$PYTHON_VERSION-dev
           pip install tox

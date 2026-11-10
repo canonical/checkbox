@@ -1,10 +1,14 @@
 #!/usr/bin/env python3
+import errno
+import os
 import sys
 import time
 import logging
 import shlex
 import subprocess
 import argparse
+import hashlib
+from contextlib import contextmanager
 from pathlib import Path
 
 SYS_THERMAL_PATH = "/sys/class/thermal"
@@ -55,6 +59,17 @@ class ThermalMonitor:
             try:
                 return node.read_text().strip("\n")
             except Exception as e:
+                enodata = getattr(e, "errno", None) == errno.ENODATA
+                if enodata and node == self.temp_node:
+                    raise SystemExit(
+                        "Error: The {}-{} temperature is not available "
+                        "(ENODATA): the sensor's power domain is off. Check "
+                        "that its driver is running; if the domain is "
+                        "power-gated while idle, list the device that "
+                        "powers it in TZ_KEEP_POWERED. A zone that can "
+                        "never be powered can be skipped with "
+                        "TZ_ALLOW_NO_DATA.".format(self._name, self.type)
+                    )
                 raise SystemExit(
                     "Failed to read node: {}\n{}".format(str(node), e)
                 )
@@ -77,8 +92,157 @@ class ThermalMonitor:
         return temp
 
     @property
+    def temperature_available(self):
+        """False when the zone reports no data (ENODATA).
+
+        Some sensors (e.g. Jetson gpu/cv zones) return ENODATA while their
+        power domain is off; there is no temperature to monitor then.
+        """
+        try:
+            self.temp_node.read_text()
+        except OSError as e:
+            if e.errno == errno.ENODATA:
+                return False
+            raise
+        return True
+
+    @property
     def mode(self):
         return self._read_node(self.mode_node)
+
+    def _read_optional_node(self, node):
+        if node.exists():
+            return self._read_node(node)
+        return ""
+
+    def _resolve_optional_node_path(self, node):
+        if node.exists():
+            return str(node.resolve(strict=False))
+        return ""
+
+    @property
+    def sysfs_path(self):
+        return str(self.root_node.resolve(strict=False))
+
+    @property
+    def device_path(self):
+        return self._resolve_optional_node_path(
+            self.root_node.joinpath("device")
+        )
+
+    @property
+    def of_node_path(self):
+        return self._resolve_optional_node_path(
+            self.root_node.joinpath("device", "of_node")
+        )
+
+    @property
+    def firmware_node_path(self):
+        return self._read_optional_node(
+            self.root_node.joinpath("device", "firmware_node", "path")
+        )
+
+    @property
+    def cdev_types(self):
+        """Sorted tuple of cooling device types bound to this zone.
+
+        Cooling devices are discovered via cdev* symlinks.
+
+        cdev* entries are part of the official thermal sysfs ABI and
+        are present whenever a cooling device is associated with the
+        zone. They are reported for diagnostics only: bindings change at
+        runtime (e.g. a GPU devfreq or CPU-cluster cpufreq cooling device
+        appears or disappears with its driver), so they are not part of
+        stable_source.
+        """
+        types = []
+        for entry in sorted(self.root_node.glob("cdev[0-9]*")):
+            # Only match cdevN, not cdevN_trip_point and similar files.
+            if not entry.name[4:].isdigit():
+                continue
+            t = self._read_optional_node(entry.joinpath("type"))
+            if t:
+                types.append(t)
+        return tuple(sorted(types))
+
+    @property
+    def stable_source(self):
+        return (
+            self.of_node_path
+            or self.firmware_node_path
+            or self.device_path
+            or self.type
+        )
+
+    @property
+    def stable_id(self):
+        stable_data = "{}|{}".format(self.type, self.stable_source)
+        return hashlib.sha1(stable_data.encode()).hexdigest()[:12]
+
+
+def _load_snapshot(snapshot_path):
+    entries = {}
+    for line in Path(snapshot_path).read_text().splitlines():
+        if not line:
+            continue
+        stable_id, name, zone_type, stable_source = line.split("\t", 3)
+        entries[stable_id] = {
+            "name": name,
+            "type": zone_type,
+            "stable_source": stable_source,
+        }
+    return entries
+
+
+def _reconcile_legacy_id_upgrades(
+    before_entries, after_entries, missing_ids, new_ids
+):
+    """Best-effort mapping for stable_id algorithm upgrades.
+
+    This is intended for snapshots produced before/after stable_id strategy
+    changes where the thermal zone identity did not actually change.
+    """
+    after_by_name_type = {}
+    for stable_id in new_ids:
+        entry = after_entries[stable_id]
+        key = (entry["name"], entry["type"])
+        after_by_name_type.setdefault(key, []).append(stable_id)
+
+    upgraded = []
+    missing_remaining = []
+    new_remaining = set(new_ids)
+
+    for stable_id in missing_ids:
+        before = before_entries[stable_id]
+        key = (before["name"], before["type"])
+        matches = after_by_name_type.get(key, [])
+        if len(matches) != 1:
+            missing_remaining.append(stable_id)
+            continue
+
+        upgraded_id = matches[0]
+        if upgraded_id not in new_remaining:
+            missing_remaining.append(stable_id)
+            continue
+
+        upgraded.append(
+            (stable_id, upgraded_id, before, after_entries[upgraded_id])
+        )
+        new_remaining.remove(upgraded_id)
+
+    return upgraded, sorted(missing_remaining), sorted(new_remaining)
+
+
+def resolve_thermal_zone_name(stable_id, zone_type=None):
+    for thermal in sorted(Path(SYS_THERMAL_PATH).glob("thermal_zone*")):
+        node = ThermalMonitor(thermal.name)
+        if node.stable_id != stable_id:
+            continue
+        if zone_type is not None and node.type != zone_type:
+            continue
+        return node.name
+
+    return None
 
 
 def check_temperature(current, initial):
@@ -86,27 +250,134 @@ def check_temperature(current, initial):
     return int(current) != 0 and current != initial
 
 
-def thermal_monitor_test(args):
-    logging.info(
-        "# Monitor the temperature of %s thermal around %s seconds",
-        args.name,
-        args.duration,
+def _zone_type_listed(env_name, zone_type):
+    """True when env_name is "all" or a |-separated list containing type."""
+    value = os.getenv(env_name, "").strip()
+    if not value:
+        return False
+
+    if value.lower() == "all":
+        return True
+
+    listed_types = {entry.strip() for entry in value.split("|")}
+    return zone_type in listed_types
+
+
+def ignore_temp_check_enabled(zone_type):
+    return _zone_type_listed("TZ_IGNORE_TEMP_CHECK", zone_type)
+
+
+KEEP_POWERED_TIMEOUT = 20
+
+
+def _keep_powered_devices(zone_type):
+    """Devices listed for zone_type in TZ_KEEP_POWERED.
+
+    Format: "<type>:<dev>[,<dev>]|<type>:<dev>...", device paths may
+    contain ":" (e.g. PCI 0000:01:00.0), so only the first ":" splits.
+    """
+    for entry in os.getenv("TZ_KEEP_POWERED", "").split("|"):
+        name, _, devices = entry.strip().partition(":")
+        if name.strip() == zone_type:
+            return [d.strip() for d in devices.split(",") if d.strip()]
+    return []
+
+
+def _write_power_control(control, value):
+    """Write power/control in a child process.
+
+    Setting "on" runs the driver's runtime resume; if that hangs, the
+    test fails after KEEP_POWERED_TIMEOUT instead of blocking the whole
+    session. The child gets no inherited stdout/stderr: checkbox waits
+    for EOF on the job's pipes, which a child stuck in D state would
+    keep open.
+    """
+    proc = subprocess.Popen(
+        ["sh", "-c", 'echo "$1" > "$2"', "sh", value, str(control)],
+        stdout=subprocess.DEVNULL,
+        stderr=subprocess.PIPE,
     )
-
-    if args.extra_commands == "stress-ng":
-        cmd = (
-            "stress-ng --cpu 0 --io 4 --vm 2 " "--vm-bytes 128M --timeout {}s"
-        ).format(args.duration)
-    else:
-        cmd = args.extra_commands
-
-    thermal_op = ThermalMonitor(args.name)
-    if thermal_op.mode == "disabled":
+    try:
+        rc = proc.wait(timeout=KEEP_POWERED_TIMEOUT)
+    except subprocess.TimeoutExpired:
         raise SystemExit(
-            "Error: The {}-{} thermal is disabled".format(
-                thermal_op.name, thermal_op.type
+            "Error: {} did not respond within {} s after writing {} "
+            "(driver runtime resume failed?)".format(
+                control, KEEP_POWERED_TIMEOUT, value
             )
         )
+    if rc != 0:
+        raise SystemExit(
+            "Error: failed to set {} to {}: {}".format(
+                control, value, proc.stderr.read().decode().strip()
+            )
+        )
+
+
+def _restore_power(restore):
+    """Restore every device; collect the errors instead of stopping."""
+    errors = []
+    for control, original in reversed(restore):
+        logging.info("# Restore %s to %s", control, original)
+        try:
+            _write_power_control(control, original)
+        except SystemExit as e:
+            errors.append(str(e))
+    return errors
+
+
+@contextmanager
+def keep_powered(zone_type):
+    """Keep the TZ_KEEP_POWERED devices of zone_type powered on.
+
+    A device whose power/control is already "on" is left untouched;
+    otherwise it is set to "on" and restored to its original value
+    afterwards, also when the test or the power-on itself fails. A
+    restore error fails the test, but never hides an earlier error.
+    """
+    restore = []
+    try:
+        for device in _keep_powered_devices(zone_type):
+            control = Path(device, "power", "control")
+            if not control.exists():
+                raise SystemExit(
+                    "Error: TZ_KEEP_POWERED device {} has no "
+                    "power/control".format(device)
+                )
+            original = control.read_text().strip()
+            if original == "on":
+                logging.info("# %s is already powered on", device)
+                continue
+            logging.info("# Power on %s (was %s)", device, original)
+            # queued before the write: a failed driver resume can still
+            # leave power/control set to "on"
+            restore.append((control, original))
+            _write_power_control(control, "on")
+        yield
+    except BaseException:
+        for error in _restore_power(restore):
+            logging.error(error)
+        raise
+    errors = _restore_power(restore)
+    if errors:
+        raise SystemExit("\n".join(errors))
+
+
+def check_temperature_readable(target_name, thermal_op):
+    current_value = thermal_op.temperature
+    logging.info(
+        "# TZ_IGNORE_TEMP_CHECK matches %s, readable temperature is %s",
+        thermal_op.type,
+        current_value,
+    )
+    logging.info(
+        "# Temperature readability check for %s (%s) thermal passed",
+        target_name,
+        thermal_op.type,
+    )
+
+
+def monitor_temperature_change(target_name, thermal_op, duration, cmd):
     initial_value = thermal_op.temperature
 
     result = False
@@ -118,12 +389,14 @@ def thermal_monitor_test(args):
         # Due to the command here is trying to increase system loading
         pass
 
-    for _ in range(args.duration):
+    for _ in range(duration):
         cur_temp = thermal_op.temperature
         result = check_temperature(cur_temp, initial_value)
         if result:
             logging.info(
-                "# The temperature of %s thermal has been altered", args.name
+                "# The temperature of %s (%s) thermal has been altered",
+                target_name,
+                thermal_op.type,
             )
             break
         time.sleep(1)
@@ -133,22 +406,234 @@ def thermal_monitor_test(args):
 
     if result is False:
         logging.error(
-            "# The temperature of the %s thermal remains consistently at %s",
-            args.name,
+            "# The temperature of the %s (%s) thermal remains "
+            "consistently at %s",
+            target_name,
+            thermal_op.type,
             initial_value,
         )
         raise SystemExit(1)
 
 
-def dump_thermal_zones(args):
+def thermal_monitor_test(args):
+    target_name = args.name
+    if target_name is None and args.stable_id is not None:
+        target_name = resolve_thermal_zone_name(
+            args.stable_id, zone_type=args.zone_type
+        )
+        if target_name is None:
+            raise SystemExit(
+                "Error: Unable to resolve thermal zone for "
+                "stable_id={}".format(args.stable_id)
+            )
 
-    for thermal in sorted(Path("/sys/class/thermal").glob("thermal_zone*")):
-        node = ThermalMonitor(thermal.name)
-        print(
-            "name: {}\nmode: {}\ntype: {}\n".format(
-                node.name, node.mode, node.type
+    if args.extra_commands == "stress-ng":
+        cmd = (
+            "stress-ng --cpu 0 --io 4 --vm 2 " "--vm-bytes 128M --timeout {}s"
+        ).format(args.duration)
+    else:
+        cmd = args.extra_commands
+
+    thermal_op = ThermalMonitor(target_name)
+    zone_type = thermal_op.type
+    ignore_temp_check = ignore_temp_check_enabled(zone_type)
+    logging.info(
+        "# Monitor the temperature of %s (%s) thermal around %s seconds",
+        target_name,
+        thermal_op.type,
+        args.duration,
+    )
+    if thermal_op.mode == "disabled":
+        raise SystemExit(
+            "Error: The {}-{} thermal is disabled".format(
+                thermal_op.name, thermal_op.type
             )
         )
+
+    with keep_powered(zone_type):
+        if ignore_temp_check:
+            check_temperature_readable(target_name, thermal_op)
+            return
+
+        monitor_temperature_change(
+            target_name,
+            thermal_op,
+            args.duration,
+            cmd,
+        )
+
+
+def dump_thermal_zones(args):
+
+    for thermal in sorted(Path(SYS_THERMAL_PATH).glob("thermal_zone*")):
+        node = ThermalMonitor(thermal.name)
+        stable_id = node.stable_id
+        available = node.temperature_available
+        # TZ_SKIP always skips; zones in TZ_KEEP_POWERED are powered for
+        # the test, so no data while idle does not make them skippable
+        skip = _zone_type_listed("TZ_SKIP", node.type) or (
+            not available
+            and _zone_type_listed("TZ_ALLOW_NO_DATA", node.type)
+            and not _keep_powered_devices(node.type)
+        )
+        # testable_stable_id lets a job gate on its own zone with a single
+        # comparison; plainbox evaluates each comparison of a requires
+        # expression against any record, not against the same record.
+        print(
+            (
+                "name: {}\nmode: {}\ntype: {}\nstable_id: {}\n"
+                "sysfs_path: {}\ndevice_path: {}\nof_node_path: {}\n"
+                "firmware_node_path: {}\ncdev_types: {}\n"
+                "temp_available: {}\ntestable_stable_id: {}\n"
+            ).format(
+                node.name,
+                node.mode,
+                node.type,
+                stable_id,
+                node.sysfs_path,
+                node.device_path,
+                node.of_node_path,
+                node.firmware_node_path,
+                "|".join(node.cdev_types),
+                available,
+                "none" if skip else stable_id,
+            )
+        )
+
+
+def snapshot_thermal_zones(args):
+    rows = []
+    for thermal in sorted(Path(SYS_THERMAL_PATH).glob("thermal_zone*")):
+        node = ThermalMonitor(thermal.name)
+        rows.append(
+            "{}\t{}\t{}\t{}".format(
+                node.stable_id,
+                node.name,
+                node.type,
+                node.stable_source,
+            )
+        )
+
+    snapshot = "\n".join(rows) + "\n"
+    if args.output is None:
+        print(snapshot, end="")
+    else:
+        Path(args.output).write_text(snapshot)
+
+
+def compare_thermal_snapshots(args):
+    before_entries = _load_snapshot(args.before)
+    after_entries = _load_snapshot(args.after)
+
+    before_ids = set(before_entries)
+    after_ids = set(after_entries)
+    common_ids = sorted(before_ids & after_ids)
+    missing_ids = sorted(before_ids - after_ids)
+    new_ids = sorted(after_ids - before_ids)
+
+    stable_id_upgraded = []
+    if args.allow_legacy_id_upgrade:
+        stable_id_upgraded, missing_ids, new_ids = (
+            _reconcile_legacy_id_upgrades(
+                before_entries,
+                after_entries,
+                missing_ids,
+                new_ids,
+            )
+        )
+
+    renumbered = []
+    identity_changed = []
+    for stable_id in common_ids:
+        before = before_entries[stable_id]
+        after = after_entries[stable_id]
+        if before["name"] != after["name"]:
+            renumbered.append((stable_id, before, after))
+        if (
+            before["type"] != after["type"]
+            or before["stable_source"] != after["stable_source"]
+        ):
+            identity_changed.append((stable_id, before, after))
+
+    print(
+        (
+            "summary: before={} after={} missing={} new={} "
+            "stable_id_upgraded={} identity_changed={} renumbered={}"
+        ).format(
+            len(before_ids),
+            len(after_ids),
+            len(missing_ids),
+            len(new_ids),
+            len(stable_id_upgraded),
+            len(identity_changed),
+            len(renumbered),
+        )
+    )
+
+    for old_id, new_id, before, after in stable_id_upgraded:
+        print(
+            (
+                "stable_id_upgraded: type={} {} -> {} name={} "
+                "stable_source={} -> {}"
+            ).format(
+                before["type"],
+                old_id,
+                new_id,
+                before["name"],
+                before["stable_source"],
+                after["stable_source"],
+            )
+        )
+
+    for stable_id, before, after in renumbered:
+        print(
+            "renumbered: type={} stable_id={} {} -> {}".format(
+                before["type"],
+                stable_id,
+                before["name"],
+                after["name"],
+            )
+        )
+
+    for stable_id, before, after in identity_changed:
+        print(
+            "identity_changed: stable_id={} {}|{} -> {}|{}".format(
+                stable_id,
+                before["type"],
+                before["stable_source"],
+                after["type"],
+                after["stable_source"],
+            )
+        )
+
+    for stable_id in missing_ids:
+        before = before_entries[stable_id]
+        print(
+            "missing_after: type={} stable_id={} name={}".format(
+                before["type"],
+                stable_id,
+                before["name"],
+            )
+        )
+
+    for stable_id in new_ids:
+        after = after_entries[stable_id]
+        print(
+            "new_after: type={} stable_id={} name={}".format(
+                after["type"],
+                stable_id,
+                after["name"],
+            )
+        )
+
+    if args.fail_on_diff and (
+        missing_ids
+        or new_ids
+        or stable_id_upgraded
+        or identity_changed
+        or renumbered
+    ):
+        raise SystemExit(1)
 
 
 def register_arguments():
@@ -167,7 +652,15 @@ def register_arguments():
     )
 
     monitor_parser = sub_parsers.add_parser("monitor")
-    monitor_parser.add_argument("-n", "--name", required=True, type=str)
+    zone_selector = monitor_parser.add_mutually_exclusive_group(required=True)
+    zone_selector.add_argument("-n", "--name", type=str)
+    zone_selector.add_argument("--stable-id", type=str)
+    monitor_parser.add_argument(
+        "--zone-type",
+        type=str,
+        default=None,
+        help="Use with --stable-id to further disambiguate zones",
+    )
     monitor_parser.add_argument(
         "-d",
         "--duration",
@@ -188,6 +681,34 @@ def register_arguments():
 
     dump_parser = sub_parsers.add_parser("dump")
     dump_parser.set_defaults(test_type=dump_thermal_zones)
+
+    snapshot_parser = sub_parsers.add_parser("snapshot")
+    snapshot_parser.add_argument(
+        "-o",
+        "--output",
+        type=str,
+        default=None,
+        help="Write snapshot to a TSV file",
+    )
+    snapshot_parser.set_defaults(test_type=snapshot_thermal_zones)
+
+    compare_parser = sub_parsers.add_parser("compare")
+    compare_parser.add_argument("--before", required=True, type=str)
+    compare_parser.add_argument("--after", required=True, type=str)
+    compare_parser.add_argument(
+        "--allow-legacy-id-upgrade",
+        action="store_true",
+        help=(
+            "Best-effort compatibility mode for snapshot comparison across "
+            "stable_id algorithm upgrades"
+        ),
+    )
+    compare_parser.add_argument(
+        "--fail-on-diff",
+        action="store_true",
+        help="Exit with status 1 when compare detects any differences",
+    )
+    compare_parser.set_defaults(test_type=compare_thermal_snapshots)
 
     args = parser.parse_args()
     return args

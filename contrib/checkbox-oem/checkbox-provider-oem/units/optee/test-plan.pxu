@@ -1,0 +1,6 @@
+id: oem-optee-automated
+unit: test plan
+_name: OP-TEE auto tests
+_description: Automated OP-TEE tests for devices
+bootstrap_include:
+include:

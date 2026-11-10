@@ -83,7 +83,7 @@ class Application:
             if self.progress_cb:
                 fraction = float(i) / self.times
                 self.progress_cb(fraction)
-            logging.info("Iteration {0}/{1}...".format(i + 1, self.times))
+            logging.info(f"Iteration {i + 1}/{self.times}...")
             networking.restart()
         else:
             if self.progress_cb:
@@ -157,7 +157,7 @@ class GtkApplication(Application):
             Application.run(self)
         except PingError as exception:
             logging.error(
-                "Failed to ping {0!r}\n{1}".format(
+                "Failed to ping {!r}\n{}".format(
                     exception.address, exception.reason
                 )
             )
@@ -196,10 +196,10 @@ def ping(address):
     """
     Send ping to a given address
     """
-    logging.info("Pinging {0!r}...".format(address))
+    logging.info(f"Pinging {address!r}...")
     try:
         check_call(
-            "ping -c 1 -w 5 {0}".format(address),
+            f"ping -c 1 -w 5 {address}",
             stdout=open(os.devnull, "w"),
             stderr=STDOUT,
             shell=True,
@@ -248,9 +248,7 @@ class Networking:
             try:
                 check_output(["/sbin/ifconfig", interface, "up"])
             except CalledProcessError:
-                logging.error(
-                    "Unable to bring up interface {0!r}".format(interface)
-                )
+                logging.error(f"Unable to bring up interface {interface!r}")
                 raise
 
         logging.info("Starting network manager...")
@@ -262,7 +260,7 @@ class Networking:
 
         # Verify that network interface is up
         for timeout in [2, 4, 8, 16, 32, 64]:
-            logging.debug("Waiting ({0} seconds)...".format(timeout))
+            logging.debug(f"Waiting ({timeout} seconds)...")
             time.sleep(timeout)
             success = ping(self.address)
             if success:
@@ -286,14 +284,12 @@ class Networking:
             try:
                 check_output(["/sbin/ifconfig", interface, "down"])
             except CalledProcessError:
-                logging.error(
-                    "Unable to bring down interface {0!r}".format(interface)
-                )
+                logging.error(f"Unable to bring down interface {interface!r}")
                 raise
 
         # Verify that network interface is down
         for timeout in [2, 4, 8]:
-            logging.debug("Waiting ({0} seconds)...".format(timeout))
+            logging.debug(f"Waiting ({timeout} seconds)...")
             time.sleep(timeout)
             success = ping(self.address)
             if not success:
@@ -343,7 +339,7 @@ def parse_args():
         choices=log_levels,
         help=(
             "Log level. "
-            "One of {0} or {1} (%(default)s by default)".format(
+            "One of {} or {} (%(default)s by default)".format(
                 ", ".join(log_levels[:-1]), log_levels[-1]
             )
         ),
@@ -371,7 +367,7 @@ def configure_logging(log_level, output):
     # Log to rotating file using DEBUG log level
     log_filename = os.path.join(
         output,
-        "{0}.log".format(os.path.splitext(os.path.basename(__file__))[0]),
+        f"{os.path.splitext(os.path.basename(__file__))[0]}.log",
     )
     rollover = os.path.exists(log_filename)
     log_handler = logging.handlers.RotatingFileHandler(
@@ -390,7 +386,7 @@ if __name__ == "__main__":
         sys.exit(main())
     except PingError as exception:
         logging.error(
-            "Failed to ping {0!r}\n{1}".format(
+            "Failed to ping {!r}\n{}".format(
                 exception.address, exception.reason
             )
         )

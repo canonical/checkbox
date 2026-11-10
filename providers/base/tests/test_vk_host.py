@@ -21,7 +21,7 @@ import unittest
 from unittest.mock import MagicMock, patch
 
 import vk_host
-from checkbox_support.helpers.host_utils import VulkanDetectionError
+from checkbox_support.helpers.host_utils import HostGPUDetectionError
 
 
 class TestCmdResource(unittest.TestCase):
@@ -45,7 +45,7 @@ class TestCmdResource(unittest.TestCase):
 
     @patch(
         "vk_host.find_plz_run",
-        side_effect=VulkanDetectionError("plz-run not found"),
+        side_effect=HostGPUDetectionError("plz-run not found"),
     )
     @patch("vk_host.get_arch_triple", return_value="x86_64-linux-gnu")
     def test_returns_1_when_plz_run_not_found(self, _arch, _plz):
@@ -91,7 +91,7 @@ class TestCmdRunTest(unittest.TestCase):
             vk_host.cmd_run_test([self.CASELIST])
         self.assertEqual(
             mock_run.call_args[0][0],
-            ["{}/test".format(self.SNAP), "--no-confinement", self.CASELIST],
+            [f"{self.SNAP}/test", "--no-confinement", self.CASELIST],
         )
         env = mock_run.call_args[1]["env"]
         self.assertEqual(env["VK_ICD_FILENAMES"], self.ICD)

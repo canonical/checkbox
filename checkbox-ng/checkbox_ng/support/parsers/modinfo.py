@@ -106,7 +106,7 @@ class MultipleModinfoParser:
             result.addModuleInfo(module, data)
 
 
-class ModinfoParser(object):
+class ModinfoParser:
     """
     Parser for modinfo information.
 

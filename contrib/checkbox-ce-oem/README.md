@@ -158,6 +158,67 @@ id: ce-oem-serial/rs485-list
 RS485_PORTS={port1} {port2}
 e.g. RS485_PORTS=/dev/ttymxc1 /dev/ttymxc2
 
+id: rz-ai-accelerator/drp-ai3-object-counter
+DRP_AI_TEST_SNAP={installed object-counter snap name}
+The name of the installed rzv-ai-applications snap providing the
+object-counter (Q08) sample used to exercise DRP-AI3, which varies by
+board:
+- RZ/V2H: rzv-ai-applications
+- RZ/V2N: rzv-ai-applications-v2n
+e.g. DRP_AI_TEST_SNAP=rzv-ai-applications
+This job also requires a 640x480, 24-bit RGB PNG photo containing a
+clearly visible dog to be placed at $SNAP_REAL_HOME/test.png before
+running, as the input image is not bundled with the provider.
+
+id: dragonwing-camera/camera-list, dragonwing-camera/check-camera-list-resource
+DRAGONWING_CAMERAS={sensor-name}:{camera-id} ...
+Each entry must supply a non-negative numeric camera ID. The reverse
+{camera-id}:{sensor-name} format is also accepted; name-only entries are
+no longer supported, even with --skip-unavailable.
+Use dragonwing-camera-map-helper.py on the DUT to identify the IDs for
+the current image. Select the actual camera service when necessary,
+e.g. dragonwing-camera-map-helper.py --service qti-cam-server.service.
+Recheck mappings after image or camera changes; IDs are not fixed per sensor.
+e.g. DRAGONWING_CAMERAS=imx577:0 og0va1b:1 imx688:2
+
+id: thermal_zones
+TZ_ALLOW_NO_DATA=all | {thermal-type1}|{thermal-type2}|...
+Thermal zones of these types that return no data (ENODATA, power domain
+off) when thermal_zones runs are skipped instead of failing. Only list
+zones that are power-gated by design and cannot be powered with
+TZ_KEEP_POWERED; never a zone whose missing data can mean a broken
+driver, such as a GPU zone.
+e.g. TZ_ALLOW_NO_DATA=cv0-thermal|cv1-thermal|cv2-thermal
+
+id: ce-oem-thermal/temperature-test
+TZ_IGNORE_TEMP_CHECK=all | {thermal-type1}|{thermal-type2}|...
+Thermal zones of these types only need a readable temperature; the
+"temperature must change" check is skipped.
+e.g. TZ_IGNORE_TEMP_CHECK=cpu-thermal|camera0-thermal
+
+id: thermal_zones, ce-oem-thermal/temperature-test
+TZ_KEEP_POWERED={thermal-type1}:{device}[,{device}]|{thermal-type2}:{device}|...
+Devices whose power/control is not "on" are set to "on" for the
+temperature test of that thermal type and restored afterwards, so a
+power-gated zone is tested instead of skipped. See
+checkbox-provider-ce-oem/units/thermal-sensor/README.md.
+e.g. TZ_KEEP_POWERED=gpu-thermal:/sys/bus/pci/devices/0000:01:00.0
+
+id: thermal_zones
+TZ_SKIP=all | {thermal-type1}|{thermal-type2}|...
+Thermal zones of these types are not tested at all; their temperature
+jobs are reported as not run. Only for zones that cannot be tested
+safely (e.g. a known platform bug); name the reason next to it.
+e.g. TZ_SKIP=gpu-thermal
+
+id: ce-oem-ptp/ptp4l-time-sync-for-{eth-interface}-auto
+PTP4L_TRANSPORT_SPECIFIC={0|1}   (optional, default 0 = IEEE 1588; 1 = IEEE 802.1AS/gPTP; the grandmaster must use the same value)
+PTP4L_DELAY_MECHANISM={E2E|P2P}  (optional, default = the profile's mechanism: E2E for 0, P2P for 1; 1 + E2E is rejected)
+PTP4L_PTP_MINOR_VERSION={minor}  (optional, linuxptp >= 4.0 only, i.e. noble; jammy's 3.1.1 skips it)
+PTP4L_REARM_HWTSTAMP=1           (optional, default off; re-programs NIC timestamping + sets the PHC before the test, drops the link briefly)
+e.g. PTP4L_TRANSPORT_SPECIFIC=1 PTP4L_DELAY_MECHANISM=P2P   (gPTP: set both; grandmaster on a direct link with --transportSpecific=1 --delay_mechanism=P2P)
+See checkbox-provider-ce-oem/units/ptp/README.md
+
 id: ce-oem-audio/alsa-ucm-loopback-list (optional)
 ALSA_UCM_LOOPBACK_PAIRING={sink1}:{source1},{sink2}:{source2},...
 UCM device names from "alsaucm -c <card> dump json"

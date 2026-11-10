@@ -79,7 +79,7 @@ class XDGRestartStrategy(IRestartStrategy):
         app_icon: str = None,
         app_terminal: bool = False,
         app_categories: str = None,
-        app_startup_notify: bool = False
+        app_startup_notify: bool = False,
     ):
         """
         Initialize the XDG resume strategy.
@@ -114,9 +114,7 @@ class XDGRestartStrategy(IRestartStrategy):
 
     def get_desktop_filename(self, app_id: str) -> str:
         # TODO: use correct xdg lookup mechanism
-        return os.path.expandvars(
-            "$HOME/.config/autostart/{}.desktop".format(app_id)
-        )
+        return os.path.expandvars(f"$HOME/.config/autostart/{app_id}.desktop")
 
     def prime_application_restart(
         self, app_id: str, session_id: str, cmd: str
@@ -129,7 +127,7 @@ class XDGRestartStrategy(IRestartStrategy):
             cmd += ";$SHELL"
         self.config.set("Desktop Entry", "Exec", cmd)
         os.makedirs(os.path.dirname(filename), exist_ok=True)
-        with open(filename, "wt") as stream:
+        with open(filename, "w") as stream:
             self.config.write(stream, space_around_delimiters=False)
 
     def diffuse_application_restart(self, app_id: str) -> None:
@@ -196,7 +194,7 @@ class SnappyRestartStrategy(IRestartStrategy):
         # NOTE: This implies that any snap wishing to include a Checkbox
         # application to be autostarted creates snapcraft binary
         # called "checkbox-cli"
-        binary_name = "/{}/bin/{}.checkbox-cli".format(base_dir, snap_name)
+        binary_name = f"/{base_dir}/bin/{snap_name}.checkbox-cli"
         self.config.set(
             "Service",
             "ExecStart",
@@ -239,7 +237,7 @@ class RemoteSnappyRestartStrategy(IRestartStrategy):
     def prime_application_restart(
         self, app_id: str, session_id: str, cmd: str
     ) -> None:
-        with open(self.session_resume_filename, "wt") as f:
+        with open(self.session_resume_filename, "w") as f:
             f.write(session_id)
             os.fsync(f.fileno())
 
@@ -269,7 +267,7 @@ class RemoteDebRestartStrategy(RemoteSnappyRestartStrategy):
     def prime_application_restart(
         self, app_id: str, session_id: str, cmd: str
     ) -> None:
-        with open(self.session_resume_filename, "wt") as f:
+        with open(self.session_resume_filename, "w") as f:
             f.write(session_id)
             os.fsync(f.fileno())
         if cmd == self.service_name:

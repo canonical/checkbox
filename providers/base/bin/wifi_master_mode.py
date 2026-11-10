@@ -36,22 +36,22 @@ class WifiMasterMode:
         except KeyError:
             logging.error("PLAINBOX_PROVIDER_DATA variable not set")
             return 1
-        logging.info("Provider data dir: {}".format(data_dir))
+        logging.info(f"Provider data dir: {data_dir}")
 
         wifi_dev = "wlan0"
         try:
             wifi_dev = os.environ["WIFI_AP_DEV"]
         except KeyError:
             logging.info("WIFI_AP_DEV variable not set, defaulting to wlan0")
-        logging.info("Wi-Fi adapter: {}".format(wifi_dev))
+        logging.info(f"Wi-Fi adapter: {wifi_dev}")
 
         conf_in = os.path.join(data_dir, "hostapd.conf.in")
         if not os.path.isfile(conf_in):
-            logging.error("Couldn't find {}".format(conf_in))
+            logging.error(f"Couldn't find {conf_in}")
             return 1
 
         with tempfile.NamedTemporaryFile(mode="w+t") as conf_file_out:
-            with open(conf_in, "r") as conf_file_in:
+            with open(conf_in) as conf_file_in:
                 data_in = conf_file_in.read()
                 data_out = data_in.replace("$PROTOCOL", args.protocol)
                 data_out = data_out.replace("$WIFI-DEV-NAME", wifi_dev)

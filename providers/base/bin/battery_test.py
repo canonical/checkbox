@@ -42,12 +42,12 @@ class Battery:
     def __str__(self):
         ret = "-----------------------------------------\n"
         ret += "State: %s\n" % self._state
-        ret += "Energy: %s %s\n" % (self._energy, self._energy_units)
-        ret += "Energy Full: %s %s\n" % (
+        ret += f"Energy: {self._energy} {self._energy_units}\n"
+        ret += "Energy Full: {} {}\n".format(
             self._energy_full,
             self._energy_full_units,
         )
-        ret += "Energy Full-Design: %s %s\n" % (
+        ret += "Energy Full-Design: {} {}\n".format(
             self._energy_full_design,
             self._energy_full_design_units,
         )

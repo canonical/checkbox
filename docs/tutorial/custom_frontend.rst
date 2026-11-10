@@ -281,7 +281,6 @@ workflow:
         fail-fast: false
         matrix:
           arch: [armhf, riscv64]
-      # Note: uc16 needs ubuntu20 because we need cgroup v1 to build it
       runs-on: 'ubuntu-latest'
       timeout-minutes: 1200 #20h, this will timeout sooner due to inner timeouts
       name: Runtime (${{ matrix.arch }})
@@ -329,13 +328,7 @@ workflow:
             release: latest/edge
 
 This is a basic workflow that will build your snap for ``armhf`` and
-``riscv64``. If you need a more advanced example, that is similar but also
-handles multiple bases (including uc16) and snapcraft versions
-reference the following workflow in the Checkbox repository: `Checkbox daily cross build <https://github.com/canonical/checkbox/blob/main/.github/workflows/checkbox-daily-cross-builds.yaml>`_.
-
-.. note::
-
-   If you don't have access to the self hosted runners, you will not be able
-   to build snaps for core16. You need a system that supports cgroup v1 to do
-   so. If you do, refer to the Checkbox workflow for the precise tags you
-   should use.
+``riscv64``. If you need a more advanced example that handles multiple bases
+and Snapcraft versions, reference the `Checkbox daily cross build
+<https://github.com/canonical/checkbox/blob/main/.github/workflows/checkbox-daily-cross-builds.yaml>`_
+workflow.

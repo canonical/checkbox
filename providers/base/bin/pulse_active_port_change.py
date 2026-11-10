@@ -154,9 +154,9 @@ class AudioPlugDetection:
             assert False
         # Get the initial / baseline configuration
         initial_cfg = self.get_sound_config()
-        print("Starting with config: {}".format(initial_cfg))
+        print(f"Starting with config: {initial_cfg}")
         print(
-            "You have {} seconds to plug the item in".format(self.timeout),
+            f"You have {self.timeout} seconds to plug the item in",
             flush=True,
         )
         # Start the timer
@@ -171,7 +171,7 @@ class AudioPlugDetection:
                 for line in child_stream:
                     if line.startswith(look_for) or line.startswith(look_for2):
                         new_cfg = self.get_sound_config()
-                        print("Now using config: {}".format(new_cfg))
+                        print(f"Now using config: {new_cfg}")
                         if new_cfg != initial_cfg:
                             print("It seems to work!")
                             found = True

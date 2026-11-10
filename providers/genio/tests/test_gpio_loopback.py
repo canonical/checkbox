@@ -92,7 +92,7 @@ class TestGpioLoopback(unittest.TestCase):
         with patch("builtins.open", mock_open()) as mock_file:
             GPIOSysFsController.set_gpio(mock_gpio_controller, "test", "1")
             mock_file.assert_called_once_with(
-                "/sys/class/gpio/gpio{}/value".format("test"), "wt"
+                "/sys/class/gpio/gpio{}/value".format("test"), "w"
             )
             mock_file().write.assert_called_once_with("1\n")
 
@@ -105,7 +105,7 @@ class TestGpioLoopback(unittest.TestCase):
                 "1",
             )
             mock_file.assert_called_once_with(
-                "/sys/class/gpio/gpio{}/value".format("test"), "r"
+                "/sys/class/gpio/gpio{}/value".format("test")
             )
 
     def test_set_direction(self):

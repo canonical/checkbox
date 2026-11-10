@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# encoding: UTF-8
 # Copyright (c) 2021 Canonical Ltd.
 #
 # Authors:

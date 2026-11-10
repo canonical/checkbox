@@ -31,7 +31,7 @@ class CameraTestRPITests(unittest.TestCase):
     def test_capture(self, mock_picamera, mock_path):
         mock_path.expandvars.return_value = "/tmp/session"
         mock_path.join.side_effect = [
-            "/tmp/session/picam_{}_vchiq.jpg".format(i)
+            f"/tmp/session/picam_{i}_vchiq.jpg"
             for i in range(1, len(test_res) + 2)
         ]
 

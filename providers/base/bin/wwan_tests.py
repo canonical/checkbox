@@ -92,7 +92,7 @@ class MMDbus:
     def get_modem_ids(self):
         modem_ids = []
         for m in self._modems:
-            modem_ids.append((int(os.path.basename(m))))
+            modem_ids.append(int(os.path.basename(m)))
         return modem_ids
 
     def equipment_id_to_mm_id(self, equipment_id):
@@ -321,9 +321,7 @@ def _delete_all_bearers(mm_id: str):
         for path in set(
             re.findall(r"/org/freedesktop/ModemManager1/Bearer/\d+", out)
         ):
-            subprocess.run(
-                ["mmcli", "-m", mm_id, "--delete-bearer={}".format(path)]
-            )
+            subprocess.run(["mmcli", "-m", mm_id, f"--delete-bearer={path}"])
         print()
     except subprocess.CalledProcessError:
         print("No bearers found")
@@ -340,8 +338,8 @@ def _allow_roaming(mm_id: str, apn: str):
     """
     print_head("Set bearer to enable roaming")
     _delete_all_bearers(mm_id)
-    bearer = "apn={},allow-roaming=true".format(apn)
-    cmd = ["mmcli", "-m", mm_id, "--create-bearer={}".format(bearer)]
+    bearer = f"apn={apn},allow-roaming=true"
+    cmd = ["mmcli", "-m", mm_id, f"--create-bearer={bearer}"]
     print_cmd(cmd)
     subprocess.check_call(cmd)
     print()
@@ -511,10 +509,10 @@ class Resources:
         else:
             mm = MMDbus()
         for m in mm.get_modem_ids():
-            print("mm_id: {}".format(m))
-            print("hw_id: {}".format(mm.get_equipment_id(m)))
-            print("manufacturer: {}".format(slugify(mm.get_manufacturer(m))))
-            print("model: {}".format(slugify(mm.get_model_name(m))))
+            print(f"mm_id: {m}")
+            print(f"hw_id: {mm.get_equipment_id(m)}")
+            print(f"manufacturer: {slugify(mm.get_manufacturer(m))}")
+            print(f"model: {slugify(mm.get_model_name(m))}")
             print(
                 "firmware_revision: {}".format(
                     slugify(mm.get_firmware_revision(m))
@@ -572,10 +570,10 @@ class SimInfo:
         else:
             mm = MMDbus()
         mm_id = mm.equipment_id_to_mm_id(args.hw_id)
-        print("Operator: {}".format(mm.get_sim_operatorname(mm_id)))
-        print("IMSI: {}".format(mm.get_sim_imsi(mm_id)))
-        print("MCC/MNC: {}".format(mm.get_sim_operatoridentifier(mm_id)))
-        print("ICCID: {}".format(mm.get_sim_simidentifier(mm_id)))
+        print(f"Operator: {mm.get_sim_operatorname(mm_id)}")
+        print(f"IMSI: {mm.get_sim_imsi(mm_id)}")
+        print(f"MCC/MNC: {mm.get_sim_operatoridentifier(mm_id)}")
+        print(f"ICCID: {mm.get_sim_simidentifier(mm_id)}")
 
 
 class WWANTests:

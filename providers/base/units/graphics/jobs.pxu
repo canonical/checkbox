@@ -209,11 +209,11 @@ plugin: user-interact-verify
 category_id: com.canonical.plainbox::graphics
 requires:
  package.name == 'xorg'
- package.name == 'gir1.2-gst-plugins-base-0.10' or package.name == 'gir1.2-gst-plugins-base-1.0'
+ executable.name == 'gst-launch-1.0'
 command:
  # shellcheck disable=SC1091
  source graphics_env.sh {driver} {index} {path}
- gst_pipeline_test.py -t 2 'videotestsrc ! videoconvert ! autovideosink' || gst_pipeline_test.py -t 2 'videotestsrc ! ffmpegcolorspace ! autovideosink'
+ gst_sample_video_test.py 2
 _summary: Test that video can be displayed with {vendor} {product}
 _purpose:
  This test will test the default display with a sample video
@@ -224,13 +224,16 @@ _verification:
 
 id: graphics/video_primary
 flags: also-after-suspend
+environ: XDG_SESSION_TYPE
 plugin: user-interact-verify
 category_id: com.canonical.plainbox::graphics
 requires:
- package.name == 'gir1.2-gst-plugins-base-0.10' or package.name == 'gir1.2-gst-plugins-base-1.0'
+ executable.name == 'gst-launch-1.0'
 command:
+ # No GPU args -> keep the default GPU and restore XDG_SESSION_TYPE
  # shellcheck disable=SC1091
- gst_pipeline_test.py -t 2 'videotestsrc ! videoconvert ! autovideosink' || gst_pipeline_test.py -t 2 'videotestsrc ! ffmpegcolorspace ! autovideosink'
+ source graphics_env.sh
+ gst_sample_video_test.py 2
 _summary: Test that video can be displayed
 _purpose:
  This test will test the default display with a sample video
@@ -256,7 +259,6 @@ category_id: com.canonical.plainbox::graphics
 id: graphics/{index}_cycle_resolution_{product_slug}
 template-id: graphics/index_cycle_resolution_product_slug
 flags: also-after-suspend
-depends: graphics/VESA_drivers_not_in_use
 environ: XDG_SESSION_TYPE XDG_CURRENT_DESKTOP
 command:
  # shellcheck disable=SC1091
@@ -281,7 +283,6 @@ plugin: user-interact-verify
 category_id: com.canonical.plainbox::graphics
 id: graphics/cycle_resolution_primary
 flags: also-after-suspend
-depends: graphics/VESA_drivers_not_in_use
 environ: XDG_SESSION_TYPE XDG_CURRENT_DESKTOP
 command:
  # shellcheck disable=SC1091
@@ -361,7 +362,7 @@ category_id: com.canonical.plainbox::graphics
 id: graphics/{index}_gl_support_{product_slug}
 template-id: graphics/index_gl_support_product_slug
 flags: also-after-suspend
-environ: CHECKBOX_RUNTIME
+environ: CHECKBOX_RUNTIME USER_DEFINED_GL_LD_LIBRARY_PATH
 command:
     gl_support.py
 estimated_duration: 0.131
@@ -373,7 +374,7 @@ plugin: shell
 category_id: com.canonical.plainbox::graphics
 id: graphics/gl_support_primary
 flags: also-after-suspend
-environ: CHECKBOX_RUNTIME
+environ: CHECKBOX_RUNTIME USER_DEFINED_GL_LD_LIBRARY_PATH
 command:
     gl_support.py
 estimated_duration: 0.131
@@ -390,7 +391,7 @@ id: graphics/{index}_valid_opengl_renderer_{product_slug}
 template-id: graphics/index_valid_opengl_renderer_product_slug
 requires:
  executable.name == 'glxinfo'
- lsb.release >= "22.04"
+ os.release >= "22.04"
 command:
  # shellcheck disable=SC1091
  source graphics_env.sh {driver} {index} {path}
@@ -489,6 +490,7 @@ plugin: user-interact-verify
 category_id: com.canonical.plainbox::graphics
 id: graphics/{index}_valid_glxgears_{product_slug}
 template-id: graphics/index_valid_glxgears_product_slug
+group: graphic_glxgears
 flags: also-after-suspend
 requires:
     executable.name == 'glxgears'
@@ -541,6 +543,7 @@ plugin: user-interact-verify
 category_id: com.canonical.plainbox::graphics
 id: graphics/{index}_valid_glxgears_fullscreen_{product_slug}
 template-id: graphics/index_valid_glxgears_fullscreen_product_slug
+group: graphic_glxgears
 flags: also-after-suspend
 requires:
     executable.name == 'glxgears'
@@ -598,6 +601,7 @@ purpose:
 plugin: user-interact-verify
 category_id: com.canonical.plainbox::graphics
 id: graphics/valid_glxgears
+group: graphic_glxgears
 flags: also-after-suspend
 user: root
 requires:
@@ -619,6 +623,7 @@ verification:
 plugin: user-interact-verify
 category_id: com.canonical.plainbox::graphics
 id: graphics/valid_glxgears_fullscreen
+group: graphic_glxgears
 flags: also-after-suspend
 user: root
 requires:
@@ -761,7 +766,7 @@ id: graphics/{index}_switch_card_{product_slug}_xenial
 template-id: graphics/index_switch_card_product_slug_xenial
 requires:
  graphics_card.driver in ['nouveau', 'nvidia', 'amdgpu-pro', 'pcieport']
- lsb.codename == 'xenial'
+ os.codename == 'xenial'
 _summary: Test GPU switching for {vendor} {product}
 _purpose:
      Manually switch to the {vendor} {product} card.
@@ -786,6 +791,7 @@ command: gnome-screenshot --file "${PLAINBOX_SESSION_SHARE}"/screen-capture.png
 _purpose: Obtains a simple screen capture using gnome-screenshot if present
 
 plugin: attachment
+mime-type: image/png
 category_id: com.canonical.plainbox::graphics
 id: screen-capture-internal.png
 _summary: Attaches a simple screen capture
@@ -809,6 +815,7 @@ _purpose: Obtains a simple screen capture of {vendor} {product} using gnome-scre
 unit: template
 template-resource: graphics_card
 plugin: attachment
+mime-type: image/png
 category_id: com.canonical.plainbox::graphics
 id: graphics/{index}_screen-capture-internal_{product_slug}.png
 template-id: graphics/index_screen-capture-internal_product_slug.png
@@ -825,7 +832,7 @@ id: graphics/{index}_auto_switch_card_{product_slug}
 template-id: graphics/index_auto_switch_card_product_slug
 requires:
  graphics_card.driver in ['nvidia', 'amdgpu-pro', 'pcieport']
- graphics_card.driver != 'amdgpu-pro' and lsb.release < '22.04'
+ graphics_card.driver != 'amdgpu-pro' and os.release < '22.04'
 _summary: Switch GPU to {vendor} {product} and reboot
 _purpose:
  Switch GPU to {vendor} {product} and reboot the machine

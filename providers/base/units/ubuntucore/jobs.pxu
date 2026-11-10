@@ -3,7 +3,7 @@ _summary: Reboot into recovery mode and log into the system using prior credenti
 _purpose:
  Check if the system will reboot to recovery mode successfully
 requires:
- lsb.release >= '20'
+ os.release >= '20'
 _steps:
  1. Reboot the system to recovery mode
     $ sudo snap reboot --recover
@@ -28,7 +28,7 @@ _summary: Reboot into reinstall mode and trigger a factory reset on the device.
 _purpose:
  Check if the system will reboot to reinstall mode and reinitialize the device with a fresh factory reset.
 requires:
- lsb.release >= '20'
+ os.release >= '20'
 _steps:
  WARNING: ALL EXISTING DATA ON THIS DEVICE WILL BE WIPED!!
  1. Check the current serial-assertion device-key
@@ -51,8 +51,8 @@ plugin: manual
 category_id: ubuntucore
 
 unit: template
-template-resource: lsb
-template-filter: lsb.distributor_id == 'Ubuntu Core'
+template-resource: os
+template-filter: os.distributor_id == 'Ubuntu Core'
 template-engine: jinja2
 template-unit: job
 id: ubuntucore/os-fail-boot-{{description}}
@@ -85,8 +85,8 @@ category_id: ubuntucore
 estimated_duration: 500
 
 unit: template
-template-resource: lsb
-template-filter: lsb.distributor_id == 'Ubuntu Core'
+template-resource: os
+template-filter: os.distributor_id == 'Ubuntu Core'
 template-engine: jinja2
 template-unit: job
 id: ubuntucore/os-fail-boot-with-refresh-control-{{description}}

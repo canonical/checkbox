@@ -1,0 +1,5 @@
+unit: manifest entry
+id: has_dragonwing_sensing_hub
+_name: Has Dragonwing sensing hub?
+_prompt: Dragonwing specific?
+value-type: bool

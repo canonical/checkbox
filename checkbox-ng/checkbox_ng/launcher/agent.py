@@ -20,21 +20,14 @@ functionality.
 """
 
 import gettext
-import json
 import logging
 import os
 import socket
-import sys
 
-from checkbox_ng import app_context
 from checkbox_ng.utils import set_all_loggers_level
 
-from plainbox.impl.config import Configuration
 from plainbox.impl.secure.sudo_broker import is_passwordless_sudo
-from plainbox.impl.session.assistant import ResumeCandidate
 from plainbox.impl.session.remote_assistant import RemoteSessionAssistant
-from plainbox.impl.session.restart import RemoteDebRestartStrategy
-from plainbox.impl.session.restart import RemoteSnappyRestartStrategy
 from plainbox.vendor import rpyc
 from plainbox.vendor.rpyc.utils.server import ThreadedServer
 
@@ -124,8 +117,9 @@ class RemoteAgent:
         # present if not specified
         if not hasattr(ctx.args, "debug") or not ctx.args.debug:
             # default log level of the agent is INFO
-            logging.basicConfig(level=logging.INFO)
-            set_all_loggers_level(logging.INFO)
+            level = getattr(logging, ctx.args.log_level)
+            logging.basicConfig(level=level)
+            set_all_loggers_level(level)
         self.ensure_sudo()
         if ctx.args.resume:
             msg = (
@@ -169,6 +163,12 @@ class RemoteAgent:
         )
         parser.add_argument(
             "--port", type=int, default=18871, help=_("port to listen on")
+        )
+        parser.add_argument(
+            "--log-level",
+            choices=["DEBUG", "INFO", "WARNING"],
+            default="INFO",
+            help=_("sets the global logging level if `--debug` is not used"),
         )
 
 

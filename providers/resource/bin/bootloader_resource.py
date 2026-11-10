@@ -73,7 +73,7 @@ def booted_kernel_location(bl_name):
         # The BOOT_IMAGE kernmel cmdline parameter is tricky to decipher. It
         # can be an absolute path or refer or contain a variable expanded by
         # ... initramfs? Tested on fortknox, vasteras projects.
-        with open("/proc/cmdline", "r") as f:
+        with open("/proc/cmdline") as f:
             cmdline = f.readline()
         result = parse_kernel_cmdline(cmdline)
         grub_path = result.params.get("BOOT_IMAGE")
@@ -96,8 +96,8 @@ def booted_kernel_location(bl_name):
 
 if __name__ == "__main__":
     bl_name = detect_bootloader()
-    print("name: {}".format(bl_name))
+    print(f"name: {bl_name}")
     path, type = booted_kernel_location(bl_name)
-    print("booted_kernel_path: {}".format(path))
-    print("booted_kernel_partition_type: {}".format(type))
+    print(f"booted_kernel_path: {path}")
+    print(f"booted_kernel_partition_type: {type}")
     print()

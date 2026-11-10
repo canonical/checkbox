@@ -54,8 +54,7 @@ def subprocess_lines_generator(command):
     com_pipe = subprocess.Popen(
         command, stdout=subprocess.PIPE, universal_newlines=True
     )
-    for ln in com_pipe.stdout:
-        yield ln
+    yield from com_pipe.stdout
     # Final communicate to wait for process to die.
     com_pipe.communicate()
 
@@ -177,7 +176,7 @@ def main():
                 # Fake a product name with the product_id
                 try:
                     product_id = int(record.get("product_id", 0))
-                    fake_product = "PCI ID 0x{:x}".format(product_id)
+                    fake_product = f"PCI ID 0x{product_id:x}"
                 except ValueError:
                     fake_product = "PCI ID unknown"
                 record["product"] = fake_product
@@ -186,7 +185,7 @@ def main():
                 # Fake a vendor name with the vendor_id
                 try:
                     vendor_id = int(record.get("vendor_id", 0))
-                    fake_vendor = "PCI ID 0x{:x}".format(vendor_id)
+                    fake_vendor = f"PCI ID 0x{vendor_id:x}"
                 except ValueError:
                     fake_vendor = "PCI ID unknown"
                 record["vendor"] = fake_vendor
@@ -235,10 +234,7 @@ def main():
 
         # Finally, print the records
         for record in video_devices:
-            items = [
-                "{key}: {value}".format(key=k, value=record[k])
-                for k in sorted(record.keys())
-            ]
+            items = [f"{k}: {record[k]}" for k in sorted(record.keys())]
             print("\n".join(items))
             print("")
     except OSError as err:

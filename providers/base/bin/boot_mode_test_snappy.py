@@ -18,7 +18,7 @@ from checkbox_support.snap_utils.system import get_lk_bootimg_path
 
 
 def fitdumpimage(filename):
-    cmd = "dumpimage -l {}".format(filename)
+    cmd = f"dumpimage -l {filename}"
     try:
         out = sp.check_output(cmd, shell=True).decode(sys.stdout.encoding)
     except Exception:
@@ -74,18 +74,14 @@ def get_bootloader(gadget_yaml):
         raise SystemExit("ERROR: could not find name of bootloader")
 
     if bootloader not in ("u-boot", "grub", "lk"):
-        raise SystemExit(
-            "ERROR: Unexpected bootloader name {}".format(bootloader)
-        )
-    print("Bootloader is {}\n".format(bootloader))
+        raise SystemExit(f"ERROR: Unexpected bootloader name {bootloader}")
+    print(f"Bootloader is {bootloader}\n")
     return bootloader
 
 
 def get_uboot_kernel(kernel):
     """Get u-boot kernel path"""
-    kernel_rev = os.path.basename(
-        os.path.realpath("/snap/{}/current".format(kernel))
-    )
+    kernel_rev = os.path.basename(os.path.realpath(f"/snap/{kernel}/current"))
     # update boot kernel path according to
     # https://snapcraft.io/docs/the-system-backup-interface
     return "/var/lib/snapd/hostfs/boot/uboot/{}_{}.snap/kernel.img".format(
@@ -102,9 +98,7 @@ def main():
     gadget_yaml = os.path.join("/snap", gadget, "current/meta/gadget.yaml")
 
     if not os.path.exists(gadget_yaml):
-        raise SystemExit(
-            "ERROR: failed to find gadget.yaml at {}".format(gadget_yaml)
-        )
+        raise SystemExit(f"ERROR: failed to find gadget.yaml at {gadget_yaml}")
 
     bootloader = get_bootloader(gadget_yaml)
 
@@ -117,7 +111,7 @@ def main():
         for obj, attrs in boot_objects.items():
             if obj == "conf":
                 continue
-            print("Checking object {}".format(obj))
+            print(f"Checking object {obj}")
             if "Sign value" not in attrs:
                 raise SystemExit("ERROR: no sign value found for object")
             print('Found "Sign value"')
@@ -134,7 +128,7 @@ def main():
             print()
 
         # check that all parts of the fit image have
-        snap_kernel = "/snap/{}/current/kernel.img".format(kernel)
+        snap_kernel = f"/snap/{kernel}/current/kernel.img"
         snap_objects = fitdumpimage(snap_kernel)
         if snap_objects != boot_objects:
             raise SystemExit(
@@ -151,7 +145,7 @@ def main():
 
         # XXX: Assuming FIT format
         bootimg = os.path.basename(bootimg_path)
-        print("Parsing FIT image information ({})...\n".format(bootimg))
+        print(f"Parsing FIT image information ({bootimg})...\n")
 
         with tempfile.TemporaryDirectory() as tmpdirname:
             shutil.copy2(bootimg_path, tmpdirname)
@@ -161,7 +155,7 @@ def main():
         for obj, attrs in boot_objects.items():
             if obj != "conf":
                 continue
-            print("Checking object {}".format(obj))
+            print(f"Checking object {obj}")
             if "Sign value" not in attrs:
                 raise SystemExit("ERROR: no sign value found for object")
             print('Found "Sign value"')
@@ -178,7 +172,7 @@ def main():
             print()
 
         # check that all parts of the fit image have
-        snap_kernel = "/snap/{}/current/boot.img".format(kernel)
+        snap_kernel = f"/snap/{kernel}/current/boot.img"
         snap_objects = fitdumpimage(snap_kernel)
         if snap_objects != boot_objects:
             raise SystemExit(

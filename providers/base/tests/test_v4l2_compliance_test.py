@@ -80,7 +80,7 @@ class TestV4L2ComplianceTest(ut.TestCase):
             mock_print.assert_has_calls(
                 [
                     call(
-                        " - {}".format(ioctl_name),
+                        f" - {ioctl_name}",
                     )
                     for ioctl_name in mock_parser.return_value[1]["failed"]
                 ],
@@ -101,7 +101,7 @@ class TestV4L2ComplianceTest(ut.TestCase):
             mock_print.assert_has_calls(
                 [
                     call(
-                        " - {}".format(ioctl_name),
+                        f" - {ioctl_name}",
                     )
                     for ioctl_name in mock_parser.return_value[1]["failed"]
                 ],
@@ -122,7 +122,7 @@ class TestV4L2ComplianceTest(ut.TestCase):
             mock_print.assert_has_calls(
                 [
                     call(
-                        " - {}".format(ioctl_name),
+                        f" - {ioctl_name}",
                     )
                     for ioctl_name in mock_parser.return_value[1]["failed"]
                 ],
@@ -153,7 +153,7 @@ class TestV4L2ComplianceTest(ut.TestCase):
             mock_print.assert_has_calls(
                 [
                     call(
-                        " - {}".format(ioctl_name),
+                        f" - {ioctl_name}",
                     )
                     for ioctl_name in mock_parser.return_value[1]["failed"]
                 ],

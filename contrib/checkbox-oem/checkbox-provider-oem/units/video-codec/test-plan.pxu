@@ -1,0 +1,6 @@
+id: oem-video-codec-automated
+unit: test plan
+_name: Video Codec auto tests
+_description: Automated tests for Video Codec in before suspend and post suspend stage
+bootstrap_include:
+include:

@@ -131,16 +131,12 @@ class TestCheckWakeup(unittest.TestCase):
     @patch("builtins.open", new_callable=mock_open, read_data="enabled\n")
     def test_wakeup_enabled(self, mock_file):
         self.assertTrue(check_wakeup("eth0"))
-        mock_file.assert_called_with(
-            "/sys/class/net/eth0/device/power/wakeup", "r"
-        )
+        mock_file.assert_called_with("/sys/class/net/eth0/device/power/wakeup")
 
     @patch("builtins.open", new_callable=mock_open, read_data="disabled\n")
     def test_wakeup_disabled(self, mock_file):
         self.assertFalse(check_wakeup("eth0"))
-        mock_file.assert_called_with(
-            "/sys/class/net/eth0/device/power/wakeup", "r"
-        )
+        mock_file.assert_called_with("/sys/class/net/eth0/device/power/wakeup")
 
     @patch("builtins.open", new_callable=mock_open, read_data="unknown\n")
     def test_wakeup_unexpected_status(self, mock_file):
@@ -181,7 +177,7 @@ class TestGetIPAddress(unittest.TestCase):
         def ioctl_side_effect(fd, request, arg):
             if request == 0x8915:
                 return b"\x00" * 20 + mock_ip + b"\x00" * (256 - 24)
-            raise IOError("Invalid request")
+            raise OSError("Invalid request")
 
         mock_ioctl.side_effect = ioctl_side_effect
 
@@ -200,7 +196,7 @@ class TestGetIPAddress(unittest.TestCase):
 
         def ioctl_side_effect(fd, request, arg):
             if request == 0x8915:
-                raise IOError("IP address retrieval failed")
+                raise OSError("IP address retrieval failed")
 
         mock_ioctl.side_effect = ioctl_side_effect
 
@@ -224,7 +220,7 @@ class TestGetMACAddress(unittest.TestCase):
             if request == 0x8927:
                 return b"\x00" * 18 + mock_mac + b"\x00" * (256 - 24)
 
-            raise IOError("Invalid request")
+            raise OSError("Invalid request")
 
         mock_ioctl.side_effect = ioctl_side_effect
 
@@ -243,7 +239,7 @@ class TestGetMACAddress(unittest.TestCase):
 
         def ioctl_side_effect(fd, request, arg):
             if request == 0x8927:
-                raise IOError("MAC address retrieval failed")
+                raise OSError("MAC address retrieval failed")
 
         mock_ioctl.side_effect = ioctl_side_effect
 

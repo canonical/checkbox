@@ -66,14 +66,14 @@ def kill_tree(pid):
     would rather avoid it
     """
     if shutil.which("bash"):
-        return subprocess.run(["bash", "-c", "kill -9 -{}".format(pid)])
+        return subprocess.run(["bash", "-c", f"kill -9 -{pid}"])
     elif shutil.which("zsh"):
-        return subprocess.run(["zsh", "-c", "kill -9 -{}".format(pid)])
+        return subprocess.run(["zsh", "-c", f"kill -9 -{pid}"])
     with suppress(subprocess.CalledProcessError):
         # if SHELL is sh or doesn't support -XX pid, this will fail
-        return subprocess.check_call("kill -9 -{}".format(pid), shell=True)
+        return subprocess.check_call(f"kill -9 -{pid}", shell=True)
     # lets at least kill the direct pid
-    return subprocess.run("kill -9 {}".format(pid), shell=True)
+    return subprocess.run(f"kill -9 {pid}", shell=True)
 
 
 def run_with_timeout(f, timeout_s, *args, **kwargs):
@@ -147,7 +147,7 @@ def run_with_timeout(f, timeout_s, *args, **kwargs):
     if process.is_alive():
         # this tries to kill the whole process tree, not just the child.
         kill_tree(process.pid)
-        raise TimeoutError("Task unable to finish in {}s".format(timeout_s))
+        raise TimeoutError(f"Task unable to finish in {timeout_s}s")
 
     with suppress(Empty):
         return result_queue.get_nowait()

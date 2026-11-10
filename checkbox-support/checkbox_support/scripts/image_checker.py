@@ -76,11 +76,11 @@ def main():
     # for furture maintainers, follow the format
     # and print key-value pairs here
     if args.type:
-        print("type: {}".format(get_type()))
+        print(f"type: {get_type()}")
     if args.source:
-        print("source: {}".format(get_source()))
+        print(f"source: {get_source()}")
     if args.detect_desktop:
-        print("has_desktop_environment: {}".format(has_desktop_environment()))
+        print(f"has_desktop_environment: {has_desktop_environment()}")
 
 
 if __name__ == "__main__":

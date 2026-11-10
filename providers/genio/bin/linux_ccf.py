@@ -52,7 +52,7 @@ def test_linux_ccf(soc):
         print("mt8365 is not supported")
         exit(1)
 
-    clk_summary_path = "{}/clk-summary.txt".format(PLAINBOX_SESSION_SHARE)
+    clk_summary_path = f"{PLAINBOX_SESSION_SHARE}/clk-summary.txt"
     cat_ret = runcmd(
         [
             "cat /sys/kernel/debug/clk/clk_summary "
@@ -91,13 +91,13 @@ def test_linux_ccf(soc):
         )
 
     if verify_ret.returncode:
-        print("Failed: {}".format(verify_ret.stdout))
+        print(f"Failed: {verify_ret.stdout}")
         exit(1)
     if (
         verify_ret.stdout.split("\n")[0]
         != "[-] Success, all clocks are mapped !"
     ):
-        print("Wrong output: {}".format(verify_ret.stdout))
+        print(f"Wrong output: {verify_ret.stdout}")
         exit(1)
 
     print("Test Pass")

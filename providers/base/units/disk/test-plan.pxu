@@ -20,12 +20,12 @@ _name: Disk tests (automated)
 _description: Disk tests (automated)
 include:
     disk/detect                                certification-status=blocker
-    disk/stats_.*
-    disk/read_performance_.*                   certification-status=blocker
-    disk/storage_device_.*                     certification-status=blocker
-    benchmarks/disk/hdparm-read_.*
-    benchmarks/disk/hdparm-cache-read_.*
-    disk/apste_support_on_.*
+    disk/stats_name
+    disk/read_performance_name                 certification-status=blocker
+    disk/storage_device_name                   certification-status=blocker
+    benchmarks/disk/hdparm-read_name
+    benchmarks/disk/hdparm-cache-read_name
+    disk/apste_support_on_name
     disk/check-software-raid
 bootstrap_include:
     device
@@ -36,12 +36,12 @@ _name: Disk tests after suspend (automated)
 _description: Disk tests after suspend (automated)
 include:
     after-suspend-disk/detect                                certification-status=blocker
-    after-suspend-disk/stats_.*
-    after-suspend-disk/read_performance_.*                   certification-status=blocker
-    after-suspend-disk/storage_device_.*                     certification-status=blocker
-    after-suspend-benchmarks/disk/hdparm-read_.*
-    after-suspend-benchmarks/disk/hdparm-cache-read_.*
-    after-suspend-disk/apste_support_on_.*
+    after-suspend-disk/stats_name
+    after-suspend-disk/read_performance_name                 certification-status=blocker
+    after-suspend-disk/storage_device_name                   certification-status=blocker
+    after-suspend-benchmarks/disk/hdparm-read_name
+    after-suspend-benchmarks/disk/hdparm-cache-read_name
+    after-suspend-disk/apste_support_on_name
 bootstrap_include:
     device
 

@@ -84,7 +84,7 @@ class MergeReportsTests(TestCase):
         MergeReports._populate_session_state(self_mock, job_mock, state_mock)
         self.assertTrue(job_mock.get_record_value.called)
 
-    def test_parse_submission(self):
+    def test_parse_submission_legacy(self):
         basic_job_info = {
             "name": "test_name",
             "id": "test_id",  # note: no :: to fetch the default ns
@@ -94,6 +94,30 @@ class MergeReportsTests(TestCase):
             "title": "report title",
             "results": [basic_job_info],
             "resource-results": [basic_job_info],
+            "attachment-results": [basic_job_info],
+            "category_map": {"test_category": "test_name"},
+            "system_information": {"version": 0},
+        }
+        mr = MergeReports()
+        mr._parse_submission(sub_to_read)
+        self.assertEqual(len(mr.job_list), 3)
+        self.assertEqual(
+            mr.job_list[0].id, "com.canonical.certification::test_id"
+        )
+        self.assertEqual(
+            mr.job_list[0].template_id,
+            "com.canonical.certification::test_template_id",
+        )
+
+    def test_parse_submission(self):
+        basic_job_info = {
+            "name": "test_name",
+            "id": "test_id",  # note: no :: to fetch the default ns
+            "template_id": "com.canonical.certification::test_template_id",
+        }
+        sub_to_read = {
+            "title": "report title",
+            "results": [basic_job_info, basic_job_info],
             "attachment-results": [basic_job_info],
             "category_map": {"test_category": "test_name"},
             "system_information": {"version": 0},

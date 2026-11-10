@@ -40,7 +40,7 @@ def get_configuration_set():
     config_set = dict()
     key_re = re.compile(r"^(?:[A-Z0-9]+_?)*[A-Z](?:_?[A-Z0-9])*$")
     try:
-        for line in open(config_set_path, "rt").readlines():
+        for line in open(config_set_path).readlines():
             line = line.strip()
             if not line or line.startswith("#"):
                 continue
@@ -70,7 +70,7 @@ def write_checkbox_conf(configuration):
 
     checkbox_conf_path = os.path.expandvars("$SNAP_DATA/checkbox.conf")
     os.makedirs(os.path.dirname(checkbox_conf_path), exist_ok=True)
-    with open(checkbox_conf_path, "wt") as stream:
+    with open(checkbox_conf_path, "w") as stream:
         config.write(stream)
 
 

@@ -32,7 +32,6 @@ from plainbox.impl.unit.template import TemplateUnit
 from checkbox_ng.launcher.subcommands import (
     Run,
     Expand,
-    List,
     Launcher,
     ListBootstrapped,
     IncompatibleJobError,
@@ -43,7 +42,6 @@ from checkbox_ng.launcher.subcommands import (
     get_testplan_id_by_id,
     print_objs,
 )
-from checkbox_ng.urwid_ui import ManifestBrowser
 
 
 class TestSharedFunctions(TestCase):
@@ -922,6 +920,52 @@ class TestLauncher(TestCase):
             {"manifest1": False, "manifest2": 7}
         )
 
+    @patch("checkbox_ng.launcher.subcommands.CategoryBrowser")
+    def test__pick_jobs_to_run_saves_manifest_after_selection(
+        self, category_browser_mock
+    ):
+        # The manifest must be saved only after the user's alternate
+        # selection has been applied, so the manifest prompts are computed
+        # from the jobs the user actually kept, not the full test plan.
+        self_mock = MagicMock()
+        self_mock.configuration.get_value.return_value = False
+        self_mock.sa.get_static_todo_list.return_value = ["job1", "job2"]
+        self_mock._generate_job_infos.return_value = ["info1", "info2"]
+        # The user deselects job2, keeping only job1.
+        category_browser_mock.return_value.run.return_value = {"job1"}
+
+        manager = Mock()
+        manager.attach_mock(
+            self_mock.sa.use_alternate_selection, "use_alternate_selection"
+        )
+        manager.attach_mock(self_mock._save_manifest, "save_manifest")
+
+        Launcher._pick_jobs_to_run(self_mock)
+
+        self_mock.sa.use_alternate_selection.assert_called_once_with(["job1"])
+        self_mock._save_manifest.assert_called_once_with(interactive=True)
+        self.assertEqual(
+            [mock_call[0] for mock_call in manager.mock_calls],
+            ["use_alternate_selection", "save_manifest"],
+        )
+
+    @patch("checkbox_ng.launcher.subcommands.CategoryBrowser")
+    def test__pick_jobs_to_run_no_deselection_skips_selection(
+        self, category_browser_mock
+    ):
+        # When the user keeps every job there is no alternate selection to
+        # apply, but the manifest still has to be saved.
+        self_mock = MagicMock()
+        self_mock.configuration.get_value.return_value = False
+        self_mock.sa.get_static_todo_list.return_value = ["job1", "job2"]
+        self_mock._generate_job_infos.return_value = ["info1", "info2"]
+        category_browser_mock.return_value.run.return_value = {"job1", "job2"}
+
+        Launcher._pick_jobs_to_run(self_mock)
+
+        self.assertFalse(self_mock.sa.use_alternate_selection.called)
+        self_mock._save_manifest.assert_called_once_with(interactive=True)
+
     def test__select_test_plan_and_continue_automated_ok(self):
         self_mock = MagicMock()
 
@@ -1394,6 +1438,27 @@ class TestUtilsFunctions(TestCase):
 
 
 class TestRun(TestCase):
+    def called_once(self, mock):
+        self.assertTrue(mock.called)
+        self.assertEqual(mock.call_count, 1)
+
+    def test_just_run_test_plan_calls_setup(self):
+        self_mock = MagicMock()
+        tp_id = "com.canonical.certification::some-tp"
+        Run.just_run_test_plan(self_mock, tp_id)
+        self.called_once(self_mock.sa.select_test_plan)
+        self.called_once(self_mock.setup)
+        self.called_once(self_mock.sa.bootstrap)
+
+    def test_setup_starts_and_ends_setup_and_runs_jobs(self):
+        self_mock = MagicMock()
+        setup_jobs = ["job1", "job2"]
+        self_mock.sa.start_setup.return_value = setup_jobs
+        Run.setup(self_mock)
+        self.called_once(self_mock.sa.start_setup)
+        self.called_once(self_mock._run_jobs)
+        self.called_once(self_mock.sa.finish_setup)
+
     @patch("checkbox_ng.launcher.subcommands.Explorer")
     def test__get_relevant_units(self, explorer_mock):
         self_mock = MagicMock()

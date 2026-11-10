@@ -1,0 +1,52 @@
+name: Documentation Request
+description: Suggest a missing or unclear area in the Checkbox documentation
+title: "[Docs]: "
+labels: ["documentation"]
+body:
+  - type: markdown
+    attributes:
+      value: >
+        Thanks for helping us improve the Checkbox documentation! Before
+        submitting your request, please check whether a similar documentation
+        request already exists.
+  - type: textarea
+    id: documentation-gap
+    attributes:
+      label: What is missing or unclear?
+      description: >
+        Describe the topic, workflow, feature, concept, or page that needs
+        better documentation.
+      placeholder: |
+        For example:
+        - How launchers, manifests, and test plans interact
+        - How to add a new provider
+    validations:
+      required: true
+  - type: textarea
+    id: user-goal
+    attributes:
+      label: What were you trying to do?
+      description: >
+        Tell us what task you were trying to complete when you needed this
+        documentation.
+      placeholder: |
+        I was trying to...
+  - type: textarea
+    id: current-documentation
+    attributes:
+      label: Existing documentation you checked
+      description: >
+        Link any pages you read, or tell us if you could not find a relevant
+        page.
+      placeholder: |
+        - https://ubuntu.com/docs/checkbox/stable/
+        - I could not find a page about this topic.
+  - type: textarea
+    id: expected-documentation
+    attributes:
+      label: What would good documentation include?
+      description: >
+        Share the examples, explanations, diagrams, troubleshooting steps, or
+        reference material that would have helped.
+      placeholder: |
+        It would help if the documentation included...

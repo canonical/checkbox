@@ -517,7 +517,7 @@ class RemoteAssistantTests(TestCase):
     def test_abandon_session(self):
         self_mock = mock.MagicMock()
         RemoteSessionAssistant.abandon_session(self_mock)
-        self.assertTrue(self_mock._reset_sa.called)
+        self.assertTrue(self_mock.reset_session.called)
 
     def test_delete_sessions(self):
         self_mock = mock.MagicMock()
@@ -556,7 +556,7 @@ class RemoteAssistantTests(TestCase):
             RemoteSessionAssistant.finish_bootstrap, self_mock
         )
         self_mock._sa.get_static_todo_list.return_value = static_todo_list = [
-            "test_{}".format(x) for x in range(10)
+            f"test_{x}" for x in range(10)
         ]
         to_r = {x: mock.MagicMock() for x in static_todo_list}
 

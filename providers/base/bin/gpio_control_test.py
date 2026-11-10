@@ -11,8 +11,8 @@ from datetime import datetime
 class GPIOController:
 
     GPIO_ROOT_PATH = "/sys/class/gpio"
-    GPIO_EXPORT_PATH = "{}/export".format(GPIO_ROOT_PATH)
-    GPIO_UNEXPORT_PATH = "{}/unexport".format(GPIO_ROOT_PATH)
+    GPIO_EXPORT_PATH = f"{GPIO_ROOT_PATH}/export"
+    GPIO_UNEXPORT_PATH = f"{GPIO_ROOT_PATH}/unexport"
 
     def __init__(
         self, gpiochip: str, gpiopin: str, direction: int, need_export: bool
@@ -24,10 +24,10 @@ class GPIOController:
         self._gpiochip_mapping = self.get_gpiochip_mapping()
 
         if gpiochip not in self._gpiochip_mapping.keys():
-            raise KeyError("GPIO chip number {} is incorrect".format(gpiochip))
+            raise KeyError(f"GPIO chip number {gpiochip} is incorrect")
 
         self.gpio_chip_node = self._gpio_root_node.joinpath(
-            "gpiochip{}".format(self._gpiochip_mapping.get(gpiochip))
+            f"gpiochip{self._gpiochip_mapping.get(gpiochip)}"
         )
         self.gpio_node = self.value_node = None
         self.gpiochip_info = {"base": None, "ngpio": None, "offset": gpiopin}
@@ -71,7 +71,7 @@ class GPIOController:
             with self.gpio_chip_node.joinpath(key) as gpio_node:
                 if self._node_exists(gpio_node) is False:
                     raise FileNotFoundError(
-                        "{} file not exists".format(str(gpio_node))
+                        f"{str(gpio_node)} file not exists"
                     )
                 self.gpiochip_info[key] = self._read_node(gpio_node)
 
@@ -80,11 +80,9 @@ class GPIOController:
         )
 
         self.initial_state["number"] = str(
-            (
-                int(self.gpiochip_info["base"])
-                + int(self.gpiochip_info["offset"])
-                - 1
-            )
+            int(self.gpiochip_info["base"])
+            + int(self.gpiochip_info["offset"])
+            - 1
         )
         self.gpio_node = self._gpio_root_node.joinpath(
             "gpio{}".format(self.initial_state["number"])
@@ -96,9 +94,7 @@ class GPIOController:
             time.sleep(1)
 
         if self._node_exists(self.gpio_node) is False:
-            raise FileNotFoundError(
-                "{} file not exists".format(str(self.gpio_node))
-            )
+            raise FileNotFoundError(f"{str(self.gpio_node)} file not exists")
 
         # Store the initial state for GPIO
         self.initial_state["value"] = self.value
@@ -116,7 +112,7 @@ class GPIOController:
 
     def _node_exists(self, node: Path):
         if node.exists() is False:
-            raise FileNotFoundError("{} file not exists".format(str(node)))
+            raise FileNotFoundError(f"{str(node)} file not exists")
 
     def _read_node(self, node: Path):
         self._node_exists(node)
@@ -127,9 +123,7 @@ class GPIOController:
         self._node_exists(node)
         node.write_text(value)
         if check and self._read_node(node) != value:
-            raise ValueError(
-                "Unable to change the value of {} file".format(str(node))
-            )
+            raise ValueError(f"Unable to change the value of {str(node)} file")
 
     def _export(self, gpio_number: str):
         logging.debug("export GPIO node %s", gpio_number)
@@ -149,14 +143,10 @@ class GPIOController:
     @direction.setter
     def direction(self, value: str):
         if value not in ["in", "out"]:
-            raise ValueError(
-                "The {} is not allowed for direction".format(value)
-            )
+            raise ValueError(f"The {value} is not allowed for direction")
 
         with self.gpio_node.joinpath("direction") as gpio_node:
-            logging.debug(
-                "set direction to {} for {}".format(value, gpio_node.name)
-            )
+            logging.debug(f"set direction to {value} for {gpio_node.name}")
             self._write_node(gpio_node, value)
 
     @property
@@ -167,12 +157,10 @@ class GPIOController:
     @value.setter
     def value(self, value: str):
         if value not in ["1", "0"]:
-            raise ValueError("The {} is not allowed for value".format(value))
+            raise ValueError(f"The {value} is not allowed for value")
 
         with self.gpio_node.joinpath("value") as gpio_node:
-            logging.debug(
-                "set value to {} for {}".format(value, gpio_node.name)
-            )
+            logging.debug(f"set value to {value} for {gpio_node.name}")
             self._write_node(gpio_node, value)
 
     def on(self):
@@ -216,7 +204,7 @@ def dump_gpiochip(args):
     if gpio_debug.exists():
         print(gpio_debug.read_text())
     else:
-        raise FileNotFoundError("{} file not exists".format(str(gpio_debug)))
+        raise FileNotFoundError(f"{str(gpio_debug)} file not exists")
 
 
 def leds_resource(args):

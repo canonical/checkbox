@@ -11,11 +11,18 @@ plugin: resource
 estimated_duration: 1.0
 environ:
     PWM_FAN_CONTROLLERS
-command:
-    if [ -z "$PWM_FAN_CONTROLLERS" ]; then
-        exit 0
-    fi
-    awk '{split($0, arr, "|"); for (i in arr) {printf "name: %s\n\n", arr[i]}}' <<< "$PWM_FAN_CONTROLLERS"
+command: resource_wrapper.sh -- resource_pwm_fan_controller_list.sh
+
+id: check_pwm_controller_list_resource
+_summary: Check PWM fan controller resource generation
+plugin: shell
+estimated_duration: 1.0
+imports: from com.canonical.plainbox import manifest
+requires:
+    manifest.has_pwm_fan_controller == 'True'
+environ:
+    PWM_FAN_CONTROLLERS
+command: resource_pwm_fan_controller_list.sh
 
 
 unit: template

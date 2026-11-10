@@ -40,7 +40,7 @@ def watch_test_result(directory: str, filename: str) -> bool:
                             inotify watch fails.
     """
     if not os.path.isdir(directory):
-        raise SystemExit("Directory [{}] does not exist".format(directory))
+        raise SystemExit(f"Directory [{directory}] does not exist")
 
     fw = FileWatcher()
     watch_fd = fw.watch_directory(directory, "c")
@@ -52,10 +52,10 @@ def watch_test_result(directory: str, filename: str) -> bool:
             events = fw.read_events(1024)
             for event in events:
                 if event.event_type == "create" and event.name == filename:
-                    logging.info("event detected: {}".format(event))
+                    logging.info(f"event detected: {event}")
                     return True
     except Exception as e:
-        logging.error("An error occurred during file watching: {}".format(e))
+        logging.error(f"An error occurred during file watching: {e}")
         return False
     finally:
         fw.stop_watch(watch_fd)
@@ -83,7 +83,7 @@ def remove_duplicate_file(file_path: str):
     """
     if os.path.exists(file_path):
         os.remove(file_path)
-        logging.info("File removed: {}".format(file_path))
+        logging.info(f"File removed: {file_path}")
 
 
 def validate_result(file_path: str):
@@ -101,7 +101,7 @@ def validate_result(file_path: str):
     if not os.path.getsize(file_path) > 0:
         raise SystemExit("WebGL conformance tests result is empty")
 
-    with open(file_path, "r") as f:
+    with open(file_path) as f:
         try:
             result = json.load(f)
             pretty_result = json.dumps(result, indent=2)
@@ -122,7 +122,7 @@ def validate_result(file_path: str):
                 "llvm" in webgl_renderer or "SwiftShader" in unmasked_renderer
             )
         except (json.JSONDecodeError, KeyError) as e:
-            raise SystemExit("Failed to parse test result file: {}".format(e))
+            raise SystemExit(f"Failed to parse test result file: {e}")
 
     # remove the file to avoid conflicts with the next test run
     os.remove(file_path)
@@ -147,7 +147,7 @@ def execute_webgl_test(browser: str, skip: str, filename: str, native: bool):
         default="http://localhost:8000/local-tests.html",
     )
     if not is_webgl_conformance_url_reachable(test_url):
-        raise SystemExit("Test URL is not reachable: {}".format(test_url))
+        raise SystemExit(f"Test URL is not reachable: {test_url}")
 
     # browser default download directory
     download = os.path.join(str(Path.home()), "Downloads")
@@ -170,9 +170,9 @@ def execute_webgl_test(browser: str, skip: str, filename: str, native: bool):
             # Don't pop up keyring authentication
             cmd.append("--password-store=basic")
     if skip != "":
-        cmd.append("{}?run=1&skip={}".format(test_url, skip))
+        cmd.append(f"{test_url}?run=1&skip={skip}")
     else:
-        cmd.append("{}?run=1".format(test_url))
+        cmd.append(f"{test_url}?run=1")
 
     logging.info("Executing command: {}".format(" ".join(cmd)))
     process = subprocess.Popen(cmd)

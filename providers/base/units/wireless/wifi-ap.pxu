@@ -996,7 +996,7 @@ command:
  echo "Waiting for AP to become available"
  sleep "${{WIFI_AP_SETUPTIME:-10}}"
  echo "Rebooting"
- reboot
+ systemctl reboot -i
 requires:
  ( wifi_interface_mode.interface == '{interface}' and wifi_interface_mode.AP == 'supported' )
  net_if_management.device == '{interface}' and net_if_management.master_mode_managed_by == 'wifi-ap'
@@ -1033,7 +1033,7 @@ command:
  unsnap-wifi-ap.sh config set disabled=0
  unsnap-wifi-ap.sh config set wifi.ssid=Ubuntu_g_wpa2
  sleep "${{WIFI_AP_SETUPTIME:-10}}"
- reboot
+ systemctl reboot -i
 requires:
  ( wifi_interface_mode.interface == '{interface}' and wifi_interface_mode.AP == 'supported' )
  net_if_management.device == '{interface}' and net_if_management.master_mode_managed_by == 'wifi-ap'

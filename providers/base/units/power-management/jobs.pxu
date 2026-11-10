@@ -36,6 +36,7 @@ command: checkbox-support-fwts_test -f aborted -t wakealarm -l "$PLAINBOX_SESSIO
 _summary: Test the ACPI Wakealarm functionality using fwts.
 
 plugin: attachment
+mime-type: text/plain
 category_id: com.canonical.plainbox::power-management
 id: power-management/fwts_wakealarm-log-attach
 depends: power-management/fwts_wakealarm
@@ -45,6 +46,7 @@ command: [ -e "${PLAINBOX_SESSION_SHARE}"/fwts-wakealarm.log ] && cat "${PLAINBO
 _summary: Attach and display fwts wakealarm test log.
 
 plugin: attachment
+mime-type: text/plain
 category_id: com.canonical.plainbox::power-management
 id: after-suspend-power-management/fwts_wakealarm-log-attach
 after: after-suspend-power-management/fwts_wakealarm
@@ -68,6 +70,7 @@ _purpose:
 _summary: Verify the system's ability to power-off and boot successfully.
 
 plugin: attachment
+mime-type: text/plain
 category_id: com.canonical.plainbox::power-management
 id: power-management/poweroff-log-attach
 estimated_duration: 1.0
@@ -93,6 +96,7 @@ _purpose:
 _summary: Verify the system's reboot capability.
 
 plugin: attachment
+mime-type: text/plain
 category_id: com.canonical.plainbox::power-management
 id: power-management/reboot-log-attach
 estimated_duration: 1.0
@@ -105,6 +109,7 @@ _summary: Attach logs from power-management/reboot test to the results.
 plugin: manual
 category_id: com.canonical.plainbox::power-management
 id: power-management/lid
+depends: suspend/suspend_advanced_auto
 estimated_duration: 120.0
 requires: dmi.product in ['Notebook','Laptop','Portable','Convertible', 'Detachable']
 _description:
@@ -179,6 +184,7 @@ _summary: Verify the functionality of lid sensors and system resume on lid open.
 plugin: user-interact-verify
 category_id: com.canonical.plainbox::power-management
 id: power-management/lid_close_suspend_open
+depends: suspend/suspend_advanced_auto
 estimated_duration: 20.0
 requires: dmi.product in ['Notebook','Laptop','Portable','Convertible', 'Detachable']
 _purpose:
@@ -300,7 +306,7 @@ category_id: com.canonical.plainbox::power-management
 id: power-management/reboot_manual
 estimated_duration: 120.0
 user:root
-command: shutdown -r now
+command: systemctl reboot -i
 _summary:
  Verify that the system can successfully reboot.
 _purpose:
@@ -321,7 +327,7 @@ category_id: com.canonical.plainbox::power-management
 id: power-management/shutdown_manual
 estimated_duration: 120.0
 user: root
-command: shutdown -h now
+command: systemctl poweroff -i
 _purpose:
  This test will check your system shutdown/booting cycle
 _steps:
@@ -366,11 +372,11 @@ estimated_duration: 300
 id: power-management/warm-reboot
 category_id: com.canonical.plainbox::power-management
 _summary: Warm reboot
-_purpose: This tests reboots the system using the `reboot` command
+_purpose: This test reboots the system using the `systemctl reboot` command
 unit: job
 plugin: shell
 command:
- dbus-send --system --print-reply --dest=org.freedesktop.login1 /org/freedesktop/login1 "org.freedesktop.login1.Manager.Reboot" boolean:true
+ systemctl reboot -i
 user: root
 flags: preserve-locale noreturn autorestart
 estimated_duration: 180.0
@@ -400,7 +406,7 @@ command:
  sleep 5
  rtcwake -v -d "${RTC_DEVICE_FILE:-rtc0}" -m show
  sleep 5
- dbus-send --system --print-reply --dest=org.freedesktop.login1 /org/freedesktop/login1 "org.freedesktop.login1.Manager.PowerOff" boolean:true
+ systemctl poweroff -i
 user: root
 flags: preserve-locale noreturn autorestart
 environ: COLD_REBOOT_DELAY RTC_DEVICE_FILE
@@ -636,11 +642,11 @@ template-resource: light_sensor_resource
 template-unit: job
 plugin: user-interact-verify
 category_id: com.canonical.plainbox::power-management
-id: power-management/light_sensor_test_{name}
+id: power-management/light_sensor_test_{device}_{name}
 template-id: power-management/light_sensor_test_device
 flags: also-after-suspend
 estimated_duration: 50
 depends: com.canonical.certification::power-management/light_sensor_detect
 command:
-    light_sensor_test.py test --name {name} --rounds 5 --period 5 --delay 5
+    light_sensor_test.py test --device {device} --name {name} --rounds 5 --period 5 --delay 5
 summary: Verify if light sensor {name} can detect the light change or not.

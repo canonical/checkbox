@@ -16,7 +16,7 @@
 
 
 # See http://www.linux-usb.org/usb.ids
-class Usb(object):
+class Usb:
 
     BASE_CLASS_INTERFACE = 0
 

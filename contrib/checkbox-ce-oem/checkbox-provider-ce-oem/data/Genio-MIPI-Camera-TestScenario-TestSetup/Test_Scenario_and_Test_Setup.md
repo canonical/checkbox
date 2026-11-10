@@ -61,6 +61,73 @@ V4L2 Sensor configurations require both test scenario and test setup files to be
 - Documentation: [G350 EVK V4L2 RAW](https://mediatek.gitlab.io/aiot/doc/aiot-dev-guide/master/sw/yocto/app-dev/camera/camera-g350-evk-v4l2-raw.html)
 - Configuration: [`genio_mipi_camera_test_setup_AR0430_dual.json`](genio_mipi_camera_test_setup_AR0430_dual.json)
 
+### OV5640
+
+> **Note:** The OV5640 configuration targets Genio 520/720 EVK per the linked documentation. GStreamer uses YUY2 format; v4l2-ctl uses YUYV.
+
+**Test Scenario (single camera on CSI0):**
+
+- Documentation: [G720 EVK V4L2 YUV](https://mediatek.gitlab.io/aiot/doc/aiot-dev-guide/master/sw/yocto/app-dev/camera/camera-g720-evk-v4l2-yuv.html)
+- Configuration: [`genio_mipi_camera_test_scenario_OV5640_CSI0.json`](genio_mipi_camera_test_scenario_OV5640_CSI0.json)
+
+**Test Setup (CSI0):**
+
+- Documentation: [G720 EVK V4L2 YUV](https://mediatek.gitlab.io/aiot/doc/aiot-dev-guide/master/sw/yocto/app-dev/camera/camera-g720-evk-v4l2-yuv.html)
+- Configuration: [`genio_mipi_camera_test_setup_OV5640_CSI0.json`](genio_mipi_camera_test_setup_OV5640_CSI0.json)
+
+
+### OV5640 Dual
+
+**Test Scenario:**
+
+- Documentation: [G720 EVK V4L2 YUV](https://mediatek.gitlab.io/aiot/doc/aiot-dev-guide/master/sw/yocto/app-dev/camera/camera-g720-evk-v4l2-yuv.html)
+- Configuration: [`genio_mipi_camera_test_scenario_OV5640_dual.json`](genio_mipi_camera_test_scenario_OV5640_dual.json)
+
+**Test Setup:**
+
+- Documentation: [G720 EVK V4L2 YUV](https://mediatek.gitlab.io/aiot/doc/aiot-dev-guide/master/sw/yocto/app-dev/camera/camera-g720-evk-v4l2-yuv.html)
+- Configuration: [`genio_mipi_camera_test_setup_OV5640_dual.json`](genio_mipi_camera_test_setup_OV5640_dual.json)
+
+### IMX258
+
+> **Note:** The Sony IMX258 sensor only supports v4l2-ctl capture method (gstreamer pipeline not supported), and the picture/video is in RAW (bayer) frames in SBGGR10 packed format.
+
+**Test Scenario:**
+
+- Documentation: [G720 EVK V4L2 YUV](https://genio.mediatek.com/doc/iot-yocto/latest/sw/yocto/app-dev/camera/camera-g720-evk-v4l2-raw.html)
+- Configuration: [`genio_mipi_camera_test_scenario_IMX258_CSI0.json`](genio_mipi_camera_test_scenario_IMX258_CSI0.json)
+
+**Test Setup:**
+
+- Documentation: [G720 EVK V4L2 YUV](https://genio.mediatek.com/doc/iot-yocto/latest/sw/yocto/app-dev/camera/camera-g720-evk-v4l2-raw.html)
+- Configuration: [`genio_mipi_camera_test_setup_IMX258_CSI0.json`](genio_mipi_camera_test_setup_IMX258_CSI0.json)
+
+
+### IMX258 + OV5640 
+
+**Test Scenario (IMX258 on CSI0, OV5640 on CSI1):**
+
+- Documentation: [G720 EVK V4L2 YUV + RAW](https://genio.mediatek.com/doc/iot-yocto/latest/sw/yocto/app-dev/camera/camera-g720-evk-v4l2.html)
+- Configuration: [`genio_mipi_camera_test_scenario_IMX258_OV5640.json`](genio_mipi_camera_test_scenario_IMX258_OV5640.json)
+
+**Test Setup:**
+
+- Documentation: [G720 EVK V4L2 YUV + RAW](https://genio.mediatek.com/doc/iot-yocto/latest/sw/yocto/app-dev/camera/camera-g720-evk-v4l2.html)
+- Configuration: [`genio_mipi_camera_test_setup_IMX258_OV5640.json`](genio_mipi_camera_test_setup_IMX258_OV5640.json)
+
+
+### IMX258 Dual
+
+**Test Scenario:**
+
+- Documentation: [G720 EVK V4L2 RAW](https://genio.mediatek.com/doc/iot-yocto/latest/sw/yocto/app-dev/camera/camera-g720-evk-v4l2-raw.html)
+- Configuration: [`genio_mipi_camera_test_scenario_IMX258_dual.json`](genio_mipi_camera_test_scenario_IMX258_dual.json)
+
+**Test Setup:**
+
+- Documentation: [G720 EVK V4L2 RAW](https://genio.mediatek.com/doc/iot-yocto/latest/sw/yocto/app-dev/camera/camera-g720-evk-v4l2-raw.html)
+- Configuration: [`genio_mipi_camera_test_setup_IMX258_dual.json`](genio_mipi_camera_test_setup_IMX258_dual.json)
+
 ## Mediatek Imgsensor Configurations
 
 Mediatek Imgsensor configurations only require test scenario files (no test setup needed).
@@ -89,9 +156,12 @@ Mediatek Imgsensor configurations only require test scenario files (no test setu
 ## Quick Reference
 
 | Configuration | Type | Test Scenario | Test Setup | Max Cameras |
-|---------------|------|---------------|------------|-------------|
+| ------------- | ---- | ------------- | ---------- | ----------- |
 | ONSEMI_AP1302_AR0830 | V4L2 | ✅ Required | ✅ Required | 1 |
 | ONSEMI_AP1302_AR0430 Dual | V4L2 | ✅ Required | ✅ Required | 2 |
 | ONSEMI_AR0430 Dual | V4L2 | ✅ Required | ✅ Required | 2 |
+| OV5640 CSI0 | V4L2 | ✅ Required | ✅ Required | 1 |
+| OV5640 CSI1 | V4L2 | ✅ Required | ✅ Required | 1 |
+| OV5640 Dual | V4L2 | ✅ Required | ✅ Required | 2 |
 | IMX214 Dual + AP1302_AR0830 | Imgsensor | ✅ Required | ❌ Not needed | 3 |
 | IMX214 Dual | Imgsensor | ✅ Required | ❌ Not needed | 2 |

@@ -336,7 +336,7 @@ class ToolBase(metaclass=abc.ABCMeta):
     @classmethod
     def format_version_tuple(cls, version_tuple):
         major, minor, micro, releaselevel, serial = version_tuple
-        version = "%s.%s" % (major, minor)
+        version = f"{major}.{minor}"
         if micro != 0:
             version += ".%s" % micro
         token = cls._RELEASELEVEL_TO_TOKEN.get(releaselevel)

@@ -28,12 +28,12 @@ class InteractiveCommand:
         self._is_running = False
         self._pending = 0
         logger_name = log_name or self._args.split()[0]
-        self._logger = logging.getLogger("iCMD:{}".format(logger_name))
+        self._logger = logging.getLogger(f"iCMD:{logger_name}")
         self._logger.setLevel(log_level)
         ch = logging.StreamHandler()
         ch.setLevel(log_level)
         formatter = logging.Formatter(
-            ("%(asctime)s - %(name)s - %(levelname)s -" " %(message)s")
+            "%(asctime)s - %(name)s - %(levelname)s -" " %(message)s"
         )
         ch.setFormatter(formatter)
         self._logger.addHandler(ch)
@@ -140,7 +140,7 @@ class InteractiveCommand:
             raw = self._proc.stdout.read(self._pending)
             self._pending = 0
             decoded = raw.decode(sys.stdout.encoding, errors="ignore")
-            self._logger.debug("Read %s bytes. : %s" % (len(raw), decoded))
+            self._logger.debug(f"Read {len(raw)} bytes. : {decoded}")
             return decoded
 
     def write_repeated(self, command, pattern, attempts, timeout):

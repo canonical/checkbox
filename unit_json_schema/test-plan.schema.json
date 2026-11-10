@@ -100,6 +100,14 @@
         "type": "string"
       }
     },
+    "xfail_overrides": {
+      "title": "Expected Failure Overrides (Test Plan Unit)",
+      "description": "List of expected failure (xfail) override statements for job definitions.",
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
     "estimated_duration": {
       "title": "Estimated Duration (Test Plan Unit)",
       "description": "Estimated test plan duration as a float in seconds or a duration string (e.g. 1h 2m 30s).",

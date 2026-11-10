@@ -78,6 +78,7 @@ plugin: user-interact-verify
 category_id: com.canonical.plainbox::audio
 id: audio/{index}_playback_hdmi_{product_slug}
 template-id: audio/index_playback_hdmi_product_slug
+group: monitor_external_output
 estimated_duration: 30.0
 imports: from com.canonical.plainbox import manifest
 requires:
@@ -113,6 +114,7 @@ _verification:
 plugin: user-interact-verify
 category_id: com.canonical.plainbox::audio
 id: audio/playback_hdmi
+group: monitor_external_output
 estimated_duration: 30.0
 imports: from com.canonical.plainbox import manifest
 requires:
@@ -152,6 +154,7 @@ plugin: user-interact-verify
 category_id: com.canonical.plainbox::audio
 id: audio/{index}_playback_displayport_{product_slug}
 template-id: audio/index_playback_displayport_product_slug
+group: monitor_external_output
 estimated_duration: 30.0
 imports: from com.canonical.plainbox import manifest
 requires:
@@ -187,6 +190,7 @@ _verification:
 plugin: user-interact-verify
 category_id: com.canonical.plainbox::audio
 id: audio/playback_displayport
+group: monitor_external_output
 estimated_duration: 30.0
 imports: from com.canonical.plainbox import manifest
 requires:
@@ -265,6 +269,7 @@ plugin: user-interact-verify
 category_id: com.canonical.plainbox::audio
 id: audio/{index}_playback_thunderbolt3_{product_slug}
 template-id: audio/index_playback_thunderbolt3_product_slug
+group: monitor_external_output
 imports: from com.canonical.plainbox import manifest
 estimated_duration: 30.0
 requires:
@@ -300,6 +305,7 @@ _verification:
 plugin: user-interact-verify
 category_id: com.canonical.plainbox::audio
 id: audio/playback_thunderbolt3
+group: monitor_external_output
 imports: from com.canonical.plainbox import manifest
 estimated_duration: 30.0
 requires:
@@ -339,6 +345,7 @@ plugin: user-interact-verify
 category_id: com.canonical.plainbox::audio
 id: audio/{index}_playback_type-c_displayport_{product_slug}
 template-id: audio/index_playback_type-c_displayport_product_slug
+group: monitor_external_output
 imports: from com.canonical.plainbox import manifest
 estimated_duration: 30.0
 requires:
@@ -374,6 +381,7 @@ _verification:
 plugin: user-interact-verify
 category_id: com.canonical.plainbox::audio
 id: audio/playback_type-c_displayport
+group: monitor_external_output
 imports: from com.canonical.plainbox import manifest
 estimated_duration: 30.0
 requires:
@@ -413,6 +421,7 @@ plugin: user-interact-verify
 category_id: com.canonical.plainbox::audio
 id: audio/{index}_playback_type-c_hdmi_{product_slug}
 template-id: audio/index_playback_type-c_hdmi_product_slug
+group: monitor_external_output
 imports: from com.canonical.plainbox import manifest
 estimated_duration: 30.0
 requires:
@@ -450,6 +459,7 @@ _summary:
 plugin: user-interact-verify
 category_id: com.canonical.plainbox::audio
 id: audio/playback_type-c_hdmi
+group: monitor_external_output
 imports: from com.canonical.plainbox import manifest
 estimated_duration: 30.0
 requires:
@@ -488,6 +498,8 @@ plugin: user-interact-verify
 category_id: com.canonical.plainbox::audio
 flags: also-after-suspend
 id: audio/playback_headphones
+group: audio_external_jack
+after: audio/speaker-headphone-plug-detection
 estimated_duration: 20.0
 depends: audio/list_devices
 imports: from com.canonical.plainbox import manifest
@@ -566,6 +578,7 @@ _summary: Test internal microphone recording and playback functionality.
 plugin: user-interact-verify
 category_id: com.canonical.plainbox::audio
 id: audio/alsa_record_playback_external
+group: audio_external_jack
 flags: also-after-suspend
 estimated_duration: 20.0
 depends: audio/playback_headphones
@@ -719,6 +732,7 @@ _purpose:
 _summary: Collect audio-related system information for simulation and detailed testing.
 
 plugin: attachment
+mime-type: text/plain
 category_id: com.canonical.plainbox::audio
 id: audio/alsa_info_attachment
 depends: audio/alsa_info_collect
@@ -770,6 +784,7 @@ _summary: Verify acceptable volume levels on the system for all sources and sink
 plugin: manual
 category_id: com.canonical.plainbox::audio
 id: audio/external-lineout
+group: audio_external_jack
 flags: also-after-suspend
 estimated_duration: 30.0
 imports: from com.canonical.plainbox import manifest
@@ -791,6 +806,7 @@ _summary: Verify external line out connection functionality by inserting a cable
 plugin: user-interact-verify
 category_id: com.canonical.plainbox::audio
 id: audio/external-linein
+group: audio_external_jack
 flags: also-after-suspend
 estimated_duration: 120.0
 imports: from com.canonical.plainbox import manifest
@@ -830,6 +846,7 @@ _summary: Verify external line-in connection functionality by recording and play
 plugin: user-interact
 category_id: com.canonical.plainbox::audio
 id: audio/speaker-headphone-plug-detection
+group: audio_external_jack
 flags: also-after-suspend
 estimated_duration: 60.0
 imports: from com.canonical.plainbox import manifest
@@ -859,6 +876,8 @@ _summary: Ensure the system automatically detects when speakers or headphones ar
 plugin: user-interact
 category_id: com.canonical.plainbox::audio
 id: audio/microphone-plug-detection
+group: audio_external_jack
+after: audio/playback_headphones
 flags: also-after-suspend
 estimated_duration: 60.0
 imports: from com.canonical.plainbox import manifest
@@ -1231,6 +1250,9 @@ category_id: com.canonical.plainbox::audio
 estimated_duration: 1m
 
 id: audio/post-suspend-audio-occupied
+imports: from com.canonical.plainbox import manifest
+requires:
+ manifest.has_internal_speakers == 'True'
 _summary: Verify the test audio I/O after suspend with previously occupied devices.
 _purpose:
  Validate the audio could input and output after suspending while audio devices are occupied before suspending

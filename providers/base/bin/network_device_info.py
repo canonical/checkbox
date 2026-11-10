@@ -75,7 +75,7 @@ class Utils:
     def is_iface_connected(cls, iface):
         try:
             carrier_file = os.path.join(cls.sys_path, iface, "carrier")
-            return int(open(carrier_file, "r").read()) == 1
+            return int(open(carrier_file).read()) == 1
         except Exception:
             pass
         return False
@@ -128,16 +128,16 @@ class Utils:
     def get_mac_address(cls, interface):
         address_file = os.path.join(cls.sys_path, interface, "address")
         try:
-            return open(address_file, "r").read().strip()
-        except IOError:
+            return open(address_file).read().strip()
+        except OSError:
             return "UNKNOWN"
 
     @classmethod
     def get_speed(cls, interface):
         speed_file = os.path.join(cls.sys_path, interface, "speed")
         try:
-            return open(speed_file, "r").read().strip()
-        except IOError:
+            return open(speed_file).read().strip()
+        except OSError:
             return "UNKNOWN"
 
     @staticmethod
@@ -193,7 +193,7 @@ class NetworkDeviceInfo:
             if val is not None:
                 # leading _ removed, remaining ones spaces
                 pretty_key = key.lstrip("_").replace("_", " ").title()
-                ret += "{}: {}\n".format(pretty_key, val)
+                ret += f"{pretty_key}: {val}\n"
         return ret
 
     @property
@@ -403,11 +403,11 @@ class UdevDevices:
             vid = getattr(device, "vendor_id", None)
             pid = getattr(device, "product_id", None)
             if vid and pid:
-                nd.id = "[{0:04x}:{1:04x}]".format(vid, pid)
+                nd.id = f"[{vid:04x}:{pid:04x}]"
             svid = getattr(device, "subvendor_id", None)
             spid = getattr(device, "subproduct_id", None)
             if svid and spid:
-                nd.subsystem_id = "[{0:04x}:{1:04x}]".format(svid, spid)
+                nd.subsystem_id = f"[{svid:04x}:{spid:04x}]"
             yield nd
 
 

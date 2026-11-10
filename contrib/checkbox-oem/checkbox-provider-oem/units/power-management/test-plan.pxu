@@ -1,0 +1,5 @@
+id: oem-power-management-automated
+unit: test plan
+_name: Power management auto tests
+_description: Automated power-management tests for devices
+include:

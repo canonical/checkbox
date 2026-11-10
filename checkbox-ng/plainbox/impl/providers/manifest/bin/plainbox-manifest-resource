@@ -24,7 +24,7 @@ import gettext
 import json
 import os
 
-from plainbox.impl.providers.v1 import all_providers
+from plainbox.impl.providers import get_providers
 
 _ = gettext.gettext
 
@@ -49,8 +49,7 @@ def main():
             manifest = json.load(stream)
     else:
         manifest = {}
-    all_providers.load()
-    provider_list = all_providers.get_all_plugin_objects()
+    provider_list = get_providers()
     for provider in provider_list:
         print("ns: {}".format(provider.namespace))
         print("name: {}".format(provider.name))

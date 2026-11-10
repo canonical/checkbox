@@ -18,7 +18,7 @@
 import textwrap
 
 import metabox.core.keys as keys
-from metabox.core.actions import Expect, Send, Start, Signal, RunCmd
+from metabox.core.actions import Expect, Send, Start, Signal, ExpectNot
 from metabox.core.scenario import Scenario
 from metabox.core.utils import tag
 
@@ -136,4 +136,34 @@ class CtrlCMenuEndSession(Scenario):
         Send(keys.KEY_ENTER),
         Expect("ID: 2021.com.canonical.certification::sleep_1000s"),
         Expect("starting to sleep"),
+    ]
+
+
+@tag("ui", "interact", "interrupt")
+class CtrlCMenuEndSessionExit(Scenario):
+    modes = ["remote"]
+    launcher = textwrap.dedent("""
+        [launcher]
+        launcher_version = 1
+        stock_reports = text
+        [test plan]
+        unit = 2021.com.canonical.certification::tired_test_plan
+        forced = yes
+        [test selection]
+        forced = yes
+        """)
+
+    steps = [
+        Start(),
+        Expect("ID: 2021.com.canonical.certification::sleep_1000s"),
+        Expect("starting to sleep"),
+        Signal(keys.SIGINT),
+        Expect("Interruption!"),
+        Send(keys.KEY_DOWN * 5 + keys.KEY_SPACE),
+        Expect("(X) End this test session"),
+        # Note: this is the session re-starting as we have an automated
+        #       launcher
+        Send(keys.KEY_ENTER),
+        ExpectNot("ID: 2021.com.canonical.certification::sleep_1000s"),
+        ExpectNot("starting to sleep"),
     ]

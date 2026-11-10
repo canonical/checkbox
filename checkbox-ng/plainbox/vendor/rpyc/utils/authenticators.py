@@ -23,17 +23,20 @@ validate an incoming connection. Using them is pretty trivial ::
     s = ThreadedServer(...., authenticator = magic_word_authenticator)
     s.start()
 """
+
 import sys
 from plainbox.vendor.rpyc.lib import safe_import
+
 ssl = safe_import("ssl")
 
 
 class AuthenticationError(Exception):
     """raised to signal a failed authentication attempt"""
+
     pass
 
 
-class SSLAuthenticator(object):
+class SSLAuthenticator:
     """An implementation of the authenticator protocol for ``SSL``. The given
     socket is wrapped by ``ssl.SSLContext.wrap_socket`` and is validated based on
     certificates
@@ -57,8 +60,15 @@ class SSLAuthenticator(object):
     service parameters.
     """
 
-    def __init__(self, keyfile, certfile, ca_certs=None, cert_reqs=None,
-                 ssl_version=None, ciphers=None):
+    def __init__(
+        self,
+        keyfile,
+        certfile,
+        ca_certs=None,
+        cert_reqs=None,
+        ssl_version=None,
+        ciphers=None,
+    ):
         self.keyfile = str(keyfile)
         self.certfile = str(certfile)
         self.ca_certs = str(ca_certs) if ca_certs else None
@@ -75,7 +85,9 @@ class SSLAuthenticator(object):
     def __call__(self, sock):
         try:
             if self.ssl_version is None:
-                context = ssl.create_default_context(purpose=ssl.Purpose.CLIENT_AUTH)
+                context = ssl.create_default_context(
+                    purpose=ssl.Purpose.CLIENT_AUTH
+                )
             else:
                 context = ssl.SSLContext(self.ssl_version)
             context.load_cert_chain(self.certfile, keyfile=self.keyfile)

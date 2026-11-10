@@ -49,5 +49,5 @@ class TextSessionStateExporterTests(TestCase):
         )
         stream = BytesIO()
         exporter.dump(data, stream)
-        expected_bytes = "     fail      : job name\n".encode("UTF-8")
+        expected_bytes = b"     fail      : job name\n"
         self.assertEqual(stream.getvalue(), expected_bytes)

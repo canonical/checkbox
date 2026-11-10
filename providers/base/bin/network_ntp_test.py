@@ -30,14 +30,16 @@ server by passing the URL to the program via --server
 
 """
 
-import sys
-import os
 import logging
+import os
 import signal
+import sys
 import time
-from datetime import datetime, timedelta
-from subprocess import Popen, PIPE
 from argparse import ArgumentParser
+from datetime import datetime, timedelta
+from subprocess import PIPE, Popen
+
+SYNC_RETRY = 5
 
 
 def SilentCall(*popenargs):
@@ -68,7 +70,7 @@ def CheckNTPD():
     for item in ps_list:
         fields = item.split()
         if fields[1] == "ntpd":
-            logging.debug("Found %s with PID %s" % (fields[1], fields[0]))
+            logging.debug(f"Found {fields[1]} with PID {fields[0]}")
             break
     if fields[1] == "ntpd":
         return ("on", fields[0], fields[1])
@@ -106,17 +108,22 @@ def SyncTime(server):
     """
     cmd = "ntpdate -b " + server
     logging.debug("using %s" % server)
-    sync = Popen(cmd, shell=True, stdout=PIPE, stderr=PIPE)
-    result = sync.communicate()
+    for i in range(SYNC_RETRY):
+        sync = Popen(cmd, shell=True, stdout=PIPE, stderr=PIPE)
+        result = sync.communicate()
 
-    if sync.returncode == 0:
-        logging.info("Successful NTP update from %s" % server)
-        logging.debug(result[0].strip().decode())
-        return True
-    else:
-        logging.error("Failed to sync with %s" % server)
+        if sync.returncode == 0:
+            logging.info("Successful NTP update from %s" % server)
+            logging.debug(result[0].strip().decode())
+            return True
+        logging.error(f"Failed to sync with {server}")
         logging.error(result[1].strip().decode())
-        return False
+        if i == SYNC_RETRY - 1:
+            return False
+        else:
+            logging.error("Retrying...")
+            time.sleep(i * 10)
+    return False
 
 
 def TimeCheck():

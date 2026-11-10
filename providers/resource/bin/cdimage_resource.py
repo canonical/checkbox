@@ -38,7 +38,7 @@ def get_disk_from_string(string):
     type_regex = r"(?P<type>Binary-\d+)"
     date_regex = r"(?P<date>[^\)]+)"
 
-    string_regex = r"%s %s [_\"]%s[_\"] - %s %s (%s )?\(%s\)" % (
+    string_regex = r"{} {} [_\"]{}[_\"] - {} {} ({} )?\({}\)".format(
         distributor_regex,
         release_regex,
         codename_regex,
@@ -63,7 +63,7 @@ def get_disk_from_casper(filename):
     # Try to open the disk info file logged by the installer
     try:
         file = open(filename)
-    except IOError:
+    except OSError:
         return disk
 
     line_regex = r"Found label '(?P<string>[^']+)'"
@@ -82,7 +82,7 @@ def get_disk_from_casper(filename):
 def get_disk_from_media(filename):
     try:
         file = open(filename)
-    except IOError:
+    except OSError:
         return {}
 
     string = file.readline()
@@ -95,7 +95,7 @@ def main():
         disk = get_disk_from_casper(CASPER_FILENAME)
 
     for key, value in disk.items():
-        print("%s: %s" % (key, value))
+        print(f"{key}: {value}")
 
     return 0
 

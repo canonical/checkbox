@@ -18,9 +18,11 @@ unit: test plan
 _name: Manual Ubuntu Core OS feature tests
 _description: Manual OS feature tests for Ubuntu Core devices
 bootstrap_include:
-    lsb
+    os
+    model_assertion
 include:
     ubuntucore/os-reinstall-mode
     ubuntucore/os-recovery-mode
     ubuntucore/os-fail-boot-(?!with-refresh-control).*
     ubuntucore/sshd
+    ubuntucore/kernel-failboot-kernel

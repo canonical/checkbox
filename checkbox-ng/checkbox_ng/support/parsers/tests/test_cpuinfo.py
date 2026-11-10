@@ -15,12 +15,7 @@
 # You should have received a copy of the GNU General Public License
 # along with Checkbox.  If not, see <http://www.gnu.org/licenses/>.
 
-from __future__ import absolute_import
-from __future__ import division
-from __future__ import print_function
-from __future__ import unicode_literals
 
-from io import open
 from unittest import TestCase
 
 try:
@@ -35,7 +30,7 @@ except ImportError:
 from checkbox_ng.support.parsers.cpuinfo import CpuinfoParser
 
 
-class CpuinfoResult(object):
+class CpuinfoResult:
 
     def __init__(self):
         self.processors = []
@@ -62,9 +57,9 @@ class TestCpuinfoParser(TestCase):
         ]
 
     def parse(self, name, machine):
-        resource = "parsers/tests/cpuinfo_data/{}.txt".format(name)
+        resource = f"parsers/tests/cpuinfo_data/{name}.txt"
         filename = resource_filename("checkbox_ng.support", resource)
-        with open(filename, "rt", encoding="UTF-8") as stream:
+        with open(filename, encoding="UTF-8") as stream:
             parser = CpuinfoParser(stream, machine)
             result = CpuinfoResult()
             parser.run(result)
@@ -82,7 +77,7 @@ class TestCpuinfoParser(TestCase):
             self.assertIn(attr, processor.keys())
             self.assertTrue(
                 processor[attr] is not None and processor[attr] != "",
-                "{} is empty".format(attr),
+                f"{attr} is empty",
             )
         # Check speed is an integer
         self.assertIsInstance(processor["speed"], int)

@@ -1,15 +1,50 @@
-import re
 import sys
 import unittest
-from unittest.mock import patch, Mock, MagicMock
+from unittest.mock import MagicMock, Mock, patch
 
 sys.modules["dbus"] = MagicMock()
 sys.modules["dbus.mainloop.glib"] = MagicMock()
 sys.modules["gi"] = MagicMock()
 sys.modules["gi.repository"] = MagicMock()
 
-from gi.repository import GLib, Gio  # type: ignore
-from checkbox_support.dbus.gnome_monitor import MonitorConfigGnome
+from checkbox_support.dbus.gnome_monitor import (
+    LayoutMode,
+    MonitorConfigGnome,
+    MonitorInfo,
+    MutterDisplayConfig,
+    MutterDisplayMode,
+    PhysicalMonitor,
+)
+from gi.repository import Gio, GLib  # type: ignore
+
+
+def make_mode(
+    width: int,
+    height: int,
+    is_current: bool = False,
+    mode_id: "str | None" = None,
+):
+    if mode_id is None:
+        mode_id = f"{width}x{height}"
+    return MutterDisplayMode(
+        mode_id,
+        width,
+        height,
+        60.0,
+        1.0,
+        [1.0],
+        {"is-current": is_current, "is-preferred": False},
+    )
+
+
+def make_physical_monitor(
+    modes: "list[MutterDisplayMode]", connector: str = "eDP-1"
+):
+    return PhysicalMonitor(
+        MonitorInfo(connector, "LGD", "0x06b3", "0x00000000"),
+        modes,
+        {},
+    )
 
 
 class MonitorConfigGnomeTests(unittest.TestCase):
@@ -548,10 +583,64 @@ class MonitorConfigGnomeTests(unittest.TestCase):
             cancellable=None,
         )
         argument_string = mock_post_cycle_action.call_args[0][0]
-        p1 = "HDMI-1_2560x1440_normal_"
-        p2 = "eDP-1_1920x1200_normal_"
-        pattern = re.compile("{}{}|{}{}".format(p1, p2, p2, p1))
-        assert pattern.match(argument_string)
+        p1 = "eDP-1_1920x1200_normal"
+        p2 = "HDMI-1_2560x1440_normal"
+
+        self.assertEqual(argument_string, f"{p1}_{p2}")
+
+
+class PhysicalMonitorTests(unittest.TestCase):
+
+    def test_get_current_mode_returns_current(self):
+        current_mode = make_mode(1920, 1200, is_current=True)
+        monitor = make_physical_monitor([make_mode(1280, 720), current_mode])
+        self.assertEqual(monitor.get_current_mode(), current_mode)
+
+    def test_get_current_mode_returns_none_if_no_mode_is_current(self):
+        monitor = make_physical_monitor(
+            [make_mode(1280, 720), make_mode(1920, 1200)]
+        )
+        self.assertIsNone(monitor.get_current_mode())
+
+    def test_get_current_mode_returns_none_if_no_modes(self):
+        monitor = make_physical_monitor([])
+        self.assertIsNone(monitor.get_current_mode())
+
+    def test_get_max_resolution_picks_largest_mode(self):
+        monitor = make_physical_monitor(
+            [
+                make_mode(2560, 1080),
+                make_mode(2048, 1536),
+                make_mode(1920, 1200),
+            ]
+        )
+        self.assertEqual(monitor.get_max_resolution(), (2560, 1080))
+
+    def test_get_max_resolution_raises_value_error_if_no_modes(self):
+        monitor = make_physical_monitor([])
+        self.assertRaises(ValueError, monitor.get_max_resolution)
+
+    def test_get_max_resolution_raises_runtime_error_if_all_zero(self):
+        monitor = make_physical_monitor([make_mode(0, 0), make_mode(0, 0)])
+        self.assertRaises(RuntimeError, monitor.get_max_resolution)
+
+
+class MutterDisplayConfigTests(unittest.TestCase):
+
+    def make_config(self, properties):
+        return MutterDisplayConfig(1, [], [], properties)
+
+    def test_layout_mode_logical(self):
+        config = self.make_config({"layout-mode": 1})
+        self.assertIs(config.layout_mode, LayoutMode.LOGICAL)
+
+    def test_layout_mode_physical(self):
+        config = self.make_config({"layout-mode": 2})
+        self.assertIs(config.layout_mode, LayoutMode.PHYSICAL)
+
+    def test_layout_mode_returns_none_if_missing(self):
+        config = self.make_config({})
+        self.assertIsNone(config.layout_mode)
 
 
 if __name__ == "__main__":

@@ -58,7 +58,7 @@ def main():
             get_wpa_supplicant_version() >= (2, 11)
         )
     )
-    print("kernel_at_least_6_14: {}".format(get_kernel_version() >= (6, 14)))
+    print(f"kernel_at_least_6_14: {get_kernel_version() >= (6, 14)}")
 
 
 if __name__ == "__main__":

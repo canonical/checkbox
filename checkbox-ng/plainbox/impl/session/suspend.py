@@ -399,9 +399,7 @@ class SessionSuspendHelper2(SessionSuspendHelper1):
                 Arbitrary application specific binary blob encoded with base64.
                 This field may be null.
         """
-        data = super(SessionSuspendHelper2, self)._repr_SessionMetaData(
-            obj, session_dir
-        )
+        data = super()._repr_SessionMetaData(obj, session_dir)
         if obj.app_blob is None:
             data["app_blob"] = None
         else:
@@ -456,9 +454,7 @@ class SessionSuspendHelper3(SessionSuspendHelper2):
                 A string identifying the application that stored app_blob.
                 Thirs field may be null.
         """
-        data = super(SessionSuspendHelper3, self)._repr_SessionMetaData(
-            obj, session_dir
-        )
+        data = super()._repr_SessionMetaData(obj, session_dir)
         data["app_id"] = obj.app_id
         return data
 

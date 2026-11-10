@@ -1,0 +1,23 @@
+unit: category
+id: xilinx-dtb-components
+_name: Xilinx Device Tree Components
+
+unit: template
+template-resource: xilinx_sku
+template-unit: job
+template-id: xilinx-dtb/components_name
+id: xilinx-dtb/components_{name}
+_template-summary:
+    Check all DTB compatible properties are loaded in /proc/device-tree
+_summary: Check all DTB compatible properties are loaded in /proc/device-tree
+command: xilinx_component_test.py {short_name}
+plugin: shell
+category_id: xilinx-dtb-components
+flags: also-after-suspend
+estimated_duration: 1m
+imports:
+    from com.canonical.certification import package
+    from com.canonical.plainbox import manifest
+requires:
+    package.name == 'device-tree-compiler'
+    manifest.is_Xilinx == 'True'

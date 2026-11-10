@@ -356,13 +356,13 @@ class LoremIpsumTranslator(NoOpTranslator):
         if re.search("(%[sdr])|({[^}]*})", word):
             return word
         elif word.startswith("--"):
-            return "--{}".format(self._tr_word(word[2:]))
+            return f"--{self._tr_word(word[2:])}"
         elif word.startswith("-"):
-            return "-{}".format(self._tr_word(word[1:]))
+            return f"-{self._tr_word(word[1:])}"
         elif word.startswith("[") and word.endswith("]"):
-            return "[{}]".format(self._tr_word(word[1:-1]))
+            return f"[{self._tr_word(word[1:-1])}]"
         elif word.startswith("<") and word.endswith(">"):
-            return "<{}>".format(self._tr_word(word[1:-1]))
+            return f"<{self._tr_word(word[1:-1])}>"
         else:
             tr_word = self._tr_approx(len(word))
             if word.isupper():
@@ -388,7 +388,7 @@ class LoremIpsumTranslator(NoOpTranslator):
             return self._get_ipsum(msgid2)
 
     def dgettext(self, domain, msgid):
-        return "<{}: {}>".format(domain, self._get_ipsum(msgid))
+        return f"<{domain}: {self._get_ipsum(msgid)}>"
 
 
 class GettextTranslator(ITranslator):
@@ -412,7 +412,7 @@ class GettextTranslator(ITranslator):
                 translation = gettext_module.translation(
                     domain, self._locale_dir_map.get(domain)
                 )
-            except IOError:
+            except OSError:
                 translation = gettext_module.NullTranslations()
             self._translations[domain] = translation
             return translation
@@ -593,9 +593,7 @@ try:
         "lorem-ipsum-ru": LoremIpsumTranslator("ru"),
     }[os.getenv("PLAINBOX_I18N_MODE", "gettext")]
 except KeyError as exc:
-    raise RuntimeError(
-        "Unsupported PLAINBOX_I18N_MODE: {!r}".format(exc.args[0])
-    )
+    raise RuntimeError(f"Unsupported PLAINBOX_I18N_MODE: {exc.args[0]!r}")
 
 
 # This is the public API of this module

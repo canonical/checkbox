@@ -70,7 +70,7 @@ class SysFsLEDController:
 
     def _node_exists(self, node):
         if node.exists() is False:
-            raise FileNotFoundError("{} file not exists".format(str(node)))
+            raise FileNotFoundError(f"{str(node)} file not exists")
 
     def _read_node(self, node):
         self._node_exists(node)
@@ -81,9 +81,7 @@ class SysFsLEDController:
         self._node_exists(node)
         node.write_text(value)
         if check and self._read_node(node) != value:
-            raise ValueError(
-                "Unable to change the value of {} file".format(str(node))
-            )
+            raise ValueError(f"Unable to change the value of {str(node)} file")
 
     @property
     def brightness(self):
@@ -104,9 +102,7 @@ class SysFsLEDController:
 
     @trigger.setter
     def trigger(self, value):
-        logging.debug(
-            "set trigger action to {} for {} LED".format(value, self.led_name)
-        )
+        logging.debug(f"set trigger action to {value} for {self.led_name} LED")
         # The read value from trigger node is all supported trigger type
         # So skip the check
         self._write_node(self.trigger_node, value, False)
@@ -144,11 +140,11 @@ class SysFsLEDController:
         return " ".join(intensities)
 
     def on(self):
-        logging.debug("turn on {} LED".format(self.led_name))
+        logging.debug(f"turn on {self.led_name} LED")
         self.brightness = self._on_value
 
     def off(self):
-        logging.debug("turn off {} LED".format(self.led_name))
+        logging.debug(f"turn off {self.led_name} LED")
         self.brightness = self._off_value
 
     def blinking(self, duration, interval):

@@ -413,7 +413,7 @@ class PODTests(TestCase):
             age = Field()
 
             def __str__(self):
-                return "Mr. {}".format(self.name)
+                return f"Mr. {self.name}"
 
         class Employee(Person):
             salary = Field()

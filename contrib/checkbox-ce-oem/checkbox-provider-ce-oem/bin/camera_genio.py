@@ -78,6 +78,8 @@ class SupportedCamera(Enum):
         "onsemi_ap1302_ar0830"  # OnSemi AP1302 + AR0830 sensor
     )
     SONY_IMX214 = "sony_imx214"  # Sony IMX214 sensor
+    SONY_IMX258 = "sony_imx258"  # Sony IMX258 sensor
+    OV5640 = "ov5640"  # OV5640 sensor
 
     def __str__(self):
         return self.value
@@ -104,6 +106,8 @@ def genio_camera_factory(camera_module: str) -> Type[CameraInterface]:
             SupportedCamera.ONSEMI_AR0430: OnsemiAR0430,
             SupportedCamera.ONSEMI_AP1302_AR0830: OnsemiAP1302AR0830,
             SupportedCamera.SONY_IMX214: SonyIMX214,
+            SupportedCamera.SONY_IMX258: SonyIMX258,
+            SupportedCamera.OV5640: OV5640,
         }.items()
     }
 
@@ -183,6 +187,10 @@ class GenioVideoNodeResolver(VideoMediaNodeResolver):
             return self._resolve_onsemi_ar0430(
                 v4l2_device_name, arch, camera_value
             )
+        elif camera_value == SupportedCamera.OV5640.value:
+            return self._resolve_ov5640(v4l2_device_name, arch, camera_value)
+        elif camera_value == SupportedCamera.SONY_IMX258.value:
+            return self._resolve_imx258(v4l2_device_name, arch, camera_value)
         else:
             log_and_raise_error(
                 "Unsupported camera type: {}".format(camera), CameraError
@@ -241,11 +249,82 @@ class GenioVideoNodeResolver(VideoMediaNodeResolver):
                 camera_value,
             )
 
+    def _resolve_imx258(
+        self,
+        v4l2_device_name: str,
+        arch: SoftwareArchitectures,
+        camera_value: str,
+    ) -> Dict[str, str]:
+        """Resolve video nodes for SONY IMX258 camera."""
+        if arch == SoftwareArchitectures.MediaTek_Imgsensor:
+            log_and_raise_error(
+                "IMX258 currently only supports V4L2_Sensor. "
+                "MediaTek_Imgsensor is not supported yet and may be "
+                "supported in a future release.",
+                CameraError,
+            )
+        elif arch == SoftwareArchitectures.V4L2_Sensor:
+            return self._resolve_v4l2_sensor_imx258(
+                v4l2_device_name, camera_value
+            )
+        else:
+            self._validate_architecture_support(
+                arch, [SoftwareArchitectures.V4L2_Sensor], camera_value
+            )
+
+    def _resolve_v4l2_sensor_imx258(
+        self, v4l2_device_name: str, camera_value: str
+    ) -> Dict[str, str]:
+        """Resolve video nodes for V4L2 sensor Sony IMX258."""
+        video_nodes = self.get_video_nodes(v4l2_device_name)
+        if not video_nodes:
+            log_and_raise_error(
+                "Could not find video node for {}".format(camera_value),
+                CameraConfigurationError,
+            )
+        return {"all": video_nodes[0]}
+
+    def _resolve_ov5640(
+        self,
+        v4l2_device_name: str,
+        arch: SoftwareArchitectures,
+        camera_value: str,
+    ) -> Dict[str, str]:
+        """Resolve video nodes for OV5640 camera."""
+        if arch == SoftwareArchitectures.MediaTek_Imgsensor:
+            log_and_raise_error(
+                "OV5640 currently only supports V4L2_Sensor. "
+                "MediaTek_Imgsensor is not supported yet and may be "
+                "supported in a future release.",
+                CameraError,
+            )
+        elif arch == SoftwareArchitectures.V4L2_Sensor:
+            return self._resolve_v4l2_sensor_ov5640(
+                v4l2_device_name, camera_value
+            )
+        else:
+            self._validate_architecture_support(
+                arch, [SoftwareArchitectures.V4L2_Sensor], camera_value
+            )
+
+    def _resolve_v4l2_sensor_ov5640(
+        self, v4l2_device_name: str, camera_value: str
+    ) -> Dict[str, str]:
+        """Resolve video nodes for V4L2 sensor OV5640."""
+        video_nodes = self.get_video_nodes(v4l2_device_name)
+        if not video_nodes:
+            log_and_raise_error(
+                "Could not find video node for {}".format(camera_value),
+                CameraConfigurationError,
+            )
+        return {"all": video_nodes[0]}
+
     def _resolve_v4l2_sensor_ap1302_ar0830(
         self, v4l2_device_name: str, camera_value: str
     ) -> Dict[str, str]:
         """Resolve video nodes for V4L2 sensor AP1302 AR0830."""
         media_dev = self.get_first_media_node(v4l2_device_name)
+        logger.info(media_dev)
         if not media_dev:
             log_and_raise_error(
                 "Could not find media device for {}".format(camera_value),
@@ -262,6 +341,11 @@ class GenioVideoNodeResolver(VideoMediaNodeResolver):
             MEDIA_CTL_CMD, media_dev
         )
         video_node = execute_command(cmd).strip()
+        logger.info(
+            "Found video node for '{}' - '{}': {}".format(
+                v4l2_device_name, camera_value, video_node
+            )
+        )
         if not video_node:
             log_and_raise_error(
                 "Could not find video node for {}".format(camera_value),
@@ -558,3 +642,15 @@ class SonyIMX214(GenioBaseCamera):
     def __init__(self, v4l2_devices: str):
         super().__init__(v4l2_devices)
         self._camera = SupportedCamera.SONY_IMX214
+
+
+class SonyIMX258(GenioBaseCamera):
+    def __init__(self, v4l2_devices: str):
+        super().__init__(v4l2_devices)
+        self._camera = SupportedCamera.SONY_IMX258
+
+
+class OV5640(GenioBaseCamera):
+    def __init__(self, v4l2_devices: str):
+        super().__init__(v4l2_devices)
+        self._camera = SupportedCamera.OV5640

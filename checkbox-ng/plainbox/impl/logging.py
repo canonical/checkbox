@@ -59,7 +59,7 @@ class ANSIFormatter(logging.Formatter):
     def __init__(self, fmt=None, datefmt=None, style="%"):
         if fmt is not None:
             fmt = fmt.format(ansi=ansi)
-        super(ANSIFormatter, self).__init__(fmt, datefmt, style)
+        super().__init__(fmt, datefmt, style)
 
 
 class LevelFilter:

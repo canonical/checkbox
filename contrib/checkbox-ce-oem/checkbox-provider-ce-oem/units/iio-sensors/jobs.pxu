@@ -10,6 +10,19 @@ category_id: iio-sensors
 plugin: resource
 environ: IIO_SENSORS
 command:
+    resource_wrapper.sh -- iio_sensor_test.py sensor-resource "$IIO_SENSORS"
+
+id: ce-oem-iio-sensors/check-resource
+_summary: Check IIO sensors resource generation
+_description:
+    Verify IIO sensors resource generation command executes directly.
+estimated_duration: 0.02
+category_id: iio-sensors
+imports: from com.canonical.plainbox import manifest
+requires: manifest.has_iio_sensors == 'True'
+plugin: shell
+environ: IIO_SENSORS
+command:
     iio_sensor_test.py sensor-resource "$IIO_SENSORS"
 
 unit: template

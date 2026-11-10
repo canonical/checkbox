@@ -73,10 +73,15 @@ attributes = (
 
 def dump_udev_db(udev):
     for device in udev.run():
+        # skip interface names like 224/1/3
+        # see checkbox issue 2563
+        if "/" in (getattr(device, "interface", "") or ""):
+            continue
+
         for attribute in attributes:
             value = getattr(device, attribute)
             if value is not None:
-                print("%s: %s" % (attribute, value))
+                print(f"{attribute}: {value}")
         print()
 
 
@@ -89,7 +94,7 @@ def filter_by_categories(udev, categories):
             for attribute in attributes:
                 value = getattr(device, attribute)
                 if value is not None:
-                    print("%s: %s" % (attribute, value))
+                    print(f"{attribute}: {value}")
             print()
     return count
 
@@ -109,15 +114,15 @@ def display_by_categories(udev, categories, short=False):
             pid = device.product_id if device.product_id else 0
             if not p:
                 p = getattr(device, "interface", "Unknow product")
-            data[c].append("{} {} [{:04x}:{:04x}]".format(v, p, vid, pid))
+            data[c].append(f"{v} {p} [{vid:04x}:{pid:04x}]")
     for c, devices in data.items():
         if short:
             for d in devices:
                 print("{}".format(d.replace("None ", "").replace(" None", "")))
         else:
-            print("{} ({}):".format(c, len(devices)))
+            print(f"{c} ({len(devices)}):")
             for d in devices:
-                print(" - {}".format(d))
+                print(f" - {d}")
             print()
     return count
 

@@ -1,0 +1,6 @@
+id: oem-wifi-automated
+unit: test plan
+_name: oem automated WiFi mode tests
+_description: automated WiFi mode tests for oem
+bootstrap_include:
+include:

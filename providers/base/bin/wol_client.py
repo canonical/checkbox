@@ -50,7 +50,7 @@ def send_request_to_wol_server(url, data=None):
                 "Response message: {}".format(response_data["message"])
             )
             status_code = response.status
-            logging.debug("Status code: {}".format(status_code))
+            logging.debug(f"Status code: {status_code}")
 
             if status_code == 200:
                 logging.info(
@@ -92,7 +92,7 @@ def send_request_to_wol_server(url, data=None):
 
     except json.JSONDecodeError as e:
         # Handle JSON parsing errors
-        error_msg = "Failed to parse server response as JSON: {}".format(e)
+        error_msg = f"Failed to parse server response as JSON: {e}"
         logging.error(error_msg)
         raise RuntimeError(error_msg) from e
 
@@ -108,27 +108,23 @@ def send_request_to_wol_server(url, data=None):
 
 
 def check_wakeup(interface):
-    wakeup_file = "/sys/class/net/{}/device/power/wakeup".format(interface)
+    wakeup_file = f"/sys/class/net/{interface}/device/power/wakeup"
     try:
-        with open(wakeup_file, "r") as f:
+        with open(wakeup_file) as f:
             wakeup_status = f.read().strip()
 
-        logging.info(
-            "Wakeup status for {}: {}".format(interface, wakeup_status)
-        )
+        logging.info(f"Wakeup status for {interface}: {wakeup_status}")
 
         if wakeup_status == "enabled":
             return True
         elif wakeup_status == "disabled":
             return False
         else:
-            raise ValueError(
-                "Unexpected wakeup status: {}".format(wakeup_status)
-            )
+            raise ValueError(f"Unexpected wakeup status: {wakeup_status}")
 
     except FileNotFoundError:
         raise FileNotFoundError(
-            "The network interface {} does not exist.".format(interface)
+            f"The network interface {interface} does not exist."
         )
 
 
@@ -141,7 +137,7 @@ def get_ip_address(interface):
             struct.pack("256s", interface[:15].encode("utf-8")),
         )
         return socket.inet_ntoa(ip_addr[20:24])
-    except IOError:
+    except OSError:
         return None
 
 
@@ -154,7 +150,7 @@ def get_mac_address(interface):
             struct.pack("256s", interface[:15].encode("utf-8")),
         )
         return ":".join("%02x" % b for b in mac_addr[18:24])
-    except IOError:
+    except OSError:
         raise SystemExit("Error: Unable to retrieve MAC address")
 
 
@@ -171,10 +167,10 @@ def set_rtc_wake(wake_time):
         subprocess.check_output(command, stderr=subprocess.STDOUT)
     except subprocess.CalledProcessError as e:
         raise SystemExit(
-            "Failed to set RTC wake: {}".format(e.output.decode().strip())
+            f"Failed to set RTC wake: {e.output.decode().strip()}"
         )
     except Exception as e:
-        raise SystemExit("An unexpected error occurred: {}".format(e))
+        raise SystemExit(f"An unexpected error occurred: {e}")
 
 
 # try to suspend(s3) or power off(s5) the system
@@ -192,14 +188,12 @@ def s3_or_s5_system(type):
     }
 
     if type not in commands:
-        raise RuntimeError(
-            "Error: type should be s3 or s5(provided: {})".format(type)
-        )
+        raise RuntimeError(f"Error: type should be s3 or s5(provided: {type})")
 
     try:
         subprocess.check_output(commands[type], stderr=subprocess.STDOUT)
     except subprocess.CalledProcessError as e:
-        raise RuntimeError("Try to enter {} failed: {}".format(type, e))
+        raise RuntimeError(f"Try to enter {type} failed: {e}")
 
 
 # bring up the system by rtc or any other ways in case the wake-on-lan failed
@@ -207,7 +201,7 @@ def bring_up_system(way, time):
     # try to wake up the system by rtc
     if way == "rtc":
         set_rtc_wake(time)
-        logging.debug("set the rtcwake time: {} seconds ".format(time))
+        logging.debug(f"set the rtcwake time: {time} seconds ")
     else:
         # try to wake up the system other than RTC which not support
         raise SystemExit(
@@ -268,13 +262,11 @@ def main():
     )
 
     logging.info("wake-on-LAN test started.")
-    logging.info("Test network interface: {}".format(args.interface))
+    logging.info(f"Test network interface: {args.interface}")
 
     wakeup_enabled = check_wakeup(args.interface)
     if not wakeup_enabled:
-        raise SystemExit(
-            "wake-on-LAN of {} is disabled!".format(args.interface)
-        )
+        raise SystemExit(f"wake-on-LAN of {args.interface} is disabled!")
 
     delay = args.delay
     num_retry = args.retry
@@ -282,12 +274,12 @@ def main():
     ip = get_ip_address(args.interface)
     mac = get_mac_address(args.interface)
 
-    logging.info("IP: {}, MAC: {}".format(ip, mac))
+    logging.info(f"IP: {ip}, MAC: {mac}")
 
     if ip is None:
         raise SystemExit("Error: failed to get the ip address.")
 
-    url = "http://{}".format(args.target)
+    url = f"http://{args.target}"
     req = {
         "DUT_MAC": mac,
         "DUT_IP": ip,

@@ -25,13 +25,27 @@ command:
 estimated_duration: 2s
 flags: preserve-locale
 
+unit: job
+plugin: shell
+category_id: com.canonical.plainbox::bluetooth
+id: bluetooth/bluetooth-state-synchronization
+depends: bluetooth/detect
+requires:
+ package.name == 'bluez'
+ package.name == 'gnome-control-center'
+estimated_duration: 10.0
+_summary: Check that Bluetooth controller status is aligned with settings UI using the same dbus calls to power it on/off
+command:
+ bt_state_test.py
+
 plugin: shell
 category_id: com.canonical.plainbox::bluetooth
 id: bluetooth/detect-output
 flags: also-after-suspend
 estimated_duration: 1.2
 requires:
- package.name == 'bluez' or snap.name == 'bluez'
+ executable.name == 'hcitool'
+ executable.name == 'rfkill'
  device.category == 'BLUETOOTH'
 command:
  if rfkill list bluetooth | grep -q 'Hard blocked: yes'; then
@@ -96,6 +110,7 @@ _summary: Verify the capability to transfer files through a Bluetooth connection
 plugin: user-interact-verify
 category_id: com.canonical.plainbox::bluetooth
 id: bluetooth/audio-a2dp
+group: bluetooth_basic
 depends: bluetooth/detect-output
 flags: also-after-suspend
 estimated_duration: 120.0
@@ -210,6 +225,7 @@ _summary: Conduct an automated Bluetooth file transfer stress test ensuring file
 plugin: user-interact-verify
 category_id: com.canonical.plainbox::bluetooth
 id: bluetooth4/HOGP-mouse
+group: bluetooth_basic
 depends: bluetooth/detect-output
 flags: also-after-suspend
 imports: from com.canonical.plainbox import manifest
@@ -232,6 +248,7 @@ _summary:
 plugin: user-interact-verify
 category_id: com.canonical.plainbox::bluetooth
 id: bluetooth4/HOGP-keyboard
+group: bluetooth_basic
 depends: bluetooth/detect-output
 flags: also-after-suspend
 imports: from com.canonical.plainbox import manifest
@@ -468,6 +485,7 @@ _purpose: This is an automated Bluetooth file transfer test. It sends an image t
 plugin: user-interact-verify
 category_id: com.canonical.plainbox::bluetooth
 id: bluetooth/audio_record_playback
+group: bluetooth_basic
 depends: bluetooth/detect-output
 estimated_duration: 120.0
 flags: also-after-suspend

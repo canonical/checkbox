@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 #
 # hdd_parking
 #
@@ -51,7 +50,7 @@ def hdaps_test(run_time):
             universal_newlines=True,
         )
     except OSError as err:
-        print("Unable to start hdapsd: {}".format(err))
+        print(f"Unable to start hdapsd: {err}")
         return 1
     time.sleep(float(run_time))
     hdapsd.terminate()

@@ -40,7 +40,7 @@ def main():
     try:
         with open(args.filename) as file:
             lines = file.readlines()
-    except IOError as e:
+    except OSError as e:
         print(e)
         return 1
 
@@ -62,10 +62,8 @@ def main():
                 sleep_times.append(sleep_time)
             except ValueError as e:
                 print(
-                    (
-                        "ERROR: One or more sleep times was not reported "
-                        "correctly:"
-                    )
+                    "ERROR: One or more sleep times was not reported "
+                    "correctly:"
                 )
                 print(e)
                 failed = 1
@@ -76,10 +74,8 @@ def main():
                 resume_times.append(resume_time)
             except ValueError as e:
                 print(
-                    (
-                        "ERROR: One or more resume times was not reported "
-                        "correctly:"
-                    )
+                    "ERROR: One or more resume times was not reported "
+                    "correctly:"
                 )
                 print(e)
                 failed = 1

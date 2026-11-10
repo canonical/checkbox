@@ -157,4 +157,13 @@ e.g. TOTAL_RTC_NUM=2
 id: ce-oem-serial/rs485-list
 RS485_PORTS={port1} {port2}
 e.g. RS485_PORTS=/dev/ttymxc1 /dev/ttymxc2
+
+id: ce-oem-audio/alsa-ucm-loopback-list (optional)
+ALSA_UCM_LOOPBACK_PAIRING={sink1}:{source1},{sink2}:{source2},...
+UCM device names from "alsaucm -c <card> dump json"
+e.g. ALSA_UCM_LOOPBACK_PAIRING=Line2:Line1,Line4:Line3
+
+id: ce-oem-audio/alsa-ucm-loopback-tests (optional, default 10)
+ALSA_UCM_LOOPBACK_DURATION={seconds}
+e.g. ALSA_UCM_LOOPBACK_DURATION=10
 ```

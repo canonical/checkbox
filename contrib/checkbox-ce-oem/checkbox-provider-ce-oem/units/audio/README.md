@@ -22,8 +22,9 @@ Run the plan directly (it is also nested in `ce-oem-manual`):
 ce-oem-audio-alsa-ucm-manual
 ```
 
-This plan is not included in `ce-oem-audio-automated`. It includes the job
-`ce-oem-audio/alsa-ucm-detect` and these template IDs:
+This plan is not included in `ce-oem-audio-automated`. It includes the jobs
+`ce-oem-audio/alsa-ucm-detect-sink` and `ce-oem-audio/alsa-ucm-detect-source`,
+and these template IDs:
 
 ```text
 ce-oem-audio/alsa-ucm-sink-tests
@@ -31,9 +32,10 @@ ce-oem-audio/alsa-ucm-source-tests
 ce-oem-audio/alsa-ucm-loopback-tests
 ```
 
-`ce-oem-audio/alsa-ucm-detect` fails when `has_alsa_ucm` is `True` but no
-ALSA UCM sink or source device is found. Without this job, the plan would
-generate zero tests and show no failure.
+`ce-oem-audio/alsa-ucm-detect-sink` fails when `has_alsa_ucm` is `True` but
+no ALSA UCM sink device is found. `ce-oem-audio/alsa-ucm-detect-source` does
+the same for source devices. Without these jobs, the plan would generate zero
+sink or source tests and show no failure.
 
 The template jobs use `flags: also-after-suspend`, so Checkbox can generate
 after-suspend variants when the plan is used in a suspend flow.

@@ -37,12 +37,12 @@ command: |
   fi
   alsa_ucm_test.py resource loopback --pairing "$ALSA_UCM_LOOPBACK_PAIRING"
 ---
-id: ce-oem-audio/alsa-ucm-detect
-summary: Check that ALSA UCM sink or source devices are found
+id: ce-oem-audio/alsa-ucm-detect-sink
+summary: Check that ALSA UCM sink devices are found
 purpose: |
-  The ALSA UCM sink and source tests are generated from the devices that
-  the resource jobs find. This job fails when no ALSA UCM sink or source
-  device is found, so that the plan does not pass with zero tests.
+  The ALSA UCM sink tests are generated from the sink devices that the
+  resource job finds. This job fails when no ALSA UCM sink device is
+  found, so that the plan does not pass with zero sink tests.
 plugin: shell
 imports:
   - from com.canonical.plainbox import manifest
@@ -51,10 +51,31 @@ requires:
 category_id: com.canonical.plainbox::audio
 estimated_duration: '5.0'
 command: |
-  devices="$(alsa_ucm_test.py resource sinks; alsa_ucm_test.py resource sources)"
+  devices="$(alsa_ucm_test.py resource sinks)"
   echo "$devices"
   if [ -z "$devices" ]; then
-      echo "No ALSA UCM sink or source device found" >&2
+      echo "No ALSA UCM sink device found" >&2
+      exit 1
+  fi
+---
+id: ce-oem-audio/alsa-ucm-detect-source
+summary: Check that ALSA UCM source devices are found
+purpose: |
+  The ALSA UCM source tests are generated from the source devices that the
+  resource job finds. This job fails when no ALSA UCM source device is
+  found, so that the plan does not pass with zero source tests.
+plugin: shell
+imports:
+  - from com.canonical.plainbox import manifest
+requires:
+  - manifest.has_alsa_ucm == 'True'
+category_id: com.canonical.plainbox::audio
+estimated_duration: '5.0'
+command: |
+  devices="$(alsa_ucm_test.py resource sources)"
+  echo "$devices"
+  if [ -z "$devices" ]; then
+      echo "No ALSA UCM source device found" >&2
       exit 1
   fi
 ---

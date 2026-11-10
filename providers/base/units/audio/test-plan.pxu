@@ -196,9 +196,6 @@ certification_status_overrides:
     apply blocker to com.canonical.certification::audio/channels
     apply blocker to com.canonical.certification::audio/external-linein
     apply blocker to com.canonical.certification::audio/external-lineout
-    apply blocker to com.canonical.certification::after-suspend-audio/channels
-    apply blocker to com.canonical.certification::after-suspend-audio/external-linein
-    apply blocker to com.canonical.certification::after-suspend-audio/external-lineout
 
 id: audio-base-26-04-automated
 unit: test plan
@@ -212,6 +209,3 @@ certification_status_overrides:
     apply blocker to com.canonical.certification::audio/detect_sinks
     apply blocker to com.canonical.certification::audio/detect_sources
     apply blocker to com.canonical.certification::audio/alsa_record_playback_automated
-    apply blocker to com.canonical.certification::after-suspend-audio/detect_sinks
-    apply blocker to com.canonical.certification::after-suspend-audio/detect_sources
-    apply blocker to com.canonical.certification::after-suspend-audio/alsa_record_playback_automated

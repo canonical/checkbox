@@ -37,23 +37,20 @@ Checkbox calls `test` **once per resource row**, passing exactly one
 card+verb+device per invocation.
 """
 
+from __future__ import annotations
+
 import argparse
 import json
 import os
 import re
 import subprocess
 import sys
-import threading
 import tempfile
-from collections import namedtuple
-from typing import Callable, Dict, List, Optional, Set, Tuple, Union
-
-UCM_BASE_PATHS = [
-    "/usr/share/alsa/ucm2",
-    "/usr/share/alsa/ucm",
-    "/etc/alsa/ucm2",
-    "/etc/alsa/ucm",
-]
+from abc import ABC, abstractmethod
+from concurrent.futures import ThreadPoolExecutor
+from dataclasses import dataclass
+from pathlib import Path
+from typing import Callable, Literal
 
 DEFAULT_SAMPLE_FORMAT = "S16_LE"
 DEFAULT_SAMPLE_RATE = 48000
@@ -62,8 +59,6 @@ MAX_TEST_CHANNELS = 2
 
 TIMEOUT_ALSAUCM_APPLY = 15
 TIMEOUT_ALSAUCM_QUERY = 10
-TIMEOUT_STREAM_TEST = 30
-EXIT_TIMEOUT = 124
 
 WAV_MIN_SIZE_DIVISOR = 100
 
@@ -71,203 +66,55 @@ UCM_TYPE_SINK = "Sink"
 UCM_TYPE_SOURCE = "Source"
 UCM_TYPE_UNKNOWN = "Unknown"
 
-TestContext = namedtuple(
-    "TestContext",
-    [
-        "card_obj",
-        "card_name",
-        "card_index",
-        "resolved_card",
-        "card_label",
-        "verb_map",
-        "resolved_verb",
-    ],
-)
+
+@dataclass
+class TestContext:
+    """Card and verb resolved for one test run."""
+
+    card_name: str
+    card_index: int
+    resolved_card: str
+    card_label: str
+    verb_map: dict[str, dict[str, object]]
+    resolved_verb: str
 
 
 def warn(message: str) -> None:
     """Print warning messages to stderr with a shared prefix."""
-    print("[WARN] {0}".format(message), file=sys.stderr)
-
-
-def run_cmd(
-    argv: Union[List[str], str],
-    timeout: int = 10,
-    shell: bool = False,
-    stdin_text: Optional[str] = None,
-) -> Tuple[int, str, str]:
-    """Run a command and return (returncode, stdout, stderr)."""
-    try:
-        res = subprocess.run(
-            argv,
-            shell=shell,
-            input=stdin_text,
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE,
-            universal_newlines=True,
-            timeout=timeout,
-        )
-        return res.returncode, res.stdout, res.stderr
-    except subprocess.TimeoutExpired:
-        return (
-            EXIT_TIMEOUT,
-            "",
-            "Command timed out after {0}s".format(timeout),
-        )
-    except (OSError, TypeError, ValueError) as exc:
-        return 1, "", str(exc)
+    print(f"[WARN] {message}", file=sys.stderr)
 
 
 class CardManager:
     """Discover sound cards and basic UCM information."""
 
-    def __init__(self, ucm_paths: Optional[List[str]] = None) -> None:
-        """Initialize with UCM search paths; defaults to UCM_BASE_PATHS."""
-        self.ucm_paths = list(ucm_paths or UCM_BASE_PATHS)
+    def list_cards(self) -> list[dict[str, object]]:
+        """Read the sound cards from /proc/asound/cards.
 
-    def detect_platform(self, short_name: str, driver: str) -> str:
-        """Infer a simple platform label from card metadata."""
-        text = (short_name + " " + driver).lower()
-        if re.search(r"sof[-_]|^sof\w|sof\d", text):
-            return "SOF"
-        if re.search(r"msm\d|sm\d{3,}|sc\d{3,}|apq\d|sdm\d|qrb\d", text):
-            return "QDSP"
-        if re.search(r"\bmt\d{3,}", text):
-            return "MTK"
-        if re.search(r"hda|hdmi|alc\d{3}|cx\d{4}", text):
-            return "HDA"
-        return "GENERIC"
+        Each card has a header line and a long-name line, for example::
 
-    def normalize_name(self, name: str) -> str:
-        """Normalize card names for best-effort UCM directory matching."""
-        return re.sub(r"[-_]", "", name.lower())
+             0 [mt8391evk      ]: mt8391-evk - mt8391-evk
+                                  mediatek-Genio720520EVKP2V3eMMCBoot-...
 
-    def read_proc_asound_cards(self) -> List[Dict[str, object]]:
-        """Read cards from /proc/asound/cards."""
-        cards = []
-        proc_path = "/proc/asound/cards"
-        if not os.path.exists(proc_path):
-            return cards
-
-        try:
-            with open(
-                proc_path, "r", encoding="utf-8", errors="replace"
-            ) as fobj:
-                content = fobj.read()
-        except OSError as exc:
-            warn("Failed to read {0}: {1}".format(proc_path, str(exc)))
-            return cards
-
-        line_pattern = re.compile(
-            r"^\s*(?P<idx>\d+)\s+\[(?P<short>[^\]]+)\]:\s*(?P<rest>.+?)\s*$"
-        )
-        for line in content.splitlines():
-            match = line_pattern.match(line)
-            if not match:
-                continue
-            rest = match.group("rest").strip()
-            if " - " not in rest:
-                continue
-            driver, longname = rest.split(" - ", 1)
-            cards.append(
-                {
-                    "index": int(match.group("idx")),
-                    "short_name": match.group("short").strip(),
-                    "driver": driver.strip(),
-                    "long_name": longname.strip(),
-                    "platform": self.detect_platform(
-                        match.group("short"), driver
-                    ),
-                }
-            )
-        return cards
-
-    def strace_used_files(self, card_index: int) -> List[str]:
-        """Use strace on alsaucm dump json to infer active UCM files."""
-        cmd = [
-            "strace",
-            "-e",
-            "openat",
-            "alsaucm",
-            "-c",
-            str(card_index),
-            "dump",
-            "json",
-        ]
-        rc, _out, err = run_cmd(cmd, timeout=15)
-        if rc != 0 and not err:
+        The regex matches only the header line and gives
+        ``idx="0"`` and ``short="mt8391evk      "``.
+        """
+        proc_path = Path("/proc/asound/cards")
+        if not proc_path.exists():
             return []
-
-        skip_names = set(
-            ["ucm.conf", "generic.conf", "card-init.conf", "ctl-remap.conf"]
-        )
-        files = []
-        for line in (err or "").splitlines():
-            if "openat" not in line:
-                continue
-            match = re.search(r'"([^"]+\.conf)"', line)
-            if not match:
-                continue
-            path = match.group(1)
-            has_usr_ucm = "/usr/share/alsa/ucm" in path
-            has_etc_ucm = "/etc/alsa/ucm" in path
-            if not (has_usr_ucm or has_etc_ucm):
-                continue
-            base = os.path.basename(path)
-            if base in skip_names or "/lib/" in path:
-                continue
-            if path not in files:
-                files.append(path)
-        return files
-
-    def find_ucm_dir(self, card_index: int, short_name: str) -> Optional[str]:
-        """Find UCM directory using strace-first, then filesystem fallback."""
-        strace_files = self.strace_used_files(card_index)
-        if strace_files:
-            top_conf = strace_files[0]
-            top_dir = os.path.dirname(top_conf)
-            if os.path.isdir(top_dir):
-                return top_dir
-
-        normalized_card = self.normalize_name(short_name)
-        for base in self.ucm_paths:
-            if not os.path.isdir(base):
-                continue
-            scan_dirs = [base]
-            conf_d = os.path.join(base, "conf.d")
-            if os.path.isdir(conf_d):
-                scan_dirs.append(conf_d)
-
-            for scan_dir in scan_dirs:
-                candidates = [
-                    short_name,
-                    short_name.lower(),
-                    short_name.upper(),
-                ]
-                for candidate in candidates:
-                    candidate_path = os.path.join(scan_dir, candidate)
-                    if os.path.isdir(candidate_path):
-                        return candidate_path
-
-                for entry in sorted(os.listdir(scan_dir)):
-                    entry_path = os.path.join(scan_dir, entry)
-                    if not os.path.isdir(entry_path):
-                        continue
-                    normalized_entry = self.normalize_name(entry)
-                    if normalized_entry == normalized_card:
-                        return entry_path
-        return None
-
-    def list_cards(self) -> List[Dict[str, object]]:
-        """List cards with UCM discovery metadata."""
-        cards = self.read_proc_asound_cards()
-        for card in cards:
-            ucm_dir = self.find_ucm_dir(card["index"], card["short_name"])
-            card["ucm_dir"] = ucm_dir
-            card["ucm_found"] = bool(ucm_dir)
+        line_pattern = re.compile(r"^\s*(?P<idx>\d+)\s+\[(?P<short>[^\]]+)\]:")
+        cards = []
+        for line in proc_path.read_text(errors="replace").splitlines():
+            match = line_pattern.match(line)
+            if match:
+                cards.append(
+                    {
+                        "index": int(match.group("idx")),
+                        "short_name": match.group("short").strip(),
+                    }
+                )
         return cards
 
-    def get_card(self, card_selector: str) -> Optional[Dict[str, object]]:
+    def get_card(self, card_selector: str) -> dict[str, object] | None:
         """Find card by index or short name."""
         cards = self.list_cards()
         for card in cards:
@@ -277,22 +124,33 @@ class CardManager:
                 return card
         return None
 
-    def list_alsaucm_verbs(self, card_index: int) -> List[Dict[str, str]]:
-        """Enumerate UCM verbs from alsaucm list output."""
-        rc, out, _err = run_cmd(
-            ["alsaucm", "-c", str(card_index), "list", "_verbs"], timeout=10
+    def list_alsaucm_verbs(self, card_index: int) -> list[dict[str, str]]:
+        """Enumerate UCM verbs from alsaucm list output.
+
+        ``alsaucm -c 0 list _verbs`` prints, for example::
+
+              0: HiFi
+                Play high quality music
+
+        The regex matches ``  0: HiFi`` and gives ``HiFi``. The next
+        indented lines are the verb comment.
+        """
+        res = subprocess.run(
+            ["alsaucm", "-c", str(card_index), "list", "_verbs"],
+            capture_output=True,
+            text=True,
+            timeout=TIMEOUT_ALSAUCM_QUERY,
         )
-        if rc != 0:
+        if res.returncode != 0:
             warn(
-                "alsaucm list _verbs failed for card {0} (rc={1})".format(
-                    card_index, rc
-                )
+                f"alsaucm list _verbs failed for card {card_index} "
+                f"(rc={res.returncode})"
             )
             return []
 
         verbs = []
         current = None
-        for raw_line in (out or "").splitlines():
+        for raw_line in res.stdout.splitlines():
             line = raw_line.rstrip()
             match = re.match(r"^\s*\d+:\s+(.+?)\s*$", line)
             if match:
@@ -302,7 +160,7 @@ class CardManager:
                 continue
             if current and line.strip():
                 if current["comment"]:
-                    current["comment"] += " " + line.strip()
+                    current["comment"] += f" {line.strip()}"
                 else:
                     current["comment"] = line.strip()
         if current:
@@ -314,8 +172,8 @@ class UCMJsonParser:
     """Read verb and device names from alsaucm dump json."""
 
     def _infer_device_io(
-        self, values: Dict[str, str]
-    ) -> Tuple[str, Optional[str], str]:
+        self, values: dict[str, str]
+    ) -> tuple[str, str | None, str]:
         """Infer device type, PCM path, and channel count from UCM values."""
         pb_pcm = (values or {}).get("PlaybackPCM", "")
         cap_pcm = (values or {}).get("CapturePCM", "")
@@ -336,9 +194,8 @@ class UCMJsonParser:
         self,
         name: str,
         comment: str = "",
-        values: Optional[Dict[str, str]] = None,
-        conflicts: Optional[List[str]] = None,
-    ) -> Dict[str, object]:
+        values: dict[str, str] | None = None,
+    ) -> dict[str, object]:
         """Build a device dict with inferred I/O metadata."""
         values = values or {}
         dtype, pcm, channels = self._infer_device_io(values)
@@ -346,30 +203,30 @@ class UCMJsonParser:
             "name": name,
             "comment": comment or "",
             "values": values,
-            "conflicts": conflicts or [],
             "type": dtype,
             "pcm": pcm,
             "channels": channels,
         }
 
-    def run_alsaucm_dump(self, card_index: int) -> Dict[str, object]:
+    def run_alsaucm_dump(self, card_index: int) -> dict[str, object]:
         """Run alsaucm dump json and return parsed object."""
-        rc, out, err = run_cmd(
-            ["alsaucm", "-c", str(card_index), "dump", "json"], timeout=10
+        res = subprocess.run(
+            ["alsaucm", "-c", str(card_index), "dump", "json"],
+            capture_output=True,
+            text=True,
+            timeout=TIMEOUT_ALSAUCM_QUERY,
         )
-        if rc != 0:
+        if res.returncode != 0:
             warn(
-                "alsaucm dump json failed for card {0} (rc={1}): {2}".format(
-                    card_index, rc, (err or "").strip()
-                )
+                f"alsaucm dump json failed for card {card_index} "
+                f"(rc={res.returncode}): {res.stderr.strip()}"
             )
             return {}
-        out = (out or "").strip()
+        out = res.stdout.strip()
         if not out:
             warn(
-                "alsaucm dump json returned empty output for card {0}".format(
-                    card_index
-                )
+                "alsaucm dump json returned empty output for card "
+                f"{card_index}"
             )
             return {}
         try:
@@ -382,16 +239,12 @@ class UCMJsonParser:
                     return json.loads(candidate)
                 except ValueError:
                     pass
-            warn(
-                "Failed to parse alsaucm dump json for card {0}".format(
-                    card_index
-                )
-            )
+            warn(f"Failed to parse alsaucm dump json for card {card_index}")
             return {}
 
     def parse_alsaucm_json(
-        self, dump: Dict[str, object]
-    ) -> Dict[str, Dict[str, object]]:
+        self, dump: dict[str, object]
+    ) -> dict[str, dict[str, object]]:
         """Parse verbs and devices from alsaucm dump json."""
         verbs = {}
         raw_verbs = dump.get("Verbs", {})
@@ -416,15 +269,11 @@ class UCMJsonParser:
                         if isinstance(dev_body.get("Values", {}), dict)
                         else {}
                     )
-                    conflicts = dev_body.get("ConflictingDevices", [])
-                    if not isinstance(conflicts, list):
-                        conflicts = []
                     verb["devices"].append(
                         self._make_device(
                             dev_name,
                             comment=dev_body.get("Comment", ""),
                             values=vals,
-                            conflicts=conflicts,
                         )
                     )
             verbs[verb_name] = verb
@@ -447,7 +296,7 @@ def normalize_key(raw_value: str) -> str:
     return re.sub(r"[\s\-_]+", "", (raw_value or "").lower())
 
 
-def resolve_choice(raw_value: str, choices: List[str]) -> Optional[str]:
+def resolve_choice(raw_value: str, choices: list[str]) -> str | None:
     """Resolve a value against choices using normalized matching."""
     target = normalize_key(raw_value)
     for choice in choices:
@@ -457,8 +306,8 @@ def resolve_choice(raw_value: str, choices: List[str]) -> Optional[str]:
 
 
 def _resolve_verb_entry(
-    verb_map: Dict[str, Dict[str, object]], verb_name: str
-) -> Dict[str, object]:
+    verb_map: dict[str, dict[str, object]], verb_name: str
+) -> dict[str, object]:
     """Look up a verb entry with normalization fallback."""
     verb = verb_map.get(verb_name, {})
     if not verb:
@@ -470,8 +319,8 @@ def _resolve_verb_entry(
 
 
 def find_devices_for_verb(
-    verb_map: Dict[str, Dict[str, object]], verb_name: str
-) -> List[str]:
+    verb_map: dict[str, dict[str, object]], verb_name: str
+) -> list[str]:
     """Return sorted unique device names for one verb."""
     verb = _resolve_verb_entry(verb_map, verb_name)
     devices = []
@@ -484,7 +333,7 @@ def find_devices_for_verb(
 
 def get_card_verb_map(
     card_manager: CardManager, parser: UCMJsonParser, card_index: int
-) -> Tuple[Dict[str, Dict[str, object]], List[str], bool]:
+) -> tuple[dict[str, dict[str, object]], list[str], bool]:
     """Get verb map, available verbs, and whether JSON verbs were available."""
     dump = parser.run_alsaucm_dump(card_index)
     verb_map = parser.parse_alsaucm_json(dump)
@@ -503,80 +352,66 @@ def get_card_verb_map(
 def fail_for_unknown_verb(
     card_label: str,
     verb_name: str,
-    available_verbs: List[str],
-    has_ucm_dir: bool,
+    available_verbs: list[str],
     is_na_input: bool,
 ) -> None:
     """Print a verb validation failure with root-cause context."""
     if available_verbs:
         reason = "invalid verb" if is_na_input else "verb not found"
         print(
-            "[FAIL] {0} / {1} -- {2}. Available verbs: {3}".format(
-                card_label, verb_name, reason, ", ".join(available_verbs)
-            )
+            f"[FAIL] {card_label} / {verb_name} -- {reason}. "
+            f"Available verbs: {', '.join(available_verbs)}"
         )
         return
     print(
-        "[FAIL] {0} / {1} -- no UCM verbs discovered for this card".format(
-            card_label, verb_name
-        )
+        f"[FAIL] {card_label} / {verb_name} -- "
+        "no UCM verbs discovered for this card"
     )
-    if not has_ucm_dir:
-        print(
-            "[FAIL] Root cause hint: no matching UCM directory under "
-            "standard paths."
-        )
 
 
 def fail_for_unknown_device(
     card_label: str,
     resolved_verb: str,
     device_name: str,
-    available_devices: List[str],
+    available_devices: list[str],
     is_na_input: bool,
 ) -> None:
     """Print a device validation failure with available choices."""
     if not available_devices:
         print(
-            "[FAIL] {0} / {1} -- no UCM devices discovered for this "
-            "verb".format(card_label, resolved_verb)
+            f"[FAIL] {card_label} / {resolved_verb} -- "
+            "no UCM devices discovered for this verb"
         )
         return
     if is_na_input:
         print(
-            "[FAIL] {0} / {1} -- invalid device. Available devices: "
-            "{2}".format(
-                card_label, resolved_verb, ", ".join(available_devices)
-            )
+            f"[FAIL] {card_label} / {resolved_verb} -- invalid device. "
+            f"Available devices: {', '.join(available_devices)}"
         )
         return
     print(
-        "[FAIL] {0} / {1} / {2} -- device not found. Available devices: "
-        "{3}".format(
-            card_label,
-            resolved_verb,
-            device_name,
-            ", ".join(available_devices),
-        )
+        f"[FAIL] {card_label} / {resolved_verb} / {device_name} -- "
+        "device not found. Available devices: "
+        f"{', '.join(available_devices)}"
     )
 
 
-def print_resource_rows(rows: List[Dict[str, str]]) -> None:
+def print_resource_rows(rows: list[dict[str, str]]) -> None:
     """Print rows in variable-width block format."""
     for row in rows:
-        print("SoundCard: {0}".format(row["SoundCard"]))
-        print("SoundNumber: {0}".format(row["SoundNumber"]))
-        print("Verbs: {0}".format(row["Verbs"]))
+        print(f"SoundCard: {row['SoundCard']}")
+        print(f"SoundNumber: {row['SoundNumber']}")
+        print(f"Verbs: {row['Verbs']}")
         if "SinksDevice" in row:
-            print("SinksDevice: {0}".format(row["SinksDevice"]))
-            print("SinksDeviceName: {0}".format(row["SinksDeviceName"]))
+            print(f"SinksDevice: {row['SinksDevice']}")
+            print(f"SinksDeviceName: {row['SinksDeviceName']}")
         if "SourceDevice" in row:
-            print("SourceDevice: {0}".format(row["SourceDevice"]))
-            print("SourceDeviceName: {0}".format(row["SourceDeviceName"]))
+            print(f"SourceDevice: {row['SourceDevice']}")
+            print(f"SourceDeviceName: {row['SourceDeviceName']}")
         print("")
 
 
-def parse_pairing_spec(spec: Optional[str]) -> List[Tuple[str, str]]:
+def parse_pairing_spec(spec: str | None) -> list[tuple[str, str]]:
     """Parse pairing spec 'SINK1:SRC1,SINK2:SRC2' into list of pairs."""
     pairs = []
     if not spec:
@@ -584,29 +419,23 @@ def parse_pairing_spec(spec: Optional[str]) -> List[Tuple[str, str]]:
     parts = [p.strip() for p in spec.split(",") if p.strip()]
     for part in parts:
         if ":" not in part:
-            warn(
-                "Invalid pairing entry '{0}' (expected SINK:SOURCE)".format(
-                    part
-                )
-            )
+            warn(f"Invalid pairing entry '{part}' (expected SINK:SOURCE)")
             continue
         sink, source = part.split(":", 1)
         sink = sink.strip()
         source = source.strip()
         if not sink or not source:
-            warn(
-                "Invalid pairing entry '{0}' (empty sink/source)".format(part)
-            )
+            warn(f"Invalid pairing entry '{part}' (empty sink/source)")
             continue
         pairs.append((sink, source))
     return pairs
 
 
 def find_devices_for_verb_by_type(
-    verb_map: Dict[str, Dict[str, object]],
+    verb_map: dict[str, dict[str, object]],
     verb_name: str,
     dtype: str,
-) -> List[str]:
+) -> list[str]:
     """Return sorted device names for one verb and one UCM device type."""
     verb = _resolve_verb_entry(verb_map, verb_name)
     devices = []
@@ -618,10 +447,10 @@ def find_devices_for_verb_by_type(
 
 
 def _device_meta_for_verb(
-    verb_map: Dict[str, Dict[str, object]],
+    verb_map: dict[str, dict[str, object]],
     verb_name: str,
     dtype: str,
-) -> List[Tuple[str, str]]:
+) -> list[tuple[str, str]]:
     """Return sorted ``(name, comment)`` tuples for one verb / dtype.
 
     Mirrors :func:`find_devices_for_verb_by_type` but also surfaces the
@@ -642,9 +471,9 @@ def make_resource_row(
     sound_card: str,
     sound_number: str,
     verbs: str,
-    sink: Optional[Tuple[str, str]] = None,
-    source: Optional[Tuple[str, str]] = None,
-) -> Dict[str, str]:
+    sink: tuple[str, str] | None = None,
+    source: tuple[str, str] | None = None,
+) -> dict[str, str]:
     """Build one resource row with optional device fields.
 
     ``sink`` / ``source`` are ``(name, comment)`` tuples produced by
@@ -675,10 +504,10 @@ def _matched_loopback_rows(
     card_name: str,
     card_index: str,
     verb_name: str,
-    pairs: List[Tuple[str, str]],
-    sink_meta: List[Tuple[str, str]],
-    source_meta: List[Tuple[str, str]],
-) -> List[Dict[str, str]]:
+    pairs: list[tuple[str, str]],
+    sink_meta: list[tuple[str, str]],
+    source_meta: list[tuple[str, str]],
+) -> list[dict[str, str]]:
     """Return loopback rows for pairs present in both device lists.
 
     ``pairs`` carries only the (sink_name, source_name) values that
@@ -710,10 +539,10 @@ def _filtered_device_rows(
     card_name: str,
     card_index: str,
     verb_name: str,
-    device_meta: List[Tuple[str, str]],
-    ignore: Set[str],
+    device_meta: list[tuple[str, str]],
+    ignore: set[str],
     kind: str,
-) -> List[Dict[str, str]]:
+) -> list[dict[str, str]]:
     """Return device rows excluding names in *ignore*.
 
     ``device_meta`` is a list of ``(name, comment)`` tuples;
@@ -735,9 +564,9 @@ def _filtered_device_rows(
 def build_resource_rows(
     card_manager: CardManager,
     parser: UCMJsonParser,
-    mode: Optional[str],
-    pairing_spec: Optional[str],
-) -> List[Dict[str, str]]:
+    mode: str | None,
+    pairing_spec: str | None,
+) -> list[dict[str, str]]:
     """Build flattened resource rows for Checkbox consumption.
 
     If *pairing_spec* is set, each SINK:SOURCE pair excludes that sink from
@@ -749,8 +578,8 @@ def build_resource_rows(
     rows = []
     cards = card_manager.list_cards()
     pairs = parse_pairing_spec(pairing_spec)
-    sink_ignore = set(pair[0] for pair in pairs)
-    source_ignore = set(pair[1] for pair in pairs)
+    sink_ignore = {pair[0] for pair in pairs}
+    source_ignore = {pair[1] for pair in pairs}
 
     for card in cards:
         card_name = str(card.get("short_name", "UNKNOWN"))
@@ -762,9 +591,9 @@ def build_resource_rows(
         if not verb_names or not has_json_verbs:
             if verb_names and not has_json_verbs:
                 warn(
-                    "Card {0} has verbs from list fallback only; "
-                    "emitting NA row because device map is "
-                    "unavailable without JSON dump.".format(card_index)
+                    f"Card {card_index} has verbs from list fallback only; "
+                    "emitting NA row because device map is unavailable "
+                    "without JSON dump."
                 )
             if mode is None:
                 rows.append(make_resource_row(card_name, card_index, "NA"))
@@ -849,8 +678,8 @@ def build_resource_rows(
 def run_resource(
     card_manager: CardManager,
     parser: UCMJsonParser,
-    mode: Optional[str],
-    pairing_spec: Optional[str],
+    mode: str | None,
+    pairing_spec: str | None,
 ) -> int:
     """Run the resource subcommand."""
     rows = build_resource_rows(card_manager, parser, mode, pairing_spec)
@@ -858,44 +687,33 @@ def run_resource(
     return 0
 
 
-def list_ucm_files(
-    card_manager: CardManager, card_index: int, card_label: str
-) -> List[str]:
-    """List UCM config files used by a card (diagnostic only)."""
-    files = card_manager.strace_used_files(card_index)
-    if files:
-        print("[INFO] {0} UCM files:".format(card_label))
-        for path in files:
-            print("  - {0}".format(path))
-    else:
-        warn("No UCM files discovered via strace for {0}".format(card_label))
-    return files
-
-
-def resolve_pcm(
-    pcm: Optional[str], card_index: int, card_name: str = ""
-) -> str:
+def resolve_pcm(pcm: str | None, card_index: int, card_name: str = "") -> str:
     """Expand UCM variables in a PCM path and return a usable device name.
 
     The UCM JSON dump provides the authoritative PCM device names via
     PlaybackPCM / CapturePCM.  UCM-level variable substitution and card
     name-to-index mapping are applied so the resulting device string
-    works with tools like speaker-test and arecord.
+    works with tools like speaker-test and arecord. Examples:
+
+    - ``_ucm0001.hw:mt8391evk,0`` (card 0, name ``mt8391evk``) gives
+      ``hw:0,0``: ``_ucm\\d+\\.`` removes the ``_ucm0001.`` prefix and
+      the card name becomes the card index.
+    - ``hw:${CardId},2`` (card 1) gives ``hw:1,2``.
     """
     if not pcm:
-        return "hw:{0},0".format(card_index)
+        return f"hw:{card_index},0"
     pcm = re.sub(r"_ucm\d+\.", "", pcm)
     pcm = pcm.replace("${CardId}", str(card_index))
     if card_name:
         pcm = re.sub(
-            r"(hw:){0}".format(re.escape(card_name)),
-            r"\g<1>{0}".format(card_index),
+            rf"(hw:){re.escape(card_name)}",
+            rf"\g<1>{card_index}",
             pcm,
         )
     return pcm
 
 
-def parse_supported_formats(dump_text: str) -> List[str]:
+def parse_supported_formats(dump_text: str) -> list[str]:
     """Parse supported sample formats from --dump-hw-params output."""
     formats = []
     in_available_block = False
@@ -936,26 +754,27 @@ _PROBE_SPECS = {
 }
 
 
-def probe_supported_formats(resolved_pcm: str, stream_type: str) -> List[str]:
+def probe_supported_formats(resolved_pcm: str, stream_type: str) -> list[str]:
     """Probe supported formats for the provided PCM device."""
     spec = _PROBE_SPECS.get(stream_type)
     if spec is None:
         return []
     tool_argv, extra_args, tool_name = spec
     cmd = tool_argv + ["-D", resolved_pcm] + extra_args
-    rc, out, err = run_cmd(cmd, timeout=10)
-    text = (out or "") + "\n" + (err or "")
-    formats = parse_supported_formats(text)
-    if not formats and rc != 0:
+    res = subprocess.run(
+        cmd, capture_output=True, text=True, timeout=TIMEOUT_ALSAUCM_QUERY
+    )
+    formats = parse_supported_formats(f"{res.stdout}\n{res.stderr}")
+    if not formats and res.returncode != 0:
         warn(
-            "{0} --dump-hw-params did not reveal formats for {1} "
-            "(rc={2})".format(tool_name, resolved_pcm, rc)
+            f"{tool_name} --dump-hw-params did not reveal formats for "
+            f"{resolved_pcm} (rc={res.returncode})"
         )
     return formats
 
 
 def pick_sample_format(
-    formats: List[str], preferred: str = DEFAULT_SAMPLE_FORMAT
+    formats: list[str], preferred: str = DEFAULT_SAMPLE_FORMAT
 ) -> str:
     """Pick preferred format if available, otherwise first supported format."""
     if not formats:
@@ -966,10 +785,10 @@ def pick_sample_format(
 
 
 def get_device_info(
-    verb_map: Dict[str, Dict[str, object]],
+    verb_map: dict[str, dict[str, object]],
     verb_name: str,
     device_name: str,
-) -> Tuple[str, Optional[str], str]:
+) -> tuple[str, str | None, str]:
     """Return (type, pcm, channels) for a device in verb_map."""
     verb = _resolve_verb_entry(verb_map, verb_name)
     for dev in verb.get("devices", []):
@@ -982,21 +801,20 @@ def get_device_info(
     return UCM_TYPE_UNKNOWN, None, "2"
 
 
-DeviceStreamPlan = namedtuple(
-    "DeviceStreamPlan",
-    [
-        "stream_type",
-        "resolved_pcm",
-        "channels",
-        "test_int",
-        "declared",
-        "sample_format",
-    ],
-)
+@dataclass
+class DeviceStreamPlan:
+    """PCM, channels, and sample format for one device side."""
+
+    stream_type: str
+    resolved_pcm: str
+    channels: str
+    test_int: int
+    declared: int | None
+    sample_format: str
 
 
 def build_device_stream_plan(
-    verb_map: Dict[str, Dict[str, object]],
+    verb_map: dict[str, dict[str, object]],
     verb_name: str,
     device_name: str,
     card_index: int,
@@ -1030,7 +848,7 @@ def build_device_stream_plan(
     )
 
 
-def cap_test_channels(declared: object) -> Tuple[str, int, Optional[int]]:
+def cap_test_channels(declared: object) -> tuple[str, int, int | None]:
     """Clamp the UCM-declared channel count to ``MAX_TEST_CHANNELS``.
 
     Returns ``(test_channels_str, test_channels_int, declared_int)``.
@@ -1058,7 +876,7 @@ def cap_test_channels(declared: object) -> Tuple[str, int, Optional[int]]:
 
 
 def _log_channel_cap(
-    device_label: str, declared: Optional[int], test: int
+    device_label: str, declared: int | None, test: int
 ) -> None:
     """Print a single ``[INFO]`` line describing the cap decision.
 
@@ -1073,36 +891,26 @@ def _log_channel_cap(
     """
     if declared is None:
         print(
-            "[INFO] {0}: UCM did not declare a channel count; "
-            "using {1} for testing (default = {2})".format(
-                device_label, test, MAX_TEST_CHANNELS
-            )
+            f"[INFO] {device_label}: UCM did not declare a channel count; "
+            f"using {test} for testing (default = {MAX_TEST_CHANNELS})"
         )
         return
 
     declared_word = "channel" if declared == 1 else "channels"
     if declared > MAX_TEST_CHANNELS:
         print(
-            "[INFO] {0}: UCM declares {1} {2}; using {3} for testing "
-            "(capped at max {4})".format(
-                device_label,
-                declared,
-                declared_word,
-                test,
-                MAX_TEST_CHANNELS,
-            )
+            f"[INFO] {device_label}: UCM declares {declared} {declared_word}; "
+            f"using {test} for testing (capped at max {MAX_TEST_CHANNELS})"
         )
     elif declared < 1:
         print(
-            "[INFO] {0}: UCM declares {1} {2}; using {3} for testing "
-            "(clamped to min 1)".format(
-                device_label, declared, declared_word, test
-            )
+            f"[INFO] {device_label}: UCM declares {declared} {declared_word}; "
+            f"using {test} for testing (clamped to min 1)"
         )
     else:
         print(
-            "[INFO] {0}: UCM declares {1} {2}; using {3} for "
-            "testing".format(device_label, declared, declared_word, test)
+            f"[INFO] {device_label}: UCM declares {declared} {declared_word}; "
+            f"using {test} for testing"
         )
 
 
@@ -1114,7 +922,7 @@ class AlsaUcmCli:
     """
 
     @staticmethod
-    def argv(card_index: int, *set_pairs: Tuple[str, str]) -> List[str]:
+    def argv(card_index: int, *set_pairs: tuple[str, str]) -> list[str]:
         """Build an alsaucm command with ``set key value`` pairs."""
         cmd = ["alsaucm", "-c", str(card_index)]
         for key, val in set_pairs:
@@ -1122,7 +930,7 @@ class AlsaUcmCli:
         return cmd
 
     @staticmethod
-    def fmt(card_index: str, *set_pairs: Tuple[str, str]) -> str:
+    def fmt(card_index: str, *set_pairs: tuple[str, str]) -> str:
         """Format an alsaucm command string for display."""
         parts = ["alsaucm", "-c", card_index]
         for key, val in set_pairs:
@@ -1132,36 +940,39 @@ class AlsaUcmCli:
     @staticmethod
     def apply(
         card_index: int, verb: str, *devices: str
-    ) -> Tuple[int, str, str]:
+    ) -> subprocess.CompletedProcess:
         """Apply UCM verb and enable one or more devices.
 
         For multi-device calls, falls back to sequential ``_enadev``
         enables when the single-call approach fails.
         """
-        pairs = [("_verb", verb)]
-        pairs.extend(("_enadev", d) for d in devices)
-        cmd = AlsaUcmCli.argv(card_index, *pairs)
-        rc, out, err = run_cmd(cmd, timeout=TIMEOUT_ALSAUCM_APPLY)
-        if rc == 0 or len(devices) <= 1:
-            return rc, out, err
+        pairs = [("_verb", verb)] + [("_enadev", d) for d in devices]
+        res = subprocess.run(
+            AlsaUcmCli.argv(card_index, *pairs),
+            capture_output=True,
+            text=True,
+            timeout=TIMEOUT_ALSAUCM_APPLY,
+        )
+        if res.returncode == 0 or len(devices) <= 1:
+            return res
 
         warn(
-            "Loopback alsaucm apply (single-call) failed (rc={0}); "
-            "trying sequential _enadev enable without "
-            "re-setting the verb.".format(rc)
+            f"Loopback alsaucm apply (single-call) failed "
+            f"(rc={res.returncode}); trying sequential _enadev enable "
+            "without re-setting the verb."
         )
-        first_cmd = AlsaUcmCli.argv(
-            card_index, ("_verb", verb), ("_enadev", devices[0])
-        )
-        rc1, out1, err1 = run_cmd(first_cmd, timeout=TIMEOUT_ALSAUCM_APPLY)
-        if rc1 != 0:
-            return rc1, out1, err1
-        for extra_dev in devices[1:]:
-            extra_cmd = AlsaUcmCli.argv(card_index, ("_enadev", extra_dev))
-            rc2, out2, err2 = run_cmd(extra_cmd, timeout=TIMEOUT_ALSAUCM_APPLY)
-            if rc2 != 0:
-                return rc2, out2, err2
-        return 0, out1, err1
+        steps = [[("_verb", verb), ("_enadev", devices[0])]]
+        steps += [[("_enadev", dev)] for dev in devices[1:]]
+        for step in steps:
+            res = subprocess.run(
+                AlsaUcmCli.argv(card_index, *step),
+                capture_output=True,
+                text=True,
+                timeout=TIMEOUT_ALSAUCM_APPLY,
+            )
+            if res.returncode != 0:
+                return res
+        return res
 
     @staticmethod
     def cleanup(card_index: int, *devices: str) -> None:
@@ -1171,74 +982,66 @@ class AlsaUcmCli:
         sequential disables on failure.
         """
         pairs = [("_disdev", d) for d in devices]
-        cmd = AlsaUcmCli.argv(card_index, *pairs)
-        rc, _out, _err = run_cmd(cmd, timeout=TIMEOUT_ALSAUCM_QUERY)
+        rc = subprocess.run(
+            AlsaUcmCli.argv(card_index, *pairs),
+            capture_output=True,
+            timeout=TIMEOUT_ALSAUCM_QUERY,
+        ).returncode
         if rc == 0 or len(devices) <= 1:
             if rc != 0:
-                warn(
-                    "cleanup _disdev {0} returned rc={1}".format(
-                        devices[0], rc
-                    )
-                )
+                warn(f"cleanup _disdev {devices[0]} returned rc={rc}")
             return
         warn(
-            "cleanup loopback multi _disdev returned rc={0}; "
-            "trying sequential disables.".format(rc)
+            f"cleanup loopback multi _disdev returned rc={rc}; "
+            "trying sequential disables."
         )
         for dev in devices:
-            single = AlsaUcmCli.argv(card_index, ("_disdev", dev))
-            single_rc, _o, _e = run_cmd(single, timeout=TIMEOUT_ALSAUCM_QUERY)
+            single_rc = subprocess.run(
+                AlsaUcmCli.argv(card_index, ("_disdev", dev)),
+                capture_output=True,
+                timeout=TIMEOUT_ALSAUCM_QUERY,
+            ).returncode
             if single_rc != 0:
-                warn(
-                    "cleanup _disdev {0} returned rc={1}".format(
-                        dev, single_rc
-                    )
-                )
+                warn(f"cleanup _disdev {dev} returned rc={single_rc}")
 
 
-def save_alsa_state(card_index: int) -> Optional[str]:
+def save_alsa_state(card_index: int) -> str | None:
     """Save ALSA mixer state to a temp file via alsactl store."""
-    try:
-        fd, path = tempfile.mkstemp(
-            prefix="alsa_state_card{0}_".format(card_index),
-            suffix=".state",
-        )
-        os.close(fd)
-    except OSError as exc:
-        warn("Failed to create temp file for state save: {0}".format(exc))
-        return None
-    rc, _out, err = run_cmd(
-        ["alsactl", "-f", path, "store", str(card_index)], timeout=10
+    fd, path = tempfile.mkstemp(
+        prefix=f"alsa_state_card{card_index}_", suffix=".state"
     )
-    if rc != 0:
+    os.close(fd)
+    res = subprocess.run(
+        ["alsactl", "-f", path, "store", str(card_index)],
+        capture_output=True,
+        text=True,
+        timeout=TIMEOUT_ALSAUCM_QUERY,
+    )
+    if res.returncode != 0:
         warn(
-            "alsactl store failed (rc={0}): {1}".format(
-                rc, (err or "").strip()
-            )
+            f"alsactl store failed (rc={res.returncode}): "
+            f"{res.stderr.strip()}"
         )
-        try:
-            os.unlink(path)
-        except OSError:
-            pass
+        os.unlink(path)
         return None
     return path
 
 
 def restore_alsa_state(card_index: int, state_file: str) -> bool:
     """Restore ALSA mixer state from a saved file via alsactl restore."""
-    rc, _out, err = run_cmd(
-        ["alsactl", "-f", state_file, "restore", str(card_index)],
-        timeout=10,
-    )
     try:
+        res = subprocess.run(
+            ["alsactl", "-f", state_file, "restore", str(card_index)],
+            capture_output=True,
+            text=True,
+            timeout=TIMEOUT_ALSAUCM_QUERY,
+        )
+    finally:
         os.unlink(state_file)
-    except OSError:
-        pass
-    if rc != 0:
+    if res.returncode != 0:
         warn(
-            "alsactl restore failed (rc={0}): {1}".format(
-                rc, (err or "").strip()
-            )
+            f"alsactl restore failed (rc={res.returncode}): "
+            f"{res.stderr.strip()}"
         )
         return False
     return True
@@ -1250,7 +1053,7 @@ class StreamCommandBuilder:
     @staticmethod
     def speaker_argv(
         pcm: str, channels: str, sample_format: str, loops: int = 1
-    ) -> List[str]:
+    ) -> list[str]:
         """Build speaker-test argv."""
         return [
             "speaker-test",
@@ -1275,7 +1078,7 @@ class StreamCommandBuilder:
         sample_format: str,
         duration: int,
         output_path: str,
-    ) -> List[str]:
+    ) -> list[str]:
         """Build arecord argv."""
         return [
             "arecord",
@@ -1327,12 +1130,16 @@ class StreamCommandBuilder:
         sample_format: str,
         loops: int = 1,
         timeout: int = 30,
-    ) -> Tuple[int, str, str]:
-        """Run speaker-test and return (rc, stdout, stderr)."""
-        cmd = StreamCommandBuilder.speaker_argv(
-            pcm, channels, sample_format, loops
+    ) -> subprocess.CompletedProcess:
+        """Run speaker-test."""
+        return subprocess.run(
+            StreamCommandBuilder.speaker_argv(
+                pcm, channels, sample_format, loops
+            ),
+            capture_output=True,
+            text=True,
+            timeout=timeout,
         )
-        return run_cmd(cmd, timeout=timeout)
 
     @staticmethod
     def run_arecord(
@@ -1341,19 +1148,17 @@ class StreamCommandBuilder:
         sample_format: str,
         duration: int,
         output_path: str,
-        timeout: Optional[int] = None,
-    ) -> Tuple[int, str, str]:
-        """Run arecord and return (rc, stdout, stderr)."""
-        if timeout is None:
-            timeout = duration + 20
-        cmd = StreamCommandBuilder.arecord_argv(
-            pcm,
-            channels,
-            sample_format,
-            duration,
-            output_path,
+        timeout: int | None = None,
+    ) -> subprocess.CompletedProcess:
+        """Run arecord."""
+        return subprocess.run(
+            StreamCommandBuilder.arecord_argv(
+                pcm, channels, sample_format, duration, output_path
+            ),
+            capture_output=True,
+            text=True,
+            timeout=timeout or duration + 20,
         )
-        return run_cmd(cmd, timeout=timeout)
 
 
 def run_stream_test(
@@ -1361,34 +1166,34 @@ def run_stream_test(
     stream_type: str,
     channels: str,
     sample_format: str,
-    record_path: Optional[str] = None,
-) -> Tuple[int, str, str]:
-    """Run a short audio stream to verify the device works."""
+    record_path: str | None = None,
+) -> subprocess.CompletedProcess:
+    """Run a short audio stream to verify the device works.
+
+    A Sink plays a speaker-test WAV once. A Source records
+    ``DEFAULT_RECORD_DURATION`` seconds into *record_path*.
+    """
     if stream_type == UCM_TYPE_SINK:
         return StreamCommandBuilder.run_speaker(
             resolved_pcm, channels, sample_format
         )
-    if stream_type == UCM_TYPE_SOURCE:
-        if not record_path:
-            raise ValueError("record_path is required for Source stream")
-        rc, out, err = StreamCommandBuilder.run_arecord(
-            resolved_pcm,
-            channels,
-            sample_format,
-            10,
-            record_path,
-            timeout=30,
+    res = StreamCommandBuilder.run_arecord(
+        resolved_pcm,
+        channels,
+        sample_format,
+        DEFAULT_RECORD_DURATION,
+        record_path,
+        timeout=30,
+    )
+    if res.returncode == 0:
+        print(f"[INFO] Recorded file saved to: {record_path}")
+        print(f"To play it: aplay {record_path}")
+    else:
+        warn(
+            f"arecord failed (rc={res.returncode}); "
+            f"recording file may exist: {record_path}"
         )
-        if rc == 0:
-            print("[INFO] Recorded file saved to: {0}".format(record_path))
-            print("To play it: aplay {0}".format(record_path))
-        else:
-            warn(
-                "arecord failed (rc={0}); recording file may exist: "
-                "{1}".format(rc, record_path)
-            )
-        return rc, out, err
-    return 1, "", "Unknown stream type: {0}".format(stream_type)
+    return res
 
 
 def resolve_card_and_verb(
@@ -1396,7 +1201,7 @@ def resolve_card_and_verb(
     verb_input: str,
     card_manager: CardManager,
     parser: UCMJsonParser,
-) -> Optional[TestContext]:
+) -> TestContext | None:
     """Resolve and validate card + verb, printing failures.
 
     Returns a TestContext on success, None on validation failure.
@@ -1404,14 +1209,14 @@ def resolve_card_and_verb(
     card_obj = card_manager.get_card(card_selector)
     if not card_obj:
         print(
-            "[FAIL] Card {0} could not be resolved from "
-            "discovered cards.".format(card_selector)
+            f"[FAIL] Card {card_selector} could not be resolved from "
+            "discovered cards."
         )
         return None
     card_name = card_obj.get("short_name", "UNKNOWN")
     card_index = card_obj.get("index")
     resolved_card = str(card_index)
-    card_label = "Card {0} ({1})".format(resolved_card, card_name)
+    card_label = f"Card {resolved_card} ({card_name})"
     verb_name = normalize_label(verb_input)
     verb_map, available_verbs, _has_json = get_card_verb_map(
         card_manager, parser, card_index
@@ -1425,12 +1230,10 @@ def resolve_card_and_verb(
             card_label,
             verb_name,
             available_verbs,
-            bool(card_obj.get("ucm_found")),
             is_na_input=is_na,
         )
         return None
     return TestContext(
-        card_obj=card_obj,
         card_name=card_name,
         card_index=card_index,
         resolved_card=resolved_card,
@@ -1444,9 +1247,9 @@ def resolve_device_for_test(
     card_label: str,
     resolved_verb: str,
     device_input: str,
-    verb_map: Dict[str, Dict[str, object]],
-    available_devices: Optional[List[str]] = None,
-) -> Optional[str]:
+    verb_map: dict[str, dict[str, object]],
+    available_devices: list[str] | None = None,
+) -> str | None:
     """Resolve and validate a device name, printing failures.
 
     Returns resolved device name on success, None on validation failure.
@@ -1498,10 +1301,10 @@ class AlsaStateGuard:
         self.dry_run = dry_run
         self.fallback_cleanup = fallback_cleanup
         self.tag = "[DRY-RUN] " if dry_run else ""
-        self.state_file: Optional[str] = None
+        self.state_file: str | None = None
         self.apply_succeeded = False
 
-    def _effective_path(self) -> Optional[str]:
+    def _effective_path(self) -> str | None:
         """Return state file path, or a placeholder when dry-running."""
         if self.dry_run:
             return self._PLACEHOLDER_TPL.format(self.resolved_card)
@@ -1511,25 +1314,19 @@ class AlsaStateGuard:
         """Print the alsactl command that is (or would be) executed."""
         path = self._effective_path()
         if path:
-            print(
-                "{0}alsactl -f {1} {2} {3}".format(
-                    self.tag, path, action, self.resolved_card
-                )
-            )
+            print(f"{self.tag}alsactl -f {path} {action} {self.resolved_card}")
 
-    def __enter__(self) -> "AlsaStateGuard":
+    def __enter__(self) -> AlsaStateGuard:
         """Save ALSA mixer state (or print dry-run placeholder)."""
         if not self.dry_run:
             self.state_file = save_alsa_state(self.card_index)
             if not self.state_file:
-                warn(
-                    "Could not save ALSA state; " "will use basic cleanup only"
-                )
+                warn("Could not save ALSA state; will use basic cleanup only")
                 return self
         self._log_alsactl("store")
         return self
 
-    def __exit__(self, *exc_info: object) -> bool:
+    def __exit__(self, *exc_info: object) -> Literal[False]:
         """Restore ALSA mixer state (or run fallback cleanup)."""
         if self.dry_run or self.state_file:
             self._log_alsactl("restore")
@@ -1540,7 +1337,7 @@ class AlsaStateGuard:
         return False
 
 
-class BaseUcmTestRunner:
+class BaseUcmTestRunner(ABC):
     """Template for UCM test runners with shared card/verb/apply lifecycle."""
 
     def __init__(
@@ -1562,41 +1359,33 @@ class BaseUcmTestRunner:
             return 1
         return self._execute(ctx, args)
 
+    @abstractmethod
     def _execute(self, ctx: TestContext, args: argparse.Namespace) -> int:
         """Subclass hook: run the test after card+verb resolution."""
-        raise NotImplementedError
 
     @staticmethod
     def _print_apply_failure(
         scope_label: str, apply_rc: int, apply_err: str
     ) -> None:
         """Print [FAIL] for alsaucm apply with optional stderr."""
-        print(
-            "[FAIL] {0} -- alsaucm apply exit code {1}".format(
-                scope_label, apply_rc
-            )
-        )
+        print(f"[FAIL] {scope_label} -- alsaucm apply exit code {apply_rc}")
         if (apply_err or "").strip():
-            print("[FAIL] apply stderr: {0}".format(apply_err.strip()))
+            print(f"[FAIL] apply stderr: {apply_err.strip()}")
 
     @staticmethod
     def _print_stream_failure(
         scope_label: str, tool_label: str, rc: int, stderr: str
     ) -> None:
         """Print [FAIL] for a stream tool exit code with optional stderr."""
-        print(
-            "[FAIL] {0} -- {1} exit code {2}".format(
-                scope_label, tool_label, rc
-            )
-        )
+        print(f"[FAIL] {scope_label} -- {tool_label} exit code {rc}")
         if (stderr or "").strip():
-            print("[FAIL] {0} stderr: {1}".format(tool_label, stderr.strip()))
+            print(f"[FAIL] {tool_label} stderr: {stderr.strip()}")
 
     def _apply_devices(
         self,
         ctx: TestContext,
         guard: AlsaStateGuard,
-        devices: List[str],
+        devices: list[str],
         dry_run: bool,
         tag: str,
     ) -> bool:
@@ -1608,18 +1397,14 @@ class BaseUcmTestRunner:
         pairs = [("_verb", ctx.resolved_verb)]
         pairs.extend(("_enadev", d) for d in devices)
         apply_cmd_str = AlsaUcmCli.fmt(ctx.resolved_card, *pairs)
-        print("{0}{1}".format(tag, apply_cmd_str))
+        print(f"{tag}{apply_cmd_str}")
         if not dry_run:
-            apply_rc, _out, apply_err = AlsaUcmCli.apply(
-                ctx.card_index, ctx.resolved_verb, *devices
-            )
-            if apply_rc != 0:
-                scope = "{0} / {1}".format(ctx.card_label, ctx.resolved_verb)
+            res = AlsaUcmCli.apply(ctx.card_index, ctx.resolved_verb, *devices)
+            if res.returncode != 0:
+                scope = f"{ctx.card_label} / {ctx.resolved_verb}"
                 if len(devices) == 1:
-                    scope = "{0} / {1} / {2}".format(
-                        ctx.card_label, ctx.resolved_verb, devices[0]
-                    )
-                self._print_apply_failure(scope, apply_rc, apply_err)
+                    scope = f"{scope} / {devices[0]}"
+                self._print_apply_failure(scope, res.returncode, res.stderr)
                 return False
             guard.apply_succeeded = True
         return True
@@ -1627,7 +1412,7 @@ class BaseUcmTestRunner:
     @staticmethod
     def _mk_record_tempfile(
         prefix: str, dry_run: bool, placeholder: str
-    ) -> Tuple[Optional[str], str]:
+    ) -> tuple[str | None, str]:
         """Create a temp WAV file, or return placeholder for dry-run."""
         if dry_run:
             return None, placeholder
@@ -1658,8 +1443,6 @@ class SingleDeviceRunner(BaseUcmTestRunner):
             dry_run,
         )
 
-        list_ucm_files(self.card_manager, ctx.card_index, ctx.card_label)
-
         guard = AlsaStateGuard(
             ctx.card_index,
             ctx.resolved_card,
@@ -1675,9 +1458,7 @@ class SingleDeviceRunner(BaseUcmTestRunner):
             record_path, record_display = self._mk_record_tempfile(
                 "alsa_checkbox_record_",
                 dry_run or plan.stream_type != UCM_TYPE_SOURCE,
-                "/tmp/alsa_checkbox_record_card{0}_XXXX.wav".format(
-                    ctx.resolved_card
-                ),
+                f"/tmp/alsa_checkbox_record_card{ctx.resolved_card}_XXXX.wav",
             )
 
             if plan.stream_type == UCM_TYPE_SINK:
@@ -1689,7 +1470,7 @@ class SingleDeviceRunner(BaseUcmTestRunner):
                     plan.resolved_pcm,
                     plan.channels,
                     plan.sample_format,
-                    10,
+                    DEFAULT_RECORD_DURATION,
                     record_display,
                 )
             else:
@@ -1701,49 +1482,34 @@ class SingleDeviceRunner(BaseUcmTestRunner):
                     plan.declared,
                     plan.test_int,
                 )
-                print("{0}{1}".format(tag, stream_cmd_str))
+                print(f"{tag}{stream_cmd_str}")
             else:
                 warn(
-                    "Device {0} has no PlaybackPCM/CapturePCM; "
-                    "skipping stream test".format(resolved_device)
+                    f"Device {resolved_device} has no PlaybackPCM/CapturePCM; "
+                    "skipping stream test"
                 )
 
-            if not dry_run:
-                if stream_cmd_str:
-                    stream_rc, _sout, stream_err = run_stream_test(
-                        plan.resolved_pcm,
-                        plan.stream_type,
-                        plan.channels,
-                        plan.sample_format,
-                        record_path=record_path,
-                    )
-                else:
-                    stream_rc = 0
-                    stream_err = ""
-                if stream_rc != 0:
+            scope = (
+                f"{ctx.card_label} / {ctx.resolved_verb} / {resolved_device}"
+            )
+            if not dry_run and stream_cmd_str:
+                res = run_stream_test(
+                    plan.resolved_pcm,
+                    plan.stream_type,
+                    plan.channels,
+                    plan.sample_format,
+                    record_path=record_path,
+                )
+                if res.returncode != 0:
                     self._print_stream_failure(
-                        "{0} / {1} / {2}".format(
-                            ctx.card_label,
-                            ctx.resolved_verb,
-                            resolved_device,
-                        ),
-                        "stream test",
-                        stream_rc,
-                        stream_err,
+                        scope, "stream test", res.returncode, res.stderr
                     )
                     return 1
 
             suffix = " (dry-run)" if dry_run else ""
             if not stream_cmd_str:
-                suffix = " (no stream test)" + suffix
-            print(
-                "[PASS] {0} / {1} / {2}{3}".format(
-                    ctx.card_label,
-                    ctx.resolved_verb,
-                    resolved_device,
-                    suffix,
-                )
-            )
+                suffix = f" (no stream test){suffix}"
+            print(f"[PASS] {scope}{suffix}")
             return 0
 
 
@@ -1799,14 +1565,11 @@ class LoopbackRunner(BaseUcmTestRunner):
             dry_run,
         )
 
-        list_ucm_files(self.card_manager, ctx.card_index, ctx.card_label)
-
         record_path, record_display = self._mk_record_tempfile(
             "alsa_checkbox_loopback_record_",
             dry_run,
-            "/tmp/alsa_checkbox_loopback_record_card{0}_XXXX.wav".format(
-                ctx.resolved_card
-            ),
+            "/tmp/alsa_checkbox_loopback_record_card"
+            f"{ctx.resolved_card}_XXXX.wav",
         )
 
         guard = AlsaStateGuard(
@@ -1839,17 +1602,16 @@ class LoopbackRunner(BaseUcmTestRunner):
             _log_channel_cap(
                 resolved_sink, sink_plan.declared, sink_plan.test_int
             )
-            print("{0}{1}".format(tag, speaker_cmd))
+            print(f"{tag}{speaker_cmd}")
             _log_channel_cap(
                 resolved_source, source_plan.declared, source_plan.test_int
             )
-            print("{0}{1}".format(tag, arecord_cmd))
+            print(f"{tag}{arecord_cmd}")
 
             if dry_run:
                 print(
-                    "[PASS] {0} / {1} / loopback (dry-run)".format(
-                        ctx.card_label, ctx.resolved_verb
-                    )
+                    f"[PASS] {ctx.card_label} / {ctx.resolved_verb} / "
+                    "loopback (dry-run)"
                 )
                 return 0
 
@@ -1871,57 +1633,35 @@ class LoopbackRunner(BaseUcmTestRunner):
         duration: int,
         record_path: str,
     ) -> int:
-        """Run playback + capture threads and validate the result."""
-        play_result = [1, ""]
-        cap_result = [1, ""]
-        scope = "{0} / {1}".format(ctx.card_label, ctx.resolved_verb)
-
-        def playback_thread() -> None:
-            """Run speaker-test in background thread."""
-            rc, _out, err = StreamCommandBuilder.run_speaker(
+        """Run playback and capture at the same time, then check the WAV."""
+        scope = f"{ctx.card_label} / {ctx.resolved_verb}"
+        with ThreadPoolExecutor(max_workers=2) as pool:
+            play = pool.submit(
+                StreamCommandBuilder.run_speaker,
                 sink_plan.resolved_pcm,
                 sink_plan.channels,
                 sink_plan.sample_format,
                 speaker_loops,
                 timeout=max(30, speaker_loops * 5),
             )
-            play_result[0] = rc
-            play_result[1] = err or ""
-
-        def capture_thread() -> None:
-            """Run arecord in background thread."""
-            rc, _out, err = StreamCommandBuilder.run_arecord(
+            cap = pool.submit(
+                StreamCommandBuilder.run_arecord,
                 source_plan.resolved_pcm,
                 source_plan.channels,
                 source_plan.sample_format,
                 duration,
                 record_path,
             )
-            cap_result[0] = rc
-            cap_result[1] = err or ""
-
-        t_play = threading.Thread(target=playback_thread)
-        t_cap = threading.Thread(target=capture_thread)
-        t_play.start()
-        t_cap.start()
-        t_play.join()
-        t_cap.join()
-
-        if play_result[0] != 0:
-            self._print_stream_failure(
-                scope, "speaker-test", play_result[0], play_result[1]
-            )
-            return 1
-        if cap_result[0] != 0:
-            self._print_stream_failure(
-                scope, "arecord", cap_result[0], cap_result[1]
-            )
-            return 1
+        for tool, res in (("speaker-test", play), ("arecord", cap)):
+            res = res.result()
+            if res.returncode != 0:
+                self._print_stream_failure(
+                    scope, tool, res.returncode, res.stderr
+                )
+                return 1
 
         if not record_path or not os.path.exists(record_path):
-            print(
-                "[FAIL] {0} -- loopback capture file " "missing".format(scope)
-            )
+            print(f"[FAIL] {scope} -- loopback capture file missing")
             return 1
 
         bytes_per_sample = 2
@@ -1943,19 +1683,13 @@ class LoopbackRunner(BaseUcmTestRunner):
         actual_size = os.path.getsize(record_path)
         if actual_size < expected_min:
             print(
-                "[FAIL] {0} -- recorded WAV too small "
-                "({1} bytes, min {2})".format(
-                    scope,
-                    actual_size,
-                    expected_min,
-                )
+                f"[FAIL] {scope} -- recorded WAV too small "
+                f"({actual_size} bytes, min {expected_min})"
             )
             return 1
 
-        print(
-            "[PASS] {0} / loopback / wav saved: {1}".format(scope, record_path)
-        )
-        print("To play it: aplay {0}".format(record_path))
+        print(f"[PASS] {scope} / loopback / wav saved: {record_path}")
+        print(f"To play it: aplay {record_path}")
         return 0
 
 
@@ -2067,7 +1801,7 @@ def build_arg_parser() -> argparse.ArgumentParser:
     return parser
 
 
-def main_from_args(argv: Optional[List[str]] = None) -> int:
+def main(argv: list[str] | None = None) -> int:
     """Program entry point with injectable argv for unit tests."""
     parser = build_arg_parser()
     args = parser.parse_args(argv)
@@ -2086,11 +1820,6 @@ def main_from_args(argv: Optional[List[str]] = None) -> int:
         return LoopbackRunner(card_manager, ucm_parser).run(args)
     parser.print_help()
     return 1
-
-
-def main() -> int:
-    """Console entry point."""
-    return main_from_args()
 
 
 if __name__ == "__main__":

@@ -179,20 +179,19 @@ class AlsaUcmTest(unittest.TestCase):
 
     def test_alsa_ucm_command_format(self):
         self.assertEqual(
-            alsa_ucm_test.AlsaUcmCli.fmt(
-                "0",
+            alsa_ucm_test.AlsaUcmCli.argv(
+                0,
                 ("_verb", "HiFi"),
                 ("_enadev", "Speaker"),
                 ("_enadev", "Mic"),
             ),
-            "alsaucm -c 0 set _verb HiFi set _enadev Speaker set _enadev Mic",
+            "alsaucm -c 0 set _verb HiFi set _enadev Speaker "
+            "set _enadev Mic".split(),
         )
 
     def test_stream_command_builders(self):
         self.assertEqual(
-            alsa_ucm_test.StreamCommandBuilder.speaker_argv(
-                "hw:0,0", "2", "S16_LE"
-            ),
+            alsa_ucm_test.speaker_argv("hw:0,0", "2", "S16_LE"),
             [
                 "speaker-test",
                 "-D",
@@ -210,7 +209,7 @@ class AlsaUcmTest(unittest.TestCase):
             ],
         )
         self.assertEqual(
-            alsa_ucm_test.StreamCommandBuilder.arecord_argv(
+            alsa_ucm_test.arecord_argv(
                 "hw:0,2", "2", "S16_LE", 10, "/tmp/test.wav"
             ),
             [
@@ -429,9 +428,7 @@ class ParserExamplesTest(unittest.TestCase):
         )
         with mock.patch("alsa_ucm_test.subprocess.run", return_value=res):
             verbs = alsa_ucm_test.CardManager().list_alsaucm_verbs(0)
-        self.assertEqual(
-            verbs, [{"name": "HiFi", "comment": "Play high quality music"}]
-        )
+        self.assertEqual(verbs, ["HiFi"])
 
     def test_resolve_pcm(self):
         self.assertEqual(

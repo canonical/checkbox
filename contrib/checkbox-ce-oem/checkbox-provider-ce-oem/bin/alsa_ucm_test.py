@@ -27,8 +27,7 @@ It extracts card/verb/device discovery logic from the full
   those pairs; omitting the mode with `--pairing` merges loopback rows plus
   filtered sinks and sources.
 - `test`: validates one card+verb+device row by applying UCM configuration
-  via `alsaucm` and running a stream verification (speaker-test or arecord),
-  with an optional `--dry-run` mode for safe QA validation.
+  via `alsaucm` and running a stream verification (speaker-test or arecord).
 - `loopback-test`: enables one Sink device and one Source device under the
   same verb, runs playback + capture concurrently, and saves a WAV file for
   inspection.
@@ -124,16 +123,16 @@ class CardManager:
                 return card
         return None
 
-    def list_alsaucm_verbs(self, card_index: int) -> list[dict[str, str]]:
-        """Enumerate UCM verbs from alsaucm list output.
+    def list_alsaucm_verbs(self, card_index: int) -> list[str]:
+        """Enumerate UCM verb names from alsaucm list output.
 
         ``alsaucm -c 0 list _verbs`` prints, for example::
 
               0: HiFi
                 Play high quality music
 
-        The regex matches ``  0: HiFi`` and gives ``HiFi``. The next
-        indented lines are the verb comment.
+        The regex matches ``  0: HiFi`` and gives ``HiFi``. It does not
+        match the indented comment line.
         """
         res = subprocess.run(
             ["alsaucm", "-c", str(card_index), "list", "_verbs"],
@@ -147,25 +146,7 @@ class CardManager:
                 f"(rc={res.returncode})"
             )
             return []
-
-        verbs = []
-        current = None
-        for raw_line in res.stdout.splitlines():
-            line = raw_line.rstrip()
-            match = re.match(r"^\s*\d+:\s+(.+?)\s*$", line)
-            if match:
-                if current:
-                    verbs.append(current)
-                current = {"name": match.group(1).strip(), "comment": ""}
-                continue
-            if current and line.strip():
-                if current["comment"]:
-                    current["comment"] += f" {line.strip()}"
-                else:
-                    current["comment"] = line.strip()
-        if current:
-            verbs.append(current)
-        return verbs
+        return re.findall(r"^\s*\d+:\s+(.+?)\s*$", res.stdout, re.MULTILINE)
 
 
 class UCMJsonParser:
@@ -197,12 +178,10 @@ class UCMJsonParser:
         values: dict[str, str] | None = None,
     ) -> dict[str, object]:
         """Build a device dict with inferred I/O metadata."""
-        values = values or {}
-        dtype, pcm, channels = self._infer_device_io(values)
+        dtype, pcm, channels = self._infer_device_io(values or {})
         return {
             "name": name,
             "comment": comment or "",
-            "values": values,
             "type": dtype,
             "pcm": pcm,
             "channels": channels,
@@ -254,11 +233,7 @@ class UCMJsonParser:
         for verb_name, verb_body in raw_verbs.items():
             if not isinstance(verb_body, dict):
                 continue
-            verb = {
-                "name": verb_name,
-                "comment": verb_body.get("Comment", ""),
-                "devices": [],
-            }
+            verb = {"devices": []}
             raw_devs = verb_body.get("Devices", {})
             if isinstance(raw_devs, dict):
                 for dev_name, dev_body in raw_devs.items():
@@ -305,24 +280,11 @@ def resolve_choice(raw_value: str, choices: list[str]) -> str | None:
     return None
 
 
-def _resolve_verb_entry(
-    verb_map: dict[str, dict[str, object]], verb_name: str
-) -> dict[str, object]:
-    """Look up a verb entry with normalization fallback."""
-    verb = verb_map.get(verb_name, {})
-    if not verb:
-        target = normalize_key(verb_name)
-        for key_name, key_verb in verb_map.items():
-            if normalize_key(key_name) == target:
-                return key_verb
-    return verb
-
-
 def find_devices_for_verb(
     verb_map: dict[str, dict[str, object]], verb_name: str
 ) -> list[str]:
     """Return sorted unique device names for one verb."""
-    verb = _resolve_verb_entry(verb_map, verb_name)
+    verb = verb_map.get(verb_name, {})
     devices = []
     for dev in verb.get("devices", []):
         name = dev.get("name")
@@ -341,12 +303,7 @@ def get_card_verb_map(
     if verb_names:
         return verb_map, verb_names, True
 
-    fallback_verbs = card_manager.list_alsaucm_verbs(card_index)
-    for verb in fallback_verbs:
-        candidate = (verb.get("name") or "").strip()
-        if candidate and candidate not in verb_names:
-            verb_names.append(candidate)
-    return verb_map, verb_names, False
+    return verb_map, card_manager.list_alsaucm_verbs(card_index), False
 
 
 def fail_for_unknown_verb(
@@ -397,17 +354,10 @@ def fail_for_unknown_device(
 
 
 def print_resource_rows(rows: list[dict[str, str]]) -> None:
-    """Print rows in variable-width block format."""
+    """Print rows in Checkbox resource format (key order = insert order)."""
     for row in rows:
-        print(f"SoundCard: {row['SoundCard']}")
-        print(f"SoundNumber: {row['SoundNumber']}")
-        print(f"Verbs: {row['Verbs']}")
-        if "SinksDevice" in row:
-            print(f"SinksDevice: {row['SinksDevice']}")
-            print(f"SinksDeviceName: {row['SinksDeviceName']}")
-        if "SourceDevice" in row:
-            print(f"SourceDevice: {row['SourceDevice']}")
-            print(f"SourceDeviceName: {row['SourceDeviceName']}")
+        for key, value in row.items():
+            print(f"{key}: {value}")
         print("")
 
 
@@ -437,13 +387,9 @@ def find_devices_for_verb_by_type(
     dtype: str,
 ) -> list[str]:
     """Return sorted device names for one verb and one UCM device type."""
-    verb = _resolve_verb_entry(verb_map, verb_name)
-    devices = []
-    for dev in verb.get("devices", []):
-        name = dev.get("name")
-        if name and dev.get("type") == dtype and name not in devices:
-            devices.append(name)
-    return sorted(devices)
+    return [
+        name for name, _ in _device_meta_for_verb(verb_map, verb_name, dtype)
+    ]
 
 
 def _device_meta_for_verb(
@@ -453,11 +399,10 @@ def _device_meta_for_verb(
 ) -> list[tuple[str, str]]:
     """Return sorted ``(name, comment)`` tuples for one verb / dtype.
 
-    Mirrors :func:`find_devices_for_verb_by_type` but also surfaces the
-    UCM ``Comment`` so resource rows can emit human-readable
-    ``SinksDeviceName`` / ``SourceDeviceName`` fields.
+    The UCM ``Comment`` gives the human-readable ``SinksDeviceName`` /
+    ``SourceDeviceName`` resource fields.
     """
-    verb = _resolve_verb_entry(verb_map, verb_name)
+    verb = verb_map.get(verb_name, {})
     seen = {}
     for dev in verb.get("devices", []):
         name = dev.get("name")
@@ -790,7 +735,7 @@ def get_device_info(
     device_name: str,
 ) -> tuple[str, str | None, str]:
     """Return (type, pcm, channels) for a device in verb_map."""
-    verb = _resolve_verb_entry(verb_map, verb_name)
+    verb = verb_map.get(verb_name, {})
     for dev in verb.get("devices", []):
         if dev.get("name") == device_name:
             return (
@@ -819,7 +764,6 @@ def build_device_stream_plan(
     device_name: str,
     card_index: int,
     card_name: str,
-    dry_run: bool,
 ) -> DeviceStreamPlan:
     """Resolve PCM, channels, and sample format for one device side.
 
@@ -835,7 +779,7 @@ def build_device_stream_plan(
     channels, test_int, declared = cap_test_channels(raw_channels)
     resolved_pcm = resolve_pcm(raw_pcm, card_index, card_name)
     sample_format = DEFAULT_SAMPLE_FORMAT
-    if not dry_run and stream_type in (UCM_TYPE_SINK, UCM_TYPE_SOURCE):
+    if stream_type in (UCM_TYPE_SINK, UCM_TYPE_SOURCE):
         supported = probe_supported_formats(resolved_pcm, stream_type)
         sample_format = pick_sample_format(supported, DEFAULT_SAMPLE_FORMAT)
     return DeviceStreamPlan(
@@ -915,7 +859,7 @@ def _log_channel_cap(
 
 
 class AlsaUcmCli:
-    """Variadic alsaucm subprocess wrapper for apply / cleanup / format.
+    """Build and run alsaucm commands for one or more devices.
 
     Replaces the former six standalone functions with N-device methods.
     Single-device calls are just the 1-device case of the same logic.
@@ -928,14 +872,6 @@ class AlsaUcmCli:
         for key, val in set_pairs:
             cmd.extend(["set", key, val])
         return cmd
-
-    @staticmethod
-    def fmt(card_index: str, *set_pairs: tuple[str, str]) -> str:
-        """Format an alsaucm command string for display."""
-        parts = ["alsaucm", "-c", card_index]
-        for key, val in set_pairs:
-            parts.extend(["set", key, val])
-        return " ".join(parts)
 
     @staticmethod
     def apply(
@@ -1047,153 +983,58 @@ def restore_alsa_state(card_index: int, state_file: str) -> bool:
     return True
 
 
-class StreamCommandBuilder:
-    """Build and run speaker-test / arecord commands from shared argv logic."""
-
-    @staticmethod
-    def speaker_argv(
-        pcm: str, channels: str, sample_format: str, loops: int = 1
-    ) -> list[str]:
-        """Build speaker-test argv."""
-        return [
-            "speaker-test",
-            "-D",
-            pcm,
-            "-c",
-            str(channels),
-            "-F",
-            sample_format,
-            "-r",
-            str(DEFAULT_SAMPLE_RATE),
-            "-t",
-            "wav",
-            "-l",
-            str(loops),
-        ]
-
-    @staticmethod
-    def arecord_argv(
-        pcm: str,
-        channels: str,
-        sample_format: str,
-        duration: int,
-        output_path: str,
-    ) -> list[str]:
-        """Build arecord argv."""
-        return [
-            "arecord",
-            "-D",
-            pcm,
-            "-c",
-            str(channels),
-            "-f",
-            sample_format,
-            "-r",
-            str(DEFAULT_SAMPLE_RATE),
-            "-d",
-            str(duration),
-            "-t",
-            "wav",
-            output_path,
-        ]
-
-    @staticmethod
-    def fmt_speaker_cmd(
-        pcm: str, channels: str, sample_format: str, loops: int = 1
-    ) -> str:
-        """Format a speaker-test command string for display."""
-        return " ".join(
-            StreamCommandBuilder.speaker_argv(
-                pcm, channels, sample_format, loops
-            )
-        )
-
-    @staticmethod
-    def fmt_arecord_cmd(
-        pcm: str,
-        channels: str,
-        sample_format: str,
-        duration: int,
-        output_path: str,
-    ) -> str:
-        """Format an arecord command string for display."""
-        return " ".join(
-            StreamCommandBuilder.arecord_argv(
-                pcm, channels, sample_format, duration, output_path
-            )
-        )
-
-    @staticmethod
-    def run_speaker(
-        pcm: str,
-        channels: str,
-        sample_format: str,
-        loops: int = 1,
-        timeout: int = 30,
-    ) -> subprocess.CompletedProcess:
-        """Run speaker-test."""
-        return subprocess.run(
-            StreamCommandBuilder.speaker_argv(
-                pcm, channels, sample_format, loops
-            ),
-            capture_output=True,
-            text=True,
-            timeout=timeout,
-        )
-
-    @staticmethod
-    def run_arecord(
-        pcm: str,
-        channels: str,
-        sample_format: str,
-        duration: int,
-        output_path: str,
-        timeout: int | None = None,
-    ) -> subprocess.CompletedProcess:
-        """Run arecord."""
-        return subprocess.run(
-            StreamCommandBuilder.arecord_argv(
-                pcm, channels, sample_format, duration, output_path
-            ),
-            capture_output=True,
-            text=True,
-            timeout=timeout or duration + 20,
-        )
+def speaker_argv(
+    pcm: str, channels: str, sample_format: str, loops: int = 1
+) -> list[str]:
+    """Build speaker-test argv."""
+    return [
+        "speaker-test",
+        "-D",
+        pcm,
+        "-c",
+        str(channels),
+        "-F",
+        sample_format,
+        "-r",
+        str(DEFAULT_SAMPLE_RATE),
+        "-t",
+        "wav",
+        "-l",
+        str(loops),
+    ]
 
 
-def run_stream_test(
-    resolved_pcm: str,
-    stream_type: str,
+def arecord_argv(
+    pcm: str,
     channels: str,
     sample_format: str,
-    record_path: str | None = None,
-) -> subprocess.CompletedProcess:
-    """Run a short audio stream to verify the device works.
-
-    A Sink plays a speaker-test WAV once. A Source records
-    ``DEFAULT_RECORD_DURATION`` seconds into *record_path*.
-    """
-    if stream_type == UCM_TYPE_SINK:
-        return StreamCommandBuilder.run_speaker(
-            resolved_pcm, channels, sample_format
-        )
-    res = StreamCommandBuilder.run_arecord(
-        resolved_pcm,
-        channels,
+    duration: int,
+    output_path: str,
+) -> list[str]:
+    """Build arecord argv."""
+    return [
+        "arecord",
+        "-D",
+        pcm,
+        "-c",
+        str(channels),
+        "-f",
         sample_format,
-        DEFAULT_RECORD_DURATION,
-        record_path,
-        timeout=30,
-    )
-    if res.returncode == 0:
-        print(f"[INFO] Recorded file saved to: {record_path}")
-        print(f"To play it: aplay {record_path}")
-    else:
-        warn(
-            f"arecord failed (rc={res.returncode}); "
-            f"recording file may exist: {record_path}"
-        )
-    return res
+        "-r",
+        str(DEFAULT_SAMPLE_RATE),
+        "-d",
+        str(duration),
+        "-t",
+        "wav",
+        output_path,
+    ]
+
+
+def make_record_file(prefix: str) -> str:
+    """Create an empty temp WAV file for arecord and return its path."""
+    fd, path = tempfile.mkstemp(prefix=prefix, suffix=".wav")
+    os.close(fd)
+    return path
 
 
 def resolve_card_and_verb(
@@ -1286,52 +1127,27 @@ class AlsaStateGuard:
     actually enabled.
     """
 
-    _PLACEHOLDER_TPL = "/tmp/alsa_state_card{0}_XXXX.state"
-
-    def __init__(
-        self,
-        card_index: int,
-        resolved_card: str,
-        dry_run: bool,
-        fallback_cleanup: Callable,
-    ) -> None:
+    def __init__(self, card_index: int, fallback_cleanup: Callable) -> None:
         """Initialise guard with card details and cleanup strategy."""
         self.card_index = card_index
-        self.resolved_card = resolved_card
-        self.dry_run = dry_run
         self.fallback_cleanup = fallback_cleanup
-        self.tag = "[DRY-RUN] " if dry_run else ""
         self.state_file: str | None = None
         self.apply_succeeded = False
 
-    def _effective_path(self) -> str | None:
-        """Return state file path, or a placeholder when dry-running."""
-        if self.dry_run:
-            return self._PLACEHOLDER_TPL.format(self.resolved_card)
-        return self.state_file
-
-    def _log_alsactl(self, action: str) -> None:
-        """Print the alsactl command that is (or would be) executed."""
-        path = self._effective_path()
-        if path:
-            print(f"{self.tag}alsactl -f {path} {action} {self.resolved_card}")
-
     def __enter__(self) -> AlsaStateGuard:
-        """Save ALSA mixer state (or print dry-run placeholder)."""
-        if not self.dry_run:
-            self.state_file = save_alsa_state(self.card_index)
-            if not self.state_file:
-                warn("Could not save ALSA state; will use basic cleanup only")
-                return self
-        self._log_alsactl("store")
+        """Save ALSA mixer state."""
+        self.state_file = save_alsa_state(self.card_index)
+        if self.state_file:
+            print(f"alsactl -f {self.state_file} store {self.card_index}")
+        else:
+            warn("Could not save ALSA state; will use basic cleanup only")
         return self
 
     def __exit__(self, *exc_info: object) -> Literal[False]:
         """Restore ALSA mixer state (or run fallback cleanup)."""
-        if self.dry_run or self.state_file:
-            self._log_alsactl("restore")
-            if self.state_file:
-                restore_alsa_state(self.card_index, self.state_file)
+        if self.state_file:
+            print(f"alsactl -f {self.state_file} restore {self.card_index}")
+            restore_alsa_state(self.card_index, self.state_file)
         elif self.apply_succeeded:
             self.fallback_cleanup()
         return False
@@ -1364,61 +1180,39 @@ class BaseUcmTestRunner(ABC):
         """Subclass hook: run the test after card+verb resolution."""
 
     @staticmethod
-    def _print_apply_failure(
-        scope_label: str, apply_rc: int, apply_err: str
-    ) -> None:
-        """Print [FAIL] for alsaucm apply with optional stderr."""
-        print(f"[FAIL] {scope_label} -- alsaucm apply exit code {apply_rc}")
-        if (apply_err or "").strip():
-            print(f"[FAIL] apply stderr: {apply_err.strip()}")
-
-    @staticmethod
     def _print_stream_failure(
         scope_label: str, tool_label: str, rc: int, stderr: str
     ) -> None:
         """Print [FAIL] for a stream tool exit code with optional stderr."""
         print(f"[FAIL] {scope_label} -- {tool_label} exit code {rc}")
-        if (stderr or "").strip():
+        if stderr.strip():
             print(f"[FAIL] {tool_label} stderr: {stderr.strip()}")
 
+    @staticmethod
     def _apply_devices(
-        self,
-        ctx: TestContext,
-        guard: AlsaStateGuard,
-        devices: list[str],
-        dry_run: bool,
-        tag: str,
+        ctx: TestContext, guard: AlsaStateGuard, devices: list[str]
     ) -> bool:
-        """Print, apply, and handle failure for one or more devices.
+        """Print and apply the verb and devices; print [FAIL] on error.
 
-        Returns ``True`` on success (or dry-run), ``False`` on failure.
+        Returns ``True`` on success, ``False`` on failure.
         Callers turn ``False`` into ``return 1``.
         """
         pairs = [("_verb", ctx.resolved_verb)]
-        pairs.extend(("_enadev", d) for d in devices)
-        apply_cmd_str = AlsaUcmCli.fmt(ctx.resolved_card, *pairs)
-        print(f"{tag}{apply_cmd_str}")
-        if not dry_run:
-            res = AlsaUcmCli.apply(ctx.card_index, ctx.resolved_verb, *devices)
-            if res.returncode != 0:
-                scope = f"{ctx.card_label} / {ctx.resolved_verb}"
-                if len(devices) == 1:
-                    scope = f"{scope} / {devices[0]}"
-                self._print_apply_failure(scope, res.returncode, res.stderr)
-                return False
-            guard.apply_succeeded = True
+        pairs += [("_enadev", dev) for dev in devices]
+        print(" ".join(AlsaUcmCli.argv(ctx.card_index, *pairs)))
+        res = AlsaUcmCli.apply(ctx.card_index, ctx.resolved_verb, *devices)
+        if res.returncode != 0:
+            scope = f"{ctx.card_label} / {ctx.resolved_verb}"
+            if len(devices) == 1:
+                scope = f"{scope} / {devices[0]}"
+            print(
+                f"[FAIL] {scope} -- alsaucm apply exit code {res.returncode}"
+            )
+            if res.stderr.strip():
+                print(f"[FAIL] apply stderr: {res.stderr.strip()}")
+            return False
+        guard.apply_succeeded = True
         return True
-
-    @staticmethod
-    def _mk_record_tempfile(
-        prefix: str, dry_run: bool, placeholder: str
-    ) -> tuple[str | None, str]:
-        """Create a temp WAV file, or return placeholder for dry-run."""
-        if dry_run:
-            return None, placeholder
-        fd, path = tempfile.mkstemp(prefix=prefix, suffix=".wav")
-        os.close(fd)
-        return path, path
 
 
 class SingleDeviceRunner(BaseUcmTestRunner):
@@ -1426,241 +1220,181 @@ class SingleDeviceRunner(BaseUcmTestRunner):
 
     def _execute(self, ctx: TestContext, args: argparse.Namespace) -> int:
         """Resolve one device, apply UCM, run stream test."""
-        resolved_device = resolve_device_for_test(
+        device = resolve_device_for_test(
             ctx.card_label, ctx.resolved_verb, args.device, ctx.verb_map
         )
-        if resolved_device is None:
+        if device is None:
             return 1
-
-        dry_run = args.dry_run
-        tag = "[DRY-RUN] " if dry_run else ""
         plan = build_device_stream_plan(
             ctx.verb_map,
             ctx.resolved_verb,
-            resolved_device,
+            device,
             ctx.card_index,
             ctx.card_name,
-            dry_run,
         )
-
+        scope = f"{ctx.card_label} / {ctx.resolved_verb} / {device}"
         guard = AlsaStateGuard(
             ctx.card_index,
-            ctx.resolved_card,
-            dry_run,
-            lambda: AlsaUcmCli.cleanup(ctx.card_index, resolved_device),
+            lambda: AlsaUcmCli.cleanup(ctx.card_index, device),
         )
         with guard:
-            if not self._apply_devices(
-                ctx, guard, [resolved_device], dry_run, tag
-            ):
+            if not self._apply_devices(ctx, guard, [device]):
                 return 1
-
-            record_path, record_display = self._mk_record_tempfile(
-                "alsa_checkbox_record_",
-                dry_run or plan.stream_type != UCM_TYPE_SOURCE,
-                f"/tmp/alsa_checkbox_record_card{ctx.resolved_card}_XXXX.wav",
-            )
-
+            record_path = None
             if plan.stream_type == UCM_TYPE_SINK:
-                stream_cmd_str = StreamCommandBuilder.fmt_speaker_cmd(
+                argv = speaker_argv(
                     plan.resolved_pcm, plan.channels, plan.sample_format
                 )
             elif plan.stream_type == UCM_TYPE_SOURCE:
-                stream_cmd_str = StreamCommandBuilder.fmt_arecord_cmd(
+                record_path = make_record_file("alsa_checkbox_record_")
+                argv = arecord_argv(
                     plan.resolved_pcm,
                     plan.channels,
                     plan.sample_format,
                     DEFAULT_RECORD_DURATION,
-                    record_display,
+                    record_path,
                 )
-            else:
-                stream_cmd_str = None
-
-            if stream_cmd_str:
-                _log_channel_cap(
-                    resolved_device,
-                    plan.declared,
-                    plan.test_int,
-                )
-                print(f"{tag}{stream_cmd_str}")
             else:
                 warn(
-                    f"Device {resolved_device} has no PlaybackPCM/CapturePCM; "
+                    f"Device {device} has no PlaybackPCM/CapturePCM; "
                     "skipping stream test"
                 )
+                print(f"[PASS] {scope} (no stream test)")
+                return 0
 
-            scope = (
-                f"{ctx.card_label} / {ctx.resolved_verb} / {resolved_device}"
+            _log_channel_cap(device, plan.declared, plan.test_int)
+            print(" ".join(argv))
+            res = subprocess.run(
+                argv, capture_output=True, text=True, timeout=30
             )
-            if not dry_run and stream_cmd_str:
-                res = run_stream_test(
-                    plan.resolved_pcm,
-                    plan.stream_type,
-                    plan.channels,
-                    plan.sample_format,
-                    record_path=record_path,
+            if record_path and res.returncode == 0:
+                print(f"[INFO] Recorded file saved to: {record_path}")
+                print(f"To play it: aplay {record_path}")
+            elif record_path:
+                warn(
+                    f"arecord failed (rc={res.returncode}); "
+                    f"recording file may exist: {record_path}"
                 )
-                if res.returncode != 0:
-                    self._print_stream_failure(
-                        scope, "stream test", res.returncode, res.stderr
-                    )
-                    return 1
-
-            suffix = " (dry-run)" if dry_run else ""
-            if not stream_cmd_str:
-                suffix = f" (no stream test){suffix}"
-            print(f"[PASS] {scope}{suffix}")
+            if res.returncode != 0:
+                self._print_stream_failure(
+                    scope, "stream test", res.returncode, res.stderr
+                )
+                return 1
+            print(f"[PASS] {scope}")
             return 0
 
 
 class LoopbackRunner(BaseUcmTestRunner):
-    """Run a threaded loopback test (playback + record concurrently)."""
+    """Run a loopback test (playback + record at the same time)."""
 
     def _execute(self, ctx: TestContext, args: argparse.Namespace) -> int:
         """Resolve sink+source, apply UCM, run concurrent streams."""
-        sink_devices = find_devices_for_verb_by_type(
-            ctx.verb_map, ctx.resolved_verb, UCM_TYPE_SINK
-        )
-        source_devices = find_devices_for_verb_by_type(
-            ctx.verb_map, ctx.resolved_verb, UCM_TYPE_SOURCE
-        )
-        resolved_sink = resolve_device_for_test(
+        sink = resolve_device_for_test(
             ctx.card_label,
             ctx.resolved_verb,
             args.sink_device,
             ctx.verb_map,
-            sink_devices,
+            find_devices_for_verb_by_type(
+                ctx.verb_map, ctx.resolved_verb, UCM_TYPE_SINK
+            ),
         )
-        if resolved_sink is None:
+        if sink is None:
             return 1
-        resolved_source = resolve_device_for_test(
+        source = resolve_device_for_test(
             ctx.card_label,
             ctx.resolved_verb,
             args.source_device,
             ctx.verb_map,
-            source_devices,
-        )
-        if resolved_source is None:
-            return 1
-
-        duration = int(getattr(args, "duration", 10))
-        speaker_loops = int(getattr(args, "speaker_loops", 2))
-        dry_run = bool(getattr(args, "dry_run", False))
-        tag = "[DRY-RUN] " if dry_run else ""
-
-        sink_plan = build_device_stream_plan(
-            ctx.verb_map,
-            ctx.resolved_verb,
-            resolved_sink,
-            ctx.card_index,
-            ctx.card_name,
-            dry_run,
-        )
-        source_plan = build_device_stream_plan(
-            ctx.verb_map,
-            ctx.resolved_verb,
-            resolved_source,
-            ctx.card_index,
-            ctx.card_name,
-            dry_run,
-        )
-
-        record_path, record_display = self._mk_record_tempfile(
-            "alsa_checkbox_loopback_record_",
-            dry_run,
-            "/tmp/alsa_checkbox_loopback_record_card"
-            f"{ctx.resolved_card}_XXXX.wav",
-        )
-
-        guard = AlsaStateGuard(
-            ctx.card_index,
-            ctx.resolved_card,
-            dry_run,
-            lambda: AlsaUcmCli.cleanup(
-                ctx.card_index, resolved_sink, resolved_source
+            find_devices_for_verb_by_type(
+                ctx.verb_map, ctx.resolved_verb, UCM_TYPE_SOURCE
             ),
         )
+        if source is None:
+            return 1
+
+        sink_plan, source_plan = (
+            build_device_stream_plan(
+                ctx.verb_map,
+                ctx.resolved_verb,
+                dev,
+                ctx.card_index,
+                ctx.card_name,
+            )
+            for dev in (sink, source)
+        )
+        record_path = make_record_file("alsa_checkbox_loopback_record_")
+        play_argv = speaker_argv(
+            sink_plan.resolved_pcm,
+            sink_plan.channels,
+            sink_plan.sample_format,
+            args.speaker_loops,
+        )
+        cap_argv = arecord_argv(
+            source_plan.resolved_pcm,
+            source_plan.channels,
+            source_plan.sample_format,
+            args.duration,
+            record_path,
+        )
+        guard = AlsaStateGuard(
+            ctx.card_index,
+            lambda: AlsaUcmCli.cleanup(ctx.card_index, sink, source),
+        )
         with guard:
-            if not self._apply_devices(
-                ctx, guard, [resolved_sink, resolved_source], dry_run, tag
-            ):
+            if not self._apply_devices(ctx, guard, [sink, source]):
                 return 1
-
-            speaker_cmd = StreamCommandBuilder.fmt_speaker_cmd(
-                sink_plan.resolved_pcm,
-                sink_plan.channels,
-                sink_plan.sample_format,
-                speaker_loops,
-            )
-            arecord_cmd = StreamCommandBuilder.fmt_arecord_cmd(
-                source_plan.resolved_pcm,
-                source_plan.channels,
-                source_plan.sample_format,
-                duration,
-                record_display,
-            )
+            _log_channel_cap(sink, sink_plan.declared, sink_plan.test_int)
+            print(" ".join(play_argv))
             _log_channel_cap(
-                resolved_sink, sink_plan.declared, sink_plan.test_int
+                source, source_plan.declared, source_plan.test_int
             )
-            print(f"{tag}{speaker_cmd}")
-            _log_channel_cap(
-                resolved_source, source_plan.declared, source_plan.test_int
-            )
-            print(f"{tag}{arecord_cmd}")
-
-            if dry_run:
-                print(
-                    f"[PASS] {ctx.card_label} / {ctx.resolved_verb} / "
-                    "loopback (dry-run)"
-                )
-                return 0
-
+            print(" ".join(cap_argv))
             return self._run_concurrent_streams(
                 ctx,
-                sink_plan,
-                speaker_loops,
+                play_argv,
+                max(30, args.speaker_loops * 5),
+                cap_argv,
+                args.duration,
                 source_plan,
-                duration,
                 record_path,
             )
 
     def _run_concurrent_streams(
         self,
         ctx: TestContext,
-        sink_plan: DeviceStreamPlan,
-        speaker_loops: int,
-        source_plan: DeviceStreamPlan,
+        play_argv: list[str],
+        play_timeout: int,
+        cap_argv: list[str],
         duration: int,
+        source_plan: DeviceStreamPlan,
         record_path: str,
     ) -> int:
         """Run playback and capture at the same time, then check the WAV."""
         scope = f"{ctx.card_label} / {ctx.resolved_verb}"
         with ThreadPoolExecutor(max_workers=2) as pool:
             play = pool.submit(
-                StreamCommandBuilder.run_speaker,
-                sink_plan.resolved_pcm,
-                sink_plan.channels,
-                sink_plan.sample_format,
-                speaker_loops,
-                timeout=max(30, speaker_loops * 5),
+                subprocess.run,
+                play_argv,
+                capture_output=True,
+                text=True,
+                timeout=play_timeout,
             )
             cap = pool.submit(
-                StreamCommandBuilder.run_arecord,
-                source_plan.resolved_pcm,
-                source_plan.channels,
-                source_plan.sample_format,
-                duration,
-                record_path,
+                subprocess.run,
+                cap_argv,
+                capture_output=True,
+                text=True,
+                timeout=duration + 20,
             )
-        for tool, res in (("speaker-test", play), ("arecord", cap)):
-            res = res.result()
+        for tool, future in (("speaker-test", play), ("arecord", cap)):
+            res = future.result()
             if res.returncode != 0:
                 self._print_stream_failure(
                     scope, tool, res.returncode, res.stderr
                 )
                 return 1
 
-        if not record_path or not os.path.exists(record_path):
+        if not os.path.exists(record_path):
             print(f"[FAIL] {scope} -- loopback capture file missing")
             return 1
 
@@ -1670,14 +1404,10 @@ class LoopbackRunner(BaseUcmTestRunner):
             or "S32" in source_plan.sample_format
         ):
             bytes_per_sample = 4
-        try:
-            cap_channels_int = int(source_plan.channels)
-        except ValueError:
-            cap_channels_int = MAX_TEST_CHANNELS
         expected_min = (
             duration
             * DEFAULT_SAMPLE_RATE
-            * cap_channels_int
+            * source_plan.test_int
             * bytes_per_sample
         ) // WAV_MIN_SIZE_DIVISOR
         actual_size = os.path.getsize(record_path)
@@ -1719,13 +1449,6 @@ def build_arg_parser() -> argparse.ArgumentParser:
             "Example: 'Speaker:Mic,Headphones:Mic2'"
         ),
     )
-    p_resource.add_argument(
-        "--loopback-pairing",
-        dest="pairing",
-        default=None,
-        metavar="SPEC",
-        help=argparse.SUPPRESS,
-    )
     p_resource.set_defaults(command_name="resource")
 
     p_test = sub.add_parser("test", help="Run one row test")
@@ -1746,11 +1469,6 @@ def build_arg_parser() -> argparse.ArgumentParser:
         "--device",
         required=True,
         help="Device value from resource row",
-    )
-    p_test.add_argument(
-        "--dry-run",
-        action="store_true",
-        help="Validate logic and print commands without running subprocesses",
     )
     p_test.set_defaults(command_name="test")
 
@@ -1790,11 +1508,6 @@ def build_arg_parser() -> argparse.ArgumentParser:
         type=int,
         default=2,
         help="speaker-test -l loop count",
-    )
-    p_loop.add_argument(
-        "--dry-run",
-        action="store_true",
-        help="Validate logic and print commands without running subprocesses",
     )
     p_loop.set_defaults(command_name="loopback-test")
 

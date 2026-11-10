@@ -8,12 +8,7 @@ plugin: resource
 estimated_duration: '5.0'
 environ:
   - ALSA_UCM_LOOPBACK_PAIRING
-command: |
-  if [ -n "$ALSA_UCM_LOOPBACK_PAIRING" ]; then
-      alsa_ucm_test.py resource sinks --pairing "$ALSA_UCM_LOOPBACK_PAIRING"
-  else
-      alsa_ucm_test.py resource sinks
-  fi
+command: alsa_ucm_test.py resource sinks --pairing "$ALSA_UCM_LOOPBACK_PAIRING"
 ---
 id: ce-oem-audio/alsa-ucm-sources-list
 summary: Generates ALSA UCM source resources
@@ -25,12 +20,7 @@ plugin: resource
 estimated_duration: '5.0'
 environ:
   - ALSA_UCM_LOOPBACK_PAIRING
-command: |
-  if [ -n "$ALSA_UCM_LOOPBACK_PAIRING" ]; then
-      alsa_ucm_test.py resource sources --pairing "$ALSA_UCM_LOOPBACK_PAIRING"
-  else
-      alsa_ucm_test.py resource sources
-  fi
+command: alsa_ucm_test.py resource sources --pairing "$ALSA_UCM_LOOPBACK_PAIRING"
 ---
 id: ce-oem-audio/alsa-ucm-loopback-list
 summary: Generates ALSA UCM loopback resources

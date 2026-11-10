@@ -1,8 +1,38 @@
+import json
+import subprocess
+import tempfile
 import unittest
 from io import StringIO
+from pathlib import Path
 from unittest import mock
 
 import alsa_ucm_test
+
+# Part of the real "alsaucm -c 0 dump json" output of a Genio 520 EVK.
+G520_DUMP = {
+    "Verbs": {
+        "HiFi": {
+            "Comment": "Play high quality music",
+            "Devices": {
+                "Speaker": {
+                    "Comment": "Lineout speaker",
+                    "Values": {
+                        "PlaybackChannels": "2",
+                        "PlaybackPCM": "_ucm0001.hw:mt8391evk,0",
+                    },
+                },
+                "Mic1": {
+                    "Comment": "Analog microphone",
+                    "Values": {
+                        "CaptureChannels": "2",
+                        "CapturePCM": "_ucm0001.hw:mt8391evk,4",
+                    },
+                },
+            },
+        }
+    }
+}
+G520_CARDS = [{"index": 0, "short_name": "mt8391evk"}]
 
 
 class FakeCardManager:
@@ -205,7 +235,7 @@ class AlsaUcmTest(unittest.TestCase):
     def test_loopback_main_dispatch(self, mock_runner):
         mock_runner.return_value = 0
 
-        result = alsa_ucm_test.main_from_args(
+        result = alsa_ucm_test.main(
             [
                 "loopback-test",
                 "-c",
@@ -222,6 +252,197 @@ class AlsaUcmTest(unittest.TestCase):
         )
 
         self.assertEqual(result, 0)
+
+
+class FakeRun:
+    """Replace subprocess.run: record each argv, answer like the tools."""
+
+    def __init__(self, fail=None, timeout=None, wav_bytes=0):
+        self.calls = []
+        self.fail = fail
+        self.timeout = timeout
+        self.wav_bytes = wav_bytes
+
+    def __call__(self, argv, **kwargs):
+        cmd = " ".join(argv)
+        self.calls.append(cmd)
+        if self.timeout and self.timeout in cmd:
+            raise subprocess.TimeoutExpired(argv, kwargs.get("timeout"))
+        if argv[0] == "arecord" and argv[-1].endswith(".wav"):
+            Path(argv[-1]).write_bytes(bytes(self.wav_bytes))
+        if cmd.endswith("dump json"):
+            return subprocess.CompletedProcess(argv, 0, json.dumps(G520_DUMP))
+        rc = 1 if self.fail and self.fail in cmd else 0
+        return subprocess.CompletedProcess(argv, rc, "", "error" * rc)
+
+
+@mock.patch.object(
+    alsa_ucm_test.CardManager, "list_cards", return_value=G520_CARDS
+)
+class RunnerLifecycleTest(unittest.TestCase):
+    """Run the test and loopback-test commands with fake ALSA tools."""
+
+    def setUp(self):
+        tmp = tempfile.TemporaryDirectory()
+        self.addCleanup(tmp.cleanup)
+        self.tmpdir = Path(tmp.name)
+        patcher = mock.patch.object(tempfile, "tempdir", tmp.name)
+        patcher.start()
+        self.addCleanup(patcher.stop)
+
+    def run_main(self, fake, argv):
+        with mock.patch("alsa_ucm_test.subprocess.run", fake), mock.patch(
+            "sys.stdout", StringIO()
+        ) as out, mock.patch("sys.stderr", StringIO()):
+            rc = alsa_ucm_test.main(argv)
+        return rc, out.getvalue()
+
+    def assert_state_restored(self, fake):
+        self.assertTrue(fake.calls[-1].startswith("alsactl -f"))
+        self.assertTrue(fake.calls[-1].endswith("restore 0"))
+        self.assertEqual(list(self.tmpdir.glob("*.state")), [])
+
+    def test_sink_pass(self, _cards):
+        fake = FakeRun()
+        rc, out = self.run_main(
+            fake, ["test", "-c", "0", "-v", "HiFi", "-d", "Speaker"]
+        )
+        self.assertEqual(rc, 0)
+        self.assertIn("[PASS] Card 0 (mt8391evk) / HiFi / Speaker", out)
+        self.assertIn(
+            "alsaucm -c 0 set _verb HiFi set _enadev Speaker", fake.calls
+        )
+        self.assertIn(
+            "speaker-test -D hw:0,0 -c 2 -F S16_LE -r 48000 -t wav -l 1",
+            fake.calls,
+        )
+        self.assert_state_restored(fake)
+
+    def test_source_records_wav(self, _cards):
+        fake = FakeRun()
+        rc, out = self.run_main(
+            fake, ["test", "-c", "0", "-v", "HiFi", "-d", "Mic1"]
+        )
+        self.assertEqual(rc, 0)
+        self.assertTrue(
+            any(c.startswith("arecord -D hw:0,4 -c 2") for c in fake.calls)
+        )
+        self.assertIn("Recorded file saved to:", out)
+        self.assert_state_restored(fake)
+
+    def test_apply_failure_restores_state(self, _cards):
+        fake = FakeRun(fail="_enadev Speaker")
+        rc, out = self.run_main(
+            fake, ["test", "-c", "0", "-v", "HiFi", "-d", "Speaker"]
+        )
+        self.assertEqual(rc, 1)
+        self.assertIn("alsaucm apply exit code 1", out)
+        self.assertFalse(any("speaker-test" in c for c in fake.calls))
+        self.assert_state_restored(fake)
+
+    def test_stream_failure_restores_state(self, _cards):
+        fake = FakeRun(fail="speaker-test")
+        rc, out = self.run_main(
+            fake, ["test", "-c", "0", "-v", "HiFi", "-d", "Speaker"]
+        )
+        self.assertEqual(rc, 1)
+        self.assertIn("stream test exit code 1", out)
+        self.assert_state_restored(fake)
+
+    def test_stream_timeout_restores_state(self, _cards):
+        fake = FakeRun(timeout="speaker-test")
+        with self.assertRaises(subprocess.TimeoutExpired):
+            self.run_main(
+                fake, ["test", "-c", "0", "-v", "HiFi", "-d", "Speaker"]
+            )
+        self.assert_state_restored(fake)
+
+    def test_unknown_device_fails_before_apply(self, _cards):
+        fake = FakeRun()
+        rc, out = self.run_main(
+            fake, ["test", "-c", "0", "-v", "HiFi", "-d", "Nope"]
+        )
+        self.assertEqual(rc, 1)
+        self.assertIn(
+            "device not found. Available devices: Mic1, Speaker", out
+        )
+        self.assertFalse(any(c.startswith("alsactl") for c in fake.calls))
+
+    def loopback(self, fake):
+        return self.run_main(
+            fake,
+            [
+                "loopback-test",
+                "-c",
+                "0",
+                "-v",
+                "HiFi",
+                "--sink-device",
+                "Speaker",
+                "--source-device",
+                "Mic1",
+                "--duration",
+                "10",
+            ],
+        )
+
+    def test_loopback_pass(self, _cards):
+        # 10 s x 48000 Hz x 2 channels x 2 bytes / 100 = 19200 bytes minimum
+        fake = FakeRun(wav_bytes=19200)
+        rc, out = self.loopback(fake)
+        self.assertEqual(rc, 0)
+        self.assertIn("/ loopback / wav saved:", out)
+        self.assert_state_restored(fake)
+
+    def test_loopback_wav_too_small(self, _cards):
+        fake = FakeRun(wav_bytes=19199)
+        rc, out = self.loopback(fake)
+        self.assertEqual(rc, 1)
+        self.assertIn("recorded WAV too small (19199 bytes, min 19200)", out)
+        self.assert_state_restored(fake)
+
+    def test_loopback_capture_failure(self, _cards):
+        fake = FakeRun(fail="arecord -D")
+        rc, out = self.loopback(fake)
+        self.assertEqual(rc, 1)
+        self.assertIn("arecord exit code 1", out)
+        self.assert_state_restored(fake)
+
+
+class ParserExamplesTest(unittest.TestCase):
+    """The docstring examples, with real G520 output."""
+
+    def test_list_cards(self):
+        text = (
+            " 0 [mt8391evk      ]: mt8391-evk - mt8391-evk\n"
+            "                      mediatek-Genio720520EVKP2V3eMMCBoot\n"
+        )
+        with mock.patch.object(
+            Path, "exists", return_value=True
+        ), mock.patch.object(Path, "read_text", return_value=text):
+            cards = alsa_ucm_test.CardManager().list_cards()
+        self.assertEqual(cards, G520_CARDS)
+
+    def test_list_alsaucm_verbs(self):
+        res = subprocess.CompletedProcess(
+            [], 0, "  0: HiFi\n    Play high quality music\n"
+        )
+        with mock.patch("alsa_ucm_test.subprocess.run", return_value=res):
+            verbs = alsa_ucm_test.CardManager().list_alsaucm_verbs(0)
+        self.assertEqual(
+            verbs, [{"name": "HiFi", "comment": "Play high quality music"}]
+        )
+
+    def test_resolve_pcm(self):
+        self.assertEqual(
+            alsa_ucm_test.resolve_pcm(
+                "_ucm0001.hw:mt8391evk,0", 0, "mt8391evk"
+            ),
+            "hw:0,0",
+        )
+        self.assertEqual(
+            alsa_ucm_test.resolve_pcm("hw:${CardId},2", 1), "hw:1,2"
+        )
 
 
 if __name__ == "__main__":

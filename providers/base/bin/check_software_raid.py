@@ -43,8 +43,7 @@ def get_md_stat(filename: str = "/proc/mdstat") -> list:
     raid_raw_data = ""
     raid_stats = []
 
-    with Path(filename) as node:
-        raid_raw_data = node.read_text().strip("\n")
+    raid_raw_data = Path(filename).read_text().strip("\n")
 
     for tmp_data in raid_raw_data.split("\n"):
         find_result = re.search(pattern, tmp_data)

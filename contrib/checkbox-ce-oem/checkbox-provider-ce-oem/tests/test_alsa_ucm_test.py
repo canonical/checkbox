@@ -256,15 +256,20 @@ class AlsaUcmTest(unittest.TestCase):
 class FakeRun:
     """Replace subprocess.run: record each argv, answer like the tools."""
 
-    def __init__(self, fail=None, timeout=None, wav_bytes=0):
+    def __init__(self, fail=None, timeout=None, wav_bytes=0, missing=None):
         self.calls = []
+        self.envs = []
         self.fail = fail
         self.timeout = timeout
         self.wav_bytes = wav_bytes
+        self.missing = missing
 
     def __call__(self, argv, **kwargs):
         cmd = " ".join(argv)
         self.calls.append(cmd)
+        self.envs.append(kwargs.get("env"))
+        if argv[0] == self.missing:
+            raise FileNotFoundError(2, "No such file or directory", argv[0])
         if self.timeout and self.timeout in cmd:
             raise subprocess.TimeoutExpired(argv, kwargs.get("timeout"))
         if argv[0] == "arecord" and argv[-1].endswith(".wav"):
@@ -292,8 +297,9 @@ class RunnerLifecycleTest(unittest.TestCase):
     def run_main(self, fake, argv):
         with mock.patch("alsa_ucm_test.subprocess.run", fake), mock.patch(
             "sys.stdout", StringIO()
-        ) as out, mock.patch("sys.stderr", StringIO()):
+        ) as out, mock.patch("sys.stderr", StringIO()) as err:
             rc = alsa_ucm_test.main(argv)
+        self.stderr = err.getvalue()
         return rc, out.getvalue()
 
     def assert_state_restored(self, fake):
@@ -355,6 +361,32 @@ class RunnerLifecycleTest(unittest.TestCase):
                 fake, ["test", "-c", "0", "-v", "HiFi", "-d", "Speaker"]
             )
         self.assert_state_restored(fake)
+
+    def test_alsa_tools_use_system_env(self, _cards):
+        snap_env = {
+            "PATH": "/snap/checkbox24/current/usr/bin:/usr/bin",
+            "LD_LIBRARY_PATH": "/snap/checkbox24/current/usr/lib",
+            "ALSA_CONFIG_PATH": "/snap/checkbox24/current/alsa.conf",
+        }
+        fake = FakeRun(wav_bytes=19200)
+        with mock.patch.dict("os.environ", snap_env):
+            self.run_main(
+                fake, ["test", "-c", "0", "-v", "HiFi", "-d", "Speaker"]
+            )
+            self.loopback(fake)
+        self.assertGreater(len(fake.envs), 10)
+        for env in fake.envs:
+            self.assertEqual(env["PATH"], alsa_ucm_test.SYSTEM_PATH)
+            self.assertNotIn("LD_LIBRARY_PATH", env)
+            self.assertNotIn("ALSA_CONFIG_PATH", env)
+
+    def test_missing_tool_fails_with_message(self, _cards):
+        fake = FakeRun(missing="alsaucm")
+        rc, _out = self.run_main(fake, ["resource", "sinks"])
+        self.assertEqual(rc, 1)
+        self.assertIn(
+            "[FAIL] alsaucm is not installed on the system", self.stderr
+        )
 
     def test_unknown_device_fails_before_apply(self, _cards):
         fake = FakeRun()

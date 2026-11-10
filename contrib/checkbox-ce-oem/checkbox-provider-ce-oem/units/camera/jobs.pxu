@@ -31,6 +31,10 @@ plugin: shell
 environ: GST_LAUNCH_BIN MEDIA_CTL_CMD V4L2_CTL_CMD
 command:
     camera_test.py readiness
+imports:
+    from com.canonical.plainbox import manifest
+requires:
+    manifest.has_vendor_specific_mipi_camera == "True"
 
 unit: template
 template-engine: jinja2

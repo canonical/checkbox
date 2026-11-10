@@ -14,6 +14,66 @@ the final audio result:
 - Loopback tests: play or copy the recorded WAV file and confirm the loopback
   audio quality is correct.
 
+## Install the ALSA tools
+
+The tests use the ALSA tools, library and UCM configuration of the system
+under test. They do not use the copies in the Checkbox snap. Install them
+before the test.
+
+The helper runs `alsaucm`, `alsactl`, `aplay`, `arecord` and `speaker-test`
+with the system environment. The Checkbox snap sets `LD_LIBRARY_PATH`,
+`ALSA_CONFIG_PATH` and `ALSA_PLUGIN_DIR` to its own ALSA library and
+configuration, so the helper removes them. It also searches the tools only in
+`/usr/sbin:/usr/bin:/sbin:/bin:/snap/bin`.
+If a tool is missing, the job fails with
+`[FAIL] <tool> is not installed on the system`.
+
+### Classic Ubuntu (desktop and server)
+
+Install the Debian packages:
+
+```bash
+sudo apt install alsa-utils alsa-ucm-conf
+```
+
+Then examine that the tools come from the system:
+
+```bash
+command -v aplay    # /usr/bin/aplay
+```
+
+### Ubuntu Core
+
+Ubuntu Core uses three snaps:
+
+| Snap | Gives |
+| --- | --- |
+| `alsa-utils` | the ALSA tools (`alsaucm`, `alsactl`, `aplay`, `arecord`, `speaker-test`) |
+| `alsa-lib` | `libasound` and the ALSA plugins, through the `alsa-lib` content interface |
+| `alsa-ucm-conf` | the UCM2 configuration, through the `ucm-conf` content interface |
+
+These snaps are not published yet. When they are available, install them and
+connect the interfaces:
+
+```bash
+sudo snap install alsa-lib alsa-ucm-conf alsa-utils
+sudo snap connect alsa-utils:alsa
+sudo snap connect alsa-utils:alsa-lib alsa-lib:alsa-lib
+sudo snap connect alsa-utils:ucm-conf alsa-ucm-conf:ucm-conf
+```
+
+Then make the tool commands available in `/snap/bin` with their usual names:
+
+```bash
+for t in alsaucm alsactl aplay arecord speaker-test; do
+    sudo snap alias "alsa-utils.$t" "$t"
+done
+command -v aplay    # /snap/bin/aplay
+```
+
+If you install a snap with `--dangerous`, add its name to
+`SNAP_CONFINEMENT_ALLOWLIST` in the device launcher.
+
 ## Test plan
 
 Run the plan directly (it is also nested in `ce-oem-manual`):
@@ -159,6 +219,5 @@ alsa_ucm_test.py loopback-test -c 0 -v HiFi \
     --duration 10
 ```
 
-The helper saves and restores ALSA mixer state around each test. It expects
-the system under test to provide ALSA tools such as `alsaucm`, `speaker-test`,
-`aplay`, `arecord`, and `alsactl`, usually from `alsa-utils`.
+The helper saves and restores ALSA mixer state around each test. It uses the
+ALSA tools of the system under test; see "Install the ALSA tools".

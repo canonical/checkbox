@@ -83,6 +83,25 @@ def warn(message: str) -> None:
     print(f"[WARN] {message}", file=sys.stderr)
 
 
+SYSTEM_PATH = "/usr/sbin:/usr/bin:/sbin:/bin:/snap/bin"
+SNAP_ENV_VARS = ("LD_LIBRARY_PATH", "ALSA_CONFIG_PATH", "ALSA_PLUGIN_DIR")
+
+
+def system_env() -> dict[str, str]:
+    """Return the environment that runs the system's ALSA tools.
+
+    The Checkbox snap puts its runtime first in PATH, its own libasound in
+    LD_LIBRARY_PATH and its alsa.conf in ALSA_CONFIG_PATH. With that
+    environment even /usr/bin/aplay loads the snap's libasound. Thus remove
+    these variables and search only the system directories: the alsa-utils
+    deb on classic Ubuntu, then the alsa-utils snap commands (aliases in
+    /snap/bin) on Ubuntu Core.
+    """
+    env = {k: v for k, v in os.environ.items() if k not in SNAP_ENV_VARS}
+    env["PATH"] = SYSTEM_PATH
+    return env
+
+
 class CardManager:
     """Discover sound cards and basic UCM information."""
 
@@ -137,6 +156,7 @@ class CardManager:
         res = subprocess.run(
             ["alsaucm", "-c", str(card_index), "list", "_verbs"],
             capture_output=True,
+            env=system_env(),
             text=True,
             timeout=TIMEOUT_ALSAUCM_QUERY,
         )
@@ -192,6 +212,7 @@ class UCMJsonParser:
         res = subprocess.run(
             ["alsaucm", "-c", str(card_index), "dump", "json"],
             capture_output=True,
+            env=system_env(),
             text=True,
             timeout=TIMEOUT_ALSAUCM_QUERY,
         )
@@ -707,7 +728,11 @@ def probe_supported_formats(resolved_pcm: str, stream_type: str) -> list[str]:
     tool_argv, extra_args, tool_name = spec
     cmd = tool_argv + ["-D", resolved_pcm] + extra_args
     res = subprocess.run(
-        cmd, capture_output=True, text=True, timeout=TIMEOUT_ALSAUCM_QUERY
+        cmd,
+        capture_output=True,
+        env=system_env(),
+        text=True,
+        timeout=TIMEOUT_ALSAUCM_QUERY,
     )
     formats = parse_supported_formats(f"{res.stdout}\n{res.stderr}")
     if not formats and res.returncode != 0:
@@ -886,6 +911,7 @@ class AlsaUcmCli:
         res = subprocess.run(
             AlsaUcmCli.argv(card_index, *pairs),
             capture_output=True,
+            env=system_env(),
             text=True,
             timeout=TIMEOUT_ALSAUCM_APPLY,
         )
@@ -903,6 +929,7 @@ class AlsaUcmCli:
             res = subprocess.run(
                 AlsaUcmCli.argv(card_index, *step),
                 capture_output=True,
+                env=system_env(),
                 text=True,
                 timeout=TIMEOUT_ALSAUCM_APPLY,
             )
@@ -921,6 +948,7 @@ class AlsaUcmCli:
         rc = subprocess.run(
             AlsaUcmCli.argv(card_index, *pairs),
             capture_output=True,
+            env=system_env(),
             timeout=TIMEOUT_ALSAUCM_QUERY,
         ).returncode
         if rc == 0 or len(devices) <= 1:
@@ -935,6 +963,7 @@ class AlsaUcmCli:
             single_rc = subprocess.run(
                 AlsaUcmCli.argv(card_index, ("_disdev", dev)),
                 capture_output=True,
+                env=system_env(),
                 timeout=TIMEOUT_ALSAUCM_QUERY,
             ).returncode
             if single_rc != 0:
@@ -950,6 +979,7 @@ def save_alsa_state(card_index: int) -> str | None:
     res = subprocess.run(
         ["alsactl", "-f", path, "store", str(card_index)],
         capture_output=True,
+        env=system_env(),
         text=True,
         timeout=TIMEOUT_ALSAUCM_QUERY,
     )
@@ -969,6 +999,7 @@ def restore_alsa_state(card_index: int, state_file: str) -> bool:
         res = subprocess.run(
             ["alsactl", "-f", state_file, "restore", str(card_index)],
             capture_output=True,
+            env=system_env(),
             text=True,
             timeout=TIMEOUT_ALSAUCM_QUERY,
         )
@@ -1265,7 +1296,11 @@ class SingleDeviceRunner(BaseUcmTestRunner):
             _log_channel_cap(device, plan.declared, plan.test_int)
             print(" ".join(argv))
             res = subprocess.run(
-                argv, capture_output=True, text=True, timeout=30
+                argv,
+                capture_output=True,
+                env=system_env(),
+                text=True,
+                timeout=30,
             )
             if record_path and res.returncode == 0:
                 print(f"[INFO] Recorded file saved to: {record_path}")
@@ -1376,6 +1411,7 @@ class LoopbackRunner(BaseUcmTestRunner):
                 subprocess.run,
                 play_argv,
                 capture_output=True,
+                env=system_env(),
                 text=True,
                 timeout=play_timeout,
             )
@@ -1383,6 +1419,7 @@ class LoopbackRunner(BaseUcmTestRunner):
                 subprocess.run,
                 cap_argv,
                 capture_output=True,
+                env=system_env(),
                 text=True,
                 timeout=duration + 20,
             )
@@ -1524,15 +1561,22 @@ def main(argv: list[str] | None = None) -> int:
 
     card_manager = CardManager()
     ucm_parser = UCMJsonParser()
-
-    if args.command_name == "resource":
-        return run_resource(card_manager, ucm_parser, args.mode, args.pairing)
-    if args.command_name == "test":
-        return SingleDeviceRunner(card_manager, ucm_parser).run(args)
-    if args.command_name == "loopback-test":
+    try:
+        if args.command_name == "resource":
+            return run_resource(
+                card_manager, ucm_parser, args.mode, args.pairing
+            )
+        if args.command_name == "test":
+            return SingleDeviceRunner(card_manager, ucm_parser).run(args)
         return LoopbackRunner(card_manager, ucm_parser).run(args)
-    parser.print_help()
-    return 1
+    except FileNotFoundError as exc:
+        print(
+            f"[FAIL] {exc.filename} is not installed on the system "
+            f"(searched {SYSTEM_PATH}). Install alsa-utils: see "
+            "units/audio/README.md in checkbox-provider-ce-oem.",
+            file=sys.stderr,
+        )
+        return 1
 
 
 if __name__ == "__main__":

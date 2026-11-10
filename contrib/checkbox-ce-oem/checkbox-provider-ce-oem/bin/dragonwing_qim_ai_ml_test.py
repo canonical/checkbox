@@ -110,7 +110,7 @@ PIPELINE_CASES = {
             'external-delegate-options="QNNExternalDelegate,'
             'backend_type=htp;" model={model} ! queue ! '
             "qtimlpostprocess module=deeplab-argmax labels={labels} ! "
-            "video/x-raw,width=256,height=144 ! queue ! mixer."
+            "queue ! mixer."
         ),
     ),
     ("litert", "pose-detection"): PipelineCase(
@@ -216,7 +216,7 @@ PIPELINE_CASES = {
             "queue ! qtimlvconverter ! queue ! "
             "qtimlsnpe delegate=dsp model={model} ! queue ! "
             "qtimlpostprocess module=deeplab-argmax labels={labels} ! "
-            "video/x-raw,width=640,height=360 ! queue ! mixer."
+            "queue ! mixer."
         ),
     ),
 }

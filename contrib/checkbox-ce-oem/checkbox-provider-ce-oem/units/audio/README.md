@@ -22,14 +22,18 @@ Run the plan directly (it is also nested in `ce-oem-manual`):
 ce-oem-audio-alsa-ucm-manual
 ```
 
-This plan is not included in `ce-oem-audio-automated`. It includes these
-template IDs:
+This plan is not included in `ce-oem-audio-automated`. It includes the job
+`ce-oem-audio/alsa-ucm-detect` and these template IDs:
 
 ```text
 ce-oem-audio/alsa-ucm-sink-tests
 ce-oem-audio/alsa-ucm-source-tests
 ce-oem-audio/alsa-ucm-loopback-tests
 ```
+
+`ce-oem-audio/alsa-ucm-detect` fails when `has_alsa_ucm` is `True` but no
+ALSA UCM sink or source device is found. Without this job, the plan would
+generate zero tests and show no failure.
 
 The template jobs use `flags: also-after-suspend`, so Checkbox can generate
 after-suspend variants when the plan is used in a suspend flow.
@@ -77,7 +81,7 @@ Optional loopback capture duration in seconds:
 ALSA_UCM_LOOPBACK_DURATION=10
 ```
 
-If unset, the PXU command uses `10`.
+If unset, the job command uses `10`.
 
 ## Resource input and output
 
@@ -156,7 +160,3 @@ alsa_ucm_test.py loopback-test -c 0 -v HiFi \
 The helper saves and restores ALSA mixer state around each test. It expects
 the system under test to provide ALSA tools such as `alsaucm`, `speaker-test`,
 `aplay`, `arecord`, and `alsactl`, usually from `alsa-utils`.
-
-`strace` is optional. When available, the helper uses it to print stronger UCM
-file diagnostics. When unavailable, the helper falls back to scanning standard
-UCM paths and continues the test.

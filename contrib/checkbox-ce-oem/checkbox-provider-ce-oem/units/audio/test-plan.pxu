@@ -31,6 +31,7 @@ bootstrap_include:
     ce-oem-audio/alsa-ucm-sources-list
     ce-oem-audio/alsa-ucm-loopback-list
 include:
+    ce-oem-audio/alsa-ucm-detect
     ce-oem-audio/alsa-ucm-sink-tests
     ce-oem-audio/alsa-ucm-source-tests
     ce-oem-audio/alsa-ucm-loopback-tests

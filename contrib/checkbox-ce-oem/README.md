@@ -170,6 +170,17 @@ This job also requires a 640x480, 24-bit RGB PNG photo containing a
 clearly visible dog to be placed at $SNAP_REAL_HOME/test.png before
 running, as the input image is not bundled with the provider.
 
+id: dragonwing-camera/camera-list, dragonwing-camera/check-camera-list-resource
+DRAGONWING_CAMERAS={sensor-name}:{camera-id} ...
+Each entry must supply a non-negative numeric camera ID. The reverse
+{camera-id}:{sensor-name} format is also accepted; name-only entries are
+no longer supported, even with --skip-unavailable.
+Use dragonwing-camera-map-helper.py on the DUT to identify the IDs for
+the current image. Select the actual camera service when necessary,
+e.g. dragonwing-camera-map-helper.py --service qti-cam-server.service.
+Recheck mappings after image or camera changes; IDs are not fixed per sensor.
+e.g. DRAGONWING_CAMERAS=imx577:0 og0va1b:1 imx688:2
+
 id: thermal_zones
 TZ_ALLOW_NO_DATA=all | {thermal-type1}|{thermal-type2}|...
 Thermal zones of these types that return no data (ENODATA, power domain

@@ -58,10 +58,12 @@ def main():
     time.sleep(5)
 
     diskstats = diskstats_path.read_text(encoding="utf-8").splitlines()
-    proc_stat_end = next(
-        (line.strip() for line in diskstats if disk in line.split()),
-        "NOT FOUND",
-    )
+    try:
+        proc_stat_end = next(
+            line.strip() for line in diskstats if disk in line.split()
+        )
+    except StopIteration:
+        raise SystemExit("ERROR: Disk went missing from /proc/diskstats")
     sys_stat_end = stat_path.read_text(encoding="utf-8").strip()
 
     if proc_stat_begin == proc_stat_end:

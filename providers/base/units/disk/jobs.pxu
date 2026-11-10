@@ -31,7 +31,7 @@ template-id: disk/stats_name
 flags: deprecated also-after-suspend
 user: root
 estimated_duration: 10.0
-command: disk_stats_test.sh {name}
+command: disk_stats_test.py {name}
 _summary: Disk statistics for {product_slug}
 _purpose:
  This test checks disk stats, generates some activity and rechecks stats to

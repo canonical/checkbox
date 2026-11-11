@@ -73,11 +73,12 @@ The script is also executable directly:
      `value-type: bool`) show an inline toggle instead of a text field:
 
      ```
-     [M] has_gpio = [true]  [false]
+     [M] has_gpio = [true]  [false]  [unset]
      ```
 
-     Use `←` / `→` or `Space` to switch between options, `t`/`T` to jump
-     to `true`, `f`/`F` to jump to `false`, then `Enter` or `Tab` to
+     Use `←` / `→` or `Space` to cycle between options, `t`/`T` to jump
+     to `true`, `f`/`F` to jump to `false`, `u`/`U` to jump to `unset`
+     (empty value), then `Enter` or `Tab` to
      confirm.  Free-form text input is not possible, preventing type errors.
 
    - **Right pane (45 %)** shows all jobs across the provider database that
@@ -137,9 +138,10 @@ The script is also executable directly:
 | `Enter` / `Space` / `e` | Edit value inline |
 | `Enter` (in edit mode) | Commit new value |
 | `Esc` (in edit mode) | Cancel edit (restore original value) |
-| `←` / `→` / `Space` (bool toggle) | Switch between `true` and `false` |
+| `←` / `→` / `Space` (bool toggle) | Cycle through `true`, `false` and `unset` |
 | `t` / `T` (bool toggle) | Jump to `true` |
 | `f` / `F` (bool toggle) | Jump to `false` |
+| `u` / `U` (bool toggle) | Jump to `unset` (empty value) |
 | `s` | Save launcher file and exit |
 | `b` / `Esc` | Go back to plan picker |
 | `q` | Quit without saving |
@@ -334,7 +336,7 @@ unit = com.canonical.contrib::ce-oem-iot-ubuntucore-26
 
 [manifest]
 com.canonical.contrib::has_gpio = True
-com.canonical.contrib::has_spi = false
+com.canonical.contrib::has_spi =
 com.canonical.certification::has_edac_module = false
 
 [environment]
@@ -355,10 +357,12 @@ passing it as an argument instead, e.g.
 
 ### Manifest defaults
 
-- Manifest entries use a **True / False toggle** — free-form text input is
-  not allowed, so type errors are impossible.
-- Entries **left at their initial toggle state** (`false`) are written as
-  `key = false`.
+- Manifest entries use a **true / false / unset toggle** — free-form text
+  input is not allowed, so type errors are impossible. An entry with no
+  value starts on `unset`, so confirming without choosing keeps it empty.
+- Entries left at (or toggled back to) `unset` are written with an empty
+  value (`key =`), not `false`.
+- Entries explicitly toggled to `false` are written as `key = false`.
 - Entries toggled to `true` are written as `key = true`.
 
 ### Environment variables

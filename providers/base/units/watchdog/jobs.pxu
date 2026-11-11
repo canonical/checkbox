@@ -39,7 +39,7 @@ _purpose: Check there are no failed services after the watchdog triggered
 unit: job
 user: root
 plugin: shell
-command: failed_service_check.sh
+command: failed_service_check.py
 estimated_duration: 1.0
 imports: from com.canonical.plainbox import manifest
 requires: manifest.has_hardware_watchdog == 'True'

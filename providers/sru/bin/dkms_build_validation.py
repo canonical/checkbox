@@ -24,7 +24,7 @@ import re
 import subprocess
 import sys
 import textwrap
-from typing import Dict, List, Optional, Set
+from typing import Dict, List, Optional, Set, Tuple
 
 logger = logging.getLogger("dkms_build_validation")
 
@@ -77,12 +77,20 @@ def parse_dkms_status(dkms_status: str, ubuntu_release: str) -> List[Dict]:
                 kernel_ver = details.split(", ")[1]
             else:
                 kernel_ver = details.split(", ")[2]
-            # the module name is the first field of the details, either
-            # alone (module, version, kernel, arch) or followed by the
-            # version (module/version, kernel, arch)
-            module = details.split(", ")[0].split("/")[0]
+            # newer releases print "module/version, kernel, arch",
+            # older ones "module, version, kernel, arch"
+            fields = details.split(", ")
+            if "/" in fields[0]:
+                module, module_version = fields[0].split("/", 1)
+            else:
+                module, module_version = fields[0], fields[1]
             kernel_info.append(
-                {"version": kernel_ver, "status": status, "module": module}
+                {
+                    "version": kernel_ver,
+                    "status": status,
+                    "module": module,
+                    "module_version": module_version,
+                }
             )
             print(
                 "Found module {}, status {} for kernel version {}".format(
@@ -166,12 +174,15 @@ def get_context_lines(log: List[str], line_numbers: Set[int]) -> List[str]:
 # Error! Bad return status for module build on kernel: 6.8.0-44 (x86_64)
 # Consult /var/lib/dkms/nvidia/550.107.02/build/make.log for more information.
 MAKE_LOG_RE = re.compile(
-    r"Consult /var/lib/dkms/(?P<module>[^/\s]+)/[^/\s]+/build/make\.log"
+    r"Consult /var/lib/dkms/(?P<module>[^/\s]+)/(?P<version>[^/\s]+)"
+    r"/build/make\.log"
 )
 
 
-def get_failed_module(log: List[str], err_line_number: int) -> Optional[str]:
-    """Get the name of the module of a DKMS build error.
+def get_failed_module(
+    log: List[str], err_line_number: int
+) -> Optional[Tuple[str, str]]:
+    """Get the name and version of the module of a DKMS build error.
 
     Return None if the log does not identify the failing module.
     """
@@ -180,7 +191,42 @@ def get_failed_module(log: List[str], err_line_number: int) -> Optional[str]:
     match = MAKE_LOG_RE.search(log[err_line_number + 1])
     if not match:
         return None
-    return match.group("module")
+    return match.group("module"), match.group("version")
+
+
+def is_superseded(
+    log: List[str],
+    err_line_number: int,
+    module: str,
+    failed_version: str,
+    installed_version: Optional[str],
+) -> bool:
+    """Tell if a later build fixed a module build error.
+
+    It did if the module is installed now and either:
+    - the installed version is the one that failed, so a retry worked;
+    - the installed version shows up in the log after the error, e.g.
+      "Loading new nvidia/580.95.05 DKMS files..." ("nvidia-580.95.05"
+      on older DKMS).
+
+    Known gap: a log line can name a version without building it, e.g.
+    "Module nvidia/460.56 already installed ..., skip.". If an upgrade
+    failed but left the old version installed, such a line would hide
+    the failure. Packaged modules don't hit this: dh_dkms and Ubuntu's
+    nvidia-dkms-* packages remove the old version before installing the
+    new one, so a failed upgrade leaves no version installed.
+    """
+    if installed_version is None:
+        return False
+    if installed_version == failed_version:
+        return True
+    # start after the error and its "Consult ... make.log" line
+    start = err_line_number + 2
+    mentions = (
+        "{}/{}".format(module, installed_version),
+        "{}-{}".format(module, installed_version),
+    )
+    return any(mention in line for line in log[start:] for mention in mentions)
 
 
 def has_dkms_build_errors(
@@ -188,12 +234,9 @@ def has_dkms_build_errors(
 ) -> int:
     """Scan the APT log for DKMS build errors for the running kernel.
 
-    A build error of a module that is installed for the running kernel
-    was superseded by a later successful build of the module, e.g. by
-    an upgraded module version or by a retry. Superseded errors are
-    reported as warnings for diagnosis and do not fail the test.
-    Errors of modules that are not installed for the running kernel, or
-    that the log does not identify, still fail the test.
+    Errors fixed by a later build (e.g. a driver upgrade or a retry)
+    are only reported as warnings. All other errors fail the test,
+    including a failed upgrade that left the old version installed.
     """
     log_path = "/var/log/apt/term.log"
     err_msg = "Bad return status for module build on kernel: {}".format(
@@ -202,9 +245,9 @@ def has_dkms_build_errors(
     with open(log_path) as f:
         log = f.readlines()
 
-    # names of the modules installed for the running kernel
+    # versions of the modules installed for the running kernel
     installed_modules = {
-        entry["module"]
+        entry["module"]: entry["module_version"]
         for entry in sorted_kernel_info
         if entry["version"] == kernel_ver_current
         and entry["status"] == "installed"
@@ -215,13 +258,25 @@ def has_dkms_build_errors(
     for line_number, line in enumerate(log):
         if err_msg not in line:
             continue
-        failed_module = get_failed_module(log, line_number)
-        if failed_module in installed_modules:
+        failed = get_failed_module(log, line_number)
+        if failed is None:
+            unresolved_line_numbers.add(line_number)
+            continue
+        module, failed_version = failed
+        installed_version = installed_modules.get(module)
+        if is_superseded(
+            log, line_number, module, failed_version, installed_version
+        ):
             superseded_line_numbers.add(line_number)
             logger.warning(
-                "dkms build error for module {} was superseded: it is "
-                "installed for kernel {} now".format(
-                    failed_module, kernel_ver_current
+                "dkms build error for module {}/{} was superseded: "
+                "{}/{} was built later and is installed for kernel {} "
+                "now".format(
+                    module,
+                    failed_version,
+                    module,
+                    installed_version,
+                    kernel_ver_current,
                 )
             )
         else:

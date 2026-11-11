@@ -120,11 +120,13 @@ class TestDKMSValidation(unittest.TestCase):
                 "version": "6.5.0-15-generic",
                 "status": "installed",
                 "module": "fwts",
+                "module_version": "24.01.00",
             },
             {
                 "version": "6.5.0-17-generic",
                 "status": "installed",
                 "module": "fwts",
+                "module_version": "24.01.00",
             },
         ]
         self.assertEqual(kernel_info, expected_kernel_info)
@@ -149,7 +151,12 @@ class TestDKMSValidation(unittest.TestCase):
             self.dkms_status_efi_test_driver, ubuntu_release
         )
         expected_kernel_info = [
-            {"version": v, "status": "installed", "module": "tp_smapi"}
+            {
+                "version": v,
+                "status": "installed",
+                "module": "tp_smapi",
+                "module_version": "0.43",
+            }
             for v in [
                 "6.1.0-1028-oem",
                 "6.1.0-1032-oem",
@@ -176,6 +183,7 @@ class TestDKMSValidation(unittest.TestCase):
                 "version": "6.0.0-1011-oem",
                 "status": "installed",
                 "module": "fwts-efi-runtime-dkms",
+                "module_version": "22.03.00",
             },
         ]
         self.assertEqual(kernel_info, expected_kernel_info)
@@ -193,11 +201,13 @@ class TestDKMSValidation(unittest.TestCase):
                 "version": "6.5.0-15-generic",
                 "status": "installed",
                 "module": "fwts",
+                "module_version": "24.01.00",
             },
             {
                 "version": "6.5.0-17-generic",
                 "status": "installed",
                 "module": "fwts",
+                "module_version": "24.01.00",
             },
         ]
         self.assertEqual(sorted_kernel_info, expected_kernel_info)
@@ -326,19 +336,22 @@ class TestDKMSValidation(unittest.TestCase):
             "version": "6.5.0-17-generic",
             "status": "installed",
             "module": "fwts",
+            "module_version": "24.01.00",
         }
     ]
 
-    sorted_kernel_info_fwts_nvidia = sorted_kernel_info_fwts + [
-        {
-            "version": "6.5.0-17-generic",
-            "status": "installed",
-            "module": "nvidia",
-        }
-    ]
+    def kernel_info_fwts_nvidia(self, nvidia_version):
+        return self.sorted_kernel_info_fwts + [
+            {
+                "version": "6.5.0-17-generic",
+                "status": "installed",
+                "module": "nvidia",
+                "module_version": nvidia_version,
+            }
+        ]
 
     # example /var/log/apt/term.log lines of a DKMS build failure of the
-    # nvidia module that was later replaced by an installed version
+    # nvidia module
     apt_log_with_nvidia_build_error = (
         "Setting up linux-headers-6.5.0-17-generic ...\n"
         "Building initial module for 6.5.0-17-generic\n"
@@ -351,7 +364,7 @@ class TestDKMSValidation(unittest.TestCase):
 
     def test_get_failed_module(self):
         log = self.apt_log_with_nvidia_build_error.splitlines(True)
-        self.assertEqual(get_failed_module(log, 2), "nvidia")
+        self.assertEqual(get_failed_module(log, 2), ("nvidia", "460.56"))
         # no reference to the build log in the line after the error
         self.assertIsNone(get_failed_module(log, 0))
         # error message in the last line of the log
@@ -397,28 +410,82 @@ class TestDKMSValidation(unittest.TestCase):
         with patch("builtins.open", mock_open(read_data=data)):
             self.assertEqual(
                 has_dkms_build_errors(
-                    kernel_ver_current, self.sorted_kernel_info_fwts_nvidia
+                    kernel_ver_current,
+                    self.kernel_info_fwts_nvidia("460.56"),
                 ),
                 1,
             )
 
     def test_has_dkms_build_errors_superseded(self):
-        # the module that failed to build was later replaced by an
-        # installed version of the same module: the error was superseded
-        # by a successful build, it is reported for diagnosis but does
-        # not fail the test
+        # nvidia 460.56 failed, then 580.95.05 was built and installed:
+        # the error is only a warning
         kernel_ver_current = "6.5.0-17-generic"
+        data = self.apt_log_with_nvidia_build_error + (
+            "Setting up nvidia-dkms-580 (580.95.05-0ubuntu1) ...\n"
+            "Loading new nvidia/580.95.05 DKMS files...\n"
+            "Building initial module nvidia/580.95.05 for 6.5.0-17-generic\n"
+        )
         with patch(
-            "builtins.open",
-            mock_open(read_data=self.apt_log_with_nvidia_build_error),
+            "builtins.open", mock_open(read_data=data)
         ), self.assertLogs("dkms_build_validation", level="WARNING") as log:
             result = has_dkms_build_errors(
-                kernel_ver_current, self.sorted_kernel_info_fwts_nvidia
+                kernel_ver_current, self.kernel_info_fwts_nvidia("580.95.05")
             )
         self.assertEqual(result, 0)
         self.assertTrue(
             any("superseded" in output for output in log.output), log.output
         )
+
+    def test_has_dkms_build_errors_superseded_old_dkms(self):
+        # older DKMS writes "module-version" instead of "module/version"
+        kernel_ver_current = "6.5.0-17-generic"
+        data = self.apt_log_with_nvidia_build_error + (
+            "Loading new nvidia-580.95.05 DKMS files...\n"
+        )
+        with patch("builtins.open", mock_open(read_data=data)):
+            self.assertEqual(
+                has_dkms_build_errors(
+                    kernel_ver_current,
+                    self.kernel_info_fwts_nvidia("580.95.05"),
+                ),
+                0,
+            )
+
+    def test_has_dkms_build_errors_superseded_by_retry(self):
+        # the version that failed is installed now, so a retry worked
+        kernel_ver_current = "6.5.0-17-generic"
+        with patch(
+            "builtins.open",
+            mock_open(read_data=self.apt_log_with_nvidia_build_error),
+        ):
+            self.assertEqual(
+                has_dkms_build_errors(
+                    kernel_ver_current, self.kernel_info_fwts_nvidia("460.56")
+                ),
+                0,
+            )
+
+    def test_has_dkms_build_errors_failed_upgrade(self):
+        # 460.56 was installed, then the upgrade to 580.95.05 failed:
+        # 460.56 is still installed, but it was built before the error
+        kernel_ver_current = "6.5.0-17-generic"
+        data = (
+            "Loading new nvidia/460.56 DKMS files...\n"
+            "Building initial module nvidia/460.56 for 6.5.0-17-generic\n"
+            "Loading new nvidia/580.95.05 DKMS files...\n"
+            "Building initial module nvidia/580.95.05 for 6.5.0-17-generic\n"
+            "Error! Bad return status for module build on kernel: "
+            "6.5.0-17-generic (x86_64)\n"
+            "Consult /var/lib/dkms/nvidia/580.95.05/build/make.log "
+            "for more information.\n"
+        )
+        with patch("builtins.open", mock_open(read_data=data)):
+            self.assertEqual(
+                has_dkms_build_errors(
+                    kernel_ver_current, self.kernel_info_fwts_nvidia("460.56")
+                ),
+                1,
+            )
 
     def test_has_dkms_build_errors_partially_superseded(self):
         # a superseded error does not excuse an unresolved error of

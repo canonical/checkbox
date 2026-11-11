@@ -68,12 +68,10 @@ class GPIOController:
     def setup(self):
         logging.debug("setup action for GPIO testing")
         for key in ["base", "ngpio"]:
-            with self.gpio_chip_node.joinpath(key) as gpio_node:
-                if self._node_exists(gpio_node) is False:
-                    raise FileNotFoundError(
-                        f"{str(gpio_node)} file not exists"
-                    )
-                self.gpiochip_info[key] = self._read_node(gpio_node)
+            gpio_node = self.gpio_chip_node.joinpath(key)
+            if self._node_exists(gpio_node) is False:
+                raise FileNotFoundError(f"{str(gpio_node)} file not exists")
+            self.gpiochip_info[key] = self._read_node(gpio_node)
 
         self.check_gpio_offset(
             self.gpiochip_info["offset"], self.gpiochip_info["ngpio"]
@@ -127,41 +125,37 @@ class GPIOController:
 
     def _export(self, gpio_number: str):
         logging.debug("export GPIO node %s", gpio_number)
-        with Path(self.GPIO_EXPORT_PATH) as gpio_node:
-            self._write_node(gpio_node, gpio_number, False)
+        self._write_node(Path(self.GPIO_EXPORT_PATH), gpio_number, False)
 
     def _unexport(self, gpio_number: str):
         logging.debug("unexport GPIO node %s", gpio_number)
-        with Path(self.GPIO_UNEXPORT_PATH) as gpio_node:
-            self._write_node(gpio_node, gpio_number, False)
+        self._write_node(Path(self.GPIO_UNEXPORT_PATH), gpio_number, False)
 
     @property
     def direction(self):
-        with self.gpio_node.joinpath("direction") as gpio_node:
-            return self._read_node(gpio_node)
+        return self._read_node(self.gpio_node.joinpath("direction"))
 
     @direction.setter
     def direction(self, value: str):
         if value not in ["in", "out"]:
             raise ValueError(f"The {value} is not allowed for direction")
 
-        with self.gpio_node.joinpath("direction") as gpio_node:
-            logging.debug(f"set direction to {value} for {gpio_node.name}")
-            self._write_node(gpio_node, value)
+        gpio_node = self.gpio_node.joinpath("direction")
+        logging.debug(f"set direction to {value} for {gpio_node.name}")
+        self._write_node(gpio_node, value)
 
     @property
     def value(self):
-        with self.gpio_node.joinpath("value") as gpio_node:
-            return self._read_node(gpio_node)
+        return self._read_node(self.gpio_node.joinpath("value"))
 
     @value.setter
     def value(self, value: str):
         if value not in ["1", "0"]:
             raise ValueError(f"The {value} is not allowed for value")
 
-        with self.gpio_node.joinpath("value") as gpio_node:
-            logging.debug(f"set value to {value} for {gpio_node.name}")
-            self._write_node(gpio_node, value)
+        gpio_node = self.gpio_node.joinpath("value")
+        logging.debug(f"set value to {value} for {gpio_node.name}")
+        self._write_node(gpio_node, value)
 
     def on(self):
         logging.debug("turn on GPIO")

@@ -42,9 +42,6 @@ include:
     power-management/tickless_idle                 certification-status=blocker
     power-management/fwts_wakealarm                certification-status=blocker
     power-management/fwts_wakealarm-log-attach
-    power-management/suspend-on-AC-power-setup
-    power-management/suspend-on-AC-power-test           certification-status=blocker
-    power-management/suspend-on-AC-power-teardown
 
 id: after-suspend-power-management-precheck-cert-automated
 unit: test plan
@@ -55,6 +52,9 @@ include:
     after-suspend-power-management/tickless_idle                 certification-status=blocker
     after-suspend-power-management/fwts_wakealarm                certification-status=blocker
     after-suspend-power-management/fwts_wakealarm-log-attach
+    power-management/suspend-on-AC-power-setup
+    power-management/suspend-on-AC-power-test           certification-status=blocker
+    power-management/suspend-on-AC-power-teardown
 
 id: power-management-reboot-poweroff-cert-manual
 unit: test plan
@@ -169,7 +169,7 @@ _name: Power Management for 26.04 (Automated)
 _description: Automated tests for power management
 include:
 nested_part:
-    power-cert-automated
     power-management-amd-specific-automated
     power-management-precheck-cert-automated
     after-suspend-power-management-precheck-cert-automated
+    power-cert-automated

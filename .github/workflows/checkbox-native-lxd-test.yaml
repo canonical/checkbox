@@ -1,0 +1,131 @@
+name: Test legacy native Snap builds
+# Temporary build-only validation of LXD 5.21 with Snapcraft 6/7.
+# No Store credentials are provided and no snaps are published.
+permissions:
+  contents: read
+on:
+  push:
+    branches: [test-native-core18-20-lxd]
+    paths:
+      - .github/workflows/checkbox-native-lxd-test.yaml
+  workflow_dispatch:
+
+jobs:
+  build:
+    name: ${{ matrix.variant }} core${{ matrix.release }} (${{ matrix.arch }})
+    strategy:
+      fail-fast: false
+      matrix:
+        release: [18, 20]
+        variant: [runtime, classic, uc]
+        arch: [amd64, arm64]
+        include:
+          - arch: amd64
+            tag: X64
+          - arch: arm64
+            tag: ARM64
+    runs-on:
+      group: "Canonical self-hosted runners"
+      labels: ["self-hosted", "linux", "large", "${{ matrix.tag }}", "noble"]
+    timeout-minutes: 180
+    env:
+      RELEASE: ${{ matrix.release }}
+      VARIANT: ${{ matrix.variant }}
+      ARCH: ${{ matrix.arch }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Prepare the real Checkbox snap
+        id: prepare
+        run: |
+          sudo apt-get update
+          sudo apt-get install -qq -y python3-setuptools-scm python3-yaml squashfs-tools
+          if [ "$VARIANT" = runtime ]; then
+            path="checkbox-core-snap/series$RELEASE"
+            (cd checkbox-core-snap && ./prepare.sh "series$RELEASE")
+          else
+            path="checkbox-snap/series_$VARIANT$RELEASE"
+            (cd checkbox-snap && "./prepare_$VARIANT.sh" "series_$VARIANT$RELEASE")
+          fi
+          echo "path=$path" >> "$GITHUB_OUTPUT"
+
+      - name: Refresh snapd to latest/stable
+        run: |
+          if snap list snapd > /dev/null 2>&1; then
+            sudo snap refresh snapd --channel=latest/stable
+          else
+            sudo snap install snapd --channel=latest/stable
+          fi
+
+      - name: Select LXD 5.21 for the legacy Snapcraft API
+        run: |
+          if snap list lxd > /dev/null 2>&1; then
+            sudo snap refresh lxd --channel=5.21/stable
+          else
+            sudo snap install lxd --channel=5.21/stable
+          fi
+          snap list lxd
+
+      - name: Build the snap without publishing
+        id: build
+        uses: snapcore/action-build@3bdaa03e1ba6bf59a65f84a751d943d549a54e79 # v1.3.0
+        with:
+          path: ${{ steps.prepare.outputs.path }}
+          snapcraft-channel: ${{ matrix.release == 18 && matrix.variant != 'runtime' && '6.x/stable' || '7.x/stable' }}
+          snapcraft-args: --use-lxd
+
+      - name: Verify the built snap
+        env:
+          SNAP: ${{ steps.build.outputs.snap }}
+        run: |
+          test -s "$SNAP"
+          unsquashfs -s "$SNAP"
+          unsquashfs -cat "$SNAP" meta/snap.yaml > "$RUNNER_TEMP/built-snap.yaml"
+          python3 - <<'PY'
+          import os
+          import yaml
+
+          with open(os.path.join(os.environ["RUNNER_TEMP"], "built-snap.yaml")) as stream:
+              metadata = yaml.safe_load(stream)
+          expected_base = "core" + os.environ["RELEASE"]
+          expected_name = {
+              "runtime": "checkbox" + os.environ["RELEASE"],
+              "classic": "checkbox",
+              "uc": "checkbox",
+          }[os.environ["VARIANT"]]
+          assert metadata["base"] == expected_base, metadata
+          assert metadata["name"] == expected_name, metadata
+          assert metadata["architectures"] == [os.environ["ARCH"]], metadata
+          print("Verified:", metadata)
+          PY
+          {
+            echo "### Build verified: $VARIANT core$RELEASE ($ARCH)"
+            echo "- Snap: $(basename "$SNAP")"
+            echo "- LXD: $(lxd --version)"
+            echo "- Snapcraft: $(snapcraft --version)"
+            echo "- No Store upload was attempted."
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Keep build diagnostics
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
+        with:
+          name: lxd-build-logs-${{ matrix.variant }}${{ matrix.release }}-${{ matrix.arch }}
+          path: |
+            /home/ubuntu/.cache/snapcraft/log/
+            /home/ubuntu/.local/state/snapcraft/log/
+            /home/runner/.cache/snapcraft/log/
+            /home/runner/.local/state/snapcraft/log/
+          retention-days: 7
+          if-no-files-found: warn
+
+      - name: Keep the verified snap as a GitHub artifact only
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
+        with:
+          name: lxd-build-${{ matrix.variant }}${{ matrix.release }}-${{ matrix.arch }}
+          path: ${{ steps.build.outputs.snap }}
+          retention-days: 7
+          if-no-files-found: error

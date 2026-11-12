@@ -210,8 +210,8 @@ def write_launcher(
     """Write a checkbox launcher ini file to *output_path*.
 
     Empty manifest ``Item.value`` fields (entries the user left unset) are
-    written as an empty ``key =`` line, so the file can be edited by hand
-    later.  Environment items with an empty
+    omitted, so the launcher gives checkbox no value (``None``) rather
+    than ``false``.  Environment items with an empty
     value are omitted entirely, since unset environment variables have no
     meaningful default to write. The ``[manifest]`` and ``[environment]``
     sections are themselves omitted when no relevant items exist (unless

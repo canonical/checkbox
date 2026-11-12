@@ -261,7 +261,7 @@ def write_launcher(
         )
     sections["test plan"] = test_plan
 
-    manifest_items = [i for i in items if i.kind == "manifest"]
+    manifest_items = [i for i in items if i.kind == "manifest" and i.value]
     if manifest_items:
         sections["manifest"] = OrderedDict(
             (item.key, item.value) for item in manifest_items
@@ -512,8 +512,8 @@ class _BoolToggleWidget(urwid.Widget):
 
     Renders as:  <caption>  [true]  [false]  [unset]
     The selected option is highlighted (``bool_on``); the others are dim
-    (``bool_off``).  ``unset`` yields an empty value, written to the
-    launcher as an empty ``key =`` line.  An empty initial value starts
+    (``bool_off``).  ``unset`` yields an empty value, so the entry is
+    left out of the launcher.  An empty initial value starts
     on ``unset`` so confirming without choosing leaves it unset.
 
     Keys: ``←``/``→`` cycle; ``Space`` cycles forward; ``t``/``T`` → true;
@@ -527,8 +527,10 @@ class _BoolToggleWidget(urwid.Widget):
     def __init__(self, caption: list, initial: str):
         self._caption = caption
         initial = initial.strip().lower()
-        if initial in ("true", "false"):
-            self._selected = self._OPTIONS.index(initial)
+        if initial in ("y", "yes", "t", "true", "on", "1"):
+            self._selected = 0
+        elif initial in ("n", "no", "f", "false", "off", "0"):
+            self._selected = 1
         else:
             self._selected = 2
         super().__init__()

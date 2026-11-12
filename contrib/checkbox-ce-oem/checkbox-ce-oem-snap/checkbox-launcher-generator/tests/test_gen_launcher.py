@@ -255,7 +255,7 @@ class TestWriteLauncher(unittest.TestCase):
         with tempfile.TemporaryDirectory() as tmp:
             out = Path(tmp) / "ce-oem-test"
             gl.write_launcher("ns::ce-oem-test", items, out)
-            self.assertIn("ns::has_gpio =\n", out.read_text())
+            self.assertNotIn("ns::has_gpio", out.read_text())
 
     def test_no_manifest_section_when_empty(self):
         with tempfile.TemporaryDirectory() as tmp:
@@ -678,6 +678,8 @@ class TestBoolToggleWidget(unittest.TestCase):
     def test_initial_true_and_false(self):
         self.assertEqual(self._w("true").value, "true")
         self.assertEqual(self._w("False").value, "false")
+        self.assertEqual(self._w("yes").value, "true")
+        self.assertEqual(self._w("0").value, "false")
 
     def test_shortcuts(self):
         w = self._w("")

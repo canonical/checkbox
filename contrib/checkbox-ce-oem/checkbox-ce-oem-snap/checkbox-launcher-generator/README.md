@@ -336,7 +336,6 @@ unit = com.canonical.contrib::ce-oem-iot-ubuntucore-26
 
 [manifest]
 com.canonical.contrib::has_gpio = True
-com.canonical.contrib::has_spi =
 com.canonical.certification::has_edac_module = false
 
 [environment]
@@ -360,8 +359,10 @@ passing it as an argument instead, e.g.
 - Manifest entries use a **true / false / unset toggle** — free-form text
   input is not allowed, so type errors are impossible. An entry with no
   value starts on `unset`, so confirming without choosing keeps it empty.
-- Entries left at (or toggled back to) `unset` are written with an empty
-  value (`key =`), not `false`.
+- Entries left at (or toggled back to) `unset` are not written to the
+  launcher, so the launcher gives checkbox no value (`None`). Checkbox
+  then uses the value saved on the device by an earlier run, if there is
+  one, and in an interactive run it asks for it on its manifest screen.
 - Entries explicitly toggled to `false` are written as `key = false`.
 - Entries toggled to `true` are written as `key = true`.
 

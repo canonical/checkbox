@@ -3,3 +3,27 @@ set -e
 
 rm -f /etc/sudoers.d/checkbox
 rm -f /etc/polkit-1/localauthority/50-local.d/com.canonical.certification.checkbox.pkla || /bin/true
+
+# Only remove the wrapper if it's the one we created (guard against
+# clobbering something a user manually placed at that path with the
+# same name).
+if grep -q 'snap run checkbox.checkbox-cli' /usr/local/bin/checkbox-cli 2>/dev/null; then
+    rm -f /usr/local/bin/checkbox-cli
+fi
+
+# Only remove symlinks that we created, i.e. ones still pointing into a
+# checkbox runtime snap. Leave alone anything a user replaced/owns.
+for provider_bin in /snap/checkbox[0-9]*/current/providers/*/bin; do
+    [ -d "$provider_bin" ] || continue
+    for launcher in "$provider_bin"/*; do
+        [ -f "$launcher" ] && [ -x "$launcher" ] || continue
+        name="$(basename "$launcher")"
+        target="/usr/local/bin/$name"
+        [ -L "$target" ] || continue
+        case "$(readlink "$target")" in
+            /snap/checkbox[0-9]*/current/providers/*/bin/*)
+                rm -f "$target"
+                ;;
+        esac
+    done
+done

@@ -32,6 +32,12 @@ else
   append_path PATH $RUNTIME/sbin
   append_path PATH $RUNTIME/usr/sbin
   append_path ALSA_CONFIG_PATH $RUNTIME/usr/share/alsa/alsa.conf
+  # alsa-lib resolves its card database relative to the built-in data dir
+  # (/usr/share/alsa), which does not exist inside the strict snap mount
+  # namespace on Ubuntu Core. Point it at the bundled runtime so PCMs like
+  # "default" can be opened. Classic snaps see the host's /usr/share/alsa and
+  # use wrapper_common_classic, so this is intentionally only set here.
+  append_path ALSA_CONFIG_DIR $RUNTIME/usr/share/alsa
   append_path PYTHONUSERBASE $RUNTIME
   append_path PYTHONHOME $RUNTIME/usr
   # site packages first because if we pull a dependency we must use that

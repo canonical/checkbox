@@ -1271,3 +1271,30 @@ environ: ALSA_CONFIG_PATH ALSADEVICE LD_LIBRARY_PATH
 command: alsa_test playback -d 90
 category_id: com.canonical.plainbox::audio
 estimated_duration: 2m
+
+id: audio/post-suspend-audio-occupied-automated
+imports: from com.canonical.plainbox import manifest
+requires:
+ package.name == 'python3-alsaaudio'
+ manifest.has_internal_speakers == 'True'
+ manifest.has_audio_playback == 'True'
+ manifest.has_audio_capture == 'True'
+ manifest.has_suspend_support == 'True'
+ sleep.mem == 'supported'
+ rtc.state == 'supported'
+_summary: Check occupied audio PCM streams across suspend automatically
+_purpose:
+ Keep the same playback and capture PCM devices open, run audio I/O for
+ 30 seconds, suspend for 15 seconds, and verify continued PCM I/O for
+ 60 seconds after resume. This test checks stream health, not audible sound.
+plugin: shell
+depends: audio/detect-playback-devices audio/detect-capture-devices
+user: root
+environ: ALSA_CONFIG_PATH ALSADEVICE LD_LIBRARY_PATH RTC_DEVICE_FILE
+command:
+ if [[ -v SNAP ]]; then
+     export LD_LIBRARY_PATH="$LD_LIBRARY_PATH:$SNAP/usr/lib/fwts"
+ fi
+ audio_occupied.py --before-suspend 30 --suspend-time 15 --after-resume 60
+category_id: com.canonical.plainbox::audio
+estimated_duration: 2m

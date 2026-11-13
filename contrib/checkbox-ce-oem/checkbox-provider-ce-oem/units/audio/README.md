@@ -77,26 +77,56 @@ If you install a snap with `--dangerous`, add its name to
 ## Give the normal user access to the sound devices
 
 The jobs run as the normal user of Checkbox, not as root. The ALSA tools open
-the sound devices in `/dev/snd/`. These devices belong to the `audio` group
-(mode `0660`). Thus the normal user must have access to them before the test.
+the sound devices in `/dev/snd/`. The normal user gets access to these devices
+only when the user is logged in on the local seat of the device:
+systemd-logind then gives the user access to `/dev/snd/` with an ACL. An SSH
+login does not give this access.
 
-The usual setup is a seat session: the normal user is logged in on the local
-seat of the device (the screen, or a local console such as `tty1`).
-systemd-logind then gives the user access to `/dev/snd/` with an ACL. Keep
-this session active during the test. An SSH login does not give this access.
+Thus set an automatic login of the normal user on the device, then reboot the
+device. Keep this session active during the test. In the examples below,
+replace `<user>` with the name of the normal user.
 
-If the device has no seat session, add the normal user to the `audio` group,
-then log in again:
+### Ubuntu Desktop
 
-```bash
-sudo usermod -aG audio "$USER"
+Set the automatic login in GDM. In `/etc/gdm3/custom.conf`, set these lines in
+the `[daemon]` section:
+
+```ini
+[daemon]
+AutomaticLoginEnable=true
+AutomaticLogin=<user>
 ```
 
-Then examine the access as the normal user:
+### Ubuntu Server and Ubuntu Core
+
+Set the automatic login on the local console `tty1`:
 
 ```bash
+sudo mkdir -p /etc/systemd/system/getty@tty1.service.d
+sudo tee /etc/systemd/system/getty@tty1.service.d/autologin.conf <<'EOF'
+[Service]
+ExecStart=
+ExecStart=-/sbin/agetty --autologin <user> --noclear %I $TERM
+EOF
+sudo systemctl daemon-reload
+sudo systemctl restart getty@tty1
+```
+
+On Ubuntu Core, console-conf makes the user without a local password, and the
+automatic login does not operate without one. Thus set a local password
+first, then set the automatic login:
+
+```bash
+sudo passwd <user>
+```
+
+### Examine the access
+
+As the normal user:
+
+```bash
+loginctl list-sessions      # a session of <user> on seat0
 ls -l /dev/snd/controlC0    # "+" after the mode = seat ACL
-id -nG                      # or the list contains "audio"
 alsaucm -c 0 list _verbs    # lists the verbs, no "failed to open sound card"
 ```
 

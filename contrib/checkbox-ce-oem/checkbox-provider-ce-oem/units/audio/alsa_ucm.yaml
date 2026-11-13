@@ -103,7 +103,6 @@ steps: |
   3. Confirm whether the sound is heard clearly from the expected output.
 verification: Did you hear clear audio from {SinksDeviceName}?
 plugin: user-interact-verify
-user: root
 category_id: com.canonical.plainbox::audio
 estimated_duration: '30'
 flags:
@@ -142,7 +141,6 @@ steps: |
      source.
 verification: Does the recorded WAV file contain clear audio from {SourceDeviceName}?
 plugin: user-interact-verify
-user: root
 category_id: com.canonical.plainbox::audio
 estimated_duration: '30'
 flags:
@@ -184,7 +182,6 @@ verification: |
   Does the recorded WAV file contain clear loopback audio from
   {SinksDeviceName} to {SourceDeviceName}?
 plugin: user-interact-verify
-user: root
 category_id: com.canonical.plainbox::audio
 estimated_duration: '60'
 flags:

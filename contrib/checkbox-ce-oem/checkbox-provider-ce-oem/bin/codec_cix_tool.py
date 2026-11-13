@@ -27,18 +27,21 @@ videoconvert/videoscale/videoflip elements instead; everything else
 (decoder/encoder plugin selection, parser/mux choice) matches the
 generic default behavior.
 
-gst_encoder_psnr's generic pipeline already uses videoconvert; CIX only
-pins its colorimetry (see CixEncoderPsnrProject).
+gst_encoder_psnr uses a zero-copy hardware decode -> encode pipeline
+instead (see CixEncoderPsnrProject).
 """
 
 import argparse
+import os
 
 from codec_base import BaseCodecProject
 from gst_encoder_psnr import GenericEncoderProject
 from gst_utils import (
     GST_LAUNCH_BIN,
+    VIDEO_CODEC_TESTING_DATA,
     GStreamerEncodePlugins,
     GStreamerTransformActions,
+    file_name_placeholder,
     get_test_file_path_by_params,
 )
 
@@ -198,26 +201,50 @@ create_decoder_performance_project = CixDecoderPerformanceProject
 
 class CixEncoderPsnrProject(GenericEncoderProject):
     """
-    The mvx encoders default their sink caps to bt601, so videoconvert
-    re-matrixes the BT.709 HD golden sample before encoding and PSNR drops
-    to ~24 dB on every codec. Pinning bt709 keeps the input YUV untouched,
-    so PSNR measures only the encoder.
+    Zero-copy encoder-PSNR pipeline: the golden sample is decoded by the
+    matching mvx hardware decoder and handed to the encoder as DMABuf, so
+    no CPU conversion touches the samples and PSNR measures only the
+    encoder. decodebin + videoconvert cannot be used: the decoder's default
+    output is DMABuf-only (DMA_DRM), which videoconvert rejects.
+
+    v4l2jpegenc uses the MJPEG sample, like codec_genio.py: its full-range
+    BT.601 YCbCr goes through v4l2jpegdec unchanged.
     """
 
     def __init__(self, args: argparse.Namespace) -> None:
         super().__init__(args)
-        # Assumes HD golden samples (bt709); SD inputs need bt601.
-        self._color_space = "{},colorimetry=bt709".format(
-            self._color_space or "NV12"
-        )
+        if self._codec == GStreamerEncodePlugins.V4L2JPEGENC.value:
+            self._golden_sample = os.path.join(
+                VIDEO_CODEC_TESTING_DATA,
+                file_name_placeholder(
+                    width=self._width,
+                    height=self._height,
+                    framerate=self._framerate,
+                    codec_short_name="mjpeg",
+                    ext="mov",
+                ),
+            )
 
     def _generic_pipeline_builder(self) -> str:
-        # The base builder emits " ! <codec>" right after the caps filter.
-        pipeline = super()._generic_pipeline_builder()
-        return pipeline.replace(
-            " ! {} ".format(self._codec),
-            " ! {} ".format(encoder_element(self._codec)),
-            1,
+        parser = {
+            GStreamerEncodePlugins.V4L2H264ENC.value: " ! h264parse",
+            GStreamerEncodePlugins.V4L2H265ENC.value: " ! h265parse",
+        }.get(self._codec, "")
+        # The conf's color_space is a DRM fourcc here (NV12 is the same in
+        # both namespaces).
+        return (
+            "{} filesrc location={} ! parsebin ! {}"
+            " ! video/x-raw(memory:DMABuf),format=DMA_DRM,drm-format={}"
+            " ! {} output-io-mode=dmabuf-import{} ! {} ! filesink location={}"
+        ).format(
+            GST_LAUNCH_BIN,
+            self._golden_sample,
+            self._codec.replace("enc", "dec"),
+            self._color_space or "NV12",
+            self._codec,
+            parser,
+            self._mux,
+            self.artifact_file,
         )
 
 

@@ -1,0 +1,129 @@
+name: Test core18 native runtime builds
+# Temporary build-only test; no Store credentials or publish step.
+permissions:
+  contents: read
+on:
+  push:
+    branches: [test-core18-native-builds-nov13]
+    paths:
+      - .github/workflows/test-core18-native-builds.yaml
+  workflow_dispatch:
+
+jobs:
+  build:
+    name: Runtime 18 (${{ matrix.arch }})
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - arch: amd64
+            tag: X64
+          - arch: arm64
+            tag: ARM64
+    runs-on:
+      group: "Canonical self-hosted runners"
+      labels: ["self-hosted", "linux", "large", "${{ matrix.tag }}", "noble"]
+    timeout-minutes: 180
+    env:
+      ARCH: ${{ matrix.arch }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          # Match the source revision of the failed daily build.
+          ref: 50bad80304dd1a8d71729b872583c9efd8b75766
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Prepare the runtime snap
+        run: |
+          sudo apt update
+          sudo apt install -qq -y python3-setuptools-scm python3-yaml squashfs-tools
+          cd checkbox-core-snap/
+          ./prepare.sh series18
+
+      - name: Refresh snapd to latest/stable
+        run: |
+          sudo snap refresh snapd --channel=latest/stable || sudo snap install snapd --channel=latest/stable
+
+      - name: Select LXD 5.21
+        run: |
+          if snap list lxd > /dev/null 2>&1; then
+            sudo snap refresh lxd --channel=5.21/stable
+          else
+            sudo snap install lxd --channel=5.21/stable
+          fi
+          snap list lxd
+
+      - name: Build without publishing
+        id: build
+        uses: snapcore/action-build@3bdaa03e1ba6bf59a65f84a751d943d549a54e79 # v1.3.0
+        with:
+          path: checkbox-core-snap/series18
+          snapcraft-channel: 7.x/stable
+          snapcraft-args: --use-lxd
+
+      - name: Verify the built snap
+        env:
+          SNAP: ${{ steps.build.outputs.snap }}
+        run: |
+          test -s "$SNAP"
+          unsquashfs -s "$SNAP"
+          unsquashfs -cat "$SNAP" meta/snap.yaml > "$RUNNER_TEMP/built-snap.yaml"
+          python3 - <<'PY'
+          import os
+          import yaml
+
+          with open(os.path.join(os.environ["RUNNER_TEMP"], "built-snap.yaml")) as stream:
+              metadata = yaml.safe_load(stream)
+          expected = {
+              "name": "checkbox18",
+              "base": "core18",
+              "architectures": [os.environ["ARCH"]],
+          }
+          for field, value in expected.items():
+              if metadata.get(field) != value:
+                  raise SystemExit(f"Unexpected {field}: {metadata.get(field)!r}; expected {value!r}")
+          print("Verified snap metadata:", expected)
+          PY
+          sha256sum "$SNAP"
+
+      - name: Collect LXD diagnostics on failure
+        if: failure()
+        run: |
+          if instances=$(sudo lxc list '^snapcraft-checkbox18$' --format csv -c n); then
+            while IFS= read -r instance; do
+              if [ -z "$instance" ]; then
+                continue
+              fi
+              echo "Checking $instance"
+              if ! timeout 30 sudo lxc exec "$instance" -- systemctl status snapd.service snapd.socket --no-pager; then
+                echo "Could not obtain an active snapd status from $instance"
+              fi
+              if ! timeout 30 sudo lxc exec "$instance" -- journalctl --no-pager -n 80 -u snapd.service -u snapd.socket; then
+                echo "Could not read the snapd journal from $instance"
+              fi
+            done <<< "$instances"
+          else
+            echo "Could not list the LXD build instance"
+          fi
+
+      - name: Keep build logs on failure
+        if: failure()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
+        with:
+          name: core18-native-build-logs-${{ matrix.arch }}
+          path: |
+            /home/ubuntu/.cache/snapcraft/log/
+            /home/ubuntu/.local/state/snapcraft/log/
+            /home/runner/.cache/snapcraft/log/
+            /home/runner/.local/state/snapcraft/log/
+          retention-days: 7
+          if-no-files-found: warn
+
+      - name: Keep the verified snap as a GitHub artifact
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
+        with:
+          name: core18-native-${{ matrix.arch }}
+          path: ${{ steps.build.outputs.snap }}
+          retention-days: 7
+          if-no-files-found: error

@@ -74,6 +74,35 @@ command -v aplay    # /snap/bin/aplay
 If you install a snap with `--dangerous`, add its name to
 `SNAP_CONFINEMENT_ALLOWLIST` in the device launcher.
 
+## Give the normal user access to the sound devices
+
+The jobs run as the normal user of Checkbox, not as root. The ALSA tools open
+the sound devices in `/dev/snd/`. These devices belong to the `audio` group
+(mode `0660`). Thus the normal user must have access to them before the test.
+
+The usual setup is a seat session: the normal user is logged in on the local
+seat of the device (the screen, or a local console such as `tty1`).
+systemd-logind then gives the user access to `/dev/snd/` with an ACL. Keep
+this session active during the test. An SSH login does not give this access.
+
+If the device has no seat session, add the normal user to the `audio` group,
+then log in again:
+
+```bash
+sudo usermod -aG audio "$USER"
+```
+
+Then examine the access as the normal user:
+
+```bash
+ls -l /dev/snd/controlC0    # "+" after the mode = seat ACL
+id -nG                      # or the list contains "audio"
+alsaucm -c 0 list _verbs    # lists the verbs, no "failed to open sound card"
+```
+
+If the normal user has no access, `alsaucm` cannot open the card. Then the
+resource jobs give no rows and the detect jobs fail.
+
 ## Test plan
 
 Run the plan directly (it is also nested in `ce-oem-manual`):

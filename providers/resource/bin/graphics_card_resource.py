@@ -28,6 +28,9 @@ import sys
 from checkbox_support.helpers.slugify import slugify
 from checkbox_support.helpers.release_info import get_release_info
 
+# PCI vendor ID 0x10de, as reported (in decimal) by udev_resource.py
+NVIDIA_VENDOR_ID = "4318"
+
 
 def compare_ubuntu_release_version(_version):
     """
@@ -211,9 +214,15 @@ def main():
             else:
                 record["prime_gpu_offload"] = "Off"
             record["switch_to_cmd"] = switch_cmds[record["driver"]][0]
-            if index == 2 and len(video_devices) == 2:
+            if (
+                index == 2
+                and len(video_devices) == 2
+                and video_devices[0].get("vendor_id") != NVIDIA_VENDOR_ID
+            ):
                 # we're at GPU number 2 and there are two, so here we assume
-                # that video_devices[0] is the built-in one
+                # that video_devices[0] is the built-in one. Two NVIDIA cards
+                # are both discrete: switching to the intel profile would
+                # leave the system without a working driver
                 video_devices[0]["switch_to_cmd"] = switch_cmds[
                     record["driver"]
                 ][1]

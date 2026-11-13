@@ -6,7 +6,10 @@ template-unit: job
 plugin: user-interact
 category_id: com.canonical.plainbox::touchscreen
 id: ce-oem-touchscreen/evdev/single-touch-tap-{{ product_slug }}
-imports: from com.canonical.certification import device
+imports:
+    from com.canonical.certification import device
+    from com.canonical.plainbox import manifest
+requires: manifest.has_touchscreen == 'True'
 estimated_duration: 10.0
 _purpose:
     Validate that single-touch tap is properly detected
@@ -25,7 +28,12 @@ template-unit: job
 plugin: user-interact
 category_id: com.canonical.plainbox::touchscreen
 id: ce-oem-touchscreen/evdev/maximum-touch-tap-{{ product_slug }}
-imports: from com.canonical.certification import device
+imports:
+    from com.canonical.certification import device
+    from com.canonical.plainbox import manifest
+requires:
+    manifest.has_touchscreen == 'True'
+    manifest.has_touchscreen_multitouch == 'True'
 estimated_duration: 10.0
 environ: TOUCHSCREEN_MAX_FINGERS
 _purpose:

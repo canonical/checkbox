@@ -209,8 +209,9 @@ def write_launcher(
 ) -> Path:
     """Write a checkbox launcher ini file to *output_path*.
 
-    Empty manifest ``Item.value`` fields are written as ``key = false`` so
-    the file can be edited by hand later.  Environment items with an empty
+    Empty manifest ``Item.value`` fields (entries the user left unset) are
+    omitted, so the launcher gives checkbox no value (``None``) rather
+    than ``false``.  Environment items with an empty
     value are omitted entirely, since unset environment variables have no
     meaningful default to write. The ``[manifest]`` and ``[environment]``
     sections are themselves omitted when no relevant items exist (unless
@@ -260,11 +261,10 @@ def write_launcher(
         )
     sections["test plan"] = test_plan
 
-    manifest_items = [i for i in items if i.kind == "manifest"]
+    manifest_items = [i for i in items if i.kind == "manifest" and i.value]
     if manifest_items:
         sections["manifest"] = OrderedDict(
-            (item.key, item.value if item.value else "false")
-            for item in manifest_items
+            (item.key, item.value) for item in manifest_items
         )
 
     environ_items = [i for i in items if i.kind == "environ" and i.value]
@@ -285,7 +285,7 @@ def write_launcher(
             lines.append("")
         lines.append(f"[{section}]")
         for key, val in kv.items():
-            lines.append(f"{key} = {val}")
+            lines.append(f"{key} = {val}".rstrip())
 
     output_path.write_text("\n".join(lines) + "\n", encoding="utf-8")
     return output_path
@@ -508,28 +508,37 @@ _ITEM_FOCUS_MAP = {
 
 
 class _BoolToggleWidget(urwid.Widget):
-    """Inline True / False toggle for bool manifest entries.
+    """Inline True / False / Unset toggle for bool manifest entries.
 
-    Renders as:  <caption>  [▶ true ]   [ false ]
-    The selected option is highlighted (``bool_on``); the other is dim
-    (``bool_off``).
+    Renders as:  <caption>  [true]  [false]  [unset]
+    The selected option is highlighted (``bool_on``); the others are dim
+    (``bool_off``).  ``unset`` yields an empty value, so the entry is
+    left out of the launcher.  An empty initial value starts
+    on ``unset`` so confirming without choosing leaves it unset.
 
-    Keys: ``←``/``→`` or ``Space`` toggle; ``t``/``T`` → true;
-    ``f``/``F`` → false.  ``Enter``/``Tab``/``Esc`` are *not* consumed —
-    they bubble up to ``ItemRow``.
+    Keys: ``←``/``→`` cycle; ``Space`` cycles forward; ``t``/``T`` → true;
+    ``f``/``F`` → false; ``u``/``U`` → unset.  ``Enter``/``Tab``/``Esc``
+    are *not* consumed — they bubble up to ``ItemRow``.
     """
 
     _sizing = frozenset(["flow"])
-    _OPTIONS = ("true", "false")
+    _OPTIONS = ("true", "false", "unset")
 
     def __init__(self, caption: list, initial: str):
         self._caption = caption
-        self._selected = 1 if initial.lower() == "false" else 0
+        initial = initial.strip().lower()
+        if initial in ("y", "yes", "t", "true", "on", "1"):
+            self._selected = 0
+        elif initial in ("n", "no", "f", "false", "off", "0"):
+            self._selected = 1
+        else:
+            self._selected = 2
         super().__init__()
 
     @property
     def value(self) -> str:
-        return self._OPTIONS[self._selected]
+        opt = self._OPTIONS[self._selected]
+        return "" if opt == "unset" else opt
 
     def rows(self, size, focus=False) -> int:  # noqa: D401
         return 1
@@ -539,7 +548,7 @@ class _BoolToggleWidget(urwid.Widget):
         for i, opt in enumerate(self._OPTIONS):
             attr = "bool_on" if i == self._selected else "bool_off"
             parts.append((attr, f"[{opt}]"))
-            if i == 0:
+            if i < len(self._OPTIONS) - 1:
                 parts.append(("key", "  "))
         return urwid.Text(parts, wrap="clip").render(size, focus=False)
 
@@ -547,19 +556,21 @@ class _BoolToggleWidget(urwid.Widget):
         return True
 
     def keypress(self, size, key):
-        if key in ("left", "right", " "):
-            self._selected = 1 - self._selected
-            self._invalidate()
-            return None
-        if key in ("t", "T"):
+        n = len(self._OPTIONS)
+        if key in ("right", " "):
+            self._selected = (self._selected + 1) % n
+        elif key == "left":
+            self._selected = (self._selected - 1) % n
+        elif key in ("t", "T"):
             self._selected = 0
-            self._invalidate()
-            return None
-        if key in ("f", "F"):
+        elif key in ("f", "F"):
             self._selected = 1
-            self._invalidate()
-            return None
-        return key
+        elif key in ("u", "U"):
+            self._selected = 2
+        else:
+            return key
+        self._invalidate()
+        return None
 
 
 class ItemRow(urwid.WidgetWrap):
@@ -570,7 +581,7 @@ class ItemRow(urwid.WidgetWrap):
     ``('value_empty', …)`` (dim) when blank.
 
     *Edit mode* for **bool** manifest entries shows a ``_BoolToggleWidget``
-    (``←``/``→`` or ``t``/``f`` to pick, ``Enter``/``Tab`` to confirm).
+    (``←``/``→`` or ``t``/``f``/``u`` to pick, ``Enter``/``Tab`` to confirm).
     For all other entries it uses a live ``urwid.Edit`` widget.  Pressing
     ``Esc`` cancels and restores the original value; ``Tab`` or ``Enter``
     saves and exits.

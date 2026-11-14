@@ -1078,7 +1078,7 @@ _verification:
  Did you hear the sound?
 plugin: user-interact-verify
 depends: audio/detect-playback-devices
-environ: ALSA_CONFIG_PATH ALSADEVICE
+environ: ALSA_CONFIG_PATH ALSA_CONFIG_DIR ALSADEVICE
 flags: also-after-suspend
 command: alsa_test playback -d 5
 category_id: com.canonical.plainbox::audio
@@ -1093,7 +1093,7 @@ _purpose:
  connected.
 plugin: shell
 depends: audio/detect-playback-devices audio/detect-capture-devices
-environ: ALSA_CONFIG_PATH LD_LIBRARY_PATH ALSADEVICE
+environ: ALSA_CONFIG_PATH ALSA_CONFIG_DIR LD_LIBRARY_PATH ALSADEVICE
 flags: also-after-suspend
 command: alsa_test loopback -d 5
 category_id: com.canonical.plainbox::audio
@@ -1267,7 +1267,7 @@ _verification:
  Did you hear the sound after suspend?
 plugin: user-interact-verify
 depends: audio/detect-playback-devices suspend/suspend_advanced_auto
-environ: ALSA_CONFIG_PATH ALSADEVICE LD_LIBRARY_PATH
+environ: ALSA_CONFIG_PATH ALSA_CONFIG_DIR ALSADEVICE LD_LIBRARY_PATH
 command: alsa_test playback -d 90
 category_id: com.canonical.plainbox::audio
 estimated_duration: 2m

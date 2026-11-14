@@ -218,4 +218,13 @@ PTP4L_PTP_MINOR_VERSION={minor}  (optional, linuxptp >= 4.0 only, i.e. noble; ja
 PTP4L_REARM_HWTSTAMP=1           (optional, default off; re-programs NIC timestamping + sets the PHC before the test, drops the link briefly)
 e.g. PTP4L_TRANSPORT_SPECIFIC=1 PTP4L_DELAY_MECHANISM=P2P   (gPTP: set both; grandmaster on a direct link with --transportSpecific=1 --delay_mechanism=P2P)
 See checkbox-provider-ce-oem/units/ptp/README.md
+
+id: ce-oem-audio/alsa-ucm-loopback-list (optional)
+ALSA_UCM_LOOPBACK_PAIRING={sink1}:{source1},{sink2}:{source2},...
+UCM device names from "alsaucm -c <card> dump json"
+e.g. ALSA_UCM_LOOPBACK_PAIRING=Line2:Line1,Line4:Line3
+
+id: ce-oem-audio/alsa-ucm-loopback-tests (optional, default 10)
+ALSA_UCM_LOOPBACK_DURATION={seconds}
+e.g. ALSA_UCM_LOOPBACK_DURATION=10
 ```

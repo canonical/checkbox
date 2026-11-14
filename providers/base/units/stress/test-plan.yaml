@@ -113,6 +113,7 @@ include:
   - stress/store_and_change_oomd_config
   - stress/cpu_stress_ng_test:
       certification-status: blocker
+  - stress/cpu_hotplug_stress_ng_test
   - stress/memory_stress_ng:
       certification-status: blocker
   - stress/restore_oomd_config

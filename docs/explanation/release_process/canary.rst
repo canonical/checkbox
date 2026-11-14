@@ -22,7 +22,8 @@ At least one pull request (PR) has been merged since the last edge build.
 Build workflow
 ^^^^^^^^^^^^^^^
 
-To monitor the build process, or to review the configuration and logs, see `the GitHub workflow <https://github.com/canonical/checkbox/actions/workflows/checkbox-snap-daily-builds.yml>`_.
+To monitor the build process, or to review the configuration and logs, see
+`the GitHub workflow <https://github.com/canonical/checkbox/actions/workflows/daily-builds.yml>`_.
 
 Post-build actions
 ^^^^^^^^^^^^^^^^^^

@@ -377,12 +377,20 @@ class Scenario:
             cmd_str, target=target, timeout=timeout, check=check
         )
 
-    def run_manage(self, args, timeout=0, target="all"):
+    def run_manage(self, args, timeout=0, target="all", expect_failure=False):
         """
-        Runs the manage.py script with some arguments
+        Run manage.py, optionally expecting a failure on a single target.
         """
         path = "/home/ubuntu/checkbox/metabox/metabox/metabox-provider"
         cmd = f"bash -c 'cd {path} ; python3 manage.py {args}'"
+        if expect_failure:
+            if self.mode == "remote" and target == "all":
+                raise ValueError("Expected failure requires a single target")
+            result = self.run_cmd(
+                cmd, target=target, timeout=timeout, check=False
+            )
+            self._assign_outcome(*result)
+            return result.exit_code != 0
         return self.run_cmd(cmd, target=target, timeout=timeout)
 
     def assert_in_file(self, pattern, path):

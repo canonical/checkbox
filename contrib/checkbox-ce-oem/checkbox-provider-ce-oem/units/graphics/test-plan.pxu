@@ -16,6 +16,7 @@ _description:
 bootstrap_include:
     opencl_clinfo_resource
     vulkan_vulkaninfo_resource
+    opengl_eglinfo_resource
 include:
     ce-oem-graphics/nvidia-drm-modeset-check
     ce-oem-graphics/detect_opencl
@@ -23,6 +24,8 @@ include:
     ce-oem-graphics/opencl-property-validation
     ce-oem-graphics/check-vulkan_vulkaninfo_resource
     ce-oem-graphics/vulkan-vulkaninfo-device-validation
+    ce-oem-graphics/check-opengl_eglinfo_resource
+    ce-oem-graphics/opengl-eglinfo-platform-validation
 
 id: ce-oem-graphics-manual
 unit: test plan

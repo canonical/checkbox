@@ -200,6 +200,7 @@ def _find_v4l2_encoder_device(codec_fourcc: str) -> Optional[str]:
             ret = subprocess.run(
                 [V4L2_CTL_BIN, "-d", node, "--list-formats"],
                 capture_output=True,
+                check=False,
                 universal_newlines=True,
                 timeout=10,
             )

@@ -73,6 +73,7 @@ from checkbox_ng.launcher.run import Action
 from checkbox_ng.launcher.run import NormalUI
 from checkbox_ng.resume_menu import ResumeMenu
 from checkbox_ng.urwid_ui import CategoryBrowser
+from checkbox_ng.urwid_ui import GoBack
 from checkbox_ng.urwid_ui import ManifestBrowser
 from checkbox_ng.urwid_ui import ReRunBrowser
 from checkbox_ng.urwid_ui import ResumeInstead
@@ -265,7 +266,15 @@ class Launcher(MainLoopStage, ReportsStage):
                 while not something_got_chosen:
                     try:
                         self._select_test_plan_and_continue()
-                        self._pick_jobs_to_run()
+                        try:
+                            self._pick_jobs_to_run()
+                        except GoBack:
+                            # operator asked to return to the test plan
+                            # selection; the current session has already been
+                            # bootstrapped, so abandon it and start fresh
+                            self.sa.finalize_session()
+                            self._start_new_session()
+                            continue
                         something_got_chosen = True
                     except ResumeInstead:
                         # if resume is done, the old session will be finalized
@@ -769,24 +778,38 @@ class Launcher(MainLoopStage, ReportsStage):
             print(self.C.RED(_("There were no tests to select from!")))
             return
         test_info_list = self._generate_job_infos(job_list)
-        wanted_set = CategoryBrowser(
-            _("Choose tests to run on your system:"), test_info_list
-        ).run()
-        # no need to set an alternate selection if the job list has not changed
-        if len(test_info_list) != len(wanted_set):
-            # NOTE: tree.selection is correct but ordered badly. To retain
-            # the original ordering we should just treat it as a mask and
-            # use it to filter jobs from get_static_todo_list.
-            job_id_list = [
-                job_id
-                for job_id in self.sa.get_static_todo_list()
-                if job_id in wanted_set
-            ]
-            self.sa.use_alternate_selection(job_id_list)
-        # Save the manifest only after the alternate selection has been
-        # applied, so the manifest prompts cover the jobs the user kept
-        # rather than the whole test plan.
-        self._save_manifest(interactive=True)
+        selection = None
+        while True:
+            wanted_set = CategoryBrowser(
+                _("Choose tests to run on your system:"),
+                test_info_list,
+                selection,
+            ).run()
+            # no need to set an alternate selection if the job list has not
+            # changed
+            if len(test_info_list) != len(wanted_set):
+                # NOTE: tree.selection is correct but ordered badly. To retain
+                # the original ordering we should just treat it as a mask and
+                # use it to filter jobs from get_static_todo_list.
+                job_id_list = [
+                    job_id
+                    for job_id in self.sa.get_static_todo_list()
+                    if job_id in wanted_set
+                ]
+                self.sa.use_alternate_selection(job_id_list)
+            # Save the manifest only after the alternate selection has been
+            # applied, so the manifest prompts cover the jobs the user kept
+            # rather than the whole test plan.
+            try:
+                self._save_manifest(interactive=True)
+            except GoBack:
+                # operator asked to return to the test selection; restore the
+                # full job list so the whole tree is selectable again, keeping
+                # the previous selection
+                self.sa.remove_all_filters()
+                selection = wanted_set
+                continue
+            return
 
     def _handle_last_job_after_resume(self, last_job):
         if last_job is None:

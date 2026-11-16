@@ -372,7 +372,13 @@ class CategoryBrowser:
         ("rerun", "yellow,bold", "black"),
     ]
 
-    footer_text = [("Press ("), ("start", "T"), (") to start Testing")]
+    footer_text = [
+        ("Press ("),
+        ("start", "T"),
+        (") to start Testing, ("),
+        ("start", "B"),
+        (") to go Back"),
+    ]
 
     help_text = urwid.ListBox(
         urwid.SimpleListWalker(
@@ -390,17 +396,21 @@ class CategoryBrowser:
                 urwid.Text("Back to parent category  Left"),
                 urwid.Text("Toggle job id/summary    i"),
                 urwid.Text("Show job details         m"),
+                urwid.Text("Go back to previous      b"),
                 urwid.Text("Exit (abandon session)   Ctrl+C"),
             ]
         )
     )
 
-    def __init__(self, title, tests):
+    def __init__(self, title, tests, selection=None):
         global test_info_list
         test_info_list = tests
+        self._go_back = False
         self.header = urwid.Padding(urwid.Text(title), left=1)
         root_node = CategoryNode(tests)
         root_node.get_widget().set_descendants_state(True)
+        if selection is not None:
+            self._apply_selection(root_node, selection)
         self.listbox = CategoryListBox(CategoryWalker(root_node))
         self.listbox.offset_rows = 1
         self.footer = urwid.Columns(
@@ -424,6 +434,31 @@ class CategoryBrowser:
             ("relative", 80),
         )
 
+    def _apply_selection(self, root_node, selection):
+        """Restore a previous selection in the category tree.
+
+        ``selection`` is the set of job ids that must stay checked; every
+        other job is unchecked. Category and root checkboxes are reconciled
+        to reflect whether any of their jobs remain selected.
+        """
+        root_widget = root_node.get_widget()
+        for category_key in root_node.get_child_keys():
+            category_node = root_node.get_child_node(category_key)
+            category_widget = category_node.get_widget()
+            any_selected = False
+            for job_key in category_node.get_child_keys():
+                job_widget = category_node.get_child_node(job_key).get_widget()
+                job_widget.flagged = job_key in selection
+                job_widget.update_w()
+                any_selected = any_selected or job_widget.flagged
+            category_widget.flagged = any_selected
+            category_widget.update_w()
+        root_widget.flagged = any(
+            root_node.get_child_node(key).get_widget().flagged
+            for key in root_node.get_child_keys()
+        )
+        root_widget.update_w()
+
     def run(self):
         """Run the urwid MainLoop."""
         self.loop = urwid.MainLoop(
@@ -436,16 +471,23 @@ class CategoryBrowser:
         self.loop.run()
         selection = []
         global test_info_list, _widget_cache
-        for w in _widget_cache.values():
-            if w.flagged:
-                selection.append(w.get_node().get_key())
-        _widget_cache = {}
-        test_info_list = ()
+        try:
+            for w in _widget_cache.values():
+                if w.flagged:
+                    selection.append(w.get_node().get_key())
+        finally:
+            _widget_cache = {}
+            test_info_list = ()
+        if self._go_back:
+            raise GoBack()
         return frozenset(selection)
 
     def unhandled_input(self, key):
         if self.loop.widget == self.view:
             if key in ("t", "T"):
+                raise urwid.ExitMainLoop()
+            elif key in ("b", "B"):
+                self._go_back = True
                 raise urwid.ExitMainLoop()
             elif key in ("h", "H", "?", "f1"):
                 self.loop.widget = self.help_view
@@ -1049,7 +1091,13 @@ class ManifestBrowser:
         ("bold", "bold", "black"),
     ]
 
-    footer_text = [("Press ("), ("start", "T"), (") to start Testing")]
+    footer_text = [
+        ("Press ("),
+        ("start", "T"),
+        (") to start Testing, ("),
+        ("start", "B"),
+        (") to go Back"),
+    ]
     footer_shortcuts = [("Shortcuts: "), ("bold", "y"), ("/"), ("bold", "n ")]
 
     def __init__(self, title, manifest):
@@ -1061,6 +1109,7 @@ class ManifestBrowser:
         )
         self._manifest_out = {}
         self._question_store = []
+        self._go_back = False
         # Header
         self.header = urwid.Padding(urwid.Text(title), left=1)
         # Body
@@ -1139,6 +1188,8 @@ class ManifestBrowser:
             screen=Screen(),
         )
         self.loop.run()
+        if self._go_back:
+            raise GoBack()
         self._manifest_out.update(
             {q.id: q.value for q in self._question_store}
         )
@@ -1158,6 +1209,9 @@ class ManifestBrowser:
     def unhandled_input(self, key):
         if key in ("t", "T"):
             self.handle_submit_key()
+        elif key in ("b", "B"):
+            self._go_back = True
+            raise urwid.ExitMainLoop()
         else:
             self.handle_focused_question_input(key)
 
@@ -1227,5 +1281,13 @@ class ResumeInstead(Exception):
     """
     This is raised when selecting a test plan, but operator choses to resume
     previous session instead. This being an exception helps unwind the stack,
+    and handle it where applicable.
+    """
+
+
+class GoBack(Exception):
+    """
+    This is raised when the operator asks to return to the previous
+    configuration screen. This being an exception helps unwind the stack,
     and handle it where applicable.
     """

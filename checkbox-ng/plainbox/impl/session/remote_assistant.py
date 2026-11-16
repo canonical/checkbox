@@ -515,6 +515,9 @@ class RemoteSessionAssistant:
     def modify_todo_list(self, chosen_jobs):
         self._sa.use_alternate_selection(chosen_jobs)
 
+    def remove_all_filters(self):
+        self._sa.remove_all_filters()
+
     def finish_job_selection(self):
         self._jobs_count = len(self._sa.get_dynamic_todo_list())
         self.state = RemoteSessionStates.TestsSelected

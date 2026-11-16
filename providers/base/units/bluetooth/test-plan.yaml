@@ -137,10 +137,10 @@ bootstrap_include:
   - bluez-internal-bnep-tests
 exclude:
 # Read Country Code is deprecated
-  - '"after-suspend-bluetooth/bluez-internal-hci-tests_Read Country Code"'
-  - '"after-suspend-bluetooth/bluez-internal-hci-tests_LE Read Local PK"'
-  - '"after-suspend-bluetooth/bluez-internal-hci-tests_Read Local Supported Codecs"'
-  - '"after-suspend-bluetooth/bluez-internal-hci-tests_LE Generate DHKey"'
+  - 'after-suspend-bluetooth/bluez-internal-hci-tests_Read Country Code'
+  - 'after-suspend-bluetooth/bluez-internal-hci-tests_LE Read Local PK'
+  - 'after-suspend-bluetooth/bluez-internal-hci-tests_Read Local Supported Codecs'
+  - 'after-suspend-bluetooth/bluez-internal-hci-tests_LE Generate DHKey'
 ---
 id: after-suspend-bluetooth-cert-full
 unit: test plan

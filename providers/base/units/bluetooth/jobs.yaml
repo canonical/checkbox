@@ -22,6 +22,8 @@ depends:
   - bluetooth/detect
 requires:
   - package.name == 'bluez' or snap.name == 'bluez'
+  - environment.CHECKBOX_RUNNING_STRICT_SNAP != "1" or (connections.slot == 'bluez:service' and
+    environment.SNAP_NAME in connections.plug and ':bluez' in connections.plug)
 command: bluez_list_adapters.py
 estimated_duration: 2s
 flags:

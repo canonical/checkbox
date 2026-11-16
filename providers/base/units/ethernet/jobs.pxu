@@ -247,30 +247,30 @@ requires:
  manifest.has_ethernet_s5_wake_on_lan_support== 'True'
 _summary: Wake on LAN (WOL) test from S5 - {interface}
 _purpose:
- Check that another system can wake the System Under Test (SUT) from S5 using the Ethernet port {interface} WOL function.
+ Check that another system can wake the Device Under Test (DUT) from S5 using the Ethernet port {interface} WOL function.
 _steps:
  1. Ensure there is an ethernet cable connected to port {interface}.
  2. Press Enter for S5 (Soft Off).
- 3. From another computer, send a magic packet to wake the SUT:
+ 3. From another computer, send a magic packet to wake the DUT:
     $ wakeonlan {mac}
     This defaults to 255.255.255.255 and only reaches the local subnet.
-    If sending from a different subnet or VLAN, specify the SUT's IP
+    If sending from a different subnet or VLAN, specify the DUT's IP
     address or its subnet's directed broadcast address with -i:
     $ wakeonlan -i <TARGET_IP_OR_BROADCAST> {mac}
-    For reliable unicast delivery to the SUT's IP, ensure the last-hop
-    router has a static or persistent ARP/neighbor mapping for the SUT.
-    Dynamic entries may expire while the SUT is asleep and block delivery.
+    For reliable unicast delivery to the DUT's IP, ensure the last-hop
+    router has a static or persistent ARP/neighbor mapping for the DUT.
+    Dynamic entries may expire while the DUT is asleep and block delivery.
     If this cannot be ensured, use the directed broadcast address instead.
     For example, for a target subnet of 192.168.10.0/24:
     $ wakeonlan -i 192.168.10.255 {mac}
-    Ensure routing and firewalls allow the magic packet to reach the SUT.
+    Ensure routing and firewalls allow the magic packet to reach the DUT.
     If using a directed broadcast address, routers must allow forwarding
     directed broadcasts to the target subnet.
     If the wakeonlan tool is not installed, run:
     $ sudo apt-get install wakeonlan
  4. Resume Checkbox
 _verification:
-  Did the SUT wake up from S5?
+  Did the DUT wake up from S5?
 plugin: user-interact-verify
 command: poweroff
 user: root
@@ -285,29 +285,29 @@ id: ethernet/wol_S4_{interface}
 template-id: ethernet/wol_S4_interface
 _summary: Wake on LAN (WOL) test from S4 - {interface}
 _purpose:
- Check that another system can wake up from S4 the System Under Test (SUT) using ethernet port {interface} Wake-on-LAN (WOL) function.
+ Check that another system can wake up from S4 the Device Under Test (DUT) using ethernet port {interface} Wake-on-LAN (WOL) function.
 _steps:
  1. Ensure there is an ethernet cable attached to port {interface}.
  2. Press Enter to hibernate the system.
- 3. From another computer, send a magic packet to wake the SUT:
+ 3. From another computer, send a magic packet to wake the DUT:
     $ wakeonlan {mac}
     This defaults to 255.255.255.255 and only reaches the local subnet.
-    If sending from a different subnet or VLAN, specify the SUT's IP
+    If sending from a different subnet or VLAN, specify the DUT's IP
     address or its subnet's directed broadcast address with -i:
     $ wakeonlan -i <TARGET_IP_OR_BROADCAST> {mac}
-    For reliable unicast delivery to the SUT's IP, ensure the last-hop
-    router has a static or persistent ARP/neighbor mapping for the SUT.
-    Dynamic entries may expire while the SUT is asleep and block delivery.
+    For reliable unicast delivery to the DUT's IP, ensure the last-hop
+    router has a static or persistent ARP/neighbor mapping for the DUT.
+    Dynamic entries may expire while the DUT is asleep and block delivery.
     If this cannot be ensured, use the directed broadcast address instead.
     For example, for a target subnet of 192.168.10.0/24:
     $ wakeonlan -i 192.168.10.255 {mac}
-    Ensure routing and firewalls allow the magic packet to reach the SUT.
+    Ensure routing and firewalls allow the magic packet to reach the DUT.
     If using a directed broadcast address, routers must allow forwarding
     directed broadcasts to the target subnet.
     If the wakeonlan tool is not installed, run:
     $ sudo apt install wakeonlan
 _verification:
-  Did the SUT wake up from S4?
+  Did the DUT wake up from S4?
 plugin: user-interact-verify
 imports: from com.canonical.plainbox import manifest
 requires:
@@ -327,29 +327,29 @@ template-id: ethernet/wol_S3_interface
 depends: suspend/suspend_advanced_auto
 _summary: Wake on LAN (WOL) test from S3 - {interface}
 _purpose:
- Check that another system can wake the System Under Test (SUT) up from S3 using the Ethernet port {interface}'s WOL function.
+ Check that another system can wake the Device Under Test (DUT) up from S3 using the Ethernet port {interface}'s WOL function.
 _steps:
  1. Ensure there is an Ethernet cable attached to port {interface}.
  2. Press Enter to suspend the system.
- 3. From another computer, send a magic packet to wake the SUT:
+ 3. From another computer, send a magic packet to wake the DUT:
     $ wakeonlan {mac}
     This defaults to 255.255.255.255 and only reaches the local subnet.
-    If sending from a different subnet or VLAN, specify the SUT's IP
+    If sending from a different subnet or VLAN, specify the DUT's IP
     address or its subnet's directed broadcast address with -i:
     $ wakeonlan -i <TARGET_IP_OR_BROADCAST> {mac}
-    For reliable unicast delivery to the SUT's IP, ensure the last-hop
-    router has a static or persistent ARP/neighbor mapping for the SUT.
-    Dynamic entries may expire while the SUT is asleep and block delivery.
+    For reliable unicast delivery to the DUT's IP, ensure the last-hop
+    router has a static or persistent ARP/neighbor mapping for the DUT.
+    Dynamic entries may expire while the DUT is asleep and block delivery.
     If this cannot be ensured, use the directed broadcast address instead.
     For example, for a target subnet of 192.168.10.0/24:
     $ wakeonlan -i 192.168.10.255 {mac}
-    Ensure routing and firewalls allow the magic packet to reach the SUT.
+    Ensure routing and firewalls allow the magic packet to reach the DUT.
     If using a directed broadcast address, routers must allow forwarding
     directed broadcasts to the target subnet.
     If the wakeonlan tool is not installed, run:
     $ sudo apt install wakeonlan
 _verification:
- Did the SUT wake up from S3?
+ Did the DUT wake up from S3?
 plugin: user-interact-verify
 imports: from com.canonical.plainbox import manifest
 requires:

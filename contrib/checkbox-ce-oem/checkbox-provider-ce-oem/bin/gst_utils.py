@@ -22,7 +22,6 @@ V4L2_CTL_BIN = os.getenv("V4L2_CTL_BIN", "v4l2-ctl")
 # Default encoder bitrate used as a last resort when the target V4L2
 # device/control cannot be discovered or queried (e.g. missing v4l2-ctl,
 # non-V4L2 encoder backend).
-DEFAULT_ENCODER_BITRATE = 15_000_000
 PLAINBOX_SESSION_SHARE = os.getenv("PLAINBOX_SESSION_SHARE", "/var/tmp")
 VIDEO_CODEC_TESTING_DATA = os.getenv("VIDEO_CODEC_TESTING_DATA")
 if not VIDEO_CODEC_TESTING_DATA:

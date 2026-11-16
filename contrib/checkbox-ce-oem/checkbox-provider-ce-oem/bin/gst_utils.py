@@ -230,6 +230,7 @@ def _get_v4l2_control_range(device: str, control_name: str) -> Optional[tuple]:
         ret = subprocess.run(
             [V4L2_CTL_BIN, "-d", device, "--list-ctrls-menus"],
             capture_output=True,
+            check=False,
             universal_newlines=True,
             timeout=10,
         )

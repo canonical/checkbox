@@ -257,6 +257,10 @@ _steps:
     If sending from a different subnet or VLAN, specify the SUT's IP
     address or its subnet's directed broadcast address with -i:
     $ wakeonlan -i <TARGET_IP_OR_BROADCAST> {mac}
+    For reliable unicast delivery to the SUT's IP, ensure the last-hop
+    router has a static or persistent ARP/neighbor mapping for the SUT.
+    Dynamic entries may expire while the SUT is asleep and block delivery.
+    If this cannot be ensured, use the directed broadcast address instead.
     For example, for a target subnet of 192.168.10.0/24:
     $ wakeonlan -i 192.168.10.255 {mac}
     Ensure routing and firewalls allow the magic packet to reach the SUT.
@@ -291,6 +295,10 @@ _steps:
     If sending from a different subnet or VLAN, specify the SUT's IP
     address or its subnet's directed broadcast address with -i:
     $ wakeonlan -i <TARGET_IP_OR_BROADCAST> {mac}
+    For reliable unicast delivery to the SUT's IP, ensure the last-hop
+    router has a static or persistent ARP/neighbor mapping for the SUT.
+    Dynamic entries may expire while the SUT is asleep and block delivery.
+    If this cannot be ensured, use the directed broadcast address instead.
     For example, for a target subnet of 192.168.10.0/24:
     $ wakeonlan -i 192.168.10.255 {mac}
     Ensure routing and firewalls allow the magic packet to reach the SUT.
@@ -329,6 +337,10 @@ _steps:
     If sending from a different subnet or VLAN, specify the SUT's IP
     address or its subnet's directed broadcast address with -i:
     $ wakeonlan -i <TARGET_IP_OR_BROADCAST> {mac}
+    For reliable unicast delivery to the SUT's IP, ensure the last-hop
+    router has a static or persistent ARP/neighbor mapping for the SUT.
+    Dynamic entries may expire while the SUT is asleep and block delivery.
+    If this cannot be ensured, use the directed broadcast address instead.
     For example, for a target subnet of 192.168.10.0/24:
     $ wakeonlan -i 192.168.10.255 {mac}
     Ensure routing and firewalls allow the magic packet to reach the SUT.

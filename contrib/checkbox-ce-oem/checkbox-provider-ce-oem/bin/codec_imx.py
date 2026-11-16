@@ -168,7 +168,7 @@ class NxpIMX8mProject(BaseCodecProject):
         provisioned for a given resolution, or invalid on a VPU whose
         supported bitrate range differs from the one this was tuned on.
         """
-        fourcc = self._V4L2_CODEC_FOURCC.get(codec)
+        fourcc = self._V4L2_CODEC_FOURCC[codec]
         return calculate_encoder_bitrate(
             width=self._width,
             height=self._height,

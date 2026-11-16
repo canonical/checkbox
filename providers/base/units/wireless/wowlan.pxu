@@ -5,20 +5,33 @@ id: wireless/wowlan_S5_{interface}_wakeonlan
 template-id: wireless/wowlan_S5_interface_wakeonlan
 _summary: Wake on Wireless LAN (WoWLAN) test from S5 - {interface} - wakeonlan
 _purpose:
- Check that another system can wake up from S5 the System Under Test (SUT) using the WoWLAN function.
+ Check that another system can wake up from S5 the Device Under Test (DUT) using the WoWLAN function.
 _steps:
  1. Ensure WoWLAN is enabled in the BIOS.
  2. Initiate a connection to an Access Point (AP) using nmcli.
  3. Configure the device for WoWLAN, run the command:
     $ sudo iw phy phy0 wowlan enable magic-packet
  4. Press Enter for S5 (Soft Off).
- 5. From another computer on the same network, run the following command to wake the device:
+ 5. From another computer, send a magic packet to wake the DUT:
     $ wakeonlan {mac}
+    This defaults to 255.255.255.255 and only reaches the local subnet.
+    If sending from a different subnet or VLAN, specify the DUT's IP
+    address or its subnet's directed broadcast address with -i:
+    $ wakeonlan -i <TARGET_IP_OR_BROADCAST> {mac}
+    For reliable unicast delivery to the DUT's IP, ensure the last-hop
+    router has a static or persistent ARP/neighbor mapping for the DUT.
+    Dynamic entries may expire while the DUT is asleep and block delivery.
+    If this cannot be ensured, use the directed broadcast address instead.
+    For example, for a target subnet of 192.168.10.0/24:
+    $ wakeonlan -i 192.168.10.255 {mac}
+    Ensure routing and firewalls allow the magic packet to reach the DUT.
+    If using a directed broadcast address, routers must allow forwarding
+    directed broadcasts to the target subnet.
     If the wakeonlan tool is not installed, run:
     $ sudo apt install wakeonlan
  6. Resume Checkbox test application
 _verification:
- Did the SUT wake up from S5?
+ Did the DUT wake up from S5?
 plugin: user-interact-verify
 command: poweroff
 user: root
@@ -61,19 +74,32 @@ id: wireless/wowlan_S4_{interface}_wakeonlan
 template-id: wireless/wowlan_S4_interface_wakeonlan
 _summary: Wake on Wireless LAN (WoWLAN) test from S4 - {interface} - wakeonlan
 _purpose:
- Check that another system can wake up from S4 the SUT using the WoWLAN function.
+ Check that another system can wake up from S4 the DUT using the WoWLAN function.
 _steps:
  1. Ensure WoWLAN is enabled in BIOS.
  2. Initiate a connection to an AP (using nmcli).
  3. Configure the device for WoWLAN, run the command:
     $ sudo iw phy phy0 wowlan enable magic-packet
  4. Press Enter to hibernate the system.
- 5. From another computer on the same network, run the following command:
+ 5. From another computer, send a magic packet to wake the DUT:
     $ wakeonlan {mac}
+    This defaults to 255.255.255.255 and only reaches the local subnet.
+    If sending from a different subnet or VLAN, specify the DUT's IP
+    address or its subnet's directed broadcast address with -i:
+    $ wakeonlan -i <TARGET_IP_OR_BROADCAST> {mac}
+    For reliable unicast delivery to the DUT's IP, ensure the last-hop
+    router has a static or persistent ARP/neighbor mapping for the DUT.
+    Dynamic entries may expire while the DUT is asleep and block delivery.
+    If this cannot be ensured, use the directed broadcast address instead.
+    For example, for a target subnet of 192.168.10.0/24:
+    $ wakeonlan -i 192.168.10.255 {mac}
+    Ensure routing and firewalls allow the magic packet to reach the DUT.
+    If using a directed broadcast address, routers must allow forwarding
+    directed broadcasts to the target subnet.
     If the wakeonlan tool is not installed, run:
     $ sudo apt install wakeonlan
 _verification:
-  Did the SUT wake up from S4?
+  Did the DUT wake up from S4?
 plugin: user-interact-verify
 requires:
   sleep.disk == 'supported'
@@ -119,19 +145,32 @@ id: wireless/wowlan_S3_{interface}_wakeonlan
 template-id: wireless/wowlan_S3_interface_wakeonlan
 _summary: Wake on Wireless LAN (WoWLAN) test from S3 - {interface} - wakeonlan
 _purpose:
- Check that another system can wake up the System Under Test (SUT) from S3 using the WoWLAN function.
+ Check that another system can wake up the Device Under Test (DUT) from S3 using the WoWLAN function.
 _steps:
  1. Ensure WoWLAN is enabled in BIOS.
  2. Initiate a connection to an Access Point (using nmcli).
  3. Configure the device for WoWLAN, run the command:
     $ sudo iw phy phy0 wowlan enable magic-packet
  4. Press Enter to suspend the system.
- 5. From another computer on the same network, run the following command:
+ 5. From another computer, send a magic packet to wake the DUT:
     $ wakeonlan {mac}
+    This defaults to 255.255.255.255 and only reaches the local subnet.
+    If sending from a different subnet or VLAN, specify the DUT's IP
+    address or its subnet's directed broadcast address with -i:
+    $ wakeonlan -i <TARGET_IP_OR_BROADCAST> {mac}
+    For reliable unicast delivery to the DUT's IP, ensure the last-hop
+    router has a static or persistent ARP/neighbor mapping for the DUT.
+    Dynamic entries may expire while the DUT is asleep and block delivery.
+    If this cannot be ensured, use the directed broadcast address instead.
+    For example, for a target subnet of 192.168.10.0/24:
+    $ wakeonlan -i 192.168.10.255 {mac}
+    Ensure routing and firewalls allow the magic packet to reach the DUT.
+    If using a directed broadcast address, routers must allow forwarding
+    directed broadcasts to the target subnet.
     If the wakeonlan tool is not installed, run:
     $ sudo apt install wakeonlan
 _verification:
- Did the SUT wake up from S3?
+ Did the DUT wake up from S3?
 plugin: user-interact-verify
 requires:
   sleep.mem == 'supported'

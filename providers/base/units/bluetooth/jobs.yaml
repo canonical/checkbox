@@ -38,7 +38,7 @@ depends:
 requires:
   - package.name == 'bluez'
   - package.name == 'gnome-control-center'
-estimated_duration: '10.0'
+estimated_duration: "10.0"
 summary: Check that Bluetooth controller status is aligned with settings UI using the same dbus calls to power it on/off
 command: bt_state_test.py
 ---
@@ -47,7 +47,7 @@ category_id: com.canonical.plainbox::bluetooth
 id: bluetooth/detect-output
 flags:
   - also-after-suspend
-estimated_duration: '1.2'
+estimated_duration: "1.2"
 requires:
   - executable.name == 'hcitool'
   - executable.name == 'rfkill'
@@ -75,7 +75,7 @@ category_id: com.canonical.plainbox::bluetooth
 id: bluetooth/browse-files
 depends:
   - bluetooth/detect-output
-estimated_duration: '120.0'
+estimated_duration: "120.0"
 purpose: This test will check that the Bluetooth connection works correctly
 steps: |
   1. Enable Bluetooth on any mobile device (PDA, smartphone, etc.)
@@ -95,7 +95,7 @@ category_id: com.canonical.plainbox::bluetooth
 id: bluetooth/file-transfer
 depends:
   - bluetooth/detect-output
-estimated_duration: '120.0'
+estimated_duration: "120.0"
 purpose: This test will check that you can transfer information through a bluetooth connection
 steps: |
   1. Enable bluetooth on a target device (e.g., another laptop) and DUT (device under test)
@@ -116,7 +116,7 @@ depends:
   - bluetooth/detect-output
 flags:
   - also-after-suspend
-estimated_duration: '120.0'
+estimated_duration: "120.0"
 imports:
   - from com.canonical.plainbox import manifest
 requires:
@@ -153,7 +153,7 @@ category_id: com.canonical.plainbox::bluetooth
 id: bluetooth/audio
 depends:
   - bluetooth/detect-output
-estimated_duration: '120.0'
+estimated_duration: "120.0"
 command: audio_bluetooth_loopback_test.sh
 purpose: |
   This test will check the Telephony Duplex capability of your bluetooth device,
@@ -175,7 +175,7 @@ category_id: com.canonical.plainbox::bluetooth
 id: bluetooth/HID
 depends:
   - bluetooth/detect-output
-estimated_duration: '120.0'
+estimated_duration: "120.0"
 command: keyboard_test.py
 purpose: This test will check that you can use a Bluetooth HID device
 steps: |
@@ -191,7 +191,7 @@ summary: Verify the functionality of a Bluetooth HID device by conducting action
 plugin: shell
 category_id: com.canonical.plainbox::bluetooth
 id: bluetooth/file_transfer_stress
-estimated_duration: '300.0'
+estimated_duration: "300.0"
 requires:
   - package.name == 'bluez'
   - executable.name == 'obexftp'
@@ -233,7 +233,7 @@ imports:
 requires:
   - manifest.has_bt_smart == 'True'
   - package.name == 'bluez'
-estimated_duration: '30.0'
+estimated_duration: "30.0"
 command: bt_connect.py --mouse
 purpose: This test will check that you can use a HID Over GATT Profile (HOGP) with your Bluetooth Smart mouse.
 steps: |
@@ -256,7 +256,7 @@ imports:
 requires:
   - manifest.has_bt_smart == 'True'
   - package.name == 'bluez'
-estimated_duration: '30.0'
+estimated_duration: "30.0"
 command: bt_connect.py --keyboard
 purpose: This test will check that you can use a HID Over GATT Profile (HOGP) with your Bluetooth Smart keyboard.
 steps: |
@@ -283,10 +283,10 @@ command: gatt-notify-test.py {{path.split('/')[-1]}} "$ADV_SVC_UUID" "$SVC_UUID 
 plugin: shell
 user: root
 category_id: com.canonical.plainbox::bluetooth
-estimated_duration: '30'
+estimated_duration: "30"
 requires:
   - package.name == 'bluez' or snap.name == 'bluez'
-  - environment.CHECKBOX_RUNNING_STRICT_SNAP != "1" or (connections.slot == 'bluez:service' and connections.plug == 
+  - environment.CHECKBOX_RUNNING_STRICT_SNAP != "1" or (connections.slot == 'bluez:service' and connections.plug ==
     '{{__system_env__["SNAP_NAME"]}}:bluez')
 ---
 unit: template
@@ -305,10 +305,10 @@ flags:
   - also-after-suspend
   - fail-on-resource
 category_id: com.canonical.plainbox::bluetooth
-estimated_duration: '10'
+estimated_duration: "10"
 requires:
   - package.name == 'bluez' or snap.name == 'bluez'
-  - environment.CHECKBOX_RUNNING_STRICT_SNAP != "1" or (connections.slot == 'bluez:service' and connections.plug == 
+  - environment.CHECKBOX_RUNNING_STRICT_SNAP != "1" or (connections.slot == 'bluez:service' and connections.plug ==
     '{{__system_env__["SNAP_NAME"]}}:bluez')
 ---
 unit: template
@@ -326,7 +326,7 @@ flags:
 command: rfcomm-tester -p "{bluez-internal-rfcomm-test}"
 requires:
   - device.category == 'BLUETOOTH'
-estimated_duration: '2.0'
+estimated_duration: "2.0"
 ---
 unit: template
 template-resource: bluez-internal-hci-tests
@@ -343,7 +343,7 @@ flags:
 command: hci-tester -p "{bluez-internal-hci-test}"
 requires:
   - device.category == 'BLUETOOTH'
-estimated_duration: '2.0'
+estimated_duration: "2.0"
 ---
 unit: template
 template-resource: bluez-internal-mgmt-tests
@@ -360,7 +360,7 @@ flags:
 command: mgmt-tester -p "{bluez-internal-mgmt-test}"
 requires:
   - device.category == 'BLUETOOTH'
-estimated_duration: '2.0'
+estimated_duration: "2.0"
 ---
 unit: template
 template-resource: bluez-internal-uc-tests
@@ -377,7 +377,7 @@ flags:
 command: userchan-tester -p "{bluez-internal-uc-test}"
 requires:
   - device.category == 'BLUETOOTH'
-estimated_duration: '2.0'
+estimated_duration: "2.0"
 ---
 unit: template
 template-resource: bluez-internal-bnep-tests
@@ -394,7 +394,7 @@ flags:
 command: bnep-tester -p "{bluez-internal-bnep-test}"
 requires:
   - device.category == 'BLUETOOTH'
-estimated_duration: '2.0'
+estimated_duration: "2.0"
 ---
 id: bluetooth/keyboard
 imports:
@@ -458,7 +458,7 @@ category_id: com.canonical.plainbox::bluetooth
 id: bluetooth/bluetooth_obex_send
 depends:
   - bluetooth/detect-output
-estimated_duration: '10.0'
+estimated_duration: "10.0"
 environ:
   - BTDEVADDR
   - PLAINBOX_PROVIDER_DATA
@@ -493,7 +493,8 @@ command: |
 flags:
   - also-after-suspend
 summary: Bluetooth OBEX send
-purpose: This is an automated Bluetooth file transfer test. It sends an image to the device specified by the BTDEVADDR 
+purpose:
+  This is an automated Bluetooth file transfer test. It sends an image to the device specified by the BTDEVADDR
   environment variable
 ---
 plugin: user-interact-verify
@@ -502,7 +503,7 @@ id: bluetooth/audio_record_playback
 group: bluetooth_basic
 depends:
   - bluetooth/detect-output
-estimated_duration: '120.0'
+estimated_duration: "120.0"
 flags:
   - also-after-suspend
 imports:

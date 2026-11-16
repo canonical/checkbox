@@ -12,8 +12,17 @@ _steps:
  3. Configure the device for WoWLAN, run the command:
     $ sudo iw phy phy0 wowlan enable magic-packet
  4. Press Enter for S5 (Soft Off).
- 5. From another computer on the same network, run the following command to wake the device:
+ 5. From another computer, send a magic packet to wake the SUT:
     $ wakeonlan {mac}
+    This defaults to 255.255.255.255 and only reaches the local subnet.
+    If sending from a different subnet or VLAN, specify the SUT's IP
+    address or its subnet's directed broadcast address with -i:
+    $ wakeonlan -i <TARGET_IP_OR_BROADCAST> {mac}
+    For example, for a target subnet of 192.168.10.0/24:
+    $ wakeonlan -i 192.168.10.255 {mac}
+    Ensure routing and firewalls allow the magic packet to reach the SUT.
+    If using a directed broadcast address, routers must allow forwarding
+    directed broadcasts to the target subnet.
     If the wakeonlan tool is not installed, run:
     $ sudo apt install wakeonlan
  6. Resume Checkbox test application
@@ -68,8 +77,17 @@ _steps:
  3. Configure the device for WoWLAN, run the command:
     $ sudo iw phy phy0 wowlan enable magic-packet
  4. Press Enter to hibernate the system.
- 5. From another computer on the same network, run the following command:
+ 5. From another computer, send a magic packet to wake the SUT:
     $ wakeonlan {mac}
+    This defaults to 255.255.255.255 and only reaches the local subnet.
+    If sending from a different subnet or VLAN, specify the SUT's IP
+    address or its subnet's directed broadcast address with -i:
+    $ wakeonlan -i <TARGET_IP_OR_BROADCAST> {mac}
+    For example, for a target subnet of 192.168.10.0/24:
+    $ wakeonlan -i 192.168.10.255 {mac}
+    Ensure routing and firewalls allow the magic packet to reach the SUT.
+    If using a directed broadcast address, routers must allow forwarding
+    directed broadcasts to the target subnet.
     If the wakeonlan tool is not installed, run:
     $ sudo apt install wakeonlan
 _verification:
@@ -126,8 +144,17 @@ _steps:
  3. Configure the device for WoWLAN, run the command:
     $ sudo iw phy phy0 wowlan enable magic-packet
  4. Press Enter to suspend the system.
- 5. From another computer on the same network, run the following command:
+ 5. From another computer, send a magic packet to wake the SUT:
     $ wakeonlan {mac}
+    This defaults to 255.255.255.255 and only reaches the local subnet.
+    If sending from a different subnet or VLAN, specify the SUT's IP
+    address or its subnet's directed broadcast address with -i:
+    $ wakeonlan -i <TARGET_IP_OR_BROADCAST> {mac}
+    For example, for a target subnet of 192.168.10.0/24:
+    $ wakeonlan -i 192.168.10.255 {mac}
+    Ensure routing and firewalls allow the magic packet to reach the SUT.
+    If using a directed broadcast address, routers must allow forwarding
+    directed broadcasts to the target subnet.
     If the wakeonlan tool is not installed, run:
     $ sudo apt install wakeonlan
 _verification:

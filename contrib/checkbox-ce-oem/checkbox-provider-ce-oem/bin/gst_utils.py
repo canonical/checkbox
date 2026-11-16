@@ -235,8 +235,15 @@ def _get_v4l2_control_range(device: str, control_name: str) -> Optional[tuple]:
             timeout=10,
         )
     except Exception:
+        logger.warning("Failed to query V4L2 controls on %s: %s", device, exc)
         return None
     if ret.returncode != 0:
+        logger.warning(
+            "V4L2 control query failed on %s (exit %s): %s",
+            device,
+            result.returncode,
+            result.stderr.strip() or "no stderr",
+        )
         return None
 
     pattern = re.compile(

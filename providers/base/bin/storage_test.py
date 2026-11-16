@@ -21,9 +21,9 @@ from typing import NamedTuple
 import psutil
 
 ACCEPTED_DEVICE_TYPES = (
-    "part", # regular partitions
+    "part",  # regular partitions
     # these are all raid members
-    # the raid "device" is accepted, 
+    # the raid "device" is accepted,
     # but their fstype "linux_raid_member" is rejected since it's not mountable
     # the test will be run on the container instead
     "raid0",
@@ -54,7 +54,7 @@ class BlockDevice(NamedTuple):
 
 
 REJECTED_FSTYPES = (
-    None, # lsblk found no filesystem (an unused disk basically)
+    None,  # lsblk found no filesystem (an unused disk basically)
     "swap",  # the swap file used for swap to disk
     # carried over from before the old storage_test.py
     # used by LUKS and is not a disk-backed fs

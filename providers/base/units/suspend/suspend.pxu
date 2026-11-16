@@ -354,6 +354,7 @@ _summary: Attaches the log from the single hybrid sleep/resume test
 plugin: shell
 category_id: com.canonical.plainbox::suspend
 id: suspend/suspend-time-check
+environ: SLEEP_THRESHOLD_OVERRIDE RESUME_THRESHOLD_OVERRIDE
 depends: suspend/suspend_advanced_auto
 estimated_duration: 1.2
 requires: cpuinfo.platform in ("i386", "x86_64")
@@ -367,6 +368,7 @@ template-filter: graphics_card.prime_gpu_offload == 'Off'
 plugin: shell
 category_id: com.canonical.plainbox::suspend
 id: suspend/{index}_suspend-time-check_{product_slug}
+environ: SLEEP_THRESHOLD_OVERRIDE RESUME_THRESHOLD_OVERRIDE
 template-id: suspend/index_suspend-time-check_product_slug
 depends: suspend/{index}_suspend_after_switch_to_card_{product_slug}
 estimated_duration: 1.2

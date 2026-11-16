@@ -277,6 +277,7 @@ template-engine: jinja2
 plugin: shell
 category_id: com.canonical.plainbox::suspend
 id: suspend/{{ index }}_suspend-time-check_{{ product_slug }}_auto
+environ: SLEEP_THRESHOLD_OVERRIDE RESUME_THRESHOLD_OVERRIDE
 template-id: suspend/index_suspend-time-check_product_slug_auto
 depends:
  {%- if gpu_count > "1" %}

@@ -108,11 +108,13 @@ def main():
     if sleep_times:
         print("=================================================")
         print(
-            f"Average time to enter sleep state: {mean(sleep_times):.4f} seconds"
+            f"Average time to enter sleep state: {mean(sleep_times):.4f} "
+            "seconds"
         )
         if max(sleep_times) > sleep_threshold:
             print(
-                f"System failed to suspend in less than {sleep_threshold} seconds"
+                f"System failed to suspend in less than {sleep_threshold} "
+                "seconds"
             )
             failed = 1
         if min(sleep_times) <= 0.0:
@@ -122,11 +124,13 @@ def main():
     if resume_times:
         print("=================================================")
         print(
-            f"Average time to resume from sleep state: {mean(resume_times):.4f} seconds"
+            "Average time to resume from sleep state: "
+            f"{mean(resume_times):.4f} seconds"
         )
         if max(resume_times) > resume_threshold:
             print(
-                f"System failed to resume in less than {resume_threshold} seconds"
+                f"System failed to resume in less than {resume_threshold} "
+                "seconds"
             )
             failed = 1
         if min(resume_times) <= 0.0:

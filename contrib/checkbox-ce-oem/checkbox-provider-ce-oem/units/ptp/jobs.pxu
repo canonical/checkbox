@@ -42,19 +42,7 @@ estimated_duration: 2s
 imports: from com.canonical.plainbox import manifest
 requires: manifest.has_ptp == 'True'
 command:
-    PTP_ID=$(ethtool -T {eth-interface} | grep -E "PTP Hardware Clock:|Hardware timestamp provider index:" | grep -oE '[0-9]+$')
-    if [ -z "$PTP_ID" ]; then
-        echo "Device {eth-interface} does not support hardware PTP."
-        exit 1
-    else
-        if [ -e "/dev/ptp$PTP_ID" ]; then
-            echo "/dev/ptp$PTP_ID exists"
-            exit 0
-        else
-            echo "/dev/ptp$PTP_ID not found!"
-            exit 1
-        fi
-    fi
+    detect_ptp.py {eth-interface}
 
 unit: template
 template-resource: ce-oem-ptp/ptp-devices

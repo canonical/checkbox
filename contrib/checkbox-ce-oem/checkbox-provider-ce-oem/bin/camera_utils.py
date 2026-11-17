@@ -31,13 +31,12 @@ from abc import ABC, abstractmethod
 from enum import Enum
 from itertools import product
 
-PLAINBOX_SESSION_SHARE = os.getenv("PLAINBOX_SESSION_SHARE", "/var/tmp")
-GST_LAUNCH_BIN = shutil.which(os.getenv("GST_LAUNCH_BIN", "gst-launch-1.0"))
+import gst_utils
+
+PLAINBOX_SESSION_SHARE = gst_utils.PLAINBOX_SESSION_SHARE
+GST_LAUNCH_BIN = shutil.which(gst_utils.GST_LAUNCH_BIN)
 MEDIA_CTL_CMD = shutil.which(os.getenv("MEDIA_CTL_CMD", "media-ctl"))
 V4L2_CTL_CMD = shutil.which(os.getenv("V4L2_CTL_CMD", "v4l2-ctl"))
-GST_DISCOVERER = shutil.which(
-    os.getenv("GST_DISCOVERER", "gst-discoverer-1.0")
-)
 
 logger = logging.getLogger(__name__)
 
@@ -157,13 +156,21 @@ def execute_command(cmd: str = "", timeout: int = 300) -> str:
         The extracted last_message.
     """
     try:
+        args = shlex.split(cmd)
+        # Only a GStreamer pipeline gets the USER_DEFINED_GST_* paths
+        env = (
+            gst_utils.get_gst_env(GST_LAUNCH_BIN)
+            if GST_LAUNCH_BIN in args
+            else None
+        )
         ret = subprocess.run(
-            shlex.split(cmd),
+            args,
             check=True,
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE,
             universal_newlines=True,
             timeout=timeout,
+            env=env,
         )
         return ret.stdout
     except subprocess.TimeoutExpired as e:

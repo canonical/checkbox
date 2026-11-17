@@ -1,0 +1,17 @@
+unit: manifest entry
+id: is_rz_series
+name: Is this platform part of Renesas RZ series?
+prompt: Renesas RZ specific?
+value-type: bool
+---
+unit: manifest entry
+id: has_rz_drp_ai
+name: Does platform support Renesas RZ DRP-AI?
+prompt: RZ specific?
+value-type: bool
+---
+unit: manifest entry
+id: has_rz_drp_ai3
+name: Does platform support Renesas RZ DRP-AI3?
+prompt: RZ specific?
+value-type: bool

@@ -1,7 +1,101 @@
 import unittest
 from unittest.mock import patch, MagicMock
 import urwid
-from checkbox_ng.urwid_ui import ManifestBrowser
+from checkbox_ng.urwid_ui import (
+    CategoryBrowser,
+    ManifestBrowser,
+    ReRunBrowser,
+    TestPlanBrowser,
+)
+
+
+class TestCategoryBrowser(unittest.TestCase):
+    def setUp(self):
+        tests = [
+            {
+                "id": "namespace::job",
+                "partial_id": "job",
+                "name": "Job summary",
+                "category_id": "category",
+                "category_name": "Category",
+            }
+        ]
+        browser = CategoryBrowser("Test", tests)
+        category_node = browser.listbox.body.root_node.get_child_node(
+            "category"
+        )
+        self.category = category_node.get_widget()
+        self.job = category_node.get_child_node("namespace::job").get_widget()
+
+    def test_toggle_job_selection(self):
+        self.job.keypress((80,), " ")
+
+        self.assertFalse(self.job.flagged)
+        columns = self.job._w.base_widget
+        self.assertIs(columns.contents[0][0], self.job.unselected)
+
+    def test_expand_category(self):
+        self.category.keypress((80,), "enter")
+
+        self.assertTrue(self.category.expanded)
+        columns = self.category._w.base_widget
+        self.assertIs(columns.contents[2][0], self.category.expanded_icon)
+
+    @patch("checkbox_ng.urwid_ui.show_job_ids", False)
+    def test_show_job_ids(self):
+        self.job.keypress((80,), "i")
+
+        padding = self.job._w.base_widget.contents[-1][0]
+        self.assertEqual(padding.original_widget.text, "job")
+
+
+class TestReRunBrowser(unittest.TestCase):
+    def test_starts_deselected(self):
+        tests = [
+            {
+                "id": "namespace::job",
+                "partial_id": "job",
+                "name": "Job summary",
+                "category_name": "Category",
+                "outcome": "fail",
+            }
+        ]
+        browser = ReRunBrowser("Test", tests, [])
+        category_node = browser.root_node.get_child_node(
+            "fail"
+        ).get_child_node("Category")
+        job = category_node.get_child_node("namespace::job").get_widget()
+
+        self.assertFalse(job.flagged)
+        columns = job._w.base_widget
+        self.assertIs(columns.contents[0][0], job.unselected)
+
+
+class TestTestPlanBrowser(unittest.TestCase):
+    def setUp(self):
+        test_plans = [
+            {"id": "namespace::first", "name": "Alpha plan"},
+            {"id": "namespace::second", "name": "Beta plan"},
+        ]
+        self.browser = TestPlanBrowser("Test", test_plans, None)
+        self.browser.loop = MagicMock(widget=self.browser.frame)
+
+    def test_start_filtering(self):
+        self.browser.unhandled_input("f")
+
+        self.assertTrue(self.browser.filtering)
+        self.assertEqual(self.browser.frame.focus_position, "footer")
+
+    def test_apply_filter(self):
+        self.browser.unhandled_input("f")
+        self.browser.filter_footer.base_widget.set_edit_text("alpha")
+        self.browser.unhandled_input("enter")
+
+        self.assertFalse(self.browser.filtering)
+        self.assertEqual(self.browser.frame.focus_position, "body")
+        tp_ids = [b.tp_id for b in self.browser.radio_button_group]
+        self.assertEqual(tp_ids, ["namespace::first"])
+        self.assertEqual(len(self.browser.button_pile.contents), 1)
 
 
 class TestManifestBrowser(unittest.TestCase):

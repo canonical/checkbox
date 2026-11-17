@@ -56,10 +56,13 @@ jobs:
         with:
           persist-credentials: false
       - name: Copy deb packages from edge to beta ppa
+        uses: Wandalen/wretry.action@df981d2bb22b26b5b23754bb516d0de8c1bfbbec
         env:
           LP_CREDENTIALS: ${{ secrets.LP_CREDS }}
-        run: |
-          tools/release/lp_copy_packages.py checkbox-dev edge checkbox-dev beta
+        with:
+          attempt_limit: 3
+          command: |
+            tools/release/lp_copy_packages.py checkbox-dev edge checkbox-dev beta
 
   checkbox_core_snap:
     needs: should-run
@@ -72,12 +75,15 @@ jobs:
         run: |
           sudo snap install snapcraft --classic
       - name: Promote checkbox core snaps to the beta channel
-        run: |
-          snapcraft promote checkbox18 --from-channel latest/edge --to-channel latest/beta --yes
-          snapcraft promote checkbox20 --from-channel latest/edge --to-channel latest/beta --yes
-          snapcraft promote checkbox22 --from-channel latest/edge --to-channel latest/beta --yes
-          snapcraft promote checkbox24 --from-channel latest/edge --to-channel latest/beta --yes
-          snapcraft promote checkbox26 --from-channel latest/edge --to-channel latest/beta --yes
+        uses: Wandalen/wretry.action@df981d2bb22b26b5b23754bb516d0de8c1bfbbec
+        with:
+          attempt_limit: 3
+          command: |
+            snapcraft promote checkbox18 --from-channel latest/edge --to-channel latest/beta --yes
+            snapcraft promote checkbox20 --from-channel latest/edge --to-channel latest/beta --yes
+            snapcraft promote checkbox22 --from-channel latest/edge --to-channel latest/beta --yes
+            snapcraft promote checkbox24 --from-channel latest/edge --to-channel latest/beta --yes
+            snapcraft promote checkbox26 --from-channel latest/edge --to-channel latest/beta --yes
 
   checkbox_snap:
     needs: should-run
@@ -90,17 +96,20 @@ jobs:
         run: |
           sudo snap install snapcraft --classic
       - name: Promote checkbox snaps to the beta channel
-        run: |
-          snapcraft promote checkbox --from-channel uc18/edge --to-channel uc18/beta --yes
-          snapcraft promote checkbox --from-channel uc20/edge --to-channel uc20/beta --yes
-          snapcraft promote checkbox --from-channel uc22/edge --to-channel uc22/beta --yes
-          snapcraft promote checkbox --from-channel uc24/edge --to-channel uc24/beta --yes
-          snapcraft promote checkbox --from-channel uc26/edge --to-channel uc26/beta --yes
+        uses: Wandalen/wretry.action@df981d2bb22b26b5b23754bb516d0de8c1bfbbec
+        with:
+          attempt_limit: 3
+          command: |
+            snapcraft promote checkbox --from-channel uc18/edge --to-channel uc18/beta --yes
+            snapcraft promote checkbox --from-channel uc20/edge --to-channel uc20/beta --yes
+            snapcraft promote checkbox --from-channel uc22/edge --to-channel uc22/beta --yes
+            snapcraft promote checkbox --from-channel uc24/edge --to-channel uc24/beta --yes
+            snapcraft promote checkbox --from-channel uc26/edge --to-channel uc26/beta --yes
 
-          snapcraft promote checkbox --from-channel 18.04/edge --to-channel 18.04/beta --yes
-          snapcraft promote checkbox --from-channel 20.04/edge --to-channel 20.04/beta --yes
-          snapcraft promote checkbox --from-channel 22.04/edge --to-channel 22.04/beta --yes
-          snapcraft promote checkbox --from-channel 24.04/edge --to-channel 24.04/beta --yes
-          snapcraft promote checkbox --from-channel 26.04/edge --to-channel 26.04/beta --yes
+            snapcraft promote checkbox --from-channel 18.04/edge --to-channel 18.04/beta --yes
+            snapcraft promote checkbox --from-channel 20.04/edge --to-channel 20.04/beta --yes
+            snapcraft promote checkbox --from-channel 22.04/edge --to-channel 22.04/beta --yes
+            snapcraft promote checkbox --from-channel 24.04/edge --to-channel 24.04/beta --yes
+            snapcraft promote checkbox --from-channel 26.04/edge --to-channel 26.04/beta --yes
 
-          snapcraft promote checkbox --from-channel 24.04/edge --to-channel latest/beta --yes
+            snapcraft promote checkbox --from-channel 24.04/edge --to-channel latest/beta --yes

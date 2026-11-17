@@ -83,13 +83,26 @@ Following fields may be used by the job unit:
 .. option:: mime-type
 
     (optional) - Media type of the output produced by an ``attachment`` job.
-    Supported values are ``application/gzip``, ``application/json``,
-    ``application/octet-stream``, ``application/senml+json``,
-    ``application/xml``, ``application/x-7z-compressed``,
-    ``application/x-bzip2``, ``application/x-tar``, ``application/x-xz``,
-    ``application/zip``, ``application/zstd``, ``image/gif``,
-    ``image/jpeg``, ``image/png``, ``image/svg+xml``, ``image/webp``, and
-    ``text/plain``.
+    Supported values are:
+
+    - ``application/gzip``
+    - ``application/json``
+    - ``application/octet-stream``
+    - ``application/senml+json``
+    - ``application/xml``
+    - ``application/x-7z-compressed``
+    - ``application/x-bzip2``
+    - ``application/x-tar``
+    - ``application/x-xz``
+    - ``application/zip``
+    - ``application/zstd``
+    - ``image/gif``
+    - ``image/jpeg``
+    - ``image/png``
+    - ``image/svg+xml``
+    - ``image/webp``
+    - ``text/plain``
+
     The default value is ``application/octet-stream``.
 
 .. option:: certification-status

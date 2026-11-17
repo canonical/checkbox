@@ -1,11 +1,41 @@
 import unittest
 
-from unittest.mock import patch
+from unittest.mock import MagicMock, patch
 
 import utils
 
 
 class TestUtils(unittest.TestCase):
+    @patch("utils.get_launchpad_client")
+    def test_get_source_build_recipe_timeout(self, client_mock):
+        recipe = MagicMock()
+        recipe.name = "checkbox-ng-edge"
+        project = client_mock.return_value.projects.__getitem__.return_value
+        project.recipes = MagicMock()
+        project.recipes.total_size = 1
+        project.recipes.__iter__.return_value = iter([recipe])
+
+        result = utils.get_source_build_recipe(
+            "checkbox", "checkbox-ng-edge", timeout=30
+        )
+
+        client_mock.assert_called_once_with(timeout=30)
+        self.assertIs(result, recipe)
+
+    @patch("utils.get_launchpad_client")
+    def test_get_source_build_recipe_default_timeout(self, client_mock):
+        recipe = MagicMock()
+        recipe.name = "checkbox-ng-edge"
+        project = client_mock.return_value.projects.__getitem__.return_value
+        project.recipes = MagicMock()
+        project.recipes.total_size = 1
+        project.recipes.__iter__.return_value = iter([recipe])
+
+        result = utils.get_source_build_recipe("checkbox", "checkbox-ng-edge")
+
+        client_mock.assert_called_once_with(timeout=None)
+        self.assertIs(result, recipe)
+
     @patch("utils.Credentials")
     @patch("utils.Launchpad")
     @patch("os.getenv")

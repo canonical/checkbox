@@ -1,0 +1,5 @@
+unit: manifest entry
+id: has_cix_ai_test_npu
+name: Platform has an NPU and uses the cix-ai-test tools for testing
+prompt: CIX Tool specific?
+value-type: bool

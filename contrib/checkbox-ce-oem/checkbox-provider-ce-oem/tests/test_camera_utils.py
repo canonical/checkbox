@@ -1,6 +1,7 @@
 import unittest
+from unittest import mock
 
-from camera_utils import CameraResources
+from camera_utils import CameraResources, execute_command
 
 
 class TestCameraResourcesItems(unittest.TestCase):
@@ -81,6 +82,34 @@ class TestCameraResourcesItems(unittest.TestCase):
         resources.capture_image([item])
 
         self.assertEqual(resources._resource_items, [])
+
+
+class TestExecuteCommandGstEnv(unittest.TestCase):
+    GST_BIN = "/usr/bin/gst-launch-1.0"
+
+    @mock.patch("camera_utils.GST_LAUNCH_BIN", GST_BIN)
+    @mock.patch("camera_utils.gst_utils.get_gst_env")
+    @mock.patch("camera_utils.subprocess.run")
+    def test_gst_pipeline_gets_gst_env(self, mock_run, mock_env):
+        mock_env.return_value = {"GST_PLUGIN_PATH": "/usr/lib/gst"}
+        mock_run.return_value.stdout = "done"
+        cmd = "/usr/bin/env -u DISPLAY {} videotestsrc ! fakesink".format(
+            self.GST_BIN
+        )
+        self.assertEqual(execute_command(cmd), "done")
+        mock_env.assert_called_once_with(self.GST_BIN)
+        self.assertEqual(
+            mock_run.call_args.kwargs["env"],
+            {"GST_PLUGIN_PATH": "/usr/lib/gst"},
+        )
+
+    @mock.patch("camera_utils.GST_LAUNCH_BIN", GST_BIN)
+    @mock.patch("camera_utils.gst_utils.get_gst_env")
+    @mock.patch("camera_utils.subprocess.run")
+    def test_other_tools_inherit_env(self, mock_run, mock_env):
+        execute_command("v4l2-ctl --list-devices")
+        mock_env.assert_not_called()
+        self.assertIsNone(mock_run.call_args.kwargs["env"])
 
 
 if __name__ == "__main__":

@@ -19,7 +19,7 @@
 
 """Test and validate SUT CPU scaling capabilities via CPUFreq."""
 
-from os import path, geteuid
+from os import path, geteuid, listdir
 import multiprocessing
 import collections
 import threading
@@ -27,6 +27,7 @@ import argparse
 import logging
 import pprint
 import random
+import resource
 import signal
 import copy
 import math
@@ -358,6 +359,9 @@ class CpuFreqTest:
             "---------------------"
         )
         start_time = time.time()
+        # Use all online CPUs as an upper bound before offlining siblings.
+        if not self._ensure_fd_limit(len(self._get_cores("online"))):
+            return 1
         # disable hyperthreading
         self.disable_thread_siblings()
 
@@ -414,6 +418,55 @@ class CpuFreqTest:
         print("\n[Test Passed]")
 
         return 0
+
+    def _ensure_fd_limit(self, worker_count):
+        """Raise the soft FD limit and return whether it is sufficient."""
+        soft_limit, hard_limit = resource.getrlimit(resource.RLIMIT_NOFILE)
+        # Exclude the temporary descriptor used to list /proc/self/fd.
+        open_fds = len(listdir("/proc/self/fd")) - 1
+        # Fork workers retain two FDs each; the queue needs two, and the
+        # final fork temporarily needs two more before closing child ends.
+        required_fds = open_fds + 2 * worker_count + 4
+        if hard_limit != resource.RLIM_INFINITY and hard_limit < required_fds:
+            logging.error(
+                "The hard file descriptor limit is %d, below the estimated "
+                "required total of %d; refusing to start the CPU frequency "
+                "test. Increase the hard RLIMIT_NOFILE limit "
+                "(ulimit -Hn) to at least %d before running the test.",
+                hard_limit,
+                required_fds,
+                required_fds,
+            )
+            return False
+        target_limit = required_fds + 1024
+        if hard_limit != resource.RLIM_INFINITY:
+            target_limit = min(target_limit, hard_limit)
+        if soft_limit != resource.RLIM_INFINITY and target_limit > soft_limit:
+            logging.warning(
+                "CPU frequency test with %d workers needs an estimated peak "
+                "total of %d file descriptors; the current soft file "
+                "descriptor limit is %d. Raising RLIMIT_NOFILE to %d "
+                "(required total plus 1024, capped at the hard limit %d).",
+                worker_count,
+                required_fds,
+                soft_limit,
+                target_limit,
+                hard_limit,
+            )
+            try:
+                resource.setrlimit(
+                    resource.RLIMIT_NOFILE, (target_limit, hard_limit)
+                )
+            except (OSError, ValueError) as exc:
+                logging.error(
+                    "Unable to raise the soft file descriptor limit "
+                    "from %d to %d: %s",
+                    soft_limit,
+                    target_limit,
+                    exc,
+                )
+                raise
+        return True
 
     def spawn_core_test(self):
         """Spawn concurrent scale testing on all online cores."""

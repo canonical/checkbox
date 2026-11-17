@@ -1,24 +1,30 @@
 #!/usr/bin/env python3
 
 import argparse
-import os
-import subprocess as sp
-import shutil
 import filecmp
-import sys
-import typing as T
-from checkbox_support.scripts.image_checker import has_desktop_environment
-from checkbox_support.scripts.fwts_test import get_fwts_base_cmd
-from shlex import split as sh_split
-from datetime import datetime
-import time
+import os
 import platform
+import shutil
+import subprocess as sp
+import sys
+import time
+from collections.abc import Sequence
+from datetime import datetime
+from pathlib import Path
+from shlex import split as sh_split
+
+from checkbox_support.scripts.fwts_test import get_fwts_base_cmd
+from checkbox_support.scripts.image_checker import has_desktop_environment
 
 # Checkbox could run in a snap container, so we need to prepend this root path
-RUNTIME_ROOT = os.getenv("CHECKBOX_RUNTIME", default="").rstrip("/")
+CHECKBOX_RUNTIME = (
+    Path(os.environ["CHECKBOX_RUNTIME"]).absolute()
+    if "CHECKBOX_RUNTIME" in os.environ
+    else None
+)
 # Snap mount point, see
 # https://snapcraft.io/docs/environment-variables#heading--snap
-SNAP = os.getenv("SNAP", default="").rstrip("/")
+SNAP = Path(os.environ["SNAP"]).absolute() if "SNAP" in os.environ else None
 # global const for subprocess calls that should timeout
 COMMAND_TIMEOUT_SECONDS = 30
 
@@ -43,24 +49,6 @@ def get_current_boot_id() -> str:
 
 
 class DeviceInfoCollector:
-
-    class Device:
-        PCI = "pci"
-        WIRELESS = "wireless"
-        USB = "usb"
-        DRM = "drm"
-
-    DEFAULT_DEVICES = {
-        "required": [
-            Device.WIRELESS,
-            Device.PCI,
-            Device.USB,
-        ],  # these can fail the test case
-        "optional": [Device.DRM],  # these only produce warnings
-    }  # type: dict[str, list[str]]
-    # to modify, add more values in the enum
-    # and reference them in required/optional respectively
-
     def get_drm_info(self) -> str:
         return str(sorted(os.listdir("/sys/class/drm")))
 
@@ -70,25 +58,18 @@ class DeviceInfoCollector:
             timeout=COMMAND_TIMEOUT_SECONDS,
             universal_newlines=True,
         )
-        lines = iw_out.splitlines()
-        lines_to_write = list(
-            filter(
-                lambda line: "addr" in line
-                or "Interface" in line
-                or "ssid" in line,
-                sorted(lines),
-            )
-        )
-        return "\n".join(map(lambda line: line.strip(), lines_to_write))
+        lines_to_write = [
+            line.strip()
+            for line in sorted(iw_out.splitlines())
+            if any(word in line for word in ("addr", "Interface", "ssid"))
+        ]
+        return "\n".join(lines_to_write)
 
     def get_usb_info(self) -> str:
+        # don't specify the usb.ids file here
+        # handle that inside checkbox-support-lsusb
         out = sp.check_output(
-            [
-                "checkbox-support-lsusb",
-                "-f",
-                f'"{RUNTIME_ROOT}"/var/lib/usbutils/usb.ids',
-                "-s",
-            ],
+            ["checkbox-support-lsusb", "-s"],
             universal_newlines=True,
             timeout=COMMAND_TIMEOUT_SECONDS,
         ).splitlines()
@@ -96,17 +77,26 @@ class DeviceInfoCollector:
         return "\n".join(out)
 
     def get_pci_info(self) -> str:
+        pci_ids_file = (
+            SNAP / "usr/share/misc/pci.ids"
+            if SNAP
+            else Path("/usr/share/misc/pci.ids")
+        )
         return sp.check_output(
-            ["lspci", "-i", f"{SNAP}/usr/share/misc/pci.ids"],
+            [
+                "lspci",
+                "-i",
+                pci_ids_file,
+            ],
             timeout=COMMAND_TIMEOUT_SECONDS,
             universal_newlines=True,
         )
 
     def compare_device_lists(
         self,
-        expected_dir: str,
-        actual_dir: str,
-        devices: T.Dict[str, T.List[str]] = DEFAULT_DEVICES,
+        expected_dir: Path,
+        actual_dir: Path,
+        devices: "dict[str, Sequence[str]] | None" = None,
     ) -> bool:
         """Compares the list of devices in expected_dir against actual_dir
 
@@ -115,15 +105,17 @@ class DeviceInfoCollector:
         :param devices: what devices do we want to compare, see DEFAULT_DEVICES
         :return: whether the device list matches
         """
+        if devices is None:
+            devices = self.DEFAULT_DEVICES
+
         print(
-            "Comparing devices in (expected) {} against (actual) {}...".format(
-                expected_dir, actual_dir
-            )
+            f"Comparing devices in (expected) {expected_dir}",
+            f"against (actual) {actual_dir}...",
         )
         for device in devices["required"]:
             # file paths of the expected and actual device lists
-            expected = f"{expected_dir}/{device}_log"
-            actual = f"{actual_dir}/{device}_log"
+            expected = expected_dir / f"{device}_log"
+            actual = actual_dir / f"{device}_log"
             if not filecmp.cmp(expected, actual):
                 print(
                     f"[ ERR ] The output of {device} differs!",
@@ -133,8 +125,8 @@ class DeviceInfoCollector:
                 return False
 
         for device in devices["optional"]:
-            expected = f"{expected_dir}/{device}_log"
-            actual = f"{actual_dir}/{device}_log"
+            expected = expected_dir / f"{device}_log"
+            actual = actual_dir / f"{device}_log"
             if not filecmp.cmp(expected, actual):
                 print(
                     f"[ WARN ] Items under {actual} have changed.",
@@ -146,37 +138,44 @@ class DeviceInfoCollector:
 
     def dump(
         self,
-        output_directory: str,
-        devices: T.Dict[str, T.List[str]] = DEFAULT_DEVICES,
+        output_directory: Path,
+        devices: "dict[str, Sequence[str]] | None" = None,
     ) -> None:
-        os.makedirs(output_directory, exist_ok=True)
+        if devices is None:
+            devices = self.DEFAULT_DEVICES
+        output_directory.mkdir(parents=True, exist_ok=True)
         # add extra behavior if necessary
         for device in devices["required"]:
-            with open(f"{output_directory}/{device}_log", "w") as file:
+            with (output_directory / f"{device}_log").open("w") as file:
                 file.write(self.dump_function[device]())
 
         for device in devices["optional"]:
-            with open(f"{output_directory}/{device}_log", "w") as file:
+            with (output_directory / f"{device}_log").open("w") as file:
                 file.write(self.dump_function[device]())
 
         os.sync()
 
-    def print_diff(self, name: str, expected_path: str, actual_path: str):
-        with open(expected_path) as file_expected, open(
-            actual_path
-        ) as file_actual:
-            print(f"Expected {name} output:", file=sys.stderr)
-            print(file_expected.read(), file=sys.stderr)
-            print(f"Actual {name} output:", file=sys.stderr)
-            print(file_actual.read(), file=sys.stderr)
-            print(f"End of {name} diff", file=sys.stderr)
+    def print_diff(self, name: str, expected_path: Path, actual_path: Path):
+        with expected_path.open() as file_expected:
+            with actual_path.open() as file_actual:
+                print(f"Expected {name} output:", file=sys.stderr)
+                print(file_expected.read(), file=sys.stderr)
+                print(f"Actual {name} output:", file=sys.stderr)
+                print(file_actual.read(), file=sys.stderr)
+                print(f"End of {name} diff", file=sys.stderr)
 
     def __init__(self) -> None:
+        self.DEFAULT_DEVICES: "dict[str, Sequence[str]]" = {
+            # these can fail the test case
+            "required": ("wireless", "usb", "pci"),
+            # these only produce warnings
+            "optional": ("drm",),
+        }
         self.dump_function = {
-            self.Device.PCI: self.get_pci_info,
-            self.Device.DRM: self.get_drm_info,
-            self.Device.USB: self.get_usb_info,
-            self.Device.WIRELESS: self.get_wireless_info,
+            "pci": self.get_pci_info,
+            "drm": self.get_drm_info,
+            "usb": self.get_usb_info,
+            "wireless": self.get_wireless_info,
         }
 
 
@@ -186,20 +185,22 @@ class FwtsTester:
 
     def fwts_log_check_passed(
         self,
-        output_directory: str,
-        fwts_arguments: T.Sequence[str] = ["klog", "oops"],
+        output_directory: Path,
+        fwts_arguments: "Sequence[str]" = ("klog", "oops"),
     ) -> bool:
         """
         Check if fwts logs passes the checks specified in sleep_test_log_check
         This script live in the same directory
 
         :param output_directory: where the output of fwts should be written to
-        :type output_directory: str
+        :type output_directory: Path
         :return: whether sleep_test_log_check.py returned 0 (success)
         :rtype: bool
         """
-        log_file_path = "{}/fwts_{}.log".format(
-            output_directory, "_".join(fwts_arguments)
+
+        # 3.6 doesn't support quotes nested inside f strings
+        log_file_path = output_directory / "fwts_{}.log".format(
+            "_".join(fwts_arguments)
         )
         sp.run(
             [
@@ -208,7 +209,8 @@ class FwtsTester:
                 log_file_path,
                 "-q",
                 *fwts_arguments,
-            ]
+            ],
+            check=False,
         )
         result = sp.run(
             [
@@ -219,6 +221,7 @@ class FwtsTester:
                 "all",
                 log_file_path,
             ],
+            check=False,
         )
 
         return result.returncode == 0
@@ -226,9 +229,7 @@ class FwtsTester:
 
 class HardwareRendererTester:
 
-    def get_desktop_environment_variables(
-        self,
-    ) -> T.Optional[T.Dict[str, str]]:
+    def get_desktop_environment_variables(self) -> "dict[str, str] | None":
         """Gets all the environment variables used by the desktop process
 
         :return: dict[str, str] similar to os.environ
@@ -239,15 +240,19 @@ class HardwareRendererTester:
         # pidof will return 1 when process is not found
         gnome_pid = sp.run(
             ["pidof", "-s", "gnome-shell"],
+            check=False,
             stdout=sp.PIPE,
             universal_newlines=True,
         )
         # TODO: remove unity related checks after 16.04 reaches EOL
         compiz_pid = sp.run(  # 16.04 only
-            ["pidof", "-s", "compiz"], stdout=sp.PIPE, universal_newlines=True
+            ["pidof", "-s", "compiz"],
+            check=False,
+            stdout=sp.PIPE,
+            universal_newlines=True,
         )
 
-        desktop_pid = None  # type: int | None
+        desktop_pid = None
         if gnome_pid.returncode == 0:
             desktop_pid = int(gnome_pid.stdout)
         elif compiz_pid.returncode == 0:
@@ -266,7 +271,7 @@ class HardwareRendererTester:
 
         # ideally we don't manually parse this and just use the env file
         # but py3.5 only takes a mapping for the env param
-        desktop_env_vars = {}  # type: dict[str, str]
+        desktop_env_vars: "dict[str, str]" = {}
         for env_str in proc_env_strings:
             kv = env_str.split("=", maxsplit=1)  # DISPLAY=:0
             if len(kv) == 2:
@@ -283,11 +288,11 @@ class HardwareRendererTester:
         """
 
         # look for GPU file nodes first
-        DRM_PATH = "/sys/class/drm"
+        DRM_PATH = Path("/sys/class/drm")
         possible_gpu_nodes = [
             directory
-            for directory in os.listdir(DRM_PATH)
-            if directory != "version"
+            for directory in DRM_PATH.iterdir()
+            if directory.name != "version"
         ]
         if len(possible_gpu_nodes) == 0:
             # kernel doesn't see any GPU nodes
@@ -305,13 +310,14 @@ class HardwareRendererTester:
             # for each gpu, check for connection
             # return true if anything is connected
             try:
-                with open(f"{DRM_PATH}/{gpu}/status") as status_file:
-                    status_str = status_file.read().strip().lower()
-                    # - card0: connected
-                    print(f" - {gpu}: {status_str}")
+                status_str = (
+                    (DRM_PATH / gpu / "status").read_text().strip().lower()
+                )
+                # - card0: connected
+                print(f" - {gpu}: {status_str}")
 
-                    if status_str == "connected":
-                        connected_to_display = True
+                if status_str == "connected":
+                    connected_to_display = True
             except FileNotFoundError:
                 # this just means we don't have a status file
                 # => no connection, continue to the next
@@ -370,21 +376,18 @@ class HardwareRendererTester:
             return False
         # https://docs.mesa3d.org/envvars.html#envvar-GALLIUM_DRIVER
         # it's almost always the 'llvmpipe' case if we find software rendering
-        if "llvmpipe" in gl_renderer or "softpipe" in gl_renderer:
-            return False
-
-        return True
+        return not ("llvmpipe" in gl_renderer or "softpipe" in gl_renderer)
 
     def extract_gl_renderer_str(
         self,
         glmark2_validate_output: str,
-    ) -> T.Optional[str]:
+    ) -> "str | None":
         """Attempts to extract GL_RENDERER from `glmark2 --validate`'s output
 
         :param glmark2_validate_output: the .stdout from `glmark2 --validate`
         :return: GL_RENDERER itself or None if couldn't be determined
         """
-        gl_renderer_line = None  # type: str | None
+        gl_renderer_line = None
         for line in glmark2_validate_output.splitlines():
             if "GL_RENDERER" in line:
                 gl_renderer_line = line
@@ -417,9 +420,7 @@ class HardwareRendererTester:
             # usually it's tty if we get here,
             # happens when gnome failed to start or not using graphical session
             print(
-                "[ ERR ] Unsupported session type: '{}'.".format(
-                    XDG_SESSION_TYPE
-                ),
+                f"[ ERR ] Unsupported session type: '{XDG_SESSION_TYPE}'.",
                 "Expected either 'x11' or 'wayland'",
                 file=sys.stderr,
             )
@@ -429,21 +430,19 @@ class HardwareRendererTester:
         glmark2_executable = self.pick_glmark2_executable(
             XDG_SESSION_TYPE, platform.uname().machine
         )
-        glmark2_data_path = "/usr/share/glmark2"
+        glmark2_data_path = Path("/usr/share/glmark2")
 
         try:
-            if RUNTIME_ROOT and not os.path.exists(glmark2_data_path):
+            if CHECKBOX_RUNTIME and not glmark2_data_path.exists():
                 # the official way to specify the location of the data files
                 # is "--data-path path/to/data/files"
                 # but 16, 18, 20 doesn't have this option
                 # and the /usr/share/glmark2 is hard-coded inside glmark2
                 # by the GLMARK_DATA_PATH build macro
-                src = f"{RUNTIME_ROOT}/usr/share/glmark2"
+                src = CHECKBOX_RUNTIME / "usr/share/glmark2"
                 dst = glmark2_data_path
                 print(
-                    "[ DEBUG ] Symlinking glmark2 data dir ({} -> {})".format(
-                        src, dst
-                    )
+                    f"[ DEBUG ] Symlinking glmark2 data dir ({src} -> {dst})"
                 )
                 os.symlink(src, dst, target_is_directory=True)
             # override is needed for snaps on classic ubuntu
@@ -452,6 +451,7 @@ class HardwareRendererTester:
             glmark2_output = sp.run(
                 # all glmark2 programs share the same args
                 [glmark2_executable, "--off-screen", "--validate"],
+                check=False,
                 stdout=sp.PIPE,
                 stderr=sp.STDOUT,
                 universal_newlines=True,
@@ -470,17 +470,15 @@ class HardwareRendererTester:
             return False
         finally:
             # immediately cleanup
-            if RUNTIME_ROOT and os.path.islink(glmark2_data_path):
+            if CHECKBOX_RUNTIME and glmark2_data_path.is_symlink():
                 print("[ DEBUG ] Un-symlinking glmark2 data")
-                os.unlink(glmark2_data_path)
+                glmark2_data_path.unlink()
 
         if glmark2_output.returncode != 0:
             print(
-                "[ ERR ] {} returned {}. Error is: {}".format(
-                    glmark2_executable,
-                    glmark2_output.returncode,
-                    glmark2_output.stdout,
-                ),
+                "[ ERR ]",
+                f"{glmark2_executable} returned {glmark2_output.returncode}.",
+                f"Error is: {glmark2_output.stdout}",
                 file=sys.stderr,
             )
             return False
@@ -489,18 +487,13 @@ class HardwareRendererTester:
 
         if gl_renderer is None:
             print(
-                "[ ERR ] {} did not return a renderer string".format(
-                    glmark2_executable
-                ),
+                "[ ERR ]",
+                f"{glmark2_executable} did not return a renderer string",
                 file=sys.stderr,
             )
             return False
 
-        print(
-            "GL_RENDERER found by {} is: {}".format(
-                glmark2_executable, gl_renderer
-            )
-        )
+        print(f"GL_RENDERER found by {glmark2_executable} is: {gl_renderer}")
         is_hardware_rendered = self.gl_renderer_str_is_hardware_renderer(
             gl_renderer
         )
@@ -512,7 +505,7 @@ class HardwareRendererTester:
         return False
 
 
-def get_failed_services() -> T.List[str]:
+def get_failed_services() -> "list[str]":
     """
     Counts the number of failed services listed in systemctl
 
@@ -542,7 +535,7 @@ def poll_systemctl_is_system_running(max_wait_seconds: int) -> bool:
     """
 
     start = time.time()
-    status = None  # type: str | None
+    status: "str | None" = None
     while time.time() - start < max_wait_seconds:
         # https://unix.stackexchange.com/questions
         # /460324/is-there-a-way-to-wait-for-boot-to-complete
@@ -553,6 +546,7 @@ def poll_systemctl_is_system_running(max_wait_seconds: int) -> bool:
         # TODO: remove this function once we drop ubuntu 18 and use --wait
         out = sp.run(
             ["systemctl", "is-system-running"],
+            check=False,
             stdout=sp.PIPE,
             stderr=sp.STDOUT,
             universal_newlines=True,
@@ -568,9 +562,7 @@ def poll_systemctl_is_system_running(max_wait_seconds: int) -> bool:
             time.sleep(1)
         else:
             print(
-                "Final 'systemctl is-system-running' return value: {}".format(
-                    status
-                )
+                f"Final 'systemctl is-system-running' return value: {status}"
             )
             return True
 
@@ -587,12 +579,14 @@ def create_parser():
         "-d",
         "--dump-to",
         required=False,
+        type=Path,
         dest="output_directory",
         help="Device info-dumps will be written here",
     )
     parser.add_argument(
         "-c",
         "--compare-to",
+        type=Path,
         dest="comparison_directory",
         help="Directory of ground-truth for device info comparison",
     )
@@ -664,9 +658,8 @@ def main() -> int:
     service_check_passed = True
 
     print(
-        "Starting reboot checks. {}. Boot ID: {}".format(
-            get_timestamp_str(), get_current_boot_id()
-        )
+        f"Starting reboot checks. {get_timestamp_str()}.",
+        f"Boot ID: {get_current_boot_id()}",
     )
 
     if args.comparison_directory is not None:
@@ -694,6 +687,13 @@ def main() -> int:
         DeviceInfoCollector().dump(args.output_directory)
 
     if args.do_fwts_check:
+        try:
+            if args.output_directory is None:
+                raise SystemExit(
+                    "--dump-to must be specified for the fwts test"
+                )
+        except AttributeError:
+            raise SystemExit("--dump-to must be specified for the fwts test")
         tester = FwtsTester()
         if tester.is_fwts_supported() and not tester.fwts_log_check_passed(
             args.output_directory
@@ -735,4 +735,4 @@ def main() -> int:
 
 
 if __name__ == "__main__":
-    exit(main())
+    sys.exit(main())

@@ -80,23 +80,31 @@ class TestCodecFactory(unittest.TestCase):
         ):
             self.assertTrue(hasattr(codec_cix_tool, hook))
 
-    def test_cix_tool_encoder_psnr_pins_bt709(self):
-        args = argparse.Namespace(
-            platform="cix-tool-p1",
-            encoder_plugin="v4l2h264enc",
-            width=1920,
-            height=1080,
-            framerate=30,
-            color_space="NV12",
-            mux="mp4mux",
-        )
-        pipeline = codec_cix_tool.create_encoder_psnr_project(
-            args
-        ).build_pipeline()
+    def test_cix_tool_encoder_psnr_is_zero_copy(self):
+        def pipeline(encoder, mux):
+            args = argparse.Namespace(
+                platform="cix-tool-p1",
+                encoder_plugin=encoder,
+                width=3840,
+                height=2160,
+                framerate=30,
+                color_space="NV12",
+                mux=mux,
+            )
+            return codec_cix_tool.create_encoder_psnr_project(
+                args
+            ).build_pipeline()
+
         self.assertIn(
-            "video/x-raw,format=NV12,colorimetry=bt709 ! v4l2h264enc"
-            " capture-io-mode=mmap output-io-mode=dmabuf ! h264parse",
-            pipeline,
+            "3840x2160_30fps_h264.mp4 ! parsebin ! v4l2h264dec"
+            " ! video/x-raw(memory:DMABuf),format=DMA_DRM,drm-format=NV12"
+            " ! v4l2h264enc output-io-mode=dmabuf-import ! h264parse"
+            " ! mp4mux ! filesink",
+            pipeline("v4l2h264enc", "mp4mux"),
+        )
+        self.assertIn(
+            "3840x2160_30fps_mjpeg.mov ! parsebin ! v4l2jpegdec",
+            pipeline("v4l2jpegenc", "qtmux"),
         )
 
     def test_create_scenario_project_dispatch(self):

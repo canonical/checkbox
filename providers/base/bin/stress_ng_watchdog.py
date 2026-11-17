@@ -17,8 +17,11 @@ import sys
 import time
 from pathlib import Path
 
+# systemd sorts the drop-ins by file name and the last one wins (see
+# systemd-system.conf(5)). Some images ship drop-ins without a number
+# prefix, e.g. watchdog.conf on NVIDIA Jetson, so a "99-" name loses.
 DROPIN_PATH = Path(
-    "/etc/systemd/system.conf.d/99-checkbox-stress-ng-watchdog.conf"
+    "/etc/systemd/system.conf.d/zz-checkbox-stress-ng-watchdog.conf"
 )
 DROPIN_CONTENT = "[Manager]\nRuntimeWatchdogSec=0\n"
 STATE_FILE_NAME = "stress-ng-watchdog-original-usec"

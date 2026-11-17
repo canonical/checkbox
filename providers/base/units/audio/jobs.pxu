@@ -1250,6 +1250,9 @@ category_id: com.canonical.plainbox::audio
 estimated_duration: 1m
 
 id: audio/post-suspend-audio-occupied
+imports: from com.canonical.plainbox import manifest
+requires:
+ manifest.has_internal_speakers == 'True'
 _summary: Verify the test audio I/O after suspend with previously occupied devices.
 _purpose:
  Validate the audio could input and output after suspending while audio devices are occupied before suspending

@@ -187,6 +187,13 @@ class LocalResumePreservesRejectedJobsStateMap(Scenario):
         Expect("[ ]"),
         Send("T"),
         Expect("Waiting for the system to shut down or reboot"),
+        # The message is printed before reboot-emulator kills checkbox-cli,
+        # starting again before that would get the new instance killed
+        RunCmd(
+            'sh -c \'while pgrep -f "[c]heckbox-cli" > /dev/null; '
+            "do sleep 0.5; done'",
+            timeout=60,
+        ),
         Start(),
         Expect("Do you want to submit 'upload to certification' report?"),
         Signal(keys.SIGINT),

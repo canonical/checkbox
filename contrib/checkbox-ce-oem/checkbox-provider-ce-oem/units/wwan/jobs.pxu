@@ -35,8 +35,6 @@ flags: preserve-locale also-after-suspend preserve-cwd
 imports:
   from com.canonical.plainbox import manifest
 requires:
-  manifest.has_wwan_module == 'True'
-  manifest.has_sim_card == 'True'
   manifest.has_wwan_hotspot == 'True'
 
 unit: job
@@ -68,6 +66,4 @@ imports:
   from com.canonical.plainbox import manifest
 depends: ce-oem-wwan/usb-hotspot-auto
 requires:
-  manifest.has_wwan_module == 'True'
-  manifest.has_sim_card == 'True'
   manifest.has_wwan_hotspot == 'True'

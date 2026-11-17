@@ -454,7 +454,8 @@ environ: BTDEVADDR PLAINBOX_PROVIDER_DATA
 imports: from com.canonical.plainbox import manifest
 requires:
  package.name == 'bluez' or snap.name == 'bluez'
- executable.name == 'obexftp' and executable.name == 'bluetoothctl'
+ executable.name == 'obexftp'
+ executable.name == 'bluetoothctl'
  device.category == 'BLUETOOTH'
  manifest.has_bt_obex_support == 'True'
 command:

@@ -1,4 +1,4 @@
-name: dev
+name: checkbox-workshop
 base: ubuntu@24.04
 sdks:
   - name: project-tools
@@ -7,6 +7,8 @@ sdks:
       sphinx-build:
         interface: tunnel
         endpoint: 8000
+# if you need git over ssh:
+#   workshop connect checkbox-workshop/tools:ssh-agent
 actions:
   checkbox: |
     . "$HOME/venv/bin/activate"

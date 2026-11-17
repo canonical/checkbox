@@ -544,6 +544,7 @@ class RemoteController(ReportsStage, MainLoopStage):
         SimpleUI.header("Starting new interactive session")
         tps = self.start_session()
         _logger.info("controller: Interactively choosing TP.")
+        self._selected_test_plan = None
         while True:
             resumable_sessions = list(self.sa.get_resumable_sessions())
             with suppress(ResumeInstead):
@@ -601,12 +602,14 @@ class RemoteController(ReportsStage, MainLoopStage):
         selected_tp = TestPlanBrowser(
             _("Select test plan"),
             tp_info_list,
-            self.launcher.get_value("test plan", "unit"),
+            self._selected_test_plan
+            or self.launcher.get_value("test plan", "unit"),
             len(resumable_sessions),
         ).run()
         if selected_tp is None:
             print(_("Nothing selected"))
             raise SystemExit(0)
+        self._selected_test_plan = selected_tp
         self.select_test_plan(selected_tp)
 
     def resume_session_via_menu_and_continue(self, resumable_sessions):

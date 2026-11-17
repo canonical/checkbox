@@ -1213,6 +1213,37 @@ class TestLauncher(TestCase):
 
         self.assertTrue(self_mock.sa.select_test_plan.called)
 
+    def test__select_test_plan_and_continue_remembers_selection(self):
+        # The interactively selected test plan is stored so it can be
+        # re-selected when the operator comes back from the test selection.
+        self_mock = MagicMock()
+        self_mock.configuration.get_value.return_value = False
+        self_mock._interactively_pick_test_plan.return_value = "test_plan_id"
+        self_mock.ctx.args.launcher = None
+        self_mock.ctx.args.message = None
+
+        Launcher._select_test_plan_and_continue(self_mock)
+
+        self.assertEqual(self_mock._selected_test_plan, "test_plan_id")
+
+    @patch("checkbox_ng.launcher.subcommands.TestPlanBrowser")
+    def test__interactively_pick_test_plan_restores_selection(
+        self, test_plan_browser_mock
+    ):
+        # When a test plan was previously selected, it is passed to the
+        # browser so it shows up pre-selected.
+        self_mock = MagicMock()
+        self_mock._selected_test_plan = "previous_tp"
+        self_mock.configuration.get_value.return_value = []
+        self_mock._generate_tp_infos.return_value = [
+            {"id": "previous_tp", "name": "Previous"}
+        ]
+        self_mock.resume_candidates = []
+
+        Launcher._interactively_pick_test_plan(self_mock)
+
+        self.assertEqual(test_plan_browser_mock.call_args[0][2], "previous_tp")
+
 
 @patch("os.makedirs", new=MagicMock())
 class TestLauncherReturnCodes(TestCase):

@@ -261,6 +261,7 @@ class Launcher(MainLoopStage, ReportsStage):
             self.resume_candidates = list(ctx.sa.get_resumable_sessions())
             if not self._auto_resume_session(self.resume_candidates):
                 something_got_chosen = False
+                self._selected_test_plan = None
                 ctx.sa.use_alternate_configuration(self.configuration)
                 self._start_new_session()
                 while not something_got_chosen:
@@ -704,6 +705,7 @@ class Launcher(MainLoopStage, ReportsStage):
             tp_id = self._interactively_pick_test_plan()
             if tp_id is None:
                 raise SystemExit(_("No test plan selected."))
+        self._selected_test_plan = tp_id
         self.sa.select_test_plan(tp_id)
         description = self.ctx.args.message or self.configuration.get_value(
             "launcher", "session_desc"
@@ -735,7 +737,8 @@ class Launcher(MainLoopStage, ReportsStage):
         selected_tp = TestPlanBrowser(
             _("Select test plan"),
             tp_info_list,
-            self.configuration.get_value("test plan", "unit"),
+            self._selected_test_plan
+            or self.configuration.get_value("test plan", "unit"),
             len(self.resume_candidates),
         ).run()
         return selected_tp

@@ -1,0 +1,6 @@
+if [ ! -x /home/workshop/venv/bin/checkbox-cli ]; then
+  workshopctl set-health error "checkbox-cli is not installed in the venv"
+  exit 1
+fi
+
+workshopctl set-health okay

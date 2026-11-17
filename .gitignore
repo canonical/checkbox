@@ -2,3 +2,4 @@ node_modules
 
 venv
 __pycache__/
+.workshop.lock

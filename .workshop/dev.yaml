@@ -1,0 +1,53 @@
+name: dev
+base: ubuntu@24.04
+sdks:
+  - name: project-tools
+  - name: system
+    plugs:
+      sphinx-build:
+        interface: tunnel
+        endpoint: 8000
+actions:
+  checkbox: |
+    . "$HOME/venv/bin/activate"
+    checkbox-cli "$@"
+  # The test-* actions mirror the py312 job of .github/workflows/tox-checkbox.yaml.
+  # Extra arguments are passed to tox (e.g. -r to recreate the env).
+  test-ng: |
+    . "$HOME/venv/bin/activate"
+    cd /project/checkbox-ng
+    tox -e py312 --workdir "$HOME/.tox/checkbox-ng" "$@"
+  test-support: |
+    . "$HOME/venv/bin/activate"
+    cd /project/checkbox-support
+    tox -e py312 --workdir "$HOME/.tox/checkbox-support" "$@"
+  test-provider: |
+    # Usage: workshop run dev -- test-provider <provider> [tox args]
+    . "$HOME/venv/bin/activate"
+    cd "/project/providers/${1:?provider name required}"
+    tox -e py312 --workdir "$HOME/.tox/provider-$1" "${@:2}"
+  validate-provider: |
+    # Usage: workshop run dev -- validate-provider <provider>
+    . "$HOME/venv/bin/activate"
+    cd "/project/providers/${1:?provider name required}"
+    ./manage.py validate
+  coverage-provider: |
+    # Usage: workshop run dev -- coverage-provider <provider>
+    . "$HOME/venv/bin/activate"
+    cd "/project/providers/${1:?provider name required}"
+    python3 -m coverage run manage.py test -u
+    python3 -m coverage html
+  black-check: |
+    . "$HOME/venv/bin/activate"
+    cd /project
+    black --check --diff --line-length 79 --extend-exclude '/vendor/' "${@:-.}"
+  black: |
+    . "$HOME/venv/bin/activate"
+    cd /project
+    black --line-length 79 --extend-exclude '/vendor/' "${@:-.}"
+  docs-html: |
+    make -C /project/docs VENVDIR="$HOME/.docs-venv" html
+  docs-run: |
+    make -C /project/docs VENVDIR="$HOME/.docs-venv" run
+  docs-clean: |
+    make -C /project/docs clean-doc

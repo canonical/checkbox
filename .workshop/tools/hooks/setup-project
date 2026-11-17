@@ -1,0 +1,24 @@
+# Keep the venv in the container's $HOME so it never clashes with a
+# checkbox-ng/venv the developer may already have on the host.
+venv="$HOME/venv"
+
+if [ ! -d "$venv" ]; then
+  (cd /project/checkbox-ng && ./mk-venv "$venv")
+fi
+
+# shellcheck source=/dev/null
+. "$venv/bin/activate"
+
+python3 -m pip install -e /project/checkbox-support black flake8 coverage tox
+
+for provider in resource base; do
+  (
+    cd "/project/providers/$provider" || exit
+    ./manage.py develop --force -d "$PROVIDERPATH"
+    ./manage.py build
+  )
+done
+
+if ! grep -qF "$venv/bin/activate" "$HOME/.bashrc"; then
+  echo ". \"$venv/bin/activate\"" >> "$HOME/.bashrc"
+fi

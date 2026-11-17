@@ -120,11 +120,11 @@ class FlagUnitWidget(urwid.TreeWidget):
 
     def update_expanded_icon(self):
         """Update display widget text for parent widgets"""
-        # icon is second element in columns indented widget
-        self._w.base_widget.widget_list[2] = [
-            self.unexpanded_icon,
-            self.expanded_icon,
-        ][self.expanded]
+        columns = self._w.base_widget
+        columns.contents[2] = (
+            [self.unexpanded_icon, self.expanded_icon][self.expanded],
+            columns.contents[2][1],
+        )
 
     def keypress(self, size, key):
         key = super().keypress(size, key)
@@ -160,10 +160,14 @@ class FlagUnitWidget(urwid.TreeWidget):
         elif key in ("i", "I"):
             show_job_ids = not show_job_ids
             for w in _widget_cache.values():
-                w._w.base_widget.widget_list[-1] = urwid.Padding(
-                    w.load_inner_widget(),
-                    width=("relative", 100),
-                    left=w.get_indent_cols(),
+                columns = w._w.base_widget
+                columns.contents[-1] = (
+                    urwid.Padding(
+                        w.load_inner_widget(),
+                        width=("relative", 100),
+                        left=w.get_indent_cols(),
+                    ),
+                    columns.contents[-1][1],
                 )
         elif key in ("s", "S"):
             root_node_widget = self.get_node().get_root().get_widget()
@@ -220,9 +224,11 @@ class FlagUnitWidget(urwid.TreeWidget):
         """Update the attributes of self.widget based on self.flagged."""
         self._w.attr = "body"
         self._w.focus_attr = "focus"
-        self._w.base_widget.widget_list[0] = [self.unselected, self.selected][
-            self.flagged
-        ]
+        columns = self._w.base_widget
+        columns.contents[0] = (
+            [self.unselected, self.selected][self.flagged],
+            columns.contents[0][1],
+        )
 
 
 class JobTreeWidget(FlagUnitWidget):
@@ -753,7 +759,9 @@ class TestPlanBrowser:
             if self.button_pile is None:
                 self.button_pile = urwid.Pile(contents)
             else:
-                self.button_pile.widget_list[:] = contents
+                self.button_pile.contents[:] = [
+                    (widget, self.button_pile.options()) for widget in contents
+                ]
             if self._preselected_tp:
                 for index, tp in enumerate(tplist):
                     if tp["id"] == self._preselected_tp:
@@ -783,7 +791,7 @@ class TestPlanBrowser:
                         )
                 if key in ("esc", "enter"):
                     self.frame.contents["footer"] = (self.default_footer, None)
-                    self.frame.set_focus("body")
+                    self.frame.focus_position = "body"
                     self.filtering = False
             else:
                 if key == "enter":
@@ -801,7 +809,7 @@ class TestPlanBrowser:
                         raise urwid.ExitMainLoop()
                 elif key in ("/", "s", "S", "f", "F"):
                     self.frame.contents["footer"] = (self.filter_footer, None)
-                    self.frame.set_focus("footer")
+                    self.frame.focus_position = "footer"
                     self.filtering = True
         else:
             if key in ("h", "H", "?", "f1", "esc"):

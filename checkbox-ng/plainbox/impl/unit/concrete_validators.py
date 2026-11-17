@@ -37,6 +37,10 @@ from plainbox.impl.unit.validators import (
 templateVariant = TemplateVariantFieldValidator()
 templateInvariant = TemplateInvariantFieldValidator()
 present = PresentFieldValidator()
+absent = CorrectFieldValueValidator(
+    lambda field: field is None,
+    Problem.useless,
+)
 
 oneLine = CorrectFieldValueValidator(
     lambda field: field is not None and field.count("\n") == 0,

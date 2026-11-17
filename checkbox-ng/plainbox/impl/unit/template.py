@@ -44,7 +44,7 @@ from plainbox.impl.unit.validators import CorrectFieldValueValidator
 from plainbox.impl.unit.validators import PresentFieldValidator
 from plainbox.impl.unit.validators import ReferenceConstraint
 from plainbox.impl.unit.validators import UnitReferenceValidator
-from plainbox.impl.unit.validators import UniqueValueValidator
+from plainbox.impl.unit.validators import UniqueTemplateIdValidator
 from plainbox.impl.validation import Problem
 from plainbox.impl.validation import Severity
 
@@ -577,7 +577,7 @@ class TemplateUnit(UnitWithId):
         field_validators = {
             fields.template_id: [
                 concrete_validators.templateVariant,
-                UniqueValueValidator(),
+                UniqueTemplateIdValidator(),
                 # We want to have bare, namespace-less identifiers
                 CorrectFieldValueValidator(
                     lambda value, unit: (

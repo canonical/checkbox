@@ -18,6 +18,7 @@
 
 import textwrap
 import datetime
+import json
 
 from functools import partial
 from unittest import TestCase
@@ -27,6 +28,7 @@ from unittest.mock import patch, Mock, MagicMock, mock_open
 from io import StringIO
 
 from plainbox.impl.unit.job import JobDefinition
+from plainbox.impl.unit.parametric_template import ParametricTemplateUnit
 from plainbox.impl.unit.template import TemplateUnit
 
 from checkbox_ng.launcher.subcommands import (
@@ -34,6 +36,8 @@ from checkbox_ng.launcher.subcommands import (
     Expand,
     Launcher,
     ListBootstrapped,
+    List,
+    Show,
     IncompatibleJobError,
     ResumeInstead,
     IJobResult,
@@ -42,6 +46,173 @@ from checkbox_ng.launcher.subcommands import (
     get_testplan_id_by_id,
     print_objs,
 )
+
+
+class TestParametricTemplateCommands(TestCase):
+    def setUp(self):
+        self.provider = Mock(
+            namespace="com.canonical.plainbox",
+            gettext_domain=None,
+            get_translated_data=Mock(side_effect=lambda text: text),
+        )
+        self.provider.name = "com.canonical.plainbox:inline"
+        self.template = ParametricTemplateUnit(
+            {
+                "unit": "parametric template",
+                "template-id": "inline",
+                "parameters": [{"name": "first"}, {"name": "second"}],
+                "id": "test-{name}",
+                "summary": "Test {name}",
+                "plugin": "shell",
+                "command": "echo {name}",
+            },
+            provider=self.provider,
+        )
+        self.jobs = self.template.instantiate_jobs()
+        self.provider.unit_list = [self.template] + self.jobs
+        self.sa = Mock(
+            get_selected_providers=Mock(return_value=[self.provider]),
+            get_test_plans=Mock(return_value=["plan"]),
+            get_static_todo_list=Mock(
+                return_value=[job.id for job in self.jobs]
+            ),
+            get_dynamic_todo_list=Mock(return_value=[]),
+            get_job=Mock(
+                side_effect=lambda job_id: next(
+                    job for job in self.jobs if job.id == job_id
+                )
+            ),
+            get_job_state=Mock(
+                return_value=Mock(effective_certification_status="non-blocker")
+            ),
+            _context=Mock(
+                state=Mock(unit_list=self.provider.unit_list),
+                unit_list=self.provider.unit_list,
+                _test_plan_list=[Mock()],
+            ),
+        )
+        self.ctx = Mock(
+            sa=self.sa,
+            args=Mock(
+                TEST_PLAN="plan",
+                exact=False,
+                format="json",
+                GROUP="all-jobs",
+                attrs=False,
+            ),
+        )
+
+    @patch("sys.stdout", new_callable=StringIO)
+    @patch("checkbox_ng.launcher.subcommands.TestPlanUnitSupport")
+    @patch("checkbox_ng.launcher.subcommands.select_units")
+    def test_expand_concrete_definitions_and_source(
+        self, select_units, support, stdout
+    ):
+        select_units.return_value = self.provider.unit_list
+        support.return_value.override_list = []
+        Expand().invoked(self.ctx)
+        definitions = json.loads(stdout.getvalue())
+        jobs = [unit for unit in definitions if unit["unit"] == "job"]
+        templates = [
+            unit
+            for unit in definitions
+            if unit["unit"] == "parametric template"
+        ]
+        self.assertEqual(len(jobs), 2)
+        self.assertEqual(len(templates), 1)
+        self.assertEqual(
+            [unit["command"] for unit in jobs],
+            ["echo first", "echo second"],
+        )
+        self.assertEqual(
+            templates[0]["id"], "com.canonical.plainbox::test-{name}"
+        )
+
+    @patch("sys.stdout", new_callable=StringIO)
+    def test_list_concrete_definitions_and_source(self, stdout):
+        self.ctx.args.format = "{unit_type}: {full_id} {summary}\\n"
+        List().invoked(self.ctx)
+        output = stdout.getvalue()
+        self.assertIn(
+            "job: com.canonical.plainbox::test-first Test first", output
+        )
+        self.assertIn(
+            "job: com.canonical.plainbox::test-second Test second", output
+        )
+        self.assertIn("com.canonical.plainbox::inline Test {name}", output)
+
+    @patch("sys.stdout", new_callable=StringIO)
+    def test_list_json_concrete_jobs_and_source(self, stdout):
+        self.ctx.args.attrs = True
+        List().invoked(self.ctx)
+        objects = json.loads(stdout.getvalue())
+        jobs = [obj for obj in objects if obj["unit"] == "job"]
+        templates = [
+            obj for obj in objects if obj["unit"] == "parametric template"
+        ]
+        self.assertEqual(len(jobs), 2)
+        self.assertEqual(len(templates), 1)
+        self.assertEqual(
+            {job["id"]: job["command"] for job in jobs},
+            {
+                "com.canonical.plainbox::test-first": "echo first",
+                "com.canonical.plainbox::test-second": "echo second",
+            },
+        )
+        self.assertEqual(
+            templates[0]["template_id"], "com.canonical.plainbox::inline"
+        )
+        self.assertEqual(
+            templates[0]["id"], "com.canonical.plainbox::test-{name}"
+        )
+
+    @patch("sys.stdout", new_callable=StringIO)
+    def test_show_concrete_definition(self, stdout):
+        self.ctx.args.IDs = ["test-first"]
+        Show().invoked(self.ctx)
+        self.assertIn("id: test-first", stdout.getvalue())
+        self.assertIn("summary: Test first", stdout.getvalue())
+        self.assertIn("command: echo first", stdout.getvalue())
+        self.assertNotIn("parameters:", stdout.getvalue())
+
+    @patch("sys.stdout", new_callable=StringIO)
+    def test_show_source_unchanged(self, stdout):
+        source = "unit: parametric template\nid: test-{name}\ncommand: echo {name}\n"
+        obj = Mock(
+            _impl=self.template,
+            attrs={"origin": "/path/to/inline.yaml:1-3"},
+        )
+        with patch("builtins.open", mock_open(read_data=source)):
+            Show()._print_obj(obj)
+        self.assertIn(source, stdout.getvalue())
+
+    @patch("sys.stdout", new_callable=StringIO)
+    def test_list_parametric_sources(self, stdout):
+        self.ctx.args.GROUP = "parametric template"
+        self.ctx.args.format = None
+        List().invoked(self.ctx)
+        self.assertEqual(
+            stdout.getvalue(),
+            "parametric template 'com.canonical.plainbox::inline'\n",
+        )
+
+    @patch("checkbox_ng.launcher.subcommands.Show._print_obj")
+    def test_show_source_by_template_id(self, print_obj):
+        self.ctx.args.IDs = ["inline"]
+        Show().invoked(self.ctx)
+        self.assertIs(print_obj.call_args[0][0]._impl, self.template)
+
+    @patch("sys.stdout", new_callable=StringIO)
+    def test_list_bootstrapped_concrete_jobs(self, stdout):
+        ListBootstrapped().invoked(self.ctx)
+        jobs = json.loads(stdout.getvalue())
+        self.assertEqual(
+            [job["id"] for job in jobs], ["test-first", "test-second"]
+        )
+        self.assertEqual(
+            [job["command"] for job in jobs],
+            ["echo first", "echo second"],
+        )
 
 
 class TestSharedFunctions(TestCase):
@@ -1134,7 +1305,7 @@ class TestListBootstrapped(TestCase):
 
 class TestExpand(TestCase):
     def make_unit(self, **kwargs):
-        unit = Mock(partial_id=kwargs["id"], **kwargs)
+        unit = Mock(partial_id=kwargs["id"], is_parametric=False, **kwargs)
         unit._raw_data.copy.return_value = kwargs
         return unit
 

@@ -20,9 +20,27 @@ from unittest import TestCase
 
 from plainbox.impl.highlevel import Explorer, PlainBoxObject
 from plainbox.impl.unit.template import TemplateUnit
+from plainbox.impl.unit.parametric_template import ParametricTemplateUnit
 
 
 class TestExplorer(TestCase):
+    def test_parametric_template_to_obj(self):
+        unit = ParametricTemplateUnit(
+            {
+                "unit": "parametric template",
+                "template-id": "example",
+                "parameters": [{"value": "A"}],
+                "id": "test-{value}",
+            }
+        )
+        obj = Explorer()._unit_to_obj(unit)
+        self.assertEqual(obj.name, "example")
+        self.assertEqual(obj.group, "parametric template")
+        self.assertEqual(obj.attrs["id"], "test-{value}")
+        self.assertEqual(obj.attrs["parameters"], [{"value": "A"}])
+        self.assertNotIn("template_resource", obj.attrs)
+        self.assertIn("parametric template", Explorer.OBJECT_TYPES)
+
     def test_template_to_obj__without_template_id(self):
         template = TemplateUnit(
             {

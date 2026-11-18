@@ -20,6 +20,7 @@
 """NXP i.MX8M platform pipelines for the video-codec scenarios."""
 
 import argparse
+import logging
 
 from codec_base import BaseCodecProject
 from gst_utils import (
@@ -28,6 +29,7 @@ from gst_utils import (
     calculate_encoder_bitrate,
     generate_artifact_name,
     get_test_file_path_by_params,
+    get_source_colorimetry,
 )
 
 
@@ -137,17 +139,26 @@ class NxpIMX8mProject(BaseCodecProject):
     @property
     def _colorimetry(self) -> str:
         """
-        Our golden samples carry no explicit VUI/colorimetry metadata, so
-        the decoder infers it from resolution using the standard
-        convention (also used by GStreamer/FFmpeg): SD content (height
-        <= 576) defaults to BT.601, HD content (height > 576) defaults to
-        BT.709. `videoconvert` does not preserve this inferred value when
-        it performs an actual pixel reformat (e.g. NV12 -> I420/NV21/YUY2),
-        silently falling back to BT.601 and corrupting non-NV12 encodes.
-        We re-derive and pin the correct colorimetry here so the caps
-        filter matches what the source actually is, instead of hardcoding
-        a single value that would be wrong for any future SD test sample.
+        Prefer colorimetry signaled in the source stream caps. If absent,
+        use GStreamer's default YUV colorimetry, which selects BT.709 above
+        576 lines and BT.601 otherwise:
+        https://github.com/GStreamer/gstreamer/blob/1.24/subprojects/gst-plugins-base/gst-libs/gst/video/video-info.c#L148-L174
+        https://github.com/GStreamer/gstreamer/blob/1.24/subprojects/gst-plugins-base/gst-libs/gst/video/video-info.c#L511-L530
+
+        Pinning the resulting value in the caps filter avoids a different
+        default being selected during pixel-format conversion.
         """
+        source_colorimetry = get_source_colorimetry(self._golden_sample)
+        if source_colorimetry:
+            logging.info(
+                "Using source colorimetry %s", source_colorimetry
+            )
+            return source_colorimetry
+
+        logging.info(
+            "Source has no colorimetry metadata, using the height based "
+            "GStreamer default"
+        )
         return "bt601" if self._height <= 576 else "bt709"
 
     # Maps a GStreamer encoder plugin to the V4L2 fourcc name it reports

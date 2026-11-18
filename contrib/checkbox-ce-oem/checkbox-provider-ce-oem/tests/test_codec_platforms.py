@@ -12,7 +12,11 @@ from codec_platforms import (
     codec_factory,
     create_scenario_project,
 )
-from gst_utils import PipelineInterface
+from gst_utils import (
+    GST_DISCOVERER,
+    PipelineInterface,
+    get_source_colorimetry,
+)
 
 
 class TestCodecFactory(unittest.TestCase):
@@ -148,6 +152,70 @@ class TestBaseCodecProject(unittest.TestCase):
             codec_rz.RenesasDecoderPerformanceProject,
         ):
             self.assertTrue(issubclass(project_class, BaseCodecProject))
+
+
+class TestImxColorimetry(unittest.TestCase):
+    def _project(self, height):
+        project = codec_imx.NxpIMX8mProject(
+            platform="imx-8mm",
+            codec=codec_imx.GStreamerEncodePlugins.V4L2H264ENC.value,
+            color_space="I420",
+            width=1920,
+            height=height,
+            framerate=30,
+        )
+        project._golden_sample = "/tmp/source.mp4"
+        return project
+
+    @mock.patch("codec_imx.get_source_colorimetry", return_value="bt601")
+    def test_prefers_source_colorimetry_over_height_default(self, get_color):
+        project = self._project(height=720)
+
+        self.assertEqual(project._colorimetry, "bt601")
+        get_color.assert_called_once_with(project._golden_sample)
+
+    @mock.patch("codec_imx.get_source_colorimetry", return_value=None)
+    def test_uses_height_default_when_source_colorimetry_is_absent(
+        self, get_color
+    ):
+        self.assertEqual(self._project(height=576)._colorimetry, "bt601")
+        self.assertEqual(self._project(height=720)._colorimetry, "bt709")
+        self.assertEqual(get_color.call_count, 2)
+
+    @mock.patch(
+        "codec_imx.get_source_colorimetry",
+        side_effect=SystemExit("gst-discoverer failed"),
+    )
+    def test_discoverer_failure_is_not_treated_as_missing_metadata(
+        self, get_color
+    ):
+        with self.assertRaisesRegex(SystemExit, "gst-discoverer failed"):
+            self._project(height=720)._colorimetry
+
+
+class TestGetSourceColorimetry(unittest.TestCase):
+    @mock.patch("gst_utils.execute_command")
+    def test_reads_colorimetry_from_verbose_caps(self, execute_command):
+        execute_command.return_value = (
+            "video/x-h264, colorimetry=(string)BT601, width=(int)1920"
+        )
+
+        self.assertEqual(get_source_colorimetry("/tmp/source.mp4"), "bt601")
+        command = execute_command.call_args[1]
+        self.assertIn("{} -v".format(GST_DISCOVERER), command["cmd"])
+        self.assertEqual(command["timeout"], 30)
+
+    @mock.patch("gst_utils.execute_command")
+    def test_returns_none_for_absent_or_unknown_colorimetry(
+        self, execute_command
+    ):
+        for metadata in (
+            "video/x-h264, width=(int)1920",
+            "video/x-h264, colorimetry=(string)unknown",
+        ):
+            execute_command.return_value = metadata
+            with self.subTest(metadata=metadata):
+                self.assertIsNone(get_source_colorimetry("/tmp/source.mp4"))
 
 
 if __name__ == "__main__":

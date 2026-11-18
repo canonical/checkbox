@@ -118,16 +118,15 @@ def _identify_gst_bin_from_snap(bin_name: str) -> bool:
 def execute_command(
     cmd: str = "", timeout: int = GST_CODEC_EXECUTION_TIMEOUT
 ) -> str:
-    """
-    Executes the GStreamer command and extracts the specific data from the
-    output. The specific data is the value of last-message which is exposed by
-    fpsdisplaysink.
+    """Run a GStreamer command and return its stdout.
 
     :param cmd:
         The GStreamer command to execute.
+    :param timeout:
+        Maximum time to wait for the command to finish.
 
     :returns:
-        The extracted last_message.
+        The command's standard output.
     """
     try:
         bin_from_snap = _identify_gst_bin_from_snap(GST_LAUNCH_BIN)
@@ -174,6 +173,34 @@ def execute_command(
         raise SystemExit(e)
 
 
+_COLORIMETRY_RE = re.compile(
+    r"\bcolorimetry=(?:\([^)]*\))?([^\s,;]+)", re.IGNORECASE
+)
+
+
+def get_source_colorimetry(file_path: str) -> Optional[str]:
+    """Return colorimetry signaled in the source stream caps, if present.
+
+    For example, gst-discoverer output like:
+        video #1: video/x-h264, ..., colorimetry=(string)bt709
+
+    returns "bt709". Returns None when the caps omit colorimetry or mark it
+    unknown.
+    """
+    metadata = execute_command(
+        cmd="{} -v {}".format(GST_DISCOVERER, shlex.quote(file_path)),
+        timeout=30,
+    )
+    match = _COLORIMETRY_RE.search(metadata)
+    if not match:
+        return None
+
+    colorimetry = match.group(1).strip("\"'").lower()
+    if colorimetry in ("", "unknown", "undefined"):
+        return None
+    return colorimetry
+
+
 def _find_v4l2_encoder_device(codec_fourcc: str) -> Optional[str]:
     """
     Find the /dev/videoN node whose Capture queue advertises the given
@@ -213,7 +240,7 @@ def _find_v4l2_encoder_device(codec_fourcc: str) -> Optional[str]:
     return None
 
 
-def _get_v4l2_control_range(device: str, control_name: str) -> Optional[tuple]:
+def _get_v4l2_control_range(device: str, control_name: str) -> tuple | None:
     """
     Query the (min, max) range of an integer V4L2 control on a device.
 
@@ -234,15 +261,15 @@ def _get_v4l2_control_range(device: str, control_name: str) -> Optional[tuple]:
             universal_newlines=True,
             timeout=10,
         )
-    except Exception:
+    except Exception as exc:
         logger.warning("Failed to query V4L2 controls on %s: %s", device, exc)
         return None
     if ret.returncode != 0:
         logger.warning(
             "V4L2 control query failed on %s (exit %s): %s",
             device,
-            result.returncode,
-            result.stderr.strip() or "no stderr",
+            ret.returncode,
+            ret.stderr.strip() or "no stderr",
         )
         return None
 

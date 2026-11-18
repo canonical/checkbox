@@ -3,7 +3,7 @@ category_id: com.canonical.plainbox::suspend
 id: suspend/network_before_suspend
 depends:
   - ethernet/detect
-estimated_duration: '1.2'
+estimated_duration: "1.2"
 summary: Record the current network before suspending.
 command: set -o pipefail; gateway_ping_test.py | tee "$PLAINBOX_SESSION_SHARE"/network_before_suspend.txt
 user: root
@@ -13,7 +13,7 @@ category_id: com.canonical.plainbox::suspend
 id: suspend/resolution_before_suspend
 before:
   - suspend/suspend_advanced_auto
-estimated_duration: '1.2'
+estimated_duration: "1.2"
 summary: Record the current resolution before suspending.
 command: "xrandr -q | awk '/ connected/{c=$1} /\\*/{print c\": \"$1}' | sort > \"$PLAINBOX_SESSION_SHARE\"/resolution_before_suspend.txt"
 ---
@@ -29,14 +29,14 @@ depends:
   - graphics/{index}_switch_card_{product_slug}
 before:
   - suspend/suspend_advanced_auto
-estimated_duration: '1.2'
+estimated_duration: "1.2"
 summary: Record the current resolution before suspending.
 command: "xrandr -q | awk '/ connected/{{c=$1}} /\\*/{{print c\": \"$1}}' | sort > \"$PLAINBOX_SESSION_SHARE\"/{index}_resolution_before_suspend.txt"
 ---
 plugin: shell
 category_id: com.canonical.plainbox::suspend
 id: suspend/audio_before_suspend
-estimated_duration: '1.0'
+estimated_duration: "1.0"
 imports:
   - from com.canonical.plainbox import manifest
 requires:
@@ -54,14 +54,14 @@ command: |
 plugin: shell
 category_id: com.canonical.plainbox::suspend
 id: suspend/cpu_before_suspend
-estimated_duration: '1.2'
+estimated_duration: "1.2"
 summary: Verify that all the CPUs are online before suspending
 command: cpuinfo_resource.py > "$PLAINBOX_SESSION_SHARE"/cpuinfo_before_suspend
 ---
 plugin: shell
 category_id: com.canonical.plainbox::suspend
 id: suspend/memory_before_suspend
-estimated_duration: '1.2'
+estimated_duration: "1.2"
 summary: Dumps memory info to a file for comparison after suspend
 command: meminfo_resource.py > "$PLAINBOX_SESSION_SHARE"/meminfo_before_suspend
 ---
@@ -75,7 +75,7 @@ id: suspend/iperf_before_suspend_ether_auto_device{__index__}_{interface}
 template-id: suspend/iperf_before_suspend_ether_auto_device__index___interface
 depends:
   - ethernet/detect
-estimated_duration: '20.0'
+estimated_duration: "20.0"
 requires:
   - package.name == 'iperf'
 user: root
@@ -86,7 +86,8 @@ environ:
   - TEST_PASS
 command: network.py test -i {interface} -t iperf
 summary: Before suspend iperf test ethernet {interface}
-description: This test executes iperf connection performance/stability against device {__index__} ({interface}) before 
+purpose:
+  This test executes iperf connection performance/stability against device {__index__} ({interface}) before
   suspend.
 ---
 plugin: shell
@@ -94,7 +95,7 @@ category_id: com.canonical.plainbox::suspend
 id: suspend/iperf_before_suspend_mobilebroadband_gsm_auto
 depends:
   - mobilebroadband/gsm_connection
-estimated_duration: '20.0'
+estimated_duration: "20.0"
 user: root
 environ:
   - TEST_TARGET_FTP
@@ -106,7 +107,8 @@ command: |
   [ -z "$INTERFACE" ] && exit 1
   network.py test -i "$INTERFACE" -t iperf
 summary: Before suspend iperf test on GSM mobile broadband
-purpose: This test executes iperf connection performance/stability against the broadband device found on the system 
+purpose:
+  This test executes iperf connection performance/stability against the broadband device found on the system
   before suspend.
 ---
 plugin: shell
@@ -114,7 +116,7 @@ category_id: com.canonical.plainbox::suspend
 id: suspend/iperf_before_suspend_mobilebroadband_cdma_auto
 depends:
   - mobilebroadband/cdma_connection
-estimated_duration: '20.0'
+estimated_duration: "20.0"
 user: root
 environ:
   - TEST_TARGET_FTP
@@ -126,7 +128,8 @@ command: |
   [ -z "$INTERFACE" ] && exit 1
   network.py test -i "$INTERFACE" -t iperf
 summary: Before suspend iperf test for CDMA mobile broadband
-purpose: This test executes an iperf connection performance/stability test against the broadband device found on the 
+purpose:
+  This test executes an iperf connection performance/stability test against the broadband device found on the
   system before suspend.
 ---
 plugin: shell
@@ -134,7 +137,7 @@ category_id: com.canonical.plainbox::suspend
 id: suspend/bluetooth_obex_browse_before_suspend
 imports:
   - from com.canonical.plainbox import manifest
-estimated_duration: '10.0'
+estimated_duration: "10.0"
 requires:
   - package.name == 'bluez'
   - executable.name == 'obexftp'
@@ -160,7 +163,8 @@ command: |
   fi
   set -o pipefail; bluetooth_test.py "$PLAINBOX_PROVIDER_DATA"/images/JPEG_Color_Image_Ubuntu.jpg "$BTDEVADDR" browse 2>&1 | ansi_parser.py
 summary: Bluetooth OBEX browse before suspend
-purpose: This is an automated Bluetooth test. It emulates browsing on a remote device specified by the BTDEVADDR 
+purpose:
+  This is an automated Bluetooth test. It emulates browsing on a remote device specified by the BTDEVADDR
   environment variable.
 ---
 plugin: shell
@@ -168,7 +172,7 @@ category_id: com.canonical.plainbox::suspend
 id: suspend/bluetooth_obex_get_before_suspend
 imports:
   - from com.canonical.plainbox import manifest
-estimated_duration: '20.0'
+estimated_duration: "20.0"
 requires:
   - package.name == 'bluez'
   - executable.name == 'obexftp'
@@ -194,7 +198,8 @@ command: |
   fi
   set -o pipefail; bluetooth_test.py "$PLAINBOX_PROVIDER_DATA"/images/JPEG_Color_Image_Ubuntu.jpg "$BTDEVADDR" get 2>&1 | ansi_parser.py
 summary: Bluetooth OBEX get before suspend
-purpose: This is an automated Bluetooth test. It receives the given file from a remote host specified by the BTDEVADDR 
+purpose:
+  This is an automated Bluetooth test. It receives the given file from a remote host specified by the BTDEVADDR
   environment variable
 ---
 plugin: user-interact-verify
@@ -229,7 +234,7 @@ command: |
       echo "Calling sleep_test.py"
       set -o pipefail; sleep_test.py -p | tee "$PLAINBOX_SESSION_SHARE"/suspend_single_times.log
   fi
-estimated_duration: '90.0'
+estimated_duration: "90.0"
 summary: Manual test of suspend function
 purpose: This test will check suspend and resume
 steps: |
@@ -269,7 +274,7 @@ command: |
    echo "Calling sleep_test.py"
    set -o pipefail; sleep_test.py -p | tee "$PLAINBOX_SESSION_SHARE"/{index}_suspend_single_times.log
   fi
-estimated_duration: '90.0'
+estimated_duration: "90.0"
 summary: Test suspend/resume functionality after switching to the {vendor} {product} graphics card.
 purpose: This test will check suspend and resume after switching to {vendor} {product} graphics card.
 steps: |
@@ -309,7 +314,7 @@ command: |
        echo "Calling rtcwake with -d ${RTC_DEVICE_FILE:-/dev/rtc0}"
        rtcwake -d "${RTC_DEVICE_FILE:-/dev/rtc0}" -m no -s 30 && systemctl suspend || exit 1
   fi
-estimated_duration: '90.000'
+estimated_duration: "90.000"
 ---
 unit: template
 template-resource: graphics_card
@@ -323,7 +328,7 @@ command: |
       export LD_LIBRARY_PATH="$LD_LIBRARY_PATH:$SNAP/usr/lib/fwts"
   fi
   set -o pipefail; checkbox-support-fwts_test -f none -l "$PLAINBOX_SESSION_SHARE"/{index}_hybrid_sleep_single.log -s s3 --s3-hybrid --s3-sleep-delay=30 --s3-device-check --s3-device-check-delay=45 --pm-method=pm-utils | tee "$PLAINBOX_SESSION_SHARE"/{index}_hybrid_sleep_single_times.log
-estimated_duration: '90.0'
+estimated_duration: "90.0"
 summary: This test will check hybrid sleep and resume
 purpose: This test will check hybrid sleep and resume
 steps: |
@@ -338,7 +343,7 @@ category_id: com.canonical.plainbox::suspend
 id: suspend/suspend-single-log-check
 depends:
   - suspend/suspend_advanced_auto
-estimated_duration: '1.2'
+estimated_duration: "1.2"
 command: '[ -e "$PLAINBOX_SESSION_SHARE"/suspend_single.log ] && sleep_test_log_check.py -v --ignore-warning -t all "$PLAINBOX_SESSION_SHARE"/suspend_single.log'
 summary: Automated check of the suspend log for errors reported by fwts
 ---
@@ -373,8 +378,9 @@ id: suspend/{index}_hybrid-sleep-single-log-check
 template-id: suspend/index_hybrid-sleep-single-log-check
 depends:
   - suspend/{index}_hybrid_sleep_{product_slug}
-estimated_duration: '1.2'
-command: '[ -e "$PLAINBOX_SESSION_SHARE"/{index}_hybrid_sleep_single.log ] && sleep_test_log_check.py -v --ignore-warning
+estimated_duration: "1.2"
+command:
+  '[ -e "$PLAINBOX_SESSION_SHARE"/{index}_hybrid_sleep_single.log ] && sleep_test_log_check.py -v --ignore-warning
   -t all "$PLAINBOX_SESSION_SHARE"/{index}_hybrid_sleep_single.log'
 summary: Automated check of the hybrid sleep log for errors reported by fwts
 ---
@@ -398,7 +404,7 @@ environ:
   - RESUME_THRESHOLD_OVERRIDE
 depends:
   - suspend/suspend_advanced_auto
-estimated_duration: '1.2'
+estimated_duration: "1.2"
 requires:
   - cpuinfo.platform in ("i386", "x86_64")
 command: '[ -e "$PLAINBOX_SESSION_SHARE"/suspend_single_times.log ] && sleep_time_check.py "$PLAINBOX_SESSION_SHARE"/suspend_single_times.log'
@@ -418,7 +424,7 @@ environ:
 template-id: suspend/index_suspend-time-check_product_slug
 depends:
   - suspend/{index}_suspend_after_switch_to_card_{product_slug}
-estimated_duration: '1.2'
+estimated_duration: "1.2"
 command: '[ -e "$PLAINBOX_SESSION_SHARE"/{index}_suspend_single_times.log ] && sleep_time_check.py "$PLAINBOX_SESSION_SHARE"/{index}_suspend_single_times.log'
 summary: Ensure time to suspend/resume is under threshold
 purpose: Checks the sleep times to ensure that a machine suspends and resumes within a given threshold
@@ -429,7 +435,7 @@ id: power-management/usb_wakeup_keyboard
 user: root
 depends:
   - suspend/suspend_advanced_auto
-estimated_duration: '120.0'
+estimated_duration: "120.0"
 command: pm-suspend
 purpose: Wake up by USB keyboard
 steps: |
@@ -445,7 +451,7 @@ id: power-management/usb_wakeup_mouse
 user: root
 depends:
   - suspend/suspend_advanced_auto
-estimated_duration: '120.0'
+estimated_duration: "120.0"
 command: pm-suspend
 purpose: Wake up by USB mouse
 steps: |
@@ -458,7 +464,7 @@ summary: Test if the system can wake up from suspend mode via USB mouse interact
 plugin: shell
 category_id: com.canonical.plainbox::suspend
 id: suspend/network_after_suspend
-estimated_duration: '20.0'
+estimated_duration: "20.0"
 depends:
   - suspend/suspend_advanced_auto
   - suspend/network_before_suspend
@@ -470,7 +476,7 @@ summary: Test network functionality after resuming from suspension.
 plugin: shell
 category_id: com.canonical.plainbox::suspend
 id: suspend/network_after_suspend_auto
-estimated_duration: '20.0'
+estimated_duration: "20.0"
 depends:
   - suspend/suspend_advanced_auto
   - suspend/network_before_suspend
@@ -485,9 +491,10 @@ id: suspend/resolution_after_suspend
 depends:
   - suspend/suspend_advanced_auto
   - suspend/resolution_before_suspend
-estimated_duration: '1.2'
+estimated_duration: "1.2"
 purpose: Test to see that we have the same resolution after resuming as before.
-command: "xrandr -q | awk '/ connected/{c=$1} /\\*/{print c\": \"$1}' | sort | diff \"$PLAINBOX_SESSION_SHARE\"/resolution_before_suspend.txt
+command:
+  "xrandr -q | awk '/ connected/{c=$1} /\\*/{print c\": \"$1}' | sort | diff \"$PLAINBOX_SESSION_SHARE\"/resolution_before_suspend.txt
   -"
 summary: Verify resolution consistency after resuming from suspension.
 ---
@@ -499,18 +506,19 @@ plugin: shell
 category_id: com.canonical.plainbox::suspend
 id: suspend/{index}_resolution_after_suspend_{product_slug}
 template-id: suspend/index_resolution_after_suspend_product_slug
-estimated_duration: '1.2'
+estimated_duration: "1.2"
 depends:
   - suspend/{index}_resolution_before_suspend_{product_slug}
 purpose: Test to see that we have the same resolution after resuming as before.
-command: "xrandr -q | awk '/ connected/{{c=$1}} /\\*/{{print c\": \"$1}}' | sort | diff \"$PLAINBOX_SESSION_SHARE\"/{index}_resolution_before_suspend.txt
+command:
+  "xrandr -q | awk '/ connected/{{c=$1}} /\\*/{{print c\": \"$1}}' | sort | diff \"$PLAINBOX_SESSION_SHARE\"/{index}_resolution_before_suspend.txt
   -"
 summary: Ensure resolution remains consistent after resuming from suspend.
 ---
 plugin: shell
 category_id: com.canonical.plainbox::suspend
 id: suspend/audio_after_suspend
-estimated_duration: '1.0'
+estimated_duration: "1.0"
 imports:
   - from com.canonical.plainbox import manifest
 requires:
@@ -534,7 +542,7 @@ summary: Ensure audio mixer settings are consistent before and after suspend.
 plugin: shell
 category_id: com.canonical.plainbox::suspend
 id: suspend/audio_after_suspend_auto
-estimated_duration: '1.2'
+estimated_duration: "1.2"
 imports:
   - from com.canonical.plainbox import manifest
 requires:
@@ -560,7 +568,7 @@ category_id: com.canonical.plainbox::suspend
 id: suspend/speaker-headphone-plug-detection-after-suspend
 depends:
   - suspend/suspend_advanced_auto
-estimated_duration: '60.0'
+estimated_duration: "60.0"
 imports:
   - from com.canonical.plainbox import manifest
 requires:
@@ -584,7 +592,7 @@ category_id: com.canonical.plainbox::suspend
 id: suspend/microphone-plug-detection-after-suspend
 depends:
   - suspend/suspend_advanced_auto
-estimated_duration: '60.0'
+estimated_duration: "60.0"
 imports:
   - from com.canonical.plainbox import manifest
 requires:
@@ -607,7 +615,7 @@ summary: Detect if a microphone is recognized after the system resumes from susp
 plugin: user-interact-verify
 category_id: com.canonical.plainbox::suspend
 id: suspend/playback_headphones-after-suspend
-estimated_duration: '20.0'
+estimated_duration: "20.0"
 depends:
   - audio/list_devices
   - suspend/suspend_advanced_auto
@@ -629,14 +637,15 @@ purpose: This test will check that headphones connector works correctly after su
 steps: |
   1. Connect a pair of headphones to your audio device
   2. Commence the test to play a sound to your audio device
-verification: Did you hear a sound through the headphones and did the sound play without any distortion, clicks or other
+verification:
+  Did you hear a sound through the headphones and did the sound play without any distortion, clicks or other
   strange noises from your headphones?
 summary: Verify headphone connectivity and sound quality after suspension.
 ---
 plugin: user-interact-verify
 category_id: com.canonical.plainbox::suspend
 id: suspend/alsa_record_playback_external-after-suspend
-estimated_duration: '20.0'
+estimated_duration: "20.0"
 depends:
   - suspend/playback_headphones-after-suspend
   - suspend/suspend_advanced_auto
@@ -666,7 +675,7 @@ summary: Verify that recording through an external microphone post-suspension wo
 plugin: shell
 category_id: com.canonical.plainbox::suspend
 id: suspend/cpu_after_suspend
-estimated_duration: '1.2'
+estimated_duration: "1.2"
 depends:
   - suspend/suspend_advanced_auto
   - suspend/cpu_before_suspend
@@ -677,7 +686,7 @@ summary: Ensure all CPUs are online post-resumption.
 plugin: shell
 category_id: com.canonical.plainbox::suspend
 id: suspend/cpu_after_suspend_auto
-estimated_duration: '1.2'
+estimated_duration: "1.2"
 depends:
   - suspend/suspend_advanced_auto
   - suspend/cpu_before_suspend
@@ -688,7 +697,7 @@ summary: Ensure all CPUs are online post-resumption.
 plugin: shell
 category_id: com.canonical.plainbox::suspend
 id: suspend/memory_after_suspend
-estimated_duration: '1.2'
+estimated_duration: "1.2"
 depends:
   - suspend/suspend_advanced_auto
   - suspend/memory_before_suspend
@@ -699,7 +708,7 @@ summary: Verify memory availability post-resume from suspend.
 plugin: shell
 category_id: com.canonical.plainbox::suspend
 id: suspend/memory_after_suspend_auto
-estimated_duration: '1.2'
+estimated_duration: "1.2"
 depends:
   - suspend/suspend_advanced_auto
   - suspend/memory_before_suspend
@@ -710,7 +719,7 @@ summary: Ensure all memory is accessible after waking from suspend mode.
 plugin: manual
 category_id: com.canonical.plainbox::suspend
 id: suspend/display_after_suspend
-estimated_duration: '120.0'
+estimated_duration: "120.0"
 depends:
   - suspend/suspend_advanced_auto
 purpose: This test will check that the display is correct after suspend and resume
@@ -729,7 +738,8 @@ template-id: suspend/index_display_after_suspend_product_slug
 depends:
   - suspend/{index}_suspend_after_switch_to_card_{product_slug}
 summary: Test display function after suspend for {vendor} {product}
-purpose: This test will check that the display is correct after suspend and resume on the {vendor} {product} graphics 
+purpose:
+  This test will check that the display is correct after suspend and resume on the {vendor} {product} graphics
   card.
 steps: 1. Check that your display does not show visual artifacts after resuming.
 verification: Does the display work normally after resuming from suspend using the {vendor} {product} graphics card?
@@ -744,7 +754,7 @@ id: suspend/iperf_after_suspend_ether_auto_device{__index__}_{interface}
 template-id: suspend/iperf_after_suspend_ether_auto_device__index___interface
 depends:
   - suspend/suspend_advanced_auto
-estimated_duration: '30.0'
+estimated_duration: "30.0"
 requires:
   - package.name == 'iperf'
 user: root
@@ -754,7 +764,8 @@ environ:
   - TEST_USER
   - TEST_PASS
 command: network.py test -i {interface} -t iperf
-purpose: This test executes iperf connection performance/stability against device {__index__} ({interface}) after 
+purpose:
+  This test executes iperf connection performance/stability against device {__index__} ({interface}) after
   suspend.
 summary: Execute iperf to test connection performance/stability post-suspend on device {__index__} ({interface}).
 ---
@@ -768,7 +779,7 @@ id: suspend/iperf_after_suspend_wifi_auto_device{__index__}_{interface}
 template-id: suspend/iperf_after_suspend_wifi_auto_device__index___interface
 depends:
   - suspend/suspend_advanced_auto
-estimated_duration: '30.0'
+estimated_duration: "30.0"
 requires:
   - package.name == 'iperf'
 user: root
@@ -778,7 +789,8 @@ environ:
   - TEST_USER
   - TEST_PASS
 command: network.py test -i {interface} -t iperf
-purpose: This test executes iperf connection performance/stability against device {__index__} ({interface}) after 
+purpose:
+  This test executes iperf connection performance/stability against device {__index__} ({interface}) after
   suspend.
 summary: Execute iperf connection performance/stability test on device after suspend.
 ---
@@ -787,7 +799,7 @@ category_id: com.canonical.plainbox::suspend
 id: suspend/iperf_after_suspend_mobilebroadband_gsm_auto
 depends:
   - suspend/suspend_advanced_auto
-estimated_duration: '20.0'
+estimated_duration: "20.0"
 user: root
 environ:
   - TEST_TARGET_FTP
@@ -798,7 +810,8 @@ command: |
   INTERFACE=$( (nmcli -t -f GENERAL -m tabular dev list 2>/dev/null || nmcli -t -f GENERAL -m tabular dev show) |grep gsm |cut -d ":" -f 13)
   [ -z "$INTERFACE" ] && exit 1
   network.py test -i "$INTERFACE" -t iperf
-purpose: This test executes iperf connection performance/stability test against the broadband device found on the system
+purpose:
+  This test executes iperf connection performance/stability test against the broadband device found on the system
   after suspend.
 summary: Execute an iperf connection test on a broadband device after system suspend.
 ---
@@ -807,7 +820,7 @@ category_id: com.canonical.plainbox::suspend
 id: suspend/iperf_after_suspend_mobilebroadband_cdma_auto
 depends:
   - suspend/suspend_advanced_auto
-estimated_duration: '20.0'
+estimated_duration: "20.0"
 user: root
 environ:
   - TEST_TARGET_FTP
@@ -818,7 +831,8 @@ command: |
   INTERFACE=$( (nmcli -t -f GENERAL -m tabular dev list 2>/dev/null || nmcli -t -f GENERAL -m tabular dev show) |grep cdma |cut -d ":" -f 13)
   [ -z "$INTERFACE" ] && exit 1
   network.py test -i "$INTERFACE" -t iperf
-purpose: This test executes iperf connection performance/stability against the broadband device found on the system 
+purpose:
+  This test executes iperf connection performance/stability against the broadband device found on the system
   after suspend.
 summary: Execute an iperf test on broadband device after suspending the system.
 ---
@@ -827,7 +841,7 @@ category_id: com.canonical.plainbox::suspend
 id: suspend/wireless_connection_after_suspend_wpa_bg_manual
 depends:
   - suspend/suspend_advanced_auto
-estimated_duration: '120.0'
+estimated_duration: "120.0"
 requires:
   - device.category == 'WIRELESS'
   - environment.ROUTERS == 'single'
@@ -870,7 +884,7 @@ category_id: com.canonical.plainbox::suspend
 id: suspend/wireless_connection_after_suspend_open_bg_manual
 depends:
   - suspend/suspend_advanced_auto
-estimated_duration: '120.0'
+estimated_duration: "120.0"
 requires:
   - device.category == 'WIRELESS'
   - environment.ROUTERS == 'single'
@@ -912,7 +926,7 @@ category_id: com.canonical.plainbox::suspend
 id: suspend/wireless_connection_after_suspend_wpa_n_manual
 depends:
   - suspend/suspend_advanced_auto
-estimated_duration: '120.0'
+estimated_duration: "120.0"
 requires:
   - device.category == 'WIRELESS'
   - environment.ROUTERS == 'single'
@@ -948,7 +962,8 @@ steps: |
   4. Change the security settings to use WPA2 and ensure the PSK matches that set in ROUTER_PSK
   5. Commence the test to create a connection to the router and test the connection
 verification: Verification is automated, do not change the automatically selected result.
-summary: Test whether the system's wireless hardware can connect to a router using WPA security and the 802.11n 
+summary:
+  Test whether the system's wireless hardware can connect to a router using WPA security and the 802.11n
   protocol.
 ---
 plugin: user-interact-verify
@@ -956,7 +971,7 @@ category_id: com.canonical.plainbox::suspend
 id: suspend/wireless_connection_after_suspend_open_n_manual
 depends:
   - suspend/suspend_advanced_auto
-estimated_duration: '120.0'
+estimated_duration: "120.0"
 requires:
   - device.category == 'WIRELESS'
   - environment.ROUTERS == 'single'
@@ -998,7 +1013,7 @@ category_id: com.canonical.plainbox::suspend
 id: suspend/wireless_connection_after_suspend_wpa_ac_manual
 depends:
   - suspend/suspend_advanced_auto
-estimated_duration: '120.0'
+estimated_duration: "120.0"
 requires:
   - device.category == 'WIRELESS'
   - environment.ROUTERS == 'single'
@@ -1041,7 +1056,7 @@ category_id: com.canonical.plainbox::suspend
 id: suspend/wireless_connection_after_suspend_open_ac_manual
 depends:
   - suspend/suspend_advanced_auto
-estimated_duration: '120.0'
+estimated_duration: "120.0"
 requires:
   - device.category == 'WIRELESS'
   - environment.ROUTERS == 'single'
@@ -1084,7 +1099,7 @@ id: suspend/bluetooth_detect_after_suspend
 depends:
   - suspend/suspend_advanced_auto
   - bluetooth/detect-output
-estimated_duration: '1.2'
+estimated_duration: "1.2"
 requires:
   - package.name == 'bluez'
   - device.category == 'BLUETOOTH'
@@ -1103,7 +1118,8 @@ command: |
       echo "BT hardware not available"
       exit 1
   fi
-purpose: This test captures the hardware address of the Bluetooth adapter after suspend and compares it to the address 
+purpose:
+  This test captures the hardware address of the Bluetooth adapter after suspend and compares it to the address
   captured before suspend.
 summary: Capture and compare Bluetooth adapter's hardware address before and after suspend.
 ---
@@ -1113,7 +1129,7 @@ id: suspend/bluetooth_detect_after_suspend_auto
 depends:
   - suspend/suspend_advanced_auto
   - bluetooth/detect-output
-estimated_duration: '1.2'
+estimated_duration: "1.2"
 requires:
   - package.name == 'bluez'
   - device.category == 'BLUETOOTH'
@@ -1132,7 +1148,8 @@ command: |
       echo "BT hardware not available"
       exit 1
   fi
-purpose: This test grabs the hardware address of the bluetooth adapter after suspend and compares it to the address 
+purpose:
+  This test grabs the hardware address of the bluetooth adapter after suspend and compares it to the address
   grabbed before suspend.
 summary: Grab and compare Bluetooth hardware addresses before and after suspend.
 ---
@@ -1143,7 +1160,7 @@ imports:
   - from com.canonical.plainbox import manifest
 depends:
   - suspend/suspend_advanced_auto
-estimated_duration: '10.0'
+estimated_duration: "10.0"
 requires:
   - package.name == 'bluez'
   - executable.name == 'obexftp'
@@ -1168,7 +1185,8 @@ command: |
     sleep 3
   fi
   set -o pipefail; bluetooth_test.py "$PLAINBOX_PROVIDER_DATA"/images/JPEG_Color_Image_Ubuntu.jpg "$BTDEVADDR" browse 2>&1 | ansi_parser.py
-purpose: This is an automated Bluetooth test. It emulates browsing on a remote device specified by the BTDEVADDR 
+purpose:
+  This is an automated Bluetooth test. It emulates browsing on a remote device specified by the BTDEVADDR
   environment variable.
 summary: Perform an automated Bluetooth test to emulate browsing on a remote device specified by BTDEVADDR.
 ---
@@ -1179,7 +1197,7 @@ imports:
   - from com.canonical.plainbox import manifest
 depends:
   - suspend/suspend_advanced_auto
-estimated_duration: '20.0'
+estimated_duration: "20.0"
 requires:
   - package.name == 'bluez'
   - executable.name == 'obexftp'
@@ -1202,7 +1220,8 @@ command: |
     sleep 3
   fi
   set -o pipefail; bluetooth_test.py "$PLAINBOX_PROVIDER_DATA"/images/JPEG_Color_Image_Ubuntu.jpg "$BTDEVADDR" browse 2>&1 | ansi_parser.py
-purpose: This is an automated Bluetooth test. It emulates browsing on a remote device specified by the BTDEVADDR 
+purpose:
+  This is an automated Bluetooth test. It emulates browsing on a remote device specified by the BTDEVADDR
   environment variable.
 summary: Automate a Bluetooth browsing test on a remote device using the BTDEVADDR environment variable.
 ---
@@ -1211,7 +1230,7 @@ category_id: com.canonical.plainbox::suspend
 id: suspend/bluetooth_obex_get_after_suspend
 imports:
   - from com.canonical.plainbox import manifest
-estimated_duration: '20.0'
+estimated_duration: "20.0"
 depends:
   - suspend/suspend_advanced_auto
 requires:
@@ -1238,7 +1257,8 @@ command: |
     sleep 3
   fi
   set -o pipefail; bluetooth_test.py "$PLAINBOX_PROVIDER_DATA"/images/JPEG_Color_Image_Ubuntu.jpg "$BTDEVADDR" get 2>&1 | ansi_parser.py
-purpose: This is an automated Bluetooth test. It receives the given file from a remote host specified by the BTDEVADDR 
+purpose:
+  This is an automated Bluetooth test. It receives the given file from a remote host specified by the BTDEVADDR
   environment variable
 summary: Automate the process of receiving a file from a remote host via Bluetooth.
 ---
@@ -1249,7 +1269,7 @@ imports:
   - from com.canonical.plainbox import manifest
 depends:
   - suspend/suspend_advanced_auto
-estimated_duration: '20.0'
+estimated_duration: "20.0"
 requires:
   - package.name == 'bluez'
   - executable.name == 'obexftp'
@@ -1272,14 +1292,15 @@ command: |
     sleep 3
   fi
   set -o pipefail; bluetooth_test.py "$PLAINBOX_PROVIDER_DATA"/images/JPEG_Color_Image_Ubuntu.jpg "$BTDEVADDR" get 2>&1 | ansi_parser.py
-purpose: This is an automated Bluetooth test. It receives the given file from a remote host specified by the BTDEVADDR 
+purpose:
+  This is an automated Bluetooth test. It receives the given file from a remote host specified by the BTDEVADDR
   environment variable
 summary: Automated Bluetooth test to receive a file from a specified remote host.
 ---
 plugin: user-interact-verify
 category_id: com.canonical.plainbox::suspend
 id: suspend/cycle_resolutions_after_suspend
-estimated_duration: '120.0'
+estimated_duration: "120.0"
 depends:
   - suspend/suspend_advanced_auto
 environ:
@@ -1310,7 +1331,7 @@ depends:
 environ:
   - XDG_SESSION_TYPE
   - XDG_CURRENT_DESKTOP
-estimated_duration: '120.0'
+estimated_duration: "120.0"
 command: |
   if [[ $XDG_CURRENT_DESKTOP == *"GNOME"* ]]
   then
@@ -1326,7 +1347,7 @@ summary: Cycle through display modes after suspension to verify display function
 plugin: shell
 category_id: com.canonical.plainbox::suspend
 id: suspend/cycle_resolutions_after_suspend_auto
-estimated_duration: '1.2'
+estimated_duration: "1.2"
 depends:
   - suspend/suspend_advanced_auto
 environ:
@@ -1376,7 +1397,7 @@ summary: Attach screenshots from suspend/cycle_resolutions_after_suspend test to
 plugin: shell
 category_id: com.canonical.plainbox::suspend
 id: suspend/record_playback_after_suspend
-estimated_duration: '10.0'
+estimated_duration: "10.0"
 depends:
   - suspend/suspend_advanced_auto
 imports:
@@ -1391,15 +1412,16 @@ requires:
   - package.name == 'gstreamer1.0-pulseaudio'
   - package.name == 'alsa-base'
 command: audio_test.py
-purpose: This will check to make sure that your audio device works properly after a suspend and resume. This may work 
-  fine with speakers and onboard microphone, however, it works best if used with a cable connecting the audio-out jack 
+purpose:
+  This will check to make sure that your audio device works properly after a suspend and resume. This may work
+  fine with speakers and onboard microphone, however, it works best if used with a cable connecting the audio-out jack
   to the audio-in jack.
 summary: Ensure the audio device functions correctly after suspend and resume.
 ---
 plugin: shell
 category_id: com.canonical.plainbox::suspend
 id: suspend/record_playback_after_suspend_auto
-estimated_duration: '10.0'
+estimated_duration: "10.0"
 depends:
   - suspend/suspend_advanced_auto
 imports:
@@ -1414,15 +1436,16 @@ requires:
   - package.name == 'gstreamer1.0-pulseaudio'
   - package.name == 'alsa-base'
 command: audio_test.py
-purpose: This will check to make sure that your audio device works properly after a suspend and resume. This may work 
-  fine with speakers and onboard microphone, however, it works best if used with a cable connecting the audio-out jack 
+purpose:
+  This will check to make sure that your audio device works properly after a suspend and resume. This may work
+  fine with speakers and onboard microphone, however, it works best if used with a cable connecting the audio-out jack
   to the audio-in jack.
 summary: Ensure audio device works correctly after suspend and resume cycle.
 ---
 plugin: shell
 category_id: com.canonical.plainbox::suspend
 id: suspend/gpu_lockup_after_suspend
-estimated_duration: '10.0'
+estimated_duration: "10.0"
 requires:
   - executable.name == 'wmctrl'
   - executable.name == 'glxgears'
@@ -1448,7 +1471,7 @@ requires:
   - device.category == 'WIRELESS'
 user: root
 command: network_reconnect_resume_test.py -t 90 -d wifi
-estimated_duration: '0.530'
+estimated_duration: "0.530"
 purpose: |
   Checks the length of time it takes to reconnect an existing wifi connection
   after a suspend/resume cycle.
@@ -1457,7 +1480,7 @@ summary: Measure the wifi reconnection time after a suspend/resume cycle.
 plugin: shell
 category_id: com.canonical.plainbox::suspend
 id: suspend/wifi_resume_time_auto
-estimated_duration: '1.2'
+estimated_duration: "1.2"
 depends:
   - suspend/suspend_advanced_auto
 requires:
@@ -1474,7 +1497,7 @@ category_id: com.canonical.plainbox::suspend
 id: suspend/network_resume_time
 depends:
   - suspend/suspend_advanced_auto
-estimated_duration: '1.2'
+estimated_duration: "1.2"
 requires:
   - device.category == 'NETWORK'
 user: root
@@ -1487,7 +1510,7 @@ category_id: com.canonical.plainbox::suspend
 id: suspend/network_resume_time_auto
 depends:
   - suspend/suspend_advanced_auto
-estimated_duration: '1.2'
+estimated_duration: "1.2"
 requires:
   - device.category == 'NETWORK'
 user: root
@@ -1500,7 +1523,7 @@ category_id: com.canonical.plainbox::suspend
 id: suspend/led_after_suspend/power
 depends:
   - suspend/suspend_advanced_auto
-estimated_duration: '120.0'
+estimated_duration: "120.0"
 purpose: Validate that the power LED operates the same after resuming from suspend
 steps: 1. Power LED should be on while device is switched on
 verification: Does the power LED remain on after resuming from suspend?
@@ -1509,7 +1532,7 @@ summary: Validate power LED behavior after resuming from suspend.
 plugin: manual
 category_id: com.canonical.plainbox::suspend
 id: suspend/led_after_suspend/battery-charging
-estimated_duration: '120.0'
+estimated_duration: "120.0"
 depends:
   - suspend/suspend_advanced_auto
 purpose: Validate that the battery light shows charging status after resuming from suspend
@@ -1524,7 +1547,7 @@ category_id: com.canonical.plainbox::suspend
 id: suspend/led_after_suspend/battery-charged
 depends:
   - suspend/suspend_advanced_auto
-estimated_duration: '120.0'
+estimated_duration: "120.0"
 purpose: Validate that the battery LED properly displays charged status after resuming from suspend
 steps: |
   1. Let the system run on battery for a short time
@@ -1538,7 +1561,7 @@ category_id: com.canonical.plainbox::suspend
 id: suspend/led_after_suspend/battery-low
 depends:
   - suspend/suspend_advanced_auto
-estimated_duration: '120.0'
+estimated_duration: "120.0"
 purpose: Validate that the battery LED indicates low power after resuming from suspend
 steps: |
   1. Let system run on battery for several hours
@@ -1551,7 +1574,7 @@ category_id: com.canonical.plainbox::suspend
 id: suspend/led_after_suspend/hdd
 depends:
   - suspend/suspend_advanced_auto
-estimated_duration: '120.0'
+estimated_duration: "120.0"
 command: led_hdd_test.sh
 purpose: Validate that the HDD LED still operates as expected after resuming from suspend
 steps: |
@@ -1563,7 +1586,7 @@ summary: Validate HDD LED functionality post-suspend.
 plugin: user-interact-verify
 category_id: com.canonical.plainbox::suspend
 id: suspend/led_after_suspend/numeric-keypad
-estimated_duration: '120.0'
+estimated_duration: "120.0"
 depends:
   - suspend/suspend_advanced_auto
 command: keyboard_test.py
@@ -1582,7 +1605,7 @@ category_id: com.canonical.plainbox::suspend
 id: suspend/led_after_suspend/caps-lock
 depends:
   - suspend/suspend_advanced_auto
-estimated_duration: '120.0'
+estimated_duration: "120.0"
 purpose: Validate that the Caps Lock key operates the same before and after resuming from suspend.
 steps: |
   1. Press "Caps Lock" to activate/deactivate caps lock
@@ -1595,7 +1618,7 @@ category_id: com.canonical.plainbox::suspend
 id: suspend/led_after_suspend/wlan
 depends:
   - suspend/suspend_advanced_auto
-estimated_duration: '120.0'
+estimated_duration: "120.0"
 purpose: WLAN LED verification after resuming from suspend
 steps: |
   1. Make sure WLAN connection is established
@@ -1608,7 +1631,7 @@ category_id: com.canonical.plainbox::suspend
 id: suspend/led_after_suspend/wlan-disabled
 depends:
   - suspend/suspend_advanced_auto
-estimated_duration: '120.0'
+estimated_duration: "120.0"
 purpose: Validate that WLAN LED shuts off when disabled after resuming from suspend
 steps: |
   1. Connect to AP
@@ -1623,7 +1646,7 @@ category_id: com.canonical.plainbox::suspend
 id: suspend/led_after_suspend/bluetooth
 depends:
   - suspend/suspend_advanced_auto
-estimated_duration: '120.0'
+estimated_duration: "120.0"
 purpose: Validate that the Bluetooth LED turns on and off when BT is enabled/disabled after resuming from suspend
 steps: |
   1. Switch Bluetooth off from a hardware switch (if present)
@@ -1638,7 +1661,7 @@ category_id: com.canonical.plainbox::suspend
 id: suspend/led_after_suspend/touchpad
 depends:
   - suspend/suspend_advanced_auto
-estimated_duration: '120.0'
+estimated_duration: "120.0"
 purpose: Touchpad LED verification after resuming from suspend
 steps: |
   1. Click on the touchpad button or press key combination to enable/disable touchpad button
@@ -1654,7 +1677,7 @@ category_id: com.canonical.plainbox::suspend
 id: suspend/led_after_suspend/wireless
 depends:
   - suspend/suspend_advanced_auto
-estimated_duration: '120.0'
+estimated_duration: "120.0"
 purpose: Validate Wireless (WLAN + Bluetooth) LED operated the same after resuming from suspend
 steps: |
   1. Make sure WLAN connection is established and Bluetooth is enabled.
@@ -1664,7 +1687,8 @@ steps: |
   5. Switch WLAN and Bluetooth off from the panel applet
   6. Switch them back on
 verification: Did the WLAN/Bluetooth LED light as expected after resuming from suspend?
-summary: Validate that the LED indicators for Wireless (WLAN + Bluetooth) function correctly after resuming from 
+summary:
+  Validate that the LED indicators for Wireless (WLAN + Bluetooth) function correctly after resuming from
   suspend.
 ---
 plugin: shell
@@ -1675,8 +1699,8 @@ depends:
 requires:
   - dmi.sane_product == "portable"
   - xinput.device_class == 'XITouchClass' and xinput.touch_mode != 'dependent'
-command: 'true'
-estimated_duration: '1.2'
+command: "true"
+estimated_duration: "1.2"
 purpose: Determine if the touchpad is still functioning after suspend/resume.
 summary: Test the touchpad functionality after suspend/resume.
 ---
@@ -1689,9 +1713,10 @@ requires:
   - manifest.has_touchscreen == 'True'
 depends:
   - suspend/suspend_advanced_auto
-estimated_duration: '30.0'
+estimated_duration: "30.0"
 purpose: Check touchscreen tap recognition
-steps: 1. Tap an object on the screen with your finger. The cursor should jump to the location tapped, and the object 
+steps:
+  1. Tap an object on the screen with your finger. The cursor should jump to the location tapped, and the object
   should highlight.
 verification: Does tap recognition work?
 summary: Check if the touchscreen recognizes taps after suspend.
@@ -1717,7 +1742,7 @@ template-filter:
   - device.category == 'MOUSE' or device.category == 'TOUCHPAD'
 plugin: manual
 category_id: com.canonical.plainbox::suspend
-estimated_duration: '30.0'
+estimated_duration: "30.0"
 id: suspend/clicking-after-suspend_{product_slug}_{category}_{__index__}
 template-id: suspend/clicking-after-suspend_product_slug_category___index__
 depends:
@@ -1744,8 +1769,8 @@ depends:
 requires:
   - package.name == 'nux-tools'
 command: /usr/lib/nux/unity_support_test -p 2>&1
-estimated_duration: '0.130'
-description: Check that {product} hardware is able to run a desktop session (OpenGL) after suspend
+estimated_duration: "0.130"
+purpose: Check that {product} hardware is able to run a desktop session (OpenGL) after suspend
 summary: Test OpenGL support for {product} after suspend
 ---
 plugin: shell
@@ -1756,7 +1781,7 @@ depends:
 requires:
   - package.name == 'nux-tools'
 command: /usr/lib/nux/unity_support_test -p 2>&1
-estimated_duration: '0.130'
+estimated_duration: "0.130"
 purpose: Check that the hardware is able to run a desktop session (OpenGL)
 summary: Test OpenGL support after suspend
 ---
@@ -1809,7 +1834,8 @@ category_id: com.canonical.plainbox::suspend
 requires:
   - package.name == 'xorg'
   - package.name == 'gir1.2-gst-plugins-base-0.10' or package.name == 'gir1.2-gst-plugins-base-1.0'
-command: gst_pipeline_test.py -t 2 'videotestsrc ! videoconvert ! autovideosink' || gst_pipeline_test.py -t 2 
+command:
+  gst_pipeline_test.py -t 2 'videotestsrc ! videoconvert ! autovideosink' || gst_pipeline_test.py -t 2
   'videotestsrc ! ffmpegcolorspace ! autovideosink'
 summary: Test that video can be displayed after suspend with {vendor} {product}
 purpose: This test will test the default display after suspend with a sample video
@@ -1825,7 +1851,8 @@ requires:
   - device.category == 'VIDEO'
   - package.name == 'xorg'
   - package.name == 'gir1.2-gst-plugins-base-0.10' or package.name == 'gir1.2-gst-plugins-base-1.0'
-command: gst_pipeline_test.py -t 2 'videotestsrc ! videoconvert ! autovideosink' || gst_pipeline_test.py -t 2 
+command:
+  gst_pipeline_test.py -t 2 'videotestsrc ! videoconvert ! autovideosink' || gst_pipeline_test.py -t 2
   'videotestsrc ! ffmpegcolorspace ! autovideosink'
 summary: Test that video can be displayed after suspend
 purpose: This test will test the default display after suspend with a sample video
@@ -1837,7 +1864,7 @@ depends:
   - suspend/suspend_advanced_auto
 plugin: shell
 category_id: com.canonical.plainbox::suspend
-estimated_duration: '10.0'
+estimated_duration: "10.0"
 requires:
   - executable.name == 'fwts'
 user: root
@@ -1857,7 +1884,7 @@ depends:
 plugin: attachment
 mime-type: application/x-xz
 category_id: com.canonical.plainbox::suspend
-estimated_duration: '0.5'
+estimated_duration: "0.5"
 command: '[ -e "${PLAINBOX_SESSION_SHARE}"/fwts_oops_results_after_s3.log ] && xz -c "${PLAINBOX_SESSION_SHARE}"/fwts_oops_results_after_s3.log'
 purpose: Attaches the FWTS oops results log to the submission after suspend
 summary: Attach FWTS oops results log post-suspend.
@@ -1871,7 +1898,7 @@ estimated_duration: 5s
 user: root
 command: suspend_stats.py after_suspend
 summary: Tests that the machine suspended correctly
-description: |
+purpose: |
   Query sysfs and debugfs for the amount of times the system was suspended.
   We expect the count in /sys/power/suspend_stats/success
   and suscess in /sys/kernel/debugfs/suspend_stats to be non zero
@@ -1885,7 +1912,7 @@ estimated_duration: 5s
 user: root
 command: suspend_stats.py any_failure
 summary: Tests if any device in this machine reports a suspend failure
-description: |
+purpose: |
   If the DUT suspended successfully, /sys/power/suspend_stats/fail*
   and fail* in /sys/kernel/debug/suspend_stats will be zero.
   If a device failed /sys/power/suspend_stats/last_failed_dev

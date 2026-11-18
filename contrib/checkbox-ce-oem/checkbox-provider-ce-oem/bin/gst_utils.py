@@ -240,7 +240,7 @@ def _find_v4l2_encoder_device(codec_fourcc: str) -> Optional[str]:
     return None
 
 
-def _get_v4l2_control_range(device: str, control_name: str) -> tuple | None:
+def _get_v4l2_control_range(device: str, control_name: str) -> "tuple | None":
     """
     Query the (min, max) range of an integer V4L2 control on a device.
 
@@ -274,9 +274,9 @@ def _get_v4l2_control_range(device: str, control_name: str) -> tuple | None:
         return None
 
     # Example output from `v4l2-ctl -d /dev/video0 --list-ctrls-menus`:
-    # video_bitrate 0x009909cf (int) : min=10000 max=288000000 step=1 default=2097152 value=2097152
+    # video_bitrate 0x009909cf (int) : min=10000 max=288000000 step=1 default=2097152 value=2097152 # noqa: E501
     # ...
-    # number_of_mbs_in_a_slice 0x009909dc (int)    : min=1 max=120 step=1 default=1 value=1
+    # number_of_mbs_in_a_slice 0x009909dc (int)    : min=1 max=120 step=1 default=1 value=1 # noqa: E501
     pattern = re.compile(
         (
             r"{}\s+0x[0-9a-fA-F]+\s+\(int\)\s*:\s*"

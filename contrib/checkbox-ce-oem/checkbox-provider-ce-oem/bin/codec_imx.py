@@ -150,9 +150,7 @@ class NxpIMX8mProject(BaseCodecProject):
         """
         source_colorimetry = get_source_colorimetry(self._golden_sample)
         if source_colorimetry:
-            logging.info(
-                "Using source colorimetry %s", source_colorimetry
-            )
+            logging.info("Using source colorimetry %s", source_colorimetry)
             return source_colorimetry
 
         logging.info(

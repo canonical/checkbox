@@ -51,13 +51,10 @@ command:
     fwts -q -r "$fwts_log_path" {{ case }}
     fwts_ret=$?
     cat "$fwts_log_path"
+    echo "FWTS {{ case }} exited with $fwts_ret"
     {%- if fwts_type == "Utilities" %}
-    if [[ $fwts_ret -ne 0 ]]; then
-        echo "FWTS {{ case }} exited with $fwts_ret"
-        exit $fwts_ret
-    fi
     echo "{{ case }} is an FWTS utility, it prints no test summary to check"
-    exit 0
+    exit "$fwts_ret"
     {%- endif %}
     echo -e "\n## Checking FWTS log failures..."
     sleep_test_checker_path=""

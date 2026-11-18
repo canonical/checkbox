@@ -197,6 +197,110 @@ class CmdAlarmTests(unittest.TestCase):
             rtc_test.cmd_alarm(args)
 
 
+class GetRtcSecondsTests(unittest.TestCase):
+    @patch.dict(os.environ, {}, clear=True)
+    def test_unset_returns_default(self):
+        self.assertEqual(
+            rtc_test.get_rtc_seconds("RTC_WAKEUP_SECONDS", "rtc0", 30), 30
+        )
+
+    @patch.dict(
+        os.environ, {"RTC_WAKEUP_SECONDS": "rtc0:45, rtc1:120"}, clear=True
+    )
+    def test_listed_device_uses_its_value(self):
+        self.assertEqual(
+            rtc_test.get_rtc_seconds("RTC_WAKEUP_SECONDS", "rtc1", 30), 120
+        )
+
+    @patch.dict(os.environ, {"RTC_WAKEUP_SECONDS": "rtc1:120"}, clear=True)
+    def test_unlisted_device_uses_default(self):
+        self.assertEqual(
+            rtc_test.get_rtc_seconds("RTC_WAKEUP_SECONDS", "rtc0", 30), 30
+        )
+
+    @patch.dict(os.environ, {"RTC_WAKEUP_SECONDS": "rtc1:120,"}, clear=True)
+    def test_empty_entry_is_ignored(self):
+        self.assertEqual(
+            rtc_test.get_rtc_seconds("RTC_WAKEUP_SECONDS", "rtc1", 30), 120
+        )
+
+    def test_malformed_entry_fails(self):
+        for value in ("rtc1", "rtc1:abc", "rtc1:1:2", "rtc1:0", "rtc1:-5"):
+            with self.subTest(value=value):
+                with patch.dict(
+                    os.environ, {"RTC_WAKEUP_SECONDS": value}, clear=True
+                ):
+                    with self.assertRaises(SystemExit):
+                        rtc_test.get_rtc_seconds(
+                            "RTC_WAKEUP_SECONDS", "rtc1", 30
+                        )
+
+
+class CmdAlarmSecondsOverrideTests(unittest.TestCase):
+    @patch.dict(
+        os.environ,
+        {"RTC_WAKEUP_SECONDS": "rtc1:120", "RTC_WAKEUP_TIMEOUT": "rtc1:150"},
+        clear=True,
+    )
+    @patch("rtc_test.subprocess.run")
+    @patch("rtc_test.Path.is_file", return_value=True)
+    def test_override_sets_seconds_and_timeout(self, mock_is_file, mock_run):
+        args = SimpleNamespace(rtc="rtc1", seconds=30, timeout=60)
+        self.assertEqual(rtc_test.cmd_alarm(args), 0)
+        mock_run.assert_called_once_with(
+            ["rtcwake", "-v", "-d", "rtc1", "-m", "on", "-s", "120"],
+            timeout=150,
+            check=True,
+        )
+
+    @patch.dict(
+        os.environ,
+        {"RTC_WAKEUP_SECONDS": "rtc1:120", "RTC_WAKEUP_TIMEOUT": "rtc1:150"},
+        clear=True,
+    )
+    @patch("rtc_test.subprocess.run")
+    @patch("rtc_test.Path.is_file", return_value=True)
+    def test_unlisted_device_keeps_defaults(self, mock_is_file, mock_run):
+        args = SimpleNamespace(rtc="rtc0", seconds=30, timeout=60)
+        rtc_test.cmd_alarm(args)
+        mock_run.assert_called_once_with(
+            ["rtcwake", "-v", "-d", "rtc0", "-m", "on", "-s", "30"],
+            timeout=60,
+            check=True,
+        )
+
+    @patch.dict(os.environ, {"RTC_WAKEUP_SECONDS": "rtc1:120"}, clear=True)
+    @patch("rtc_test.subprocess.run")
+    @patch("rtc_test.Path.is_file", return_value=True)
+    def test_timeout_not_greater_than_seconds_fails(
+        self, mock_is_file, mock_run
+    ):
+        args = SimpleNamespace(rtc="rtc1", seconds=30, timeout=60)
+        with self.assertRaises(SystemExit):
+            rtc_test.cmd_alarm(args)
+        mock_run.assert_not_called()
+
+
+class CmdBatterySecondsOverrideTests(unittest.TestCase):
+    @patch.dict(os.environ, {"RTC_WAKEUP_SECONDS": "rtc1:90"}, clear=True)
+    @patch("rtc_test.subprocess.run")
+    def test_override_sets_wakeup_seconds(self, mock_run):
+        rtc_test.cmd_battery(SimpleNamespace(rtc="rtc1", seconds=30))
+        mock_run.assert_called_with(
+            ["rtcwake", "-v", "-d", "rtc1", "-m", "off", "-s", "90"],
+            check=False,
+        )
+
+    @patch.dict(os.environ, {"RTC_WAKEUP_SECONDS": "rtc1:90"}, clear=True)
+    @patch("rtc_test.subprocess.run")
+    def test_unlisted_device_keeps_default(self, mock_run):
+        rtc_test.cmd_battery(SimpleNamespace(rtc="rtc0", seconds=30))
+        mock_run.assert_called_with(
+            ["rtcwake", "-v", "-d", "rtc0", "-m", "off", "-s", "30"],
+            check=False,
+        )
+
+
 class CmdClockTests(unittest.TestCase):
     @patch("rtc_test.time.time", return_value=1788854686.989309)
     @patch("rtc_test.Path.read_text", return_value="1788854690\n")

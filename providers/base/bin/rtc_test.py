@@ -50,9 +50,11 @@ def cmd_battery(args):
     wake scheduled in N seconds.
     """
     rtc = args.rtc
+    seconds = get_rtc_seconds("RTC_WAKEUP_SECONDS", rtc, args.seconds)
+    print(f"{rtc} will wake the system in {seconds}s")
     subprocess.run(["rtcwake", "-v", "-d", rtc, "-m", "disable"], check=False)
     result = subprocess.run(
-        ["rtcwake", "-v", "-d", rtc, "-m", "off", "-s", str(args.seconds)],
+        ["rtcwake", "-v", "-d", rtc, "-m", "off", "-s", str(seconds)],
         check=False,
     )
     return result.returncode
@@ -104,6 +106,34 @@ def cmd_read_and_sync(args):
     return 0
 
 
+def get_rtc_seconds(env_name, rtc, default):
+    """Return the per-device seconds for ``rtc`` from ``env_name``.
+
+    The variable is a comma-separated list of <rtc>:<seconds> entries,
+    e.g. "rtc1:120,rtc2:90". Devices not listed use ``default``.
+    """
+    mapping = os.environ.get(env_name, "")
+    for entry in mapping.split(","):
+        entry = entry.strip()
+        if not entry:
+            continue
+        try:
+            name, seconds = entry.split(":")
+            seconds = int(seconds)
+        except ValueError:
+            raise SystemExit(
+                f"Invalid {env_name} entry: '{entry}'"
+            )
+        if seconds <= 0:
+            raise SystemExit(
+                f"Invalid {env_name} entry: '{entry}', seconds "
+                "must be a positive integer"
+            )
+        if name.strip() == rtc:
+            return seconds
+    return default
+
+
 def cmd_alarm(args):
     """Check that the RTC's wakealarm works via rtcwake,
     with a timeout guard.
@@ -119,9 +149,18 @@ def cmd_alarm(args):
     if not wakealarm_path.is_file():
         raise SystemExit(f"{rtc} does not support wakealarm")
 
-    cmd = ["rtcwake", "-v", "-d", rtc, "-m", "on", "-s", str(args.seconds)]
+    seconds = get_rtc_seconds("RTC_WAKEUP_SECONDS", rtc, args.seconds)
+    timeout = get_rtc_seconds("RTC_WAKEUP_TIMEOUT", rtc, args.timeout)
+    if timeout <= seconds:
+        raise SystemExit(
+            f"Error: timeout ({timeout}s) must be greater than the wakeup "
+            f"time ({seconds}s), adjust RTC_WAKEUP_TIMEOUT for {rtc}"
+        )
+    print(f"Setting {rtc} alarm in {seconds}s (timeout {timeout}s)")
+
+    cmd = ["rtcwake", "-v", "-d", rtc, "-m", "on", "-s", str(seconds)]
     try:
-        subprocess.run(cmd, timeout=args.timeout, check=True)
+        subprocess.run(cmd, timeout=timeout, check=True)
     except subprocess.TimeoutExpired:
         raise SystemExit("Error: rtcwake timed out!")
     except subprocess.CalledProcessError as exc:
@@ -164,7 +203,12 @@ def build_parser():
         "battery", help="RTC battery wake-from-poweroff test"
     )
     p_battery.add_argument("--rtc", default=default_rtc)
-    p_battery.add_argument("--seconds", type=int, default=30)
+    p_battery.add_argument(
+        "--seconds",
+        type=int,
+        default=30,
+        help="Wakeup delay (overridden per device by $RTC_WAKEUP_SECONDS)",
+    )
     p_battery.set_defaults(func=cmd_battery)
 
     p_number = sub.add_parser("number", help="Check RTC device count")
@@ -185,8 +229,18 @@ def build_parser():
 
     p_alarm = sub.add_parser("alarm", help="Check RTC wakealarm")
     p_alarm.add_argument("--rtc", default=default_rtc)
-    p_alarm.add_argument("--seconds", type=int, default=30)
-    p_alarm.add_argument("--timeout", type=int, default=60)
+    p_alarm.add_argument(
+        "--seconds",
+        type=int,
+        default=30,
+        help="Wakeup delay (overridden per device by $RTC_WAKEUP_SECONDS)",
+    )
+    p_alarm.add_argument(
+        "--timeout",
+        type=int,
+        default=60,
+        help="rtcwake timeout (overridden per device by $RTC_WAKEUP_TIMEOUT)",
+    )
     p_alarm.set_defaults(func=cmd_alarm)
 
     p_clock = sub.add_parser("clock", help="Check RTC clock is in sync")

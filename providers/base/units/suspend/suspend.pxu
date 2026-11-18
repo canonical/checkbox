@@ -1073,6 +1073,7 @@ requires:
  executable.name == 'obexftp'
  device.category == 'BLUETOOTH'
  manifest.has_bt_obex_support == 'True'
+environ: BTDEVADDR
 command:
   if [ -z "$BTDEVADDR" ]
   then
@@ -1137,6 +1138,7 @@ requires:
  executable.name == 'obexftp'
  device.category == 'BLUETOOTH'
  manifest.has_bt_obex_support == 'True'
+environ: BTDEVADDR
 command:
   if [ -z "$BTDEVADDR" ]
   then

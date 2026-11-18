@@ -234,6 +234,7 @@ _purpose:
   Check system can connect to 802.11ax AP with wpa security
 plugin: shell
 user: root
+environ: NET_DRIVER_INFO WPA_AX_SSID WPA_AX_PSK
 command:
   net_driver_info.py "$NET_DRIVER_INFO"
   if [ -f "$PLAINBOX_SESSION_SHARE/wifi-ax.env" ]; then
@@ -264,6 +265,7 @@ _purpose:
   Check system can connect to 802.11ax AP with wpa3 security
 plugin: shell
 user: root
+environ: NET_DRIVER_INFO WPA3_AX_SSID WPA3_AX_PSK
 command:
   net_driver_info.py "$NET_DRIVER_INFO"
   if [ -f "$PLAINBOX_SESSION_SHARE/wifi-ax.env" ]; then
@@ -294,6 +296,7 @@ _purpose:
   Check system can connect to insecure 802.11ax AP
 plugin: shell
 user: root
+environ: NET_DRIVER_INFO OPEN_AX_SSID
 command:
   net_driver_info.py "$NET_DRIVER_INFO"
   if [ -f "$PLAINBOX_SESSION_SHARE/wifi-ax.env" ]; then
@@ -324,6 +327,7 @@ _purpose:
   Check system can connect to 802.11be AP with wpa security
 plugin: shell
 user: root
+environ: NET_DRIVER_INFO WPA_BE_SSID WPA_BE_PSK
 command:
   net_driver_info.py "$NET_DRIVER_INFO"
   if [ -f "$PLAINBOX_SESSION_SHARE/wifi-be.env" ]; then
@@ -354,6 +358,7 @@ _purpose:
   Check system can connect to 802.11be AP with wpa3 security
 plugin: shell
 user: root
+environ: NET_DRIVER_INFO WPA3_BE_SSID WPA3_BE_PSK
 command:
   net_driver_info.py "$NET_DRIVER_INFO"
   if [ -f "$PLAINBOX_SESSION_SHARE/wifi-be.env" ]; then
@@ -413,6 +418,7 @@ _purpose:
   Check system can connect to insecure 802.11be AP
 plugin: shell
 user: root
+environ: NET_DRIVER_INFO OPEN_BE_SSID
 command:
   net_driver_info.py "$NET_DRIVER_INFO"
   if [ -f "$PLAINBOX_SESSION_SHARE/wifi-be.env" ]; then

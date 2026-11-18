@@ -121,9 +121,7 @@ def get_rtc_seconds(env_name, rtc, default):
             name, seconds = entry.split(":")
             seconds = int(seconds)
         except ValueError:
-            raise SystemExit(
-                f"Invalid {env_name} entry: '{entry}'"
-            )
+            raise SystemExit(f"Invalid {env_name} entry: '{entry}'")
         if seconds <= 0:
             raise SystemExit(
                 f"Invalid {env_name} entry: '{entry}', seconds "

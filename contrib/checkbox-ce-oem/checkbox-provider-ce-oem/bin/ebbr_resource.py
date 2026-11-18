@@ -30,9 +30,14 @@ def parse_show_tests(output, header):
 
 
 def main():
-    ebbr_tests = parse_show_tests(
-        runcmd(["fwts --ebbr --show-tests"]).stdout, "EBBR tests:"
-    )
+    fwts_ret = runcmd(["fwts --ebbr --show-tests"])
+    ebbr_tests = parse_show_tests(fwts_ret.stdout, "EBBR tests:")
+    if not ebbr_tests:
+        raise SystemExit(
+            "No EBBR tests found in 'fwts --ebbr --show-tests' output:\n"
+            + fwts_ret.stdout
+            + fwts_ret.stderr
+        )
     # Utilities print no test summary, so their log can't be checked
     utilities = {
         name

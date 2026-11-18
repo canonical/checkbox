@@ -42,6 +42,18 @@ class TestEbbrResource(unittest.TestCase):
             "fwts_type: Utilities\n\n",
         )
 
+    @patch("ebbr_resource.runcmd")
+    def test_no_ebbr_tests_raises(self, mock_runcmd):
+        mock_runcmd.return_value = MagicMock(
+            stdout="",
+            stderr="The --ebbr option is not available on this architecture",
+        )
+
+        with self.assertRaises(SystemExit) as cm:
+            ebbr_resource.main()
+
+        self.assertIn("not available on this architecture", str(cm.exception))
+
 
 if __name__ == "__main__":
     unittest.main()

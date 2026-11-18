@@ -1178,7 +1178,7 @@ class TestUdevadmParser(TestCase, UdevadmDataMixIn):
         devices = self.parse("INTEL_VROC")
         by_name = {d.name: d for d in devices}
         self.assertEqual(by_name["md126"].category, "DISK")
-        self.assertNotEqual(by_name["md127"].category, "DISK")
+        self.assertEqual(by_name["md127"].category, "RAID")
 
     def test_MELLANOX_40GBPS(self):
         # An IBM Power S822LC with a 40 Gbps Mellanox NIC reported too few

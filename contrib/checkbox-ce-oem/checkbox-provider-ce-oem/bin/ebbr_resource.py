@@ -15,20 +15,36 @@ def runcmd(command):
     return ret
 
 
-def main():
-    fwts_ret = runcmd(["fwts --ebbr --show-tests"])
-    fwts_line_split = fwts_ret.stdout.split("\n")
-    ebbr_tests_idx = fwts_line_split.index("EBBR tests:")
-
-    for i in range(ebbr_tests_idx + 1, len(fwts_line_split)):
-        line = fwts_line_split[i]
+def parse_show_tests(output, header):
+    """Return (name, description) of the tests listed under header."""
+    lines = output.split("\n")
+    if header not in lines:
+        return []
+    tests = []
+    for line in lines[lines.index(header) + 1 :]:
         if line == "":
-            return
+            break
         c = line.split()
-        case_name = c[0]
-        description = " ".join(c[1:-1])
+        tests.append((c[0], " ".join(c[1:-1])))
+    return tests
+
+
+def main():
+    ebbr_tests = parse_show_tests(
+        runcmd(["fwts --ebbr --show-tests"]).stdout, "EBBR tests:"
+    )
+    # Utilities print no test summary, so their log can't be checked
+    utilities = {
+        name
+        for name, _ in parse_show_tests(
+            runcmd(["fwts --utils --show-tests"]).stdout, "Utilities:"
+        )
+    }
+    for case_name, description in ebbr_tests:
+        fwts_type = "Utilities" if case_name in utilities else "EBBR"
         print(f"case: {case_name}")
-        print(f"description: {description}\n")
+        print(f"description: {description}")
+        print(f"fwts_type: {fwts_type}\n")
 
 
 if __name__ == "__main__":

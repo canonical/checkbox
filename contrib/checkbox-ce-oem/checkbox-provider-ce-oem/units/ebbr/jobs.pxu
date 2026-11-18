@@ -49,7 +49,16 @@ command:
     echo -e "\n## Running FWTS of test: {{ case }}"
     fwts_log_path="$PLAINBOX_SESSION_SHARE"/fwts_{{ case }}.log
     fwts -q -r "$fwts_log_path" {{ case }}
+    fwts_ret=$?
     cat "$fwts_log_path"
+    {%- if fwts_type == "Utilities" %}
+    if [[ $fwts_ret -ne 0 ]]; then
+        echo "FWTS {{ case }} exited with $fwts_ret"
+        exit $fwts_ret
+    fi
+    echo "{{ case }} is an FWTS utility, it prints no test summary to check"
+    exit 0
+    {%- endif %}
     echo -e "\n## Checking FWTS log failures..."
     sleep_test_checker_path=""
     for base_bin in /snap/checkbox*/current/providers/checkbox-provider-base/bin; do

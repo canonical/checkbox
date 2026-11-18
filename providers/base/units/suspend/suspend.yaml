@@ -290,6 +290,8 @@ verification: |
 plugin: shell
 category_id: com.canonical.plainbox::suspend
 id: suspend/suspend_advanced_auto
+group:
+  - suspend
 imports:
   - from com.canonical.plainbox import manifest
 requires:
@@ -1892,6 +1894,8 @@ summary: Attach FWTS oops results log post-suspend.
 id: suspend/validate_suspend_status
 plugin: shell
 category_id: com.canonical.plainbox::suspend
+group:
+  - suspend
 depends:
   - suspend/suspend_advanced_auto
 estimated_duration: 5s

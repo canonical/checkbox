@@ -2,9 +2,6 @@ id: rtc/battery
 _summary: RTC battery tracks the time and ensures the system can wake up from power off state.
 _purpose:
  RTC battery backup power can send system wakeup events.
- The wakeup time defaults to the --seconds value below. Override it
- per device with RTC_WAKEUP_SECONDS, a comma-separated list of
- <rtc>:<seconds> entries (e.g. "rtc1:120").
 _steps:
  1. Start the test to power off the system (wakeup scheduled in 30s
     unless overridden by RTC_WAKEUP_SECONDS).

@@ -22,14 +22,15 @@ import subprocess
 import sys
 import time
 from pathlib import Path
+from typing import Callable, List, Optional
 
 
-def find_rtc_devices():
+def find_rtc_devices() -> List[str]:
     """Return a sorted list of rtc device names under /dev, e.g. ['rtc0']."""
     return sorted(os.path.basename(p) for p in glob.glob("/dev/rtc[0-9]*"))
 
 
-def _is_readable(path):
+def _is_readable(path: Path) -> bool:
     try:
         path.read_text()
     except OSError:
@@ -37,7 +38,7 @@ def _is_readable(path):
     return True
 
 
-def cmd_list(args):
+def cmd_list(args: argparse.Namespace) -> int:
     """Resource job: emit one record per RTC device found."""
     for rtc in find_rtc_devices():
         print(f"rtc: {rtc}")
@@ -45,12 +46,13 @@ def cmd_list(args):
     return 0
 
 
-def cmd_battery(args):
+def cmd_battery(args: argparse.Namespace) -> int:
     """Disable any pending wakealarm, then power off with a
     wake scheduled in N seconds.
     """
-    rtc = args.rtc
-    seconds = get_rtc_seconds("RTC_WAKEUP_SECONDS", rtc, args.seconds)
+    rtc: str = args.rtc
+    default_seconds: int = args.seconds
+    seconds = get_rtc_seconds("RTC_WAKEUP_SECONDS", rtc, default_seconds)
     print(f"{rtc} will wake the system in {seconds}s")
     subprocess.run(["rtcwake", "-v", "-d", rtc, "-m", "disable"], check=False)
     result = subprocess.run(
@@ -60,9 +62,9 @@ def cmd_battery(args):
     return result.returncode
 
 
-def cmd_number(args):
+def cmd_number(args: argparse.Namespace) -> int:
     """Check that the number of RTC devices matches the expected count."""
-    expected = args.total
+    expected: Optional[int] = args.total
     if expected is None:
         env_val = os.environ.get("TOTAL_RTC_NUM")
         if env_val:
@@ -82,11 +84,11 @@ def cmd_number(args):
     return 0
 
 
-def cmd_read_and_sync(args):
+def cmd_read_and_sync(args: argparse.Namespace) -> int:
     """Check /sys/class/rtc/<rtc>/since_epoch is readable;
     sync via hwclock if not.
     """
-    rtc = args.rtc
+    rtc: str = args.rtc
     since_epoch_path = Path("/sys/class/rtc") / rtc / "since_epoch"
 
     if _is_readable(since_epoch_path):
@@ -106,7 +108,7 @@ def cmd_read_and_sync(args):
     return 0
 
 
-def get_rtc_seconds(env_name, rtc, default):
+def get_rtc_seconds(env_name: str, rtc: str, default: int) -> int:
     """Return the per-device seconds for ``rtc`` from ``env_name``.
 
     The variable is a comma-separated list of <rtc>:<seconds> entries,
@@ -132,11 +134,11 @@ def get_rtc_seconds(env_name, rtc, default):
     return default
 
 
-def cmd_alarm(args):
+def cmd_alarm(args: argparse.Namespace) -> int:
     """Check that the RTC's wakealarm works via rtcwake,
     with a timeout guard.
     """
-    rtc = args.rtc
+    rtc: str = args.rtc
     unsupported = os.environ.get("UNSUPPORTED_RTC_ALARM_DEVICES", "")
     if rtc in [dev.strip() for dev in unsupported.split(",")]:
         print(f"{rtc} does not support RTC alarm")
@@ -147,8 +149,10 @@ def cmd_alarm(args):
     if not wakealarm_path.is_file():
         raise SystemExit(f"{rtc} does not support wakealarm")
 
-    seconds = get_rtc_seconds("RTC_WAKEUP_SECONDS", rtc, args.seconds)
-    timeout = get_rtc_seconds("RTC_WAKEUP_TIMEOUT", rtc, args.timeout)
+    default_seconds: int = args.seconds
+    seconds = get_rtc_seconds("RTC_WAKEUP_SECONDS", rtc, default_seconds)
+    default_timeout: int = args.timeout
+    timeout = get_rtc_seconds("RTC_WAKEUP_TIMEOUT", rtc, default_timeout)
     if timeout <= seconds:
         raise SystemExit(
             f"Error: timeout ({timeout}s) must be greater than the wakeup "
@@ -169,16 +173,17 @@ def cmd_alarm(args):
     return 0
 
 
-def cmd_clock(args):
+def cmd_clock(args: argparse.Namespace) -> int:
     """Check that the RTC clock is synchronized with the system clock."""
-    rtc = args.rtc
+    rtc: str = args.rtc
     since_epoch_path = Path("/sys/class/rtc") / rtc / "since_epoch"
 
     rtc_time = int(since_epoch_path.read_text().strip())
     sys_time = int(time.time())
     diff = abs(sys_time - rtc_time)
 
-    if diff <= args.tolerance:
+    tolerance: int = args.tolerance
+    if diff <= tolerance:
         print(f"{rtc} Clock synchronized with System Clock")
         print(f"RTC clock= {rtc_time}")
         return 0
@@ -188,7 +193,7 @@ def cmd_clock(args):
     raise SystemExit(f"{rtc} Clock not synchronized with System Clock")
 
 
-def build_parser():
+def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description="RTC test utility")
     sub = parser.add_subparsers(dest="action")
 
@@ -249,10 +254,11 @@ def build_parser():
     return parser
 
 
-def main():
+def main() -> int:
     parser = build_parser()
     args = parser.parse_args()
-    return args.func(args)
+    func: Callable[[argparse.Namespace], int] = args.func
+    return func(args)
 
 
 if __name__ == "__main__":

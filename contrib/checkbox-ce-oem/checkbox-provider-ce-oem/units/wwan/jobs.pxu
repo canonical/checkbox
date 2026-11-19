@@ -35,6 +35,7 @@ flags: preserve-locale also-after-suspend preserve-cwd
 imports:
   from com.canonical.plainbox import manifest
 requires:
+  manifest.has_wwan_module_via_at_command == 'True'
   manifest.has_wwan_hotspot == 'True'
 
 unit: job
@@ -66,4 +67,5 @@ imports:
   from com.canonical.plainbox import manifest
 depends: ce-oem-wwan/usb-hotspot-auto
 requires:
+  manifest.has_wwan_module_via_at_command == 'True'
   manifest.has_wwan_hotspot == 'True'

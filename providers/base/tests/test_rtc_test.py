@@ -212,6 +212,24 @@ class GetRtcSecondsTests(unittest.TestCase):
             rtc_test.get_rtc_seconds("RTC_WAKEUP_SECONDS", "rtc1", 30), 120
         )
 
+    def test_dev_path_and_name_match_each_other(self):
+        cases = [
+            ("rtc1:120", "/dev/rtc1"),
+            ("/dev/rtc1:120", "rtc1"),
+            ("/dev/rtc1:120", "/dev/rtc1"),
+        ]
+        for value, rtc in cases:
+            with self.subTest(value=value, rtc=rtc):
+                with patch.dict(
+                    os.environ, {"RTC_WAKEUP_SECONDS": value}, clear=True
+                ):
+                    self.assertEqual(
+                        rtc_test.get_rtc_seconds(
+                            "RTC_WAKEUP_SECONDS", rtc, 30
+                        ),
+                        120,
+                    )
+
     @patch.dict(os.environ, {"RTC_WAKEUP_SECONDS": "rtc1:120"}, clear=True)
     def test_unlisted_device_uses_default(self):
         self.assertEqual(

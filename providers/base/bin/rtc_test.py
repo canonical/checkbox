@@ -127,7 +127,7 @@ def get_rtc_seconds(env_name, rtc, default):
                 f"Invalid {env_name} entry: '{entry}', seconds "
                 "must be a positive integer"
             )
-        if name.strip() == rtc:
+        if os.path.basename(name.strip()) == os.path.basename(rtc):
             return seconds
     return default
 

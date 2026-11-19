@@ -1,9 +1,8 @@
 import json
 import logging
-from pathlib import Path
 from functools import wraps
 from itertools import takewhile
-
+from pathlib import Path
 
 from plainbox.impl.secure.rfc822 import load_rfc822_records
 
@@ -221,7 +220,7 @@ def translate_single_multiline_stringable_values(value):
 def translate_include(value):
     original_value = value
     includes = value.splitlines()
-    from ruamel.yaml.comments import CommentedSeq, CommentedMap
+    from ruamel.yaml.comments import CommentedMap, CommentedSeq
 
     to_r = CommentedSeq()
     for inclusion in includes:
@@ -234,9 +233,7 @@ def translate_include(value):
         if overrides:  # we can assume there is value as well here
             if " " in overrides or "," in overrides:
                 raise RuntimeError(
-                    "Multi overrides are not supported, remove: {}".format(
-                        overrides
-                    )
+                    f"Multi overrides are not supported, remove: {overrides}"
                 )
             overridden, override_value = overrides.strip().split(
                 "="
@@ -261,9 +258,7 @@ def translate_include(value):
                 to_r.yaml_set_start_comment(comment)
         else:
             raise RuntimeError(
-                "This should be unreachable code, report it with: {}".format(
-                    original_value
-                )
+                f"This should be unreachable code, report it with: {original_value}"
             )
     return to_r
 
@@ -271,9 +266,7 @@ def translate_include(value):
 def translate_options(value):
     if "#" in value:
         raise RuntimeError(
-            "Comments on options are not supported, remove it from: {}".format(
-                value
-            )
+            f"Comments on options are not supported, remove it from: {value}"
         )
     return [x.strip() for x in value.split(",")]
 
@@ -284,6 +277,7 @@ field_translators = {
     "Depends": identity,
     "Suggests": identity,
     "Recommends": identity,
+    "mime-type": identity,
     "id": commentable_value,
     "unit": commentable_value,
     "name": commentable_value,
@@ -361,20 +355,19 @@ def translate_unit(unit_dict: dict) -> dict:
         try:
             translated = field_translators[key](value)
             to_return[key] = translated
-        except KeyError as e:
+        except KeyError:
+            unit_id_repr = unit_dict.get("id", str(unit_dict))
+            field = key
             logging.warning(
-                (
-                    "Unit {} has invalid field '{}', is it a typo? "
-                    "Dumping it as-is in the unit"
-                ).format(unit_dict.get("id", str(unit_dict)), key)
+                f"Unit {unit_id_repr} has invalid field '{field}', is it a "
+                "typo? Dumping it as-is in the unit"
             )
             to_return[key] = value
         except JinjaError as e:
+            field = unit_dict.get("id", str(unit_dict))
             logging.warning(
-                (
-                    "Refusing to translate field '{}' of unit '{}' as it "
-                    "contains jinja markers. Dumping it as-is in the unit"
-                ).format(key, unit_dict.get("id", str(unit_dict)))
+                f"Refusing to translate field '{key}' of unit '{field}' as it "
+                "contains jinja markers. Dumping it as-is in the unit"
             )
             to_return[key] = value
         except CommentedError as e:

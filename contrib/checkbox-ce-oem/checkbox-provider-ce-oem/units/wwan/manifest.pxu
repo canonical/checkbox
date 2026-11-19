@@ -6,3 +6,11 @@ _prompt:
   using raw AT commands sent directly over its serial control
   interface (WWAN_CONTROL_IF), instead of via ModemManager?
 value-type: bool
+
+unit: manifest entry
+id: has_wwan_hotspot
+_name: WWAN module used as a USB hotspot
+_prompt:
+  Does this device have a WWAN module attached as a USB cdc-acm
+  device?
+value-type: bool

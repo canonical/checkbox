@@ -27,6 +27,7 @@ Test definitions for plainbox.impl.exporter.html module
 """
 
 import io
+import re
 from unittest import TestCase, mock
 
 try:
@@ -186,6 +187,81 @@ class HTMLExporterTests(TestCase):
         return self._get_session_manager(
             "blocker", "non-blocker", "non-blocker"
         )
+
+    @mock.patch(
+        "plainbox.impl.session.state.collect_system_information",
+        return_value={},
+    )
+    def test_log_links_after_automatically_skipped_job(self, mock_sys_info):
+        job4 = JobDefinition({"id": "job_id4", "_summary": "job 4"})
+        self.session_state.add_unit(job4)
+        self.session_state.update_job_result(job4, self.result_fail)
+        self.session_state.update_job_result(
+            self.job3,
+            MemoryJobResult(
+                {
+                    "outcome": IJobResult.OUTCOME_MANUAL_SKIP,
+                    "io_log": [(0, "stdout", b"Manually skipped\n")],
+                }
+            ),
+        )
+        exporter_units = self._get_all_exporter_units()
+        for exporter_id in ("html", "html-multi-page"):
+            exporter = Jinja2SessionStateExporter(
+                exporter_unit=exporter_units[
+                    "com.canonical.plainbox::" + exporter_id
+                ]
+            )
+            for outcome in (
+                IJobResult.OUTCOME_NOT_SUPPORTED,
+                IJobResult.OUTCOME_SKIPPED_DEPENDENCY,
+                IJobResult.OUTCOME_SKIPPED_RESOURCE,
+                IJobResult.OUTCOME_SKIPPED_MANIFEST,
+            ):
+                with self.subTest(exporter=exporter_id, outcome=outcome):
+                    self.session_state.update_job_result(
+                        self.job1, MemoryJobResult({"outcome": outcome})
+                    )
+                    stream = io.BytesIO()
+                    if exporter_id == "html":
+                        exporter.dump_from_session_manager(
+                            self.session_manager, stream
+                        )
+                    else:
+                        exporter.dump_from_session_manager_list(
+                            [self.session_manager], stream
+                        )
+                    report = stream.getvalue().decode("utf-8")
+                    for job in (self.job2, self.job3, job4):
+                        row = re.search(
+                            r'<tr>\s*<td data-filtertext="{}".*?</tr>'.format(
+                                re.escape(job.id)
+                            ),
+                            report,
+                            re.DOTALL,
+                        )
+                        self.assertIsNotNone(row)
+                        link = re.search(r'href="#([^"]+)"', row.group())
+                        self.assertIsNotNone(link)
+                        page = re.search(
+                            r'<div[^>]* id="{}"[^>]*>.*?</pre>'.format(
+                                re.escape(link.group(1))
+                            ),
+                            report,
+                            re.DOTALL,
+                        )
+                        self.assertIsNotNone(page)
+                        self.assertIn(
+                            "<h1>{}</h1>".format(job.tr_summary()),
+                            page.group(),
+                        )
+                        result = self.session_state.job_state_map[
+                            job.id
+                        ].result
+                        self.assertIn(
+                            result.io_log_as_flat_text + "</pre>",
+                            page.group(),
+                        )
 
     @mock.patch(
         "plainbox.impl.session.state.collect_system_information",

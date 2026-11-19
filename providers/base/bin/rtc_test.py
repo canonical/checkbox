@@ -210,7 +210,10 @@ def build_parser() -> argparse.ArgumentParser:
         "--seconds",
         type=int,
         default=30,
-        help="Wakeup delay (overridden per device by $RTC_WAKEUP_SECONDS)",
+        help=(
+            "Wakeup delay in seconds for every RTC, unless overridden "
+            "per device by $RTC_WAKEUP_SECONDS"
+        ),
     )
     p_battery.set_defaults(func=cmd_battery)
 
@@ -236,13 +239,19 @@ def build_parser() -> argparse.ArgumentParser:
         "--seconds",
         type=int,
         default=30,
-        help="Wakeup delay (overridden per device by $RTC_WAKEUP_SECONDS)",
+        help=(
+            "Wakeup delay in seconds for every RTC, unless overridden "
+            "per device by $RTC_WAKEUP_SECONDS"
+        ),
     )
     p_alarm.add_argument(
         "--timeout",
         type=int,
         default=60,
-        help="rtcwake timeout (overridden per device by $RTC_WAKEUP_TIMEOUT)",
+        help=(
+            "rtcwake timeout in seconds for every RTC, unless overridden "
+            "per device by $RTC_WAKEUP_TIMEOUT"
+        ),
     )
     p_alarm.set_defaults(func=cmd_alarm)
 

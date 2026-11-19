@@ -59,12 +59,14 @@ depends: rtc/rtc_read_{rtc}
 _summary: Check that RTC alarm of {rtc} works
 _purpose:
  Set a wakealarm on {rtc} with rtcwake and check that it fires.
- The wakeup time and timeout default to the --seconds and --timeout
- values below. Override them per device with RTC_WAKEUP_SECONDS and
- RTC_WAKEUP_TIMEOUT, each a comma-separated list of <rtc>:<seconds>
- entries (e.g. RTC_WAKEUP_SECONDS="rtc1:120" and
- RTC_WAKEUP_TIMEOUT="rtc1:150"). The timeout must be greater than the
- wakeup time. Devices listed in UNSUPPORTED_RTC_ALARM_DEVICES
+ The job command passes --seconds 30 and --timeout 60, which apply to
+ every RTC, e.g. "--timeout 60" is equivalent to
+ RTC_WAKEUP_TIMEOUT="rtc0:60,rtc1:60,...".
+ RTC_WAKEUP_SECONDS and RTC_WAKEUP_TIMEOUT, each a comma-separated list
+ of <rtc>:<seconds> entries, override them only for the RTCs they list
+ (e.g. RTC_WAKEUP_SECONDS="rtc1:120" and RTC_WAKEUP_TIMEOUT="rtc1:150");
+ every other RTC keeps the command values. The timeout must be greater
+ than the wakeup time. Devices listed in UNSUPPORTED_RTC_ALARM_DEVICES
  (e.g. "rtc1,rtc2") are skipped.
 plugin: shell
 user: root

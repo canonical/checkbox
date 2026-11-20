@@ -162,6 +162,7 @@ _description:
 estimated_duration: 3600
 include:
 nested_part:
+    genio-desktop-manual
     ce-oem-manual
     com.canonical.certification::client-cert-iot-desktop-24-04-manual
     after-suspend-ce-oem-manual
@@ -178,6 +179,7 @@ _description:
     all of the automated tests used to validate the IoT devices.
 include:
 nested_part:
+    genio-desktop-automated
     rz-core-automated
     ce-oem-automated
     com.canonical.certification::client-cert-iot-desktop-24-04-automated

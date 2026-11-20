@@ -189,6 +189,7 @@ include:
     com.canonical.certification::disk/encryption/check-fde-tpm                 # keep if FDE with TPM is enabled
     com.canonical.certification::ubuntucore/kernel-failboot-.*                 # keep if kernel snap is not pc-kernel
 nested_part:
+    genio-core-manual
     dragonwing-core-manual
     jetson-core-manual
     ce-oem-manual
@@ -251,6 +252,7 @@ include:
     com.canonical.certification::miscellanea/secure_boot_mode_.*               # keep if secure boot is enabled
     com.canonical.certification::disk/encryption/detect                        # keep if FDE is enabled
 nested_part:
+    genio-core-automated
     dragonwing-core-automated
     rz-core-automated
     jetson-core-automated

@@ -17,10 +17,12 @@ PCIBUS_OFFLOAD_FORMAT=pci-"${PCIBUS//[:.]/_}"
 # Some environment variables(like XDG_SESSION_TYPE) are set by some services
 # (like graphical-session.target), but during system suspend/resume, they will
 # be unset.
+# In remote runs XDG_SESSION_TYPE can also arrive as 'tty' (copied from an SSH
+# login of the user), so look up the seat0 session in that case too.
 ensure_xdg_session_type() {
     local max_attempts=5
     local attempt=0
-    while [ -z "${XDG_SESSION_TYPE}" ]; do
+    while [ -z "${XDG_SESSION_TYPE}" ] || [ "${XDG_SESSION_TYPE}" = "tty" ]; do
         sleep 1
 
         echo "Waiting for XDG_SESSION_TYPE to be set"

@@ -319,6 +319,12 @@ GPU0:
 FAIL: ['vulkaninfo', '--summary'] exited with returncode -11
 ```
 
+The display variables `DISPLAY`, `WAYLAND_DISPLAY` and `XAUTHORITY` that
+Checkbox inherits from the desktop session are removed before `vulkaninfo`
+runs. Otherwise `vulkaninfo --summary` also probes X surfaces and can exit 1
+with `ERROR_SURFACE_LOST_KHR` / `XIO: fatal IO error` (e.g. on Xwayland),
+even though the GPU is reported correctly.
+
 3. A software renderer is reported for the target device's block:
 
 ```

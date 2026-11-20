@@ -107,6 +107,19 @@ class TestVulkaninfoEnviron(unittest.TestCase):
     @patch.dict(
         os.environ,
         {
+            "DISPLAY": ":0",
+            "WAYLAND_DISPLAY": "wayland-0",
+            "XAUTHORITY": "/run/user/1000/auth",
+            "A": "1",
+        },
+        clear=True,
+    )
+    def test_drops_display_variables(self):
+        self.assertEqual(vulkaninfo_test.vulkaninfo_environ(), {"A": "1"})
+
+    @patch.dict(
+        os.environ,
+        {
             "LD_LIBRARY_PATH": "/snap/checkbox24/current/usr/lib",
             "VULKANINFO_LD_LIBRARY_PATH": "/opt/gpu/lib",
         },

@@ -64,9 +64,20 @@ def vulkaninfo_environ() -> "dict[str, str]":
     Checkbox also refuses to override an existing LD_LIBRARY_PATH from the
     launcher, so it is replaced here by VULKANINFO_LD_LIBRARY_PATH (or
     dropped when unset).
+
+    The display variables Checkbox inherits from the desktop session are
+    dropped too: 'vulkaninfo --summary' then probes X surfaces and can die
+    with ERROR_SURFACE_LOST_KHR / XIO errors (e.g. on Xwayland), failing
+    although the GPU is reported correctly.
     """
     env = dict(os.environ)
-    env.pop("LD_LIBRARY_PATH", None)
+    for name in (
+        "LD_LIBRARY_PATH",
+        "DISPLAY",
+        "WAYLAND_DISPLAY",
+        "XAUTHORITY",
+    ):
+        env.pop(name, None)
     ld_library_path = os.environ.get("VULKANINFO_LD_LIBRARY_PATH")
     if ld_library_path:
         env["LD_LIBRARY_PATH"] = ld_library_path

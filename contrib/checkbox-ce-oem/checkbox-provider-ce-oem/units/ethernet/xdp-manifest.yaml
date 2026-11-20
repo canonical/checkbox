@@ -1,0 +1,4 @@
+unit: manifest entry
+id: has_xdp_native_mode
+name: Does this platform support XDP native mode?
+value-type: bool

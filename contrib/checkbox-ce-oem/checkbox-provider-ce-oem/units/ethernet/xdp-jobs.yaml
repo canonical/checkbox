@@ -1,0 +1,217 @@
+id: ce-oem-ethernet/xdp-dmesg-log
+category_id: com.canonical.plainbox::ethernet
+summary: Attach dmesg log for XDP test evidence
+purpose: |
+  Capture the full kernel ring buffer (dmesg) as an attachment so the
+  XDP test results are backed by real system logs.
+plugin: attachment
+user: root
+estimated_duration: 1s
+imports:
+  - from com.canonical.plainbox import manifest
+requires:
+  - manifest.has_xdp_native_mode == 'True'
+command: |
+  dmesg
+  exit 0
+---
+id: ce-oem-ethernet/xdp-check-kernel-config
+category_id: com.canonical.plainbox::ethernet
+summary: Check kernel config for XDP support
+purpose: |
+  Verify the kernel has the required BPF options enabled for XDP.
+  CONFIG_BPF, CONFIG_BPF_SYSCALL and CONFIG_BPF_JIT must all be set.
+plugin: shell
+user: root
+estimated_duration: 1s
+imports:
+  - from com.canonical.plainbox import manifest
+requires:
+  - manifest.has_xdp_native_mode == 'True'
+command: |
+  # Locate the kernel config: Classic uses /boot/config-$(uname -r),
+  # while some images expose /proc/config.gz.
+  config=""
+  if [ -r "/boot/config-$(uname -r)" ]; then
+      config="/boot/config-$(uname -r)"
+  elif [ -r /proc/config.gz ]; then
+      config="/proc/config.gz"
+  fi
+  if [ -z "$config" ]; then
+      echo "Fail: no kernel config found (/boot/config-* or /proc/config.gz)"
+      exit 1
+  fi
+  for opt in CONFIG_BPF CONFIG_BPF_SYSCALL CONFIG_BPF_JIT; do
+      if [ "$config" = "/proc/config.gz" ]; then
+          if ! zgrep -q "^${opt}=y" "$config" 2>/dev/null; then
+              echo "Fail: ${opt} is not enabled"
+              exit 1
+          fi
+      else
+          if ! grep -q "^${opt}=y" "$config" 2>/dev/null; then
+              echo "Fail: ${opt} is not enabled"
+              exit 1
+          fi
+      fi
+  done
+  echo "Success: required BPF kernel options are enabled"
+---
+id: ce-oem-ethernet/xdp-port-list
+category_id: com.canonical.plainbox::ethernet
+summary: List interfaces usable for XDP tests
+purpose: |
+  Detect physical Ethernet interfaces with link (wireless, WWAN and
+  virtual interfaces are excluded) and emit one interface record per
+  port. Shared by all single-port XDP tests so they only run on
+  interfaces that XDP native mode can be attached to.
+plugin: resource
+user: root
+estimated_duration: 1s
+command: resource_wrapper.sh -- xdp_test.py --action list-ports
+---
+id: ce-oem-ethernet/xdp-port-pairing
+category_id: com.canonical.plainbox::ethernet
+summary: Generate XDP redirect port pairings
+purpose: |
+  Detect physical Ethernet interfaces with link and emit ring-paired
+  source/target records for the redirect test. With fewer than two
+  interfaces no records are emitted.
+plugin: resource
+user: root
+estimated_duration: 1s
+command: resource_wrapper.sh -- xdp_test.py --action pair-ports
+---
+unit: template
+template-engine: jinja2
+template-resource: ce-oem-ethernet/xdp-port-pairing
+template-unit: job
+template-id: ce-oem-ethernet/xdp-redirect
+id: ce-oem-ethernet/xdp-redirect-{{ source }}
+category_id: com.canonical.plainbox::ethernet
+summary: XDP redirect from {{ source }} to {{ target }}
+template-summary: XDP redirect between paired ports
+purpose: |
+  Verify XDP_REDIRECT forwards packets from {{ source }} to {{ target }}
+  in native mode.
+  WARNING: attaching the XDP program may reset {{ source }}. Do not run
+  this on the interface used by the Checkbox remote/SSH session.
+plugin: shell
+user: root
+flags:
+  - also-after-suspend
+estimated_duration: 15s
+imports:
+  - from com.canonical.plainbox import manifest
+  - from com.canonical.certification import executable
+requires:
+  - manifest.has_xdp_native_mode == 'True'
+  - executable.name == 'xdp-bench'
+command: xdp_test.py --action redirect --interface {{ source }} --target {{ target }}
+---
+unit: template
+template-engine: jinja2
+template-resource: ce-oem-ethernet/xdp-port-list
+template-unit: job
+template-id: ce-oem-ethernet/xdp-drop-native
+id: ce-oem-ethernet/xdp-drop-native-{{ interface }}
+category_id: com.canonical.plainbox::ethernet
+summary: XDP drop on {{ interface }} (native mode)
+template-summary: XDP drop (native mode)
+purpose: |
+  Verify XDP can drop packets at the driver level on {{ interface }}
+  in native mode.
+  WARNING: all traffic received on {{ interface }} is discarded while
+  the test runs and attaching the XDP program may reset the NIC. Do not
+  run this on the interface used by the Checkbox remote/SSH session.
+plugin: shell
+user: root
+flags:
+  - also-after-suspend
+estimated_duration: 15s
+imports:
+  - from com.canonical.plainbox import manifest
+  - from com.canonical.certification import executable
+requires:
+  - manifest.has_xdp_native_mode == 'True'
+  - executable.name == 'xdp-bench'
+command: xdp_test.py --action drop --interface {{ interface }}
+---
+unit: template
+template-engine: jinja2
+template-resource: ce-oem-ethernet/xdp-port-list
+template-unit: job
+template-id: ce-oem-ethernet/xdp-tx-native
+id: ce-oem-ethernet/xdp-tx-native-{{ interface }}
+category_id: com.canonical.plainbox::ethernet
+summary: XDP tx (hairpin) on {{ interface }} (native mode)
+template-summary: XDP tx hairpin (native mode)
+purpose: |
+  Verify XDP_TX bounces packets back out {{ interface }} in native mode.
+  WARNING: attaching the XDP program may reset {{ interface }}. Do not
+  run this on the interface used by the Checkbox remote/SSH session.
+plugin: shell
+user: root
+flags:
+  - also-after-suspend
+estimated_duration: 15s
+imports:
+  - from com.canonical.plainbox import manifest
+  - from com.canonical.certification import executable
+requires:
+  - manifest.has_xdp_native_mode == 'True'
+  - executable.name == 'xdp-bench'
+command: xdp_test.py --action tx --interface {{ interface }}
+---
+unit: template
+template-engine: jinja2
+template-resource: ce-oem-ethernet/xdp-port-list
+template-unit: job
+template-id: ce-oem-ethernet/xdp-pass-native
+id: ce-oem-ethernet/xdp-pass-native-{{ interface }}
+category_id: com.canonical.plainbox::ethernet
+summary: XDP pass on {{ interface }} (native mode)
+template-summary: XDP pass (native mode)
+purpose: |
+  Verify XDP_PASS allows packets through to the kernel stack on
+  {{ interface }} in native mode.
+  WARNING: attaching the XDP program may reset {{ interface }}. Do not
+  run this on the interface used by the Checkbox remote/SSH session.
+plugin: shell
+user: root
+flags:
+  - also-after-suspend
+estimated_duration: 15s
+imports:
+  - from com.canonical.plainbox import manifest
+  - from com.canonical.certification import executable
+requires:
+  - manifest.has_xdp_native_mode == 'True'
+  - executable.name == 'xdp-bench'
+command: xdp_test.py --action pass --interface {{ interface }}
+---
+unit: template
+template-engine: jinja2
+template-resource: ce-oem-ethernet/xdp-port-list
+template-unit: job
+template-id: ce-oem-ethernet/xdp-redirect-cpu
+id: ce-oem-ethernet/xdp-redirect-cpu-{{ interface }}
+category_id: com.canonical.plainbox::ethernet
+summary: XDP redirect-cpu on {{ interface }} (native mode)
+template-summary: XDP redirect to CPU (native mode)
+purpose: |
+  Verify XDP redirect to a specific CPU on {{ interface }} in native
+  mode.
+  WARNING: attaching the XDP program may reset {{ interface }}. Do not
+  run this on the interface used by the Checkbox remote/SSH session.
+plugin: shell
+user: root
+flags:
+  - also-after-suspend
+estimated_duration: 15s
+imports:
+  - from com.canonical.plainbox import manifest
+  - from com.canonical.certification import executable
+requires:
+  - manifest.has_xdp_native_mode == 'True'
+  - executable.name == 'xdp-bench'
+command: xdp_test.py --action redirect-cpu --interface {{ interface }}

@@ -41,6 +41,9 @@ import uuid
 import psutil
 from checkbox_support.disk_support import Disk
 
+# Upper limit (4 hours) for the memory stressors' variable run time
+MAX_VRT_SECONDS = 14400
+
 # Swap filename
 my_swap = None
 
@@ -256,7 +259,9 @@ def stress_memory(args):
         oom_avoid_bytes = "5%"
     else:
         oom_avoid_bytes = "10%"
-    vrt = args.base_time + total_mem_in_gb * args.time_per_gig
+    vrt = min(
+        args.base_time + total_mem_in_gb * args.time_per_gig, MAX_VRT_SECONDS
+    )
     print(f"Total memory is {total_mem_in_gb:.1f} GiB")
     print(f"Constant run time is {args.base_time} seconds per stressor")
     print(f"Variable run time is {vrt:.0f} seconds per stressor")

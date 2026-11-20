@@ -20,7 +20,15 @@ import unittest
 from subprocess import CalledProcessError, TimeoutExpired
 from unittest.mock import MagicMock, mock_open, patch
 
-from stress_ng_test import main, num_numa_nodes, swap_space_ok
+from argparse import Namespace
+
+from stress_ng_test import (
+    MAX_VRT_SECONDS,
+    main,
+    num_numa_nodes,
+    stress_memory,
+    swap_space_ok,
+)
 
 
 class TestMemoryFunctions(unittest.TestCase):
@@ -64,6 +72,43 @@ class TestMemoryFunctions(unittest.TestCase):
         self, psutil_swap_memory_mock, open_mock, os_chmod_mock, run_mock
     ):
         self.assertFalse(swap_space_ok(1))
+
+
+@patch("stress_ng_test.StressNg")
+@patch("stress_ng_test.num_numa_nodes", return_value=1)
+@patch("stress_ng_test.swap_space_ok", return_value=True)
+@patch("stress_ng_test.psutil.virtual_memory")
+class TestStressMemoryRuntime(unittest.TestCase):
+    def _vrt_timeouts(self, mem_gib, stress_ng_mock, virtual_memory_mock):
+        virtual_memory_mock.return_value.total = mem_gib * 1024**3
+        stress_ng_mock.return_value.run.return_value = 0
+        args = Namespace(
+            base_time=300,
+            time_per_gig=10,
+            swap_size=0,
+            oom_avoid_bytes=None,
+            keep_swap=True,
+        )
+        stress_memory(args)
+        return {
+            call[1]["sng_timeout"]
+            for call in stress_ng_mock.call_args_list
+            if call[1]["sng_timeout"] != args.base_time
+        }
+
+    def test_vrt_below_limit_is_calculated(
+        self, virtual_memory_mock, swap_mock, numa_mock, stress_ng_mock
+    ):
+        timeouts = self._vrt_timeouts(64, stress_ng_mock, virtual_memory_mock)
+        self.assertEqual(timeouts, {300 + 64 * 10})
+
+    def test_vrt_above_limit_is_capped(
+        self, virtual_memory_mock, swap_mock, numa_mock, stress_ng_mock
+    ):
+        timeouts = self._vrt_timeouts(
+            2048, stress_ng_mock, virtual_memory_mock
+        )
+        self.assertEqual(timeouts, {MAX_VRT_SECONDS})
 
 
 @patch("os.geteuid", return_value=0)

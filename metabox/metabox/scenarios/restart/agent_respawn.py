@@ -28,6 +28,8 @@ from metabox.core.actions import (
     SelectTestPlan,
     Send,
     Signal,
+    Sleep,
+    ExpectNot,
     Start,
 )
 from metabox.core.scenario import Scenario
@@ -153,6 +155,9 @@ class LocalResumePreservesRejectedJobsStateMap(Scenario):
         Expect("[ ]"),
         Send("T"),
         Expect("Waiting for the system to shut down or reboot"),
+        # The message is printed before reboot-emulator kills checkbox-cli,
+        # starting again before that would get the new instance killed
+        Sleep(5),
         Start(),
         Expect("Do you want to submit 'upload to certification' report?"),
         Signal(keys.SIGINT),

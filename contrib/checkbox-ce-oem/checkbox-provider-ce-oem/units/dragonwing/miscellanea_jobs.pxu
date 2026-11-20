@@ -11,3 +11,23 @@ requires:
 _summary: Check if zram is enabled
 command:
     dragonwing_platform_features_test.py check-zram-enablement
+
+id: check_dragonwing_soc_info
+plugin: shell
+_summary: Check the type of Dragonwing SoC
+estimated_duration: 0.1
+imports: from com.canonical.plainbox import manifest
+requires:
+    manifest.is_dragonwing_series == 'True'
+environ: DRAGONWING_SOC
+command: resource_dragonwing_soc_info.sh
+
+id: check_dragonwing_platform_info
+plugin: shell
+_summary: Check the model type of Dragonwing platform
+estimated_duration: 0.1
+imports: from com.canonical.plainbox import manifest
+requires:
+    manifest.is_dragonwing_series == 'True'
+environ: DRAGONWING_PLATFORM
+command: resource_dragonwing_platform_info.sh

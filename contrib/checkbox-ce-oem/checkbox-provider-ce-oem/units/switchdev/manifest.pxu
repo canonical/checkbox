@@ -1,0 +1,11 @@
+unit: manifest entry
+id: has_switchdev_test_setup
+_prompt: Switchdev fabric test setup:
+_name: Standing switch test setup wired (pair-loop cables + frozen bridge/VLAN chain config)?
+value-type: bool
+
+unit: manifest entry
+id: has_switchdev_stp_fixture
+_prompt: Switchdev fabric test setup:
+_name: STP loop fixture provisioned (same-VLAN cabled pair, admin-down)?
+value-type: bool

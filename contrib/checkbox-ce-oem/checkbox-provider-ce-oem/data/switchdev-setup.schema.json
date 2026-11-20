@@ -1,0 +1,45 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Switchdev test-setup configuration",
+  "description": "Test-setup description consumed by bin/switchdev_test.py. Point checkbox config var SWITCHDEV_SETUP_CONFIG at a file following this schema (bare filenames resolve against the provider data/ directory). Each job only requires the keys it uses.",
+  "type": "object",
+  "properties": {
+    "bridge": {
+      "type": "string",
+      "description": "Bridge device name (default br0)"
+    },
+    "expected_ports": {
+      "type": "integer",
+      "description": "Expected number of fabric netdevs (phys_switch_id). Required by: port-count"
+    },
+    "reserved_ports": {
+      "type": "array",
+      "items": {"type": "string"},
+      "description": "Netdevs tests must never touch (infra/management uplink). Used by: resource, link-flap"
+    },
+    "vlan_baseline": {
+      "type": "string",
+      "description": "Path of the saved known-good `bridge vlan` baseline JSON. Required by: vlan-drift"
+    },
+    "chain": {
+      "type": "object",
+      "description": "Standing loop-cable chain endpoints. Required by: offload-proof",
+      "properties": {
+        "entry_svi": {"type": "string", "description": "Pre-provisioned chain-entry SVI (admin-down by default)"},
+        "exit_svi": {"type": "string", "description": "Pre-provisioned chain-exit SVI (admin-down by default)"},
+        "entry_ip": {"type": "string", "description": "CIDR for the entry SVI, e.g. 10.101.0.1/24"},
+        "exit_ip": {"type": "string", "description": "CIDR for the exit SVI, same subnet"},
+        "mid_port": {"type": "string", "description": "A fabric port mid-chain whose counters must carry the test traffic"},
+        "rate": {"type": "string", "description": "iperf3 UDP target rate (default 500M)"}
+      },
+      "required": ["entry_svi", "exit_svi", "entry_ip", "exit_ip", "mid_port"]
+    },
+    "stp_fixture_ports": {
+      "type": "array",
+      "items": {"type": "string"},
+      "minItems": 2,
+      "maxItems": 2,
+      "description": "The same-VLAN cabled fixture pair, admin-down in default state. Required by: stp-fixture"
+    }
+  }
+}

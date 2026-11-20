@@ -218,4 +218,11 @@ PTP4L_PTP_MINOR_VERSION={minor}  (optional, linuxptp >= 4.0 only, i.e. noble; ja
 PTP4L_REARM_HWTSTAMP=1           (optional, default off; re-programs NIC timestamping + sets the PHC before the test, drops the link briefly)
 e.g. PTP4L_TRANSPORT_SPECIFIC=1 PTP4L_DELAY_MECHANISM=P2P   (gPTP: set both; grandmaster on a direct link with --transportSpecific=1 --delay_mechanism=P2P)
 See checkbox-provider-ce-oem/units/ptp/README.md
+
+id: ce-oem-kernel-driver/pci-driver-conflict
+PCI_DRIVER_CONFLICT_IGNORE={module1} {module2} ...   (optional, spaces or commas)
+Loaded modules that match a PCI device bound to another module are not
+reported. Only list a module that is correct to load on this device;
+name the reason next to it.
+e.g. PCI_DRIVER_CONFLICT_IGNORE=module_a
 ```

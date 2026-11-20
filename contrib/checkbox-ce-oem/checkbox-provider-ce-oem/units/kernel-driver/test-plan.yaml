@@ -1,0 +1,14 @@
+id: ce-oem-kernel-driver-full
+unit: test plan
+name: Kernel driver tests
+description: Full kernel driver tests for devices
+include: []
+nested_part:
+  - ce-oem-kernel-driver-automated
+---
+id: ce-oem-kernel-driver-automated
+unit: test plan
+name: Kernel driver auto tests
+description: Automated kernel driver tests for devices
+include:
+  - ce-oem-kernel-driver/pci-driver-conflict

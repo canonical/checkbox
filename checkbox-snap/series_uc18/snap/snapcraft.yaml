@@ -51,6 +51,7 @@ apps:
   checkbox-cli:
     command-chain: [bin/wrapper_local]
     command: bin/checkbox-cli-wrapper
+    completer: bin/checkbox-cli.bash
     plugs: &standard [home, network-bind, hardware-observe, bluez, bluetooth-control,
       gpio, modem-manager, mount-observe, network-manager, pulseaudio, serial-port,
       system-observe, tpm, udisks2]

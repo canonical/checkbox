@@ -12,6 +12,7 @@ These how-to guides cover key operations and processes in Checkbox.
    agent-service
    dispatch-lab-job
    freeze-checkbox-version
+   shell-completion
    launcher/*
    using-match
    using-setup-include

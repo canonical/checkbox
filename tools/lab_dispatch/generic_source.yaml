@@ -42,12 +42,12 @@ test_data:
     # clone the Checkbox revision without history (easier for slow systems, preserves RAM/storage/networking)
     _run git_get_shallow https://github.com/canonical/checkbox.git commit $CHECKBOX_REVISION
 
-    _run wait-for-packages-complete
+    wait-for-packages-complete
     _run python3 build_install_deb.py --clean checkbox/checkbox-ng \
         checkbox/checkbox-support checkbox/providers/resource \
         checkbox/providers/base checkbox/providers/sru
     _run sudo systemctl restart checkbox-ng
-    _run wait-for-packages-complete
+    wait-for-packages-complete
 
     git_get_shallow https://github.com/canonical/checkbox.git commit $CHECKBOX_REVISION
     pipx install checkbox/checkbox-ng

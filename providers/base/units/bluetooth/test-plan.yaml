@@ -1,0 +1,204 @@
+id: bluetooth-cert-full
+unit: test plan
+name: Bluetooth tests (Full Cert tests)
+description: Bluetooth tests
+include: []
+nested_part:
+  - com.canonical.certification::bluetooth-cert-manual
+  - com.canonical.certification::bluetooth-cert-automated
+---
+id: bluetooth-cert-manual
+unit: test plan
+name: Bluetooth tests (Manual)
+description: Bluetooth tests (Manual)
+include:
+  - bluetooth4/HOGP-mouse:
+      certification-status: blocker
+  - bluetooth4/HOGP-keyboard:
+      certification-status: blocker
+  - bluetooth/audio-a2dp:
+      certification-status: blocker
+  - bluetooth/audio_record_playback:
+      certification-status: blocker
+---
+id: bluetooth-cert-automated
+unit: test plan
+name: Bluetooth tests (automated)
+description: Bluetooth tests (automated)
+include:
+  - bluetooth/detect:
+      certification-status: blocker
+  - bluetooth/detect-output:
+      certification-status: blocker
+  - bluetooth/bluetooth_obex_send:
+      certification-status: blocker
+  - bluetooth4/beacon_eddystone_url_interface:
+      certification-status: blocker
+  - bluetooth/bluetooth-state-synchronization
+bootstrap_include:
+  - device
+---
+id: bluetooth-cert-blockers
+unit: test plan
+name: Bluetooth tests (certification blockers only)
+description: Bluetooth tests (certification blockers only)
+include:
+  - bluetooth4/HOGP-mouse:
+      certification-status: blocker
+  - bluetooth4/HOGP-keyboard:
+      certification-status: blocker
+  - bluetooth/audio-a2dp:
+      certification-status: blocker
+  - bluetooth/audio_record_playback:
+      certification-status: blocker
+---
+id: bluetooth-full
+unit: test plan
+name: Bluetooth tests (QA tests)
+description: QA tests for Bluetooth
+estimated_duration: 6m
+include: []
+nested_part:
+  - bluetooth-manual
+  - bluez-automated
+---
+id: bluetooth-manual
+unit: test plan
+name: Manual Bluetooth tests
+description: Manual QA tests for Bluetooth
+estimated_duration: 5m
+include:
+  - bluetooth/keyboard-manual:
+      certification-status: blocker
+---
+id: bluez-automated
+unit: test plan
+name: Automated tests for bluez
+description: Automated tests for bluez
+estimated_duration: 1m
+include:
+  - bluetooth/detect
+  - bluetooth/bluez-controller-detect
+  - bluetooth/bluez-internal-rfcomm-tests_.*
+  - bluetooth/bluez-internal-hci-tests_.*
+  - bluetooth/bluez-internal-uc-tests_.*
+  - bluetooth/bluez-internal-bnep-tests_.*
+  - bluetooth4/beacon_eddystone_url_.*:
+      certification-status: blocker
+  - bluetooth/bluetooth_obex_send
+bootstrap_include:
+  - device
+  - bluez-internal-rfcomm-tests
+  - bluez-internal-hci-tests
+  - bluez-internal-uc-tests
+  - bluez-internal-bnep-tests
+exclude:
+# Read Country Code is deprecated
+  - 'bluetooth/bluez-internal-hci-tests_Read Country Code'
+  - 'bluetooth/bluez-internal-hci-tests_LE Read Local PK'
+  - 'bluetooth/bluez-internal-hci-tests_Read Local Supported Codecs'
+  - 'bluetooth/bluez-internal-hci-tests_LE Generate DHKey'
+---
+id: after-suspend-bluetooth-full
+unit: test plan
+name: Bluetooth tests (after suspend)
+description: QA tests for Bluetooth
+estimated_duration: 6m
+include: []
+nested_part:
+  - after-suspend-bluetooth-manual
+  - after-suspend-bluez-automated
+---
+id: after-suspend-bluetooth-manual
+unit: test plan
+name: Manual Bluetooth tests (after suspend)
+description: Manual QA tests for Bluetooth
+estimated_duration: 5m
+include:
+  - after-suspend-bluetooth/keyboard-manual
+---
+id: after-suspend-bluez-automated
+unit: test plan
+name: Automated tests for bluez (after suspend)
+description: Automated tests for bluez
+estimated_duration: 1m
+include:
+  - after-suspend-bluetooth/bluez-internal-rfcomm-tests_.*
+  - after-suspend-bluetooth/bluez-internal-hci-tests_.*
+  - after-suspend-bluetooth/bluez-internal-uc-tests_.*
+  - after-suspend-bluetooth/bluez-internal-bnep-tests_.*
+  - after-suspend-bluetooth4/beacon_eddystone_url_.*
+  - after-suspend-bluetooth/bluetooth_obex_send
+bootstrap_include:
+  - device
+  - bluez-internal-rfcomm-tests
+  - bluez-internal-hci-tests
+  - bluez-internal-uc-tests
+  - bluez-internal-bnep-tests
+exclude:
+# Read Country Code is deprecated
+  - 'after-suspend-bluetooth/bluez-internal-hci-tests_Read Country Code'
+  - 'after-suspend-bluetooth/bluez-internal-hci-tests_LE Read Local PK'
+  - 'after-suspend-bluetooth/bluez-internal-hci-tests_Read Local Supported Codecs'
+  - 'after-suspend-bluetooth/bluez-internal-hci-tests_LE Generate DHKey'
+---
+id: after-suspend-bluetooth-cert-full
+unit: test plan
+name: Bluetooth tests full (after suspend)
+description: Bluetooth tests full (after suspend)
+include: []
+nested_part:
+  - com.canonical.certification::after-suspend-bluetooth-cert-manual
+  - com.canonical.certification::after-suspend-bluetooth-cert-automated
+---
+id: after-suspend-bluetooth-cert-manual
+unit: test plan
+name: Bluetooth tests manual (after suspend)
+description: Bluetooth tests manual (after suspend)
+include:
+  - after-suspend-bluetooth4/HOGP-mouse:
+      certification-status: blocker
+  - after-suspend-bluetooth4/HOGP-keyboard:
+      certification-status: blocker
+  - after-suspend-bluetooth/audio-a2dp:
+      certification-status: blocker
+  - after-suspend-bluetooth/audio_record_playback:
+      certification-status: blocker
+---
+id: after-suspend-bluetooth-cert-automated
+unit: test plan
+name: Automated Bluetooth tests (after suspend)
+description: Automated Bluetooth tests (after suspend)
+include:
+  - after-suspend-bluetooth/detect:
+      certification-status: blocker
+  - after-suspend-bluetooth/detect-output:
+      certification-status: blocker
+  - after-suspend-bluetooth/bluetooth_obex_send:
+      certification-status: blocker
+  - after-suspend-bluetooth4/beacon_eddystone_url_interface:
+      certification-status: blocker
+bootstrap_include:
+  - device
+---
+id: bluetooth-base-26-04-manual
+unit: test plan
+name: Bluetooth for 26.04 (Manual)
+description: Manual tests for bluetooth
+include: []
+nested_part:
+  - submission-cert-full
+  - bluetooth-cert-manual
+  - after-suspend-bluetooth-cert-manual
+  - info-attachment-cert-full
+---
+id: bluetooth-base-26-04-automated
+unit: test plan
+name: Bluetooth for 26.04 (Automated)
+description: Automated tests for bluetooth
+include: []
+nested_part:
+  - bluetooth-cert-automated
+  - after-suspend-bluetooth-cert-automated
+certification_status_overrides:
+  - apply non-blocker to com.canonical.certification::bluetooth4/beacon_eddystone_url_interface

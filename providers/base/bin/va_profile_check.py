@@ -98,8 +98,11 @@ def get_supported_features(output):
     return features
 
 
-def run_vainfo():
-    return check_output(["vainfo"], universal_newlines=True, stderr=STDOUT)
+def run_vainfo(device=None):
+    command = ["vainfo"]
+    if device:
+        command += ["--display", "drm", "--device", device]
+    return check_output(command, universal_newlines=True, stderr=STDOUT)
 
 
 def get_manifest_key(feature):
@@ -111,8 +114,8 @@ def feature_declared(feature):
     return manifest.get(get_manifest_key(feature), False)
 
 
-def cmd_resource():
-    features = get_supported_features(run_vainfo())
+def cmd_resource(device=None):
+    features = get_supported_features(run_vainfo(device))
     for feature, entry in sorted(features.items()):
         print("profile: {}".format(entry["profile"]))
         print("profile_name: {}".format(entry["profile_name"]))
@@ -177,7 +180,11 @@ def main(argv=None):
     resource_parser = subparsers.add_parser(
         "resource", help="emit one resource record per (profile, direction)"
     )
-    resource_parser.set_defaults(func=lambda _args: cmd_resource())
+    resource_parser.add_argument(
+        "--device",
+        help="query this DRM render node instead of the default display",
+    )
+    resource_parser.set_defaults(func=lambda args: cmd_resource(args.device))
     forward_parser = subparsers.add_parser(
         "forward", help="check that a feature is declared in the DUT manifest"
     )

@@ -129,6 +129,15 @@ class TestRunVainfo(TestCase):
             ["vainfo"], universal_newlines=True, stderr=STDOUT
         )
 
+    def test_device_queries_drm_render_node(self):
+        with patch("va_profile_check.check_output") as check_output_mock:
+            run_vainfo("/dev/dri/renderD129")
+        check_output_mock.assert_called_once_with(
+            ["vainfo", "--display", "drm", "--device", "/dev/dri/renderD129"],
+            universal_newlines=True,
+            stderr=STDOUT,
+        )
+
 
 class TestGetSupportedFeatures(TestCase):
     def setUp(self):
@@ -273,6 +282,15 @@ class TestMain(TestCase):
         ):
             with redirect_stdout(StringIO()):
                 self.assertEqual(main(["resource"]), 0)
+
+    def test_resource_with_device(self):
+        with patch(
+            "va_profile_check.run_vainfo",
+            return_value=VAINFO_OUTPUT,
+        ) as run_vainfo_mock:
+            with redirect_stdout(StringIO()):
+                main(["resource", "--device", "/dev/dri/renderD129"])
+        run_vainfo_mock.assert_called_once_with("/dev/dri/renderD129")
 
     def test_reverse(self):
         with patch(

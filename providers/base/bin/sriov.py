@@ -110,16 +110,27 @@ def is_sriov_capable(interface):
         with open(sriov_path, "w", encoding="utf-8") as f:
             f.write("0")
 
-        # Set the desired number of VFs
-        logging.info("Setting numvfs to %d", num_vfs)
-        with open(sriov_path, "w", encoding="utf-8") as f:
-            f.write(str(num_vfs))
+        # Set the desired number of VFs to prove SR-IOV actually works,
+        # then release it so LXD can grow VFs from a clean 0 baseline.
+        try:
+            logging.info("Setting numvfs to %d", num_vfs)
+            with open(sriov_path, "w", encoding="utf-8") as f:
+                f.write(str(num_vfs))
 
-        logging.info(
-            "SR-IOV enabled with {} VFs on interface {}.".format(
-                num_vfs, interface
+            with open(sriov_path, encoding="utf-8") as f:
+                current_vfs = int(f.read().strip())
+            assert current_vfs == num_vfs
+
+            logging.info(
+                "SR-IOV VF creation successful with {} VFs on "
+                "interface {}.".format(num_vfs, interface)
             )
-        )
+        finally:
+            # Always release the VF back to LXD's expected 0 baseline,
+            # even if the probe above failed.
+            logging.info("Setting numvfs back to zero")
+            with open(sriov_path, "w", encoding="utf-8") as f:
+                f.write("0")
 
     except (OSError, FileNotFoundError) as e:
         logging.info(f"Failed to enable SR-IOV on {interface}: {e}")

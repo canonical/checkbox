@@ -117,5 +117,5 @@ the DUT config change before the PR is merged.
 
 ## Review Guidelines
 
-- Review should look at the "Python tests" section in providers/base/README.md when reviewing python code and catch violations. This guideline applies regardless of which provider you are reviewing.
+- Review agents should look at the "Python tests" section in providers/base/README.md when reviewing python code and catch violations. This guideline applies regardless of which provider you are reviewing.
 - When you encounter `subprocess` calls, you should try to check if the subprocess command exists on ubuntu 18.04.

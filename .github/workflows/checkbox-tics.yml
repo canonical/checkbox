@@ -75,7 +75,7 @@ jobs:
           echo "::endgroup::"
 
       - name: TICS GitHub Action
-        uses: tiobe/tics-github-action@48afe561ae55edd1e1ec484505dba636e90ba0a6
+        uses: tiobe/tics-github-action@ef5606b61f5cf77831ea000680ed1dfad34ceff3
         with:
           mode: qserver
           project: checkbox

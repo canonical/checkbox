@@ -196,6 +196,8 @@ requires:
   - package.name == 'bluez'
   - executable.name == 'obexftp'
   - device.category == 'BLUETOOTH'
+environ:
+  - BTDEVADDR
 command: |
   if [ -z "$BTDEVADDR" ]
   then

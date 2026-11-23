@@ -43,7 +43,12 @@ setup:
     git config blame.ignoreRevsFile .git-blame-ignore-revs
 
     echo "Setup complete. Activate the venv with:"
-    echo "  source {{venv}}/bin/activate"
+    set +u
+    if [ -n "$FISH_VERSION" ]; then
+        echo "  source {{venv}}/bin/activate.fish"
+    else
+        echo "  source {{venv}}/bin/activate"
+    fi
 
 [doc('Refresh the development environment')]
 refresh: setup

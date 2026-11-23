@@ -89,6 +89,7 @@ flags: also-after-suspend
 estimated_duration: 375.0
 user: root
 requires:
+  device.ignore_test != 'True'
 _summary: Disk I/O stress test for {product_slug}
 _purpose: Take the path of the storage device and test if it is a block device.
 command: storage_test.py {name}
@@ -126,6 +127,7 @@ after: stress/store_and_disable_watchdog
 before: stress/restore_watchdog
 environ: STRESS_NG_DISK_TIME
 requires:
+ device.ignore_test != 'True'
  executable.name == 'stress-ng'
  executable.name == 'uuidgen'
 _summary: Disk stress-ng test for {product_slug}

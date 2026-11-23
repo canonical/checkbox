@@ -133,7 +133,12 @@ estimated_duration: 0.48
 plugin: resource
 category_id: information_gathering
 command: udev_resource.py
-_description: Creates resource info from udev
+environ: CHECKBOX_STORAGE_TEST_EXCLUDE
+_description:
+ Creates resource info from udev. Set CHECKBOX_STORAGE_TEST_EXCLUDE in the
+ launcher environment to mark disks with ignore_test=True. Use exact
+ property:value selectors separated by |, for example name:sdg|name:sdh.
+ Provide an issue explaining why each disk needs to be excluded.
 _summary: Collect information about hardware devices (udev)
 
 id: removable_partition

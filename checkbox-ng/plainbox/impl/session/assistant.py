@@ -36,30 +36,30 @@ import time
 from collections import defaultdict
 from tempfile import SpooledTemporaryFile
 
-
 from checkbox_ng.app_context import application_name
-
 from plainbox.abc import IJobResult, IJobRunnerUI, ISessionStateTransport
 from plainbox.i18n import gettext as _
 from plainbox.impl.config import Configuration
 from plainbox.impl.decorators import raises
-from plainbox.impl.execution import UnifiedRunner
 from plainbox.impl.developer import (
     UnexpectedMethodCall,
     UsageExpectation,
 )
+from plainbox.impl.execution import UnifiedRunner
 from plainbox.impl.providers import get_providers
 from plainbox.impl.result import JobResultBuilder, MemoryJobResult
-from plainbox.impl.result_utils import determine_outcome_and_skip_reason
-from plainbox.impl.result_utils import pretty_skip_reason
+from plainbox.impl.result_utils import (
+    determine_outcome_and_skip_reason,
+    pretty_skip_reason,
+)
 from plainbox.impl.runner import JobRunnerUIDelegate
 from plainbox.impl.secure.origin import Origin
 from plainbox.impl.secure.qualifiers import (
-    select_units,
     FieldQualifier,
     JobIdQualifier,
     PatternMatcher,
     RegExpJobQualifier,
+    select_units,
 )
 from plainbox.impl.session import (
     SessionMetaData,
@@ -70,8 +70,8 @@ from plainbox.impl.session.jobs import InhibitionCause
 from plainbox.impl.session.manager import SessionManager
 from plainbox.impl.session.restart import (
     IRestartStrategy,
-    detect_restart_strategy,
     RemoteDebRestartStrategy,
+    detect_restart_strategy,
 )
 from plainbox.impl.session.resume import IncompatibleJobError
 from plainbox.impl.session.storage import WellKnownDirsHelper
@@ -1458,7 +1458,13 @@ class SessionAssistant:
             unit
             for unit in self._context.unit_list
             if unit.Meta.name == "manifest entry"
-            and unit.id in manifest_id_set
+            and (
+                unit.id in manifest_id_set
+                # getting the namespace in resouces is more work than necessary and
+                # also overmatching here doesn't really matter, this only controls
+                # the menu that gets shown and what gets saved
+                or unit.partial_id in manifest_id_set
+            )
         )
         disk_manifest = {}
         manifest_path = WellKnownDirsHelper.manifest_file()

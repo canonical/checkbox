@@ -11,7 +11,7 @@ This directory contains VS Code configuration for the Checkbox project:
 To set up the Python interpreter, follow these steps:
 1. Open the command palette using `Ctrl + Shift + P`.
 2. Type `Python: Select Interpreter` and press `Enter`.
-3. Select `Python` from the virtual environment. For example, if you name your virtual environment `venv` and place it in the checkbox-ng directory, the path should be `./checkbox-ng/venv/bin/python`.
+3. Select `Python` from the virtual environment created by `just setup`: `./.venv/bin/python`.
 4. (Optional) Open the command palette again, type `Developer: Reload Window`, and press `Enter`. This ensures that the changes are applied.
 
 ### Unit Tests Discovery

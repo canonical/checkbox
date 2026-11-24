@@ -1429,6 +1429,7 @@ class Expand:
         # parse requires the same way the session does at runtime, so both
         # PXU strings and YAML lists are supported
         manifest_ids: "set[str]" = set()
+        unparsable_lines: "list[str]" = []
         for unit in jobs_and_templates_list:
             requires = unit.get_record_value("requires") or []
             # from PXU, the "requires" field is a string
@@ -1437,7 +1438,8 @@ class Expand:
             # otherwise it's list[str] from yaml
             namespace = unit.provider.namespace if unit.provider else None
             # try to parse each line
-            # if we see jinja2 or something unparsable, skip
+            # if we see jinja2 or something unparsable, fall back to
+            # searching the raw line for manifest references
             for line in filter(None, map(str.strip, requires)):
                 try:
                     program = ResourceProgram([line], namespace)
@@ -1445,12 +1447,22 @@ class Expand:
                         manifest_ids.update(expression.manifest_id_list)
                 except ResourceProgramError:
                     _logger.debug("Unable to parse %r of %s", line, unit.id)
-                    continue
+                    unparsable_lines.append(line)
 
+        # Note: This fallback is carried over from before and
+        #       doesn't take into consideration the manifest namespace so
+        #       it may be inaccurate (overinclusive) when manifests are aliased
         return [
             unit
             for unit in self.sa._context.unit_list
-            if unit.unit == "manifest entry" and unit.id in manifest_ids
+            if unit.unit == "manifest entry"
+            and (
+                unit.id in manifest_ids # either already parsed
+                or any( # or passes the fallback check
+                    f"manifest.{unit.partial_id}" in line
+                    for line in unparsable_lines
+                )
+            )
         ]
 
     def invoked(self, ctx):

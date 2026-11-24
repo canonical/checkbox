@@ -1451,6 +1451,29 @@ class TestExpand(TestCase):
 
         self.assertEqual(result, [manifest])
 
+    def test_get_relevant_manifest_units_placeholder_same_line(self):
+        manifests = [
+            self.make_unit(unit="manifest entry", id=manifest_id)
+            for manifest_id in ["ns::has_camera", "ns::not_required"]
+        ]
+        for manifest in manifests:
+            manifest.partial_id = manifest.id.split("::")[-1]
+        self.launcher.ctx = Mock()
+        self.launcher.ctx.sa._context.unit_list = manifests
+        template = TemplateUnit(
+            {
+                "template-id": "tpl",
+                "id": "tpl_{name}",
+                "requires": "manifest.has_camera == 'True' and "
+                "block_device.{name}_state != 'removable'",
+            },
+            provider=Mock(namespace="ns"),
+        )
+
+        result = self.launcher._get_relevant_manifest_units([template])
+
+        self.assertEqual(result, [manifests[0]])
+
     def test_get_effective_certificate_status(self):
         job1 = JobDefinition(
             {

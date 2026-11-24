@@ -1457,8 +1457,8 @@ class Expand:
             for unit in self.sa._context.unit_list
             if unit.unit == "manifest entry"
             and (
-                unit.id in manifest_ids # either already parsed
-                or any( # or passes the fallback check
+                unit.id in manifest_ids  # either already parsed
+                or any(  # or passes the fallback check
                     f"manifest.{unit.partial_id}" in line
                     for line in unparsable_lines
                 )

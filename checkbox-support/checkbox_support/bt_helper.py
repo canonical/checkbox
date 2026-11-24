@@ -224,6 +224,17 @@ class BtDevice:
     def __repr__(self):
         return f"<BtDevice name:{self.name}, address:{self.address}>"
 
+    def _raise_if_device_gone(self, error):
+        if (
+            isinstance(error, dbus.exceptions.DBusException)
+            and error.get_dbus_name()
+            == "org.freedesktop.DBus.Error.UnknownObject"
+        ):
+            raise BtException(
+                f"{self} is no longer available. Put it in pairing mode "
+                "and scan again."
+            ) from error
+
     def pair(self):
         """Pair the device.
 
@@ -233,21 +244,15 @@ class BtDevice:
         """
         try:
             self._prop_if.Set(DEVICE_IFACE, "Trusted", True)
+            self._if.Pair(
+                reply_handler=self._pair_ok, error_handler=self._pair_error
+            )
         except dbus.exceptions.DBusException as exc:
-            if (
-                exc.get_dbus_name()
-                != "org.freedesktop.DBus.Error.UnknownObject"
-            ):
-                raise
-            raise BtException(
-                f"{self} is no longer available. Put it in pairing mode "
-                "and scan again."
-            ) from exc
-        self._if.Pair(
-            reply_handler=self._pair_ok, error_handler=self._pair_error
-        )
+            self._raise_if_device_gone(exc)
+            raise
         self._bt_mgr.wait()
         if self._pair_outcome:
+            self._raise_if_device_gone(self._pair_outcome)
             raise BtException(self._pair_outcome)
         try:
             self._if.Connect()

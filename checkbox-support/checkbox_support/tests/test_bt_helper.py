@@ -47,7 +47,13 @@ class BtHelperTests(unittest.TestCase):
         path = "/org/bluez/hci0/dev_00_11_22_33_44_55"
         props = {"Address": "00:11:22:33:44:55", "Icon": "input-mouse"}
         manager._manager.GetManagedObjects.side_effect = [
-            {path: {bt_helper.DEVICE_IFACE: props}},
+            {
+                "/org/bluez/hci0": {bt_helper.ADAPTER_IFACE: {}},
+                "/org/bluez/hci0/dev_00_11_22_33_44_56": {
+                    bt_helper.DEVICE_IFACE: {"Paired": False}
+                },
+                path: {bt_helper.DEVICE_IFACE: props},
+            },
             {},
         ]
         with patch.object(bt_helper.dbus, "Interface"):
@@ -74,3 +80,68 @@ class BtHelperTests(unittest.TestCase):
         with self.assertRaisesRegex(bt_helper.BtException, "scan again"):
             device.pair()
         iface.Pair.assert_not_called()
+
+    def test_trust_denied_is_not_reported_as_device_disappearance(self):
+        manager = Mock()
+        iface = Mock()
+        manager.get_object_by_path.return_value = {
+            self.bt_helper.DEVICE_IFACE: {"Address": "00:11:22:33:44:55"}
+        }
+        device = self.bt_helper.BtDevice(iface, manager)
+        manager.get_object_by_path.assert_called_once_with(iface.object_path)
+        error = FakeDBusException(
+            name="org.freedesktop.DBus.Error.AccessDenied"
+        )
+        manager.get_prop_iface.return_value.Set.side_effect = error
+        with self.assertRaises(FakeDBusException) as raised:
+            device.pair()
+        self.assertIs(raised.exception, error)
+        iface.Pair.assert_not_called()
+
+    def test_pairing_rejection_preserves_bluez_error(self):
+        manager = Mock()
+        iface = Mock()
+        device = self.bt_helper.BtDevice(
+            iface, manager, {"Address": "00:11:22:33:44:55"}
+        )
+        error = FakeDBusException(
+            name="org.bluez.Error.AuthenticationRejected"
+        )
+
+        def reject_pairing():
+            _, kwargs = iface.Pair.call_args
+            kwargs["error_handler"](error)
+
+        manager.wait.side_effect = reject_pairing
+        with self.assertRaises(self.bt_helper.BtException) as raised:
+            device.pair()
+        self.assertEqual(raised.exception.args, (error,))
+        iface.Connect.assert_not_called()
+
+    def test_device_disappears_during_pair_request(self):
+        for asynchronous in (False, True):
+            with self.subTest(asynchronous=asynchronous):
+                manager = Mock()
+                iface = Mock()
+                device = self.bt_helper.BtDevice(
+                    iface, manager, {"Address": "00:11:22:33:44:55"}
+                )
+                error = FakeDBusException(
+                    name="org.freedesktop.DBus.Error.UnknownObject"
+                )
+                if asynchronous:
+
+                    def deliver_error():
+                        _, kwargs = iface.Pair.call_args
+                        kwargs["error_handler"](error)
+
+                    manager.wait.side_effect = deliver_error
+                else:
+                    iface.Pair.side_effect = error
+
+                with self.assertRaisesRegex(
+                    self.bt_helper.BtException, "scan again"
+                ) as raised:
+                    device.pair()
+                self.assertIs(raised.exception.__cause__, error)
+                iface.Connect.assert_not_called()

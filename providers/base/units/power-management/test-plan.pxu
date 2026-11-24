@@ -30,7 +30,10 @@ include:
     power-management/suspend-on-battery-power-setup
     power-management/suspend-on-battery-power-test      certification-status=blocker
     power-management/suspend-on-battery-power-teardown
-    suspend/oops_after_suspend                     certification-status=blocker
+    power-management/suspend-on-AC-power-setup
+    power-management/suspend-on-AC-power-test           certification-status=blocker
+    power-management/suspend-on-AC-power-teardown
+    suspend/oops_after_suspend                          certification-status=blocker
     suspend/oops_results_after_suspend.log
 
 id: power-management-precheck-cert-automated
@@ -52,9 +55,6 @@ include:
     after-suspend-power-management/tickless_idle                 certification-status=blocker
     after-suspend-power-management/fwts_wakealarm                certification-status=blocker
     after-suspend-power-management/fwts_wakealarm-log-attach
-    power-management/suspend-on-AC-power-setup
-    power-management/suspend-on-AC-power-test           certification-status=blocker
-    power-management/suspend-on-AC-power-teardown
 
 id: power-management-reboot-poweroff-cert-manual
 unit: test plan

@@ -32,6 +32,10 @@ Describe your changes here:
 - Alert the reviewer of any changes that involve data persistence: present examples of file format changes as part of the PR description (e.g. new fields of data stored in unit or submission output).
 -->
 
+## Certificate Request
+
+- [ ] This PR is related to a Certificate Request
+
 ## Resolved issues
 
 <!--

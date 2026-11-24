@@ -50,6 +50,11 @@ class TestDiskTestExclusions(unittest.TestCase):
                     self.assertTrue(guard, "Missing disk exclusion guard")
                     allowed = ResourceProgram(guard.format(name="sda"))
                     self.assertTrue(allowed.evaluate_or_raise(resources))
+                    self.assertTrue(
+                        allowed.evaluate_or_raise(
+                            {"device": [Resource({"name": "sda"})]}
+                        )
+                    )
                     excluded = ResourceProgram(guard.format(name="sdg"))
                     with self.assertRaises(ExpressionFailedError):
                         excluded.evaluate_or_raise(resources)

@@ -1414,6 +1414,43 @@ class TestExpand(TestCase):
         self.assertIn('"id": "_hidden"', stdout.getvalue())
         self.assertNotIn('"id": "not_selected"', stdout.getvalue())
 
+    def test_get_relevant_manifest_units_yaml_requires(self):
+        in_ns = self.make_unit(unit="manifest entry", id="ns::has_camera")
+        other_ns = self.make_unit(
+            unit="manifest entry", id="other::has_camera"
+        )
+        self.launcher.ctx = Mock()
+        self.launcher.ctx.sa._context.unit_list = [in_ns, other_ns]
+        job = JobDefinition(
+            {"id": "job1", "requires": ["manifest.has_camera == 'True'"]},
+            provider=Mock(namespace="ns"),
+        )
+
+        result = list(self.launcher._get_relevant_manifest_units([job]))
+
+        self.assertEqual(result, [in_ns])
+
+    def test_get_relevant_manifest_units_unparsable_line(self):
+        manifest = self.make_unit(unit="manifest entry", id="has_camera")
+        self.launcher.ctx = Mock()
+        self.launcher.ctx.sa._context.unit_list = [manifest]
+        template = TemplateUnit(
+            {
+                "template-id": "tpl",
+                "id": "tpl_{{ name }}",
+                "template-engine": "jinja2",
+                "requires": "res.{{ name }}_ok == 'yes'\n"
+                "manifest.has_camera == 'True'",
+            }
+        )
+
+        with self.assertLogs("checkbox-ng.launcher.subcommands", "DEBUG"):
+            result = list(
+                self.launcher._get_relevant_manifest_units([template])
+            )
+
+        self.assertEqual(result, [manifest])
+
     def test_get_effective_certificate_status(self):
         job1 = JobDefinition(
             {

@@ -40,6 +40,7 @@ import time
 
 from plainbox.abc import IJobResult
 from plainbox.impl.color import Colorizer
+from plainbox.impl.job import JobDefinition
 from plainbox.impl.session.resume import (
     IncompatibleJobError,
     CorruptedSessionError,
@@ -48,6 +49,7 @@ from plainbox.impl.session.resume import (
 from plainbox.impl.session import SessionMetaData
 from plainbox.impl.execution import UnifiedRunner
 from plainbox.impl.highlevel import Explorer
+from plainbox.impl.resource import ResourceProgram, ResourceProgramError
 from plainbox.impl.result import MemoryJobResult
 from plainbox.impl.runner import slugify
 from plainbox.impl.secure.sudo_broker import sudo_password_provider
@@ -58,6 +60,7 @@ from plainbox.impl.session.storage import WellKnownDirsHelper
 from plainbox.impl.transport import TransportError
 from plainbox.impl.transport import get_all_transports
 from plainbox.impl.transport import SECURE_ID_PATTERN
+from plainbox.impl.unit.template import TemplateUnit
 from plainbox.impl.unit.testplan import TestPlanUnitSupport
 from plainbox.impl.unit.unit import Unit
 from plainbox.impl.config import Configuration
@@ -1416,38 +1419,39 @@ class Expand:
             help="only expand the test-plan that exactly matches the fully qualified ID",
         )
 
-    def _get_relevant_manifest_units(self, jobs_and_templates_list):
+    def _get_relevant_manifest_units(
+        self, jobs_and_templates_list: "list[JobDefinition | TemplateUnit]"
+    ):
         """
         Get all manifest units that are cited in the jobs_and_templates_list
         resource expressions
         """
-        # get all manifest units
-        manifest_units = filter(
-            lambda unit: unit.unit == "manifest entry",
-            self.sa._context.unit_list,
-        )
-        # get all jobs/templates that have a requires and do require a manifest
-        # entry
-        job_requires = [
-            requires
-            for requires in map(
-                lambda x: x.get_record_value("requires"),
-                jobs_and_templates_list,
-            )
-            if requires and "manifest" in requires
-        ]
+        # parse requires the same way the session does at runtime, so both
+        # PXU strings and YAML lists are supported
+        manifest_ids: "set[str]" = set()
+        for unit in jobs_and_templates_list:
+            requires = unit.get_record_value("requires") or []
+            # from PXU, the "requires" field is a string
+            if isinstance(requires, str):
+                requires = requires.splitlines()
+            # otherwise it's list[str] from yaml
+            namespace = unit.provider.namespace if unit.provider else None
+            # try to parse each line
+            # if we see jinja2 or something unparsable, skip
+            for line in filter(None, map(str.strip, requires)):
+                try:
+                    program = ResourceProgram([line], namespace)
+                    for expression in program.expression_list:
+                        manifest_ids.update(expression.manifest_id_list)
+                except ResourceProgramError:
+                    _logger.debug("Unable to parse %r of %s", line, unit.id)
+                    continue
 
-        # only return manifest entries that are actually required by any job in
-        # the list
-        # Note: This doesn't take into consideration the manifest namespace so
-        #       it may be inaccurate (overinclusive) when manifests are aliased
-        return filter(
-            lambda manifest_unit: any(
-                f"manifest.{manifest_unit.partial_id}" in require
-                for require in job_requires
-            ),
-            manifest_units,
-        )
+        return [
+            unit
+            for unit in self.sa._context.unit_list
+            if unit.unit == "manifest entry" and unit.id in manifest_ids
+        ]
 
     def invoked(self, ctx):
         self.ctx = ctx
@@ -1478,7 +1482,7 @@ class Expand:
         )
 
         units_to_print = itertools.chain(
-            relevant_manifest_units, iter(jobs_and_templates_list)
+            iter(relevant_manifest_units), iter(jobs_and_templates_list)
         )
         obj_list = []
         for unit in units_to_print:

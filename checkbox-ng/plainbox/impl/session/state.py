@@ -1351,7 +1351,7 @@ class SessionState:
         if not sibling_required_not_job:
             return
         # here we must access the attribute to apply template parameters if any
-        before = job.before or []
+        before = job.get_record_value("before") or []
         if isinstance(before, list):
             # avoid modifying original data here
             before = list(before) + list(sibling_required_not_job)

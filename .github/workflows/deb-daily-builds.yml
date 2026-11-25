@@ -22,7 +22,7 @@ jobs:
         - jammy
         - large
         - X64
-    timeout-minutes: 480 #8, this will timeout sooner due to inner timeouts, unless the build hangs
+    timeout-minutes: 480 # 8h job cap
     steps:
       - name: Report the test PPA
         if: env.PPA == 'test'
@@ -63,7 +63,7 @@ jobs:
         - large
         - X64
     needs: ppa_update
-    timeout-minutes: 480 #8, this will timeout sooner due to inner timeouts, unless the build hangs
+    timeout-minutes: 480 # 8h overall job cap
     strategy:
       fail-fast: false
       matrix:
@@ -99,10 +99,7 @@ jobs:
           command: |
             tools/release/lp_update_recipe.py checkbox --recipe "$PACKAGE-$PPA" --new-version $(tools/release/get_version.py --dev-suffix --output-format deb) --revision $GITHUB_SHA
       - name: Build and wait result
-        # Builds still running after 8h are likely stuck. Fail here so
-        # daily-builds-rerun.yml re-runs the job; series already published
-        # on Launchpad are then skipped
-        timeout-minutes: 480 # 8h
+        timeout-minutes: 480 # 8h step cap; a first-attempt failure triggers one rerun
         env:
           LP_CREDENTIALS: ${{ secrets.LP_CREDS }}
           PYTHONUNBUFFERED: 1

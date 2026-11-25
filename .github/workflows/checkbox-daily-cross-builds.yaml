@@ -42,7 +42,7 @@ jobs:
     # start on the newer ubuntu-latest kernel, hanging the build. This is a
     # workaround unitl the snapd/AppArmor issue is resolved.
     runs-on: ${{ matrix.release < 22 && 'ubuntu-22.04' || 'ubuntu-latest' }}
-    timeout-minutes: 1200 #20h, this will timeout sooner due to inner timeouts
+    timeout-minutes: 480 #8h, this will timeout sooner due to inner timeouts, unless the build hangs
     name: Runtime ${{ matrix.release }} (${{ matrix.arch }})
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
@@ -139,7 +139,7 @@ jobs:
     # start on the newer ubuntu-latest kernel, hanging the build. This is a
     # workaround unitl the snapd/AppArmor issue is resolved.
     runs-on: ${{ matrix.release < 22 && 'ubuntu-22.04' || 'ubuntu-latest' }}
-    timeout-minutes: 1200 #20h, this will timeout sooner due to inner timeouts
+    timeout-minutes: 480 #8h, this will timeout sooner due to inner timeouts, unless the build hangs
     name: Frontend ${{ matrix.type }}${{ matrix.release }} (${{ matrix.arch }})
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1

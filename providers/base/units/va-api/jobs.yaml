@@ -10,7 +10,7 @@ requires:
 plugin: shell
 flags:
   - simple
-command: vainfo && exit 0 || exit 1
+command: env -u LD_LIBRARY_PATH vainfo && exit 0 || exit 1
 ---
 id: va-api/vainfo
 summary: List the VA-API codec profiles and entrypoints advertised by the driver

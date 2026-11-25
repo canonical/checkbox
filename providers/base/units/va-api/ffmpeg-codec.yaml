@@ -66,7 +66,7 @@ command: |
     echo "FAIL: VA-API render node $device not found"
     exit 1
   fi
-  if vainfo --display drm --device "$device"; then
+  if env -u LD_LIBRARY_PATH vainfo --display drm --device "$device"; then
     echo "PASS: VA-API usable on $device"
   else
     echo "FAIL: vainfo could not initialise VA-API on $device"

@@ -254,6 +254,13 @@ class TestRunFfmpeg(unittest.TestCase):
         env = sp_run.call_args[1]["env"]
         self.assertEqual(env["LIBVA_TRACE"], "/tmp/libva.trace")
 
+    @patch("ffmpeg_hw_codec_test.subprocess.run")
+    def test_drops_ld_library_path(self, sp_run):
+        sp_run.return_value = MagicMock(returncode=0, stdout="")
+        with patch.dict(os.environ, {"LD_LIBRARY_PATH": "/snap/x/lib"}):
+            m.run_ffmpeg(["ffmpeg"], "/tmp/libva.trace")
+        self.assertNotIn("LD_LIBRARY_PATH", sp_run.call_args[1]["env"])
+
 
 class TestMain(unittest.TestCase):
     @patch("ffmpeg_hw_codec_test.perform_test", return_value=0)

@@ -1350,11 +1350,11 @@ class SessionState:
         # wants to be the job is always before suspend
         if not sibling_required_not_job:
             return
-        # Note: intentionally avoid accessing before directly as it is a
-        #       cached property
-        before = job._data.get("before", [])
+        # here we must access the attribute to apply template parameters if any
+        before = job.before or []
         if isinstance(before, list):
-            before += list(sibling_required_not_job)
+            # avoid modifying original data here
+            before = list(before) + list(sibling_required_not_job)
         else:
             before += " " + " ".join(sibling_required_not_job)
         # here change the property, not the _data. Changing the data may lead

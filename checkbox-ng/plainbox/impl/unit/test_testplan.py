@@ -25,13 +25,20 @@ Test definitions for plainbox.impl.unit.testplan module
 
 import doctest
 import operator
-from unittest import TestCase
 from functools import partial
+from unittest import TestCase
 
 from plainbox.abc import IProvider1, ITextSource
 from plainbox.impl.secure.origin import Origin
 from plainbox.impl.secure.qualifiers import OperatorMatcher, PatternMatcher
-from plainbox.impl.unit.testplan import TestPlanUnit, TestPlanUnitSupport
+from plainbox.impl.testing_utils import make_job
+from plainbox.impl.unit.testplan import (
+    MANIFEST_JOB_ID,
+    NoManifestDependencyBootstrapValidator,
+    TestPlanUnit,
+    TestPlanUnitSupport,
+)
+from plainbox.impl.validation import Problem
 from plainbox.vendor import mock
 
 
@@ -630,3 +637,73 @@ class TestTestPlanUnitSupport(TestCase):
                 ("^job1$", [("certification_status", "blocker")]),
             ],
         )
+
+
+class TestNoManifestDependencyBootstrapValidator(TestCase):
+
+    def setUp(self):
+        self.parent = mock.Mock()
+        self.context = mock.Mock()
+        self.context.compute_shared.side_effect = (
+            lambda key, func, *args: func(*args)
+        )
+        self.unit = TestPlanUnit(
+            {
+                "id": "tp",
+                "unit": "test plan",
+                "name": "Test plan",
+                "bootstrap_include": ["bootstrap_job"],
+            }
+        )
+        self.manifest = make_job(MANIFEST_JOB_ID, plugin="resource")
+
+    def _check(self, bootstrap_job):
+        fake_job_map = {
+            MANIFEST_JOB_ID: self.manifest,
+            "bootstrap_job": bootstrap_job,
+        }
+        with mock.patch(
+            "plainbox.impl.unit.testplan.compute_job_map",
+            return_value=fake_job_map,
+        ):
+            return list(
+                NoManifestDependencyBootstrapValidator().check_in_context(
+                    self.parent,
+                    self.unit,
+                    "bootstrap_include",
+                    self.context,
+                )
+            )
+
+    def _assert_manifest_error(self, problems):
+        self.assertEqual(len(problems), 1)
+        self.parent.error.assert_called_once_with(
+            self.unit,
+            "bootstrap_include",
+            Problem.bad_reference,
+            mock.ANY,
+        )
+        message = self.parent.error.call_args[0][3]
+        self.assertIn("bootstrap_job", message)
+        self.assertIn(MANIFEST_JOB_ID, message)
+
+    def test_manifest_pulled_via_requires(self):
+        bootstrap_job = make_job(
+            "bootstrap_job",
+            plugin="resource",
+            imports="from com.canonical.plainbox import manifest",
+            requires="manifest.has_foo == 'True'",
+        )
+        self._assert_manifest_error(self._check(bootstrap_job))
+
+    def test_manifest_pulled_via_depends(self):
+        bootstrap_job = make_job(
+            "bootstrap_job", plugin="resource", depends=MANIFEST_JOB_ID
+        )
+        self._assert_manifest_error(self._check(bootstrap_job))
+
+    def test_manifest_pulled_via_after(self):
+        bootstrap_job = make_job(
+            "bootstrap_job", plugin="resource", after=MANIFEST_JOB_ID
+        )
+        self._assert_manifest_error(self._check(bootstrap_job))

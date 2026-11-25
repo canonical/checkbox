@@ -29,10 +29,9 @@ Job Dependency Solver.
     THIS MODULE DOES NOT HAVE STABLE PUBLIC API
 """
 
-from abc import ABCMeta
-from abc import abstractproperty
-from logging import getLogger
 import enum
+from abc import ABCMeta, abstractproperty
+from logging import getLogger
 
 from plainbox.i18n import gettext as _
 from plainbox.impl.job import JobDefinition
@@ -355,6 +354,26 @@ class DependencySolver:
         """
         return cls(job_list)._solve(visit_list)
 
+    def get_all_dependencies(self, job_list):
+        """
+        Returns all dependencies of jobs in the visit_list.
+
+        This returns all jobs in the job_list that are a dependency
+        (resource, depends and after) of jobs in the visit_list (direct or
+        indirect). The result is not ordered.
+
+        :param list job_list: list of jobs to pull the dependencies for
+        :returns list:
+            all direct and indirect dependencies of jobs in the visit_list
+        :raises DependencyDuplicateError:
+            if a duplicate job definition is present
+        :raises DependencyCycleError:
+            if a cyclic dependency is present.
+        :raises DependencyMissingError:
+            if a required job does not exist.
+        """
+        return self._solve_pull_deps(job_list)
+
     def __init__(self, job_list):
         """
         Instantiate a new dependency solver with the specified list of jobs.
@@ -448,6 +467,7 @@ class DependencySolver:
         return final_solution
 
     def _solve_pull_deps(self, visit_list):
+        self._visit_list = visit_list
         self._clear_state_map()
         self._pull_solution = []
         for job in visit_list:

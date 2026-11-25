@@ -26,12 +26,12 @@ import collections
 import logging
 import operator
 import re
-
 from itertools import chain
 from typing import List, Tuple
 
 from plainbox.i18n import gettext as _
 from plainbox.impl.decorators import cached_property, instance_method_lru_cache
+from plainbox.impl.depmgr import DependencyError, DependencySolver
 from plainbox.impl.secure.qualifiers import (
     CompositeQualifier,
     FieldQualifier,
@@ -44,11 +44,11 @@ from plainbox.impl.unit.unit_with_id import UnitWithId
 from plainbox.impl.unit.validators import (
     DeprecatedSchemaValidator,
     FieldValidatorBase,
-    ReferenceConstraint,
-    UnitReferenceValidator,
-    Severity,
-    compute_value_map,
     OverrideFieldValueValidator,
+    ReferenceConstraint,
+    Severity,
+    UnitReferenceValidator,
+    compute_value_map,
 )
 from plainbox.impl.validation import Problem
 from plainbox.impl.xparsers import (
@@ -63,6 +63,7 @@ from plainbox.impl.xparsers import (
 
 logger = logging.getLogger("plainbox.unit.testplan")
 
+MANIFEST_JOB_ID = "com.canonical.plainbox::manifest"
 
 __all__ = ["TestPlanUnit"]
 
@@ -142,6 +143,67 @@ class NoBaseIncludeValidator(FieldValidatorBase):
                     )
             else:
                 raise NotImplementedError
+
+
+def compute_job_map(context):
+    """
+    Compute a map of job id to job for all the jobs in the context.
+
+    If more than one job shares an id only the first one is kept, duplicates
+    are reported by the id field validators.
+    """
+    job_map = {
+        unit.id: unit
+        for provider in context.provider_list
+        for unit in provider.unit_list
+        if unit.Meta.name == "job"
+    }
+    for provider in context.provider_list:
+        for unit in provider.unit_list:
+            if unit.Meta.name == "job":
+                job_map[unit.id] = unit
+    return job_map
+
+
+class NoManifestDependencyBootstrapValidator(FieldValidatorBase):
+    """
+    Ensure no bootstrap job depends on the manifest job.
+
+    If a job in bootstrap depends on the manifest, it breaks the manifest as
+    the manifest job is automatically pulled, but values aren't populated yet
+    """
+
+    def check_in_context(self, parent, unit, field, context):
+        testplan_id = unit.get_record_value("id")
+        if not testplan_id:
+            # this gets catched by other validators
+            return
+        bootstrap_job_ids = unit.get_direct_bootstrap_job_ids()
+        fake_job_map = context.compute_shared(
+            "job_map", compute_job_map, context
+        )
+        dep_solver = DependencySolver(fake_job_map.values())
+        for job_id in bootstrap_job_ids:
+            job = fake_job_map.get(job_id)
+            # Missing jobs and the manifest job itself are reported by the
+            # UnitReferenceValidator of the field
+            if job is None or job_id == MANIFEST_JOB_ID:
+                continue
+            try:
+                pulled_job_list = dep_solver.get_all_dependencies([job])
+            except DependencyError:
+                # Broken dependencies are reported by the job validators
+                continue
+            if any(j.id == MANIFEST_JOB_ID for j in pulled_job_list):
+                yield parent.error(
+                    unit,
+                    field,
+                    Problem.bad_reference,
+                    _(
+                        "job {!a} depends on {!a}, which is not allowed "
+                        "in bootstrap_include"
+                    ).format(job_id, MANIFEST_JOB_ID),
+                )
 
 
 class TestPlanUnit(UnitWithId):
@@ -308,6 +370,23 @@ class TestPlanUnit(UnitWithId):
         for tp_unit in self.get_nested_part():
             job_ids.extend(tp_unit.get_bootstrap_job_ids())
         return job_ids
+
+    @instance_method_lru_cache(maxsize=None)
+    def get_direct_bootstrap_job_ids(self) -> list:
+        """
+        Returns the job ids directly included in bootstrap_include
+
+        The difference with get_bootstrap_job_ids is that that method also
+        explores nested parts so it returns all jobs in the bootstrap phase of
+        the current test plan while this only returns the ones that are
+        directly included
+        """
+        return get_array_field_qualify(
+            self.bootstrap_include,
+            "bootstrap_include",
+            self.qualify_id,
+            logger,
+        )
 
     @instance_method_lru_cache(maxsize=None)
     def get_nested_part(self):
@@ -695,8 +774,15 @@ class TestPlanUnit(UnitWithId):
                                 "in bootstrapping_include"
                             ),
                         ),
+                        ReferenceConstraint(
+                            lambda _, referee: referee.id != MANIFEST_JOB_ID,
+                            message=_(
+                                "{!a} is not allowed in bootstrap_include"
+                            ).format(MANIFEST_JOB_ID),
+                        ),
                     ],
                 ),
+                NoManifestDependencyBootstrapValidator(),
                 DeprecatedSchemaValidator(
                     Problem.deprecated, Severity.warning, str, list
                 ),

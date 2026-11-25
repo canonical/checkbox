@@ -149,20 +149,15 @@ def compute_job_map(context):
     """
     Compute a map of job id to job for all the jobs in the context.
 
-    If more than one job shares an id only the first one is kept, duplicates
+    If more than one job shares an id only the last one is kept, duplicates
     are reported by the id field validators.
     """
-    job_map = {
+    return {
         unit.id: unit
         for provider in context.provider_list
         for unit in provider.unit_list
         if unit.Meta.name == "job"
     }
-    for provider in context.provider_list:
-        for unit in provider.unit_list:
-            if unit.Meta.name == "job":
-                job_map[unit.id] = unit
-    return job_map
 
 
 class NoManifestDependencyBootstrapValidator(FieldValidatorBase):

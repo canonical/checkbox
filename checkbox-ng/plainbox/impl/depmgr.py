@@ -356,15 +356,15 @@ class DependencySolver:
 
     def get_all_dependencies(self, job_list):
         """
-        Returns all dependencies of jobs in the visit_list.
+        Returns all dependencies of jobs in the job_list.
 
         This returns all jobs in the job_list that are a dependency
-        (resource, depends and after) of jobs in the visit_list (direct or
+        (resource, depends and after) of jobs in the job_list (direct or
         indirect). The result is not ordered.
 
         :param list job_list: list of jobs to pull the dependencies for
         :returns list:
-            all direct and indirect dependencies of jobs in the visit_list
+            all direct and indirect dependencies of jobs in the job_list
         :raises DependencyDuplicateError:
             if a duplicate job definition is present
         :raises DependencyCycleError:

@@ -2,18 +2,16 @@ id: npu-full
 unit: test plan
 _name: NPU driver tests
 include:
+    com.canonical.certification::npu_gtest_resource
     kmd/.*
     umd/.*
-bootstrap_include:
-    com.canonical.certification::npu_gtest_resource
 
 id: npu-only-known-failures
 unit: test plan
 _name: NPU driver tests (ONLY known failures)
 include:
-    known-failure/umd/.*
-bootstrap_include:
     com.canonical.certification::npu_gtest_resource
+    known-failure/umd/.*
 
 id: npu-with-known-failures
 unit: test plan

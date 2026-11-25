@@ -1414,6 +1414,28 @@ class TestExpand(TestCase):
         self.assertIn('"id": "_hidden"', stdout.getvalue())
         self.assertNotIn('"id": "not_selected"', stdout.getvalue())
 
+    @patch("sys.stdout", new_callable=StringIO)
+    @patch("checkbox_ng.launcher.subcommands.TestPlanUnitSupport")
+    @patch("checkbox_ng.launcher.subcommands.select_units")
+    def test_invoke__yaml_requires(self, mock_select_units, mock_tpus, stdout):
+        # yaml units have list requires instead of a string
+        job1 = JobDefinition(
+            {
+                "id": "job1",
+                "requires": [
+                    "manifest.some == 'True'",
+                    "manifest.other == 'True'",
+                ],
+            }
+        )
+
+        mock_select_units.return_value = [job1]
+        self.ctx.args.TEST_PLAN = "test-plan1"
+        self.launcher.invoked(self.ctx)
+        self.assertIn("Manifest 'some'", stdout.getvalue())
+        self.assertIn("Manifest 'other'", stdout.getvalue())
+        self.assertNotIn("Manifest 'not_selected'", stdout.getvalue())
+
     def test_get_effective_certificate_status(self):
         job1 = JobDefinition(
             {

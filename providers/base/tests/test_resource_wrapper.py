@@ -23,8 +23,12 @@ SCRIPT = os.path.join(
 
 
 def run_wrapper(*args):
+    # capture_output needs Python 3.7, the provider still supports 3.6
     return subprocess.run(
-        [SCRIPT, *args], capture_output=True, universal_newlines=True
+        [SCRIPT, *args],
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        universal_newlines=True,
     )
 
 

@@ -9,10 +9,11 @@ after: graphics/{index}_auto_switch_card_{product_slug}
 before: suspend/suspend_advanced_auto
 estimated_duration: 1.2
 _purpose: Record the current resolution before suspending.
+environ: XDG_SESSION_TYPE XDG_CURRENT_DESKTOP
 command:
  # shellcheck disable=SC1091
  source graphics_env.sh {driver} {index}
- xrandr -q | awk '/ connected/{{c=$1}} /\*/{{print c": "$1}}' | sort > "$PLAINBOX_SESSION_SHARE"/{index}_resolution_before_suspend.txt
+ resolution_compare.py record "$PLAINBOX_SESSION_SHARE"/{index}_resolution_before_suspend.txt
 _summary: Capture the current screen resolution before system suspension.
 
 unit: template
@@ -54,10 +55,11 @@ depends:
  {%- endif %}
 _purpose: Test to see that we have the same resolution after resuming as before.
 _summary: Check if the resolution remains the same after resuming from suspend.
+environ: XDG_SESSION_TYPE XDG_CURRENT_DESKTOP
 command:
  # shellcheck disable=SC1091
  source graphics_env.sh {{ driver }} {{ index }}
- xrandr -q | awk '/ connected/{c=$1} /\*/{print c": "$1}' | sort | diff "$PLAINBOX_SESSION_SHARE"/{{ index }}_resolution_before_suspend.txt -
+ resolution_compare.py compare "$PLAINBOX_SESSION_SHARE"/{{ index }}_resolution_before_suspend.txt
 
 unit: template
 template-resource: graphics_card

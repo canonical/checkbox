@@ -23,7 +23,7 @@ import json
 from functools import partial
 from unittest import TestCase
 
-from unittest.mock import patch, Mock, MagicMock, mock_open
+from unittest.mock import patch, Mock, MagicMock, mock_open, call
 
 from io import StringIO
 
@@ -1154,6 +1154,11 @@ class TestLauncher(TestCase):
         Launcher._pick_jobs_to_run(self_mock)
 
         self_mock.sa.remove_all_filters.assert_called_once_with()
+        # the displayed (launcher-filtered) jobs are re-applied
+        self.assertEqual(
+            self_mock.sa.use_alternate_selection.call_args_list,
+            [call(["job1"]), call(["job1", "job2"]), call(["job1"])],
+        )
         self.assertEqual(category_browser_mock.call_count, 2)
         # the first render starts with no selection, the second one restores
         # the jobs that were kept

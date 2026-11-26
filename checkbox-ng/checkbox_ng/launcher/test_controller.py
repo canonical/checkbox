@@ -1233,8 +1233,37 @@ class ControllerTests(TestCase):
 
         self.assertTrue(category_browser_mock.called)
         self.assertFalse(self_mock.sa.modify_todo_list_json.called)
+        # the launcher-filtered list must not be widened to the test plan
+        self.assertFalse(self_mock.sa.remove_all_filters.called)
         self.assertTrue(self_mock._save_manifest.called)
         self.assertTrue(self_mock.sa.finish_job_selection.called)
+
+    @mock.patch("checkbox_ng.launcher.controller.CategoryBrowser")
+    def test_select_jobs_manifest_go_back_keep_all_displayed(
+        self, category_browser_mock
+    ):
+        # Keeping every displayed job after going back must leave the
+        # bootstrap-filtered list as the todo list, not the whole test plan.
+        self_mock = mock.MagicMock()
+        self_mock.launcher.get_value.return_value = False
+        all_jobs = ["job1", "job2"]
+        self_mock.sa.get_jobs_repr_json.return_value = json.dumps(all_jobs)
+        category_browser_mock.return_value.run.return_value = {"job1", "job2"}
+        self_mock._save_manifest.side_effect = [GoBack(), None]
+
+        RemoteController.select_jobs(self_mock, all_jobs)
+
+        self.assertEqual(
+            [
+                c[0]
+                for c in self_mock.sa.method_calls
+                if c[0] in ("remove_all_filters", "modify_todo_list_json")
+            ],
+            ["remove_all_filters", "modify_todo_list_json"],
+        )
+        self_mock.sa.modify_todo_list_json.assert_called_once_with(
+            json.dumps(all_jobs)
+        )
 
     @mock.patch("checkbox_ng.launcher.controller.CategoryBrowser")
     def test_select_jobs_manifest_go_back(self, category_browser_mock):
@@ -1249,7 +1278,13 @@ class ControllerTests(TestCase):
 
         RemoteController.select_jobs(self_mock, all_jobs)
 
-        self.assertEqual(self_mock.sa.remove_all_filters.call_count, 2)
+        # filters are only reset after going back, and the displayed
+        # (bootstrap-filtered) job list is re-applied right away
+        self_mock.sa.remove_all_filters.assert_called_once_with()
+        self.assertIn(
+            mock.call(json.dumps(all_jobs)),
+            self_mock.sa.modify_todo_list_json.call_args_list,
+        )
         self.assertEqual(category_browser_mock.call_count, 2)
         # the second render restores the jobs that were kept
         self.assertIsNone(category_browser_mock.call_args_list[0][0][2])

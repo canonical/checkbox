@@ -713,13 +713,10 @@ class RemoteController(ReportsStage, MainLoopStage):
         else:
             _logger.info("controller: Selecting jobs.")
             selection = None
+            reprs = json.loads(
+                self.sa.get_jobs_repr_json(json.dumps(all_jobs))
+            )
             while True:
-                # restore the full job list so the whole tree is selectable
-                # again when the operator comes back from the manifest screen
-                self.sa.remove_all_filters()
-                reprs = json.loads(
-                    self.sa.get_jobs_repr_json(json.dumps(all_jobs))
-                )
                 wanted_set = CategoryBrowser(
                     "Choose tests to run on your system:", reprs, selection
                 ).run()
@@ -736,7 +733,10 @@ class RemoteController(ReportsStage, MainLoopStage):
                 try:
                     self._save_manifest(interactive=True)
                 except GoBack:
-                    # keep the previous selection when going back
+                    # restore the displayed (launcher-filtered) job list,
+                    # not the whole test plan, and keep the previous selection
+                    self.sa.remove_all_filters()
+                    self.sa.modify_todo_list_json(json.dumps(all_jobs))
                     selection = wanted_set
                     continue
                 break

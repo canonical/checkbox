@@ -773,10 +773,8 @@ class Launcher(MainLoopStage, ReportsStage):
                 self._save_manifest(interactive=False)
             # by default all tests are selected; so we're done here
             return
-        job_list = [
-            self.sa.get_job(job_id)
-            for job_id in self.sa.get_static_todo_list()
-        ]
+        displayed_job_ids = self.sa.get_static_todo_list()
+        job_list = [self.sa.get_job(job_id) for job_id in displayed_job_ids]
         if not job_list:
             print(self.C.RED(_("There were no tests to select from!")))
             return
@@ -807,9 +805,10 @@ class Launcher(MainLoopStage, ReportsStage):
                 self._save_manifest(interactive=True)
             except GoBack:
                 # operator asked to return to the test selection; restore the
-                # full job list so the whole tree is selectable again, keeping
-                # the previous selection
+                # displayed (launcher-filtered) job list, not the whole test
+                # plan, keeping the previous selection
                 self.sa.remove_all_filters()
+                self.sa.use_alternate_selection(displayed_job_ids)
                 selection = wanted_set
                 continue
             return

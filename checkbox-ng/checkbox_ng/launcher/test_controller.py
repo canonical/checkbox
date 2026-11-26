@@ -392,6 +392,32 @@ class ControllerTests(TestCase):
         RemoteController._run_interactable_jobs(self_mock, [jobs_repr_mock])
 
     @mock.patch("checkbox_ng.launcher.controller.SimpleUI")
+    def test__run_jobs_skip_waits_for_builder(self, simple_ui_mock):
+        self_mock = mock.MagicMock()
+        job_state = self_mock.sa.get_job_state.return_value
+        job_state.effective_certification_status = "non-blocker"
+        interaction_mock = mock.MagicMock()
+        interaction_mock.kind = "skip"
+        # the agent thread may not have set _builder yet
+        interaction_mock.extra._builder = None
+        builder = interaction_mock.extra.wait.return_value
+
+        self_mock.sa.run_job.return_value = [interaction_mock]
+        jobs_repr_mock = {
+            "id": "id_mock",
+            "command": "command",
+            "num": 0,
+            "name": "name",
+            "category_name": "category",
+        }
+
+        RemoteController._run_interactable_jobs(self_mock, [jobs_repr_mock])
+
+        self_mock.finish_job.assert_called_once_with(
+            builder.get_result(), job_state
+        )
+
+    @mock.patch("checkbox_ng.launcher.controller.SimpleUI")
     def test__run_jobs_description_enter(self, simple_ui_mock):
         self_mock = mock.MagicMock()
         interaction_mock = mock.MagicMock()

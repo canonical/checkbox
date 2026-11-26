@@ -121,5 +121,5 @@ class GoBackFromTestSelectionToTestPlan(Scenario):
         Send("hidden_manifest"),
         Send(keys.KEY_ENTER),
         Send("i"),
-        Expect(f"(X) {TEST_PLAN}")
+        Expect(f"(X) {TEST_PLAN}"),
     ]

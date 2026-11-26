@@ -21,7 +21,6 @@ import unittest
 from pathlib import Path
 from unittest.mock import MagicMock, patch
 
-
 sys.modules["dbus"] = MagicMock()
 sys.modules["dbus.mainloop.glib"] = MagicMock()
 sys.modules["gi"] = MagicMock()

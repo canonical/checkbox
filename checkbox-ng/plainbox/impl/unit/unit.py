@@ -29,7 +29,6 @@ import json
 import logging
 import os
 import string
-from contextlib import suppress
 from functools import lru_cache, partial
 from pathlib import Path
 
@@ -39,6 +38,7 @@ from plainbox.i18n import gettext as _
 from plainbox.impl.decorators import cached_property, instance_method_lru_cache
 from plainbox.impl.secure.origin import Origin
 from plainbox.impl.secure.rfc822 import normalize_rfc822_value
+from plainbox.impl.snap import in_strict_snap as _in_strict_snap
 from plainbox.impl.symbol import Symbol, SymbolDef, SymbolDefMeta, SymbolDefNs
 from plainbox.impl.unit import concrete_validators, get_accessed_parameters
 from plainbox.impl.unit.validators import (
@@ -55,32 +55,31 @@ logger = logging.getLogger("plainbox.unit")
 
 
 @lru_cache(maxsize=None)
-def on_ubuntucore():
+def in_strict_snap():
     """
     Returns `True` when running in a strict snap
     """
-    snap = os.getenv("SNAP")
-    if snap:
-        with open(os.path.join(snap, "meta/snap.yaml")) as f:
-            for line in f.readlines():
-                if line == "confinement: classic\n":
-                    return False
-        return True
-    return False
+    return _in_strict_snap()
 
 
 @lru_cache(maxsize=None)
-def on_os_ubuntucore() -> bool:
+def on_ubuntucore() -> bool:
     """
     Returns `True` if the host OS is Ubuntu Core
     """
-    with suppress(FileNotFoundError):
+    try:
         # if this path exists, we are in a strict snap, but we may not be on UC
-        return (
-            'NAME="Ubuntu Core"'
-            in Path("/var/lib/snapd/hostfs/etc/os-release").read_text()
-        )
-    return 'NAME="Ubuntu Core"' in Path("/etc/os-release").read_text()
+        os_release = Path("/var/lib/snapd/hostfs/etc/os-release").read_text()
+    except FileNotFoundError:
+        if in_strict_snap():
+            raise
+        os_release = Path("/etc/os-release").read_text()
+    return any(
+        key == "ID" and value.strip('"') == "ubuntu-core"
+        for line in os_release.splitlines()
+        for key, separator, value in [line.partition("=")]
+        if separator
+    )
 
 
 @lru_cache(maxsize=None)

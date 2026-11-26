@@ -50,7 +50,7 @@ Conditionals
 
 Checkbox provides a few environment variables (see :ref:`envvar` for more
 information) that can be used to prevent having to use Jinja conditionals. For
-instance, ``$CHECKBOX_RUNNING_STRICT_SNAP`` can be used, so that:
+instance, ``$CHECKBOX_OS_IS_UBUNTUCORE`` can be used, so that:
 
 .. code-block:: none
 
@@ -68,7 +68,7 @@ Can be rewritten as:
 
   [...]
   command:
-    if [ "$CHECKBOX_RUNNING_STRICT_SNAP" = "1" ]; then
+    if [ "$CHECKBOX_OS_IS_UBUNTUCORE" = "1" ]; then
       echo "on ubuntu core"
     else
       echo "not on ubuntu core"
@@ -146,8 +146,8 @@ Can be written as:
 
   requires:
     a.a == 'a'
-    environment.CHECKBOX_RUNNING_STRICT_SNAP != '1' or b.b == 'b'
-    environment.CHECKBOX_RUNNING_STRICT_SNAP == '1' or c.c == 'c'
+    environment.CHECKBOX_OS_IS_UBUNTUCORE != '1' or b.b == 'b'
+    environment.CHECKBOX_OS_IS_UBUNTUCORE == '1' or c.c == 'c'
 
 To remove usages of ``__checkbox_env__`` or ``__system_env__``:
 

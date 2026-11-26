@@ -19,7 +19,37 @@ import itertools
 from unittest import TestCase
 from unittest.mock import patch, MagicMock
 
-from virtualization import LXDTest, LXDTest_vm
+from virtualization import (
+    LXDTest,
+    LXDTest_vm,
+    get_codename_to_test,
+    get_release_to_test,
+)
+
+
+class TestReleaseHelpers(TestCase):
+    @patch("virtualization.on_ubuntucore", return_value=False)
+    @patch("virtualization.get_series", return_value="24.04")
+    def test_classic_release(self, *_):
+        self.assertEqual(get_release_to_test(), "24.04")
+
+    @patch("virtualization.on_ubuntucore", return_value=True)
+    @patch("virtualization.get_series", return_value="24")
+    def test_core_release(self, *_):
+        self.assertEqual(get_release_to_test(), "24.04")
+
+    @patch("virtualization.on_ubuntucore", return_value=False)
+    @patch(
+        "virtualization.get_release_info",
+        return_value={"codename": "noble"},
+    )
+    def test_classic_codename(self, *_):
+        self.assertEqual(get_codename_to_test(), "noble")
+
+    @patch("virtualization.on_ubuntucore", return_value=True)
+    @patch("virtualization.get_series", return_value="24")
+    def test_core_codename(self, *_):
+        self.assertEqual(get_codename_to_test(), "focal")
 
 
 class TestLXDTest(TestCase):

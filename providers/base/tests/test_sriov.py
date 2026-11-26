@@ -244,38 +244,15 @@ class TestSriovFunctions(TestCase):
             log.output[1],
         )
 
-    def test_get_release_to_test_distro(self):
-        with patch("distro.id", return_value="ubuntu"):
-            with patch("distro.version", return_value="24.04"):
-                result = sriov.get_release_to_test()
-                self.assertEqual(result, "24.04")
+    @patch("sriov.on_ubuntucore", return_value=False)
+    @patch("sriov.get_series", return_value="24.04")
+    def test_get_release_to_test_classic(self, *_):
+        self.assertEqual(sriov.get_release_to_test(), "24.04")
 
-    def test_get_release_to_test_ubuntu_core(self):
-        with patch("distro.id", return_value="ubuntu-core"):
-            with patch("distro.version", return_value="24"):
-                result = sriov.get_release_to_test()
-                self.assertEqual(result, "24.04")
-
-    def test_get_release_to_test_import_error(self):
-        with patch("builtins.__import__") as mock_import:
-            # Mock lsb_release module
-            mock_lsb_release = MagicMock()
-            mock_lsb_release.get_distro_information.return_value = {
-                "RELEASE": "24.04"
-            }
-
-            def side_effect(name, *args):
-                if name == "distro":
-                    raise ImportError("No module named 'distro'")
-                elif name == "lsb_release":
-                    return mock_lsb_release
-                return __import__(name, *args)
-
-            mock_import.side_effect = side_effect
-
-            result = sriov.get_release_to_test()
-            self.assertEqual(result, "24.04")
-            mock_lsb_release.get_distro_information.assert_called_once_with()
+    @patch("sriov.on_ubuntucore", return_value=True)
+    @patch("sriov.get_series", return_value="24")
+    def test_get_release_to_test_ubuntu_core(self, *_):
+        self.assertEqual(sriov.get_release_to_test(), "24.04")
 
     @patch("os.path.exists", return_value=True)
     @patch("builtins.open", new_callable=mock_open)

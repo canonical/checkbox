@@ -40,9 +40,50 @@ class OsResourceTests(unittest.TestCase):
                 FileNotFoundError("first"),
                 self.os_release_data,
             ]
-        with patch("checkbox_ng.support.release_info.open", open_mock):
+        with patch.dict("os.environ", {}, clear=True), patch(
+            "checkbox_ng.support.release_info.open", open_mock
+        ):
             os_release_data = get_release_file_content()
         self.assertIn("UBUNTU_CODENAME=noble\n", os_release_data)
+
+    @patch.dict("os.environ", {"SNAP": "/snap/checkbox/1"}, clear=True)
+    def test_missing_host_release_in_strict_snap(self):
+        def open_file(path):
+            if path == "/var/lib/snapd/hostfs/etc/os-release":
+                raise FileNotFoundError(path)
+            if path == "/snap/checkbox/1/meta/snap.yaml":
+                return mock_open(read_data="confinement: strict\n")()
+            return mock_open(read_data="ID=ubuntu-core\n")()
+
+        with patch("builtins.open", side_effect=open_file) as open_mock:
+            with self.assertRaises(FileNotFoundError):
+                get_release_file_content()
+
+        self.assertNotIn(
+            unittest.mock.call("/etc/os-release"), open_mock.call_args_list
+        )
+
+    @patch.dict("os.environ", {"SNAP": "/snap/checkbox/1"}, clear=True)
+    def test_missing_host_release_in_classic_snap(self):
+        def open_file(path):
+            if path == "/var/lib/snapd/hostfs/etc/os-release":
+                raise FileNotFoundError(path)
+            if path == "/snap/checkbox/1/meta/snap.yaml":
+                return mock_open(read_data="confinement: classic\n")()
+            return mock_open(read_data=self.os_release_data)()
+
+        with patch("builtins.open", side_effect=open_file):
+            self.assertEqual(get_release_file_content(), self.os_release_data)
+
+    def test_inaccessible_host_release_does_not_fall_back(self):
+        with patch(
+            "builtins.open", side_effect=PermissionError()
+        ) as open_mock:
+            with self.assertRaises(PermissionError):
+                get_release_file_content()
+        open_mock.assert_called_once_with(
+            "/var/lib/snapd/hostfs/etc/os-release"
+        )
 
     @patch("checkbox_ng.support.release_info.get_release_file_content")
     def test_get_release_info(self, mock_file_content):

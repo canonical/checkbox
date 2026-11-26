@@ -31,7 +31,8 @@ from plainbox.impl.unit.unit import (
     Unit,
     MissingParam,
     get_snap_base,
-    on_os_ubuntucore,
+    in_strict_snap,
+    on_ubuntucore,
 )
 from plainbox.impl.validation import Problem, Severity
 
@@ -494,33 +495,87 @@ class GetSnapBaseTests(TestCase):
             get_snap_base()
 
 
+class InStrictSnapTests(TestCase):
+    @mock.patch.dict("os.environ", {}, clear=True)
+    def test_not_in_snap(self):
+        in_strict_snap.cache_clear()
+        self.assertFalse(in_strict_snap())
+
+    @mock.patch.dict("os.environ", {"SNAP": "/snap/checkbox/1"})
+    @mock.patch(
+        "builtins.open",
+        mock.mock_open(read_data="confinement: strict\n"),
+    )
+    def test_in_strict_snap(self):
+        in_strict_snap.cache_clear()
+        self.assertTrue(in_strict_snap())
+
+    @mock.patch.dict("os.environ", {"SNAP": "/snap/checkbox/1"})
+    @mock.patch(
+        "builtins.open",
+        mock.mock_open(read_data="confinement: classic\n"),
+    )
+    def test_in_classic_snap(self):
+        in_strict_snap.cache_clear()
+        self.assertFalse(in_strict_snap())
+
+
 class OnOSUbuntuCore(TestCase):
     @mock.patch(
         "plainbox.impl.unit.unit.Path.read_text",
-        return_value='NAME="Ubuntu Core"\nVERSION="20"',
+        return_value="ID=ubuntu-core\nVERSION_ID=20",
     )
     def test_on_uc_strict_snap(self, _):
-        on_os_ubuntucore.cache_clear()
+        on_ubuntucore.cache_clear()
 
-        self.assertTrue(on_os_ubuntucore())
+        self.assertTrue(on_ubuntucore())
 
     @mock.patch(
         "plainbox.impl.unit.unit.Path.read_text",
         side_effect=[
             FileNotFoundError(),
-            'NAME="Ubuntu Core"',
+            "ID=ubuntu-core",
         ],
     )
-    def test_on_uc_source(self, _):
-        on_os_ubuntucore.cache_clear()
+    @mock.patch("plainbox.impl.unit.unit.in_strict_snap", return_value=False)
+    def test_on_uc_source(self, _, __):
+        on_ubuntucore.cache_clear()
 
-        self.assertTrue(on_os_ubuntucore())
+        self.assertTrue(on_ubuntucore())
 
     @mock.patch(
         "plainbox.impl.unit.unit.Path.read_text",
-        side_effect=[FileNotFoundError(), 'NAME="Ubuntu"'],
+        side_effect=[FileNotFoundError(), "ID=ubuntu"],
     )
-    def test_not_on_uc(self, _):
-        on_os_ubuntucore.cache_clear()
+    @mock.patch("plainbox.impl.unit.unit.in_strict_snap", return_value=False)
+    def test_not_on_uc(self, _, __):
+        on_ubuntucore.cache_clear()
 
-        self.assertFalse(on_os_ubuntucore())
+        self.assertFalse(on_ubuntucore())
+
+    @mock.patch(
+        "plainbox.impl.unit.unit.Path.read_text",
+        side_effect=[FileNotFoundError("host release"), "ID=ubuntu-core"],
+    )
+    @mock.patch("plainbox.impl.unit.unit.in_strict_snap", return_value=True)
+    def test_missing_host_release_in_strict_snap(self, _, read_text):
+        on_ubuntucore.cache_clear()
+        self.addCleanup(on_ubuntucore.cache_clear)
+
+        with self.assertRaises(FileNotFoundError):
+            on_ubuntucore()
+
+        read_text.assert_called_once()
+
+    @mock.patch(
+        "plainbox.impl.unit.unit.Path.read_text",
+        side_effect=PermissionError("host release"),
+    )
+    def test_inaccessible_host_release(self, read_text):
+        on_ubuntucore.cache_clear()
+        self.addCleanup(on_ubuntucore.cache_clear)
+
+        with self.assertRaises(PermissionError):
+            on_ubuntucore()
+
+        read_text.assert_called_once()

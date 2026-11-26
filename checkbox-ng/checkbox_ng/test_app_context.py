@@ -17,39 +17,27 @@
 """Unit tests for app_context module."""
 
 from unittest import TestCase
-from unittest.mock import mock_open, patch
+from unittest.mock import patch
 
 from checkbox_ng.app_context import application_name, on_core
 
 
 class OnCoreTests(TestCase):
-    def test_really_on_core(self):
+    @patch(
+        "checkbox_ng.support.snap_utils.system.get_release_file_content",
+        return_value='NAME="Ubuntu Core"\nID=ubuntu-core\nVERSION_ID="24"\n',
+    )
+    def test_really_on_core(self, _):
         on_core.cache_clear()
-        the_mock = mock_open(read_data="NAME=Ubuntu Core")
+        self.assertEqual(on_core(), True)
 
-        with patch("builtins.open", the_mock):
-            self.assertEqual(on_core(), True)
-
-    def test_not_on_core(self):
+    @patch(
+        "checkbox_ng.support.snap_utils.system.get_release_file_content",
+        return_value='NAME="Ubuntu"\nID=ubuntu\nVERSION_ID="24.04"\n',
+    )
+    def test_not_on_core(self, _):
         on_core.cache_clear()
-        the_mock = mock_open(read_data="NAME=Ubuntu")
-
-        with patch("builtins.open", the_mock):
-            self.assertEqual(on_core(), False)
-
-    def test_really_on_core_second_line(self):
-        on_core.cache_clear()
-        the_mock = mock_open(read_data="foobar\nNAME=Ubuntu Core")
-
-        with patch("builtins.open", the_mock):
-            self.assertEqual(on_core(), True)
-
-    def test_not_on_core_empty_os_release(self):
-        on_core.cache_clear()
-        the_mock = mock_open(read_data="")
-
-        with patch("builtins.open", the_mock):
-            self.assertEqual(on_core(), False)
+        self.assertEqual(on_core(), False)
 
 
 class ApplicationNameTests(TestCase):

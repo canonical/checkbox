@@ -51,18 +51,33 @@ except ImportError:
             return res
 
 
-try:
-    lsb_release = None  # Needed for unit tests
-    import distro
+def _get_host_release():
+    try:
+        with open("/var/lib/snapd/hostfs/etc/os-release") as release_file:
+            release_content = release_file.read()
+    except FileNotFoundError:
+        snap = os.getenv("SNAP")
+        if snap:
+            # Checkbox Support can be used without Plainbox installed.
+            with open(os.path.join(snap, "meta/snap.yaml")) as snap_yaml:
+                if "confinement: classic\n" not in snap_yaml:
+                    raise
+        with open("/etc/os-release") as release_file:
+            release_content = release_file.read()
 
-    if distro.id() == "ubuntu-core":
-        HOST_RELEASE = f"{distro.version()}.04"
-    else:
-        HOST_RELEASE = distro.version()
-except ImportError:
-    import lsb_release  # type: ignore
+    release_info = {}
+    for line in release_content.splitlines():
+        key, separator, value = line.partition("=")
+        if separator:
+            release_info[key] = value.strip('"')
 
-    HOST_RELEASE = lsb_release.get_distro_information()["RELEASE"]
+    release = release_info["VERSION_ID"]
+    if release_info.get("ID") == "ubuntu-core":
+        return f"{release}.04"
+    return release
+
+
+HOST_RELEASE = _get_host_release()
 
 
 logger = logging.getLogger(__name__)

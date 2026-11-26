@@ -67,7 +67,7 @@ from plainbox.impl.unit.job import InvalidJob, supported_plugins
 from plainbox.impl.unit.unit import (
     get_checkbox_runtime_path,
     get_snap_base,
-    on_os_ubuntucore,
+    in_strict_snap,
     on_ubuntucore,
 )
 from plainbox.vendor import extcmd
@@ -667,10 +667,10 @@ def get_execution_environment(job, environ, session_id, nest_dir):
     if os.getenv("SNAP"):
         set_if_not_none("CHECKBOX_RUNTIME", str(get_checkbox_runtime_path()))
 
-    if on_ubuntucore():
+    if in_strict_snap():
         set_if_not_none("CHECKBOX_RUNNING_STRICT_SNAP", "1")
 
-    if on_os_ubuntucore():
+    if on_ubuntucore():
         set_if_not_none("CHECKBOX_OS_IS_UBUNTUCORE", "1")
 
     # Inject additional variables that are requested in the config
@@ -801,9 +801,9 @@ def get_execution_command_subshell(
         if extra_env:
             env.update(extra_env())
     cmd += [f"{key}={value}" for key, value in sorted(env.items())]
-    # Run the command unconfined on ubuntu core because of snap-confine fixes
+    # Run the command unconfined in strict snaps because of snap-confine fixes
     # related to https://ubuntu.com/security/CVE-2021-44731
-    if on_ubuntucore():
+    if in_strict_snap():
         cmd += ["aa-exec", "-p", "unconfined"]
     cmd += [job.shell, "-c", job.command]
     yield cmd
@@ -866,8 +866,8 @@ class MountingStrategy(enum.Enum):
     MOUNT_AMBIENT_CAPABILITIES = enum.auto()
 
     @classmethod
-    def from_user_core(cls, job_user, on_core, snap_base):
-        if not on_core:
+    def from_strict_snap(cls, job_user, strict_snap, snap_base):
+        if not strict_snap:
             return cls.DONT_MOUNT
         if job_user == "root":
             return cls.MOUNT_ROOT
@@ -881,7 +881,7 @@ def get_snap_mount_namespace_commands(target_user, shared_location, cwd):
     """
     Returns commands and helpers to mount the current snap namespace
 
-    This is necessary because when inside a core snap, some binaries may
+    This is necessary because when inside a strict snap, some binaries may
     pass through a content interface. This makes their path "invalid" to any
     process that doesn't mount the same mount namespace. This function returns
     said commands (to be appended to the unit command), along with some
@@ -894,14 +894,14 @@ def get_snap_mount_namespace_commands(target_user, shared_location, cwd):
     wrapper_cmd = []
     cmd = []
     namespace_mounting_helper = suppress()
-    on_core = on_ubuntucore()
-    snap_base = None if not on_core else get_snap_base()
+    strict_snap = in_strict_snap()
+    snap_base = None if not strict_snap else get_snap_base()
 
-    mounting_strategy = MountingStrategy.from_user_core(
-        target_user, on_core, snap_base
+    mounting_strategy = MountingStrategy.from_strict_snap(
+        target_user, strict_snap, snap_base
     )
     if mounting_strategy == MountingStrategy.DONT_MOUNT:
-        # when not on ubuntucore, there is no snap namespace to mount
+        # Outside a strict snap, there is no snap namespace to mount.
         return wrapper_cmd, cmd, namespace_mounting_helper
     dangerous_nsenter_path = None
     necessary_caps = {}

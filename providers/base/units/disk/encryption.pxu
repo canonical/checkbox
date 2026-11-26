@@ -2,6 +2,7 @@ id: disk/encryption/detect
 category_id: com.canonical.plainbox::disk
 plugin: shell
 user: root
+environ: CHECKBOX_OS_IS_UBUNTUCORE
 imports: from com.canonical.plainbox import manifest
 requires:
   executable.name == 'lsblk'
@@ -13,7 +14,7 @@ _purpose:
   Examine the system to detect if one of the standard full disk encryption
   implementations is in use
 command:
-  if [ "$CHECKBOX_RUNNING_STRICT_SNAP" = "1" ]; then
+  if [ "$CHECKBOX_OS_IS_UBUNTUCORE" = "1" ]; then
   fde_tests.py
   else
   fde_tests.py desktop

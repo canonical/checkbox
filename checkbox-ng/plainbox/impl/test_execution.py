@@ -66,21 +66,21 @@ class UnifiedRunnerTests(TestCase):
     @mock.patch("tempfile.NamedTemporaryFile")
     @mock.patch("shutil.which")
     @mock.patch("plainbox.impl.execution.get_execution_environment")
-    @mock.patch("plainbox.impl.execution.on_ubuntucore")
+    @mock.patch("plainbox.impl.execution.in_strict_snap")
     @mock.patch("plainbox.impl.execution.get_snap_base")
     @mock.patch("plainbox.impl.unit.unit.get_snap_base")
     def test_get_execution_command_systemd_unit_command_and_envvars(
         self,
         mock_get_snap_base_unit,
         mock_get_snap_base_execution,
-        mock_on_ubuntucore,
+        mock_in_strict_snap,
         mock_get_diff_env,
         mock_shutil_which,
         mock_temp_file,
         mock_chmod,
     ):
         job = mock.Mock(shell="bash", command="test_command")
-        mock_on_ubuntucore.return_value = True
+        mock_in_strict_snap.return_value = True
         mock_get_snap_base_unit.return_value = (
             mock_get_snap_base_execution.return_value
         ) = "core24"
@@ -108,17 +108,17 @@ class UnifiedRunnerTests(TestCase):
     @mock.patch("tempfile.NamedTemporaryFile")
     @mock.patch("shutil.which")
     @mock.patch("plainbox.impl.execution.get_execution_environment")
-    @mock.patch("plainbox.impl.execution.on_ubuntucore")
+    @mock.patch("plainbox.impl.execution.in_strict_snap")
     def test_get_execution_command_systemd_unit_non_core(
         self,
-        mock_on_ubuntucore,
+        mock_in_strict_snap,
         mock_get_diff_env,
         mock_shutil_which,
         mock_temp_file,
         mock_chmod,
     ):
         job = mock.Mock(shell="bash", command="test_command")
-        mock_on_ubuntucore.return_value = False
+        mock_in_strict_snap.return_value = False
         mock_get_diff_env.return_value = {"TEST_VAR": "test_value"}
         mock_shutil_which.return_value = "/usr/bin/plz-run"
 
@@ -146,7 +146,7 @@ class UnifiedRunnerTests(TestCase):
     @mock.patch("tempfile.NamedTemporaryFile")
     @mock.patch("shutil.which")
     @mock.patch("plainbox.impl.execution.get_execution_environment")
-    @mock.patch("plainbox.impl.execution.on_ubuntucore")
+    @mock.patch("plainbox.impl.execution.in_strict_snap")
     @mock.patch("plainbox.impl.execution.get_snap_base")
     @mock.patch("plainbox.impl.execution.get_checkbox_runtime_path")
     @mock.patch("os.getenv")
@@ -155,14 +155,14 @@ class UnifiedRunnerTests(TestCase):
         mock_os_getenv,
         mock_get_checkbox_runtime_path,
         mock_get_snap_base,
-        mock_on_ubuntucore,
+        mock_in_strict_snap,
         mock_get_diff_env,
         mock_shutil_which,
         mock_temp_file,
         mock_chmod,
     ):
         job = mock.Mock(shell="/bin/bash", command="test_command")
-        mock_on_ubuntucore.return_value = True
+        mock_in_strict_snap.return_value = True
         mock_os_getenv.return_value = "test_snap"
         mock_get_diff_env.return_value = {}
 
@@ -194,12 +194,12 @@ class UnifiedRunnerTests(TestCase):
     @mock.patch(
         "plainbox.impl.execution.get_differential_execution_environment"
     )
-    @mock.patch("plainbox.impl.execution.on_ubuntucore")
+    @mock.patch("plainbox.impl.execution.in_strict_snap")
     def test_get_execution_command_subshell_with_user(
-        self, mock_on_ubuntucore, mock_get_diff_env
+        self, mock_in_strict_snap, mock_get_diff_env
     ):
         job = mock.Mock(shell="bash", command="test_command")
-        mock_on_ubuntucore.return_value = False
+        mock_in_strict_snap.return_value = False
         mock_get_diff_env.return_value = {"TEST_VAR": "test_value"}
 
         with get_execution_command_subshell(
@@ -213,12 +213,12 @@ class UnifiedRunnerTests(TestCase):
         self.assertNotIn("aa-exec", result)
 
     @mock.patch("plainbox.impl.execution.get_execution_environment")
-    @mock.patch("plainbox.impl.execution.on_ubuntucore")
+    @mock.patch("plainbox.impl.execution.in_strict_snap")
     def test_get_execution_command_subshell_no_user(
-        self, mock_on_ubuntucore, mock_get_env
+        self, mock_in_strict_snap, mock_get_env
     ):
         job = mock.Mock(shell="bash", command="test_command")
-        mock_on_ubuntucore.return_value = False
+        mock_in_strict_snap.return_value = False
         mock_get_env.return_value = {"TEST_VAR": "test_value"}
 
         with get_execution_command_subshell(
@@ -232,12 +232,12 @@ class UnifiedRunnerTests(TestCase):
         self.assertNotIn("aa-exec", result)
 
     @mock.patch("plainbox.impl.execution.get_execution_environment")
-    @mock.patch("plainbox.impl.execution.on_ubuntucore")
+    @mock.patch("plainbox.impl.execution.in_strict_snap")
     def test_get_execution_command_subshell_on_core(
-        self, mock_on_ubuntucore, mock_get_env
+        self, mock_in_strict_snap, mock_get_env
     ):
         job = mock.Mock(shell="bash", command="test_command")
-        mock_on_ubuntucore.return_value = True
+        mock_in_strict_snap.return_value = True
         mock_get_env.return_value = {"TEST_VAR": "test_value"}
 
         with get_execution_command_subshell(
@@ -466,25 +466,25 @@ class TestDangerousNsenter(TestCase):
 class TestMountingStrategy(TestCase):
     def test_dont_mount(self):
         self.assertEqual(
-            MountingStrategy.from_user_core("root", False, None),
+            MountingStrategy.from_strict_snap("root", False, None),
             MountingStrategy.DONT_MOUNT,
         )
 
     def test_mount_root(self):
         self.assertEqual(
-            MountingStrategy.from_user_core("root", True, "core16"),
+            MountingStrategy.from_strict_snap("root", True, "core16"),
             MountingStrategy.MOUNT_ROOT,
         )
 
     def test_mount_dangerous(self):
         self.assertEqual(
-            MountingStrategy.from_user_core("ubuntu", True, "core16"),
+            MountingStrategy.from_strict_snap("ubuntu", True, "core16"),
             MountingStrategy.MOUNT_DANGEROUS_NSENTER,
         )
 
     def test_mount_ambient(self):
         self.assertEqual(
-            MountingStrategy.from_user_core("ubuntu", True, "core24"),
+            MountingStrategy.from_strict_snap("ubuntu", True, "core24"),
             MountingStrategy.MOUNT_AMBIENT_CAPABILITIES,
         )
 
@@ -567,6 +567,30 @@ class TestGetExecutionEnvironment(TestCase):
         )
 
         self.assertEqual(env["EXISTING_VAR"], "original_value")
+
+    @mock.patch.dict(os.environ, {}, clear=True)
+    @mock.patch("plainbox.impl.execution.on_ubuntucore", return_value=False)
+    @mock.patch("plainbox.impl.execution.in_strict_snap", return_value=True)
+    @mock.patch("plainbox.impl.execution.WellKnownDirsHelper")
+    def test_strict_snap_on_classic(self, mock_well_known, *_):
+        env = get_execution_environment(
+            self.job, None, "test_session", "/nest"
+        )
+
+        self.assertEqual(env["CHECKBOX_RUNNING_STRICT_SNAP"], "1")
+        self.assertNotIn("CHECKBOX_OS_IS_UBUNTUCORE", env)
+
+    @mock.patch.dict(os.environ, {}, clear=True)
+    @mock.patch("plainbox.impl.execution.on_ubuntucore", return_value=True)
+    @mock.patch("plainbox.impl.execution.in_strict_snap", return_value=False)
+    @mock.patch("plainbox.impl.execution.WellKnownDirsHelper")
+    def test_on_ubuntucore_not_strict_snap(self, mock_well_known, *_):
+        env = get_execution_environment(
+            self.job, None, "test_session", "/nest"
+        )
+
+        self.assertNotIn("CHECKBOX_RUNNING_STRICT_SNAP", env)
+        self.assertEqual(env["CHECKBOX_OS_IS_UBUNTUCORE"], "1")
 
 
 @mock.patch("plainbox.impl.execution.dangerous_nsenter", new=empty_context)

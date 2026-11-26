@@ -23,18 +23,17 @@ import os
 
 from functools import lru_cache
 
+from checkbox_ng.support.snap_utils.system import on_ubuntucore
+
 
 @lru_cache(maxsize=1)
 def on_core():
     """
-    Return True if we are running on Ubuntu Core. False otherwise.
+    Return True if the host OS is Ubuntu Core. False otherwise.
 
     If we get an exception while trying to read the file, we let it bubble up.
     """
-
-    with open("/etc/os-release") as os_release_file:
-        contents = os_release_file.readlines()
-        return any(line.startswith("NAME=Ubuntu Core") for line in contents)
+    return on_ubuntucore()
 
 
 def application_name():

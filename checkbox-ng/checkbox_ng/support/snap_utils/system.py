@@ -9,30 +9,36 @@ import re
 import subprocess as sp
 import yaml
 
-import distro
-
 from checkbox_ng.support.parsers.kernel_cmdline import parse_kernel_cmdline
+from checkbox_ng.support.release_info import (
+    get_release_file_content,
+    get_release_info,
+)
 from checkbox_ng.support.snap_utils.asserts import decode
 from checkbox_ng.support.snap_utils.asserts import model_to_resource
 from checkbox_ng.support.snap_utils.snapd import Snapd
+from plainbox.impl.snap import in_classic_snap  # noqa: F401
+from plainbox.impl.snap import in_strict_snap
 
 
 def on_ubuntucore():
-    return "ubuntu-core" in distro.id()
+    """
+    Return True if the host OS is Ubuntu Core.
+
+    The host os-release is used (via hostfs when running in a strict snap)
+    because the snap's own /etc/os-release comes from its base snap, which
+    always reports Ubuntu Core.
+    """
+    return any(
+        line.partition("=")[0] == "ID"
+        and line.partition("=")[2].strip('"') == "ubuntu-core"
+        for line in get_release_file_content().splitlines()
+    )
 
 
 def get_series():
-    return distro.version()
-
-
-def in_classic_snap():
-    snap = os.getenv("SNAP")
-    if snap:
-        with open(os.path.join(snap, "meta/snap.yaml")) as f:
-            for line in f.readlines():
-                if line == "confinement: classic\n":
-                    return True
-    return False
+    """Return the host OS version (e.g. "24.04" or "24" on Ubuntu Core)."""
+    return get_release_info().get("release")
 
 
 def get_kernel_snap():
@@ -88,7 +94,7 @@ def get_lk_bootimg_path():
 
 
 def add_hostfs_prefix(path):
-    if on_ubuntucore():
+    if in_strict_snap():
         if os.path.isabs(path):
             path = path.split(os.path.sep, 1)[1]
         return os.path.join(os.path.sep, "var", "lib", "snapd", "hostfs", path)

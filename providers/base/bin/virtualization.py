@@ -45,6 +45,9 @@ import urllib.request
 from urllib.parse import urlparse
 from uuid import uuid4
 
+from checkbox_support.helpers.release_info import get_release_info
+from checkbox_support.snap_utils.system import get_series, on_ubuntucore
+
 DEFAULT_TIMEOUT = 500
 
 
@@ -135,34 +138,19 @@ QEMU_ARCH_CONFIG = {
 
 
 def get_release_to_test():
-    try:
-        import distro
-
-        if distro.id() == "ubuntu-core":
-            return f"{distro.version()}.04"
-        return distro.version()
-    except (ImportError, CalledProcessError):
-        import lsb_release
-
-        return lsb_release.get_distro_information()["RELEASE"]
+    release = get_series()
+    return f"{release}.04" if on_ubuntucore() else release
 
 
 def get_codename_to_test():
-    try:
-        import distro
-
-        if distro.id() == "ubuntu-core":
-            codename = "focal"
-            if distro.version() == "18":
-                codename = "bionic"
-            elif distro.version() == "16":
-                codename = "xenial"
-            return codename
-        return distro.codename().split()[0].lower()
-    except (ImportError, CalledProcessError):
-        import lsb_release
-
-        lsb_release.get_distro_information()["CODENAME"]
+    if on_ubuntucore():
+        release = get_series()
+        if release == "18":
+            return "bionic"
+        if release == "16":
+            return "xenial"
+        return "focal"
+    return get_release_info()["codename"].split()[0].lower()
 
 
 class QemuRunner:

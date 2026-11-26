@@ -24,6 +24,7 @@ import logging
 import os
 import sys
 from checkbox_support.lxd_support import LXD, LXDVM
+from checkbox_support.snap_utils.system import get_series, on_ubuntucore
 
 # Map vendor IDs to vendor names
 VENDOR_INFO = {
@@ -37,16 +38,8 @@ NUM_OF_VIRTUAL_IFACES = 1
 
 
 def get_release_to_test():
-    try:
-        import distro
-
-        if distro.id() == "ubuntu-core":
-            return f"{distro.version()}.04"
-        return distro.version()
-    except ImportError:
-        import lsb_release
-
-        return lsb_release.get_distro_information()["RELEASE"]
+    release = get_series()
+    return f"{release}.04" if on_ubuntucore() else release
 
 
 def check_ubuntu_version():

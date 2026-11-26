@@ -18,7 +18,11 @@
 # along with Checkbox.  If not, see <http://www.gnu.org/licenses/>.
 
 
-from checkbox_support.snap_utils.system import on_ubuntucore, get_kernel_snap
+from checkbox_support.snap_utils.system import (
+    add_hostfs_prefix,
+    get_kernel_snap,
+    on_ubuntucore,
+)
 from checkbox_support.helpers.release_info import get_release_info
 import subprocess
 import os
@@ -33,17 +37,35 @@ def get_kernel_package_info():
     # If we are not on Ubuntu Core, we need to check the kernel package
     # installed on the system.
 
-    # Get the kernel version
     kernel_version = os.uname().release
-    linux_modules_info = subprocess.check_output(
-        ["apt-cache", "show", f"linux-modules-{kernel_version}"],
-        universal_newlines=True,
-        stderr=subprocess.DEVNULL,
-    )
-    for line in linux_modules_info.splitlines():
-        if line.startswith("Source:"):
-            kernel_package = line.split(":")[1].strip()
-            return kernel_package, "deb"
+    dpkg_admin_dir = add_hostfs_prefix("/var/lib/dpkg")
+    try:
+        package_info = subprocess.check_output(
+            [
+                "dpkg-query",
+                "--admindir",
+                dpkg_admin_dir,
+                "-W",
+                "-f=${db:Status-Status}\t${source:Package}\n",
+                f"linux-modules-{kernel_version}",
+            ],
+            universal_newlines=True,
+        )
+    except subprocess.CalledProcessError as exc:
+        if exc.returncode != 1:
+            raise
+        # A missing dpkg database also looks like a missing package.
+        with open(os.path.join(dpkg_admin_dir, "status")):
+            pass
+        return None, "deb"
+    except FileNotFoundError as exc:
+        raise SystemExit("Unable to find dpkg-query.") from exc
+    for line in package_info.splitlines():
+        status, separator, source_package = line.partition("\t")
+        source_package = source_package.strip()
+        if separator and status == "installed" and source_package:
+            return source_package, "deb"
+    return None, "deb"
 
 
 def main():

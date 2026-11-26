@@ -1,11 +1,15 @@
 import re
-from contextlib import suppress
+
+from plainbox.impl.snap import in_strict_snap
 
 
 def get_release_file_content():
-    with suppress(FileNotFoundError):
+    try:
         with open("/var/lib/snapd/hostfs/etc/os-release") as fp:
             return fp.read()
+    except FileNotFoundError:
+        if in_strict_snap():
+            raise
     with open("/etc/os-release") as fp:
         return fp.read()
 

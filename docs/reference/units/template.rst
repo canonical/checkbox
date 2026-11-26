@@ -269,7 +269,10 @@ engine (see :option:`template template-engine`):
     variable with the executing shell's environment variables as ``os.environ``
 
 ``__on_ubuntucore__``:
-    Helper function (boolean) checking if checkbox runs from on ubuntu core
+    Boolean that is ``True`` when the host OS is Ubuntu Core, regardless of
+    how Checkbox is installed. In a strict snap, host OS detection needs
+    access to the host's ``os-release`` file. Connecting the snap's
+    ``system-observe`` interface grants that access.
 
 ``__checkbox_env__``:
     Dictionary containing the checkbox config environment section

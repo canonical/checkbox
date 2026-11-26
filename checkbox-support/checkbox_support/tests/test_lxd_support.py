@@ -21,10 +21,76 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import subprocess
 from unittest import TestCase
-from unittest.mock import MagicMock, patch
+from unittest.mock import MagicMock, Mock, call, mock_open, patch
 
 from checkbox_support.helpers.retry import mock_retry
-from checkbox_support.lxd_support import LXD, LXDVM
+from checkbox_support.lxd_support import LXD, LXDVM, _get_host_release
+
+
+class TestHostRelease(TestCase):
+    def test_reads_host_release_from_hostfs(self):
+        os_release = mock_open(
+            read_data='ID=ubuntu-core\nVERSION_ID="24"\n'
+        ).return_value
+        open_mock = Mock(return_value=os_release)
+
+        with patch("builtins.open", open_mock):
+            self.assertEqual(_get_host_release(), "24.04")
+
+        open_mock.assert_called_once_with(
+            "/var/lib/snapd/hostfs/etc/os-release"
+        )
+
+    @patch.dict("os.environ", {}, clear=True)
+    def test_falls_back_to_local_os_release(self):
+        local_os_release = mock_open(
+            read_data='ID=ubuntu\nVERSION_ID="24.04"\n'
+        ).return_value
+        open_mock = Mock(side_effect=[FileNotFoundError(), local_os_release])
+
+        with patch("builtins.open", open_mock):
+            self.assertEqual(_get_host_release(), "24.04")
+
+        self.assertEqual(open_mock.call_count, 2)
+
+    @patch.dict("sys.modules", {"plainbox.impl.snap": None})
+    @patch.dict("os.environ", {"SNAP": "/snap/checkbox/1"}, clear=True)
+    def test_missing_host_release_in_strict_snap(self):
+        def open_file(path):
+            if path == "/var/lib/snapd/hostfs/etc/os-release":
+                raise FileNotFoundError(path)
+            if path == "/snap/checkbox/1/meta/snap.yaml":
+                return mock_open(read_data="confinement: strict\n")()
+            return mock_open(read_data='ID=ubuntu-core\nVERSION_ID="24"\n')()
+
+        with patch("builtins.open", side_effect=open_file) as open_mock:
+            with self.assertRaises(FileNotFoundError):
+                _get_host_release()
+
+        self.assertNotIn(call("/etc/os-release"), open_mock.call_args_list)
+
+    @patch.dict("sys.modules", {"plainbox.impl.snap": None})
+    @patch.dict("os.environ", {"SNAP": "/snap/checkbox/1"}, clear=True)
+    def test_missing_host_release_in_classic_snap(self):
+        def open_file(path):
+            if path == "/var/lib/snapd/hostfs/etc/os-release":
+                raise FileNotFoundError(path)
+            if path == "/snap/checkbox/1/meta/snap.yaml":
+                return mock_open(read_data="confinement: classic\n")()
+            return mock_open(read_data='ID=ubuntu\nVERSION_ID="24.04"\n')()
+
+        with patch("builtins.open", side_effect=open_file):
+            self.assertEqual(_get_host_release(), "24.04")
+
+    def test_inaccessible_host_release_does_not_fall_back(self):
+        with patch(
+            "builtins.open", side_effect=PermissionError()
+        ) as open_mock:
+            with self.assertRaises(PermissionError):
+                _get_host_release()
+        open_mock.assert_called_once_with(
+            "/var/lib/snapd/hostfs/etc/os-release"
+        )
 
 
 @mock_retry()

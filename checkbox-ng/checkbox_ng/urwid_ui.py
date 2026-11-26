@@ -387,17 +387,17 @@ class CategoryBrowser:
                     ("focus", " Keyboard Controls and Shortcuts "), "center"
                 ),
                 urwid.Divider(),
-                urwid.Text("Expand/Collapse          Enter/+/-"),
-                urwid.Text("Select/Deselect all      s/d"),
-                urwid.Text("Select/Deselect          Space"),
-                urwid.Text("Navigation               Up/Down"),
-                urwid.Text("                         Home/End"),
-                urwid.Text("                         PageUp/PageDown"),
-                urwid.Text("Back to parent category  Left"),
-                urwid.Text("Toggle job id/summary    i"),
-                urwid.Text("Show job details         m"),
-                urwid.Text("Go back to previous      b"),
-                urwid.Text("Exit (abandon session)   Ctrl+C"),
+                urwid.Text("Expand/Collapse              Enter/+/-"),
+                urwid.Text("Select/Deselect all          s/d"),
+                urwid.Text("Select/Deselect              Space"),
+                urwid.Text("Navigation                   Up/Down"),
+                urwid.Text("                             Home/End"),
+                urwid.Text("                             PageUp/PageDown"),
+                urwid.Text("Back to parent category      Left"),
+                urwid.Text("Toggle job id/summary        i"),
+                urwid.Text("Show job details             m"),
+                urwid.Text("Go back to previous screen   b"),
+                urwid.Text("Exit (abandon session)       Ctrl+C"),
             ]
         )
     )

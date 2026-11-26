@@ -1,9 +1,11 @@
-name: Checkbox edge canary
+name: Checkbox edge canary (mock)
 
 permissions:
   contents: read
 
 on:
+  push:
+    branches: [github-canary-pipelines-mock]
   # zizmor: ignore[dangerous-triggers] only runs trusted code from main
   workflow_run:
     workflows: [Daily builds]
@@ -17,13 +19,12 @@ on:
         default: false
 
 concurrency:
-  group: checkbox-edge-canary
+  group: checkbox-edge-canary-mock
   cancel-in-progress: false
 
 jobs:
   prepare:
     name: Wait for the edge packages
-    if: github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success'
     runs-on: ubuntu-latest
     timeout-minutes: 320
     outputs:
@@ -61,37 +62,11 @@ jobs:
               provision_data: "{url: 'https://tel-image-cache.canonical.com/oem-share/hardware-certification/ubuntu-core/24/cert-ubuntu-core-24-pi-arm64.img.xz', preset: RPiUC}"
               queue: rpi400-arm64
         run: echo "devices=$(yq -o=json -I=0 . <<< "$DEVICES")" >> "$GITHUB_OUTPUT"
-      - name: Checkout checkbox monorepo
-        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
-        with:
-          fetch-depth: 0
-          persist-credentials: false
-      - name: Get the edge version
+      - name: Get the edge version (mock)
         id: version
-        env:
-          MANUAL: ${{ github.event_name == 'workflow_dispatch' }}
         run: |
-          git clone --depth 1 https://github.com/canonical/hwcert-jenkins-tools
-          VERSION=$(python3 hwcert-jenkins-tools/version-published/get_snap_store_version.py checkbox edge)
-          git checkout -q origin/beta
-          BETA_VERSION=$(python3 tools/release/get_version.py --dev --output-format=snap 2>/dev/null)
-          echo "Edge: $VERSION, beta: $BETA_VERSION"
-          if [ "$VERSION" != "$BETA_VERSION" ] || [ "$MANUAL" = "true" ]; then
-            RUN=true
-          else
-            RUN=false
-            echo "::notice::$VERSION is already in beta, nothing to test"
-          fi
-          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
-          echo "run=$RUN" >> "$GITHUB_OUTPUT"
-      - name: Wait for all snaps and debs to be published
-        if: steps.version.outputs.run == 'true'
-        env:
-          VERSION: ${{ steps.version.outputs.version }}
-        working-directory: hwcert-jenkins-tools/version-published
-        run: |
-          PYTHONUNBUFFERED=1 python3 checkbox_version_published.py \
-            "$VERSION" checkbox-canary.yaml --timeout 18000
+          echo "version=0.0.0-mock" >> "$GITHUB_OUTPUT"
+          echo "run=true" >> "$GITHUB_OUTPUT"
 
   canary:
     # The platform must be the first word of the name, it is used to find
@@ -99,7 +74,7 @@ jobs:
     name: ${{ matrix.platform }} on ${{ matrix.queue }}
     needs: prepare
     if: needs.prepare.outputs.run == 'true'
-    runs-on: self-hosted-linux-amd64-jammy-private-endpoint-medium
+    runs-on: ubuntu-latest
     timeout-minutes: 120
     # A failing device does not fail the run, the platform passes if any of
     # its devices passed
@@ -110,47 +85,19 @@ jobs:
         include: ${{ fromJSON(needs.prepare.outputs.devices) }}
     defaults: &lab-dispatch
       run:
-        working-directory: tools/lab_dispatch
+        shell: bash
     steps: &device-steps
-      - name: Checkout checkbox monorepo
-        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
-        with:
-          persist-credentials: false
-      - name: Create the Testflinger job
+      - name: Run the canary (mock)
         env:
-          DEVICES: ${{ needs.prepare.outputs.devices }}
+          JOB: ${{ github.job }}
           QUEUE: ${{ matrix.queue }}
         run: |
-          which envsubst > /dev/null || sudo apt-get install -y -qq gettext-base
-          device=$(jq -c --arg queue "$QUEUE" '.[] | select(.queue == $queue)' <<< "$DEVICES")
-          CHECKBOX_TRACK=$(jq -r .track <<< "$device")
-          PROVISION_DATA=$(jq -r .provision_data <<< "$device")
-          export CHECKBOX_TRACK PROVISION_DATA
-          envsubst '$QUEUE $PROVISION_DATA $CHECKBOX_TRACK' < canary.yaml > job.yaml
-      - name: Run the canary
-        id: canary
-        uses: canonical/testflinger/.github/actions/submit@545ed69f17a5e639a2299e325f5fb199ca9f98af
-        with:
-          poll: true
-          job-path: tools/lab_dispatch/job.yaml
-          client-id: ${{ secrets.TESTFLINGER_CLIENT_ID }}
-          secret-key: ${{ secrets.TESTFLINGER_SECRET_KEY }}
-      - name: Download the Testflinger artifacts
-        if: always() && steps.canary.outputs.id != ''
-        env:
-          JOB_ID: ${{ steps.canary.outputs.id }}
-          TESTFLINGER_CLIENT_ID: ${{ secrets.TESTFLINGER_CLIENT_ID }}
-          TESTFLINGER_SECRET_KEY: ${{ secrets.TESTFLINGER_SECRET_KEY }}
-        run: testflinger artifacts "$JOB_ID" --filename artifacts.tgz || true
-      - name: Upload the canary results
-        if: always()
-        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
-        with:
-          name: ${{ github.job }}-${{ matrix.queue }}
-          path: |
-            tools/lab_dispatch/job.yaml
-            tools/lab_dispatch/artifacts.tgz
-          if-no-files-found: ignore
+          sleep 10
+          case "$JOB/$QUEUE" in
+            canary/dell-optiplex-3000-thin-client-c29189|canary/rpi4|\
+            canary/rpi400-arm64|retry-uc24-arm64/rpi400-arm64)
+              echo "::error::Mock failure on $QUEUE"; exit 1 ;;
+          esac
 
   check:
     name: Check if a retry is needed
@@ -215,7 +162,7 @@ jobs:
           fi
       - name: Wait 30 minutes before retrying
         if: steps.failed.outputs.retry != '{}'
-        run: sleep 1800
+        run: sleep 30
 
   # One retry job per platform, so a platform that passed shows as skipped.
   # The matrix only has the queue, so the job names are short and readable.
@@ -223,7 +170,7 @@ jobs:
     name: uc22-amd64 (retry)
     needs: [prepare, check]
     if: ${{ !cancelled() && contains(needs.check.outputs.retry, '"uc22-amd64"') }}
-    runs-on: self-hosted-linux-amd64-jammy-private-endpoint-medium
+    runs-on: ubuntu-latest
     timeout-minutes: 120
     continue-on-error: true
     strategy:
@@ -237,7 +184,7 @@ jobs:
     name: uc24-amd64 (retry)
     needs: [prepare, check]
     if: ${{ !cancelled() && contains(needs.check.outputs.retry, '"uc24-amd64"') }}
-    runs-on: self-hosted-linux-amd64-jammy-private-endpoint-medium
+    runs-on: ubuntu-latest
     timeout-minutes: 120
     continue-on-error: true
     strategy:
@@ -251,7 +198,7 @@ jobs:
     name: uc24-arm64 (retry)
     needs: [prepare, check]
     if: ${{ !cancelled() && contains(needs.check.outputs.retry, '"uc24-arm64"') }}
-    runs-on: self-hosted-linux-amd64-jammy-private-endpoint-medium
+    runs-on: ubuntu-latest
     timeout-minutes: 120
     continue-on-error: true
     strategy:
@@ -274,21 +221,8 @@ jobs:
   promote:
     name: Move the beta branch
     needs: [prepare, result]
-    if: ${{ !cancelled() && needs.result.result == 'success' && (github.event_name == 'workflow_run' || inputs.promote) }}
+    if: ${{ !cancelled() && needs.result.result == 'success' && (github.event_name != 'workflow_dispatch' || inputs.promote) }}
     runs-on: ubuntu-latest
     steps:
-      # Pushing with a deploy key (unlike GITHUB_TOKEN) triggers the beta
-      # release workflow
-      - name: Checkout checkbox monorepo
-        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
-        with:
-          fetch-depth: 0
-          ssh-key: ${{ secrets.CHECKBOX_BETA_DEPLOY_KEY }}
-          persist-credentials: true # zizmor: ignore[artipacked] used to push
-      - name: Move the beta branch to the tested version
-        env:
-          VERSION: ${{ needs.prepare.outputs.version }}
-        run: |
-          git clone --depth 1 https://github.com/canonical/hwcert-jenkins-tools
-          python3 hwcert-jenkins-tools/version-published/move_branch_by_version.py \
-            . beta "$VERSION"
+      - name: Move the beta branch to the tested version (mock)
+        run: echo "Mock move of beta"

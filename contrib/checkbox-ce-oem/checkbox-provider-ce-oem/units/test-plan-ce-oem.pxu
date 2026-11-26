@@ -35,6 +35,7 @@ nested_part:
     ce-oem-mtd-manual
     ce-oem-buzzer-manual
     ce-oem-audio-manual
+    ce-oem-audio-alsa-ucm-manual
     ce-oem-otg-manual
     ce-oem-rtc-manual
     ce-oem-eeprom-manual

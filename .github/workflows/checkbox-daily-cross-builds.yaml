@@ -85,6 +85,7 @@ jobs:
         with:
           name: runtime_snap${{ matrix.release }}_${{ matrix.arch }}.snap
           path: ${{ steps.snap_build.outputs.snap }}
+          overwrite: true # the job may be re-run by daily-builds-rerun.yml
 
       - name: Reload the host snapd AppArmor profiles
         if: inputs.store_upload
@@ -94,14 +95,32 @@ jobs:
           # snapcraft for publishing fail (cap_fowner not found)
           sudo systemctl restart snapd
 
+      - name: Install snapcraft to publish
+        if: inputs.store_upload
+        uses: Wandalen/wretry.action@df981d2bb22b26b5b23754bb516d0de8c1bfbbec
+        with:
+          attempt_limit: 3
+          attempt_delay: 60000 # 1min between attempts
+          command: |
+            install_command=(sudo snap install snapcraft --classic)
+            timeout --kill-after=1m 10m "${install_command[@]}"
+
       - name: Publish track
         if: inputs.store_upload
-        uses: canonical/action-publish@214b86e5ca036ead1668c79afb81e550e6c54d40
+        uses: Wandalen/wretry.action@df981d2bb22b26b5b23754bb516d0de8c1bfbbec
+        timeout-minutes: 100
         env:
           SNAPCRAFT_STORE_CREDENTIALS: ${{ secrets.SNAPCRAFT7_CREDS }}
+          SNAP_FILE: ${{ steps.snap_build.outputs.snap }}
+          CHANNELS: latest/edge
         with:
-          snap: ${{ steps.snap_build.outputs.snap }}
-          release: latest/edge
+          attempt_limit: 3
+          attempt_delay: 60000 # 1min between attempts
+          command: |
+            # A retry after the upload reached the store is rejected as a
+            # duplicate; the job is then re-run with a new build instead
+            publish_command=(snapcraft upload "$SNAP_FILE" --release "$CHANNELS")
+            timeout --kill-after=1m 30m "${publish_command[@]}"
 
   snap-frontend:
     strategy:
@@ -139,7 +158,7 @@ jobs:
     # start on the newer ubuntu-latest kernel, hanging the build. This is a
     # workaround unitl the snapd/AppArmor issue is resolved.
     runs-on: ${{ matrix.release < 22 && 'ubuntu-22.04' || 'ubuntu-latest' }}
-    timeout-minutes: 480 # 8h configured cap; GitHub-hosted jobs are limited to 6h
+    timeout-minutes: 480 # 8h configured cap
     name: Frontend ${{ matrix.type }}${{ matrix.release }} (${{ matrix.arch }})
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
@@ -181,6 +200,7 @@ jobs:
         with:
           name: frontend_snaps_${{ matrix.type }}${{ matrix.release }}_${{matrix.arch}}.snap
           path: ${{ steps.snap_build.outputs.snap }}
+          overwrite: true # the job may be re-run by daily-builds-rerun.yml
 
       - name: Reload the host snapd AppArmor profiles
         if: inputs.store_upload
@@ -190,23 +210,49 @@ jobs:
           # snapcraft for publishing fail (cap_fowner not found)
           sudo systemctl restart snapd
 
+      - name: Install snapcraft to publish
+        if: inputs.store_upload
+        uses: Wandalen/wretry.action@df981d2bb22b26b5b23754bb516d0de8c1bfbbec
+        with:
+          attempt_limit: 3
+          attempt_delay: 60000 # 1min between attempts
+          command: |
+            install_command=(sudo snap install snapcraft --classic)
+            timeout --kill-after=1m 10m "${install_command[@]}"
+
       - name: Publish track
+        uses: Wandalen/wretry.action@df981d2bb22b26b5b23754bb516d0de8c1bfbbec
         # this is done this way because the store doesn't allow the same artifact to be uploaded twice
         if: inputs.store_upload && (matrix.release != 24 || matrix.type != 'classic')
-        uses: canonical/action-publish@214b86e5ca036ead1668c79afb81e550e6c54d40
+        timeout-minutes: 100
         env:
           SNAPCRAFT_STORE_CREDENTIALS: ${{ secrets.SNAPCRAFT7_CREDS }}
-        with:
-          snap: ${{ steps.snap_build.outputs.snap }}
+          SNAP_FILE: ${{ steps.snap_build.outputs.snap }}
           # channel is ucXX for uc snaps and XX.04 for classic snaps
-          release: ${{ matrix.type == 'uc' && format('uc{0}', matrix.release) || format('{0}.04', matrix.release) }}/edge
+          CHANNELS: ${{ matrix.type == 'uc' && format('uc{0}', matrix.release) || format('{0}.04', matrix.release) }}/edge
+        with:
+          attempt_limit: 3
+          attempt_delay: 60000 # 1min between attempts
+          command: |
+            # A retry after the upload reached the store is rejected as a
+            # duplicate; the job is then re-run with a new build instead
+            publish_command=(snapcraft upload "$SNAP_FILE" --release "$CHANNELS")
+            timeout --kill-after=1m 30m "${publish_command[@]}"
 
       - name: Publish track + latest
         if: inputs.store_upload && matrix.release == 24 && matrix.type == 'classic'
-        uses: canonical/action-publish@214b86e5ca036ead1668c79afb81e550e6c54d40
+        uses: Wandalen/wretry.action@df981d2bb22b26b5b23754bb516d0de8c1bfbbec
+        timeout-minutes: 100
         env:
           SNAPCRAFT_STORE_CREDENTIALS: ${{ secrets.SNAPCRAFT7_CREDS }}
-        with:
-          snap: ${{ steps.snap_build.outputs.snap }}
+          SNAP_FILE: ${{ steps.snap_build.outputs.snap }}
           # classic 24.04 is published to latest/edge as well
-          release: 24.04/edge,latest/edge
+          CHANNELS: 24.04/edge,latest/edge
+        with:
+          attempt_limit: 3
+          attempt_delay: 60000 # 1min between attempts
+          command: |
+            # A retry after the upload reached the store is rejected as a
+            # duplicate; the job is then re-run with a new build instead
+            publish_command=(snapcraft upload "$SNAP_FILE" --release "$CHANNELS")
+            timeout --kill-after=1m 30m "${publish_command[@]}"

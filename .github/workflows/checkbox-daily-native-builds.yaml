@@ -258,9 +258,9 @@ jobs:
             timeout --kill-after=1m 10m "${refresh_command[@]}"
 
       - name: Publish track
-        uses: Wandalen/wretry.action@df981d2bb22b26b5b23754bb516d0de8c1bfbbec
         # this is done this way because the store doesn't allow the same artifact to be uploaded twice
         if: inputs.store_upload && (matrix.release != 24 || matrix.type != 'classic')
+        uses: Wandalen/wretry.action@df981d2bb22b26b5b23754bb516d0de8c1bfbbec
         timeout-minutes: 100
         env:
           SNAPCRAFT_STORE_CREDENTIALS: ${{ secrets.SNAPCRAFT7_CREDS }}

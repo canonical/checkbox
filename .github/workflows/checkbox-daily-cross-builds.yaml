@@ -158,7 +158,7 @@ jobs:
     # start on the newer ubuntu-latest kernel, hanging the build. This is a
     # workaround unitl the snapd/AppArmor issue is resolved.
     runs-on: ${{ matrix.release < 22 && 'ubuntu-22.04' || 'ubuntu-latest' }}
-    timeout-minutes: 480 # 8h configured cap
+    timeout-minutes: 480 # 8h configured cap; GitHub-hosted jobs are limited to 6h
     name: Frontend ${{ matrix.type }}${{ matrix.release }} (${{ matrix.arch }})
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
@@ -221,9 +221,9 @@ jobs:
             timeout --kill-after=1m 10m "${install_command[@]}"
 
       - name: Publish track
-        uses: Wandalen/wretry.action@df981d2bb22b26b5b23754bb516d0de8c1bfbbec
         # this is done this way because the store doesn't allow the same artifact to be uploaded twice
         if: inputs.store_upload && (matrix.release != 24 || matrix.type != 'classic')
+        uses: Wandalen/wretry.action@df981d2bb22b26b5b23754bb516d0de8c1bfbbec
         timeout-minutes: 100
         env:
           SNAPCRAFT_STORE_CREDENTIALS: ${{ secrets.SNAPCRAFT7_CREDS }}

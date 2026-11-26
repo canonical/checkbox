@@ -197,7 +197,7 @@ class RemoteSessionAssistant:
     object but JSON encoded.
     """
 
-    REMOTE_API_VERSION = 17
+    REMOTE_API_VERSION = 18
 
     def __init__(self, cmd_callback):
         _logger.debug("__init__()")

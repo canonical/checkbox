@@ -1080,12 +1080,11 @@ class RemoteController(ReportsStage, MainLoopStage):
                         )
                         self.sa.remember_users_response(new_comment + "\n")
                     elif kind == "skip":
+                        builder = interaction.extra.wait()
                         if (
                             job_state.effective_certification_status
                             == "blocker"
-                            and not isinstance(
-                                interaction.extra._builder.comments, str
-                            )
+                            and not isinstance(builder.comments, str)
                         ):
                             print(
                                 self.C.RED(
@@ -1104,16 +1103,10 @@ class RemoteController(ReportsStage, MainLoopStage):
                                 )
                             )
                             next_job = False
-                            self.sa.rerun_job(
-                                job["id"],
-                                interaction.extra._builder.get_result(),
-                            )
+                            self.sa.rerun_job(job["id"], builder.get_result())
                             break
                         else:
-                            self.finish_job(
-                                interaction.extra._builder.get_result(),
-                                job_state,
-                            )
+                            self.finish_job(builder.get_result(), job_state)
                             next_job = True
                             break
                 else:

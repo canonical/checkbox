@@ -304,6 +304,7 @@ user: root
 environ:
   - PLAINBOX_SESSION_SHARE
   - RTC_DEVICE_FILE
+  - STRESS_S3_SLEEP_DELAY
 command: |
   if [[ -v SNAP ]]; then
       export LD_LIBRARY_PATH="$LD_LIBRARY_PATH:$SNAP/usr/lib/fwts"
@@ -313,8 +314,7 @@ command: |
       echo "Calling fwts"
       set -o pipefail; checkbox-support-fwts_test -f none -l "$PLAINBOX_SESSION_SHARE"/suspend_single.log -s s3 --s3-sleep-delay=30 --s3-device-check --s3-device-check-delay=45 | tee "$PLAINBOX_SESSION_SHARE"/suspend_single_times.log
   else
-       echo "Calling rtcwake with -d ${RTC_DEVICE_FILE:-/dev/rtc0}"
-       rtcwake -d "${RTC_DEVICE_FILE:-/dev/rtc0}" -m no -s 30 && systemctl suspend || exit 1
+      suspend_trigger.py --check-delay 0 --sleep-delay "${STRESS_S3_SLEEP_DELAY:-30}" --rtc-device "${RTC_DEVICE_FILE:-/dev/rtc0}"
   fi
 estimated_duration: "90.000"
 ---

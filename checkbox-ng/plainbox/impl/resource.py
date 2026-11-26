@@ -28,9 +28,9 @@
 """
 
 import ast
-import sys
 import itertools
 import logging
+import sys
 
 from plainbox.i18n import gettext as _
 
@@ -772,15 +772,8 @@ class ResourceExpression:
         # Bail if the expression is not using exactly one resource id
         if len(visitor.ids_seen_list) == 0:
             raise NoResourcesReferenced()
-        else:
-            return [
-                (
-                    f"{self._implicit_namespace}::{manifest_id}"
-                    if "::" not in manifest_id and self._implicit_namespace
-                    else manifest_id
-                )
-                for manifest_id in list(visitor.manifest_attr_seen_list)
-            ]
+        # these are partial ids without namespace
+        return list(visitor.manifest_attr_seen_list)
 
 
 def parse_imports_stmt(imports):

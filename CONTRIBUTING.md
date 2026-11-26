@@ -10,8 +10,6 @@ its providers and its documentation.
 - The codebase uses [black] for formatting, with `line-length` set to `79`.
 - Install [black] inside your virtual environment using pip instead of using
 Debian packages from apt, as the versions in pip are more up-to-date.
-- Use `git config blame.ignoreRevsFile .git-blame-ignore-revs` if you want to
-[ignore commits related to black formatting].
 - Setup your editor of choice to run [autopep8] on save. This helps keep
 everything passing [flake8].
 - The code doesn’t have to be pylint-clean, but
@@ -27,7 +25,7 @@ install everything you need in a Python virtual environment.
 
 Install the required tools:
 
-    $ sudo apt install git python3-virtualenv libasound2-dev pkg-config
+    $ sudo apt install git python3-venv just libasound2-dev pkg-config
 
 Prepare the development environment. If you are an external contributor and
 plan on submitting some changes, you will have to [fork the Checkbox repository
@@ -36,35 +34,17 @@ first], and clone your own version locally. Otherwise:
     $ cd ~
     $ git clone git@github.com:canonical/checkbox.git
 
-Create and activate the Python virtual environment:
+Create and activate the Python virtual environment (this installs `checkbox-ng`,
+`checkbox-support`, `metabox`, builds and develops all providers, and configures
+`.git-blame-ignore-revs`):
 
-    $ cd ~/checkbox/checkbox-ng
-    $ ./mk-venv
-    $ . ~/checkbox/checkbox-ng/venv/bin/activate
-
-Activate the base providers in the virtual environment from within the virtual
-environment:
-
-    (venv) $ cd ~/checkbox/providers/resource/
-    (venv) $ ./manage.py develop -d $PROVIDERPATH
-    (venv) $ cd ~/checkbox/providers/base
-    (venv) $ ./manage.py develop -d $PROVIDERPATH
-
-Build the executables under the providers in the virtual environment:
-
-    (venv) $ cd ~/checkbox/providers/resource/
-    (venv) $ ./manage.py build
-    (venv) $ cd ~/checkbox/providers/base
-    (venv) $ ./manage.py build
-
-Install the Checkbox support library in the virtual environment:
-
-    (venv) $ cd ~/checkbox/checkbox-support
-    (venv) $ python3 -m pip install -e .
+    $ cd ~/checkbox
+    $ just setup
+    $ . ~/checkbox/.venv/bin/activate
 
 You should now be able to run checkbox, select a test plan and run it:
 
-    (venv) $ checkbox-cli
+    (.venv) $ checkbox-cli
 
 #### <img src=https://code.visualstudio.com/assets/images/code-stable.png alt="Visual Studio Code" height="16" align="absmiddle">&nbsp;&nbsp;VS Code
 If you are using VS Code for development, you can refer to the VS Code-specific setup instructions in [.vscode/README.md](.vscode/README.md) after setting up your virtual environment.
@@ -74,19 +54,16 @@ If you are using VS Code for development, you can refer to the VS Code-specific 
 By default `checkbox-cli` runs locally. If you want to run the [remote version]
 you have to activate the `checkbox-cli run-agent` on the Machine under test:
 
-    (venv) # checkbox-cli run-agent
+    $ just run-agent
 
-> Note: Keep in mind that run-agent has to be run as root and needs the
-> virtual env, you may have to re-enable/activate it after a `sudo -s`
->
-> You can circumvent this constraint if you are developing for Checkbox by
-> setting the `ALLOW_CHECKBOX_AGENT_NONROOT` environment variable to `true`.
-> This only makes sense if you are debugging Checkbox internals.
+> Note: You can circumvent the root requirement if you are developing for
+> Checkbox by setting the `ALLOW_CHECKBOX_AGENT_NONROOT` environment variable
+> to `true`. This only makes sense if you are debugging Checkbox internals.
 > The agent will not work as normal user.
 
 Now you can run the control command to connect to it:
 
-    (venv) $ checkbox-cli control IP
+    (.venv) $ checkbox-cli control IP
 
 > Note: `run-agent` and `control` can both run on the same machine.
 > in that situation, simply use `127.0.0.1` as the `IP`.
@@ -412,7 +389,6 @@ Once all is good, you can submit your documentation change like any other
 changes using a pull request.
 
 [black]: https://black.readthedocs.io/
-[ignore commits related to black formatting]: https://black.readthedocs.io/en/stable/guides/introducing_black_to_your_project.html#avoiding-ruining-git-blame
 [autopep8]: https://pypi.org/project/autopep8/
 [flake8]: https://flake8.pycqa.org/en/latest/
 [pylint]: https://www.pylint.org/

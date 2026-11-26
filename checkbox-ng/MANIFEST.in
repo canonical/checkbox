@@ -9,7 +9,6 @@ global-include Vagrantfile
 exclude AGENTS.md
 exclude HACKING.md
 exclude .coveragerc
-exclude mk-venv
 exclude tox.ini
 
 include plainbox/impl/resource_constants.yaml

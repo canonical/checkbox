@@ -642,6 +642,35 @@ class SessionStateAPITests(TestCase):
 
         self.assertIsNone(job.before)
 
+    def test_sibling_with_suspend_dep_before_constraint_templated(self):
+        # siblings of suspend get an extra before if they don't depend on
+        # suspend but this was bugged for templates as we would loose the
+        # templated value expansion on the before field
+        template_data = {
+            "id": "A_{name}",
+            "plugin": "shell",
+            "before": ["later_job_{name}"],
+            "siblings": [
+                {
+                    "id": "after-suspend-A_{name}",
+                    "depends": [Suspend.AUTO_JOB_ID],
+                }
+            ],
+        }
+        job = JobDefinition(
+            template_data,
+            Origin.get_caller_origin(),
+            parameters={"name": "foo"},
+        )
+
+        session = SessionState([])
+        session.add_unit(job)
+
+        # the injected before must keep the template parameters applied
+        self.assertEqual(job.before, ["later_job_foo", Suspend.AUTO_JOB_ID])
+        # and must not leak into the (shared) unit data
+        self.assertEqual(template_data["before"], ["later_job_{name}"])
+
     def test_also_after_suspend_manual_flag_extra_fields(self):
         # Define a job
         job = make_job(

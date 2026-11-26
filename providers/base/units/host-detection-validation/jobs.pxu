@@ -1,0 +1,150 @@
+id: host-detection-validation/host-info
+category_id: com.canonical.plainbox::info
+plugin: shell
+_summary: Show host and Checkbox runtime detection inputs
+command:
+  set -u
+  echo "SNAP=${SNAP:-}"
+  echo "SNAP_NAME=${SNAP_NAME:-}"
+  echo "CHECKBOX_OS_IS_UBUNTUCORE=${CHECKBOX_OS_IS_UBUNTUCORE:-}"
+  echo "CHECKBOX_RUNNING_STRICT_SNAP=${CHECKBOX_RUNNING_STRICT_SNAP:-}"
+  echo "uname -r: $(uname -r)"
+  echo "--- /etc/os-release (job view)"
+  cat /etc/os-release
+  if [ -e /var/lib/snapd/hostfs/etc/os-release ]; then
+    echo "--- /var/lib/snapd/hostfs/etc/os-release"
+    cat /var/lib/snapd/hostfs/etc/os-release
+  fi
+  if [ -n "${SNAP:-}" ]; then
+    echo "--- $SNAP/meta/snap.yaml"
+    grep -E '^(name|base|confinement):' "$SNAP/meta/snap.yaml"
+  fi
+  true
+estimated_duration: 1.0
+
+id: host-detection-validation/environment
+category_id: com.canonical.plainbox::info
+plugin: shell
+_summary: Check host OS and strict snap environment variables
+command:
+  set -u
+  os_release=/etc/os-release
+  if [ -e /var/lib/snapd/hostfs/etc/os-release ]; then
+    os_release=/var/lib/snapd/hostfs/etc/os-release
+  fi
+  host_id=$(. "$os_release" && echo "$ID")
+  [ -n "$host_id" ] || exit 1
+  expected_core=""
+  [ "$host_id" = "ubuntu-core" ] && expected_core=1
+  expected_strict=""
+  if [ -n "${SNAP:-}" ] && grep -q '^confinement: strict' "$SNAP/meta/snap.yaml"; then
+    expected_strict=1
+  fi
+  echo "host ID=$host_id (from $os_release)"
+  echo "CHECKBOX_OS_IS_UBUNTUCORE='${CHECKBOX_OS_IS_UBUNTUCORE:-}' expected='$expected_core'"
+  echo "CHECKBOX_RUNNING_STRICT_SNAP='${CHECKBOX_RUNNING_STRICT_SNAP:-}' expected='$expected_strict'"
+  [ "${CHECKBOX_OS_IS_UBUNTUCORE:-}" = "$expected_core" ] || exit 1
+  [ "${CHECKBOX_RUNNING_STRICT_SNAP:-}" = "$expected_strict" ] || exit 1
+estimated_duration: 1.0
+
+id: host-detection-validation/kernel-package
+category_id: com.canonical.plainbox::info
+plugin: shell
+_summary: Check that the kernel_package resource finds the host kernel
+command:
+  set -u
+  os_release=/etc/os-release
+  if [ -e /var/lib/snapd/hostfs/etc/os-release ]; then
+    os_release=/var/lib/snapd/hostfs/etc/os-release
+  fi
+  host_id=$(. "$os_release" && echo "$ID")
+  [ -n "$host_id" ] || exit 1
+  expected_type=deb
+  [ "$host_id" = "ubuntu-core" ] && expected_type=snap
+  output=$(kernel_package_resource.py) || exit 1
+  echo "$output"
+  echo "expected type: $expected_type"
+  echo "$output" | grep -qE '^name: .+' || exit 1
+  echo "$output" | grep -qx "type: $expected_type" || exit 1
+estimated_duration: 2.0
+
+id: host-detection-validation/python-helpers
+category_id: com.canonical.plainbox::info
+plugin: shell
+_summary: Check checkbox_support host detection helpers
+command:
+  python3 - <<'EOF'
+  import os
+  import sys
+  os_release = "/etc/os-release"
+  if os.path.exists("/var/lib/snapd/hostfs/etc/os-release"):
+      os_release = "/var/lib/snapd/hostfs/etc/os-release"
+  host = {}
+  with open(os_release) as f:
+      for line in f:
+          key, _, value = line.strip().partition("=")
+          host[key] = value.strip('"')
+  expected_core = host.get("ID") == "ubuntu-core"
+  expected_series = host.get("VERSION_ID")
+  failed = False
+  from checkbox_support.snap_utils import system
+  on_core = system.on_ubuntucore()
+  print("on_ubuntucore:", on_core, "expected:", expected_core)
+  failed |= on_core != expected_core
+  series = system.get_series()
+  print("get_series:", series, "expected:", expected_series)
+  failed |= series != expected_series
+  try:
+      from checkbox_support.lxd_support import HOST_RELEASE
+  except Exception as exc:
+      print("lxd_support.HOST_RELEASE unavailable:", repr(exc))
+      failed = True
+  else:
+      print("lxd_support.HOST_RELEASE:", HOST_RELEASE)
+      if not expected_core:
+          failed |= HOST_RELEASE != expected_series
+  try:
+      print("in_strict_snap:", system.in_strict_snap())
+  except AttributeError:
+      print("in_strict_snap: not available")
+  sys.exit(1 if failed else 0)
+  EOF
+estimated_duration: 2.0
+
+unit: template
+template-engine: jinja2
+template-resource: com.canonical.certification::os
+template-unique-id: host-detection-validation/template-on-ubuntucore
+id: host-detection-validation/template-on-ubuntucore-{{ __index__ }}
+template-id: host-detection-validation/template-on-ubuntucore
+category_id: com.canonical.plainbox::info
+plugin: shell
+_summary: Check the __on_ubuntucore__ Jinja2 template variable
+command:
+  set -u
+  os_release=/etc/os-release
+  if [ -e /var/lib/snapd/hostfs/etc/os-release ]; then
+    os_release=/var/lib/snapd/hostfs/etc/os-release
+  fi
+  host_id=$(. "$os_release" && echo "$ID")
+  [ -n "$host_id" ] || exit 1
+  expected=False
+  [ "$host_id" = "ubuntu-core" ] && expected=True
+  echo "__on_ubuntucore__={{ __on_ubuntucore__ }} expected=$expected"
+  [ "{{ __on_ubuntucore__ }}" = "$expected" ]
+estimated_duration: 1.0
+
+unit: test plan
+id: host-detection-validation
+_name: Host detection validation (test-only, issue 2996)
+_description:
+ Test-only plan used to validate host OS and strict snap detection.
+bootstrap_include:
+ com.canonical.certification::os
+include:
+ com.canonical.certification::kernel_package
+ host-detection-validation/host-info
+ host-detection-validation/environment
+ host-detection-validation/kernel-package
+ host-detection-validation/python-helpers
+ host-detection-validation/template-on-ubuntucore

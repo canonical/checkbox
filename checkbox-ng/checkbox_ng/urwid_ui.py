@@ -624,6 +624,7 @@ class ReRunBrowser(CategoryBrowser):
     def __init__(self, title, tests, rerun_candidates):
         global test_info_list
         test_info_list = tests
+        self._go_back = False
         self.header = urwid.Padding(urwid.Text(title), left=1)
         self.root_node = RerunNode(tests)
         root_node_widget = self.root_node.get_widget()

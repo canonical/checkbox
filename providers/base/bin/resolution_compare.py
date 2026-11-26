@@ -21,17 +21,24 @@ from pathlib import Path
 from typing import Dict
 
 from checkbox_support.helpers import display_info
+from checkbox_support.parsers.xrandr import MonitorConfigX11
 
 
 def get_resolutions() -> Dict[str, str]:
     """Get the current resolutions of all connected monitors.
 
     This will use the appropriate `MonitorConfig` based on the current
-    XDG_SESSION_TYPE and XDG_CURRENT_DESKTOP environment variables.
+    XDG_SESSION_TYPE and XDG_CURRENT_DESKTOP environment variables,
+    falling back to using xrandr via `MonitorConfigX11` if none matches.
 
     :returns: dict of connector name to resolution string
     """
-    return display_info.get_monitor_config().get_current_resolutions()
+    try:
+        monitor_config = display_info.get_monitor_config()
+    except ValueError:
+        monitor_config = MonitorConfigX11()
+    print(f"Using {type(monitor_config).__name__}")
+    return monitor_config.get_current_resolutions()
 
 
 def format_resolutions(resolutions: Dict[str, str]) -> str:

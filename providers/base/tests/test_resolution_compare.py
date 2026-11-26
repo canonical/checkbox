@@ -29,9 +29,10 @@ sys.modules["gi.repository"] = MagicMock()
 import resolution_compare  # noqa: E402
 
 
+@patch("sys.stdout", new_callable=io.StringIO)
 class TestGetResolutions(unittest.TestCase):
     @patch("checkbox_support.helpers.display_info.get_monitor_config")
-    def test_uses_monitor_config(self, mock_get_monitor_config):
+    def test_uses_monitor_config(self, mock_get_monitor_config, mock_stdout):
         mock_config = mock_get_monitor_config.return_value
         mock_config.get_current_resolutions.return_value = {
             "eDP-1": "1920x1080"
@@ -40,6 +41,33 @@ class TestGetResolutions(unittest.TestCase):
         self.assertEqual(
             resolution_compare.get_resolutions(), {"eDP-1": "1920x1080"}
         )
+
+    @patch("resolution_compare.MonitorConfigX11")
+    @patch("checkbox_support.helpers.display_info.get_monitor_config")
+    def test_falls_back_to_xrandr(
+        self, mock_get_monitor_config, mock_x11, mock_stdout
+    ):
+        mock_get_monitor_config.side_effect = ValueError
+        mock_x11.return_value.get_current_resolutions.return_value = {
+            "XWAYLAND0": "1920x1080"
+        }
+
+        self.assertEqual(
+            resolution_compare.get_resolutions(), {"XWAYLAND0": "1920x1080"}
+        )
+        mock_x11.assert_called_once_with()
+
+    @patch("checkbox_support.helpers.display_info.get_monitor_config")
+    def test_prints_backend(self, mock_get_monitor_config, mock_stdout):
+        class MonitorConfigGnome:
+            def get_current_resolutions(self):
+                return {}
+
+        mock_get_monitor_config.return_value = MonitorConfigGnome()
+
+        resolution_compare.get_resolutions()
+
+        self.assertEqual(mock_stdout.getvalue(), "Using MonitorConfigGnome\n")
 
 
 class TestFormatResolutions(unittest.TestCase):

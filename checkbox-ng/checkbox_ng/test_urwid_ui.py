@@ -230,7 +230,7 @@ class TestManifestBrowser(unittest.TestCase):
             browser.run()
 
 
-class TestCategoryBrowser(unittest.TestCase):
+class TestCategoryBrowserSelection(unittest.TestCase):
 
     TESTS = [
         {

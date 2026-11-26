@@ -46,7 +46,7 @@ jobs:
     runs-on:
       group: "Canonical self-hosted runners"
       labels: ["self-hosted", "linux", "large", "${{ matrix.tag }}", "noble"]
-    timeout-minutes: 1200 #20h, this will timeout sooner due to inner timeouts
+    timeout-minutes: 360 # 6h overall job cap
     name: Runtime ${{ matrix.release }}  (${{matrix.arch}})
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
@@ -81,7 +81,7 @@ jobs:
       - id: snap_build
         uses: Wandalen/wretry.action@df981d2bb22b26b5b23754bb516d0de8c1bfbbec
         name: Build the snap
-        timeout-minutes: 600 # 10hours
+        timeout-minutes: 360 # 6h step cap; the job has the same overall limit
         with:
           action: snapcore/action-build@v1.3.0
           attempt_delay: 600000 # 10min
@@ -149,7 +149,7 @@ jobs:
     runs-on:
       group: "Canonical self-hosted runners"
       labels: ["self-hosted", "linux", "large", "${{ matrix.tag }}", "noble"]
-    timeout-minutes: 1200 #20h, this will timeout sooner due to inner timeouts
+    timeout-minutes: 360 # 6h overall job cap
     name: Frontend ${{ matrix.type }}${{ matrix.release }} (${{matrix.arch}})
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
@@ -184,7 +184,7 @@ jobs:
       - id: snap_build
         uses: Wandalen/wretry.action@df981d2bb22b26b5b23754bb516d0de8c1bfbbec
         name: Building the snaps
-        timeout-minutes: 600 # 10hours
+        timeout-minutes: 360 # 6h step cap; the job has the same overall limit
         with:
           action: snapcore/action-build@v1.3.0
           attempt_delay: 600000 # 10min

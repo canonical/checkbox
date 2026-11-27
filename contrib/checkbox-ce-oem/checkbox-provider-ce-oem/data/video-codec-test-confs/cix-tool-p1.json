@@ -1,0 +1,244 @@
+{
+  "gst_transform_resize": [
+    {
+      "encoder_plugin": "v4l2h264enc",
+      "resolutions": [
+        {
+          "width_from": 7680,
+          "height_from": 4320,
+          "fps": 30,
+          "width_to": 3840,
+          "height_to": 2160
+        },
+        {
+          "width_from": 7680,
+          "height_from": 4320,
+          "fps": 30,
+          "width_to": 1920,
+          "height_to": 1080
+        },
+        {
+          "width_from": 3840,
+          "height_from": 2160,
+          "fps": 30,
+          "width_to": 1920,
+          "height_to": 1080
+        },
+        {
+          "width_from": 1920,
+          "height_from": 1080,
+          "fps": 30,
+          "width_to": 3840,
+          "height_to": 2160
+        },
+        {
+          "width_from": 3840,
+          "height_from": 2160,
+          "fps": 30,
+          "width_to": 7680,
+          "height_to": 4320
+        },
+        {
+          "width_from": 1920,
+          "height_from": 1080,
+          "fps": 30,
+          "width_to": 7680,
+          "height_to": 4320
+        }
+      ]
+    }
+  ],
+  "gst_video_decoder_performance_fakesink": [
+    {
+      "decoder_plugin": "v4l2h264dec",
+      "golden_sample_file": "7680x4320_30fps_h264.mp4",
+      "minimum_fps": 30
+    },
+    {
+      "decoder_plugin": "v4l2h265dec",
+      "golden_sample_file": "7680x4320_30fps_h265.mp4",
+      "minimum_fps": 30
+    },
+    {
+      "decoder_plugin": "v4l2vp9dec",
+      "golden_sample_file": "7680x4320_30fps_vp9.webm",
+      "minimum_fps": 30
+    },
+    {
+      "decoder_plugin": "v4l2vp8dec",
+      "golden_sample_file": "1920x1080_30fps_vp8.webm",
+      "minimum_fps": 30
+    },
+    {
+      "decoder_plugin": "v4l2mpeg4dec",
+      "golden_sample_file": "1920x1080_60fps_mpeg4.mp4",
+      "minimum_fps": 30
+    },
+    {
+      "decoder_plugin": "v4l2jpegdec",
+      "golden_sample_file": "3840x2160_30fps_mjpeg.mov",
+      "minimum_fps": 30
+    },
+    {
+      "decoder_plugin": "v4l2av1dec",
+      "golden_sample_file": "7680x4320_30fps_av1.webm",
+      "minimum_fps": 30
+    },
+    {
+      "decoder_plugin": "v4l2mpeg2dec",
+      "golden_sample_file": "1920x1080_30fps_mpeg2.mpg",
+      "minimum_fps": 30
+    },
+    {
+      "decoder_plugin": "v4l2h263dec",
+      "golden_sample_file": "1408x1152_30fps_h263.3gp",
+      "minimum_fps": 30
+    }
+  ],
+  "gst_encoder_psnr": [
+    {
+      "encoder_plugin": "v4l2h264enc",
+      "resolutions": [
+        {
+          "width": 7680,
+          "height": 4320,
+          "fps": 30
+        },
+        {
+          "width": 3840,
+          "height": 2160,
+          "fps": 30
+        },
+        {
+          "width": 1920,
+          "height": 1080,
+          "fps": 30
+        },
+        {
+          "width": 1280,
+          "height": 720,
+          "fps": 30
+        }
+      ],
+      "color_spaces": [
+        "NV12"
+      ],
+      "mux": [
+        "mp4mux"
+      ]
+    },
+    {
+      "encoder_plugin": "v4l2h265enc",
+      "resolutions": [
+        {
+          "width": 7680,
+          "height": 4320,
+          "fps": 30
+        },
+        {
+          "width": 3840,
+          "height": 2160,
+          "fps": 30
+        },
+        {
+          "width": 1920,
+          "height": 1080,
+          "fps": 30
+        },
+        {
+          "width": 1280,
+          "height": 720,
+          "fps": 30
+        }
+      ],
+      "color_spaces": [
+        "NV12"
+      ],
+      "mux": [
+        "mp4mux"
+      ]
+    },
+    {
+      "encoder_plugin": "v4l2vp9enc",
+      "resolutions": [
+        {
+          "width": 7680,
+          "height": 4320,
+          "fps": 30
+        },
+        {
+          "width": 3840,
+          "height": 2160,
+          "fps": 30
+        },
+        {
+          "width": 1920,
+          "height": 1080,
+          "fps": 60
+        }
+      ],
+      "color_spaces": [
+        "NV12"
+      ],
+      "mux": [
+        "webmmux"
+      ]
+    },
+    {
+      "encoder_plugin": "v4l2vp8enc",
+      "resolutions": [
+        {
+          "width": 1920,
+          "height": 1080,
+          "fps": 30
+        },
+        {
+          "width": 1280,
+          "height": 720,
+          "fps": 30
+        }
+      ],
+      "color_spaces": [
+        "NV12"
+      ],
+      "mux": [
+        "webmmux"
+      ]
+    },
+    {
+      "encoder_plugin": "v4l2jpegenc",
+      "resolutions": [
+        {
+          "width": 3840,
+          "height": 2160,
+          "fps": 30
+        }
+      ],
+      "color_spaces": [
+        "NV12"
+      ],
+      "mux": [
+        "qtmux"
+      ]
+    }
+  ],
+  "gst_transform_rotate_and_flip": [
+    {
+      "encoder_plugin": "v4l2h264enc",
+      "actions": [
+        "rotate_90",
+        "rotate_180",
+        "rotate_270",
+        "vertical_flip",
+        "horizontal_flip"
+      ],
+      "resolutions": [
+        {
+          "width": 1920,
+          "height": 1080,
+          "fps": 60
+        }
+      ]
+    }
+  ]
+}

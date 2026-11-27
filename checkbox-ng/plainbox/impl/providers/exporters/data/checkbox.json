@@ -85,6 +85,7 @@
             "outcome": "{{ job_state.result.outcome }}",
             "comments": {{ job_state.result.comments | jsonify | safe }},
             "io_log": {{ job_state.result.io_log_as_text_attachment | jsonify | safe }},
+            "mime-type": {{ job_state.job.mime_type | jsonify | safe }},
             "duration": {{ job_state.result.execution_duration if job_state.result.execution_duration else 0 }},
             "plugin": {{ job_state.job.plugin | jsonify | safe }},
             "template_id": {{ job_state.job.template_id | jsonify | safe }}

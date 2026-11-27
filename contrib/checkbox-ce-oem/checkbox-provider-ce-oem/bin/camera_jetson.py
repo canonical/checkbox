@@ -46,10 +46,11 @@ NVARGUS_NVRAW_BIN = shutil.which("nvargus_nvraw")
 # carries the unset instead.
 #
 # The GStreamer plugin search paths (the NVIDIA plugins are not on the
-# default search path) are deliberately NOT set here: GST_PLUGIN_PATH,
-# GST_PLUGIN_SYSTEM_PATH and GST_PLUGIN_SCANNER are passed through the
-# checkbox environment via the jobs' environ list, so each project supplies
-# its own values - see units/camera/README.md.
+# default search path) are deliberately NOT set here: camera_utils'
+# execute_command() applies the USER_DEFINED_GST_PLUGIN_PATH,
+# USER_DEFINED_GST_PLUGIN_SYSTEM_PATH and USER_DEFINED_GST_PLUGIN_SCANNER
+# values from the checkbox environment, so each project supplies its own
+# values - see units/camera/README.md.
 ENV_PREFIX = "/usr/bin/env -u DISPLAY"
 
 # Timeouts in seconds for execute_command(). Mandatory, not a nice-to-have:

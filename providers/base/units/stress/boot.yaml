@@ -70,7 +70,7 @@ command: |
   sleep 5
   rtcwake -v -d "${RTC_DEVICE_FILE:-rtc0}" -m show
   sleep 5
-  dbus-send --system --print-reply --dest=org.freedesktop.login1 /org/freedesktop/login1 "org.freedesktop.login1.Manager.PowerOff" boolean:true
+  systemctl poweroff -i
 user: root
 flags:
   - preserve-locale
@@ -100,7 +100,7 @@ command: |
   sleep 5
   rtcwake -v -d "${{RTC_DEVICE_FILE:-rtc0}}" -m show
   sleep 5
-  dbus-send --system --print-reply --dest=org.freedesktop.login1 /org/freedesktop/login1 "org.freedesktop.login1.Manager.PowerOff" boolean:true
+  systemctl poweroff -i
 user: root
 flags:
   - preserve-locale
@@ -277,7 +277,7 @@ summary: Perform warm reboot 1
 purpose: Perform warm reboot of the system boot. Specifically, this is how the device will request a reboot.
 unit: job
 plugin: shell
-command: reboot
+command: systemctl reboot -i
 user: root
 flags:
   - preserve-locale
@@ -301,7 +301,7 @@ command: |
   delay=${{STRESS_BOOT_WAIT_DELAY:-120}}
   echo Sleeping "${{delay}}s" before rebooting
   sleep "$delay"
-  reboot
+  systemctl reboot -i
 user: root
 flags:
   - preserve-locale

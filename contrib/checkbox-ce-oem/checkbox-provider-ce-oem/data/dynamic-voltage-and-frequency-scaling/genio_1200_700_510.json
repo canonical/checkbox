@@ -1,0 +1,20 @@
+{
+    "allowlist": [
+        {
+            "device_name": "13000000.gpu",
+            "type": "gpu",
+            "governors": ["userspace", "powersave", "performance", "simple_ondemand"]
+        },
+        {
+            "device_name": "soc:mdla_devfreq",
+            "type": "npu",
+            "governors": ["userspace", "powersave", "performance", "simple_ondemand"]
+        },
+        {
+            "device_name": "soc:vpu_devfreq",
+            "type": "vpu",
+            "governors": ["userspace", "powersave", "performance", "simple_ondemand"]
+        }
+    ],
+    "denylist": []
+}

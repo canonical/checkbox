@@ -64,7 +64,7 @@ _urwid_stub = sys.modules["urwid"]
 
 
 class _FakeEdit:
-    def __init__(self, caption="", edit_text=""):
+    def __init__(self, caption="", edit_text="", **kwargs):
         self._text = edit_text
 
     @property
@@ -243,7 +243,7 @@ class TestWriteLauncher(unittest.TestCase):
             gl.write_launcher("ns::ce-oem-test", self._items(), out)
             self.assertIn("ns::has_gpio = True", out.read_text())
 
-    def test_empty_manifest_written_as_false(self):
+    def test_empty_manifest_written_as_empty(self):
         items = [
             gl.Item(
                 kind="manifest",
@@ -255,7 +255,7 @@ class TestWriteLauncher(unittest.TestCase):
         with tempfile.TemporaryDirectory() as tmp:
             out = Path(tmp) / "ce-oem-test"
             gl.write_launcher("ns::ce-oem-test", items, out)
-            self.assertIn("ns::has_gpio = false\n", out.read_text())
+            self.assertNotIn("ns::has_gpio", out.read_text())
 
     def test_no_manifest_section_when_empty(self):
         with tempfile.TemporaryDirectory() as tmp:
@@ -666,6 +666,56 @@ class TestItemRowEditMode(unittest.TestCase):
         row.keypress((40,), "esc")
         self.assertFalse(row._editing)
         self.assertEqual(item.value, "original")
+
+
+class TestBoolToggleWidget(unittest.TestCase):
+    def _w(self, initial=""):
+        return gl._BoolToggleWidget([], initial)
+
+    def test_empty_initial_is_unset(self):
+        self.assertEqual(self._w("").value, "")
+
+    def test_initial_true_and_false(self):
+        self.assertEqual(self._w("true").value, "true")
+        self.assertEqual(self._w("False").value, "false")
+        self.assertEqual(self._w("yes").value, "true")
+        self.assertEqual(self._w("0").value, "false")
+
+    def test_shortcuts(self):
+        w = self._w("")
+        w.keypress((40,), "t")
+        self.assertEqual(w.value, "true")
+        w.keypress((40,), "f")
+        self.assertEqual(w.value, "false")
+        w.keypress((40,), "u")
+        self.assertEqual(w.value, "")
+
+    def test_space_and_arrows_cycle(self):
+        w = self._w("true")
+        w.keypress((40,), "right")
+        self.assertEqual(w.value, "false")
+        w.keypress((40,), " ")
+        self.assertEqual(w.value, "")
+        w.keypress((40,), " ")
+        self.assertEqual(w.value, "true")
+        w.keypress((40,), "left")
+        self.assertEqual(w.value, "")
+
+    def test_enter_not_consumed(self):
+        self.assertEqual(self._w().keypress((40,), "enter"), "enter")
+
+    def test_confirm_without_choosing_keeps_empty(self):
+        item = gl.Item(
+            kind="manifest",
+            key="ns::x",
+            bare_key="x",
+            value_type="bool",
+            value="",
+        )
+        row = gl.ItemRow(item)
+        row.keypress((40,), "e")
+        row.keypress((40,), "enter")
+        self.assertEqual(item.value, "")
 
 
 class TestDescForItem(unittest.TestCase):

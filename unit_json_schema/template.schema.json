@@ -4,7 +4,7 @@
   "title": "Template Unit",
   "description": "Schema that describes a Checkbox Template unit",
   "type": "object",
-  "allOf": [{ "$ref": "job.schema.json#/$defs/jobFields" }],
+  "allOf": [{ "$ref": "job.schema.json#/$defs/attachmentJobFields" }],
   "properties": {
     "unit": {
       "title": "Unit (Template Unit)",

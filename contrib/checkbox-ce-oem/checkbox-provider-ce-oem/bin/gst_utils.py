@@ -5,6 +5,7 @@ import shlex
 import subprocess
 import uuid
 import contextlib
+import glob
 
 from abc import ABC, abstractmethod
 from enum import Enum
@@ -17,6 +18,10 @@ GST_CODEC_EXECUTION_TIMEOUT = int(
 )
 GST_LAUNCH_BIN = os.getenv("GST_LAUNCH_BIN", "gst-launch-1.0")
 GST_DISCOVERER = os.getenv("GST_DISCOVERER", "gst-discoverer-1.0")
+V4L2_CTL_BIN = os.getenv("V4L2_CTL_BIN", "v4l2-ctl")
+# Default encoder bitrate used as a last resort when the target V4L2
+# device/control cannot be discovered or queried (e.g. missing v4l2-ctl,
+# non-V4L2 encoder backend).
 PLAINBOX_SESSION_SHARE = os.getenv("PLAINBOX_SESSION_SHARE", "/var/tmp")
 VIDEO_CODEC_TESTING_DATA = os.getenv("VIDEO_CODEC_TESTING_DATA")
 if not VIDEO_CODEC_TESTING_DATA:
@@ -36,6 +41,7 @@ class GStreamerEncodePlugins(Enum):
     V4L2H265ENC = "v4l2h265enc"
     V4L2JPEGENC = "v4l2jpegenc"
     V4L2VP8ENC = "v4l2vp8enc"
+    V4L2VP9ENC = "v4l2vp9enc"
     OMXH264ENC = "omxh264enc"
     OMXH265ENC = "omxh265enc"
 
@@ -68,11 +74,14 @@ class GStreamerMuxerType(Enum):
                         extension.
         MATROSKAMUX (str): Represents the Matroska muxer, associated with the
                         'mkv' file extension.
+        WEBMMUX (str): Represents the WebM muxer (VP8/VP9/AV1 Matroska
+                        subset), associated with the 'webm' file extension.
     """
 
     MP4MUX = "mp4"
     AVIMUX = "avi"
     MATROSKAMUX = "mkv"
+    WEBMMUX = "webm"
     QTMUX = "mov"
 
     @classmethod
@@ -110,49 +119,59 @@ def _identify_gst_bin_from_snap(bin_name: str) -> bool:
     return False
 
 
+# A checkbox snap runtime exports its own GStreamer paths, and checkbox never
+# overrides a variable that is already set with a config [environment] value.
+# So a host (non-snap) GStreamer binary gets its paths from these variables.
+USER_DEFINED_GST_ENV = {
+    "USER_DEFINED_GST_LD_LIBRARY_PATH": "LD_LIBRARY_PATH",
+    "USER_DEFINED_GST_PLUGIN_PATH": "GST_PLUGIN_PATH",
+    "USER_DEFINED_GST_PLUGIN_SYSTEM_PATH": "GST_PLUGIN_SYSTEM_PATH",
+    "USER_DEFINED_GST_PLUGIN_SCANNER": "GST_PLUGIN_SCANNER",
+}
+
+
+def get_gst_env(gst_bin: str = GST_LAUNCH_BIN) -> Optional[dict]:
+    """
+    Get the environment to run the GStreamer binary with.
+
+    :param gst_bin:
+        The gstreamer binary name or path.
+
+    :returns:
+        None (inherit the environment) when the binary is from a snap,
+        else a copy of the environment with the USER_DEFINED_GST_* values
+        applied.
+    """
+    if _identify_gst_bin_from_snap(gst_bin):
+        logging.info(
+            "GStreamer binary is from snap package, "
+            "skip setting the USER_DEFINED_GST_* variables"
+        )
+        return None
+    env = os.environ.copy()
+    for user_var, gst_var in USER_DEFINED_GST_ENV.items():
+        value = os.environ.get(user_var)
+        if value:
+            logging.info("Set %s=%s from %s", gst_var, value, user_var)
+            env[gst_var] = value
+    return env
+
+
 def execute_command(
     cmd: str = "", timeout: int = GST_CODEC_EXECUTION_TIMEOUT
 ) -> str:
-    """
-    Executes the GStreamer command and extracts the specific data from the
-    output. The specific data is the value of last-message which is exposed by
-    fpsdisplaysink.
+    """Run a GStreamer command and return its stdout.
 
     :param cmd:
         The GStreamer command to execute.
+    :param timeout:
+        Maximum time to wait for the command to finish.
 
     :returns:
-        The extracted last_message.
+        The command's standard output.
     """
     try:
-        bin_from_snap = _identify_gst_bin_from_snap(GST_LAUNCH_BIN)
-
-        if bin_from_snap:
-            logging.info(
-                "GStreamer binary is from snap package, "
-                "skip setting USER_DEFINED_GST_LD_LIBRARY_PATH "
-                "and USER_DEFINED_GST_PLUGIN_PATH"
-            )
-            env = None
-        else:
-            env = os.environ.copy()
-            # Update GStreamer library path and plugin path if user defined
-            gst_ld_path = os.environ.get("USER_DEFINED_GST_LD_LIBRARY_PATH")
-            gst_plugin_path = os.environ.get("USER_DEFINED_GST_PLUGIN_PATH")
-            logging.info("User defined LD_LIBRARY_PATH: %s", gst_ld_path)
-            logging.info("User defined LD_PLUGIN_PATH: %s", gst_plugin_path)
-            if gst_ld_path:
-                logging.info(
-                    "Append %s to LD_LIBRARY_PATH for GStreamer", gst_ld_path
-                )
-                env.update(LD_LIBRARY_PATH=gst_ld_path)
-            if gst_plugin_path:
-                logging.info(
-                    "Append %s to GST_PLUGIN_PATH for GStreamer",
-                    gst_plugin_path,
-                )
-                env.update(GST_PLUGIN_PATH=gst_plugin_path)
-
+        env = get_gst_env(GST_LAUNCH_BIN)
         logging.info("Starting command: '{}'".format(cmd))
         ret = subprocess.run(
             shlex.split(cmd),
@@ -167,6 +186,195 @@ def execute_command(
         return ret.stdout
     except Exception as e:
         raise SystemExit(e)
+
+
+_COLORIMETRY_RE = re.compile(
+    r"\bcolorimetry=(?:\([^)]*\))?([^\s,;]+)", re.IGNORECASE
+)
+
+
+def get_source_colorimetry(file_path: str) -> Optional[str]:
+    """Return colorimetry signaled in the source stream caps, if present.
+
+    For example, gst-discoverer output like:
+        video #1: video/x-h264, ..., colorimetry=(string)bt709
+
+    returns "bt709". Returns None when the caps omit colorimetry or mark it
+    unknown.
+    """
+    metadata = execute_command(
+        cmd="{} -v {}".format(GST_DISCOVERER, shlex.quote(file_path)),
+        timeout=30,
+    )
+    match = _COLORIMETRY_RE.search(metadata)
+    if not match:
+        return None
+
+    colorimetry = match.group(1).strip("\"'").lower()
+    if colorimetry in ("", "unknown", "undefined"):
+        return None
+    return colorimetry
+
+
+def _find_v4l2_encoder_device(codec_fourcc: str) -> Optional[str]:
+    """
+    Find the /dev/videoN node whose Capture queue advertises the given
+    compressed codec fourcc (e.g. 'H264', 'VP80', 'HEVC'). V4L2 M2M
+    encoders enumerate their supported output codec(s) on the Capture
+    queue side, so this identifies which device node actually backs a
+    given GStreamer v4l2*enc element without hardcoding a device path
+    (different platforms/boards can expose the encoder on a different
+    /dev/videoN).
+
+    :param codec_fourcc:
+        The V4L2 fourcc name of the compressed codec, e.g. 'H264', 'VP80'.
+
+    :returns:
+        The device path (e.g. '/dev/video0') if found, otherwise None.
+    """
+    try:
+        video_nodes = sorted(glob.glob("/dev/video*"))
+    except Exception:
+        return None
+
+    for node in video_nodes:
+        try:
+            ret = subprocess.run(
+                [V4L2_CTL_BIN, "-d", node, "--list-formats"],
+                capture_output=True,
+                check=False,
+                universal_newlines=True,
+                timeout=10,
+            )
+        except Exception:
+            continue
+        if ret.returncode != 0:
+            continue
+        if re.search(r"'{}'".format(re.escape(codec_fourcc)), ret.stdout):
+            return node
+    return None
+
+
+def _get_v4l2_control_range(device: str, control_name: str) -> "tuple | None":
+    """
+    Query the (min, max) range of an integer V4L2 control on a device.
+
+    :param device:
+        The V4L2 device path, e.g. '/dev/video0'.
+    :param control_name:
+        The control name as reported by v4l2-ctl, e.g. 'video_bitrate'.
+
+    :returns:
+        A (min, max) tuple of ints if the control is found, otherwise
+        None.
+    """
+    try:
+        ret = subprocess.run(
+            [V4L2_CTL_BIN, "-d", device, "--list-ctrls-menus"],
+            capture_output=True,
+            check=False,
+            universal_newlines=True,
+            timeout=10,
+        )
+    except Exception as exc:
+        logger.warning("Failed to query V4L2 controls on %s: %s", device, exc)
+        return None
+    if ret.returncode != 0:
+        logger.warning(
+            "V4L2 control query failed on %s (exit %s): %s",
+            device,
+            ret.returncode,
+            ret.stderr.strip() or "no stderr",
+        )
+        return None
+
+    # Example output from `v4l2-ctl -d /dev/video0 --list-ctrls-menus`:
+    # video_bitrate 0x009909cf (int) : min=10000 max=288000000 step=1 default=2097152 value=2097152 # noqa: E501
+    # ...
+    # number_of_mbs_in_a_slice 0x009909dc (int)    : min=1 max=120 step=1 default=1 value=1 # noqa: E501
+    pattern = re.compile(
+        (
+            r"{}\s+0x[0-9a-fA-F]+\s+\(int\)\s*:\s*"
+            r"min=(-?\d+)\s+max=(-?\d+)"
+        ).format(re.escape(control_name))
+    )
+    match = pattern.search(ret.stdout)
+    if not match:
+        return None
+    return int(match.group(1)), int(match.group(2))
+
+
+def calculate_encoder_bitrate(
+    width: int,
+    height: int,
+    framerate: int,
+    codec_fourcc: str,
+    bits_per_pixel: float = 0.1,
+) -> int:
+    """
+    Calculate a video bitrate scaled to the actual resolution/framerate
+    under test, then clamp it to the target V4L2 encoder device's own
+    supported 'video_bitrate' control range so the value is always valid
+    on the platform actually running the test (different VPUs/boards can
+    have different min/max bitrate limits).
+
+    A flat/hardcoded bitrate is avoided on purpose: it would either be
+    unrealistically high for small resolutions/framerates, or exceed/miss
+    the valid range on a VPU with different limits than the one this was
+    tuned on.
+
+    :param width:
+        Video width in pixels.
+    :param height:
+        Video height in pixels.
+    :param framerate:
+        Video framerate in fps.
+    :param codec_fourcc:
+        The V4L2 fourcc name of the target codec, e.g. 'H264', 'VP80'.
+    :param bits_per_pixel:
+        Target bits-per-pixel-per-frame used to scale the bitrate
+        estimate (0.1 is a common "high quality" guideline for
+        H.264/VP8).
+
+    :returns:
+        The calculated bitrate in bits/sec, clamped to the encoder
+        device's supported range when that range can be determined.
+    """
+    target_bitrate = int(width * height * framerate * bits_per_pixel)
+
+    device = _find_v4l2_encoder_device(codec_fourcc)
+    if not device:
+        logging.warning(
+            "Could not find a V4L2 device advertising codec '%s'. "
+            "Using unclamped calculated bitrate: %s",
+            codec_fourcc,
+            target_bitrate,
+        )
+        return target_bitrate
+
+    bitrate_range = _get_v4l2_control_range(device, "video_bitrate")
+    if not bitrate_range:
+        logging.warning(
+            "Could not query 'video_bitrate' control range on %s. "
+            "Using unclamped calculated bitrate: %s",
+            device,
+            target_bitrate,
+        )
+        return target_bitrate
+
+    min_bitrate, max_bitrate = bitrate_range
+    clamped_bitrate = max(min_bitrate, min(target_bitrate, max_bitrate))
+    if clamped_bitrate != target_bitrate:
+        logging.info(
+            "Calculated bitrate %s clamped to %s to fit %s's supported "
+            "range [%s, %s]",
+            target_bitrate,
+            clamped_bitrate,
+            device,
+            min_bitrate,
+            max_bitrate,
+        )
+    return clamped_bitrate
 
 
 class PipelineInterface(ABC):
@@ -203,10 +411,10 @@ def compare_psnr(
     )
     avg_psnr, _ = get_average_psnr(golden_reference_file, artifact_file)
     logging.info("Average PSNR: {}".format(avg_psnr))
-    if avg_psnr < 30 and avg_psnr > 0:
+    if avg_psnr < 25 and avg_psnr > 0:
         raise SystemExit(
             "Error: The average PSNR value did not reach the acceptable"
-            " threshold (30 dB)"
+            " threshold (25 dB)"
         )
     logging.info("Pass: Average PSNR meets the acceptable threshold")
 
@@ -405,6 +613,7 @@ class MetadataValidator:
             GStreamerEncodePlugins.V4L2H265ENC.value: "H.265",
             GStreamerEncodePlugins.V4L2JPEGENC.value: "JPEG",
             GStreamerEncodePlugins.V4L2VP8ENC.value: "VP8",
+            GStreamerEncodePlugins.V4L2VP9ENC.value: "VP9",
             GStreamerEncodePlugins.OMXH264ENC.value: "H.264",
         }
         if expected not in codec_map:

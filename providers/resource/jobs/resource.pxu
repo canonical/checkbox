@@ -476,6 +476,7 @@ _summary: Collect logging from the net_if_management job
 _description:
  Allows logging of debug info and errors by the associated resource job
 plugin: attachment
+mime-type: text/plain
 estimated_duration: 1.0
 category_id: com.canonical.plainbox::info
 command:

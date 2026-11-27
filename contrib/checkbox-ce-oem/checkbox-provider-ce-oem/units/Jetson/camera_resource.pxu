@@ -16,6 +16,7 @@ imports:
  from com.canonical.plainbox import manifest
 requires:
  manifest.is_Jetson == 'True'
+ manifest.has_jetson_camera == 'True'
  executable.name == 'nvargus_nvraw'
 command: jetson_camera_sensors.py
 _description: Verify Jetson camera sensors resource generation command executes directly

@@ -57,6 +57,7 @@ nested_part:
     ce-oem-automated
     com.canonical.certification::client-cert-iot-server-26-04-automated
     after-suspend-ce-oem-automated
+    after-suspend-rz-server-automated
 exclude:
 certification_status_overrides:
     apply blocker to .*
@@ -124,6 +125,7 @@ _description:
 estimated_duration: 3600
 include:
 nested_part:
+    genio-server-manual
     ce-oem-manual
     com.canonical.certification::client-cert-iot-server-24-04-manual
     after-suspend-ce-oem-manual
@@ -176,9 +178,12 @@ _description:
     all of the automated tests used to validate the IoT devices.
 include:
 nested_part:
+    genio-server-automated
+    rz-core-automated
     ce-oem-automated
     com.canonical.certification::client-cert-iot-server-24-04-automated
     after-suspend-ce-oem-automated
+    after-suspend-rz-core-automated
 exclude:
 certification_status_overrides:
     apply blocker to .*

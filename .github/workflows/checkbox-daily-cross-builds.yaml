@@ -27,13 +27,22 @@ jobs:
         release: [18, 20, 22, 24]
         arch: [armhf]
         include:
+          - release: 22
+            snapcraft_version: 8.x/stable
+          - release: 24
+            snapcraft_version: 8.x/stable
           # other confs built natively in checkbox-daily-native-builds.yaml
           - release: 22
             arch: riscv64
+            snapcraft_version: 8.x/stable
           - release: 24
             arch: riscv64
-    runs-on: ubuntu-latest
-    timeout-minutes: 1200 #20h, this will timeout sooner due to inner timeouts
+            snapcraft_version: 8.x/stable
+    # core18/core20 build containers ship an old snapd/AppArmor that fails to
+    # start on the newer ubuntu-latest kernel, hanging the build. This is a
+    # workaround unitl the snapd/AppArmor issue is resolved.
+    runs-on: ${{ matrix.release < 22 && 'ubuntu-22.04' || 'ubuntu-latest' }}
+    timeout-minutes: 480 # 8h configured cap
     name: Runtime ${{ matrix.release }} (${{ matrix.arch }})
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
@@ -59,8 +68,9 @@ jobs:
           with: |
             architecture: ${{ matrix.arch }}
             path: checkbox-core-snap/series${{ matrix.release }}
+            snapcraft-channel: ${{ matrix.snapcraft_version || 'stable' }}
 
-      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
         name: Upload logs on failure
         if: failure()
         with:
@@ -70,11 +80,19 @@ jobs:
             /home/runner/.local/state/snapcraft/log/
             checkbox-core-snap/series${{ matrix.release }}/checkbox*.txt
 
-      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
         name: Upload the snap as artifact
         with:
           name: runtime_snap${{ matrix.release }}_${{ matrix.arch }}.snap
           path: ${{ steps.snap_build.outputs.snap }}
+
+      - name: Reload the host snapd AppArmor profiles
+        if: inputs.store_upload
+        run: |
+          # The privileged build container runs its own snapd, which replaces
+          # the host snap-confine AppArmor profile and makes installing
+          # snapcraft for publishing fail (cap_fowner not found)
+          sudo systemctl restart snapd
 
       - name: Publish track
         if: inputs.store_upload
@@ -117,8 +135,11 @@ jobs:
           - release: 24
             arch: riscv64
             type: uc
-    runs-on: ubuntu-latest
-    timeout-minutes: 1200 #20h, this will timeout sooner due to inner timeouts
+    # core18/core20 build containers ship an old snapd/AppArmor that fails to
+    # start on the newer ubuntu-latest kernel, hanging the build. This is a
+    # workaround unitl the snapd/AppArmor issue is resolved.
+    runs-on: ${{ matrix.release < 22 && 'ubuntu-22.04' || 'ubuntu-latest' }}
+    timeout-minutes: 480 # 8h configured cap; GitHub-hosted jobs are limited to 6h
     name: Frontend ${{ matrix.type }}${{ matrix.release }} (${{ matrix.arch }})
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
@@ -145,7 +166,7 @@ jobs:
             architecture: ${{ matrix.arch }}
             path: checkbox-snap/series_${{ matrix.type }}${{ matrix.release }}
 
-      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
         name: Upload logs on failure
         if: failure()
         with:
@@ -155,11 +176,19 @@ jobs:
             /home/runner/.local/state/snapcraft/log/
             checkbox-snap/series_${{ matrix.type }}${{ matrix.release }}/checkbox*.txt
 
-      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
         name: Upload the snaps as artefacts
         with:
           name: frontend_snaps_${{ matrix.type }}${{ matrix.release }}_${{matrix.arch}}.snap
           path: ${{ steps.snap_build.outputs.snap }}
+
+      - name: Reload the host snapd AppArmor profiles
+        if: inputs.store_upload
+        run: |
+          # The privileged build container runs its own snapd, which replaces
+          # the host snap-confine AppArmor profile and makes installing
+          # snapcraft for publishing fail (cap_fowner not found)
+          sudo systemctl restart snapd
 
       - name: Publish track
         # this is done this way because the store doesn't allow the same artifact to be uploaded twice

@@ -1,0 +1,15 @@
+unit: manifest entry
+id: has_rpi_camera
+name: RaspberryPi Camera Module
+value-type: bool
+---
+unit: manifest entry
+id: has_camera
+name: Camera/Capture Device
+value-type: bool
+---
+unit: manifest entry
+id: has_led_camera
+name: Camera
+prompt: Does this machine have the following LED indicators?
+value-type: bool

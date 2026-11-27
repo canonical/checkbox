@@ -22,7 +22,7 @@ command:
   test-strict-confinement.dbus-cold-boot
   sleep 60
   touch "$PLAINBOX_SESSION_SHARE/coldboot_fail"
-  reboot
+  systemctl reboot -i
 
 
 id: strict-confinement/dbus-cold-boot-test
@@ -67,7 +67,7 @@ command:
   test-strict-confinement.dbus-warm-boot
   sleep 60
   touch "$PLAINBOX_SESSION_SHARE/warmboot_fail"
-  reboot
+  systemctl reboot -i
 
 
 id: strict-confinement/dbus-warm-boot-test

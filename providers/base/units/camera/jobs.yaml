@@ -1,0 +1,285 @@
+plugin: shell
+category_id: com.canonical.plainbox::camera
+id: camera/detect
+flags:
+  - also-after-suspend
+estimated_duration: "1.2"
+imports:
+  - from com.canonical.plainbox import manifest
+requires:
+  - manifest.has_camera == 'True'
+command: camera_test.py detect
+summary: This Automated test attempts to detect a camera.
+user: root
+---
+unit: template
+category_id: com.canonical.plainbox::camera
+template-resource: device
+template-filter:
+  - device.category == 'CAPTURE' and device.name != ''
+template-unit: job
+template-id: camera/v4l2-compliance-blockers_name
+flags:
+  - also-after-suspend
+template-summary: To check if the ioctl request works on a v4l2 device
+id: camera/v4l2-compliance-blockers_{name}
+summary: v4l2 compliance for {product_slug} at /dev/{name}, blockers
+plugin: shell
+command: v4l2_compliance_test.py --device /dev/{name} --ioctl-selection blockers
+---
+unit: template
+category_id: com.canonical.plainbox::camera
+template-resource: device
+template-filter:
+  - device.category == 'CAPTURE' and device.name != ''
+template-unit: job
+template-id: camera/v4l2-compliance-non-blockers_name
+flags:
+  - also-after-suspend
+template-summary: To check if the ioctl request works on a v4l2 device
+id: camera/v4l2-compliance-non-blockers_{name}
+summary: v4l2 compliance for {product_slug} at /dev/{name}, non-blockers
+plugin: shell
+command: v4l2_compliance_test.py --device /dev/{name} --ioctl-selection non-blockers
+---
+unit: template
+template-resource: device
+template-filter:
+  - device.category == 'CAPTURE' and device.name != ''
+template-unit: job
+plugin: user-interact-verify
+category_id: com.canonical.plainbox::camera
+id: camera/display_{name}
+template-id: camera/display_name
+group: camera_basic
+flags:
+  - also-after-suspend
+summary: Webcam video display test for {product_slug}
+estimated_duration: "120.0"
+depends:
+  - camera/detect
+command: camera_test.py video -d /dev/{name}
+purpose: This test will check that the {product_slug} camera works
+steps: 1. Click on Test to display a video capture from the camera for ten seconds.
+verification: Did you see the video capture?
+---
+unit: template
+template-resource: device
+template-filter:
+  - device.category == 'CAPTURE' and device.name != ''
+template-unit: job
+plugin: user-interact-verify
+category_id: com.canonical.plainbox::camera
+id: camera/led_{name}
+template-id: camera/led_name
+group: camera_basic
+summary: Webcam LED test for {product_slug}
+estimated_duration: "120.0"
+imports:
+  - from com.canonical.plainbox import manifest
+requires:
+  - manifest.has_led_camera == 'True'
+depends:
+  - camera/detect
+command: camera_test.py led -d /dev/{name}
+purpose: This test will check that the {product_slug} camera LED works
+steps: |
+  1. Select Test to activate camera
+  2. Camera LED should light for a few seconds
+verification: Did the camera LED light?
+flags:
+  - also-after-suspend
+---
+unit: template
+template-resource: device
+template-filter:
+  - device.category == 'CAPTURE' and device.name != ''
+template-unit: job
+plugin: user-interact-verify
+category_id: com.canonical.plainbox::camera
+id: camera/still_{name}
+template-id: camera/still_name
+group: camera_basic
+flags:
+  - also-after-suspend
+summary: Webcam still image capture test for {product_slug}
+estimated_duration: "120.0"
+depends:
+  - camera/detect
+command: camera_test.py image -d /dev/{name}
+purpose: This test will check that the {product_slug} works
+steps: 1. Click on Test to display a still image from the camera for ten seconds.
+verification: Did you see the image?
+---
+unit: template
+template-resource: device
+template-filter:
+  - device.category == 'CAPTURE' and device.name != ''
+template-unit: job
+plugin: shell
+category_id: com.canonical.plainbox::camera
+id: camera/multiple-resolution-images_{name}
+template-id: camera/multiple-resolution-images_name
+flags:
+  - also-after-suspend
+summary: Webcam multiple resolution capture test for {product_slug}
+estimated_duration: "1.2"
+depends:
+  - camera/detect
+command: camera_test.py resolutions -d /dev/{name} -o "$PLAINBOX_SESSION_SHARE"
+purpose: |
+  Takes multiple pictures based on the resolutions supported by the camera and
+  validates their size and that they are of a valid format.
+---
+unit: template
+template-resource: device
+template-filter:
+  - device.category == 'CAPTURE' and device.name != ''
+template-unit: job
+plugin: attachment
+mime-type: image/jpeg
+category_id: com.canonical.plainbox::camera
+id: camera/multiple-resolution-images-attachment_{name}
+template-id: camera/multiple-resolution-images-attachment_name
+flags:
+  - also-after-suspend
+summary: Attach an image from the multiple resolution images test for {product_slug}
+estimated_duration: 1s
+after:
+  - camera/multiple-resolution-images_{name}
+command: |
+  [ -f "$PLAINBOX_SESSION_SHARE"/resolution_test_image_{name}.jpg ] &&
+  cat "$PLAINBOX_SESSION_SHARE"/resolution_test_image_{name}.jpg
+purpose: |
+  This test will attach one of the images used for the multiple resolution
+  images test.
+---
+unit: template
+template-resource: device
+template-filter:
+  - device.category == 'CAPTURE' and device.name != ''
+template-unit: job
+plugin: shell
+category_id: com.canonical.plainbox::camera
+id: camera/camera-quality_{name}
+template-id: camera/camera-quality_name
+flags:
+  - also-after-suspend
+summary: Webcam BRISQUE score for {product_slug}
+estimated_duration: 20s
+depends:
+  - camera/detect
+requires:
+  - os.release >= '22.04'
+command: camera_quality_test.py -d {name} -o "$PLAINBOX_SESSION_SHARE"
+purpose: |
+  Takes a picture and computes the quality based on a No-Reference image
+  quality assessment algorithm called BRISQUE. This test will timeout and fail
+  if the quality has not been computed within 120 seconds.
+---
+unit: template
+template-resource: device
+template-filter:
+  - device.category == 'CAPTURE' and device.name != ''
+template-unit: job
+plugin: attachment
+mime-type: image/jpeg
+category_id: com.canonical.plainbox::camera
+id: camera/camera-quality-image_{name}
+template-id: camera/camera-quality-image_name
+flags:
+  - also-after-suspend
+summary: Attach the image used for the BRISQUE score for {product_slug}
+estimated_duration: 1s
+after:
+  - camera/camera-quality_{name}
+requires:
+  - os.release >= '22.04'
+command: |
+  [ -f "$PLAINBOX_SESSION_SHARE"/quality_image_{name}.jpg ] &&
+  cat "$PLAINBOX_SESSION_SHARE"/quality_image_{name}.jpg
+purpose: This test will attach the image used for the BRISQUE score.
+---
+plugin: shell
+category_id: com.canonical.plainbox::camera
+id: camera/detect-rpi
+estimated_duration: "1.0"
+imports:
+  - from com.canonical.plainbox import manifest
+requires:
+  - manifest.has_rpi_camera == 'True'
+command: 'udev_resource.py -f MMAL | grep "category: MMAL"'
+summary: Detect presence of a MMAL camera.
+---
+unit: template
+template-resource: device
+template-filter:
+  - device.category == 'MMAL' and device.name != ''
+template-unit: job
+plugin: shell
+category_id: com.canonical.plainbox::camera
+id: camera/multiple-resolution-images-rpi_{name}
+template-id: camera/multiple-resolution-images-rpi_name
+summary: Webcam multiple resolution capture test for Pi Camera
+estimated_duration: "16.0"
+depends:
+  - camera/detect-rpi
+requires:
+  - environment.SNAP != ""
+  - cpuinfo.platform == 'armv7l'
+  - os.release >= '18'
+command: camera_test_rpi.py --device /dev/{name}
+purpose: |
+  Takes multiple pictures based on the resolutions supported by the camera and
+  validates their size and that they are of a valid format.
+user: root
+---
+unit: template
+template-resource: device
+template-filter:
+  - device.category == 'MMAL' and device.name != ''
+template-unit: job
+plugin: attachment
+mime-type: image/jpeg
+category_id: com.canonical.plainbox::camera
+id: camera/multiple-resolution-images-rpi-attachment_{name}
+template-id: camera/multiple-resolution-images-rpi-attachment_name
+summary: Attach an image from the multiple resolution images test on rpi
+estimated_duration: 1s
+after:
+  - camera/multiple-resolution-images-rpi_{name}
+requires:
+  - environment.SNAP != ""
+  - cpuinfo.platform == 'armv7l'
+  - os.release >= '18'
+command: |
+  [ -f "$PLAINBOX_SESSION_SHARE"/picam_1_{name}.jpg ] &&
+  cat "$PLAINBOX_SESSION_SHARE"/picam_1_{name}.jpg
+purpose: |
+  This test will attach one of the images used for the multiple resolution
+  images test on rpi.
+---
+unit: template
+template-resource: device
+template-filter:
+  - device.category == 'MMAL' and device.name != ''
+template-unit: job
+plugin: shell
+category_id: com.canonical.plainbox::camera
+id: camera/camera-quality-rpi_{name}
+template-id: camera/camera-quality-rpi_name
+summary: Webcam BRISQUE score for rpi devices on {name}
+estimated_duration: 20s
+depends:
+  - camera/detect-rpi
+after:
+  - camera/multiple-resolution-images-rpi_{name}
+requires:
+  - environment.SNAP != ""
+  - cpuinfo.platform == 'armv7l'
+  - os.release >= '20'
+command: camera_quality_test.py -f "$PLAINBOX_SESSION_SHARE"/picam_1_{name}.jpg
+purpose: |
+  Uses an image of the camera to get the quality based on a No-Reference image
+  quality assessment algorithm called BRISQUE. This test will timeout and fail
+  if the quality has not been computed within 120 seconds.

@@ -1,6 +1,9 @@
+import argparse
+import os
 import unittest
 from unittest import mock
 
+import codec_cix_tool
 import codec_dragonwing
 import codec_genio
 import codec_imx
@@ -12,7 +15,11 @@ from codec_platforms import (
     codec_factory,
     create_scenario_project,
 )
-from gst_utils import PipelineInterface
+from gst_utils import (
+    GST_DISCOVERER,
+    PipelineInterface,
+    get_source_colorimetry,
+)
 
 
 class TestCodecFactory(unittest.TestCase):
@@ -23,6 +30,7 @@ class TestCodecFactory(unittest.TestCase):
         self.assertIs(codec_factory("dragonwing"), codec_dragonwing)
         self.assertIs(codec_factory("imx-8mp"), codec_imx)
         self.assertIs(codec_factory("rzg2l"), codec_rz)
+        self.assertIs(codec_factory("cix-tool-p1"), codec_cix_tool)
 
     def test_factory_returns_none_for_unknown_platform(self):
         self.assertIsNone(codec_factory("newplatform"))
@@ -65,6 +73,42 @@ class TestCodecFactory(unittest.TestCase):
         )
         self.assertFalse(
             hasattr(codec_dragonwing, "create_decoder_performance_project")
+        )
+
+    def test_cix_tool_module_scenario_apis(self):
+        for hook in (
+            "create_encoder_psnr_project",
+            "create_transform_resize_project",
+            "create_transform_rotate_and_flip_project",
+            "create_decoder_performance_project",
+        ):
+            self.assertTrue(hasattr(codec_cix_tool, hook))
+
+    def test_cix_tool_encoder_psnr_is_zero_copy(self):
+        def pipeline(encoder, mux):
+            args = argparse.Namespace(
+                platform="cix-tool-p1",
+                encoder_plugin=encoder,
+                width=3840,
+                height=2160,
+                framerate=30,
+                color_space="NV12",
+                mux=mux,
+            )
+            return codec_cix_tool.create_encoder_psnr_project(
+                args
+            ).build_pipeline()
+
+        self.assertIn(
+            "3840x2160_30fps_h264.mp4 ! parsebin ! v4l2h264dec"
+            " ! video/x-raw(memory:DMABuf),format=DMA_DRM,drm-format=NV12"
+            " ! v4l2h264enc output-io-mode=dmabuf-import ! h264parse"
+            " ! mp4mux ! filesink",
+            pipeline("v4l2h264enc", "mp4mux"),
+        )
+        self.assertIn(
+            "3840x2160_30fps_mjpeg.mov ! parsebin ! v4l2jpegdec",
+            pipeline("v4l2jpegenc", "qtmux"),
         )
 
     def test_create_scenario_project_dispatch(self):
@@ -116,6 +160,39 @@ class TestBaseCodecProject(unittest.TestCase):
             self.assertTrue(issubclass(project_class, BaseCodecProject))
             self.assertTrue(issubclass(project_class, PipelineInterface))
 
+    @mock.patch("codec_genio.file_name_placeholder", return_value="sample.mp4")
+    def test_genio_rgb_encoders_use_matching_rgb_samples(
+        self, mock_placeholder
+    ):
+        for color_space, codec_short_name in (
+            ("ARGB", "png_rgba"),
+            ("RGB", "png_rgb24"),
+        ):
+            with self.subTest(color_space=color_space):
+                project = codec_genio.GenioProject(
+                    platform="genio-1200",
+                    codec="v4l2h264enc",
+                    color_space=color_space,
+                    width=1920,
+                    height=1080,
+                    framerate=30,
+                    mux="mp4mux",
+                )
+
+                self.assertEqual(
+                    project.psnr_reference_file,
+                    os.path.join(
+                        codec_genio.VIDEO_CODEC_TESTING_DATA, "sample.mp4"
+                    ),
+                )
+                mock_placeholder.assert_called_with(
+                    width=1920,
+                    height=1080,
+                    framerate=30,
+                    codec_short_name=codec_short_name,
+                    ext="mp4",
+                )
+
     def test_build_pipeline_rejects_unknown_encoder(self):
         project = BaseCodecProject(
             platform="any",
@@ -146,8 +223,75 @@ class TestBaseCodecProject(unittest.TestCase):
             perf_script.GenericDecoderPerformanceProject,
             codec_imx.ImxDecoderPerformanceProject,
             codec_rz.RenesasDecoderPerformanceProject,
+            codec_cix_tool.CixTransformResizeProject,
+            codec_cix_tool.CixTransformRotateAndFlipProject,
+            codec_cix_tool.CixDecoderPerformanceProject,
         ):
             self.assertTrue(issubclass(project_class, BaseCodecProject))
+
+
+class TestImxColorimetry(unittest.TestCase):
+    def _project(self, height):
+        project = codec_imx.NxpIMX8mProject(
+            platform="imx-8mm",
+            codec=codec_imx.GStreamerEncodePlugins.V4L2H264ENC.value,
+            color_space="I420",
+            width=1920,
+            height=height,
+            framerate=30,
+        )
+        project._golden_sample = "/tmp/source.mp4"
+        return project
+
+    @mock.patch("codec_imx.get_source_colorimetry", return_value="bt601")
+    def test_prefers_source_colorimetry_over_height_default(self, get_color):
+        project = self._project(height=720)
+
+        self.assertEqual(project._colorimetry, "bt601")
+        get_color.assert_called_once_with(project._golden_sample)
+
+    @mock.patch("codec_imx.get_source_colorimetry", return_value=None)
+    def test_uses_height_default_when_source_colorimetry_is_absent(
+        self, get_color
+    ):
+        self.assertEqual(self._project(height=576)._colorimetry, "bt601")
+        self.assertEqual(self._project(height=720)._colorimetry, "bt709")
+        self.assertEqual(get_color.call_count, 2)
+
+    @mock.patch(
+        "codec_imx.get_source_colorimetry",
+        side_effect=SystemExit("gst-discoverer failed"),
+    )
+    def test_discoverer_failure_is_not_treated_as_missing_metadata(
+        self, get_color
+    ):
+        with self.assertRaisesRegex(SystemExit, "gst-discoverer failed"):
+            self._project(height=720)._colorimetry
+
+
+class TestGetSourceColorimetry(unittest.TestCase):
+    @mock.patch("gst_utils.execute_command")
+    def test_reads_colorimetry_from_verbose_caps(self, execute_command):
+        execute_command.return_value = (
+            "video/x-h264, colorimetry=(string)BT601, width=(int)1920"
+        )
+
+        self.assertEqual(get_source_colorimetry("/tmp/source.mp4"), "bt601")
+        command = execute_command.call_args[1]
+        self.assertIn("{} -v".format(GST_DISCOVERER), command["cmd"])
+        self.assertEqual(command["timeout"], 30)
+
+    @mock.patch("gst_utils.execute_command")
+    def test_returns_none_for_absent_or_unknown_colorimetry(
+        self, execute_command
+    ):
+        for metadata in (
+            "video/x-h264, width=(int)1920",
+            "video/x-h264, colorimetry=(string)unknown",
+        ):
+            execute_command.return_value = metadata
+            with self.subTest(metadata=metadata):
+                self.assertIsNone(get_source_colorimetry("/tmp/source.mp4"))
 
 
 if __name__ == "__main__":

@@ -48,6 +48,7 @@ _description:
     all of the automated tests used to validate the IoT devices.
 include:
 nested_part:
+    cix-tool-desktop-automated
     dragonwing-desktop-automated
     genio-desktop-automated
     iiotg-desktop-automated
@@ -57,6 +58,7 @@ nested_part:
     ce-oem-automated
     com.canonical.certification::client-cert-iot-desktop-26-04-automated
     after-suspend-ce-oem-automated
+    after-suspend-rz-desktop-automated
 exclude:
 certification_status_overrides:
     apply blocker to .*
@@ -160,6 +162,7 @@ _description:
 estimated_duration: 3600
 include:
 nested_part:
+    genio-desktop-manual
     ce-oem-manual
     com.canonical.certification::client-cert-iot-desktop-24-04-manual
     after-suspend-ce-oem-manual
@@ -176,9 +179,12 @@ _description:
     all of the automated tests used to validate the IoT devices.
 include:
 nested_part:
+    genio-desktop-automated
+    rz-core-automated
     ce-oem-automated
     com.canonical.certification::client-cert-iot-desktop-24-04-automated
     after-suspend-ce-oem-automated
+    after-suspend-rz-core-automated
 exclude:
 certification_status_overrides:
     apply blocker to .*

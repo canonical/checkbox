@@ -1,0 +1,369 @@
+#!/usr/bin/env python3
+# This file is part of Checkbox.
+#
+# Copyright 2026 Canonical Ltd.
+#
+# Checkbox is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License version 3,
+# as published by the Free Software Foundation.
+#
+# Checkbox is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with Checkbox. If not, see <http://www.gnu.org/licenses/>.
+
+
+import io
+import os
+import subprocess
+import unittest
+from pathlib import Path
+from types import SimpleNamespace
+from unittest.mock import MagicMock, patch, call
+
+import rtc_test
+
+
+class FindRtcDevicesTests(unittest.TestCase):
+    @patch("rtc_test.glob.glob")
+    def test_sorts_and_strips_basenames(self, mock_glob):
+        mock_glob.return_value = ["/dev/rtc1", "/dev/rtc0"]
+        self.assertEqual(rtc_test.find_rtc_devices(), ["rtc0", "rtc1"])
+
+
+class IsReadableTests(unittest.TestCase):
+    @patch("rtc_test.Path.read_text", return_value="1792062647\n")
+    def test_readable_file_returns_true(self, mock_read):
+        self.assertTrue(rtc_test._is_readable(Path("/fake/since_epoch")))
+
+    @patch("rtc_test.Path.read_text", side_effect=OSError)
+    def test_invalid_argument_returns_false(self, mock_read):
+        self.assertFalse(rtc_test._is_readable(Path("/fake/since_epoch")))
+
+
+class CmdListTests(unittest.TestCase):
+    @patch("rtc_test.find_rtc_devices", return_value=["rtc0", "rtc1"])
+    def test_emits_one_record_per_device(self, mock_find):
+        with patch("sys.stdout", new_callable=io.StringIO) as mock_stdout:
+            ret = rtc_test.cmd_list(SimpleNamespace())
+        self.assertEqual(ret, 0)
+        self.assertEqual(mock_stdout.getvalue(), "rtc: rtc0\n\nrtc: rtc1\n\n")
+
+
+class CmdBatteryTests(unittest.TestCase):
+    @patch("rtc_test.subprocess.run")
+    def test_commands_has_called(self, mock_run: MagicMock):
+        mock_run.side_effect = [
+            MagicMock(returncode=0),
+            MagicMock(returncode=0),
+        ]
+        args = SimpleNamespace(rtc="rtc0", seconds=30)
+        self.assertEqual(rtc_test.cmd_battery(args), 0)
+        self.assertEqual(mock_run.call_count, 2)
+        mock_run.assert_has_calls(
+            [
+                call(
+                    ["rtcwake", "-v", "-d", "rtc0", "-m", "disable"],
+                    check=False,
+                ),
+                call(
+                    ["rtcwake", "-v", "-d", "rtc0", "-m", "off", "-s", "30"],
+                    check=False,
+                ),
+            ]
+        )
+
+
+class CmdNumberTests(unittest.TestCase):
+    @patch("rtc_test.find_rtc_devices", return_value=["rtc0"])
+    def test_number_match(self, mock_find):
+        self.assertEqual(rtc_test.cmd_number(SimpleNamespace(total=1)), 0)
+
+    @patch("rtc_test.find_rtc_devices", return_value=["rtc0"])
+    def test_number_mismatch(self, mock_find):
+        self.assertEqual(rtc_test.cmd_number(SimpleNamespace(total=2)), 1)
+
+    @patch.dict(os.environ, {"TOTAL_RTC_NUM": "3"}, clear=True)
+    @patch("rtc_test.find_rtc_devices", return_value=["rtc0", "rtc1", "rtc2"])
+    def test_number_match_when_env_val_set(self, mock_find):
+        self.assertEqual(rtc_test.cmd_number(SimpleNamespace(total=None)), 0)
+
+    @patch.dict(os.environ, {}, clear=True)
+    @patch("rtc_test.find_rtc_devices", return_value=["rtc0"])
+    def test_default_when_env_val_unset(self, mock_find):
+        self.assertEqual(rtc_test.cmd_number(SimpleNamespace(total=None)), 0)
+
+
+class CmdReadAndSyncTests(unittest.TestCase):
+    @patch("rtc_test._is_readable", return_value=True)
+    def test_can_read(self, mock_is_readable):
+        args = SimpleNamespace(rtc="rtc0")
+        self.assertEqual(rtc_test.cmd_read_and_sync(args), 0)
+        mock_is_readable.assert_called_once_with(
+            Path("/sys/class/rtc/rtc0/since_epoch")
+        )
+
+    @patch("rtc_test.subprocess.run")
+    @patch("rtc_test._is_readable", side_effect=[False, True])
+    def test_calls_hwclock_sync_when_unreadable(
+        self, mock_is_readable, mock_run: MagicMock
+    ):
+        args = SimpleNamespace(rtc="rtc0")
+        self.assertEqual(rtc_test.cmd_read_and_sync(args), 0)
+        mock_run.assert_called_once_with(
+            ["hwclock", "--systohc", "--utc", "--rtc=/dev/rtc0"], check=True
+        )
+
+    @patch(
+        "rtc_test.subprocess.run",
+        side_effect=subprocess.CalledProcessError(returncode=1, cmd="hwclock"),
+    )
+    @patch("rtc_test._is_readable", return_value=False)
+    def test_hwclock_command_itself_fails(self, mock_is_readable, mock_run):
+        with self.assertRaises(subprocess.CalledProcessError):
+            rtc_test.cmd_read_and_sync(SimpleNamespace(rtc="rtc0"))
+
+    @patch("rtc_test.subprocess.run")
+    @patch("rtc_test._is_readable", side_effect=[False, False])
+    def test_still_unreadable_after_successful_sync(
+        self, mock_is_readable, mock_run
+    ):
+        with self.assertRaises(SystemExit):
+            rtc_test.cmd_read_and_sync(SimpleNamespace(rtc="rtc0"))
+
+
+class CmdAlarmTests(unittest.TestCase):
+    @patch.dict(
+        os.environ, {"UNSUPPORTED_RTC_ALARM_DEVICES": "rtc0, rtc1"}, clear=True
+    )
+    @patch("rtc_test.subprocess.run")
+    def test_unsupported_device_is_skipped(self, mock_run):
+        args = SimpleNamespace(rtc="rtc1", seconds=30, timeout=60)
+        self.assertEqual(rtc_test.cmd_alarm(args), 0)
+        mock_run.assert_not_called()
+
+    @patch.dict(
+        os.environ, {"UNSUPPORTED_RTC_ALARM_DEVICES": "rtc1"}, clear=True
+    )
+    @patch("rtc_test.subprocess.run")
+    @patch("rtc_test.Path.is_file", return_value=True)
+    def test_device_not_in_unsupported_list_is_tested(
+        self, mock_is_file, mock_run
+    ):
+        args = SimpleNamespace(rtc="rtc0", seconds=30, timeout=60)
+        self.assertEqual(rtc_test.cmd_alarm(args), 0)
+        mock_run.assert_called_once()
+
+    @patch("rtc_test.Path.is_file", return_value=False)
+    def test_no_wakealarm_support(self, mock_is_file):
+        args = SimpleNamespace(rtc="rtc0", seconds=30, timeout=60)
+        with self.assertRaises(SystemExit):
+            rtc_test.cmd_alarm(args)
+
+    @patch("rtc_test.subprocess.run")
+    @patch("rtc_test.Path.is_file", return_value=True)
+    def test_success_calls_rtcwake_with_expected_args(
+        self, mock_is_file, mock_run
+    ):
+        args = SimpleNamespace(rtc="rtc0", seconds=30, timeout=60)
+        self.assertEqual(rtc_test.cmd_alarm(args), 0)
+        mock_run.assert_called_once_with(
+            ["rtcwake", "-v", "-d", "rtc0", "-m", "on", "-s", "30"],
+            timeout=60,
+            check=True,
+        )
+
+    @patch(
+        "rtc_test.subprocess.run",
+        side_effect=subprocess.TimeoutExpired(cmd="rtcwake", timeout=60),
+    )
+    @patch("rtc_test.Path.is_file", return_value=True)
+    def test_timeout_is_reported_as_failure(self, mock_is_file, mock_run):
+        args = SimpleNamespace(rtc="rtc0", seconds=30, timeout=60)
+        with self.assertRaises(SystemExit):
+            rtc_test.cmd_alarm(args)
+
+    @patch(
+        "rtc_test.subprocess.run",
+        side_effect=subprocess.CalledProcessError(returncode=2, cmd="rtcwake"),
+    )
+    @patch("rtc_test.Path.is_file", return_value=True)
+    def test_nonzero_exit_is_reported_as_failure(self, mock_is_file, mock_run):
+        args = SimpleNamespace(rtc="rtc0", seconds=30, timeout=60)
+        with self.assertRaises(SystemExit):
+            rtc_test.cmd_alarm(args)
+
+
+class GetRtcSecondsTests(unittest.TestCase):
+    @patch.dict(os.environ, {}, clear=True)
+    def test_unset_returns_default(self):
+        self.assertEqual(
+            rtc_test.get_rtc_seconds("RTC_WAKEUP_SECONDS", "rtc0", 30), 30
+        )
+
+    @patch.dict(
+        os.environ, {"RTC_WAKEUP_SECONDS": "rtc0:45, rtc1:120"}, clear=True
+    )
+    def test_listed_device_uses_its_value(self):
+        self.assertEqual(
+            rtc_test.get_rtc_seconds("RTC_WAKEUP_SECONDS", "rtc1", 30), 120
+        )
+
+    def test_dev_path_and_name_match_each_other(self):
+        cases = [
+            ("rtc1:120", "/dev/rtc1"),
+            ("/dev/rtc1:120", "rtc1"),
+            ("/dev/rtc1:120", "/dev/rtc1"),
+        ]
+        for value, rtc in cases:
+            with self.subTest(value=value, rtc=rtc):
+                with patch.dict(
+                    os.environ, {"RTC_WAKEUP_SECONDS": value}, clear=True
+                ):
+                    self.assertEqual(
+                        rtc_test.get_rtc_seconds(
+                            "RTC_WAKEUP_SECONDS", rtc, 30
+                        ),
+                        120,
+                    )
+
+    @patch.dict(os.environ, {"RTC_WAKEUP_SECONDS": "rtc1:120"}, clear=True)
+    def test_unlisted_device_uses_default(self):
+        self.assertEqual(
+            rtc_test.get_rtc_seconds("RTC_WAKEUP_SECONDS", "rtc0", 30), 30
+        )
+
+    @patch.dict(os.environ, {"RTC_WAKEUP_SECONDS": "rtc1:120,"}, clear=True)
+    def test_empty_entry_is_ignored(self):
+        self.assertEqual(
+            rtc_test.get_rtc_seconds("RTC_WAKEUP_SECONDS", "rtc1", 30), 120
+        )
+
+    def test_malformed_entry_fails(self):
+        for value in ("rtc1", "rtc1:abc", "rtc1:1:2", "rtc1:0", "rtc1:-5"):
+            with self.subTest(value=value):
+                with patch.dict(
+                    os.environ, {"RTC_WAKEUP_SECONDS": value}, clear=True
+                ):
+                    with self.assertRaises(SystemExit):
+                        rtc_test.get_rtc_seconds(
+                            "RTC_WAKEUP_SECONDS", "rtc1", 30
+                        )
+
+
+class CmdAlarmSecondsOverrideTests(unittest.TestCase):
+    @patch.dict(
+        os.environ,
+        {"RTC_WAKEUP_SECONDS": "rtc1:120", "RTC_WAKEUP_TIMEOUT": "rtc1:150"},
+        clear=True,
+    )
+    @patch("rtc_test.subprocess.run")
+    @patch("rtc_test.Path.is_file", return_value=True)
+    def test_override_sets_seconds_and_timeout(self, mock_is_file, mock_run):
+        args = SimpleNamespace(rtc="rtc1", seconds=30, timeout=60)
+        self.assertEqual(rtc_test.cmd_alarm(args), 0)
+        mock_run.assert_called_once_with(
+            ["rtcwake", "-v", "-d", "rtc1", "-m", "on", "-s", "120"],
+            timeout=150,
+            check=True,
+        )
+
+    @patch.dict(
+        os.environ,
+        {"RTC_WAKEUP_SECONDS": "rtc1:120", "RTC_WAKEUP_TIMEOUT": "rtc1:150"},
+        clear=True,
+    )
+    @patch("rtc_test.subprocess.run")
+    @patch("rtc_test.Path.is_file", return_value=True)
+    def test_unlisted_device_keeps_defaults(self, mock_is_file, mock_run):
+        args = SimpleNamespace(rtc="rtc0", seconds=30, timeout=60)
+        rtc_test.cmd_alarm(args)
+        mock_run.assert_called_once_with(
+            ["rtcwake", "-v", "-d", "rtc0", "-m", "on", "-s", "30"],
+            timeout=60,
+            check=True,
+        )
+
+    @patch.dict(os.environ, {"RTC_WAKEUP_SECONDS": "rtc1:120"}, clear=True)
+    @patch("rtc_test.subprocess.run")
+    @patch("rtc_test.Path.is_file", return_value=True)
+    def test_timeout_not_greater_than_seconds_fails(
+        self, mock_is_file, mock_run
+    ):
+        args = SimpleNamespace(rtc="rtc1", seconds=30, timeout=60)
+        with self.assertRaises(SystemExit):
+            rtc_test.cmd_alarm(args)
+        mock_run.assert_not_called()
+
+
+class CmdBatterySecondsOverrideTests(unittest.TestCase):
+    @patch.dict(os.environ, {"RTC_WAKEUP_SECONDS": "rtc1:90"}, clear=True)
+    @patch("rtc_test.subprocess.run")
+    def test_override_sets_wakeup_seconds(self, mock_run):
+        rtc_test.cmd_battery(SimpleNamespace(rtc="rtc1", seconds=30))
+        mock_run.assert_called_with(
+            ["rtcwake", "-v", "-d", "rtc1", "-m", "off", "-s", "90"],
+            check=False,
+        )
+
+    @patch.dict(os.environ, {"RTC_WAKEUP_SECONDS": "rtc1:90"}, clear=True)
+    @patch("rtc_test.subprocess.run")
+    def test_unlisted_device_keeps_default(self, mock_run):
+        rtc_test.cmd_battery(SimpleNamespace(rtc="rtc0", seconds=30))
+        mock_run.assert_called_with(
+            ["rtcwake", "-v", "-d", "rtc0", "-m", "off", "-s", "30"],
+            check=False,
+        )
+
+
+class CmdClockTests(unittest.TestCase):
+    @patch("rtc_test.time.time", return_value=1788854686.989309)
+    @patch("rtc_test.Path.read_text", return_value="1788854690\n")
+    def test_within_tolerance_passes(self, mock_read, mock_time):
+        args = SimpleNamespace(rtc="rtc0", tolerance=5)
+        self.assertEqual(rtc_test.cmd_clock(args), 0)
+
+    @patch("rtc_test.time.time", return_value=1788854686.989309)
+    @patch("rtc_test.Path.read_text", return_value="1788854688\n")
+    def test_exactly_at_tolerance_passes(self, mock_read, mock_time):
+        args = SimpleNamespace(rtc="rtc0", tolerance=2)
+        self.assertEqual(rtc_test.cmd_clock(args), 0)
+
+    @patch("rtc_test.time.time", return_value=1788854686.989309)
+    @patch("rtc_test.Path.read_text", return_value="1788854680\n")
+    def test_beyond_tolerance_fails(self, mock_read, mock_time):
+        args = SimpleNamespace(rtc="rtc0", tolerance=5)
+        with self.assertRaises(SystemExit):
+            rtc_test.cmd_clock(args)
+
+
+class BuildParserTests(unittest.TestCase):
+    def test_list_dispatches_to_cmd_list(self):
+        parser = rtc_test.build_parser()
+        args = parser.parse_args(["list"])
+        self.assertIs(args.func, rtc_test.cmd_list)
+
+    @patch.dict(os.environ, {"RTC_DEVICE_FILE": "rtc1"}, clear=True)
+    def test_default_rtc_comes_from_env_var(self):
+        parser = rtc_test.build_parser()
+        args = parser.parse_args(["read"])
+        self.assertEqual(args.rtc, "rtc1")
+
+    @patch.dict(os.environ, {}, clear=True)
+    def test_default_rtc_falls_back_to_rtc0(self):
+        parser = rtc_test.build_parser()
+        args = parser.parse_args(["clock"])
+        self.assertEqual(args.rtc, "rtc0")
+
+    def test_alarm_arguments_have_expected_defaults(self):
+        parser = rtc_test.build_parser()
+        args = parser.parse_args(["alarm"])
+        self.assertEqual(args.seconds, 30)
+        self.assertEqual(args.timeout, 60)
+
+
+if __name__ == "__main__":
+    unittest.main()

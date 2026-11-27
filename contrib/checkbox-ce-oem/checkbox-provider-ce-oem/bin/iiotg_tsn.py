@@ -13,10 +13,27 @@ from contextlib import contextmanager
 from ipaddress import ip_address
 from pathlib import Path
 from threading import Event
+from typing import Literal
 
 # comes with linuxptp since 25.10 and newer
 # this forces phc2sys to use ptp4l's read only socket, see phc2sys()
 PHC2SYS_APPARMOR_PROFILE = Path("/etc/apparmor.d/usr.sbin.phc2sys")
+
+
+def get_linuxptp_binary(name: "Literal['ptp4l', 'phc2sys']") -> str:
+    """
+    Prefer the linuxptp binary shipped in the snap over the host's copy.
+    This is used to get around the host's linuxptp apparmor profiles.
+
+    :param name: name of the linuxptp binary, like ptp4l or phc2sys
+    :return: absolute path to the snap's binary if it exists, else name
+    """
+    snap = os.environ.get("SNAP")
+    if snap:
+        snap_binary = Path(snap) / "usr" / "sbin" / name
+        if snap_binary.is_file():
+            return str(snap_binary)
+    return name
 
 
 def clear_qdisc_settings(interface: str) -> None:
@@ -71,6 +88,8 @@ def ptp4l(
     :return: the ptp4l process object
     """
 
+    ptp4l_binary = get_linuxptp_binary("ptp4l")
+
     if cfg:
         print(
             f"Using ptp4l config file at {cfg.absolute()}".center(80, "-"),
@@ -81,9 +100,7 @@ def ptp4l(
         ptp4l_command = [
             # caller is responsible for making sure config file is valid
             # i.e. options are recognized by ptp4l
-            "timeout",
-            str(timeout),
-            "ptp4l",
+            ptp4l_binary,
             "-i",
             interface,
             "-f",
@@ -95,9 +112,7 @@ def ptp4l(
         # convenience path, you don't have to have a config file to run tests
         # this should work on most intel platforms even without rt kernel
         ptp4l_command = [
-            "timeout",
-            str(timeout),
-            "ptp4l",
+            ptp4l_binary,
             "-i",
             interface,
             "-m",  # print msg to stdout
@@ -138,6 +153,13 @@ def ptp4l(
             # force 'master offset' output to appear in stdout
             ptp4l_command.append("--summary_interval=-4")
 
+    if timeout > 0:
+        # never wrap with "timeout 0"
+        # because uutils' timeout
+        # ignores SIGTERM when timeout=0 and would leave ptp4l running
+        # this is different from the gnu version of timeout
+        ptp4l_command = ["timeout", str(timeout)] + ptp4l_command
+
     print("Launching ptp4l process:", " ".join(ptp4l_command))
     # caller decides how to consume stdout and stderr
     return sp.Popen(
@@ -162,10 +184,11 @@ def phc2sys(
     :return: phc2sys process object
     """
 
+    phc2sys_binary = get_linuxptp_binary("phc2sys")
     command = [
         "timeout",
         str(timeout),
-        "phc2sys",
+        phc2sys_binary,
         "-s",  # the interface to sync
         interface,
         # -O 0 sets the offset between system clock and hardware clock to 0
@@ -182,7 +205,8 @@ def phc2sys(
         "--transportSpecific=1",  # see ptp4l()
     ]
 
-    if PHC2SYS_APPARMOR_PROFILE.exists():
+    # only applies if we are somehow using the host's phc2sys
+    if phc2sys_binary == "phc2sys" and PHC2SYS_APPARMOR_PROFILE.exists():
         # This profile only allows phc2sys to open @{run}/ptp4lro, so
         # talking to ptp4l's default read-write socket at /var/run/ptp4l
         # is denied and -w hangs on "Waiting for ptp4l..." forever.
@@ -257,6 +281,8 @@ def server_mode(
         # Terminate all running ptp4l processes
         for process in processes:
             process.terminate()
+        for process in processes:
+            process.wait()
         print("Terminated all ptp4l and iperf3 process")
 
 

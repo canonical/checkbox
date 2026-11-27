@@ -29,11 +29,11 @@ test_data:
     source install_tools.sh $TOOLS_PATH
 
     # ensure device is available before continuing
-    wait_for_ssh --allow-degraded
+    wait-for-ssh --allow-degraded
 
     _run install_packages git python3 python3-pip dpkg-dev
 
-    wait_for_ssh --allow-degraded
+    wait-for-ssh --allow-degraded
 
     _run clean_machine --im-sure
     _run sudo add-apt-repository ppa:checkbox-dev/edge
@@ -42,12 +42,12 @@ test_data:
     # clone the Checkbox revision without history (easier for slow systems, preserves RAM/storage/networking)
     _run git_get_shallow https://github.com/canonical/checkbox.git commit $CHECKBOX_REVISION
 
-    _run wait_for_packages_complete
+    wait-for-packages-complete
     _run python3 build_install_deb.py --clean checkbox/checkbox-ng \
         checkbox/checkbox-support checkbox/providers/resource \
         checkbox/providers/base checkbox/providers/sru
     _run sudo systemctl restart checkbox-ng
-    _run wait_for_packages_complete
+    wait-for-packages-complete
 
     git_get_shallow https://github.com/canonical/checkbox.git commit $CHECKBOX_REVISION
     pipx install checkbox/checkbox-ng
@@ -55,7 +55,7 @@ test_data:
     # retrieve manifest
     MANIFEST_FILE=manifest.conf
     set +e
-    fetch_manifest --manifest_file manifest.conf $CID $HEXR_DEVICE_SECURE_ID
+    fetch_manifest --output manifest.conf $CID $HEXR_DEVICE_SECURE_ID
     if [ $? -ne 0 ]; then
         echo "Using default manifest"
         MANIFEST_FILE=$RESOURCES_PATH/manifest.conf
@@ -69,16 +69,28 @@ test_data:
     # then insert the manifest entries via the stacker
     stacker --output checkbox.conf checkbox.no-manifest.conf $MANIFEST_FILE $RESOURCES_PATH/launcher_override.conf
 
-    _run sudo reboot
+    wait-for-ssh --allow-degraded
 
-    wait_for_ssh --allow-degraded
+    _run sudo reboot || true
+
+    wait-for-ssh --allow-degraded
 
     check_for_checkbox_service
 
     # run the canary test plan
+    set +e
     PYTHONUNBUFFERED=1 checkbox-cli control $DEVICE_IP checkbox.conf
     EXITCODE=$?
+    set -e
 
-    # placeholder for gathering possible artifacts
+    collect_artifacts --include checkbox.conf
+    SUBMISSION=$(find "${XDG_DATA_HOME:-$HOME/.local/share}/checkbox-ng" \
+        -maxdepth 1 -type f -name 'submission_*.json' \
+        -newer checkbox.conf -print -quit)
+    if [ -z "$SUBMISSION" ]; then
+        echo "Checkbox did not produce a submission JSON report" >&2
+        exit 1
+    fi
+    cp "$SUBMISSION" artifacts/submission.json
 
     exit $EXITCODE

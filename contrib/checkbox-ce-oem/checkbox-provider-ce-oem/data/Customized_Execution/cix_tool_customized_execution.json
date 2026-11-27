@@ -1,0 +1,5 @@
+{
+    "clinfo": {
+  	    "LD_LIBRARY_PATH": ["/opt/cixgpu-compat/lib/aarch64-linux-gnu", "/opt/cixgpu-pro/lib/aarch64-linux-gnu"]
+    }
+}

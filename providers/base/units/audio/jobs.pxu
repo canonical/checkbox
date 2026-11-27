@@ -732,6 +732,7 @@ _purpose:
 _summary: Collect audio-related system information for simulation and detailed testing.
 
 plugin: attachment
+mime-type: text/plain
 category_id: com.canonical.plainbox::audio
 id: audio/alsa_info_attachment
 depends: audio/alsa_info_collect
@@ -1077,7 +1078,7 @@ _verification:
  Did you hear the sound?
 plugin: user-interact-verify
 depends: audio/detect-playback-devices
-environ: ALSA_CONFIG_PATH ALSADEVICE
+environ: ALSA_CONFIG_PATH ALSA_CONFIG_DIR ALSADEVICE
 flags: also-after-suspend
 command: alsa_test playback -d 5
 category_id: com.canonical.plainbox::audio
@@ -1092,7 +1093,7 @@ _purpose:
  connected.
 plugin: shell
 depends: audio/detect-playback-devices audio/detect-capture-devices
-environ: ALSA_CONFIG_PATH LD_LIBRARY_PATH ALSADEVICE
+environ: ALSA_CONFIG_PATH ALSA_CONFIG_DIR LD_LIBRARY_PATH ALSADEVICE
 flags: also-after-suspend
 command: alsa_test loopback -d 5
 category_id: com.canonical.plainbox::audio
@@ -1249,6 +1250,9 @@ category_id: com.canonical.plainbox::audio
 estimated_duration: 1m
 
 id: audio/post-suspend-audio-occupied
+imports: from com.canonical.plainbox import manifest
+requires:
+ manifest.has_internal_speakers == 'True'
 _summary: Verify the test audio I/O after suspend with previously occupied devices.
 _purpose:
  Validate the audio could input and output after suspending while audio devices are occupied before suspending
@@ -1263,7 +1267,7 @@ _verification:
  Did you hear the sound after suspend?
 plugin: user-interact-verify
 depends: audio/detect-playback-devices suspend/suspend_advanced_auto
-environ: ALSA_CONFIG_PATH ALSADEVICE LD_LIBRARY_PATH
+environ: ALSA_CONFIG_PATH ALSA_CONFIG_DIR ALSADEVICE LD_LIBRARY_PATH
 command: alsa_test playback -d 90
 category_id: com.canonical.plainbox::audio
 estimated_duration: 2m

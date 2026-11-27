@@ -13,6 +13,7 @@ _summary: Check Dragonwing sensor list resource generation
 imports: from com.canonical.plainbox import manifest
 requires:
     manifest.is_dragonwing_series == 'True'
+    manifest.has_dragonwing_sensing_hub == 'True'
 environ: DRAGONWING_PLATFORM
 command:
     dragonwing_sensor_test.py sensor-list -p "$DRAGONWING_PLATFORM"

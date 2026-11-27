@@ -106,7 +106,6 @@ class RemainingTodoJobsRemote(Scenario):
         Expect("Press (T) to start"),
         Send("t"),
         # Step 2: Wait for manual job
-        Start(),
         Expect("Pick an action"),
         # Step 3: Stop the session with Ctrl-C, then Exit and stop the agent
         Signal(keys.SIGINT),

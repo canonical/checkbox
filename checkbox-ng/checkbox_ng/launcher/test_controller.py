@@ -21,7 +21,6 @@ import socket
 import json
 
 from unittest import TestCase, mock
-from functools import partial
 
 from checkbox_ng.urwid_ui import ResumeInstead
 from checkbox_ng.launcher.controller import (
@@ -886,11 +885,12 @@ class ControllerTests(TestCase):
         )
 
     def test_should_start_via_autoresume_clean(self):
-        self_mock = mock.MagicMock(_clean=True)
+        self_mock = mock.MagicMock(_clean=True, _session_id="session_id")
 
         self.assertFalse(
             RemoteController.should_start_via_autoresume(self_mock)
         )
+        self_mock.sa.get_resumable_sessions.assert_not_called()
 
     def test_should_start_via_launcher_true(self):
         self_mock = mock.MagicMock(_clean=False)
@@ -968,108 +968,50 @@ class ControllerTests(TestCase):
         self.assertTrue(self_mock.select_test_plan_via_menu.called)
         self.assertTrue(self_mock.resume_session_via_menu_and_continue.called)
 
-    def test__resumed_session(self):
-        self_mock = mock.MagicMock()
-
-        with RemoteController._resumed_session(
-            self_mock, "session_id"
-        ) as metadata:
-            self.assertEqual(
-                self_mock.sa.prepare_resume_session.return_value, metadata
-            )
-        self.assertTrue(self_mock.sa.prepare_resume_session.called)
-        self.assertTrue(self_mock.sa.abandon_session.called)
-
-    def test_should_start_via_autoresume_true(self):
-        last_session_mock = mock.MagicMock(_clean=False)
-        self_mock = mock.MagicMock(_clean=False)
+    def test_should_start_via_autoresume_monitored_session(self):
+        last_session_mock = mock.MagicMock(id="session_id")
+        self_mock = mock.MagicMock(
+            _clean=False,
+            _session_id="session_id",
+        )
         self_mock.sa.get_resumable_sessions.return_value = iter(
             [last_session_mock]
         )
-
-        self_mock._resumed_session = partial(
-            RemoteController._resumed_session, self_mock
-        )
-        metadata = self_mock.sa.prepare_resume_session()
-        metadata.app_blob = b"""
-            {
-                "testplan_id" : "testplan_id"
-            }
-        """
-        metadata.running_job_name = "job_id"
-
-        self_mock.sa.get_job_state.return_value.job.plugin = "shell"
 
         self.assertTrue(
             RemoteController.should_start_via_autoresume(self_mock)
         )
 
-        self.assertTrue(self_mock.sa.select_test_plan.called)
-        self.assertTrue(self_mock.sa.bootstrap.called)
+    def test_should_start_via_autoresume_unmonitored_session(self):
+        last_session_mock = mock.MagicMock(id="other_session_id")
+        self_mock = mock.MagicMock(
+            _clean=False,
+            _session_id="session_id",
+        )
+        self_mock.sa.get_resumable_sessions.return_value = iter(
+            [last_session_mock]
+        )
+
+        self.assertFalse(
+            RemoteController.should_start_via_autoresume(self_mock)
+        )
+
+    def test_should_start_via_autoresume_no_monitored_session(self):
+        self_mock = mock.MagicMock(_clean=False, _session_id=None)
+
+        self.assertFalse(
+            RemoteController.should_start_via_autoresume(self_mock)
+        )
+        self_mock.sa.get_resumable_sessions.assert_not_called()
 
     def test_should_start_via_autoresume_no_resumable_sessions(self):
-        self_mock = mock.MagicMock(_clean=False)
+        self_mock = mock.MagicMock(
+            _clean=False,
+            _session_id="session_id",
+        )
         self_mock.sa.get_resumable_sessions.return_value = iter(
             []
         )  # No resumable sessions
-
-        self.assertFalse(
-            RemoteController.should_start_via_autoresume(self_mock)
-        )
-
-    def test_should_start_via_autoresume_no_testplan_id_in_app_blob(self):
-        self_mock = mock.MagicMock(_clean=False)
-        last_session_mock = mock.MagicMock()
-        self_mock.sa.get_resumable_sessions.return_value = iter(
-            [last_session_mock]
-        )
-
-        self_mock._resumed_session = partial(
-            RemoteController._resumed_session, self_mock
-        )
-        metadata = self_mock.sa.prepare_resume_session()
-        metadata.app_blob = b"{}"
-
-        self.assertFalse(
-            RemoteController.should_start_via_autoresume(self_mock)
-        )
-        self.assertTrue(self_mock.sa.abandon_session.called)
-
-    def test_should_start_via_autoresume_no_running_job_name(self):
-        self_mock = mock.MagicMock(_clean=False)
-        last_session_mock = mock.MagicMock()
-        self_mock.sa.get_resumable_sessions.return_value = iter(
-            [last_session_mock]
-        )
-
-        self_mock._resumed_session = partial(
-            RemoteController._resumed_session, self_mock
-        )
-        metadata = self_mock.sa.prepare_resume_session()
-        metadata.app_blob = b'{"testplan_id" : "testplan_id"}'
-        metadata.running_job_name = ""
-
-        self.assertFalse(
-            RemoteController.should_start_via_autoresume(self_mock)
-        )
-
-    def test_should_start_via_autoresume_job_plugin_not_shell(self):
-        self_mock = mock.MagicMock(_clean=False)
-        last_session_mock = mock.MagicMock()
-        self_mock.sa.get_resumable_sessions.return_value = iter(
-            [last_session_mock]
-        )
-
-        self_mock._resumed_session = partial(
-            RemoteController._resumed_session, self_mock
-        )
-        metadata = self_mock.sa.prepare_resume_session()
-        metadata.app_blob = b'{"testplan_id" : "testplan_id"}'
-        metadata.running_job_name = "job_id"
-
-        job_state_mock = mock.MagicMock()
-        job_state_mock.job.plugin = "user-interact"
-        self_mock.sa.get_job_state.return_value = job_state_mock
 
         self.assertFalse(
             RemoteController.should_start_via_autoresume(self_mock)
@@ -1087,11 +1029,14 @@ class ControllerTests(TestCase):
 
     def test_resume_last_session_and_continue(self):
         self_mock = mock.MagicMock()
+        resumable_session = mock.MagicMock(id="session_id")
+        self_mock.sa.get_resumable_sessions.return_value = iter(
+            [resumable_session]
+        )
 
         RemoteController.resume_last_session_and_continue(self_mock)
 
-        self.assertTrue(self_mock.sa.get_resumable_sessions.called)
-        self.assertTrue(self_mock.resume_by_id.called)
+        self_mock.resume_by_id.assert_called_once_with("session_id")
 
     def test_start_session_success(self):
         self_mock = mock.MagicMock()
@@ -1103,6 +1048,7 @@ class ControllerTests(TestCase):
         }
 
         self_mock.sa.start_session_json.return_value = '["testplan1"]'
+        self_mock.sa.get_session_id.return_value = "session_id"
 
         tps = RemoteController.start_session(self_mock)
 
@@ -1110,6 +1056,16 @@ class ControllerTests(TestCase):
             json.dumps(expected_configuration)
         )
         self.assertEqual(tps, ["testplan1"])
+        self.assertEqual(self_mock._session_id, "session_id")
+
+    def test_resume_by_id_monitors_resumed_session(self):
+        self_mock = mock.MagicMock()
+
+        RemoteController.resume_by_id(self_mock, "session_id")
+
+        self_mock.sa.resume_by_id.assert_called_once_with("session_id", {})
+        self.assertEqual(self_mock._session_id, "session_id")
+        self_mock.continue_session.assert_called_once_with()
 
     def test_start_session_with_sideloaded_providers(self):
         self_mock = mock.MagicMock()

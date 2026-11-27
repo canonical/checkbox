@@ -609,23 +609,28 @@ class UniqueValueValidator(FieldValidatorBase):
     which translates to O(N) cost for the whole context.
     """
 
-    def check_in_context(self, parent, unit, field, context):
-        value_map = context.compute_shared(
+    def get_value_map(self, context, field):
+        return context.compute_shared(
             f"field_value_map[{field}]",
             compute_value_map,
             context,
             field,
         )
+
+    def check_in_context(self, parent, unit, field, context):
+        value_map = self.get_value_map(context, field)
         value = getattr(unit, field2prop(field))
         units_with_this_value = value_map[value]
         n = len(units_with_this_value)
         if n > 1 and value is not None:
-            # come up with unit_list where this unit is always at the front
+            # The error formatter uses the first unit, so put the definition
+            # being validated first. Compare by equality because the context
+            # may contain a separately loaded copy of that definition.
             unit_list = list(units_with_this_value)
             unit_list = sorted(
                 unit_list,
                 key=lambda a_unit: (
-                    0 if a_unit is unit else unit_list.index(a_unit) + 1
+                    0 if a_unit == unit else unit_list.index(a_unit) + 1
                 ),
             )
             yield parent.error(
@@ -647,6 +652,28 @@ class UniqueValueValidator(FieldValidatorBase):
                     if other_unit is not unit
                 ),
             )
+
+
+class UniqueTemplateIdValidator(UniqueValueValidator):
+    """Check template IDs against other template IDs and concrete job IDs."""
+
+    def get_value_map(self, context, field):
+        """Override the generic field lookup to compare template IDs with other
+        template IDs and concrete job IDs.
+        """
+        return context.compute_shared(
+            "template_id_value_map", self.compute_template_id_map, context
+        )
+
+    def compute_template_id_map(self, context):
+        value_map = {}
+        for provider in context.provider_list:
+            for unit in provider.unit_list:
+                if unit.Meta.name in ("template", "parametric template"):
+                    value_map.setdefault(unit.template_id, []).append(unit)
+                elif unit.Meta.name in ("job", "setup job"):
+                    value_map.setdefault(unit.id, []).append(unit)
+        return value_map
 
 
 class ReferenceConstraint:

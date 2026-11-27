@@ -29,7 +29,7 @@ _name: Mediacard tests (Automated)
 _description:
  Mediacard tests (Automated)
 include:
-    mediacard/storage-preinserted-.*
+    mediacard/storage-preinserted-symlink_uuid
 bootstrap_include:
     removable_partition
 
@@ -39,7 +39,7 @@ _name: Mediacard tests (Automated)
 _description:
  Mediacard tests (Automated)
 include:
-    after-suspend-mediacard/storage-preinserted-.*
+    after-suspend-mediacard/storage-preinserted-symlink_uuid
 bootstrap_include:
     removable_partition
 
@@ -131,4 +131,3 @@ include:
     after-suspend-mediacard/sdhc-storage-manual
     after-suspend-mediacard/sdxc-storage-manual
 nested_part:
-

@@ -102,6 +102,7 @@ def register_arguments() -> argparse.Namespace:
         "-gtdp",
         "--video_codec_testing_data_path",
         type=str,
+        default=os.path.join(os.path.expanduser("~"), "checkbox-video"),
         help="Path of the testing data.",
     )
 
@@ -385,11 +386,6 @@ class GstResources:
 
 def main() -> None:
     args = register_arguments()
-    if not args.video_codec_testing_data_path:
-        raise SystemExit(
-            "Error: VIDEO_CODEC_TESTING_DATA is not set - golden sample"
-            " paths cannot be composed"
-        )
     GstResources(args).main()
 
 

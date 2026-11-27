@@ -22,12 +22,11 @@ explicitly updated.
 
 ## Development setup
 
+From the repository root:
+
 ```bash
-cd checkbox-ng
-./mk-venv
-source venv/bin/activate
-# optionally add providers:
-PROVIDERPATH=$PWD/../providers/resource/manage.py develop -d $PROVIDERPATH
+just setup
+source .venv/bin/activate
 ```
 
 ## Running tests
@@ -68,5 +67,5 @@ Run this before pushing; CI will reject non-compliant code.
   modify it unless intentionally updating the vendor copy.
 - The TUI (Urwid) code is sensitive to terminal escape sequences; manual
   testing in a real terminal is advisable for TUI changes.
-- `mk-venv` creates the venv; do not confuse it with the tox-managed envs
-  in `.tox/`.
+- `just setup` creates `.venv/` in the repository root; do not confuse it with
+  the tox-managed envs in `.tox/`.

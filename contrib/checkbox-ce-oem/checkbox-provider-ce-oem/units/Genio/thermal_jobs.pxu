@@ -26,7 +26,7 @@ command:
     echo 999999 > /sys/class/thermal/thermal_zone0/emul_temp
     sleep 10
     touch "$path_of_thermal_is_malfunction"
-    reboot
+    systemctl reboot -i
 
 id: genio-thermal/post-simulate-overheating
 depends: genio-thermal/simulate-overheating

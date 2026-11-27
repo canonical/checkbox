@@ -19,5 +19,6 @@ requires:
   executable.name == 'edac-util'
   manifest.has_edac_module == 'True'
 plugin: attachment
+mime-type: text/plain
 command:
   edac-util -v

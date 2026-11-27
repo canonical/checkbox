@@ -1271,8 +1271,17 @@ class SessionState:
                     job.depends, job.id, suspend_job_id
                 )
 
-            if job.group:
-                overrides["group"] = f"{suspend_prefix}-{job.group}"
+            group_path = job.get_group_path()
+            if group_path:
+                # Get the first element as the top-level group and the rest
+                # as subgroups, and create the right naming.
+                top, *subgroups = group_path
+                prefixed_top = f"{suspend_prefix}-{top}"
+                overrides["group"] = (
+                    prefixed_top
+                    if isinstance(job.group, str)
+                    else [prefixed_top] + subgroups
+                )
             siblings.append(overrides)
         return siblings
 
@@ -1341,11 +1350,11 @@ class SessionState:
         # wants to be the job is always before suspend
         if not sibling_required_not_job:
             return
-        # Note: intentionally avoid accessing before directly as it is a
-        #       cached property
-        before = job._data.get("before", [])
+        # here we must access the attribute to apply template parameters if any
+        before = job.get_record_value("before") or []
         if isinstance(before, list):
-            before += list(sibling_required_not_job)
+            # avoid modifying original data here
+            before = list(before) + list(sibling_required_not_job)
         else:
             before += " " + " ".join(sibling_required_not_job)
         # here change the property, not the _data. Changing the data may lead

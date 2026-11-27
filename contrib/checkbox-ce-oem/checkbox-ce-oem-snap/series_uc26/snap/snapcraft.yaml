@@ -72,6 +72,11 @@ slots:
     interface: content
     read:
       - $SNAP/providers/checkbox-provider-ce-oem
+  custom-frontend:
+    interface: content
+    content: custom-frontend
+    read:
+      - /
 
 parts:
   checkbox-provider-ce-oem:
@@ -87,6 +92,7 @@ parts:
       - linuxptp
       - snmp
       - python3-rpyc
+      - python3-pymodbus
       - gpsd
     override-build: |
       export PYTHONPATH=/snap/checkbox26/current/lib/python3.14/site-packages/:/usr/lib/python3/dist-packages

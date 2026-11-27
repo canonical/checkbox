@@ -48,6 +48,7 @@ from plainbox.impl.session import (
 
 from plainbox.impl.testing_utils import make_job
 from plainbox.impl.unit.template import TemplateUnit
+from plainbox.impl.unit.parametric_template import ParametricTemplateUnit
 from plainbox.impl.validation import Severity
 from plainbox.impl.unit.unit import MissingParam
 from plainbox.vendor import mock
@@ -403,6 +404,32 @@ class CheckBoxSessionStateControllerTests(TestCase):
             job.id,
             [Resource({"attr": "value1"}), Resource({"attr": "value2"})],
         )
+
+    def test_resource_results_do_not_expand_parametric_templates(self):
+        unit = ParametricTemplateUnit(
+            {
+                "unit": "parametric template",
+                "parameters": [{"value": "fixed"}],
+                "id": "test-{value}",
+                "flags": ["simple"],
+                "command": "true",
+                "requires": "R.value == 'fixed'",
+            }
+        )
+        resource = make_job("R", plugin="resource")
+        jobs = unit.instantiate_jobs()
+        session_state = SessionState([unit, resource] + jobs)
+        checksums = [job.checksum for job in session_state.job_list]
+        result = mock.Mock(spec=IJobResult, outcome=IJobResult.OUTCOME_PASS)
+        for value in ("different", "fixed"):
+            result.get_io_log.return_value = [
+                (0, "stdout", ("value: {}\n".format(value)).encode("UTF-8"))
+            ]
+            self.ctrl.observe_result(session_state, resource, result)
+            self.assertEqual(
+                [job.checksum for job in session_state.job_list], checksums
+            )
+        self.assertEqual(jobs[0].partial_id, "test-fixed")
 
     @mock.patch("plainbox.impl.ctrl.logger")
     def test_observe_result__broken_resource(self, mock_logger):

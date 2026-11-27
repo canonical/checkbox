@@ -57,36 +57,6 @@ def read_json_file(path):
         raise
 
 
-def find_camx_camera_ids_for_sensor(sensor_name):
-    """Map a sensor name to the CamX camera IDs discovered on the board."""
-    try:
-        ret = run_cmd("journalctl -u cam-server.service --no-pager")
-    except Exception:
-        return []
-
-    sensor_name = normalize_sensor_name(sensor_name)
-    if not sensor_name:
-        return []
-
-    matches = []
-    for line in (ret.stdout or "").splitlines():
-        if "cameraId" not in line or "sensorName" not in line:
-            continue
-
-        camera_match = re.search(r"cameraId\s*[:=]\s*(\d+)", line)
-        sensor_match = re.search(r"sensorName\s*[:=]\s*([^,\s)]+)", line)
-        if not camera_match or not sensor_match:
-            continue
-
-        camx_sensor = normalize_sensor_name(sensor_match.group(1).strip())
-        if camx_sensor.lower() != sensor_name.lower():
-            continue
-
-        matches.append(camera_match.group(1))
-
-    return sorted(set(matches), key=int)
-
-
 def read_u32(path):
     """Read a 32-bit value from a Device Tree property file."""
     try:
@@ -242,32 +212,29 @@ def find_csi_interface_for_sensor(sensor_name):
 
 def parse_camera_entry(entry):
     """Parse a single requested camera entry into a normalized tuple."""
-    if ":" not in entry:
-        name = normalize_sensor_name(entry)
-        camera_ids = find_camx_camera_ids_for_sensor(name)
-        csi = find_csi_interface_for_sensor(name)
-        return (None, name, camera_ids, csi)
-
-    left, right = entry.split(":", 1)
-    left = left.strip()
-    right = right.strip()
-
-    if left.isdigit() and right:
-        name = normalize_sensor_name(right)
-        return (left, name, [left], find_csi_interface_for_sensor(name))
-
-    if right.isdigit():
-        name = normalize_sensor_name(left)
-        camera_id = right
-        return (
-            camera_id,
-            name,
-            [camera_id],
-            find_csi_interface_for_sensor(name),
+    parts = [part.strip() for part in entry.split(":")]
+    if len(parts) != 2 or not all(parts):
+        raise ValueError(
+            "Invalid camera entry {!r}: expected 'name:id' or 'id:name' "
+            "with a non-negative numeric camera ID. Use "
+            "dragonwing-camera-map-helper.py to identify camera IDs "
+            "(select the camera service with --service if needed).".format(
+                entry
+            )
         )
-
-    name = normalize_sensor_name(right)
-    return (left, name, [left], find_csi_interface_for_sensor(name))
+    left, right = parts
+    if re.fullmatch(r"[0-9]+", right) and not left.isdigit():
+        name, camera_id = normalize_sensor_name(left), right
+    elif re.fullmatch(r"[0-9]+", left) and not right.isdigit():
+        name, camera_id = normalize_sensor_name(right), left
+    else:
+        raise ValueError(
+            "Invalid camera entry {!r}: expected a sensor name and a "
+            "non-negative numeric camera ID ('name:id' or 'id:name').".format(
+                entry
+            )
+        )
+    return (camera_id, name, [camera_id], find_csi_interface_for_sensor(name))
 
 
 def resolve_camera_entries(camera_entries):
@@ -323,13 +290,19 @@ def get_camera_list(args):
 
     cameras = args.cameras.split() if args.cameras else []
     if not cameras:
-        logging.error("No camera names or IDs were provided")
+        logging.error("No camera mappings were provided; use 'name:id'")
+        return 1
+
+    try:
+        entries = resolve_camera_entries(cameras)
+    except ValueError as error:
+        logging.error("%s", error)
         return 1
 
     raise_error = getattr(args, "raise_error", True)
     found_camera = False
     issue_names = []
-    for _, name, camera_ids, csi in resolve_camera_entries(cameras):
+    for _, name, camera_ids, csi in entries:
         normalized_name = normalize_supported_camera_name(
             name,
             supported_cameras,
@@ -372,7 +345,11 @@ def main():
         "-c",
         "--cameras",
         type=str,
-        help="connected cameras as either 'name' or 'name:id' / 'index:name'",
+        help=(
+            "space-separated camera mappings as 'name:id' or 'id:name'; "
+            "a non-negative numeric camera ID is required for each sensor. "
+            "Use dragonwing-camera-map-helper.py to identify camera IDs"
+        ),
     )
     parser.add_argument(
         "--skip-unavailable",

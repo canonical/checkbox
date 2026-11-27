@@ -22,19 +22,23 @@ jobs:
         working-directory: contrib/checkbox-ce-oem/checkbox-provider-ce-oem
     strategy:
       matrix:
-        python: ["3.8", "3.10"]
         include:
           - python: "3.8"
             tox_env_name: "py38"
+            os: "ubuntu-20.04"
           - python: "3.10"
             tox_env_name: "py310"
-    runs-on: ubuntu-latest
+            os: "ubuntu-22.04"
+          - python: "3.12"
+            tox_env_name: "py312"
+            os: "ubuntu-24.04"
+    runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
         with:
           persist-credentials: false
       - name: Setup Python
-        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97
+        uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0
         with:
           python-version: ${{ matrix.python }}
         env:
@@ -50,7 +54,7 @@ jobs:
       - name: Run tox
         run: tox -e${{ matrix.tox_env_name }}
       - name: Upload coverage reports to Codecov
-        uses: codecov/codecov-action@e79a6962e0d4c0c17b229090214935d2e33f8354
+        uses: codecov/codecov-action@303a32d7a59b442fa8d48b6a1cc6825c09c847a5
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           flags: contrib-provider-ce-oem

@@ -1,0 +1,90 @@
+unit: parametric template
+template-id: parametric_1
+parameters:
+  - value: A
+  - value: B
+id: parametric_1_{value}
+flags: [simple]
+command: 'true'
+---
+unit: test plan
+id: parametric_single
+name: parametric_single
+# Instantiates parametric_1_A and parametric_1_B.
+include:
+  - parametric_1_.*
+---
+unit: parametric template
+template-id: parametric_2
+parameters:
+  - value: A
+    number: 1
+  - value: B
+    number: 2
+id: parametric_2_{value}_{number}
+flags: [simple]
+command: 'true'
+---
+unit: test plan
+id: parametric_multiple
+name: parametric_multiple
+# Instantiates parametric_2_A_1 and parametric_2_B_2.
+include:
+  - parametric_2_.*
+---
+id: parametric_3_A
+flags: [simple]
+command: 'true'
+---
+unit: parametric template
+template-id: parametric_3
+parameters:
+  - value: B
+    depends: parametric_3_A
+  - value: C
+    depends: parametric_3_B
+id: parametric_3_{value}
+flags: [simple]
+depends: ["{depends}"]
+command: 'true'
+---
+id: parametric_3_D
+flags: [simple]
+depends: [parametric_3_C]
+command: 'true'
+---
+unit: test plan
+id: parametric_depends
+name: parametric_depends
+# Instantiates B and C; A and D are ordinary jobs.
+# Expected order: parametric_3_A -> B -> C -> D, despite reversed inclusion.
+include:
+  - parametric_3_D
+  - parametric_3_C
+  - parametric_3_B
+  - parametric_3_A
+---
+unit: parametric template
+template-id: parametric_4
+parameters:
+  - value: A
+id: parametric_4_{value}
+flags: [simple]
+before: [suspend/suspend_advanced_auto]
+command: 'true'
+siblings:
+  - id: after-suspend-parametric_4_{value}
+    depends:
+      - parametric_4_{value}
+      - suspend/suspend_advanced_auto
+    before: []
+---
+unit: test plan
+id: parametric_suspend
+name: parametric_suspend
+# Expected order: parametric_4_A -> existing suspend mock -> sibling.
+# The sibling clears the inherited "before" to run after the mock.
+include:
+  - after-suspend-parametric_4_A
+  - suspend/suspend_advanced_auto
+  - parametric_4_A

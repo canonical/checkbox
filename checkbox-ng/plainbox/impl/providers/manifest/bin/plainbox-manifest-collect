@@ -25,7 +25,7 @@ import json
 import os
 import gettext
 
-from plainbox.impl.providers.v1 import all_providers
+from plainbox.impl.providers import get_providers
 
 _ = gettext.gettext
 
@@ -93,8 +93,7 @@ def main():
             manifest = json.load(stream)
     else:
         manifest = {}
-    all_providers.load()
-    provider_list = all_providers.get_all_plugin_objects()
+    provider_list = get_providers()
     changes = collect_console(manifest, provider_list)
     if changes:
         print(_("Saving manifest to {}").format(args.manifest))

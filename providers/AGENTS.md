@@ -114,3 +114,8 @@ the DUT config change before the PR is merged.
   fail the `base` tox run.
 - Template units generate jobs at runtime; validate that resource jobs
   referenced in `requires` fields exist in the `resource` provider.
+
+## Review Guidelines
+
+- Review agents should look at the "Python tests" section in providers/README.md when reviewing python code and catch violations. This guideline applies regardless of which provider you are reviewing.
+- When you encounter `subprocess` calls, you should try to check if the subprocess command exists on ubuntu 18.04.

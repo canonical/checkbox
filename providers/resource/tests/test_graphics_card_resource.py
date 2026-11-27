@@ -162,6 +162,74 @@ class GraphicsCardResourceTests(unittest.TestCase):
         self.assertIn("Warning: could not find DRM node", stderr)
         self.assertIn("/devices/pci0000:00/0000:00:02.0", stderr)
 
+    @patch("graphics_card_resource.get_release_info")
+    @patch("graphics_card_resource.Path")
+    def _switch_cmds_for(self, udev_data, mock_path, mock_release_info):
+        """Run main() and return the switch_to_cmd of each printed card."""
+        mock_release_info.return_value = {"release": "20.04"}
+        mock_path.return_value.glob.return_value = iter([])
+        with patch("graphics_card_resource.parse_args") as mock_args, patch(
+            "graphics_card_resource.subprocess_lines_generator"
+        ) as mock_gen, patch(
+            "graphics_card_resource.sys.stderr", new_callable=StringIO
+        ), patch(
+            "sys.stdout", new_callable=StringIO
+        ) as mock_stdout:
+            mock_args.return_value = MagicMock(command="udev_resource.py")
+            mock_gen.return_value = iter(udev_data)
+            graphics_card_resource.main()
+        return [
+            line.split(": ", 1)[1]
+            for line in mock_stdout.getvalue().splitlines()
+            if line.startswith("switch_to_cmd: ")
+        ]
+
+    def test_switch_cmds_dual_nvidia_never_select_intel(self):
+        """Two NVIDIA cards and no Intel GPU: both must use the nvidia
+        profile, as selecting intel leaves the system without a driver.
+
+        Records from a ThinkStation P520 (2x Quadro GV100) booted in the
+        intel profile, where the cards report the pcieport driver."""
+        udev_data = [
+            "category: VIDEO",
+            "bus: pci",
+            "driver: pcieport",
+            "vendor_id: 4318",
+            "path: /devices/pci0000:64/0000:64:00.0/0000:65:00.0",
+            "",
+            "category: VIDEO",
+            "bus: pci",
+            "driver: pcieport",
+            "vendor_id: 4318",
+            "path: /devices/pci0000:b2/0000:b2:00.0/0000:b3:00.0",
+            "",
+        ]
+        self.assertEqual(
+            self._switch_cmds_for(udev_data),
+            ["prime-select nvidia", "prime-select nvidia"],
+        )
+
+    def test_switch_cmds_hybrid_intel_nvidia(self):
+        """Intel iGPU + NVIDIA dGPU: the iGPU uses the intel profile."""
+        udev_data = [
+            "category: VIDEO",
+            "bus: pci",
+            "driver: i915",
+            "vendor_id: 32902",
+            "path: /devices/pci0000:00/0000:00:02.0",
+            "",
+            "category: VIDEO",
+            "bus: pci",
+            "driver: nvidia",
+            "vendor_id: 4318",
+            "path: /devices/pci0000:00/0000:00:01.0/0000:01:00.0",
+            "",
+        ]
+        self.assertEqual(
+            self._switch_cmds_for(udev_data),
+            ["prime-select intel", "prime-select nvidia"],
+        )
+
 
 if __name__ == "__main__":
     unittest.main()

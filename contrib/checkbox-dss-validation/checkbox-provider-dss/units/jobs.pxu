@@ -190,7 +190,7 @@ estimated_duration: 2m
 command:
   set -ex
   echo "starting rebooting"
-  sudo reboot
+  sudo systemctl reboot -i
   echo "finished rebooting"
 
 id: dss/wait_after_reboot

@@ -322,8 +322,10 @@ def ping(
     if broadcast:
         command.append("-b")
     reg = re.compile(
-        r"(\d+) packets transmitted, (\d+) received,"
-        r".*([0-9]*\.?[0-9]*.)% packet loss"
+        r"(\d+) packets transmitted"
+        r", (\d+) received"
+        r"(?:, \+\d+ \w+)*"
+        r", (\d+(?:\.\d+)?)% packet loss"
     )
     ping_summary = {"transmitted": 0, "received": 0, "pct_loss": 0}
     try:
@@ -351,7 +353,7 @@ def ping(
         ping_summary = {
             "transmitted": int(received.group(1)),
             "received": int(received.group(2)),
-            "pct_loss": int(received.group(3)),
+            "pct_loss": round(float(received.group(3))),
         }
     except StopIteration:
         ping_summary["cause"] = (

@@ -19,7 +19,7 @@ _description:
     Notes: - led/power-blink-suspend and led/suspend are used later in the
              power management testplan just after a number of suspend tests.
 include:
-    camera/led_.*                      certification-status=blocker
+    camera/led_name                    certification-status=blocker
     led/caps-lock                      certification-status=blocker
     led/numeric-keypad                 certification-status=blocker
     led/power                          certification-status=blocker
@@ -35,7 +35,7 @@ unit: test plan
 _name: LED tests after suspend (Manual)
 _description: LED tests after suspend (Manual)
 include:
-    after-suspend-camera/led_.*        certification-status=blocker
+    after-suspend-camera/led_name      certification-status=blocker
     after-suspend-led/caps-lock        certification-status=blocker
     after-suspend-led/numeric-keypad   certification-status=blocker
     after-suspend-led/power            certification-status=blocker

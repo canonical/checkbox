@@ -40,6 +40,15 @@ class TestStateFile(unittest.TestCase):
             )
 
 
+class TestDropinPath(unittest.TestCase):
+    def test_dropin_sorts_after_unprefixed_dropins(self):
+        # systemd uses the drop-in that sorts last, e.g. after the
+        # watchdog.conf of NVIDIA Jetson images
+        self.assertGreater(
+            stress_ng_watchdog.DROPIN_PATH.name, "watchdog.conf"
+        )
+
+
 class TestDisable(WatchdogTestBase):
     @patch.object(stress_ng_watchdog, "get_watchdog_usec", return_value="0")
     def test_already_disabled_changes_nothing(self, _usec):

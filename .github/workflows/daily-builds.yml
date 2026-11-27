@@ -71,3 +71,25 @@ jobs:
     uses: ./.github/workflows/smoke-spread-metabox.yaml
     with:
       channel: edge
+
+  # We have to launch the canary workflow from the deb builds, because if we
+  # monitor them from the canary workflow, it throws a zizmor error.
+  start-edge-canary:
+    # Re-running the failed jobs also re-runs this one, so the canary starts
+    # as soon as every build has passed
+    name: Start the edge canary
+    needs:
+      - snap-cross-build-upload-daily
+      - snap-native-build-upload-daily
+      - deb-daily
+      - smoke-spread-metabox-daily
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    permissions:
+      actions: write # needed to dispatch the canary workflow
+    steps:
+      - name: Dispatch the canary and promote to beta if it passes
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        run: gh workflow run checkbox-edge-canary.yml --ref main -f promote=true

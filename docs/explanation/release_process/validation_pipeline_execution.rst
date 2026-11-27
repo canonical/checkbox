@@ -30,11 +30,13 @@ With new edge version of Checkbox in the store we can start validating it.
 Validating the edge version
 ---------------------------
 
-On the Certification Jenkins instance, the ``checkbox-edge-validation-detect-new-build`` job checks the store API for new edge versions of Checkbox.
-The job is defined in the |hwcert-jenkins-jobs|_ repository.
+When the daily build succeeds, the ``checkbox-edge-canary.yml`` GitHub workflow
+reads the new edge version of Checkbox from the store.
 
-This job is also responsible for checking if all of the necessary snaps were published (for other series and architectures).
-Once confirmed, the "canary test Plan" is executed. It is defined in the |hwcert-jenkins-jobs|_ repository as too.
+It checks that all of the necessary snaps and Debian packages were published
+(for other series and architectures). Once confirmed, the canary test plan is
+executed on two devices for each target (Ubuntu Core track and
+architecture).
 
 .. mermaid::
 
@@ -49,8 +51,8 @@ Once confirmed, the "canary test Plan" is executed. It is defined in the |hwcert
         A --> B
         B -->|No| D
         B -->|Yes| C
-        C -->|Passes| E
-        C -->|Fails| D
+        C -->|Passes on every target| E
+        C -->|Fails on both devices of a target, twice| D
 
 
 
@@ -61,8 +63,7 @@ There are multiple entities participating in the chain of validating a Checkbox 
 
     sequenceDiagram
 
-        participant Pipeline as Checkbox validation pipeline
-        participant Jenkins as Jenkins job
+        participant Pipeline as Checkbox canary workflow
         participant TServer as Testflinger server
         participant TAgent as Testflinger agent
         participant Docker as Docker container (Checkbox Controller)
@@ -70,9 +71,8 @@ There are multiple entities participating in the chain of validating a Checkbox 
         participant CAgent as Checkbox agent
         note over Device,CAgent: same device
 
-        Pipeline->>Jenkins: Trigger Jenkins job
         activate Pipeline
-        Jenkins->>TServer: Submit testing job
+        Pipeline->>TServer: Submit testing job
         activate TServer
         loop Poll for job
             TAgent-->>TServer: Check for available jobs
@@ -90,12 +90,6 @@ There are multiple entities participating in the chain of validating a Checkbox 
         deactivate Docker
         TAgent-->>TServer: Job completion status
         deactivate TAgent
-        TServer-->>Jenkins: Inform Jenkins of outcome
+        TServer-->>Pipeline: Inform the workflow of the outcome
         deactivate TServer
-        Jenkins-->>Pipeline: Update pipeline with job outcome
         deactivate Pipeline
-
-.. add code format to link text
-.. |hwcert-jenkins-jobs| replace:: ``hwcert-jenkins-jobs``
-.. _hwcert-jenkins-jobs: https://github.com/canonical/hwcert-jenkins-jobs
-

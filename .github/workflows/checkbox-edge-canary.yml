@@ -1,0 +1,324 @@
+name: Checkbox edge canary
+
+permissions:
+  contents: read
+
+on:
+  # Temporary, non-promoting branch test; only marked commits start the canary
+  push:
+    branches: [github-canary-pipelines]
+  # Dispatched by Daily builds once every build has passed
+  workflow_dispatch:
+    inputs:
+      promote:
+        description: Move the beta branch if the canary passes
+        type: boolean
+        default: false
+      uc22_amd64_1_queue:
+        description: Queue for uc22-amd64 device 1
+        type: string
+        default: hp-elitebook-850-g8-notebook-pc-c28760
+      uc22_amd64_1_provision_data:
+        description: Provision data for uc22-amd64 device 1
+        type: string
+        default: "{distro: jammy}"
+      uc22_amd64_2_queue:
+        description: Queue for uc22-amd64 device 2
+        type: string
+        default: hp-elitebook-850-g8-notebook-pc-c28761
+      uc22_amd64_2_provision_data:
+        description: Provision data for uc22-amd64 device 2
+        type: string
+        default: "{distro: jammy}"
+      uc24_amd64_1_queue:
+        description: Queue for uc24-amd64 device 1
+        type: string
+        default: dell-precision-tower-7820-c25401
+      uc24_amd64_1_provision_data:
+        description: Provision data for uc24-amd64 device 1
+        type: string
+        default: "{distro: noble}"
+      uc24_amd64_2_queue:
+        description: Queue for uc24-amd64 device 2
+        type: string
+        default: dell-optiplex-3000-thin-client-c29189
+      uc24_amd64_2_provision_data:
+        description: Provision data for uc24-amd64 device 2
+        type: string
+        default: "{distro: noble}"
+      uc24_arm64_1_queue:
+        description: Queue for uc24-arm64 device 1
+        type: string
+        default: rpi4
+      uc24_arm64_1_provision_data:
+        description: Provision data for uc24-arm64 device 1
+        type: string
+        default: "{url: 'https://tel-image-cache.canonical.com/oem-share/hardware-certification/ubuntu-core/24/cert-ubuntu-core-24-pi-arm64.img.xz', preset: RPiUC}"
+      uc24_arm64_2_queue:
+        description: Queue for uc24-arm64 device 2
+        type: string
+        default: rpi400-arm64
+      uc24_arm64_2_provision_data:
+        description: Provision data for uc24-arm64 device 2
+        type: string
+        default: "{url: 'https://tel-image-cache.canonical.com/oem-share/hardware-certification/ubuntu-core/24/cert-ubuntu-core-24-pi-arm64.img.xz', preset: RPiUC}"
+
+concurrency:
+  group: checkbox-edge-canary
+  cancel-in-progress: false
+
+jobs:
+  prepare:
+    name: Wait for the edge packages
+    if: ${{ github.event_name != 'push' || contains(github.event.head_commit.message, '[canary-test]') }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 320
+    outputs:
+      version: ${{ steps.version.outputs.version }}
+      run: ${{ steps.version.outputs.run }}
+    steps:
+      - name: Checkout checkbox monorepo
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Get the edge version
+        id: version
+        env:
+          # Only skip a version already in beta when promoting, a manual
+          # run without promotion always tests edge
+          PROMOTE: ${{ inputs.promote || contains(github.event.head_commit.message, '[canary-promote]') }}
+        run: |
+          git clone --depth 1 https://github.com/canonical/hwcert-jenkins-tools
+          VERSION=$(python3 hwcert-jenkins-tools/version-published/get_snap_store_version.py checkbox edge)
+          git checkout -q origin/beta
+          BETA_VERSION=$(python3 tools/release/get_version.py --dev --output-format=snap 2>/dev/null)
+          echo "Edge: $VERSION, beta: $BETA_VERSION"
+          if [ "$VERSION" != "$BETA_VERSION" ] || [ "$PROMOTE" != "true" ]; then
+            RUN=true
+          else
+            RUN=false
+            echo "::notice::$VERSION is already in beta, nothing to test"
+          fi
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          echo "run=$RUN" >> "$GITHUB_OUTPUT"
+      - name: Wait for all snaps and debs to be published
+        if: steps.version.outputs.run == 'true'
+        env:
+          VERSION: ${{ steps.version.outputs.version }}
+        working-directory: hwcert-jenkins-tools/version-published
+        run: |
+          PYTHONUNBUFFERED=1 python3 checkbox_version_published.py \
+            "$VERSION" checkbox-canary.yaml --timeout 18000
+
+  canary:
+    # canary_results.py finds the targets and their results from this name
+    name: ${{ matrix.target }} on ${{ matrix.queue }}
+    needs: prepare
+    if: needs.prepare.outputs.run == 'true'
+    runs-on: self-hosted-linux-amd64-jammy-private-endpoint-medium
+    timeout-minutes: 120
+    # A failing device does not fail the run, the target passes if any of its
+    # devices passed
+    continue-on-error: true
+    strategy:
+      fail-fast: false
+      # A target is an Ubuntu Core track and architecture, with two devices
+      # each. Each device has its own provision data. A new target also needs
+      # its own retry job below, which reuses these devices. The fallback
+      # values match the dispatch defaults for the temporary push trigger.
+      matrix:
+        include:
+          - &uc22-amd64-1
+            target: uc22-amd64
+            track: uc22
+            provision_data: "${{ inputs.uc22_amd64_1_provision_data || '{distro: jammy}' }}"
+            queue: ${{ inputs.uc22_amd64_1_queue || 'hp-elitebook-850-g8-notebook-pc-c28760' }}
+          - &uc22-amd64-2
+            target: uc22-amd64
+            track: uc22
+            provision_data: "${{ inputs.uc22_amd64_2_provision_data || '{distro: jammy}' }}"
+            queue: ${{ inputs.uc22_amd64_2_queue || 'hp-elitebook-850-g8-notebook-pc-c28761' }}
+          - &uc24-amd64-1
+            target: uc24-amd64
+            track: uc24
+            provision_data: "${{ inputs.uc24_amd64_1_provision_data || '{distro: noble}' }}"
+            queue: ${{ inputs.uc24_amd64_1_queue || 'dell-precision-tower-7820-c25401' }}
+          - &uc24-amd64-2
+            target: uc24-amd64
+            track: uc24
+            provision_data: "${{ inputs.uc24_amd64_2_provision_data || '{distro: noble}' }}"
+            queue: ${{ inputs.uc24_amd64_2_queue || 'dell-optiplex-3000-thin-client-c29189' }}
+          - &uc24-arm64-1
+            target: uc24-arm64
+            track: uc24
+            provision_data: "${{ inputs.uc24_arm64_1_provision_data || '{url: ''https://tel-image-cache.canonical.com/oem-share/hardware-certification/ubuntu-core/24/cert-ubuntu-core-24-pi-arm64.img.xz'', preset: RPiUC}' }}"
+            queue: ${{ inputs.uc24_arm64_1_queue || 'rpi4' }}
+          - &uc24-arm64-2
+            target: uc24-arm64
+            track: uc24
+            provision_data: "${{ inputs.uc24_arm64_2_provision_data || '{url: ''https://tel-image-cache.canonical.com/oem-share/hardware-certification/ubuntu-core/24/cert-ubuntu-core-24-pi-arm64.img.xz'', preset: RPiUC}' }}"
+            queue: ${{ inputs.uc24_arm64_2_queue || 'rpi400-arm64' }}
+    defaults: &lab-dispatch
+      run:
+        working-directory: tools/lab_dispatch
+    steps: &device-steps
+      - name: Checkout checkbox monorepo
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          persist-credentials: false
+      - name: Create the Testflinger job
+        env:
+          QUEUE: ${{ matrix.queue }}
+          CHECKBOX_TRACK: ${{ matrix.track }}
+          PROVISION_DATA: ${{ matrix.provision_data }}
+        run: |
+          which envsubst > /dev/null || sudo apt-get install -y -qq gettext-base
+          envsubst '$QUEUE $PROVISION_DATA $CHECKBOX_TRACK' < canary.yaml > job.yaml
+      - name: Run the canary
+        id: canary
+        uses: canonical/testflinger/.github/actions/submit@545ed69f17a5e639a2299e325f5fb199ca9f98af
+        with:
+          poll: true
+          job-path: tools/lab_dispatch/job.yaml
+          client-id: ${{ secrets.TESTFLINGER_CLIENT_ID }}
+          secret-key: ${{ secrets.TESTFLINGER_SECRET_KEY }}
+      - name: Download the Testflinger artifacts
+        if: always() && steps.canary.outputs.id != ''
+        env:
+          JOB_ID: ${{ steps.canary.outputs.id }}
+          TESTFLINGER_CLIENT_ID: ${{ secrets.TESTFLINGER_CLIENT_ID }}
+          TESTFLINGER_SECRET_KEY: ${{ secrets.TESTFLINGER_SECRET_KEY }}
+        run: testflinger artifacts "$JOB_ID" --filename artifacts.tgz || true
+      - name: Upload the canary results
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
+        with:
+          name: ${{ github.job }}-${{ matrix.queue }}
+          path: |
+            tools/lab_dispatch/job.yaml
+            tools/lab_dispatch/artifacts.tgz
+          if-no-files-found: ignore
+
+  check:
+    name: Check if a retry is needed
+    needs: [prepare, canary]
+    if: ${{ !cancelled() && needs.prepare.outputs.run == 'true' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    permissions:
+      actions: read
+      contents: read
+    outputs:
+      retry: ${{ steps.failed.outputs.retry }}
+    steps:
+      - name: Checkout checkbox monorepo
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          persist-credentials: false
+      - name: Explain the result of each target
+        id: failed
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: python3 tools/lab_dispatch/canary_results.py check
+      - name: Wait 30 minutes before retrying
+        if: steps.failed.outputs.retry != '[]'
+        run: sleep 1800
+
+  # One retry job per target, so a target that passed shows as skipped.
+  # The name has no expressions, so skipped jobs show it as is, and GitHub
+  # appends the device values to it: "<target> (retry) (<target>, ...)"
+  retry-uc22-amd64:
+    name: uc22-amd64 (retry)
+    needs: check
+    if: ${{ !cancelled() && contains(needs.check.outputs.retry, '"uc22-amd64"') }}
+    runs-on: self-hosted-linux-amd64-jammy-private-endpoint-medium
+    timeout-minutes: 120
+    continue-on-error: true
+    strategy:
+      fail-fast: false
+      matrix:
+        include: [*uc22-amd64-1, *uc22-amd64-2]
+    defaults: *lab-dispatch
+    steps: *device-steps
+
+  retry-uc24-amd64:
+    name: uc24-amd64 (retry)
+    needs: check
+    if: ${{ !cancelled() && contains(needs.check.outputs.retry, '"uc24-amd64"') }}
+    runs-on: self-hosted-linux-amd64-jammy-private-endpoint-medium
+    timeout-minutes: 120
+    continue-on-error: true
+    strategy:
+      fail-fast: false
+      matrix:
+        include: [*uc24-amd64-1, *uc24-amd64-2]
+    defaults: *lab-dispatch
+    steps: *device-steps
+
+  retry-uc24-arm64:
+    name: uc24-arm64 (retry)
+    needs: check
+    if: ${{ !cancelled() && contains(needs.check.outputs.retry, '"uc24-arm64"') }}
+    runs-on: self-hosted-linux-amd64-jammy-private-endpoint-medium
+    timeout-minutes: 120
+    continue-on-error: true
+    strategy:
+      fail-fast: false
+      matrix:
+        include: [*uc24-arm64-1, *uc24-arm64-2]
+    defaults: *lab-dispatch
+    steps: *device-steps
+
+  result:
+    name: Check that every target passed
+    needs: [prepare, check, retry-uc22-amd64, retry-uc24-amd64, retry-uc24-arm64]
+    if: ${{ !cancelled() && needs.prepare.outputs.run == 'true' }}
+    runs-on: ubuntu-latest
+    permissions:
+      actions: read
+      contents: read
+    steps:
+      - name: Checkout checkbox monorepo
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          persist-credentials: false
+      - name: Explain the result of each target
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: python3 tools/lab_dispatch/canary_results.py result
+
+  promote:
+    name: Move the beta branch
+    needs: [prepare, result]
+    if: ${{ !cancelled() && needs.result.result == 'success' && (inputs.promote || contains(github.event.head_commit.message, '[canary-promote]')) }}
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write # to move the beta branch
+      actions: write # to start the beta release workflow
+    steps:
+      - name: Checkout checkbox monorepo
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Get the tested revision
+        id: revision
+        env:
+          VERSION: ${{ needs.prepare.outputs.version }}
+        run: |
+          git clone --depth 1 https://github.com/canonical/hwcert-jenkins-tools
+          REVISION=$(PYTHONPATH=hwcert-jenkins-tools/version-published python3 -c \
+            'import sys, snap_info_utility as s; print(s.get_revision_at_offset(sys.argv[1], "."))' \
+            "$VERSION" | tail -n 1)
+          echo "revision=$REVISION" >> "$GITHUB_OUTPUT"
+      # A branch moved with GITHUB_TOKEN does not trigger workflows, so the
+      # beta release workflow is started explicitly
+      - name: Move the beta branch and start the beta release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          REVISION: ${{ steps.revision.outputs.revision }}
+        run: |
+          gh api -X PATCH "repos/$GH_REPO/git/refs/heads/beta" -f sha="$REVISION"
+          gh workflow run checkbox-beta-release.yml --ref beta

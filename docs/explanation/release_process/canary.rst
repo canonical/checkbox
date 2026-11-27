@@ -30,53 +30,49 @@ Post-build actions
 
 Once the build is successful, the snap packages are automatically pushed to the Snap Store in the edge channel. Testers and early adopters can access the latest version through edge releases.
 
-Jenkins monitoring and validation
----------------------------------
+Canary workflow
+---------------
 
-Snap monitoring
-^^^^^^^^^^^^^^^
+When every job of the ``Daily builds`` workflow succeeds on ``main``, including
+after its failed jobs are re-run, its last job starts the
+`Checkbox edge canary workflow <https://github.com/canonical/checkbox/actions/workflows/checkbox-edge-canary.yml>`_
+with its ``promote`` input set. It can also be started manually; a manual run
+only moves the ``beta`` branch when its ``promote`` input is set.
 
-Once the snap is published to the edge channel in the Snap Store, our Jenkins job titled ``checkbox-edge-validation-detect-new-build`` gets into action.
+For manual runs, the dispatch form lets you override the queue and provision
+data of each device independently. The defaults are the devices listed below,
+so change only the fields for devices that need to be moved. Provision data
+must remain a Testflinger mapping string, for example ``{distro: noble}``.
+Automated runs use the configured defaults.
 
-Monitoring job URL
-^^^^^^^^^^^^^^^^^^
+Waiting for the packages
+^^^^^^^^^^^^^^^^^^^^^^^^
 
-This Jenkins job monitors the Snap Store for the presence of the new snap using the following URL:
-
-``https://api.snapcraft.io/v2/snaps/find?q=checkbox22&channel=edge&fields=revision&architecture=amd64``
-
-The specific JSON path that's being monitored for changes is:
-
-``$.results[0].revision.revision``
-
-The job checks this path every minute for updates.
-
-Validation and wait logic
-^^^^^^^^^^^^^^^^^^^^^^^^^
-
-Upon detecting a new snap:
-
-1. The job verifies the presence of all other related checkbox snaps.
-2. If any snap is missing, the job waits for an hour, periodically checking for its availability.
-3. If the snaps are available within the waiting period, the next stage of testing is initiated.
-
-checkbox-edge-canary-validation pipeline
-----------------------------------------
-
-Upon successful snap validation, the ``checkbox-edge-canary-validation`` pipeline begins its operation.
-
-The :doc:`canary_pipeline` contains the groovy script implementing the pipeline.
+The workflow reads the Checkbox version in the edge channel of the Snap Store.
+If the ``beta`` branch is already at that version, there is nothing to promote,
+so a run with ``promote`` set stops there.
+Otherwise, the workflow waits up to five hours for all the snaps and Debian
+packages of that version to be published.
 
 Testing platforms and specifications
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+The workflow runs the canary test plan on three targets in parallel. A target
+is an Ubuntu Core track and architecture:
 
-The pipeline concurrently runs two distinct jobs on different platforms:
+* ``uc22-amd64``: ``hp-elitebook-850-g8-notebook-pc-c28760`` and
+  ``hp-elitebook-850-g8-notebook-pc-c28761``.
+* ``uc24-amd64``: ``dell-precision-tower-7820-c25401`` and
+  ``dell-optiplex-3000-thin-client-c29189``.
+* ``uc24-arm64``: ``rpi4`` and ``rpi400-arm64``.
 
-1. **amd64 ubuntu core 22**: Utilizing machines that consume Testflinger tasks from the ``dearest team`` queue.
-2. **arm64 ubuntu core 22**: Targeting machines in the ``cert-rpi4b4g`` queue, which corresponds to the Raspberry Pi4 4GB model.
+Each device runs the same Testflinger job in its own workflow job, all at the
+same time. A target passes if the canary passes on at least one of its
+devices. If it fails on all of them, the workflow waits 30 minutes and retries
+the devices of that target once.
 
-The :doc:`validation_job_example` contains the Jenkins job definition for the amd64 ubuntu core 22 validation.
+The :doc:`canary_pipeline` describes the workflow jobs and the
+:doc:`validation_job_example` describes the Testflinger job.
 
 For a detailed look on how the job execution is carried out by all the entities in the chain,
 refer to the :doc:`validation_pipeline_execution`.
@@ -89,8 +85,9 @@ The canary test plan outlines specific tests that are imperative for the new sna
 Outcome and information propagation
 -----------------------------------
 
-Should the validation complete without errors, the `beta` reference in the Checkbox repository is set to point at the revision that got validated.
-The `beta` branch head is then updated on GitHub.
+Should the validation pass on all three targets, the ``beta`` branch in the
+Checkbox repository is moved to the revision that got validated, and the beta
+release workflow is started to promote the edge packages to beta.
 
 Conclusion
 ----------

@@ -1,0 +1,61 @@
+job_queue: $QUEUE
+global_timeout: 3600
+output_timeout: 1800
+provision_data: $PROVISION_DATA
+test_data:
+  test_cmds: |
+    #!/bin/bash
+
+    # The Testflinger agent is the Checkbox controller and the DUT is the
+    # Checkbox agent: commands run on the DUT through ssh (_run, _put).
+    set -x
+    set -e
+    CHECKBOX_FRONTEND_TRACK="$CHECKBOX_TRACK"
+
+    curl -Ls -o install_tools.sh https://raw.githubusercontent.com/canonical/certification-lab-ci-tools/main/install_tools.sh
+    export TOOLS_PATH=tools
+    source install_tools.sh $TOOLS_PATH
+    wait_for_ssh --allow-degraded
+    wait_for_snap_changes
+    _run wait_for_packages_complete
+    _run clean_machine --im-sure
+
+    install_checkbox_snaps checkbox=$CHECKBOX_FRONTEND_TRACK/edge
+
+    cat <<EOF > checkbox-launcher
+    [launcher]
+    launcher_version = 1
+    stock_reports = submission_files
+
+    [test plan]
+    unit = com.canonical.certification::canary
+    forced = yes
+
+    [test selection]
+    forced = true
+
+    [ui]
+    type = silent
+    EOF
+    which envsubst > /dev/null || install_packages --no-update -- gettext > /dev/null
+    if ! fetch_manifest $CID $HEXR_DEVICE_SECURE_ID; then
+        echo "No manifest found for $CID"
+        touch manifest_conf
+    fi
+    stacker --output checkbox-launcher checkbox-launcher manifest_conf
+
+    # Pre-test diagnostics
+    echo "Snaps currently installed:" | tee /tmp/snaplist.txt
+    _run snap list | tail -n +2 | awk '{ print $1" Version: "$2"-"$3 }'
+    _run snap list >> /tmp/snaplist.txt
+    echo "Snaps changes:" | tee -a /tmp/snaplist.txt
+    _run sudo snap changes | tee -a /tmp/snaplist.txt
+    echo "Snaps connections:" | tee -a /tmp/snaplist.txt
+    _run sudo snap connections --all | tee -a /tmp/snaplist.txt
+
+    set +e
+    PYTHONUNBUFFERED=1 checkbox-cli control $DEVICE_IP checkbox-launcher
+    EXITCODE=$?
+
+    collect_artifacts --include checkbox-launcher /tmp/snaplist.txt
+    exit $EXITCODE

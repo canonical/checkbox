@@ -39,6 +39,12 @@ after its failed jobs are re-run, its last job starts the
 with its ``promote`` input set. It can also be started manually; a manual run
 only moves the ``beta`` branch when its ``promote`` input is set.
 
+For manual runs, the dispatch form lets you override the queue and provision
+data of each device independently. The defaults are the devices listed below,
+so change only the fields for devices that need to be moved. Provision data
+must remain a Testflinger mapping string, for example ``{distro: noble}``.
+Automated runs use the configured defaults.
+
 Waiting for the packages
 ^^^^^^^^^^^^^^^^^^^^^^^^
 

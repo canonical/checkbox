@@ -3,7 +3,7 @@
 Explain the result of each canary target in the workflow run.
 
 Canary jobs are named "<target> on <queue>" and retries
-"<target> (retry) (<queue>)". The targets are the ones of the first jobs, and
+"<target> (retry) (<device values>)". The targets are the ones of the first jobs, and
 a target passes if any of its jobs passed.
 
 Usage: canary_results.py check|result

@@ -11,6 +11,54 @@ on:
         description: Move the beta branch if the canary passes
         type: boolean
         default: false
+      uc22_amd64_1_queue:
+        description: Queue for uc22-amd64 device 1
+        type: string
+        default: hp-elitebook-850-g8-notebook-pc-c28760
+      uc22_amd64_1_provision_data:
+        description: Provision data for uc22-amd64 device 1
+        type: string
+        default: "{distro: jammy}"
+      uc22_amd64_2_queue:
+        description: Queue for uc22-amd64 device 2
+        type: string
+        default: hp-elitebook-850-g8-notebook-pc-c28761
+      uc22_amd64_2_provision_data:
+        description: Provision data for uc22-amd64 device 2
+        type: string
+        default: "{distro: jammy}"
+      uc24_amd64_1_queue:
+        description: Queue for uc24-amd64 device 1
+        type: string
+        default: dell-precision-tower-7820-c25401
+      uc24_amd64_1_provision_data:
+        description: Provision data for uc24-amd64 device 1
+        type: string
+        default: "{distro: noble}"
+      uc24_amd64_2_queue:
+        description: Queue for uc24-amd64 device 2
+        type: string
+        default: dell-optiplex-3000-thin-client-c29189
+      uc24_amd64_2_provision_data:
+        description: Provision data for uc24-amd64 device 2
+        type: string
+        default: "{distro: noble}"
+      uc24_arm64_1_queue:
+        description: Queue for uc24-arm64 device 1
+        type: string
+        default: rpi4
+      uc24_arm64_1_provision_data:
+        description: Provision data for uc24-arm64 device 1
+        type: string
+        default: "{url: 'https://tel-image-cache.canonical.com/oem-share/hardware-certification/ubuntu-core/24/cert-ubuntu-core-24-pi-arm64.img.xz', preset: RPiUC}"
+      uc24_arm64_2_queue:
+        description: Queue for uc24-arm64 device 2
+        type: string
+        default: rpi400-arm64
+      uc24_arm64_2_provision_data:
+        description: Provision data for uc24-arm64 device 2
+        type: string
+        default: "{url: 'https://tel-image-cache.canonical.com/oem-share/hardware-certification/ubuntu-core/24/cert-ubuntu-core-24-pi-arm64.img.xz', preset: RPiUC}"
 
 concurrency:
   group: checkbox-edge-canary
@@ -79,33 +127,33 @@ jobs:
           - &uc22-amd64-1
             target: uc22-amd64
             track: uc22
-            provision_data: "{distro: jammy}"
-            queue: &uc22-amd64-1-queue hp-elitebook-850-g8-notebook-pc-c28760
+            provision_data: ${{ inputs.uc22_amd64_1_provision_data }}
+            queue: ${{ inputs.uc22_amd64_1_queue }}
           - &uc22-amd64-2
             target: uc22-amd64
             track: uc22
-            provision_data: "{distro: jammy}"
-            queue: &uc22-amd64-2-queue hp-elitebook-850-g8-notebook-pc-c28761
+            provision_data: ${{ inputs.uc22_amd64_2_provision_data }}
+            queue: ${{ inputs.uc22_amd64_2_queue }}
           - &uc24-amd64-1
             target: uc24-amd64
             track: uc24
-            provision_data: "{distro: noble}"
-            queue: &uc24-amd64-1-queue dell-precision-tower-7820-c25401
+            provision_data: ${{ inputs.uc24_amd64_1_provision_data }}
+            queue: ${{ inputs.uc24_amd64_1_queue }}
           - &uc24-amd64-2
             target: uc24-amd64
             track: uc24
-            provision_data: "{distro: noble}"
-            queue: &uc24-amd64-2-queue dell-optiplex-3000-thin-client-c29189
+            provision_data: ${{ inputs.uc24_amd64_2_provision_data }}
+            queue: ${{ inputs.uc24_amd64_2_queue }}
           - &uc24-arm64-1
             target: uc24-arm64
             track: uc24
-            provision_data: "{url: 'https://tel-image-cache.canonical.com/oem-share/hardware-certification/ubuntu-core/24/cert-ubuntu-core-24-pi-arm64.img.xz', preset: RPiUC}"
-            queue: &uc24-arm64-1-queue rpi4
+            provision_data: ${{ inputs.uc24_arm64_1_provision_data }}
+            queue: ${{ inputs.uc24_arm64_1_queue }}
           - &uc24-arm64-2
             target: uc24-arm64
             track: uc24
-            provision_data: "{url: 'https://tel-image-cache.canonical.com/oem-share/hardware-certification/ubuntu-core/24/cert-ubuntu-core-24-pi-arm64.img.xz', preset: RPiUC}"
-            queue: &uc24-arm64-2-queue rpi400-arm64
+            provision_data: ${{ inputs.uc24_arm64_2_provision_data }}
+            queue: ${{ inputs.uc24_arm64_2_queue }}
     defaults: &lab-dispatch
       run:
         working-directory: tools/lab_dispatch
@@ -174,7 +222,7 @@ jobs:
 
   # One retry job per target, so a target that passed shows as skipped.
   # The name has no expressions, so skipped jobs show it as is, and GitHub
-  # appends the queue to it: "<target> (retry) (<queue>)"
+  # appends the device values to it: "<target> (retry) (<target>, ...)"
   retry-uc22-amd64:
     name: uc22-amd64 (retry)
     needs: check
@@ -185,7 +233,6 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        queue: [*uc22-amd64-1-queue, *uc22-amd64-2-queue]
         include: [*uc22-amd64-1, *uc22-amd64-2]
     defaults: *lab-dispatch
     steps: *device-steps
@@ -200,7 +247,6 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        queue: [*uc24-amd64-1-queue, *uc24-amd64-2-queue]
         include: [*uc24-amd64-1, *uc24-amd64-2]
     defaults: *lab-dispatch
     steps: *device-steps
@@ -215,7 +261,6 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        queue: [*uc24-arm64-1-queue, *uc24-arm64-2-queue]
         include: [*uc24-arm64-1, *uc24-arm64-2]
     defaults: *lab-dispatch
     steps: *device-steps

@@ -107,59 +107,19 @@ jobs:
     timeout-minutes: 40
     permissions:
       actions: read
+      contents: read
     outputs:
       retry: ${{ steps.failed.outputs.retry }}
     steps:
-      - &platform-results
-        name: Explain the result of each platform
+      - name: Checkout checkbox monorepo
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          persist-credentials: false
+      - name: Explain the result of each platform
         id: failed
         env:
           GH_TOKEN: ${{ github.token }}
-          STAGE: ${{ github.job }}
-        run: |
-          # Canary jobs are named "<platform> on <queue>", with " (retry)"
-          # appended for the retries
-          jobs=$(gh api --paginate \
-            "repos/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID/jobs" \
-            --jq '.jobs[] | select(.name | test("^\\S+ on \\S+")) | {name, conclusion}' \
-            | jq -sc 'map(. + {platform: (.name | split(" ")[0]),
-                              queue: (.name | split(" ")[2])})')
-          report=$(jq -c --arg stage "$STAGE" '
-            group_by(.platform) | map({
-              platform: .[0].platform,
-              queues: (map(.queue) | unique),
-              passed: map(select(.conclusion == "success") | .name)
-            })
-            | map(. + if .passed != [] then {
-                level: "notice",
-                outcome: ((if $stage == "check" then "No retry needed"
-                  else "Accepted" end)
-                  + ", at least one job passed: " + (.passed | join(", ")))
-              } elif $stage == "check" then {
-                level: "warning",
-                outcome: ("No job passed, retrying "
-                  + (.queues | join(" and ")) + " in 30 minutes")
-              } else {
-                level: "error",
-                outcome: "Rejected, no job passed in either attempt"
-              } end)' <<< "$jobs")
-          jq -r '.[] | "::\(.level) title=\(.platform)::\(.outcome)"' <<< "$report"
-          {
-            echo "| Platform | Outcome |"
-            echo "| --- | --- |"
-            jq -r '.[] | "| \(.platform) | \(.outcome) |"' <<< "$report"
-          } >> "$GITHUB_STEP_SUMMARY"
-          # Platforms where no job passed
-          retry=$(jq -c 'map(select(.passed == []) | .platform)' <<< "$report")
-          echo "retry=$retry" >> "$GITHUB_OUTPUT"
-          if [ "$STAGE" = result ]; then
-            if [ "$retry" != "[]" ]; then
-              echo "::error::Canary rejected: no job passed on $(jq -r 'join(", ")' <<< "$retry")"
-              exit 1
-            fi
-            echo "::notice::Canary accepted: at least one job passed on each platform"
-            echo "**Canary accepted: at least one job passed on each platform.**" >> "$GITHUB_STEP_SUMMARY"
-          fi
+        run: python3 tools/lab_dispatch/canary_results.py check
       - name: Wait 30 minutes before retrying
         if: steps.failed.outputs.retry != '[]'
         run: sleep 30
@@ -214,8 +174,16 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       actions: read
+      contents: read
     steps:
-      - *platform-results
+      - name: Checkout checkbox monorepo
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          persist-credentials: false
+      - name: Explain the result of each platform
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: python3 tools/lab_dispatch/canary_results.py result
 
   promote:
     name: Move the beta branch

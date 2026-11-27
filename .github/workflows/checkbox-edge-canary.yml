@@ -87,7 +87,7 @@ jobs:
         env:
           # Only skip a version already in beta when promoting, a manual
           # run without promotion always tests edge
-          PROMOTE: ${{ inputs.promote }}
+          PROMOTE: ${{ inputs.promote || contains(github.event.head_commit.message, '[canary-promote]') }}
         run: |
           git clone --depth 1 https://github.com/canonical/hwcert-jenkins-tools
           VERSION=$(python3 hwcert-jenkins-tools/version-published/get_snap_store_version.py checkbox edge)
@@ -291,7 +291,7 @@ jobs:
   promote:
     name: Move the beta branch
     needs: [prepare, result]
-    if: ${{ github.event_name == 'workflow_dispatch' && !cancelled() && needs.result.result == 'success' && inputs.promote }}
+    if: ${{ !cancelled() && needs.result.result == 'success' && (inputs.promote || contains(github.event.head_commit.message, '[canary-promote]')) }}
     runs-on: ubuntu-latest
     permissions:
       contents: write # to move the beta branch

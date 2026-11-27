@@ -84,8 +84,8 @@ bootstrap_include:
     net_if_management
 exclude:
     cpu/clocktest
-    disk/stats_.*
-    disk/storage_device_.*
+    disk/stats_name
+    disk/storage_device_name
     installer_debug.gz
     stress/cpu_stress_ng_test
     stress/memory_stress_ng
@@ -147,8 +147,8 @@ bootstrap_include:
     net_if_management
 exclude:
     cpu/clocktest
-    disk/stats_.*
-    disk/storage_device_.*
+    disk/stats_name
+    disk/storage_device_name
     installer_debug.gz
     stress/cpu_stress_ng_test
     stress/memory_stress_ng

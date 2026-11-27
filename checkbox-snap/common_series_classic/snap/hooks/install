@@ -14,3 +14,7 @@ ResultAny=yes
 ResultInactive=yes
 ResultActive=yes
 EOF
+
+# zsh/fish completions, bash completion is already provided by snapd
+"$SNAP/bin/install-completions" install ||
+    echo "Failed to install the zsh/fish completions" >&2

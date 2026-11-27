@@ -1,0 +1,57 @@
+#!/bin/sh
+# Usage: install-completions <install|remove>
+#
+# snapd only provides bash completion (through the `completer` key), so this
+# puts small zsh/fish loaders in the host's default completion directories.
+# The loaders source the scripts from /snap/<name>/current so they always
+# match the installed revision. Called by the install, post-refresh and remove
+# hooks, which run on the host as root since this is a classic snap.
+
+set -e
+
+CMD="$SNAP_INSTANCE_NAME.checkbox-cli"
+SRC_DIR="/snap/$SNAP_INSTANCE_NAME/current/bin"
+ZSH_LOADER="/usr/local/share/zsh/site-functions/_${SNAP_INSTANCE_NAME}_snap"
+FISH_LOADER="/usr/local/share/fish/vendor_completions.d/$CMD.fish"
+
+# write_loader <path>: atomically writes stdin to <path>
+write_loader() {
+    mkdir -p "$(dirname "$1")"
+    cat >"$1.tmp"
+    chmod 644 "$1.tmp"
+    mv -f "$1.tmp" "$1"
+}
+
+install() {
+    # zsh autoloads this file as the body of the loader function. Sourcing
+    # the real script defines _checkbox-cli, then it handles this completion
+    write_loader "$ZSH_LOADER" <<EOF
+#compdef $CMD
+# Installed by the $SNAP_INSTANCE_NAME snap, removed with the snap
+[[ -f $SRC_DIR/_checkbox-cli ]] || return 1
+source $SRC_DIR/_checkbox-cli
+compdef _checkbox-cli $CMD
+_checkbox-cli "\$@"
+EOF
+
+    # fish autoloads completions by command name
+    write_loader "$FISH_LOADER" <<EOF
+# Installed by the $SNAP_INSTANCE_NAME snap, removed with the snap
+if not functions -q __checkbox_cli_dynamic; and test -f $SRC_DIR/checkbox-cli.fish
+    source $SRC_DIR/checkbox-cli.fish
+end
+EOF
+}
+
+remove() {
+    rm -f "$ZSH_LOADER" "$FISH_LOADER"
+}
+
+case "$1" in
+install) install ;;
+remove) remove ;;
+*)
+    echo "Usage: $0 <install|remove>" >&2
+    exit 1
+    ;;
+esac

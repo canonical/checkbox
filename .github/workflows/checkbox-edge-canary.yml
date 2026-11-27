@@ -38,8 +38,8 @@ jobs:
           echo "run=true" >> "$GITHUB_OUTPUT"
 
   canary:
-    # The platform must be the first word of the name, it is used to find
-    # the platforms that passed
+    # Used to find the platforms that passed, keep it in sync with
+    # tools/lab_dispatch/canary_results.py
     name: ${{ matrix.platform }} on ${{ matrix.queue }}
     needs: prepare
     if: needs.prepare.outputs.run == 'true'
@@ -50,39 +50,33 @@ jobs:
     continue-on-error: true
     strategy:
       fail-fast: false
-      # Each platform passes if the canary passes on any of its devices
+      # Two devices per platform, the anchors are reused by the retry jobs
       matrix:
         include:
-          - &uc22-amd64-1
-            platform: uc22-amd64
-            track: uc22
-            provision_data: "{distro: jammy}"
-            queue: hp-elitebook-850-g8-notebook-pc-c28760
-          - &uc22-amd64-2
-            platform: uc22-amd64
-            track: uc22
-            provision_data: "{distro: jammy}"
-            queue: hp-elitebook-850-g8-notebook-pc-c28761
-          - &uc24-amd64-1
-            platform: uc24-amd64
-            track: uc24
-            provision_data: "{distro: noble}"
-            queue: dell-precision-tower-7820-c25401
-          - &uc24-amd64-2
-            platform: uc24-amd64
-            track: uc24
-            provision_data: "{distro: noble}"
-            queue: dell-optiplex-3000-thin-client-c29189
-          - &uc24-arm64-1
-            platform: uc24-arm64
-            track: uc24
-            provision_data: "{url: 'https://tel-image-cache.canonical.com/oem-share/hardware-certification/ubuntu-core/24/cert-ubuntu-core-24-pi-arm64.img.xz', preset: RPiUC}"
-            queue: rpi4
-          - &uc24-arm64-2
-            platform: uc24-arm64
-            track: uc24
-            provision_data: "{url: 'https://tel-image-cache.canonical.com/oem-share/hardware-certification/ubuntu-core/24/cert-ubuntu-core-24-pi-arm64.img.xz', preset: RPiUC}"
-            queue: rpi400-arm64
+          - platform: uc22-amd64
+            track: &uc22 uc22
+            provision_data: &jammy "{distro: jammy}"
+            queue: &uc22-amd64-1 hp-elitebook-850-g8-notebook-pc-c28760
+          - platform: uc22-amd64
+            track: *uc22
+            provision_data: *jammy
+            queue: &uc22-amd64-2 hp-elitebook-850-g8-notebook-pc-c28761
+          - platform: uc24-amd64
+            track: &uc24 uc24
+            provision_data: &noble "{distro: noble}"
+            queue: &uc24-amd64-1 dell-precision-tower-7820-c25401
+          - platform: uc24-amd64
+            track: *uc24
+            provision_data: *noble
+            queue: &uc24-amd64-2 dell-optiplex-3000-thin-client-c29189
+          - platform: uc24-arm64
+            track: *uc24
+            provision_data: &uc24-pi "{url: 'https://tel-image-cache.canonical.com/oem-share/hardware-certification/ubuntu-core/24/cert-ubuntu-core-24-pi-arm64.img.xz', preset: RPiUC}"
+            queue: &uc24-arm64-1 rpi4
+          - platform: uc24-arm64
+            track: *uc24
+            provision_data: *uc24-pi
+            queue: &uc24-arm64-2 rpi400-arm64
     defaults: &lab-dispatch
       run:
         shell: bash
@@ -124,9 +118,11 @@ jobs:
         if: steps.failed.outputs.retry != '[]'
         run: sleep 30
 
-  # One retry job per platform, so a platform that passed shows as skipped
+  # One retry job per platform, so a platform that passed shows as skipped.
+  # The name has no expressions, so skipped jobs show it as is, and GitHub
+  # appends the queue to it: "<platform> (retry) (<queue>)"
   retry-uc22-amd64:
-    name: ${{ matrix.platform }} on ${{ matrix.queue }} (retry)
+    name: uc22-amd64 (retry)
     needs: check
     if: ${{ !cancelled() && contains(needs.check.outputs.retry, '"uc22-amd64"') }}
     runs-on: ubuntu-latest
@@ -135,12 +131,16 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        include: [*uc22-amd64-1, *uc22-amd64-2]
+        queue: [*uc22-amd64-1, *uc22-amd64-2]
+        include:
+          - platform: uc22-amd64
+            track: *uc22
+            provision_data: *jammy
     defaults: *lab-dispatch
     steps: *device-steps
 
   retry-uc24-amd64:
-    name: ${{ matrix.platform }} on ${{ matrix.queue }} (retry)
+    name: uc24-amd64 (retry)
     needs: check
     if: ${{ !cancelled() && contains(needs.check.outputs.retry, '"uc24-amd64"') }}
     runs-on: ubuntu-latest
@@ -149,12 +149,16 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        include: [*uc24-amd64-1, *uc24-amd64-2]
+        queue: [*uc24-amd64-1, *uc24-amd64-2]
+        include:
+          - platform: uc24-amd64
+            track: *uc24
+            provision_data: *noble
     defaults: *lab-dispatch
     steps: *device-steps
 
   retry-uc24-arm64:
-    name: ${{ matrix.platform }} on ${{ matrix.queue }} (retry)
+    name: uc24-arm64 (retry)
     needs: check
     if: ${{ !cancelled() && contains(needs.check.outputs.retry, '"uc24-arm64"') }}
     runs-on: ubuntu-latest
@@ -163,7 +167,11 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        include: [*uc24-arm64-1, *uc24-arm64-2]
+        queue: [*uc24-arm64-1, *uc24-arm64-2]
+        include:
+          - platform: uc24-arm64
+            track: *uc24
+            provision_data: *uc24-pi
     defaults: *lab-dispatch
     steps: *device-steps
 

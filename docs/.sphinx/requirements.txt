@@ -7,5 +7,4 @@ sphinx-jsonschema
 sphinxcontrib-mermaid
 
 # Vale dependencies
-rst2html
 vale~=3.13.0    # 3.18 caused check failures on code block `::`

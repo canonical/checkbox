@@ -5,29 +5,26 @@ Explain the result of each canary platform in the workflow run.
 Canary jobs are named "<platform> on <queue>", with " (retry)" appended for
 the retries. A platform passes if any of its jobs passed.
 
+Usage: canary_results.py check|result
 - check: output the platforms where no job passed, so they are retried
 - result: fail unless at least one job passed on each platform
 """
 
-import argparse
 import json
 import os
-import re
 import subprocess
-
-JOB_NAME = re.compile(r"^(\S+) on (\S+)")
+import sys
 
 
 def get_jobs():
     """Return the name and conclusion of every job in the current run"""
+    url = "repos/{GITHUB_REPOSITORY}/actions/runs/{GITHUB_RUN_ID}/jobs"
     output = subprocess.check_output(
         [
             "gh",
             "api",
             "--paginate",
-            "repos/{}/actions/runs/{}/jobs".format(
-                os.environ["GITHUB_REPOSITORY"], os.environ["GITHUB_RUN_ID"]
-            ),
+            url.format(**os.environ),
             "--jq",
             ".jobs[] | {name, conclusion}",
         ],
@@ -36,73 +33,55 @@ def get_jobs():
     return [json.loads(line) for line in output.splitlines()]
 
 
-def get_platforms(jobs):
-    """Group the canary jobs by platform"""
-    platforms = {}
-    for job in jobs:
-        match = JOB_NAME.match(job["name"])
-        if not match:
+def main(stage):
+    queues = {}
+    passed = {}
+    for job in get_jobs():
+        words = job["name"].split()
+        if len(words) < 3 or words[1] != "on":
             continue
-        platform, queue = match.groups()
-        result = platforms.setdefault(platform, {"queues": [], "passed": []})
-        if queue not in result["queues"]:
-            result["queues"].append(queue)
+        platform, queue = words[0], words[2]
+        queues.setdefault(platform, set()).add(queue)
+        passed.setdefault(platform, [])
         if job["conclusion"] == "success":
-            result["passed"].append(job["name"])
-    return platforms
+            passed[platform].append(job["name"])
 
-
-def explain(stage, queues, passed):
-    """Return the annotation level and the outcome of a platform"""
-    if passed:
-        verdict = "No retry needed" if stage == "check" else "Accepted"
-        return "notice", "{}, at least one job passed: {}".format(
-            verdict, ", ".join(passed)
-        )
-    if stage == "check":
-        return "warning", "No job passed, retrying {} in 30 minutes".format(
-            " and ".join(queues)
-        )
-    return "error", "Rejected, no job passed in either attempt"
-
-
-def main(argv=None):
-    parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("stage", choices=["check", "result"])
-    args = parser.parse_args(argv)
-
+    failed = [platform for platform in sorted(passed) if not passed[platform]]
     summary = ["| Platform | Outcome |", "| --- | --- |"]
-    failed = []
-    for platform, result in sorted(get_platforms(get_jobs()).items()):
-        level, outcome = explain(args.stage, **result)
+    for platform in sorted(passed):
+        if passed[platform]:
+            level = "notice"
+            outcome = "{}, at least one job passed: {}".format(
+                "No retry needed" if stage == "check" else "Accepted",
+                ", ".join(passed[platform]),
+            )
+        elif stage == "check":
+            level = "warning"
+            outcome = "No job passed, retrying {} in 30 minutes".format(
+                " and ".join(sorted(queues[platform]))
+            )
+        else:
+            level = "error"
+            outcome = "Rejected, no job passed in either attempt"
         print("::{} title={}::{}".format(level, platform, outcome))
         summary.append("| {} | {} |".format(platform, outcome))
-        if not result["passed"]:
-            failed.append(platform)
 
-    if args.stage == "result" and not failed:
-        print(
-            "::notice::Canary accepted: "
-            "at least one job passed on each platform"
-        )
-        summary.append(
-            "\n**Canary accepted: "
-            "at least one job passed on each platform.**"
-        )
+    if stage == "result":
+        if failed:
+            message = "Canary rejected: no job passed on " + ", ".join(failed)
+        else:
+            message = (
+                "Canary accepted: at least one job passed on each platform"
+            )
+        print("::{}::{}".format("error" if failed else "notice", message))
+        summary.append("\n**{}.**".format(message))
+
     with open(os.environ["GITHUB_STEP_SUMMARY"], "a") as f:
         f.write("\n".join(summary) + "\n")
     with open(os.environ["GITHUB_OUTPUT"], "a") as f:
         f.write("retry={}\n".format(json.dumps(failed)))
-
-    if args.stage == "result" and failed:
-        print(
-            "::error::Canary rejected: no job passed on {}".format(
-                ", ".join(failed)
-            )
-        )
-        return 1
-    return 0
+    return 1 if stage == "result" and failed else 0
 
 
 if __name__ == "__main__":
-    raise SystemExit(main())
+    raise SystemExit(main(sys.argv[1]))

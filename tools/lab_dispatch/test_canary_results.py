@@ -25,7 +25,7 @@ class CanaryResultsTests(unittest.TestCase):
             with patch.dict(os.environ, env), patch.object(
                 canary_results, "get_jobs", return_value=jobs
             ), patch("builtins.print"):
-                code = canary_results.main([stage])
+                code = canary_results.main(stage)
             with open(env["GITHUB_OUTPUT"]) as f:
                 output = f.read()
             with open(env["GITHUB_STEP_SUMMARY"]) as f:

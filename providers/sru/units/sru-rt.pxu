@@ -29,8 +29,8 @@ bootstrap_include:
     net_if_management
 exclude:
     cpu/clocktest
-    disk/stats_.*
-    disk/storage_device_.*
+    disk/stats_name
+    disk/storage_device_name
     installer_debug.gz
     stress/memory_stress_ng
     audio/valid-sof-firmware-sig

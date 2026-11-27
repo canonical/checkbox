@@ -1428,14 +1428,14 @@ class Expand:
         )
         # get all jobs/templates that have a requires and do require a manifest
         # entry
-        job_requires = [
-            requires
-            for requires in map(
-                lambda x: x.get_record_value("requires"),
-                jobs_and_templates_list,
-            )
-            if requires and "manifest" in requires
-        ]
+        job_requires = []
+        for unit in jobs_and_templates_list:
+            requires = unit.get_record_value("requires")
+            # yaml units have a list requires, pxu units a string
+            if isinstance(requires, list):
+                requires = "\n".join(requires)
+            if requires and "manifest" in requires:
+                job_requires.append(requires)
 
         # only return manifest entries that are actually required by any job in
         # the list

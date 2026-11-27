@@ -60,45 +60,52 @@ jobs:
             "$VERSION" checkbox-canary.yaml --timeout 18000
 
   canary:
-    # Used to find the platforms that passed, keep it in sync with
-    # tools/lab_dispatch/canary_results.py
-    name: ${{ matrix.platform }} on ${{ matrix.queue }}
+    # canary_results.py finds the targets and their results from this name
+    name: ${{ matrix.target }} on ${{ matrix.queue }}
     needs: prepare
     if: needs.prepare.outputs.run == 'true'
     runs-on: self-hosted-linux-amd64-jammy-private-endpoint-medium
     timeout-minutes: 120
-    # A failing device does not fail the run, the platform passes if any of
-    # its devices passed
+    # A failing device does not fail the run, the target passes if any of its
+    # devices passed
     continue-on-error: true
     strategy:
       fail-fast: false
-      # Keep platforms in sync with canary_results.py; anchors are reused by retries
+      # A target is an Ubuntu Core track and architecture, with two devices
+      # each. Each device has its own provision data. A new target also needs
+      # its own retry job below, which reuses these devices
       matrix:
         include:
-          - platform: uc22-amd64
-            track: &uc22 uc22
-            provision_data: &jammy "{distro: jammy}"
-            queue: &uc22-amd64-1 hp-elitebook-850-g8-notebook-pc-c28760
-          - platform: uc22-amd64
-            track: *uc22
-            provision_data: *jammy
-            queue: &uc22-amd64-2 hp-elitebook-850-g8-notebook-pc-c28761
-          - platform: uc24-amd64
-            track: &uc24 uc24
-            provision_data: &noble "{distro: noble}"
-            queue: &uc24-amd64-1 dell-precision-tower-7820-c25401
-          - platform: uc24-amd64
-            track: *uc24
-            provision_data: *noble
-            queue: &uc24-amd64-2 dell-optiplex-3000-thin-client-c29189
-          - platform: uc24-arm64
-            track: *uc24
-            provision_data: &uc24-pi "{url: 'https://tel-image-cache.canonical.com/oem-share/hardware-certification/ubuntu-core/24/cert-ubuntu-core-24-pi-arm64.img.xz', preset: RPiUC}"
-            queue: &uc24-arm64-1 rpi4
-          - platform: uc24-arm64
-            track: *uc24
-            provision_data: *uc24-pi
-            queue: &uc24-arm64-2 rpi400-arm64
+          - &uc22-amd64-1
+            target: uc22-amd64
+            track: uc22
+            provision_data: "{distro: jammy}"
+            queue: &uc22-amd64-1-queue hp-elitebook-850-g8-notebook-pc-c28760
+          - &uc22-amd64-2
+            target: uc22-amd64
+            track: uc22
+            provision_data: "{distro: jammy}"
+            queue: &uc22-amd64-2-queue hp-elitebook-850-g8-notebook-pc-c28761
+          - &uc24-amd64-1
+            target: uc24-amd64
+            track: uc24
+            provision_data: "{distro: noble}"
+            queue: &uc24-amd64-1-queue dell-precision-tower-7820-c25401
+          - &uc24-amd64-2
+            target: uc24-amd64
+            track: uc24
+            provision_data: "{distro: noble}"
+            queue: &uc24-amd64-2-queue dell-optiplex-3000-thin-client-c29189
+          - &uc24-arm64-1
+            target: uc24-arm64
+            track: uc24
+            provision_data: "{url: 'https://tel-image-cache.canonical.com/oem-share/hardware-certification/ubuntu-core/24/cert-ubuntu-core-24-pi-arm64.img.xz', preset: RPiUC}"
+            queue: &uc24-arm64-1-queue rpi4
+          - &uc24-arm64-2
+            target: uc24-arm64
+            track: uc24
+            provision_data: "{url: 'https://tel-image-cache.canonical.com/oem-share/hardware-certification/ubuntu-core/24/cert-ubuntu-core-24-pi-arm64.img.xz', preset: RPiUC}"
+            queue: &uc24-arm64-2-queue rpi400-arm64
     defaults: &lab-dispatch
       run:
         working-directory: tools/lab_dispatch
@@ -156,7 +163,7 @@ jobs:
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
         with:
           persist-credentials: false
-      - name: Explain the result of each platform
+      - name: Explain the result of each target
         id: failed
         env:
           GH_TOKEN: ${{ github.token }}
@@ -165,9 +172,9 @@ jobs:
         if: steps.failed.outputs.retry != '[]'
         run: sleep 1800
 
-  # One retry job per platform, so a platform that passed shows as skipped.
+  # One retry job per target, so a target that passed shows as skipped.
   # The name has no expressions, so skipped jobs show it as is, and GitHub
-  # appends the queue to it: "<platform> (retry) (<queue>)"
+  # appends the queue to it: "<target> (retry) (<queue>)"
   retry-uc22-amd64:
     name: uc22-amd64 (retry)
     needs: check
@@ -178,11 +185,8 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        queue: [*uc22-amd64-1, *uc22-amd64-2]
-        include:
-          - platform: uc22-amd64
-            track: *uc22
-            provision_data: *jammy
+        queue: [*uc22-amd64-1-queue, *uc22-amd64-2-queue]
+        include: [*uc22-amd64-1, *uc22-amd64-2]
     defaults: *lab-dispatch
     steps: *device-steps
 
@@ -196,11 +200,8 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        queue: [*uc24-amd64-1, *uc24-amd64-2]
-        include:
-          - platform: uc24-amd64
-            track: *uc24
-            provision_data: *noble
+        queue: [*uc24-amd64-1-queue, *uc24-amd64-2-queue]
+        include: [*uc24-amd64-1, *uc24-amd64-2]
     defaults: *lab-dispatch
     steps: *device-steps
 
@@ -214,16 +215,13 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        queue: [*uc24-arm64-1, *uc24-arm64-2]
-        include:
-          - platform: uc24-arm64
-            track: *uc24
-            provision_data: *uc24-pi
+        queue: [*uc24-arm64-1-queue, *uc24-arm64-2-queue]
+        include: [*uc24-arm64-1, *uc24-arm64-2]
     defaults: *lab-dispatch
     steps: *device-steps
 
   result:
-    name: Check that every platform passed
+    name: Check that every target passed
     needs: [prepare, check, retry-uc22-amd64, retry-uc24-amd64, retry-uc24-arm64]
     if: ${{ !cancelled() && needs.prepare.outputs.run == 'true' }}
     runs-on: ubuntu-latest
@@ -235,7 +233,7 @@ jobs:
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
         with:
           persist-credentials: false
-      - name: Explain the result of each platform
+      - name: Explain the result of each target
         env:
           GH_TOKEN: ${{ github.token }}
         run: python3 tools/lab_dispatch/canary_results.py result

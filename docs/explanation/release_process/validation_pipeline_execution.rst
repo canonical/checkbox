@@ -35,7 +35,8 @@ reads the new edge version of Checkbox from the store.
 
 It checks that all of the necessary snaps and Debian packages were published
 (for other series and architectures). Once confirmed, the canary test plan is
-executed on two devices for each platform.
+executed on two devices for each target (Ubuntu Core track and
+architecture).
 
 .. mermaid::
 
@@ -50,8 +51,8 @@ executed on two devices for each platform.
         A --> B
         B -->|No| D
         B -->|Yes| C
-        C -->|Passes on every platform| E
-        C -->|Fails on both devices of a platform, twice| D
+        C -->|Passes on every target| E
+        C -->|Fails on both devices of a target, twice| D
 
 
 

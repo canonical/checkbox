@@ -51,7 +51,8 @@ packages of that version to be published.
 Testing platforms and specifications
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-The workflow runs the canary test plan on three platforms in parallel:
+The workflow runs the canary test plan on three targets in parallel. A target
+is an Ubuntu Core track and architecture:
 
 * ``uc22-amd64``: ``hp-elitebook-850-g8-notebook-pc-c28760`` and
   ``hp-elitebook-850-g8-notebook-pc-c28761``.
@@ -60,9 +61,9 @@ The workflow runs the canary test plan on three platforms in parallel:
 * ``uc24-arm64``: ``rpi4`` and ``rpi400-arm64``.
 
 Each device runs the same Testflinger job in its own workflow job, all at the
-same time. A platform passes if the canary passes on at least one of its
+same time. A target passes if the canary passes on at least one of its
 devices. If it fails on all of them, the workflow waits 30 minutes and retries
-the devices of that platform once.
+the devices of that target once.
 
 The :doc:`canary_pipeline` describes the workflow jobs and the
 :doc:`validation_job_example` describes the Testflinger job.
@@ -78,7 +79,7 @@ The canary test plan outlines specific tests that are imperative for the new sna
 Outcome and information propagation
 -----------------------------------
 
-Should the validation pass on all three platforms, the ``beta`` branch in the
+Should the validation pass on all three targets, the ``beta`` branch in the
 Checkbox repository is moved to the revision that got validated, and the beta
 release workflow is started to promote the edge packages to beta.
 

@@ -34,13 +34,13 @@ class CanaryResultsTests(unittest.TestCase):
                 summary = f.read()
         return code, output, summary
 
-    def test_check_retries_platforms_without_passing_jobs(self):
+    def test_check_retries_targets_without_passing_jobs(self):
         code, output, summary = self.run_stage("check", JOBS)
         self.assertEqual(code, 0)
         self.assertEqual(output, 'retry=["uc24-arm64"]\n')
         self.assertIn("retrying rpi4 and rpi400-arm64 in 30 minutes", summary)
 
-    def test_result_accepts_when_every_platform_passed(self):
+    def test_result_accepts_when_every_target_passed(self):
         jobs = JOBS + [
             {"name": "uc22-amd64 (retry)", "conclusion": "skipped"},
             {"name": "uc24-arm64 (retry) (rpi4)", "conclusion": "success"},
@@ -48,9 +48,9 @@ class CanaryResultsTests(unittest.TestCase):
         code, output, summary = self.run_stage("result", jobs)
         self.assertEqual(code, 0)
         self.assertEqual(output, "retry=[]\n")
-        self.assertIn("at least one job passed on each platform", summary)
+        self.assertIn("at least one job passed on each target", summary)
 
-    def test_result_rejects_when_a_platform_never_passed(self):
+    def test_result_rejects_when_a_target_never_passed(self):
         jobs = JOBS + [
             {"name": "uc24-arm64 (retry) (rpi4)", "conclusion": "failure"},
         ]
@@ -58,24 +58,10 @@ class CanaryResultsTests(unittest.TestCase):
         self.assertEqual(code, 1)
         self.assertIn("Rejected, no job passed in either attempt", summary)
 
-    def test_missing_platform_does_not_pass(self):
-        jobs = [
-            job for job in JOBS if not job["name"].startswith("uc24-arm64")
-        ]
-        code, output, summary = self.run_stage("check", jobs)
-        self.assertEqual(code, 0)
-        self.assertEqual(output, 'retry=["uc24-arm64"]\n')
-        self.assertIn("retrying both devices in 30 minutes", summary)
-        code, _, summary = self.run_stage("result", jobs)
+    def test_result_rejects_when_no_canary_job_ran(self):
+        code, _, summary = self.run_stage("result", JOBS[:1])
         self.assertEqual(code, 1)
-        self.assertIn("no job passed on uc24-arm64", summary)
-
-    def test_unknown_platform_fails_explicitly(self):
-        jobs = JOBS + [
-            {"name": "uc26-amd64 on device", "conclusion": "success"}
-        ]
-        with self.assertRaisesRegex(ValueError, "Unknown canary platform"):
-            self.run_stage("result", jobs)
+        self.assertIn("no canary job was found", summary)
 
 
 if __name__ == "__main__":

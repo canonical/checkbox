@@ -29,38 +29,7 @@ jobs:
     outputs:
       version: ${{ steps.version.outputs.version }}
       run: ${{ steps.version.outputs.run }}
-      devices: ${{ steps.devices.outputs.devices }}
     steps:
-      - name: List the canary devices
-        id: devices
-        env:
-          # Each platform passes if the canary passes on any of its devices
-          DEVICES: |
-            - platform: uc22-amd64
-              track: uc22
-              provision_data: "{distro: jammy}"
-              queue: hp-elitebook-850-g8-notebook-pc-c28760
-            - platform: uc22-amd64
-              track: uc22
-              provision_data: "{distro: jammy}"
-              queue: hp-elitebook-850-g8-notebook-pc-c28761
-            - platform: uc24-amd64
-              track: uc24
-              provision_data: "{distro: noble}"
-              queue: dell-precision-tower-7820-c25401
-            - platform: uc24-amd64
-              track: uc24
-              provision_data: "{distro: noble}"
-              queue: dell-optiplex-3000-thin-client-c29189
-            - platform: uc24-arm64
-              track: uc24
-              provision_data: "{url: 'https://tel-image-cache.canonical.com/oem-share/hardware-certification/ubuntu-core/24/cert-ubuntu-core-24-pi-arm64.img.xz', preset: RPiUC}"
-              queue: rpi4
-            - platform: uc24-arm64
-              track: uc24
-              provision_data: "{url: 'https://tel-image-cache.canonical.com/oem-share/hardware-certification/ubuntu-core/24/cert-ubuntu-core-24-pi-arm64.img.xz', preset: RPiUC}"
-              queue: rpi400-arm64
-        run: echo "devices=$(yq -o=json -I=0 . <<< "$DEVICES")" >> "$GITHUB_OUTPUT"
       - name: Checkout checkbox monorepo
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
         with:
@@ -106,8 +75,39 @@ jobs:
     continue-on-error: true
     strategy:
       fail-fast: false
+      # Each platform passes if the canary passes on any of its devices
       matrix:
-        include: ${{ fromJSON(needs.prepare.outputs.devices) }}
+        include:
+          - &uc22-amd64-1
+            platform: uc22-amd64
+            track: uc22
+            provision_data: "{distro: jammy}"
+            queue: hp-elitebook-850-g8-notebook-pc-c28760
+          - &uc22-amd64-2
+            platform: uc22-amd64
+            track: uc22
+            provision_data: "{distro: jammy}"
+            queue: hp-elitebook-850-g8-notebook-pc-c28761
+          - &uc24-amd64-1
+            platform: uc24-amd64
+            track: uc24
+            provision_data: "{distro: noble}"
+            queue: dell-precision-tower-7820-c25401
+          - &uc24-amd64-2
+            platform: uc24-amd64
+            track: uc24
+            provision_data: "{distro: noble}"
+            queue: dell-optiplex-3000-thin-client-c29189
+          - &uc24-arm64-1
+            platform: uc24-arm64
+            track: uc24
+            provision_data: "{url: 'https://tel-image-cache.canonical.com/oem-share/hardware-certification/ubuntu-core/24/cert-ubuntu-core-24-pi-arm64.img.xz', preset: RPiUC}"
+            queue: rpi4
+          - &uc24-arm64-2
+            platform: uc24-arm64
+            track: uc24
+            provision_data: "{url: 'https://tel-image-cache.canonical.com/oem-share/hardware-certification/ubuntu-core/24/cert-ubuntu-core-24-pi-arm64.img.xz', preset: RPiUC}"
+            queue: rpi400-arm64
     defaults: &lab-dispatch
       run:
         working-directory: tools/lab_dispatch
@@ -118,14 +118,11 @@ jobs:
           persist-credentials: false
       - name: Create the Testflinger job
         env:
-          DEVICES: ${{ needs.prepare.outputs.devices }}
           QUEUE: ${{ matrix.queue }}
+          CHECKBOX_TRACK: ${{ matrix.track }}
+          PROVISION_DATA: ${{ matrix.provision_data }}
         run: |
           which envsubst > /dev/null || sudo apt-get install -y -qq gettext-base
-          device=$(jq -c --arg queue "$QUEUE" '.[] | select(.queue == $queue)' <<< "$DEVICES")
-          CHECKBOX_TRACK=$(jq -r .track <<< "$device")
-          PROVISION_DATA=$(jq -r .provision_data <<< "$device")
-          export CHECKBOX_TRACK PROVISION_DATA
           envsubst '$QUEUE $PROVISION_DATA $CHECKBOX_TRACK' < canary.yaml > job.yaml
       - name: Run the canary
         id: canary
@@ -160,68 +157,27 @@ jobs:
     timeout-minutes: 40
     permissions:
       actions: read
+      contents: read
     outputs:
       retry: ${{ steps.failed.outputs.retry }}
     steps:
-      - &platform-results
-        name: Explain the result of each platform
+      - name: Checkout checkbox monorepo
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          persist-credentials: false
+      - name: Explain the result of each platform
         id: failed
         env:
           GH_TOKEN: ${{ github.token }}
-          DEVICES: ${{ needs.prepare.outputs.devices }}
-          STAGE: ${{ github.job }}
-        run: |
-          # Jobs that passed so far, the platform is the first word of the name
-          passed=$(gh api --paginate \
-            "repos/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID/jobs" \
-            --jq '.jobs[] | select(.conclusion == "success") | .name' \
-            | jq -Rsc 'split("\n") | map(select(. != ""))')
-          report=$(jq -c --argjson passed "$passed" --arg stage "$STAGE" '
-            group_by(.platform) | map(.[0].platform as $platform | {
-              platform: $platform,
-              queues: map(.queue),
-              passed: [$passed[] | select(split(" ")[0] == $platform)]
-            })
-            | map(. + if .passed != [] then {
-                level: "notice",
-                outcome: ((if $stage == "check" then "No retry needed"
-                  else "Accepted" end)
-                  + ", at least one job passed: " + (.passed | join(", ")))
-              } elif $stage == "check" then {
-                level: "warning",
-                outcome: ("No job passed, retrying "
-                  + (.queues | join(" and ")) + " in 30 minutes")
-              } else {
-                level: "error",
-                outcome: "Rejected, no job passed in either attempt"
-              } end)' <<< "$DEVICES")
-          jq -r '.[] | "::\(.level) title=\(.platform)::\(.outcome)"' <<< "$report"
-          {
-            echo "| Platform | Outcome |"
-            echo "| --- | --- |"
-            jq -r '.[] | "| \(.platform) | \(.outcome) |"' <<< "$report"
-          } >> "$GITHUB_STEP_SUMMARY"
-          # Queues to retry, grouped by platform
-          retry=$(jq -c 'map(select(.passed == []) | {(.platform): .queues})
-            | add // {}' <<< "$report")
-          echo "retry=$retry" >> "$GITHUB_OUTPUT"
-          if [ "$STAGE" = result ]; then
-            if [ "$retry" != "{}" ]; then
-              echo "::error::Canary rejected: no job passed on $(jq -r 'keys | join(", ")' <<< "$retry")"
-              exit 1
-            fi
-            echo "::notice::Canary accepted: at least one job passed on each platform"
-            echo "**Canary accepted: at least one job passed on each platform.**" >> "$GITHUB_STEP_SUMMARY"
-          fi
+        run: python3 tools/lab_dispatch/canary_results.py check
       - name: Wait 30 minutes before retrying
-        if: steps.failed.outputs.retry != '{}'
+        if: steps.failed.outputs.retry != '[]'
         run: sleep 1800
 
-  # One retry job per platform, so a platform that passed shows as skipped.
-  # The matrix only has the queue, so the job names are short and readable.
+  # One retry job per platform, so a platform that passed shows as skipped
   retry-uc22-amd64:
-    name: uc22-amd64 (retry)
-    needs: [prepare, check]
+    name: ${{ matrix.platform }} on ${{ matrix.queue }} (retry)
+    needs: check
     if: ${{ !cancelled() && contains(needs.check.outputs.retry, '"uc22-amd64"') }}
     runs-on: self-hosted-linux-amd64-jammy-private-endpoint-medium
     timeout-minutes: 120
@@ -229,13 +185,13 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        queue: ${{ fromJSON(needs.check.outputs.retry)['uc22-amd64'] }}
+        include: [*uc22-amd64-1, *uc22-amd64-2]
     defaults: *lab-dispatch
     steps: *device-steps
 
   retry-uc24-amd64:
-    name: uc24-amd64 (retry)
-    needs: [prepare, check]
+    name: ${{ matrix.platform }} on ${{ matrix.queue }} (retry)
+    needs: check
     if: ${{ !cancelled() && contains(needs.check.outputs.retry, '"uc24-amd64"') }}
     runs-on: self-hosted-linux-amd64-jammy-private-endpoint-medium
     timeout-minutes: 120
@@ -243,13 +199,13 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        queue: ${{ fromJSON(needs.check.outputs.retry)['uc24-amd64'] }}
+        include: [*uc24-amd64-1, *uc24-amd64-2]
     defaults: *lab-dispatch
     steps: *device-steps
 
   retry-uc24-arm64:
-    name: uc24-arm64 (retry)
-    needs: [prepare, check]
+    name: ${{ matrix.platform }} on ${{ matrix.queue }} (retry)
+    needs: check
     if: ${{ !cancelled() && contains(needs.check.outputs.retry, '"uc24-arm64"') }}
     runs-on: self-hosted-linux-amd64-jammy-private-endpoint-medium
     timeout-minutes: 120
@@ -257,7 +213,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        queue: ${{ fromJSON(needs.check.outputs.retry)['uc24-arm64'] }}
+        include: [*uc24-arm64-1, *uc24-arm64-2]
     defaults: *lab-dispatch
     steps: *device-steps
 
@@ -268,8 +224,16 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       actions: read
+      contents: read
     steps:
-      - *platform-results
+      - name: Checkout checkbox monorepo
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          persist-credentials: false
+      - name: Explain the result of each platform
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: python3 tools/lab_dispatch/canary_results.py result
 
   promote:
     name: Move the beta branch

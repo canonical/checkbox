@@ -150,6 +150,8 @@ def hw_acceleration_used(trace_text, profile, entrypoint):
 def run_ffmpeg(command, trace_prefix):
     """Run ffmpeg with libva tracing enabled and return the exit code."""
     env = dict(os.environ)
+    # Use the host libva/libav* rather than the Checkbox runtime copies.
+    env.pop("LD_LIBRARY_PATH", None)
     env["LIBVA_TRACE"] = trace_prefix
     print("+ {}".format(" ".join(command)))
     result = subprocess.run(

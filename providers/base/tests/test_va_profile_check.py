@@ -13,11 +13,12 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+import os
 from contextlib import redirect_stdout
 from io import StringIO
 from subprocess import STDOUT
 from unittest import TestCase
-from unittest.mock import patch
+from unittest.mock import ANY, patch
 
 from va_profile_check import (
     NAMESPACE,
@@ -126,7 +127,7 @@ class TestRunVainfo(TestCase):
             check_output_mock.return_value = VAINFO_OUTPUT
             self.assertEqual(run_vainfo(), VAINFO_OUTPUT)
         check_output_mock.assert_called_once_with(
-            ["vainfo"], universal_newlines=True, stderr=STDOUT
+            ["vainfo"], universal_newlines=True, stderr=STDOUT, env=ANY
         )
 
     def test_device_queries_drm_render_node(self):
@@ -136,7 +137,17 @@ class TestRunVainfo(TestCase):
             ["vainfo", "--display", "drm", "--device", "/dev/dri/renderD129"],
             universal_newlines=True,
             stderr=STDOUT,
+            env=ANY,
         )
+
+    def test_drops_ld_library_path(self):
+        with patch.dict(
+            os.environ, {"LD_LIBRARY_PATH": "/snap/x/lib", "FOO": "bar"}
+        ), patch("va_profile_check.check_output") as check_output_mock:
+            run_vainfo()
+        env = check_output_mock.call_args[1]["env"]
+        self.assertNotIn("LD_LIBRARY_PATH", env)
+        self.assertEqual(env["FOO"], "bar")
 
 
 class TestGetSupportedFeatures(TestCase):

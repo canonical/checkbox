@@ -15,7 +15,7 @@ before:
   - suspend/suspend_advanced_auto
 estimated_duration: "1.2"
 summary: Record the current resolution before suspending.
-command: "get_current_resolutions.py > \"$PLAINBOX_SESSION_SHARE\"/resolution_before_suspend.txt"
+command: "get_current_resolutions.py | tee \"$PLAINBOX_SESSION_SHARE\"/resolution_before_suspend.txt"
 ---
 unit: template
 template-resource: graphics_card

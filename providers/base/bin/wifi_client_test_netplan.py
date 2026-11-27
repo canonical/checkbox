@@ -348,14 +348,16 @@ def get_gateway(interface, renderer):
     return validated_gateway
 
 
-def perform_ping_test(interface, renderer):
+def perform_ping_test(interface, renderer, maximum_loss=0):
     target = get_gateway(interface, renderer)
+    # hard cap to 15%
+    maximum_loss = min(15, maximum_loss)
 
     if target:
-        count = 5
-        result = ping(target, interface, count, 10)
+        count = 20
+        result = ping(target, interface, count, 40)
         print(f"Ping result: {result}")
-        if result["received"] == result["transmitted"]:
+        if "cause" not in result and result["pct_loss"] <= maximum_loss:
             return True
 
     return False
@@ -450,6 +452,17 @@ def parse_args():
         default="AutoDetect",
     )
 
+    parser.add_argument(
+        "-l",
+        "--maximum-loss",
+        type=int,
+        help=(
+            "Set the maximum packet loss allowed to still be considered "
+            "successful (default %(default)s)."
+        ),
+        default=0,
+    )
+
     return parser.parse_args()
 
 
@@ -468,7 +481,9 @@ def handle_original_np_config():
 @contextmanager
 def handle_test_np_config(args):
     print_head("Generate a test netplan configuration")
-    config_data = generate_test_config(**vars(args))
+    data = vars(args).copy()
+    data.pop("maximum_loss")
+    config_data = generate_test_config(**data)
     print(config_data)
     print()
     write_test_config(config_data)
@@ -508,7 +523,9 @@ def main():
 
                 # Check connection by ping or link status
                 print_head("Perform a ping test")
-                test_result = perform_ping_test(args.interface, renderer)
+                test_result = perform_ping_test(
+                    args.interface, renderer, args.maximum_loss
+                )
                 if test_result:
                     print("Connection test passed\n")
                 else:

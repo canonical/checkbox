@@ -15,7 +15,7 @@ before:
   - suspend/suspend_advanced_auto
 estimated_duration: "1.2"
 summary: Record the current resolution before suspending.
-command: "xrandr -q | awk '/ connected/{c=$1} /\\*/{print c\": \"$1}' | sort > \"$PLAINBOX_SESSION_SHARE\"/resolution_before_suspend.txt"
+command: "set -o pipefail; get_current_resolutions.py | tee \"$PLAINBOX_SESSION_SHARE\"/resolution_before_suspend.txt"
 ---
 unit: template
 template-resource: graphics_card
@@ -31,7 +31,7 @@ before:
   - suspend/suspend_advanced_auto
 estimated_duration: "1.2"
 summary: Record the current resolution before suspending.
-command: "xrandr -q | awk '/ connected/{{c=$1}} /\\*/{{print c\": \"$1}}' | sort > \"$PLAINBOX_SESSION_SHARE\"/{index}_resolution_before_suspend.txt"
+command: "set -o pipefail; get_current_resolutions.py | tee \"$PLAINBOX_SESSION_SHARE\"/{index}_resolution_before_suspend.txt"
 ---
 plugin: shell
 category_id: com.canonical.plainbox::suspend
@@ -496,7 +496,7 @@ depends:
 estimated_duration: "1.2"
 purpose: Test to see that we have the same resolution after resuming as before.
 command:
-  "xrandr -q | awk '/ connected/{c=$1} /\\*/{print c\": \"$1}' | sort | diff \"$PLAINBOX_SESSION_SHARE\"/resolution_before_suspend.txt
+  "get_current_resolutions.py | diff \"$PLAINBOX_SESSION_SHARE\"/resolution_before_suspend.txt
   -"
 summary: Verify resolution consistency after resuming from suspension.
 ---
@@ -513,7 +513,7 @@ depends:
   - suspend/{index}_resolution_before_suspend_{product_slug}
 purpose: Test to see that we have the same resolution after resuming as before.
 command:
-  "xrandr -q | awk '/ connected/{{c=$1}} /\\*/{{print c\": \"$1}}' | sort | diff \"$PLAINBOX_SESSION_SHARE\"/{index}_resolution_before_suspend.txt
+  "get_current_resolutions.py | diff \"$PLAINBOX_SESSION_SHARE\"/{index}_resolution_before_suspend.txt
   -"
 summary: Ensure resolution remains consistent after resuming from suspend.
 ---

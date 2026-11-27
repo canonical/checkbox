@@ -9,6 +9,8 @@ JOBS = [
     {"name": "Wait for the edge packages", "conclusion": "success"},
     {"name": "uc22-amd64 on hp-1", "conclusion": "success"},
     {"name": "uc22-amd64 on hp-2", "conclusion": "failure"},
+    {"name": "uc24-amd64 on dell-1", "conclusion": "success"},
+    {"name": "uc24-amd64 on dell-2", "conclusion": "failure"},
     {"name": "uc24-arm64 on rpi4", "conclusion": "failure"},
     {"name": "uc24-arm64 on rpi400-arm64", "conclusion": "failure"},
     {"name": "Check if a retry is needed", "conclusion": "success"},
@@ -55,6 +57,25 @@ class CanaryResultsTests(unittest.TestCase):
         code, _, summary = self.run_stage("result", jobs)
         self.assertEqual(code, 1)
         self.assertIn("Rejected, no job passed in either attempt", summary)
+
+    def test_missing_platform_does_not_pass(self):
+        jobs = [
+            job for job in JOBS if not job["name"].startswith("uc24-arm64")
+        ]
+        code, output, summary = self.run_stage("check", jobs)
+        self.assertEqual(code, 0)
+        self.assertEqual(output, 'retry=["uc24-arm64"]\n')
+        self.assertIn("retrying both devices in 30 minutes", summary)
+        code, _, summary = self.run_stage("result", jobs)
+        self.assertEqual(code, 1)
+        self.assertIn("no job passed on uc24-arm64", summary)
+
+    def test_unknown_platform_fails_explicitly(self):
+        jobs = JOBS + [
+            {"name": "uc26-amd64 on device", "conclusion": "success"}
+        ]
+        with self.assertRaisesRegex(ValueError, "Unknown canary platform"):
+            self.run_stage("result", jobs)
 
 
 if __name__ == "__main__":

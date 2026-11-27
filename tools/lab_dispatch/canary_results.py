@@ -15,6 +15,8 @@ import os
 import subprocess
 import sys
 
+PLATFORMS = ("uc22-amd64", "uc24-amd64", "uc24-arm64")
+
 
 def get_jobs():
     """Return the name and conclusion of every job in the current run"""
@@ -34,20 +36,23 @@ def get_jobs():
 
 
 def main(stage):
-    queues = {}
-    passed = {}
+    queues = {platform: set() for platform in PLATFORMS}
+    passed = {platform: [] for platform in PLATFORMS}
+
+    # Collect each platform's devices and successful jobs.
     for job in get_jobs():
         words = job["name"].split()
         if len(words) < 2 or words[1] not in ("on", "(retry)"):
             continue
         platform = words[0]
-        queues.setdefault(platform, set())
-        passed.setdefault(platform, [])
+        if platform not in passed:
+            raise ValueError("Unknown canary platform: {}".format(platform))
         if words[1] == "on":
             queues[platform].add(words[2])
         if job["conclusion"] == "success":
             passed[platform].append(job["name"])
 
+    # Explain which platforms passed and which need a retry.
     failed = [platform for platform in sorted(passed) if not passed[platform]]
     summary = ["| Platform | Outcome |", "| --- | --- |"]
     for platform in sorted(passed):
@@ -60,7 +65,7 @@ def main(stage):
         elif stage == "check":
             level = "warning"
             outcome = "No job passed, retrying {} in 30 minutes".format(
-                " and ".join(sorted(queues[platform]))
+                " and ".join(sorted(queues[platform])) or "both devices"
             )
         else:
             level = "error"
@@ -68,6 +73,7 @@ def main(stage):
         print("::{} title={}::{}".format(level, platform, outcome))
         summary.append("| {} | {} |".format(platform, outcome))
 
+    # Accept only when every expected platform has a passing job.
     if stage == "result":
         if failed:
             message = "Canary rejected: no job passed on " + ", ".join(failed)
@@ -78,6 +84,7 @@ def main(stage):
         print("::{}::{}".format("error" if failed else "notice", message))
         summary.append("\n**{}.**".format(message))
 
+    # Publish the summary and the list of platforms to retry.
     with open(os.environ["GITHUB_STEP_SUMMARY"], "a") as f:
         f.write("\n".join(summary) + "\n")
     with open(os.environ["GITHUB_OUTPUT"], "a") as f:

@@ -61,15 +61,6 @@ categories classify them.
   :doc:`Setup job units <reference/units/setup_job>` •
   :doc:`RFC822 format <reference/units/rfc822>`
 
-Providers and custom frontends
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-Providers contain test units and their supporting files. Develop and test a provider locally and then package a custom frontend for a particular project.
-
-* **Integration**: :doc:`Side-load a provider <how-to/side-loading>`
-* **Packaging**: :doc:`Create a custom frontend <tutorial/custom_frontend>` •
-  :doc:`Custom frontend environment variables <how-to/custom-frontend-envvars>`
-* **Reference**: :doc:`Packaging metadata <reference/units/packaging-meta-data>`
 
 Running tests and remote control
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -110,6 +101,16 @@ prepare its results for submission.
 * **Generate**: :doc:`Customise report output <tutorial/using-checkbox/generate-report>` •
   :doc:`Exporter units <reference/units/exporter>`
 * **Submit**: :doc:`Submission schema <reference/submission-schema>`
+
+Providers and custom frontends
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Providers contain test units and their supporting files. Develop and test a provider locally and then package a custom frontend for a particular project.
+
+* **Integration**: :doc:`Side-load a provider <how-to/side-loading>`
+* **Packaging**: :doc:`Create a custom frontend <tutorial/custom_frontend>` •
+  :doc:`Custom frontend environment variables <how-to/custom-frontend-envvars>`
+* **Reference**: :doc:`Packaging metadata <reference/units/packaging-meta-data>`
 
 Checkbox maintenance and releases
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

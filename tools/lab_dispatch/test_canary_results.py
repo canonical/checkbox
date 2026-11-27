@@ -40,13 +40,8 @@ class CanaryResultsTests(unittest.TestCase):
 
     def test_result_accepts_when_every_platform_passed(self):
         jobs = JOBS + [
-            {"name": "uc24-arm64 on rpi4 (retry)", "conclusion": "success"},
-            # Skipped retry jobs are not expanded and keep the raw name
-            {
-                "name": "${{ matrix.platform }} on ${{ matrix.queue }} "
-                "(retry)",
-                "conclusion": "skipped",
-            },
+            {"name": "uc22-amd64 (retry)", "conclusion": "skipped"},
+            {"name": "uc24-arm64 (retry) (rpi4)", "conclusion": "success"},
         ]
         code, output, summary = self.run_stage("result", jobs)
         self.assertEqual(code, 0)
@@ -55,7 +50,7 @@ class CanaryResultsTests(unittest.TestCase):
 
     def test_result_rejects_when_a_platform_never_passed(self):
         jobs = JOBS + [
-            {"name": "uc24-arm64 on rpi4 (retry)", "conclusion": "failure"},
+            {"name": "uc24-arm64 (retry) (rpi4)", "conclusion": "failure"},
         ]
         code, _, summary = self.run_stage("result", jobs)
         self.assertEqual(code, 1)

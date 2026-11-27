@@ -2,8 +2,8 @@
 """
 Explain the result of each canary platform in the workflow run.
 
-Canary jobs are named "<platform> on <queue>", with " (retry)" appended for
-the retries. A platform passes if any of its jobs passed.
+Canary jobs are named "<platform> on <queue>" and retries
+"<platform> (retry) (<queue>)". A platform passes if any of its jobs passed.
 
 Usage: canary_results.py check|result
 - check: output the platforms where no job passed, so they are retried
@@ -38,11 +38,13 @@ def main(stage):
     passed = {}
     for job in get_jobs():
         words = job["name"].split()
-        if len(words) < 3 or words[1] != "on":
+        if len(words) < 2 or words[1] not in ("on", "(retry)"):
             continue
-        platform, queue = words[0], words[2]
-        queues.setdefault(platform, set()).add(queue)
+        platform = words[0]
+        queues.setdefault(platform, set())
         passed.setdefault(platform, [])
+        if words[1] == "on":
+            queues[platform].add(words[2])
         if job["conclusion"] == "success":
             passed[platform].append(job["name"])
 

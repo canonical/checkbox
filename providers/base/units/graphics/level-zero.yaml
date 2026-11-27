@@ -33,7 +33,7 @@ command: |
     exit 1
   fi
 ---
-id: graphics/lz_core_test_affinity_helper
+id: graphics/lz_core_test_api_ltracing
 depends:
   - graphics/lz_gpu_avail
   - setup/install_level_zero_tests
@@ -41,16 +41,13 @@ category_id: com.canonical.plainbox::graphics
 flags:
   - simple
 user: root
-summary: Run test_affinity_helper from level-zero-tests (core)
+summary: Run test_api_ltracing from level-zero-tests (core)
 environ:
   - XDG_SESSION_TYPE
   - XDG_RUNTIME_DIR
 estimated_duration: 1m
-command: level-zero-tests.test test_affinity_helper
+command: level-zero-tests.test test_api_ltracing
 siblings:
-  - id: graphics/lz_core_test_api_ltracing
-    summary: Run test_api_ltracing from level-zero-tests (core)
-    command: level-zero-tests.test test_api_ltracing
   - id: graphics/lz_core_test_api_ltracing_dynamic
     summary: Run test_api_ltracing_dynamic from level-zero-tests (core)
     command: level-zero-tests.test test_api_ltracing_dynamic
@@ -81,21 +78,12 @@ siblings:
   - id: graphics/lz_core_test_debug_errors
     summary: Run test_debug_errors from level-zero-tests (core)
     command: level-zero-tests.test test_debug_errors
-  - id: graphics/lz_core_test_debug_errors_helper
-    summary: Run test_debug_errors_helper from level-zero-tests (core)
-    command: level-zero-tests.test test_debug_errors_helper
-  - id: graphics/lz_core_test_debug_helper
-    summary: Run test_debug_helper from level-zero-tests (core)
-    command: level-zero-tests.test test_debug_helper
   - id: graphics/lz_core_test_device
     summary: Run test_device from level-zero-tests (core)
     command: level-zero-tests.test test_device
   - id: graphics/lz_core_test_device_errors
     summary: Run test_device_errors from level-zero-tests (core)
     command: level-zero-tests.test test_device_errors
-  - id: graphics/lz_core_test_device_hierarchy_helper
-    summary: Run test_device_hierarchy_helper from level-zero-tests (core)
-    command: level-zero-tests.test test_device_hierarchy_helper
   - id: graphics/lz_core_test_driver
     summary: Run test_driver from level-zero-tests (core)
     command: level-zero-tests.test test_driver
@@ -120,9 +108,6 @@ siblings:
   - id: graphics/lz_core_test_fabric
     summary: Run test_fabric from level-zero-tests (core)
     command: level-zero-tests.test test_fabric
-  - id: graphics/lz_core_test_fabric_helper
-    summary: Run test_fabric_helper from level-zero-tests (core)
-    command: level-zero-tests.test test_fabric_helper
   - id: graphics/lz_core_test_fence
     summary: Run test_fence from level-zero-tests (core)
     command: level-zero-tests.test test_fence
@@ -132,9 +117,6 @@ siblings:
   - id: graphics/lz_core_test_image
     summary: Run test_image from level-zero-tests (core)
     command: level-zero-tests.test test_image
-  - id: graphics/lz_core_test_import_helper
-    summary: Run test_import_helper from level-zero-tests (core)
-    command: level-zero-tests.test test_import_helper
   - id: graphics/lz_core_test_init_sysman
     summary: Run test_init_sysman from level-zero-tests (core)
     command: level-zero-tests.test test_init_sysman
@@ -150,15 +132,9 @@ siblings:
   - id: graphics/lz_core_test_ipc
     summary: Run test_ipc from level-zero-tests (core)
     command: level-zero-tests.test test_ipc
-  - id: graphics/lz_core_test_ipc_event_helper
-    summary: Run test_ipc_event_helper from level-zero-tests (core)
-    command: level-zero-tests.test test_ipc_event_helper
   - id: graphics/lz_core_test_ipc_memory
     summary: Run test_ipc_memory from level-zero-tests (core)
     command: level-zero-tests.test test_ipc_memory
-  - id: graphics/lz_core_test_ipc_memory_helper
-    summary: Run test_ipc_memory_helper from level-zero-tests (core)
-    command: level-zero-tests.test test_ipc_memory_helper
   - id: graphics/lz_core_test_ipc_multidevice
     summary: Run test_ipc_multidevice from level-zero-tests (core)
     command: level-zero-tests.test test_ipc_multidevice
@@ -171,21 +147,6 @@ siblings:
   - id: graphics/lz_core_test_ipc_put_handle
     summary: Run test_ipc_put_handle from level-zero-tests (core)
     command: level-zero-tests.test test_ipc_put_handle
-  - id: graphics/lz_core_test_ipc_put_handle_helper
-    summary: Run test_ipc_put_handle_helper from level-zero-tests (core)
-    command: level-zero-tests.test test_ipc_put_handle_helper
-  - id: graphics/lz_core_test_ltracing_compat_ipc_event_helper
-    summary: Run test_ltracing_compat_ipc_event_helper from level-zero-tests (core)
-    command: level-zero-tests.test test_ltracing_compat_ipc_event_helper
-  - id: graphics/lz_core_test_ltracing_compat_ipc_event_helper_dynamic
-    summary: Run test_ltracing_compat_ipc_event_helper_dynamic from level-zero-tests (core)
-    command: level-zero-tests.test test_ltracing_compat_ipc_event_helper_dynamic
-  - id: graphics/lz_core_test_ltracing_ipc_event_helper
-    summary: Run test_ltracing_ipc_event_helper from level-zero-tests (core)
-    command: level-zero-tests.test test_ltracing_ipc_event_helper
-  - id: graphics/lz_core_test_ltracing_ipc_event_helper_dynamic
-    summary: Run test_ltracing_ipc_event_helper_dynamic from level-zero-tests (core)
-    command: level-zero-tests.test test_ltracing_ipc_event_helper_dynamic
   - id: graphics/lz_core_test_memory
     summary: Run test_memory from level-zero-tests (core)
     command: level-zero-tests.test test_memory
@@ -201,9 +162,6 @@ siblings:
   - id: graphics/lz_core_test_metric_errors
     summary: Run test_metric_errors from level-zero-tests (core)
     command: level-zero-tests.test test_metric_errors
-  - id: graphics/lz_core_test_metric_helper
-    summary: Run test_metric_helper from level-zero-tests (core)
-    command: level-zero-tests.test test_metric_helper
   - id: graphics/lz_core_test_module
     summary: Run test_module from level-zero-tests (core)
     command: level-zero-tests.test test_module
@@ -222,15 +180,9 @@ siblings:
   - id: graphics/lz_core_test_p2p
     summary: Run test_p2p from level-zero-tests (core)
     command: level-zero-tests.test test_p2p
-  - id: graphics/lz_core_test_pci_device_order_helper
-    summary: Run test_pci_device_order_helper from level-zero-tests (core)
-    command: level-zero-tests.test test_pci_device_order_helper
   - id: graphics/lz_core_test_pin
     summary: Run test_pin from level-zero-tests (core)
     command: level-zero-tests.test test_pin
-  - id: graphics/lz_core_test_process_helper
-    summary: Run test_process_helper from level-zero-tests (core)
-    command: level-zero-tests.test test_process_helper
   - id: graphics/lz_core_test_residency
     summary: Run test_residency from level-zero-tests (core)
     command: level-zero-tests.test test_residency
@@ -252,15 +204,6 @@ siblings:
   - id: graphics/lz_core_test_sysman_device
     summary: Run test_sysman_device from level-zero-tests (core)
     command: level-zero-tests.test test_sysman_device
-  - id: graphics/lz_core_test_sysman_device_helper_zesinit
-    summary: Run test_sysman_device_helper_zesinit from level-zero-tests (core)
-    command: level-zero-tests.test test_sysman_device_helper_zesinit
-  - id: graphics/lz_core_test_sysman_device_hierarchy_helper
-    summary: Run test_sysman_device_hierarchy_helper from level-zero-tests (core)
-    command: level-zero-tests.test test_sysman_device_hierarchy_helper
-  - id: graphics/lz_core_test_sysman_device_hierarchy_helper_zesinit
-    summary: Run test_sysman_device_hierarchy_helper_zesinit from level-zero-tests (core)
-    command: level-zero-tests.test test_sysman_device_hierarchy_helper_zesinit
   - id: graphics/lz_core_test_sysman_device_zesinit
     summary: Run test_sysman_device_zesinit from level-zero-tests (core)
     command: level-zero-tests.test test_sysman_device_zesinit
@@ -416,7 +359,7 @@ summary: Checks for host Level Zero ICD loader required by level-zero-tests
 estimated_duration: 1s
 command: lz_host.py validate-install
 ---
-id: graphics/lz_classic_test_affinity_helper
+id: graphics/lz_classic_test_api_ltracing
 depends:
   - graphics/lz_classic_gpu_avail
   - graphics/lz_classic_lz_avail
@@ -425,16 +368,13 @@ category_id: com.canonical.plainbox::graphics
 flags:
   - simple
 user: root
-summary: Run test_affinity_helper from level-zero-tests (classic)
+summary: Run test_api_ltracing from level-zero-tests (classic)
 environ:
   - XDG_SESSION_TYPE
   - XDG_RUNTIME_DIR
 estimated_duration: 1m
-command: lz_host.py run-test test_affinity_helper
+command: lz_host.py run-test test_api_ltracing
 siblings:
-  - id: graphics/lz_classic_test_api_ltracing
-    summary: Run test_api_ltracing from level-zero-tests (classic)
-    command: lz_host.py run-test test_api_ltracing
   - id: graphics/lz_classic_test_api_ltracing_dynamic
     summary: Run test_api_ltracing_dynamic from level-zero-tests (classic)
     command: lz_host.py run-test test_api_ltracing_dynamic
@@ -465,21 +405,12 @@ siblings:
   - id: graphics/lz_classic_test_debug_errors
     summary: Run test_debug_errors from level-zero-tests (classic)
     command: lz_host.py run-test test_debug_errors
-  - id: graphics/lz_classic_test_debug_errors_helper
-    summary: Run test_debug_errors_helper from level-zero-tests (classic)
-    command: lz_host.py run-test test_debug_errors_helper
-  - id: graphics/lz_classic_test_debug_helper
-    summary: Run test_debug_helper from level-zero-tests (classic)
-    command: lz_host.py run-test test_debug_helper
   - id: graphics/lz_classic_test_device
     summary: Run test_device from level-zero-tests (classic)
     command: lz_host.py run-test test_device
   - id: graphics/lz_classic_test_device_errors
     summary: Run test_device_errors from level-zero-tests (classic)
     command: lz_host.py run-test test_device_errors
-  - id: graphics/lz_classic_test_device_hierarchy_helper
-    summary: Run test_device_hierarchy_helper from level-zero-tests (classic)
-    command: lz_host.py run-test test_device_hierarchy_helper
   - id: graphics/lz_classic_test_driver
     summary: Run test_driver from level-zero-tests (classic)
     command: lz_host.py run-test test_driver
@@ -504,9 +435,6 @@ siblings:
   - id: graphics/lz_classic_test_fabric
     summary: Run test_fabric from level-zero-tests (classic)
     command: lz_host.py run-test test_fabric
-  - id: graphics/lz_classic_test_fabric_helper
-    summary: Run test_fabric_helper from level-zero-tests (classic)
-    command: lz_host.py run-test test_fabric_helper
   - id: graphics/lz_classic_test_fence
     summary: Run test_fence from level-zero-tests (classic)
     command: lz_host.py run-test test_fence
@@ -516,9 +444,6 @@ siblings:
   - id: graphics/lz_classic_test_image
     summary: Run test_image from level-zero-tests (classic)
     command: lz_host.py run-test test_image
-  - id: graphics/lz_classic_test_import_helper
-    summary: Run test_import_helper from level-zero-tests (classic)
-    command: lz_host.py run-test test_import_helper
   - id: graphics/lz_classic_test_init_sysman
     summary: Run test_init_sysman from level-zero-tests (classic)
     command: lz_host.py run-test test_init_sysman
@@ -534,15 +459,9 @@ siblings:
   - id: graphics/lz_classic_test_ipc
     summary: Run test_ipc from level-zero-tests (classic)
     command: lz_host.py run-test test_ipc
-  - id: graphics/lz_classic_test_ipc_event_helper
-    summary: Run test_ipc_event_helper from level-zero-tests (classic)
-    command: lz_host.py run-test test_ipc_event_helper
   - id: graphics/lz_classic_test_ipc_memory
     summary: Run test_ipc_memory from level-zero-tests (classic)
     command: lz_host.py run-test test_ipc_memory
-  - id: graphics/lz_classic_test_ipc_memory_helper
-    summary: Run test_ipc_memory_helper from level-zero-tests (classic)
-    command: lz_host.py run-test test_ipc_memory_helper
   - id: graphics/lz_classic_test_ipc_multidevice
     summary: Run test_ipc_multidevice from level-zero-tests (classic)
     command: lz_host.py run-test test_ipc_multidevice
@@ -555,21 +474,6 @@ siblings:
   - id: graphics/lz_classic_test_ipc_put_handle
     summary: Run test_ipc_put_handle from level-zero-tests (classic)
     command: lz_host.py run-test test_ipc_put_handle
-  - id: graphics/lz_classic_test_ipc_put_handle_helper
-    summary: Run test_ipc_put_handle_helper from level-zero-tests (classic)
-    command: lz_host.py run-test test_ipc_put_handle_helper
-  - id: graphics/lz_classic_test_ltracing_compat_ipc_event_helper
-    summary: Run test_ltracing_compat_ipc_event_helper from level-zero-tests (classic)
-    command: lz_host.py run-test test_ltracing_compat_ipc_event_helper
-  - id: graphics/lz_classic_test_ltracing_compat_ipc_event_helper_dynamic
-    summary: Run test_ltracing_compat_ipc_event_helper_dynamic from level-zero-tests (classic)
-    command: lz_host.py run-test test_ltracing_compat_ipc_event_helper_dynamic
-  - id: graphics/lz_classic_test_ltracing_ipc_event_helper
-    summary: Run test_ltracing_ipc_event_helper from level-zero-tests (classic)
-    command: lz_host.py run-test test_ltracing_ipc_event_helper
-  - id: graphics/lz_classic_test_ltracing_ipc_event_helper_dynamic
-    summary: Run test_ltracing_ipc_event_helper_dynamic from level-zero-tests (classic)
-    command: lz_host.py run-test test_ltracing_ipc_event_helper_dynamic
   - id: graphics/lz_classic_test_memory
     summary: Run test_memory from level-zero-tests (classic)
     command: lz_host.py run-test test_memory
@@ -585,9 +489,6 @@ siblings:
   - id: graphics/lz_classic_test_metric_errors
     summary: Run test_metric_errors from level-zero-tests (classic)
     command: lz_host.py run-test test_metric_errors
-  - id: graphics/lz_classic_test_metric_helper
-    summary: Run test_metric_helper from level-zero-tests (classic)
-    command: lz_host.py run-test test_metric_helper
   - id: graphics/lz_classic_test_module
     summary: Run test_module from level-zero-tests (classic)
     command: lz_host.py run-test test_module
@@ -606,15 +507,9 @@ siblings:
   - id: graphics/lz_classic_test_p2p
     summary: Run test_p2p from level-zero-tests (classic)
     command: lz_host.py run-test test_p2p
-  - id: graphics/lz_classic_test_pci_device_order_helper
-    summary: Run test_pci_device_order_helper from level-zero-tests (classic)
-    command: lz_host.py run-test test_pci_device_order_helper
   - id: graphics/lz_classic_test_pin
     summary: Run test_pin from level-zero-tests (classic)
     command: lz_host.py run-test test_pin
-  - id: graphics/lz_classic_test_process_helper
-    summary: Run test_process_helper from level-zero-tests (classic)
-    command: lz_host.py run-test test_process_helper
   - id: graphics/lz_classic_test_residency
     summary: Run test_residency from level-zero-tests (classic)
     command: lz_host.py run-test test_residency
@@ -636,15 +531,6 @@ siblings:
   - id: graphics/lz_classic_test_sysman_device
     summary: Run test_sysman_device from level-zero-tests (classic)
     command: lz_host.py run-test test_sysman_device
-  - id: graphics/lz_classic_test_sysman_device_helper_zesinit
-    summary: Run test_sysman_device_helper_zesinit from level-zero-tests (classic)
-    command: lz_host.py run-test test_sysman_device_helper_zesinit
-  - id: graphics/lz_classic_test_sysman_device_hierarchy_helper
-    summary: Run test_sysman_device_hierarchy_helper from level-zero-tests (classic)
-    command: lz_host.py run-test test_sysman_device_hierarchy_helper
-  - id: graphics/lz_classic_test_sysman_device_hierarchy_helper_zesinit
-    summary: Run test_sysman_device_hierarchy_helper_zesinit from level-zero-tests (classic)
-    command: lz_host.py run-test test_sysman_device_hierarchy_helper_zesinit
   - id: graphics/lz_classic_test_sysman_device_zesinit
     summary: Run test_sysman_device_zesinit from level-zero-tests (classic)
     command: lz_host.py run-test test_sysman_device_zesinit

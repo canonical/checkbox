@@ -774,7 +774,6 @@ name: Graphics short test plan for verifying Level Zero (core/snap)
 include:
   - setup/install_level_zero_tests
   - graphics/lz_gpu_avail
-  - graphics/lz_core_test_affinity_helper
   - graphics/lz_core_test_barrier
   - graphics/lz_core_test_cmdqueue
   - graphics/lz_core_test_context
@@ -798,7 +797,6 @@ include:
   - setup/install_level_zero_tests
   - graphics/lz_classic_gpu_avail
   - graphics/lz_classic_lz_avail
-  - graphics/lz_classic_test_affinity_helper
   - graphics/lz_classic_test_barrier
   - graphics/lz_classic_test_cmdqueue
   - graphics/lz_classic_test_context

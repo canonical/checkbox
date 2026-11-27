@@ -11,21 +11,20 @@ calculator() {
 }
 
 if [ -x /usr/bin/fastrpc_test ]; then
-    use_fastrpc_test=true
+    # On resolute, the fastrpc_test binary is available in fastrpc-test deb.
     cmd_name=fastrpc_test
+elif command -v fastrpc_test.calculator > /dev/null 2>&1; then
+    # Ubuntu Core ships the calculator test in fastrpc_test snap.
+    cmd_name=fastrpc_test.calculator
 else
-    use_fastrpc_test=false
+    # On noble, calculator bin is used directly.
     cmd_name=calculator
 fi
 
 exit_code=0
 while [ "${#}" -ne 0 ]; do
     printf 'Testing: %s -d %s -U %s\n' "${cmd_name}" "${1%:*}" "${1#*:}"
-    if "${use_fastrpc_test}"; then
-        fastrpc_test -d "${1%:*}" -U "${1#*:}" || exit_code=1
-    else
-        calculator -d "${1%:*}" -U "${1#*:}" || exit_code=1
-    fi
+    "${cmd_name}" -d "${1%:*}" -U "${1#*:}" || exit_code=1
     shift
 done
 exit "${exit_code}"

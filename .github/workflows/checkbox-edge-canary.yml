@@ -4,11 +4,7 @@ permissions:
   contents: read
 
 on:
-  # zizmor: ignore[dangerous-triggers] only runs trusted code from main
-  workflow_run:
-    workflows: [Daily builds]
-    types: [completed]
-    branches: [main]
+  # Dispatched by Daily builds once every build has passed
   workflow_dispatch:
     inputs:
       promote:
@@ -23,7 +19,6 @@ concurrency:
 jobs:
   prepare:
     name: Wait for the edge packages
-    if: github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success'
     runs-on: ubuntu-latest
     timeout-minutes: 320
     outputs:
@@ -38,14 +33,16 @@ jobs:
       - name: Get the edge version
         id: version
         env:
-          MANUAL: ${{ github.event_name == 'workflow_dispatch' }}
+          # Only skip a version already in beta when promoting, a manual
+          # run without promotion always tests edge
+          PROMOTE: ${{ inputs.promote }}
         run: |
           git clone --depth 1 https://github.com/canonical/hwcert-jenkins-tools
           VERSION=$(python3 hwcert-jenkins-tools/version-published/get_snap_store_version.py checkbox edge)
           git checkout -q origin/beta
           BETA_VERSION=$(python3 tools/release/get_version.py --dev --output-format=snap 2>/dev/null)
           echo "Edge: $VERSION, beta: $BETA_VERSION"
-          if [ "$VERSION" != "$BETA_VERSION" ] || [ "$MANUAL" = "true" ]; then
+          if [ "$VERSION" != "$BETA_VERSION" ] || [ "$PROMOTE" != "true" ]; then
             RUN=true
           else
             RUN=false
@@ -75,7 +72,7 @@ jobs:
     continue-on-error: true
     strategy:
       fail-fast: false
-      # Two devices per platform, the anchors are reused by the retry jobs
+      # Keep platforms in sync with canary_results.py; anchors are reused by retries
       matrix:
         include:
           - platform: uc22-amd64
@@ -246,21 +243,34 @@ jobs:
   promote:
     name: Move the beta branch
     needs: [prepare, result]
-    if: ${{ !cancelled() && needs.result.result == 'success' && (github.event_name == 'workflow_run' || inputs.promote) }}
+    if: ${{ !cancelled() && needs.result.result == 'success' && inputs.promote }}
     runs-on: ubuntu-latest
+    permissions:
+      contents: write # to move the beta branch
+      actions: write # to start the beta release workflow
     steps:
-      # Pushing with a deploy key (unlike GITHUB_TOKEN) triggers the beta
-      # release workflow
       - name: Checkout checkbox monorepo
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
         with:
           fetch-depth: 0
-          ssh-key: ${{ secrets.CHECKBOX_BETA_DEPLOY_KEY }}
-          persist-credentials: true # zizmor: ignore[artipacked] used to push
-      - name: Move the beta branch to the tested version
+          persist-credentials: false
+      - name: Get the tested revision
+        id: revision
         env:
           VERSION: ${{ needs.prepare.outputs.version }}
         run: |
           git clone --depth 1 https://github.com/canonical/hwcert-jenkins-tools
-          python3 hwcert-jenkins-tools/version-published/move_branch_by_version.py \
-            . beta "$VERSION"
+          REVISION=$(PYTHONPATH=hwcert-jenkins-tools/version-published python3 -c \
+            'import sys, snap_info_utility as s; print(s.get_revision_at_offset(sys.argv[1], "."))' \
+            "$VERSION" | tail -n 1)
+          echo "revision=$REVISION" >> "$GITHUB_OUTPUT"
+      # A branch moved with GITHUB_TOKEN does not trigger workflows, so the
+      # beta release workflow is started explicitly
+      - name: Move the beta branch and start the beta release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          REVISION: ${{ steps.revision.outputs.revision }}
+        run: |
+          gh api -X PATCH "repos/$GH_REPO/git/refs/heads/beta" -f sha="$REVISION"
+          gh workflow run checkbox-beta-release.yml --ref beta

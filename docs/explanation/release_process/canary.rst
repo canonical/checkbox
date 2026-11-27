@@ -33,16 +33,18 @@ Once the build is successful, the snap packages are automatically pushed to the 
 Canary workflow
 ---------------
 
-When the ``Daily builds`` workflow succeeds on ``main``, the
+When every job of the ``Daily builds`` workflow succeeds on ``main``, including
+after its failed jobs are re-run, its last job starts the
 `Checkbox edge canary workflow <https://github.com/canonical/checkbox/actions/workflows/checkbox-edge-canary.yml>`_
-starts. It can also be started manually; a manual run only moves the ``beta``
-branch when its ``promote`` input is set.
+with its ``promote`` input set. It can also be started manually; a manual run
+only moves the ``beta`` branch when its ``promote`` input is set.
 
 Waiting for the packages
 ^^^^^^^^^^^^^^^^^^^^^^^^
 
 The workflow reads the Checkbox version in the edge channel of the Snap Store.
-If the ``beta`` branch is already at that version, there is nothing to test.
+If the ``beta`` branch is already at that version, there is nothing to promote,
+so a run with ``promote`` set stops there.
 Otherwise, the workflow waits up to five hours for all the snaps and Debian
 packages of that version to be published.
 
@@ -77,8 +79,8 @@ Outcome and information propagation
 -----------------------------------
 
 Should the validation pass on all three platforms, the ``beta`` branch in the
-Checkbox repository is moved to the revision that got validated. The push
-starts the beta release workflow, which promotes the edge packages to beta.
+Checkbox repository is moved to the revision that got validated, and the beta
+release workflow is started to promote the edge packages to beta.
 
 Conclusion
 ----------

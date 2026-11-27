@@ -24,5 +24,5 @@ GitHub workflow. It has these jobs:
    one job passed on each platform, in either attempt, and lists the passing
    jobs of each platform.
 6. **Move the beta branch**: runs only if the canary passed on all platforms.
-   It moves ``beta`` to the validated revision with a deploy key, so the push
-   triggers the beta release workflow.
+   It moves ``beta`` to the validated revision and starts the beta release
+   workflow.

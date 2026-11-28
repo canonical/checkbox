@@ -91,8 +91,10 @@ class BtManager:
 
         Note that this function returns objects corresponding to BT devices
         that were seen last time scanning was done."""
-        for device in self._get_objects_by_iface(DEVICE_IFACE):
-            obj = self.get_object_by_path(device.object_path)[DEVICE_IFACE]
+        for path, ifaces in self._manager.GetManagedObjects().items():
+            if DEVICE_IFACE not in ifaces:
+                continue
+            obj = ifaces[DEVICE_IFACE]
             try:
                 if category != BT_ANY:
                     if obj["Class"] != category:
@@ -104,14 +106,15 @@ class BtManager:
                         break
                 if rejected:
                     continue
-                yield BtDevice(dbus.Interface(device, DEVICE_IFACE), self)
             except KeyError as exc:
                 logger.info(
                     "Property %s not found on device %s",
                     exc,
-                    device.object_path,
+                    path,
                 )
                 continue
+            device = self.get_proxy_by_path(path)
+            yield BtDevice(dbus.Interface(device, DEVICE_IFACE), self, obj)
 
     def get_prop_iface(self, obj):
         return dbus.Interface(
@@ -204,11 +207,13 @@ class BtAdapter:
 
 
 class BtDevice:
-    def __init__(self, dbus_iface, bt_mgr):
+    def __init__(self, dbus_iface, bt_mgr, properties=None):
         self._if = dbus_iface
-        self._obj = bt_mgr.get_object_by_path(self._if.object_path)[
-            DEVICE_IFACE
-        ]
+        if properties is None:
+            properties = bt_mgr.get_object_by_path(self._if.object_path)[
+                DEVICE_IFACE
+            ]
+        self._obj = properties
         self._bt_mgr = bt_mgr
         self._prop_if = bt_mgr.get_prop_iface(dbus_iface)
         self._pair_outcome = None
@@ -219,6 +224,17 @@ class BtDevice:
     def __repr__(self):
         return f"<BtDevice name:{self.name}, address:{self.address}>"
 
+    def _raise_if_device_gone(self, error):
+        if (
+            isinstance(error, dbus.exceptions.DBusException)
+            and error.get_dbus_name()
+            == "org.freedesktop.DBus.Error.UnknownObject"
+        ):
+            raise BtException(
+                f"{self} is no longer available. Put it in pairing mode "
+                "and scan again."
+            ) from error
+
     def pair(self):
         """Pair the device.
 
@@ -226,12 +242,17 @@ class BtDevice:
         is paired, error occured or default timeout elapsed (whichever comes
         first).
         """
-        self._prop_if.Set(DEVICE_IFACE, "Trusted", True)
-        self._if.Pair(
-            reply_handler=self._pair_ok, error_handler=self._pair_error
-        )
+        try:
+            self._prop_if.Set(DEVICE_IFACE, "Trusted", True)
+            self._if.Pair(
+                reply_handler=self._pair_ok, error_handler=self._pair_error
+            )
+        except dbus.exceptions.DBusException as exc:
+            self._raise_if_device_gone(exc)
+            raise
         self._bt_mgr.wait()
         if self._pair_outcome:
+            self._raise_if_device_gone(self._pair_outcome)
             raise BtException(self._pair_outcome)
         try:
             self._if.Connect()

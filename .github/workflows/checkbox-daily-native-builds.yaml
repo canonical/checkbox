@@ -46,10 +46,11 @@ jobs:
     runs-on:
       group: "Canonical self-hosted runners"
       labels: ["self-hosted", "linux", "large", "${{ matrix.tag }}", "noble"]
-    timeout-minutes: 360 # 6h overall job cap
+    timeout-minutes: 480 # 8h overall job cap, same as the deb builds
     name: Runtime ${{ matrix.release }}  (${{matrix.arch}})
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        timeout-minutes: 10 # git fetch has hung for hours
         with:
           fetch-depth: 0
           persist-credentials: false
@@ -81,11 +82,20 @@ jobs:
       - id: snap_build
         uses: Wandalen/wretry.action@df981d2bb22b26b5b23754bb516d0de8c1bfbbec
         name: Build the snap
-        timeout-minutes: 360 # 6h step cap; the job has the same overall limit
+        # Retries fast failures here. A hang fails the job, so that it is
+        # re-run on a fresh runner by daily-builds-rerun.yml
+        timeout-minutes: 240
         with:
           action: snapcore/action-build@v1.3.0
           attempt_delay: 600000 # 10min
           attempt_limit: 5
+          # A failed build (e.g. a network error) can leave a broken LXD
+          # instance that every retry would reuse, so remove it first
+          pre_retry_command: |
+            cd checkbox-core-snap/series${{ matrix.release }}
+            # Same user as action-build, so that the cleanup has the LXD
+            # group it added and finds the build instance it created
+            sudo -u "$(id -un)" -E snapcraft clean --use-lxd || true
           with: |
             path: checkbox-core-snap/series${{ matrix.release }}
             snapcraft-channel: ${{ matrix.snapcraft_version }}
@@ -106,22 +116,36 @@ jobs:
         with:
           name: checkbox${{ matrix.release }}_${{ matrix.arch }}
           path: ${{ steps.snap_build.outputs.snap }}
+          overwrite: true # the job may be re-run by daily-builds-rerun.yml
 
       - name: Refresh snapcraft to latest/stable
-        run: |
-          # some versions of snapcraft (6.x for now) fail to upload to the
-          # store, also, there is no reason to use an old snapcraft version
-          # to publish
-          sudo snap refresh snapcraft --channel=latest/stable
+        uses: Wandalen/wretry.action@df981d2bb22b26b5b23754bb516d0de8c1bfbbec
+        with:
+          attempt_limit: 3
+          attempt_delay: 60000 # 1min between attempts
+          command: |
+            # some versions of snapcraft (6.x for now) fail to upload to the
+            # store, also, there is no reason to use an old snapcraft version
+            # to publish
+            refresh_command=(sudo snap refresh snapcraft --channel=latest/stable)
+            timeout --kill-after=1m 10m "${refresh_command[@]}"
 
       - name: Publish track
         if: inputs.store_upload
-        uses: canonical/action-publish@214b86e5ca036ead1668c79afb81e550e6c54d40
+        uses: Wandalen/wretry.action@df981d2bb22b26b5b23754bb516d0de8c1bfbbec
+        timeout-minutes: 100
         env:
           SNAPCRAFT_STORE_CREDENTIALS: ${{ secrets.SNAPCRAFT7_CREDS }}
+          SNAP_FILE: ${{ steps.snap_build.outputs.snap }}
+          CHANNELS: latest/edge
         with:
-          snap: ${{ steps.snap_build.outputs.snap }}
-          release: latest/edge
+          attempt_limit: 3
+          attempt_delay: 60000 # 1min between attempts
+          command: |
+            # A retry after the upload reached the store is rejected as a
+            # duplicate; the job is then re-run with a new build instead
+            publish_command=(snapcraft upload "$SNAP_FILE" --release "$CHANNELS")
+            timeout --kill-after=1m 30m "${publish_command[@]}"
 
   snap_frontend_native:
     strategy:
@@ -149,10 +173,11 @@ jobs:
     runs-on:
       group: "Canonical self-hosted runners"
       labels: ["self-hosted", "linux", "large", "${{ matrix.tag }}", "noble"]
-    timeout-minutes: 360 # 6h overall job cap
+    timeout-minutes: 480 # 8h overall job cap, same as the deb builds
     name: Frontend ${{ matrix.type }}${{ matrix.release }} (${{matrix.arch}})
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        timeout-minutes: 10 # git fetch has hung for hours
         with:
           fetch-depth: 0
           persist-credentials: false
@@ -184,11 +209,20 @@ jobs:
       - id: snap_build
         uses: Wandalen/wretry.action@df981d2bb22b26b5b23754bb516d0de8c1bfbbec
         name: Building the snaps
-        timeout-minutes: 360 # 6h step cap; the job has the same overall limit
+        # Retries fast failures here. A hang fails the job, so that it is
+        # re-run on a fresh runner by daily-builds-rerun.yml
+        timeout-minutes: 240
         with:
           action: snapcore/action-build@v1.3.0
           attempt_delay: 600000 # 10min
           attempt_limit: 5
+          # A failed build (e.g. a network error) can leave a broken LXD
+          # instance that every retry would reuse, so remove it first
+          pre_retry_command: |
+            cd checkbox-snap/series_${{ matrix.type }}${{ matrix.release }}
+            # Same user as action-build, so that the cleanup has the LXD
+            # group it added and finds the build instance it created
+            sudo -u "$(id -un)" -E snapcraft clean --use-lxd || true
           with: |
             path: checkbox-snap/series_${{ matrix.type }}${{ matrix.release }}
             snapcraft-channel: ${{ matrix.snapcraft_version }}
@@ -209,31 +243,53 @@ jobs:
         with:
           name: series_${{ matrix.type }}${{ matrix.release }}${{ matrix.arch }}
           path: ${{ steps.snap_build.outputs.snap }}
+          overwrite: true # the job may be re-run by daily-builds-rerun.yml
 
       - name: Refresh snapcraft to latest/stable
-        run: |
-          # some versions of snapcraft (6.x for now) fail to upload to the
-          # store, also, there is no reason to use an old snapcraft version
-          # to publish
-          sudo snap refresh snapcraft --channel=latest/stable
+        uses: Wandalen/wretry.action@df981d2bb22b26b5b23754bb516d0de8c1bfbbec
+        with:
+          attempt_limit: 3
+          attempt_delay: 60000 # 1min between attempts
+          command: |
+            # some versions of snapcraft (6.x for now) fail to upload to the
+            # store, also, there is no reason to use an old snapcraft version
+            # to publish
+            refresh_command=(sudo snap refresh snapcraft --channel=latest/stable)
+            timeout --kill-after=1m 10m "${refresh_command[@]}"
 
       - name: Publish track
         # this is done this way because the store doesn't allow the same artifact to be uploaded twice
         if: inputs.store_upload && (matrix.release != 24 || matrix.type != 'classic')
-        uses: canonical/action-publish@214b86e5ca036ead1668c79afb81e550e6c54d40
+        uses: Wandalen/wretry.action@df981d2bb22b26b5b23754bb516d0de8c1bfbbec
+        timeout-minutes: 100
         env:
           SNAPCRAFT_STORE_CREDENTIALS: ${{ secrets.SNAPCRAFT7_CREDS }}
-        with:
-          snap: ${{ steps.snap_build.outputs.snap }}
+          SNAP_FILE: ${{ steps.snap_build.outputs.snap }}
           # channel is ucXX for uc snaps and XX.04 for classic snaps
-          release: ${{ matrix.type == 'uc' && format('uc{0}', matrix.release) || format('{0}.04', matrix.release) }}/edge
+          CHANNELS: ${{ matrix.type == 'uc' && format('uc{0}', matrix.release) || format('{0}.04', matrix.release) }}/edge
+        with:
+          attempt_limit: 3
+          attempt_delay: 60000 # 1min between attempts
+          command: |
+            # A retry after the upload reached the store is rejected as a
+            # duplicate; the job is then re-run with a new build instead
+            publish_command=(snapcraft upload "$SNAP_FILE" --release "$CHANNELS")
+            timeout --kill-after=1m 30m "${publish_command[@]}"
 
       - name: Publish track + latest
         if: inputs.store_upload && matrix.release == 24 && matrix.type == 'classic'
-        uses: canonical/action-publish@214b86e5ca036ead1668c79afb81e550e6c54d40
+        uses: Wandalen/wretry.action@df981d2bb22b26b5b23754bb516d0de8c1bfbbec
+        timeout-minutes: 100
         env:
           SNAPCRAFT_STORE_CREDENTIALS: ${{ secrets.SNAPCRAFT7_CREDS }}
-        with:
-          snap: ${{ steps.snap_build.outputs.snap }}
+          SNAP_FILE: ${{ steps.snap_build.outputs.snap }}
           # classic 24.04 is published to latest/edge as well
-          release: 24.04/edge,latest/edge
+          CHANNELS: 24.04/edge,latest/edge
+        with:
+          attempt_limit: 3
+          attempt_delay: 60000 # 1min between attempts
+          command: |
+            # A retry after the upload reached the store is rejected as a
+            # duplicate; the job is then re-run with a new build instead
+            publish_command=(snapcraft upload "$SNAP_FILE" --release "$CHANNELS")
+            timeout --kill-after=1m 30m "${publish_command[@]}"

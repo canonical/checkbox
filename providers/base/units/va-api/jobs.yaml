@@ -15,14 +15,8 @@ command: vainfo && exit 0 || exit 1
 id: va-api/vainfo
 summary: List the VA-API codec profiles and entrypoints advertised by the driver
 category_id: va-api
-imports:
-  - from com.canonical.plainbox import manifest
-requires:
-  - executable.name == 'vainfo'
-  - cpuinfo.platform == 'x86_64'
-  - manifest.has_va_api == 'True'
 plugin: resource
-command: va_profile_check.py resource
+command: resource_wrapper.sh -- va_profile_check.py resource
 ---
 unit: template
 template-resource: va-api/vainfo

@@ -3,6 +3,7 @@ from unittest.mock import patch, MagicMock
 import urwid
 from checkbox_ng.urwid_ui import (
     CategoryBrowser,
+    GoBack,
     ManifestBrowser,
     ReRunBrowser,
     TestPlanBrowser,
@@ -214,6 +215,82 @@ class TestManifestBrowser(unittest.TestCase):
             "hidden2": "hidden_2",
         }
         self.assertEqual(result, expected)
+
+    def test_unhandled_input_back_key(self):
+        browser = ManifestBrowser("Test", {})
+        with self.assertRaises(urwid.ExitMainLoop):
+            browser.unhandled_input("b")
+        self.assertTrue(browser._go_back)
+
+    @patch("checkbox_ng.urwid_ui.urwid.MainLoop")
+    def test_run_raises_go_back(self, mock_mainloop):
+        browser = ManifestBrowser("Test", {})
+        browser._go_back = True
+        with self.assertRaises(GoBack):
+            browser.run()
+
+
+class TestCategoryBrowserSelection(unittest.TestCase):
+
+    TESTS = [
+        {
+            "id": "com.canonical::category1/job1",
+            "partial_id": "job1",
+            "name": "Job 1",
+            "category_id": "category1",
+            "category_name": "Category 1",
+            "automated": "automated",
+            "duration": "10",
+            "description": "A job",
+        },
+        {
+            "id": "com.canonical::category1/job2",
+            "partial_id": "job2",
+            "name": "Job 2",
+            "category_id": "category1",
+            "category_name": "Category 1",
+            "automated": "automated",
+            "duration": "10",
+            "description": "Another job",
+        },
+    ]
+
+    @patch("checkbox_ng.urwid_ui.urwid.MainLoop")
+    def test_unhandled_input_back_key(self, mock_mainloop):
+        browser = CategoryBrowser("Test", self.TESTS)
+        browser.loop = MagicMock()
+        browser.loop.widget = browser.view
+        with self.assertRaises(urwid.ExitMainLoop):
+            browser.unhandled_input("b")
+        self.assertTrue(browser._go_back)
+
+    @patch("checkbox_ng.urwid_ui.urwid.MainLoop")
+    def test_run_raises_go_back(self, mock_mainloop):
+        browser = CategoryBrowser("Test", self.TESTS)
+        browser._go_back = True
+        with self.assertRaises(GoBack):
+            browser.run()
+
+    @patch("checkbox_ng.urwid_ui.urwid.MainLoop")
+    def test_default_selection_is_everything(self, mock_mainloop):
+        browser = CategoryBrowser("Test", self.TESTS)
+        self.assertEqual(
+            browser.run(),
+            frozenset(
+                {
+                    "com.canonical::category1/job1",
+                    "com.canonical::category1/job2",
+                }
+            ),
+        )
+
+    @patch("checkbox_ng.urwid_ui.urwid.MainLoop")
+    def test_selection_is_restored(self, mock_mainloop):
+        # Reopening the screen with a previous selection keeps only the
+        # jobs that were selected before.
+        kept = {"com.canonical::category1/job1"}
+        browser = CategoryBrowser("Test", self.TESTS, kept)
+        self.assertEqual(browser.run(), frozenset(kept))
 
 
 if __name__ == "__main__":

@@ -73,6 +73,7 @@ from checkbox_ng.launcher.run import Action
 from checkbox_ng.launcher.run import NormalUI
 from checkbox_ng.resume_menu import ResumeMenu
 from checkbox_ng.urwid_ui import CategoryBrowser
+from checkbox_ng.urwid_ui import GoBack
 from checkbox_ng.urwid_ui import ManifestBrowser
 from checkbox_ng.urwid_ui import ReRunBrowser
 from checkbox_ng.urwid_ui import ResumeInstead
@@ -260,12 +261,21 @@ class Launcher(MainLoopStage, ReportsStage):
             self.resume_candidates = list(ctx.sa.get_resumable_sessions())
             if not self._auto_resume_session(self.resume_candidates):
                 something_got_chosen = False
+                self._selected_test_plan = None
                 ctx.sa.use_alternate_configuration(self.configuration)
                 self._start_new_session()
                 while not something_got_chosen:
                     try:
                         self._select_test_plan_and_continue()
-                        self._pick_jobs_to_run()
+                        try:
+                            self._pick_jobs_to_run()
+                        except GoBack:
+                            # operator asked to return to the test plan
+                            # selection; the current session has already been
+                            # bootstrapped, so abandon it and start fresh
+                            self.sa.finalize_session()
+                            self._start_new_session()
+                            continue
                         something_got_chosen = True
                     except ResumeInstead:
                         # if resume is done, the old session will be finalized
@@ -695,6 +705,7 @@ class Launcher(MainLoopStage, ReportsStage):
             tp_id = self._interactively_pick_test_plan()
             if tp_id is None:
                 raise SystemExit(_("No test plan selected."))
+        self._selected_test_plan = tp_id
         self.sa.select_test_plan(tp_id)
         description = self.ctx.args.message or self.configuration.get_value(
             "launcher", "session_desc"
@@ -726,7 +737,8 @@ class Launcher(MainLoopStage, ReportsStage):
         selected_tp = TestPlanBrowser(
             _("Select test plan"),
             tp_info_list,
-            self.configuration.get_value("test plan", "unit"),
+            self._selected_test_plan
+            or self.configuration.get_value("test plan", "unit"),
             len(self.resume_candidates),
         ).run()
         return selected_tp
@@ -761,32 +773,45 @@ class Launcher(MainLoopStage, ReportsStage):
                 self._save_manifest(interactive=False)
             # by default all tests are selected; so we're done here
             return
-        job_list = [
-            self.sa.get_job(job_id)
-            for job_id in self.sa.get_static_todo_list()
-        ]
+        displayed_job_ids = self.sa.get_static_todo_list()
+        job_list = [self.sa.get_job(job_id) for job_id in displayed_job_ids]
         if not job_list:
             print(self.C.RED(_("There were no tests to select from!")))
             return
         test_info_list = self._generate_job_infos(job_list)
-        wanted_set = CategoryBrowser(
-            _("Choose tests to run on your system:"), test_info_list
-        ).run()
-        # no need to set an alternate selection if the job list has not changed
-        if len(test_info_list) != len(wanted_set):
-            # NOTE: tree.selection is correct but ordered badly. To retain
-            # the original ordering we should just treat it as a mask and
-            # use it to filter jobs from get_static_todo_list.
-            job_id_list = [
-                job_id
-                for job_id in self.sa.get_static_todo_list()
-                if job_id in wanted_set
-            ]
-            self.sa.use_alternate_selection(job_id_list)
-        # Save the manifest only after the alternate selection has been
-        # applied, so the manifest prompts cover the jobs the user kept
-        # rather than the whole test plan.
-        self._save_manifest(interactive=True)
+        selection = None
+        while True:
+            wanted_set = CategoryBrowser(
+                _("Choose tests to run on your system:"),
+                test_info_list,
+                selection,
+            ).run()
+            # no need to set an alternate selection if the job list has not
+            # changed
+            if len(test_info_list) != len(wanted_set):
+                # NOTE: tree.selection is correct but ordered badly. To retain
+                # the original ordering we should just treat it as a mask and
+                # use it to filter jobs from get_static_todo_list.
+                job_id_list = [
+                    job_id
+                    for job_id in self.sa.get_static_todo_list()
+                    if job_id in wanted_set
+                ]
+                self.sa.use_alternate_selection(job_id_list)
+            # Save the manifest only after the alternate selection has been
+            # applied, so the manifest prompts cover the jobs the user kept
+            # rather than the whole test plan.
+            try:
+                self._save_manifest(interactive=True)
+            except GoBack:
+                # operator asked to return to the test selection; restore the
+                # displayed (launcher-filtered) job list, not the whole test
+                # plan, keeping the previous selection
+                self.sa.remove_all_filters()
+                self.sa.use_alternate_selection(displayed_job_ids)
+                selection = wanted_set
+                continue
+            return
 
     def _handle_last_job_after_resume(self, last_job):
         if last_job is None:

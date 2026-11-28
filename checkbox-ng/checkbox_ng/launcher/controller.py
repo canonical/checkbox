@@ -43,6 +43,7 @@ from checkbox_ng.launcher.stages import MainLoopStage, ReportsStage
 from checkbox_ng.resume_menu import ResumeMenu
 from checkbox_ng.urwid_ui import (
     CategoryBrowser,
+    GoBack,
     InterruptDialogAnswer,
     ManifestBrowser,
     ReRunBrowser,
@@ -479,7 +480,13 @@ class RemoteController(ReportsStage, MainLoopStage):
         """
         state, payload = self.sa.whats_up()
         state = RemoteSessionStates(state)
-        return self.connection_strategy()[state](self, payload)
+        try:
+            return self.connection_strategy()[state](self, payload)
+        except GoBack:
+            # operator asked to return to the test plan selection after
+            # reconnecting to an already bootstrapped session; abandon it and
+            # start over
+            return self.restart()
 
     def _resume_session(self, resume_params):
         metadata = self.sa.prepare_resume_session(resume_params.session_id)
@@ -537,11 +544,20 @@ class RemoteController(ReportsStage, MainLoopStage):
         SimpleUI.header("Starting new interactive session")
         tps = self.start_session()
         _logger.info("controller: Interactively choosing TP.")
+        self._selected_test_plan = None
         while True:
             resumable_sessions = list(self.sa.get_resumable_sessions())
             with suppress(ResumeInstead):
                 self.select_test_plan_via_menu(tps, resumable_sessions)
-                return self.setup_and_continue()
+                try:
+                    return self.setup_and_continue()
+                except GoBack:
+                    # operator asked to return to the test plan selection;
+                    # the session has already been bootstrapped, so abandon
+                    # it and start a fresh one
+                    self.abandon()
+                    tps = self.start_session()
+                    continue
             if self.resume_session_via_menu_and_continue(resumable_sessions):
                 return False
 
@@ -586,12 +602,14 @@ class RemoteController(ReportsStage, MainLoopStage):
         selected_tp = TestPlanBrowser(
             _("Select test plan"),
             tp_info_list,
-            self.launcher.get_value("test plan", "unit"),
+            self._selected_test_plan
+            or self.launcher.get_value("test plan", "unit"),
             len(resumable_sessions),
         ).run()
         if selected_tp is None:
             print(_("Nothing selected"))
             raise SystemExit(0)
+        self._selected_test_plan = selected_tp
         self.select_test_plan(selected_tp)
 
     def resume_session_via_menu_and_continue(self, resumable_sessions):
@@ -694,20 +712,34 @@ class RemoteController(ReportsStage, MainLoopStage):
                 self._save_manifest(interactive=False)
         else:
             _logger.info("controller: Selecting jobs.")
+            selection = None
             reprs = json.loads(
                 self.sa.get_jobs_repr_json(json.dumps(all_jobs))
             )
-            wanted_set = CategoryBrowser(
-                "Choose tests to run on your system:", reprs
-            ).run()
-            # no need to set an alternate selection if the job list not changed
-            if len(reprs) != len(wanted_set):
-                # wanted_set may have bad order, let's use it as a filter to
-                # the original list
-                chosen_jobs = [job for job in all_jobs if job in wanted_set]
-                _logger.debug("controller: Selected jobs: %s", chosen_jobs)
-                self.sa.modify_todo_list_json(json.dumps(chosen_jobs))
-            self._save_manifest(interactive=True)
+            while True:
+                wanted_set = CategoryBrowser(
+                    "Choose tests to run on your system:", reprs, selection
+                ).run()
+                # no need to set an alternate selection if the job list not
+                # changed
+                if len(reprs) != len(wanted_set):
+                    # wanted_set may have bad order, let's use it as a filter
+                    # to the original list
+                    chosen_jobs = [
+                        job for job in all_jobs if job in wanted_set
+                    ]
+                    _logger.debug("controller: Selected jobs: %s", chosen_jobs)
+                    self.sa.modify_todo_list_json(json.dumps(chosen_jobs))
+                try:
+                    self._save_manifest(interactive=True)
+                except GoBack:
+                    # restore the displayed (launcher-filtered) job list,
+                    # not the whole test plan, and keep the previous selection
+                    self.sa.remove_all_filters()
+                    self.sa.modify_todo_list_json(json.dumps(all_jobs))
+                    selection = wanted_set
+                    continue
+                break
         self.sa.finish_job_selection()
 
     def register_arguments(self, parser):

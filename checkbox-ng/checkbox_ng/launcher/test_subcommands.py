@@ -23,7 +23,7 @@ import json
 from functools import partial
 from unittest import TestCase
 
-from unittest.mock import patch, Mock, MagicMock, mock_open
+from unittest.mock import patch, Mock, MagicMock, mock_open, call
 
 from io import StringIO
 
@@ -40,6 +40,7 @@ from checkbox_ng.launcher.subcommands import (
     Show,
     IncompatibleJobError,
     ResumeInstead,
+    GoBack,
     IJobResult,
     request_comment,
     generate_resume_candidate_description,
@@ -1137,6 +1138,64 @@ class TestLauncher(TestCase):
         self.assertFalse(self_mock.sa.use_alternate_selection.called)
         self_mock._save_manifest.assert_called_once_with(interactive=True)
 
+    @patch("checkbox_ng.launcher.subcommands.CategoryBrowser")
+    def test__pick_jobs_to_run_manifest_go_back(self, category_browser_mock):
+        # When the operator presses Back on the manifest screen, the full job
+        # list is restored and the test selection screen is shown again with
+        # the previous selection.
+        self_mock = MagicMock()
+        self_mock.configuration.get_value.return_value = False
+        self_mock.sa.get_static_todo_list.return_value = ["job1", "job2"]
+        self_mock._generate_job_infos.return_value = ["info1", "info2"]
+        category_browser_mock.return_value.run.return_value = {"job1"}
+        # First manifest attempt is aborted, second one succeeds.
+        self_mock._save_manifest.side_effect = [GoBack(), None]
+
+        Launcher._pick_jobs_to_run(self_mock)
+
+        self_mock.sa.remove_all_filters.assert_called_once_with()
+        # the displayed (launcher-filtered) jobs are re-applied
+        self.assertEqual(
+            self_mock.sa.use_alternate_selection.call_args_list,
+            [call(["job1"]), call(["job1", "job2"]), call(["job1"])],
+        )
+        self.assertEqual(category_browser_mock.call_count, 2)
+        # the first render starts with no selection, the second one restores
+        # the jobs that were kept
+        self.assertIsNone(category_browser_mock.call_args_list[0][0][2])
+        self.assertEqual(
+            category_browser_mock.call_args_list[1][0][2], {"job1"}
+        )
+        self.assertEqual(self_mock._save_manifest.call_count, 2)
+
+    @patch("checkbox_ng.launcher.subcommands.load_configs")
+    @patch("checkbox_ng.launcher.subcommands.Colorizer", new=MagicMock())
+    def test_invoked_go_back_to_test_plan(self, load_config_mock):
+        # A GoBack from job selection abandons the bootstrapped session and
+        # returns to the test plan selection screen.
+        self_mock = MagicMock()
+        self_mock._auto_resume_session.return_value = False
+        self_mock._pick_jobs_to_run.side_effect = [GoBack(), None]
+        self_mock._maybe_auto_rerun_jobs.return_value = False
+
+        ctx_mock = MagicMock()
+        ctx_mock.args.verify = False
+        ctx_mock.args.version = False
+        ctx_mock.args.verbose = False
+        ctx_mock.args.debug = False
+        ctx_mock.sa.get_resumable_sessions.return_value = []
+        ctx_mock.sa.get_static_todo_list.return_value = False
+
+        load_config_mock.return_value.get_value.return_value = "normal"
+
+        Launcher.invoked(self_mock, ctx_mock)
+
+        self_mock.sa.finalize_session.assert_called_once_with()
+        self.assertEqual(self_mock._start_new_session.call_count, 2)
+        self.assertEqual(
+            self_mock._select_test_plan_and_continue.call_count, 2
+        )
+
     def test__select_test_plan_and_continue_automated_ok(self):
         self_mock = MagicMock()
 
@@ -1158,6 +1217,37 @@ class TestLauncher(TestCase):
         Launcher._select_test_plan_and_continue(self_mock)
 
         self.assertTrue(self_mock.sa.select_test_plan.called)
+
+    def test__select_test_plan_and_continue_remembers_selection(self):
+        # The interactively selected test plan is stored so it can be
+        # re-selected when the operator comes back from the test selection.
+        self_mock = MagicMock()
+        self_mock.configuration.get_value.return_value = False
+        self_mock._interactively_pick_test_plan.return_value = "test_plan_id"
+        self_mock.ctx.args.launcher = None
+        self_mock.ctx.args.message = None
+
+        Launcher._select_test_plan_and_continue(self_mock)
+
+        self.assertEqual(self_mock._selected_test_plan, "test_plan_id")
+
+    @patch("checkbox_ng.launcher.subcommands.TestPlanBrowser")
+    def test__interactively_pick_test_plan_restores_selection(
+        self, test_plan_browser_mock
+    ):
+        # When a test plan was previously selected, it is passed to the
+        # browser so it shows up pre-selected.
+        self_mock = MagicMock()
+        self_mock._selected_test_plan = "previous_tp"
+        self_mock.configuration.get_value.return_value = []
+        self_mock._generate_tp_infos.return_value = [
+            {"id": "previous_tp", "name": "Previous"}
+        ]
+        self_mock.resume_candidates = []
+
+        Launcher._interactively_pick_test_plan(self_mock)
+
+        self.assertEqual(test_plan_browser_mock.call_args[0][2], "previous_tp")
 
 
 @patch("os.makedirs", new=MagicMock())

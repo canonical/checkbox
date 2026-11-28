@@ -23,6 +23,7 @@ import json
 from unittest import TestCase, mock
 
 from checkbox_ng.urwid_ui import ResumeInstead
+from checkbox_ng.urwid_ui import GoBack
 from checkbox_ng.launcher.controller import (
     RemoteController,
     RemoteSessionStates,
@@ -968,6 +969,18 @@ class ControllerTests(TestCase):
         self.assertTrue(self_mock.select_test_plan_via_menu.called)
         self.assertTrue(self_mock.resume_session_via_menu_and_continue.called)
 
+    def test_interactively_choose_test_plan_and_continue_go_back(self):
+        # A GoBack from the job configuration abandons the session and returns
+        # to the test plan selection screen.
+        self_mock = mock.MagicMock()
+        self_mock.setup_and_continue.side_effect = [GoBack(), None]
+
+        RemoteController.interactively_choose_test_plan_and_continue(self_mock)
+
+        self.assertTrue(self_mock.abandon.called)
+        self.assertEqual(self_mock.start_session.call_count, 2)
+        self.assertEqual(self_mock.select_test_plan_via_menu.call_count, 2)
+
     def test_should_start_via_autoresume_monitored_session(self):
         last_session_mock = mock.MagicMock(id="session_id")
         self_mock = mock.MagicMock(
@@ -1220,8 +1233,91 @@ class ControllerTests(TestCase):
 
         self.assertTrue(category_browser_mock.called)
         self.assertFalse(self_mock.sa.modify_todo_list_json.called)
+        # the launcher-filtered list must not be widened to the test plan
+        self.assertFalse(self_mock.sa.remove_all_filters.called)
         self.assertTrue(self_mock._save_manifest.called)
         self.assertTrue(self_mock.sa.finish_job_selection.called)
+
+    @mock.patch("checkbox_ng.launcher.controller.CategoryBrowser")
+    def test_select_jobs_manifest_go_back_keep_all_displayed(
+        self, category_browser_mock
+    ):
+        # Keeping every displayed job after going back must leave the
+        # bootstrap-filtered list as the todo list, not the whole test plan.
+        self_mock = mock.MagicMock()
+        self_mock.launcher.get_value.return_value = False
+        all_jobs = ["job1", "job2"]
+        self_mock.sa.get_jobs_repr_json.return_value = json.dumps(all_jobs)
+        category_browser_mock.return_value.run.return_value = {"job1", "job2"}
+        self_mock._save_manifest.side_effect = [GoBack(), None]
+
+        RemoteController.select_jobs(self_mock, all_jobs)
+
+        self.assertEqual(
+            [
+                c[0]
+                for c in self_mock.sa.method_calls
+                if c[0] in ("remove_all_filters", "modify_todo_list_json")
+            ],
+            ["remove_all_filters", "modify_todo_list_json"],
+        )
+        self_mock.sa.modify_todo_list_json.assert_called_once_with(
+            json.dumps(all_jobs)
+        )
+
+    @mock.patch("checkbox_ng.launcher.controller.CategoryBrowser")
+    def test_select_jobs_manifest_go_back(self, category_browser_mock):
+        # Pressing Back on the manifest restores the full job list and shows
+        # the test selection screen again with the previous selection.
+        self_mock = mock.MagicMock()
+        self_mock.launcher.get_value.return_value = False
+        all_jobs = ["job1", "job2", "job3"]
+        self_mock.sa.get_jobs_repr_json.return_value = json.dumps(all_jobs)
+        category_browser_mock.return_value.run.return_value = {"job1"}
+        self_mock._save_manifest.side_effect = [GoBack(), None]
+
+        RemoteController.select_jobs(self_mock, all_jobs)
+
+        # filters are only reset after going back, and the displayed
+        # (bootstrap-filtered) job list is re-applied right away
+        self_mock.sa.remove_all_filters.assert_called_once_with()
+        self.assertIn(
+            mock.call(json.dumps(all_jobs)),
+            self_mock.sa.modify_todo_list_json.call_args_list,
+        )
+        self.assertEqual(category_browser_mock.call_count, 2)
+        # the second render restores the jobs that were kept
+        self.assertIsNone(category_browser_mock.call_args_list[0][0][2])
+        self.assertEqual(
+            category_browser_mock.call_args_list[1][0][2], {"job1"}
+        )
+        self.assertTrue(self_mock.sa.finish_job_selection.called)
+
+    @mock.patch("checkbox_ng.launcher.controller.CategoryBrowser")
+    def test_select_jobs_test_selection_go_back(self, category_browser_mock):
+        # A GoBack from the test selection screen propagates up so the caller
+        # can return to the test plan selection.
+        self_mock = mock.MagicMock()
+        self_mock.launcher.get_value.return_value = False
+        all_jobs = ["job1", "job2", "job3"]
+        self_mock.sa.get_jobs_repr_json.return_value = json.dumps(all_jobs)
+        category_browser_mock.return_value.run.side_effect = GoBack()
+
+        with self.assertRaises(GoBack):
+            RemoteController.select_jobs(self_mock, all_jobs)
+
+        self.assertFalse(self_mock.sa.finish_job_selection.called)
+
+    def test_continue_session_go_back_restarts(self):
+        self_mock = mock.MagicMock()
+        self_mock.sa.whats_up.return_value = ("bootstrapped", None)
+        self_mock.connection_strategy.return_value.__getitem__.return_value.side_effect = (  # noqa: E501
+            GoBack()
+        )
+
+        RemoteController.continue_session(self_mock)
+
+        self.assertTrue(self_mock.restart.called)
 
     @mock.patch("time.sleep")
     def test_wait_for_job_finishes_on_non_running_state(self, sleep_mock):

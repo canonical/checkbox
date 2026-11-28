@@ -15,10 +15,11 @@
 # You should have received a copy of the GNU General Public License
 # along with Checkbox.  If not, see <http://www.gnu.org/licenses/>.
 import io
+import os
 import unittest
 from contextlib import redirect_stdout
 from unittest import TestCase
-from unittest.mock import MagicMock
+from unittest.mock import MagicMock, patch
 
 from checkbox_support.parsers.udevadm import UdevadmParser
 
@@ -112,6 +113,172 @@ class TestDumpUdevDb(TestCase):
             udev_resource.dump_udev_db(udev)
 
         self.assertEqual(buf.getvalue(), "")
+
+
+class TestFilterIgnoreTest(TestCase):
+    def test_retains_devices_without_mutating_parser_objects(self):
+        devices = [
+            make_device(name="sda", category="DISK"),
+            make_device(name="eth0", category="NETWORK"),
+        ]
+        policy = MagicMock()
+        policy.fields.side_effect = [{"ignore_test": True}, {}]
+
+        result = udev_resource.filter_ignore_test(iter(devices), policy)
+
+        self.assertIsInstance(result, list)
+        self.assertEqual(
+            [record["name"] for record in result], ["sda", "eth0"]
+        )
+        self.assertEqual(
+            [record["category"] for record in result], ["DISK", "NETWORK"]
+        )
+        self.assertTrue(result[0]["ignore_test"])
+        self.assertNotIn("ignore_test", result[1])
+        self.assertEqual(policy.fields.call_count, 2)
+        for device in devices:
+            self.assertFalse(hasattr(device, "ignore_test"))
+
+    def test_all_output_paths_use_enrichment_and_keep_display_format(self):
+        device = make_device(
+            name="eth0", category="NETWORK", vendor="Vendor", product="NIC"
+        )
+        udev = MagicMock()
+        udev.run.return_value = [device]
+        for output, args, expected in (
+            (udev_resource.dump_udev_db, (udev,), "ignore_test: True\n"),
+            (
+                udev_resource.filter_by_categories,
+                (udev, ("NETWORK",)),
+                "ignore_test: True\n",
+            ),
+            (
+                udev_resource.display_by_categories,
+                (udev, ("NETWORK",)),
+                "NETWORK (1):\n - Vendor NIC [0000:0000]\n\n",
+            ),
+        ):
+            with self.subTest(output=output.__name__):
+                with patch("udev_resource.DeviceTestPolicy") as policy:
+                    policy.return_value.fields.return_value = {
+                        "ignore_test": True
+                    }
+                    buf = io.StringIO()
+                    with redirect_stdout(buf):
+                        output(*args)
+                    policy.return_value.fields.assert_called_once_with(device)
+                    self.assertIn(expected, buf.getvalue())
+
+
+UFS_HOST = "/devices/platform/soc@0/1d84000.ufs/host0/target0:0:0"
+
+
+class TestStorageTestPolicy(TestCase):
+    def setUp(self):
+        env_patch = patch.dict(
+            os.environ, {"CHECKBOX_STORAGE_TEST_EXCLUDE": ""}
+        )
+        env_patch.start()
+        self.addCleanup(env_patch.stop)
+
+    def disk(self, name, lun):
+        return make_device(
+            name=name,
+            category="DISK",
+            path=f"{UFS_HOST}/0:0:0:{lun}",
+            product="KM2L9001CM-B518",
+        )
+
+    def policy(self, selectors):
+        os.environ["CHECKBOX_STORAGE_TEST_EXCLUDE"] = selectors
+        return udev_resource.StorageTestPolicy()
+
+    def test_path_selectors_match_exactly(self):
+        policy = self.policy(
+            f" path:{UFS_HOST}/0:0:0:6 | path:{UFS_HOST}/0:0:0:7 "
+        )
+        fields = policy.fields(self.disk("sdg", 6))
+        self.assertTrue(fields["ignore_test"])
+        self.assertIn(
+            "CHECKBOX_STORAGE_TEST_EXCLUDE", fields["ignore_test_reason"]
+        )
+        self.assertTrue(policy.fields(self.disk("sdh", 7))["ignore_test"])
+        sda = policy.fields(self.disk("sda", 0))
+        self.assertEqual(sda, {"ignore_test": False})
+
+    def test_name_selector_is_exact(self):
+        policy = self.policy("name:sda")
+        self.assertTrue(policy.fields(self.disk("sda", 0))["ignore_test"])
+        self.assertFalse(policy.fields(self.disk("sdaa", 1))["ignore_test"])
+
+    def test_any_device_property_can_be_used(self):
+        policy = self.policy("product:KM2L9001CM-B518")
+        self.assertTrue(policy.fields(self.disk("sdb", 1))["ignore_test"])
+
+    def test_empty_configuration_marks_storage_eligible(self):
+        fields = self.policy("").fields(self.disk("sdg", 6))
+        self.assertEqual(fields, {"ignore_test": False})
+
+    def test_partitions_are_not_covered(self):
+        partition = make_device(
+            name="sdg1",
+            category="PARTITION",
+            path=f"{UFS_HOST}/0:0:0:6/block/sdg/sdg1",
+        )
+        self.assertEqual(self.policy("name:sdg1").fields(partition), {})
+
+    def test_invalid_configuration_is_rejected(self):
+        for selector in ("sdg", "name:", "ufs-lun:6", "name:sda|/dev/sdb"):
+            with self.subTest(selector=selector):
+                with self.assertRaises(ValueError):
+                    self.policy(selector)
+
+    def test_both_resource_output_modes_preserve_excluded_disk(self):
+        os.environ["CHECKBOX_STORAGE_TEST_EXCLUDE"] = "name:sdg"
+        udev = MagicMock()
+        udev.run.return_value = [self.disk("sdg", 6)]
+        for dump, args in (
+            (udev_resource.dump_udev_db, (udev,)),
+            (udev_resource.filter_by_categories, (udev, ("DISK",))),
+        ):
+            with self.subTest(dump=dump.__name__):
+                buf = io.StringIO()
+                with redirect_stdout(buf):
+                    dump(*args)
+                self.assertIn("name: sdg\n", buf.getvalue())
+                self.assertIn("category: DISK\n", buf.getvalue())
+                self.assertIn("ignore_test: True\n", buf.getvalue())
+
+    def test_device_policy_dispatches_by_device_type(self):
+        class NetworkTestPolicy(udev_resource.IgnoreTestPolicy):
+            env_var = "CHECKBOX_NETWORK_TEST_EXCLUDE"
+
+            def applies_to(self, device):
+                return device.category == "NETWORK"
+
+        os.environ["CHECKBOX_NETWORK_TEST_EXCLUDE"] = "interface:eth0"
+        self.addCleanup(os.environ.pop, "CHECKBOX_NETWORK_TEST_EXCLUDE")
+        with patch.object(
+            udev_resource.DeviceTestPolicy,
+            "policy_classes",
+            (udev_resource.StorageTestPolicy, NetworkTestPolicy),
+        ):
+            policy = udev_resource.DeviceTestPolicy()
+        eth0 = policy.fields(make_device(interface="eth0", category="NETWORK"))
+        self.assertTrue(eth0["ignore_test"])
+        self.assertIn(
+            "CHECKBOX_NETWORK_TEST_EXCLUDE", eth0["ignore_test_reason"]
+        )
+        self.assertFalse(policy.fields(self.disk("sda", 0))["ignore_test"])
+        self.assertEqual(
+            policy.fields(make_device(name="hci0", category="BLUETOOTH")), {}
+        )
+
+    def test_non_storage_records_are_unchanged(self):
+        fields = self.policy("name:eth0").fields(
+            make_device(name="eth0", category="NETWORK")
+        )
+        self.assertEqual(fields, {})
 
 
 if __name__ == "__main__":

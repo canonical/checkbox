@@ -31,6 +31,7 @@ template-id: disk/stats_name
 flags: deprecated also-after-suspend
 user: root
 estimated_duration: 10.0
+requires: (device.name == '{name}' and device.ignore_test != 'True')
 command: disk_stats_test.py {name}
 _summary: Disk statistics for {product_slug}
 _purpose:
@@ -53,6 +54,7 @@ id: disk/smart_{name}
 template-id: disk/smart_name
 estimated_duration: 180.0
 requires:
+ (device.name == '{name}' and device.ignore_test != 'True')
  executable.name == 'smartctl'
  block_device.smart == 'True' and block_device.name == '{name}'
 _summary:
@@ -71,7 +73,7 @@ id: disk/read_performance_{name}
 template-id: disk/read_performance_name
 flags: also-after-suspend
 estimated_duration: 65.0
-requires:
+requires: (device.name == '{name}' and device.ignore_test != 'True')
 _summary: Disk performance test for {product_slug}
 _purpose: Verify that disk storage performs at or above baseline performance
 user: root
@@ -89,6 +91,7 @@ flags: also-after-suspend
 estimated_duration: 375.0
 user: root
 requires:
+  (device.name == '{name}' and device.ignore_test != 'True')
 _summary: Disk I/O stress test for {product_slug}
 _purpose: Take the path of the storage device and test if it is a block device.
 command: storage_test.py {name}
@@ -103,6 +106,7 @@ template-id: disk/fstrim_name
 estimated_duration: 1.0
 user: root
 requires:
+ (device.name == '{name}' and device.ignore_test != 'True')
  (block_device.fstrim == 'True' and block_device.name == '{name}')
 _summary: Filesystem TRIM check for {product_slug}
 _purpose: Take the path of the storage device and test its TRIM capabilities
@@ -126,6 +130,7 @@ after: stress/store_and_disable_watchdog
 before: stress/restore_watchdog
 environ: STRESS_NG_DISK_TIME
 requires:
+ (device.name == '{name}' and device.ignore_test != 'True')
  executable.name == 'stress-ng'
  executable.name == 'uuidgen'
 _summary: Disk stress-ng test for {product_slug}
@@ -152,6 +157,7 @@ template-id: disk/disk_stress_ng_sru_name
 estimated_duration: 900.0
 user: root
 requires:
+ (device.name == '{name}' and device.ignore_test != 'True')
  executable.name == 'stress-ng'
  executable.name == 'uuidgen'
 _summary: Disk stress-ng test for {product_slug} (SRU shortened runtime)
@@ -168,6 +174,7 @@ template-id: disk/disk_cpu_load_name
 estimated_duration: 15
 user: root
 requires:
+ (device.name == '{name}' and device.ignore_test != 'True')
  block_device.state != 'removable' and block_device.name == '{name}'
  executable.name == 'bc'
 _summary: Check of CPU load imposed by {product_slug}

@@ -15,6 +15,7 @@ _summary: Test the system's shutdown and booting cycle for correctness.
 plugin: shell
 category_id: com.canonical.plainbox::power-management
 id: power-management/fwts_wakealarm
+before: suspend/suspend_advanced_auto
 environ: PLAINBOX_SESSION_SHARE
 estimated_duration: 25.0
 user: root
@@ -40,6 +41,7 @@ mime-type: text/plain
 category_id: com.canonical.plainbox::power-management
 id: power-management/fwts_wakealarm-log-attach
 depends: power-management/fwts_wakealarm
+before: suspend/suspend_advanced_auto
 estimated_duration: 2.0
 _purpose: Attach log from fwts wakealarm test
 command: [ -e "${PLAINBOX_SESSION_SHARE}"/fwts-wakealarm.log ] && cat "${PLAINBOX_SESSION_SHARE}"/fwts-wakealarm.log
